@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
@@ -22,11 +23,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
             IAgentService agentService,
-            ICounterpartyManagementService counterpartyManagementService)
+            IAgencyManagementService agencyManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
-            _counterpartyManagementService = counterpartyManagementService;
+            _agencyManagementService = agencyManagementService;
         }
 
 
@@ -117,11 +118,53 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
-            => Ok(await _counterpartyManagementService.GetChildAgencies(agencyId));
+            => Ok(await _agencyManagementService.GetChildAgencies(agencyId));
+
+
+        /// <summary>
+        ///  Deactivates specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        /// <param name="request">Request data for deactivation.</param>
+        /// <returns></returns>
+        [HttpPost("{agencyId}/deactivate")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
+        {
+            var (_, isFailure, error) = await _agencyManagementService.DeactivateAgency(agencyId, request.Reason);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///  Activates specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        /// <param name="request">Request data for activation.</param>
+        /// <returns></returns>
+        [HttpPost("{agencyId}/activate")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)
+        {
+            var (_, isFailure, error) = await _agencyManagementService.ActivateAgency(agencyId, request.Reason);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
-        private readonly ICounterpartyManagementService _counterpartyManagementService;
+        private readonly IAgencyManagementService _agencyManagementService;
     }
 }

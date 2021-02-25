@@ -44,8 +44,16 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<IManagementAuditService>());
         }
-        
-        
+
+
+        public AgencyManagementService GetAgencyManagementService(EdoContext context)
+        {
+            return new(context,
+                Mock.Of<IDateTimeProvider>(),
+                Mock.Of<IManagementAuditService>());
+        }
+
+
         public CounterpartyVerificationService GetCounterpartyVerificationService(EdoContext context)
         {
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
@@ -257,7 +265,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CounterpartyId = 2,
                 Name = "childAgency",
                 IsActive = false,
-                ParentId = 5
+                ParentId = 3
             },
             new Agency
             {

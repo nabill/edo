@@ -206,47 +206,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///  Deactivates specified agency.
-        /// </summary>
-        /// <param name="agencyId">Id of the agency.</param>
-        /// <param name="request">Request data for deactivation.</param>
-        /// <returns></returns>
-        [HttpPost("agencies/{agencyId}/deactivate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
-        {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency(agencyId, request.Reason);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-        
-        /// <summary>
-        ///  Activates specified agency.
-        /// </summary>
-        /// <param name="agencyId">Id of the agency.</param>
-        /// <param name="request">Request data for activation.</param>
-        /// <returns></returns>
-        [HttpPost("agencies/{agencyId}/activate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)
-        {
-            var (_, isFailure, error) = await _counterpartyManagementService.ActivateAgency(agencyId, request.Reason);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-
-
-        /// <summary>
         ///  Returns counterparties predictions when searching
         /// </summary>
         /// <param name="query">The search query text.</param>

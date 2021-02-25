@@ -23,11 +23,5 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> DeactivateCounterparty(int counterpartyId, string reason);
 
         Task<Result> ActivateCounterparty(int counterpartyId, string reason);
-
-        Task<Result> DeactivateAgency(int agencyId, string reason);
-
-        Task<Result> ActivateAgency(int agencyId, string reason);
-
-        Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId);
     }
 }

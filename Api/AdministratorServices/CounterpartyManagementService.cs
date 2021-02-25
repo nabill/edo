@@ -159,36 +159,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
 
 
-        public Task<Result> DeactivateAgency(int agencyId, string reason)
-            => GetAgency(agencyId)
-                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive)
-                    .Tap(() => WriteAgencyDeactivationToAuditLog(agencyId, reason)));
-
-
-        public Task<Result> ActivateAgency(int agencyId, string reason)
-            => GetAgency(agencyId)
-                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.Active)
-                    .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
-
-
-        public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId)
-            => _context.Agencies.Where(a => a.ParentId == parentAgencyId)
-                .Select(a => new AgencyInfo(a.Name, a.Id))
-                .ToListAsync();
-
-
-        private async Task<Result<Agency>> GetAgency(int agencyId)
-        {
-            var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
-            if (agency == null)
-                return Result.Failure<Agency>("Could not find agency with specified id");
-
-            return Result.Success(agency);
-        }
-
-
         private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status)
         {
             var convertedStatus = ConvertToDbStatus(status);
@@ -196,8 +166,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Task.FromResult(Result.Success());
 
             return ChangeCounterpartyActivityStatus()
-                .Tap(ChangeCounterpartyAccountsActivityStatus)
-                .Tap(ChangeCounterpartyAgenciesActivityStatus);
+                .Tap(ChangeCounterpartyAccountsActivityStatus);
 
 
             async Task<Result> ChangeCounterpartyActivityStatus()
@@ -223,95 +192,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 _context.UpdateRange(counterpartyAccounts);
                 await _context.SaveChangesAsync();
             }
-
-
-            async Task ChangeCounterpartyAgenciesActivityStatus()
-            {
-                var agencies = await _context.Agencies
-                    .Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive != convertedStatus)
-                    .ToListAsync();
-
-                foreach (var agency in agencies)
-                    await ChangeActivityStatus(agency, status);
-            }
-        }
-
-
-        private Task<Result> ChangeActivityStatus(Agency agency, ActivityStatus status)
-        {
-            var convertedStatus = ConvertToDbStatus(status);
-            if (convertedStatus == agency.IsActive)
-                return Task.FromResult(Result.Success());
-
-            return ChangeAgencyActivityStatus()
-                .Tap(ChangeAgentsActivityStatus)
-                .Tap(ChangeAgencyAccountsActivityStatus)
-                .Tap(ChangeChildAgenciesActivityStatus)
-                .Tap(ChangeCounterpartyActivityStatusIfNeeded);
-
-
-            async Task<Result> ChangeAgencyActivityStatus()
-            {
-                agency.IsActive = convertedStatus;
-                agency.Modified = _dateTimeProvider.UtcNow();
-
-                _context.Update(agency);
-                await _context.SaveChangesAsync();
-                return Result.Success();
-            }
-
-
-            async Task ChangeAgencyAccountsActivityStatus()
-            {
-                var agencyAccounts = await _context.AgencyAccounts
-                    .Where(ac => ac.AgencyId == agency.Id)
-                    .ToListAsync();
-
-                foreach (var account in agencyAccounts)
-                    account.IsActive = convertedStatus;
-
-                _context.UpdateRange(agencyAccounts);
-                await _context.SaveChangesAsync();
-            }
-
-
-            async Task ChangeAgentsActivityStatus()
-            {
-                var agencyRelations = await _context.AgentAgencyRelations
-                    .Where(ar => ar.AgencyId == agency.Id)
-                    .ToListAsync();
-
-                foreach (var relation in agencyRelations)
-                    relation.IsActive = convertedStatus;
-
-                _context.UpdateRange(agencyRelations);
-                await _context.SaveChangesAsync();
-            }
-
-
-            async Task ChangeChildAgenciesActivityStatus()
-            {
-                var childAgencies = await _context.Agencies
-                    .Where(a => a.ParentId == agency.Id && a.IsActive != convertedStatus)
-                    .ToListAsync();
-
-                foreach (var childAgency in childAgencies)
-                    await ChangeActivityStatus(childAgency, status);
-            }
-
-
-            async Task ChangeCounterpartyActivityStatusIfNeeded()
-            {
-                if (agency.ParentId == null)
-                {
-                    var counterparty = await _context.Counterparties
-                        .Where(c => c.Id == agency.CounterpartyId)
-                        .SingleAsync();
-
-                    if (counterparty.IsActive != convertedStatus)
-                        await ChangeActivityStatus(counterparty, status);
-                }
-            }
         }
 
 
@@ -323,16 +203,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
-
-
-        private Task WriteAgencyDeactivationToAuditLog(int agencyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.AgencyDeactivation,
-                new AgencyActivityStatusChangeEventData(agencyId, reason));
-
-
-        private Task WriteAgencyActivationToAuditLog(int agencyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.AgencyActivation,
-                new AgencyActivityStatusChangeEventData(agencyId, reason));
 
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)

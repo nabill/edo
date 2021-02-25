@@ -22,19 +22,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public AgentInvitationService(IOptions<AgentInvitationOptions> options,
             IUserInvitationService invitationService,
-            ICounterpartyService counterpartyService,
+            IAgencyService agencyService,
             EdoContext context)
         {
             _invitationService = invitationService;
-            _counterpartyService = counterpartyService;
             _options = options.Value;
+            _agencyService = agencyService;
             _context = context;
         }
 
 
         public async Task<Result> Send(SendAgentInvitationRequest request, AgentContext agent)
         {
-            var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId, agent)).Value.Name;
+            var agencyName = (await _agencyService.GetAgency(agent.AgencyId, agent)).Value.Name;
 
             var messagePayloadGenerator = new Func<AgentInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AgentInvitationData
             {
@@ -146,8 +146,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly IUserInvitationService _invitationService;
-        private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
+        private readonly IAgencyService _agencyService;
         private readonly EdoContext _context;
     }
 }
