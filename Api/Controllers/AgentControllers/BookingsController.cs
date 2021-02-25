@@ -247,8 +247,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingCancellationPenalty(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, booking, error) =
-                await _bookingRecordManager.Get(bookingId, agent.AgentId);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(bookingId)
+                .CheckPermissions(agent);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

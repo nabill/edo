@@ -166,8 +166,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 => _bookingNotificationService.NotifyBookingFinalized(bookingInfo);
 
 
-            Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
-                => _documentsMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId, true);
+            async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)
+            {
+                // Booking was updated so we need to get it again
+                var (_, _, updatedBooking, _) = await _bookingRecordManager.Get(bookingInfo.BookingId);
+                return await _documentsMailingService.SendInvoice(updatedBooking, bookingInfo.AgentInformation.AgentEmail, true);
+            }
 
 
             void WriteFailureLog(string error) 

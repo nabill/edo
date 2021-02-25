@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -19,10 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     public class BookingInfoService : IBookingInfoService
     {
         public BookingInfoService(EdoContext context, 
+            IBookingRecordManager bookingRecordManager,
             IAccommodationService accommodationService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _context = context;
+            _bookingRecordManager = bookingRecordManager;
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
@@ -64,18 +64,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
-            return await Get(booking => agentContext.AgentId == booking.AgentId && booking.AgencyId == agentContext.AgencyId && booking.ReferenceCode == referenceCode);
+            return await _bookingRecordManager.Get(referenceCode)
+                .CheckPermissions(agentContext);
         }
 
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
-            var bookingDataResult = await Get(booking => booking.Id == bookingId);
+            var bookingDataResult = await _bookingRecordManager.Get(bookingId)
+                .CheckPermissions(agentContext);
+            
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
-
-            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
-                return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if (isFailure)
@@ -87,13 +87,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode)
         {
-            var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
+            var bookingDataResult = await _bookingRecordManager.Get(referenceCode)
+                .CheckPermissions(agentContext);
+            
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
             
-            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
-                return Result.Failure<AccommodationBookingInfo>("Permission denied");
-
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
@@ -104,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         public async Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(string referenceCode, string languageCode)
         {
-            var bookingDataResult = await Get(booking => booking.ReferenceCode == referenceCode);
+            var bookingDataResult = await _bookingRecordManager.Get(referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
             
@@ -218,19 +217,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
         
-        private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
-        {
-            var booking = await _context.Bookings
-                .Where(filterExpression)
-                .SingleOrDefaultAsync();
-
-            return booking == default
-                ? Result.Failure<Booking>("Could not get booking data")
-                : Result.Success(booking);
-        }
-        
-        
         private readonly EdoContext _context;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }

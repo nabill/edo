@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result> SendReceipt(Booking booking)
             {
-                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
+                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking);
                 if (isReceiptFailure)
                     return Result.Failure<Booking>(receiptError);
 

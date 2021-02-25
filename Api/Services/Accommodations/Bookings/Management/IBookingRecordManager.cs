@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -14,12 +13,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         Task<Result<Booking>> Get(string referenceCode);
         
-        Task<Result<Booking>> Get(string referenceCode, int agentId);
-        
         Task<Result<Booking>> Get(int id);
 
-        Task<Result<Booking>> Get(int bookingId, int agentId);
-        
         Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
         
         Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);

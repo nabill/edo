@@ -20,7 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<Result> Cancel(int bookingId, AgentContext agent)
         {
             return await GetBooking(bookingId, agent)
-                .Bind(booking => CheckIsUsingAgencyOfBooking(booking, agent))
                 .Bind(Cancel);
 
             
@@ -32,7 +31,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<Result> Cancel(string referenceCode, AgentContext agent)
         {
             return await GetBooking(referenceCode, agent)
-                .Bind(booking => CheckIsUsingAgencyOfBooking(booking, agent))
                 .Bind(Cancel);
 
             
@@ -44,7 +42,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<Result> RefreshStatus(int bookingId, AgentContext agent)
         {
             return await GetBooking(bookingId, agent)
-                .Bind(booking => CheckIsUsingAgencyOfBooking(booking, agent))
                 .Bind(Refresh);
 
             
@@ -54,17 +51,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         private Task<Result<Booking>> GetBooking(int bookingId, AgentContext agent) 
-            => _recordManager.Get(bookingId, agent.AgentId);
+            => _recordManager.Get(bookingId).CheckPermissions(agent);
         
         
         private Task<Result<Booking>> GetBooking(string referenceCode, AgentContext agent) 
-            => _recordManager.Get(referenceCode, agent.AgentId);
-
-
-        private Result<Booking> CheckIsUsingAgencyOfBooking(Booking booking, AgentContext agent)
-            => agent.AgencyId == booking.AgencyId
-                ? booking
-                : Result.Failure<Booking>("This booking was created using different agency");
+            => _recordManager.Get(referenceCode).CheckPermissions(agent);
 
         
         private readonly IBookingManagementService _managementService;
