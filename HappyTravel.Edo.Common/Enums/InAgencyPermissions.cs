@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Common.Enums
         AgencyImagesManagement = 8192,
         ObserveCounterpartyContract = 16384,
         MarkupManagement = 32768,
+        ObserveChildAgencies = 65536,
         // All = 01111111111111111111111111111111. First bit is 0 because it is reserved for sign
         All = 2147483647
     }

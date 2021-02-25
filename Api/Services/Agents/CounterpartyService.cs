@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -16,11 +18,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public CounterpartyService(EdoContext context,
             IAgentService agentService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            ICounterpartyManagementService counterpartyManagementService)
         {
             _context = context;
             _agentService = agentService;
             _dateTimeProvider = dateTimeProvider;
+            _counterpartyManagementService = counterpartyManagementService;
         }
 
 
@@ -157,6 +161,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent) => _counterpartyManagementService.GetChildAgencies(agent.AgencyId);
+
+
         private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode )
         {
             var result = await (from cp in _context.Counterparties
@@ -193,5 +200,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly IAgentService _agentService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICounterpartyManagementService _counterpartyManagementService;
     }
 }
