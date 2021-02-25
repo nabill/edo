@@ -90,7 +90,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var bookingDataResult = await _bookingRecordManager.Get(referenceCode)
                 .CheckPermissions(agentContext);
             
-            
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
             
