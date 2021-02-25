@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -154,11 +156,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.Supplier, booking.AccommodationId, languageCode);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
+
+            var settings = agentContext.HasValue
+                ? await _accommodationBookingSettingsService.Get(agentContext.Value)
+                : (AccommodationBookingSettings?) null;
             
             var bookingDetails = GetDetails(booking, accommodation);
-            var supplier = await GetSupplier(booking, agentContext);
+            var supplier = GetSupplier(booking, settings);
+            var systemTags = GetSystemTags(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
-
+            
             return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 booking.CounterpartyId,
@@ -166,7 +173,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
                 supplier,
                 agentInformation,
-                booking.PaymentMethod);
+                booking.PaymentMethod,
+                systemTags);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)
@@ -189,18 +197,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
             
             
-            async Task<Suppliers?> GetSupplier(Booking booking, AgentContext? agent)
-            {
-                if (agent == null)
-                    return booking.Supplier;
-            
-                var settings = await _accommodationBookingSettingsService.Get(agent.Value);
-                return settings.IsSupplierVisible
-                    ? booking.Supplier
-                    : (Suppliers?) null;
-            }
+            static Suppliers? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
+                => settings switch
+                {
+                    null => booking.Supplier,
+                    {IsSupplierVisible: true} => booking.Supplier,
+                    _ => null
+                };
             
             
+            static List<string> GetSystemTags(Booking booking, AccommodationBookingSettings? settings)
+                => settings switch
+                {
+                    null => booking.SystemTags,
+                    {AreSystemTagsVisible: true} => booking.SystemTags,
+                    _ => new List<string>()
+                };
+
+
             Task<AccommodationBookingInfo.BookingAgentInformation> GetAgentInformation(int agentId, int agencyId)
             {
                 var agencyInfoQuery = from agent in _context.Agents
