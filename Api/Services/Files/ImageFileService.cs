@@ -61,12 +61,12 @@ namespace HappyTravel.Edo.Api.Services.Files
             => Delete(LogoImageName, agentContext);
 
 
-        public Task<Maybe<SlimUploadedImage>> GetBanner(AgentContext agentContext) 
-            => GetImage(BannerImageName, agentContext);
+        public Task<Maybe<SlimUploadedImage>> GetBanner(int agencyId) 
+            => GetImage(BannerImageName, agencyId);
 
 
-        public Task<Maybe<SlimUploadedImage>> GetLogo(AgentContext agentContext) 
-            => GetImage(LogoImageName, agentContext);
+        public Task<Maybe<SlimUploadedImage>> GetLogo(int agencyId) 
+            => GetImage(LogoImageName, agencyId);
 
 
         private async Task<Result> AddOrReplace(IFormFile file, string fileName, ImageResolutionRequirements resolutionRequirements, AgentContext agentContext)
@@ -185,10 +185,10 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        private async Task<Maybe<SlimUploadedImage>> GetImage(string fileName, AgentContext agentContext)
+        private async Task<Maybe<SlimUploadedImage>> GetImage(string fileName, int agencyId)
         {
             var image = await _edoContext.UploadedImages
-                .Where(i => i.AgencyId == agentContext.AgencyId && i.FileName == fileName)
+                .Where(i => i.AgencyId == agencyId && i.FileName == fileName)
                 .SingleOrDefaultAsync();
 
             return image == null

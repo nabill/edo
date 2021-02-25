@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
             await bookingAccountPaymentService.Charge(Booking, It.IsAny<UserInfo>());
 
             documentsServiceMock
-                .Verify(d => d.GenerateReceipt(115, 111), Times.Once);
+                .Verify(d => d.GenerateReceipt(It.IsAny<Booking>()), Times.Once);
 
             documentsMailingServiceMock
                 .Verify(d => d.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo, PaymentReceipt)>(), "test_agent@test.com"));

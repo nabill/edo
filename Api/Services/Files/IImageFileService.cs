@@ -16,8 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Files
 
         Task<Result> DeleteLogo(AgentContext agentContext);
 
-        Task<Maybe<SlimUploadedImage>> GetBanner(AgentContext agentContext);
+        Task<Maybe<SlimUploadedImage>> GetBanner(int agencyId);
 
-        Task<Maybe<SlimUploadedImage>> GetLogo(AgentContext agentContext);
+        Task<Maybe<SlimUploadedImage>> GetLogo(int agencyId);
     }
 }
