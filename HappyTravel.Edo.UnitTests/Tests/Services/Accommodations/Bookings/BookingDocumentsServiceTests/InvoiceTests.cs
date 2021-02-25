@@ -2,18 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
-using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
@@ -30,35 +25,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_invoice_not_found_should_fail()
         {
-            var agentContext = AgentContextFactory.CreateByAgentId(1);
-            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            var booking = new Booking
             {
                 Id = 1,
                 AgentId = 1,
                 Status = BookingStatuses.Pending
-            }, false);
+            };
+            
+            var bookingDocumentsService = CreateBookingDocumentsService(false);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(booking);
 
             Assert.False(isSuccess);
         }
 
 
-        private static BookingDocumentsService CreateBookingDocumentsService(Booking booking, bool hasInvoices)
+        private static BookingDocumentsService CreateBookingDocumentsService(bool hasInvoices)
         {
-            // If property is not initialized thrown NullReferenceException
-            booking.Rooms = new List<BookedRoom>();
-
             var edoContext = MockEdoContextFactory.Create();
-            edoContext.Setup(c => c.Bookings)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
-
-            var bookingRecordManager = new BookingRecordManager(
-                edoContext.Object,
-                Mock.Of<IDateTimeProvider>(),
-                Mock.Of<ITagProcessor>(),
-                Mock.Of<IAppliedBookingMarkupRecordsManager>(),
-                Mock.Of<ISupplierOrderService>());
 
             var invoices = hasInvoices
                 ? new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
@@ -87,7 +71,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             return new BookingDocumentsService(
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),
-                bookingRecordManager,
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<ICounterpartyService>(),
                 invoiceServiceMock.Object,

@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             async Task<Result<string>> SendReceipt(string chargeMessage)
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                var (_, isFailure, receiptInfo, error) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
+                var (_, isFailure, receiptInfo, error) = await _documentsService.GenerateReceipt(booking);
 
                 if (isFailure)
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +

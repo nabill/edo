@@ -41,11 +41,13 @@ namespace HappyTravel.Edo.Data.Bookings
         public Common.Enums.Suppliers Supplier { get; set; }
         
         public BookingUpdateModes UpdateMode { get; set; }
-        
-        public List<BookedRoom> Rooms { get; set; }
+
+        public List<BookedRoom> Rooms { get; set; } = new();
         
         public string AccommodationId { get; set; }
         public string AccommodationName { get; set; }
         public AccommodationLocation Location { get; set; }
+        
+        public List<string> SystemTags { get; set; }
     }
 }

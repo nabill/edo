@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             Task<Result> GenerateInvoice((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, _) = bookingInfo;
-                return _documentsService.GenerateInvoice(booking.ReferenceCode);
+                return _documentsService.GenerateInvoice(booking);
             }
 
 

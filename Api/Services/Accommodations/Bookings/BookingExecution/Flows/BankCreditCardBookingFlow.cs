@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
-                => _documentsService.GenerateInvoice(booking.ReferenceCode);
+                => _documentsService.GenerateInvoice(booking);
 
 
             async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)

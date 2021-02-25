@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Documents;
@@ -22,10 +21,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class BookingSupportingDocumentsController : BaseController
     {
-        public BookingSupportingDocumentsController(IBookingDocumentsMailingService documentsMailingService,
-            IBookingDocumentsService bookingDocumentsService, IAgentContextService agentContextService)
+        public BookingSupportingDocumentsController(IAgentBookingDocumentsService bookingDocumentsService, IAgentContextService agentContextService)
         {
-            _documentsMailingService = documentsMailingService;
             _bookingDocumentsService = bookingDocumentsService;
             _agentContextService = agentContextService;
         }
@@ -45,7 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _documentsMailingService.SendVoucher(bookingId, sendMailRequest.Email, agent, LanguageCode);
+            var (_, isFailure, error) = await _bookingDocumentsService.SendVoucher(bookingId, sendMailRequest.Email, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -67,7 +64,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _documentsMailingService.SendInvoice(bookingId, sendMailRequest.Email, agent.AgentId, false);
+            var (_, isFailure, error) = await _bookingDocumentsService.SendInvoice(bookingId, sendMailRequest.Email, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -106,7 +103,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, document, error) = await _bookingDocumentsService.GetActualInvoice(bookingId, agent.AgentId);
+            var (_, isFailure, document, error) = await _bookingDocumentsService.GetActualInvoice(bookingId, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -115,8 +112,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private readonly IBookingDocumentsService _bookingDocumentsService;
+        private readonly IAgentBookingDocumentsService _bookingDocumentsService;
         private readonly IAgentContextService _agentContextService;
-        private readonly IBookingDocumentsMailingService _documentsMailingService;
     }
 }
