@@ -109,9 +109,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             stream.Seek(0, SeekOrigin.Begin);
             
-            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/plain"))
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = "test.txt"
+                FileDownloadName = "report.csv"
             };
         }
         
