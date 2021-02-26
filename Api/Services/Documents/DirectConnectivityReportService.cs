@@ -31,10 +31,10 @@ namespace HappyTravel.Edo.Api.Services.Documents
             var query = from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                where 
-                    booking.SystemTags.Contains(DirectConnectivityTag) &&
-                    booking.Created >= dateFrom &&
-                    booking.Created < dateEnd
+                //where 
+                //    booking.SystemTags.Contains(DirectConnectivityTag) &&
+                //    booking.Created >= dateFrom &&
+                //    booking.Created < dateEnd
                 select new DirectConnectivityReportOne
                 {
                     ReferenceCode = booking.ReferenceCode,
@@ -45,7 +45,6 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     GuestName = booking.MainPassengerName,
                     ArrivalDate = booking.CheckInDate,
                     DepartureDate = booking.CheckOutDate,
-                    LenghtOfStay = 0,
                     TotalAmount = order.Price
                 };
 
@@ -59,6 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
             
+            _csvWriter.WriteHeader<DirectConnectivityReportOne>();
+            await _csvWriter.NextRecordAsync();
             foreach (var row in rows)
             {
                 var line = new
@@ -81,6 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 await _csvWriter.NextRecordAsync();
                 await _streamWriter.FlushAsync();
             }
+            
+            stream.Seek(0, SeekOrigin.Begin);
         }
 
 

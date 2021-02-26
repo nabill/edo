@@ -97,8 +97,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         [HttpGet("reports/direct-connectivity-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
         public async Task<IActionResult> GetDirectConnectivityReport(DateTime from, DateTime end)
         {
             var stream = new MemoryStream();
@@ -107,8 +107,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            stream.Seek(0, SeekOrigin.Begin);
-            
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
                 FileDownloadName = "report.csv"

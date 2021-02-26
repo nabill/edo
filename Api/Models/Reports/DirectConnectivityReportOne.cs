@@ -14,7 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Reports
         public string GuestName { get; init; }
         public DateTime ArrivalDate { get; init; }
         public DateTime DepartureDate { get; init; }
-        public int LenghtOfStay { get; init; }
         public decimal TotalAmount { get; init; }
     }
 }
