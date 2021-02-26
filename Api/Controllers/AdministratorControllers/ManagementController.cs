@@ -97,8 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         [HttpGet("reports/direct-connectivity-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        //[AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
-        [AllowAnonymous]
+        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetDirectConnectivityReport(DateTime from, DateTime end)
         {
