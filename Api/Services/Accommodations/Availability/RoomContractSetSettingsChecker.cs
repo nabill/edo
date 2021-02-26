@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
@@ -7,12 +8,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class RoomContractSetSettingsChecker
     {
-        public static bool IsAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings, IDateTimeProvider dateTimeProvider)
+        public static bool IsDisplayAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings,
+            IDateTimeProvider dateTimeProvider)
         {
-            if (settings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
+            return IsAllowed(roomSet,
+                checkInDate,
+                settings,
+                dateTimeProvider,
+                new HashSet<AprMode> {AprMode.Hide},
+                new HashSet<PassedDeadlineOffersMode> {PassedDeadlineOffersMode.Hide});
+        }
+
+
+        public static bool IsEvaluationAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings,
+            IDateTimeProvider dateTimeProvider)
+        {
+            return IsAllowed(roomSet,
+                checkInDate,
+                settings,
+                dateTimeProvider,
+                new HashSet<AprMode> {AprMode.Hide, AprMode.DisplayOnly},
+                new HashSet<PassedDeadlineOffersMode> {PassedDeadlineOffersMode.Hide, PassedDeadlineOffersMode.DisplayOnly});
+        }
+
+
+        private static bool IsAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings, IDateTimeProvider dateTimeProvider,
+            HashSet<AprMode> aprModesToDisallow, HashSet<PassedDeadlineOffersMode> deadlineModesToDisallow)
+        {
+            if (roomSet.IsAdvancePurchaseRate && aprModesToDisallow.Contains(settings.AprMode))
                 return false;
 
-            if (settings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+            if (deadlineModesToDisallow.Contains(settings.PassedDeadlineOffersMode))
             {
                 var tomorrow = dateTimeProvider.UtcTomorrow();
                 if (checkInDate <= tomorrow)

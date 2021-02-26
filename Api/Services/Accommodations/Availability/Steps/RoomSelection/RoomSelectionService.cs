@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             bool SettingsFilter(RoomContractSet roomSet) 
-                => RoomContractSetSettingsChecker.IsAllowed(roomSet, checkInDate, searchSettings, _dateTimeProvider);
+                => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, checkInDate, searchSettings, _dateTimeProvider);
         }
 
 

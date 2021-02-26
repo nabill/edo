@@ -129,10 +129,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
                             : string.Empty;
-                        
+
                         var roomContractSets = accommodationAvailability.RoomContractSets
                             .ToEdoRoomContractSets(supplier)
-                            .ApplySearchFilters(searchSettings, _dateTimeProvider, connectorRequest.CheckInDate);
+                            .Where(roomSet => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, connectorRequest.CheckInDate, searchSettings,
+                                _dateTimeProvider))
+                            .ToList();
 
                         htIdMapping.TryGetValue(accommodationAvailability.Accommodation.Id, out var htId);
 
