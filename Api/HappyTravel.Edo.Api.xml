@@ -300,6 +300,11 @@
             </summary>
             <param name="code">Invitation code.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.GetDirectConnectivityReport(System.DateTime,System.DateTime)">
+            <summary>
+                Return DirectConnectivityReport
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
                 Creates markup policy.

@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -5,8 +7,11 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Management;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -18,11 +23,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public ManagementController(IAdministratorInvitationService invitationService,
             IAdministratorRegistrationService registrationService,
-            ITokenInfoAccessor tokenInfoAccessor)
+            ITokenInfoAccessor tokenInfoAccessor,
+            IDirectConnectivityReportService directConnectivity)
         {
             _invitationService = invitationService;
             _registrationService = registrationService;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _directConnectivity = directConnectivity;
         }
 
 
@@ -83,10 +90,36 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok();
         }
+
+
+        /// <summary>
+        ///     Return DirectConnectivityReport
+        /// </summary>
+        [HttpGet("reports/direct-connectivity-report")]
+        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
+        //[AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetDirectConnectivityReport(DateTime from, DateTime end)
+        {
+            var stream = new MemoryStream();
+            
+            var (_, isFailure, error) = await _directConnectivity.GetReport(stream, from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            stream.Seek(0, SeekOrigin.Begin);
+            
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/plain"))
+            {
+                FileDownloadName = "test.txt"
+            };
+        }
         
         
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly IDirectConnectivityReportService _directConnectivity;
     }
 }
