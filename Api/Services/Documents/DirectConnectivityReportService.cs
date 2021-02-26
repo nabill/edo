@@ -31,10 +31,10 @@ namespace HappyTravel.Edo.Api.Services.Documents
             var query = from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                //where 
-                //    booking.SystemTags.Contains(DirectConnectivityTag) &&
-                //    booking.Created >= dateFrom &&
-                //    booking.Created < dateEnd
+                where 
+                    booking.SystemTags.Contains(DirectConnectivityTag) &&
+                    booking.Created >= dateFrom &&
+                    booking.Created < dateEnd
                 select new DirectConnectivityReportOne
                 {
                     ReferenceCode = booking.ReferenceCode,
@@ -57,8 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         {
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
-            
-            _csvWriter.WriteHeader<DirectConnectivityReportOne>();
+
             await _csvWriter.NextRecordAsync();
             foreach (var row in rows)
             {
@@ -68,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     row.InvoiceNumber,
                     row.HotelName,
                     row.HotelConfirmationNumber,
-                    RoomTypes = string.Join(", ", row.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
-                    row.GuestName,
+                    RoomTypes = string.Join("; ", row.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
+                    GuestName = row.GuestName ?? string.Empty,
                     ArrivalDate = DateTimeFormatters.ToDateString(row.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(row.DepartureDate),
                     LenghtOfStay = (row.DepartureDate - row.ArrivalDate).TotalDays,
