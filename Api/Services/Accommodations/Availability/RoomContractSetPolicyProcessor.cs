@@ -33,7 +33,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 shiftedRoomContracts.Add(SetDeadline(roomContract, roomContractDeadline));
             }
 
-            return new RoomContractSet(roomContractSet.Id, roomContractSet.Rate, roomContractSetDeadline, shiftedRoomContracts, roomContractSet.IsAdvancePurchaseRate);
+            return new RoomContractSet(roomContractSet.Id, 
+                    roomContractSet.Rate, 
+                    roomContractSetDeadline, 
+                    shiftedRoomContracts, 
+                    roomContractSet.SystemTags, 
+                    roomContractSet.IsAdvancePurchaseRate
+                );
 
 
             static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline)

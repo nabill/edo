@@ -15,5 +15,7 @@ namespace HappyTravel.Edo.Data.Agents
         public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
         
         public bool IsSupplierVisible { get; set; }
+        
+        public bool AreSystemTagsVisible { get; set; }
     }
 }
