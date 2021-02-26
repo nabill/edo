@@ -39,11 +39,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var dataWithMarkup = result.Data;
             var roomSetAvailability = dataWithMarkup.Data;
             var location = roomSetAvailability.Accommodation.Location;
+            var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
+                roomSetAvailability.RoomContractSet.SystemTags);
 
             return new BookingAvailabilityInfo(
                 roomSetAvailability.Accommodation.Id,
                 roomSetAvailability.Accommodation.Name,
-                roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source),
+                roomContractSet,
                 location.LocalityZone,
                 location.Locality,
                 location.Country,
@@ -61,7 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
         
-        private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) => $"{searchId}::{resultId}::{roomContractSetId}";
+        private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) 
+            => $"{searchId}::{resultId}::{roomContractSetId}";
+        
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         private readonly IDoubleFlow _doubleFlow;

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public RoomContractSet(Guid id, in Rate rate, Deadline deadline, List<RoomContract> rooms,
-            bool isAdvancePurchaseRate, Suppliers? supplier)
+            bool isAdvancePurchaseRate, Suppliers? supplier, List<string> systemTags)
         {
             Id = id;
             Rate = rate;
@@ -18,6 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Rooms = rooms ?? new List<RoomContract>(0);
             IsAdvancePurchaseRate = isAdvancePurchaseRate;
             Supplier = supplier;
+            SystemTags = systemTags;
         }
         
         /// <summary>
@@ -44,6 +45,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         ///     The list of room contracts within a set.
         /// </summary>
         public List<RoomContract> Rooms { get; }
+        
+        /// <summary>
+        /// Supplier
+        /// </summary>
         public Suppliers? Supplier { get; }
+        
+        /// <summary>
+        /// System tags returned by connector, e.g. "DirectConnectivity"
+        /// </summary>
+        public List<string> SystemTags { get; }
     }
 }

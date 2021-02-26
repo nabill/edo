@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             : string.Empty;
                         
                         var roomContractSets = accommodationAvailability.RoomContractSets
-                            .ToRoomContractSetList()
+                            .ToEdoRoomContractSets(supplier)
                             .ApplySearchFilters(searchSettings, _dateTimeProvider, connectorRequest.CheckInDate);
 
                         htIdMapping.TryGetValue(accommodationAvailability.Accommodation.Id, out var htId);
@@ -177,8 +177,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return _storage.SaveState(searchId, state, supplier);
             }
         }
-
-
+        
+        
         private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings)
         {
             var roomDetails = request.RoomDetails
