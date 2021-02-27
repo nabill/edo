@@ -54,33 +54,33 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
         
         
-        private async Task<Stream> Generate(IEnumerable<SupplierWiseRecordProjection> rows)
+        private async Task<Stream> Generate(IEnumerable<SupplierWiseRecordProjection> records)
         {
             var stream = new MemoryStream();
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
 
-            _csvWriter.WriteHeader<SupplierWiseReportLine>();
+            _csvWriter.WriteHeader<SupplierWiseReportRow>();
             await _csvWriter.NextRecordAsync();
-            foreach (var row in rows)
+            foreach (var record in records)
             {
-                var line = new SupplierWiseReportLine
+                var row = new SupplierWiseReportRow
                 {
-                    ReferenceCode = row.ReferenceCode,
-                    InvoiceNumber = row.InvoiceNumber,
-                    HotelName = row.HotelName,
-                    HotelConfirmationNumber = row.HotelConfirmationNumber,
-                    RoomTypes = string.Join("; ", row.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
-                    GuestName = row.GuestName ?? string.Empty,
-                    ArrivalDate = DateTimeFormatters.ToDateString(row.ArrivalDate),
-                    DepartureDate = DateTimeFormatters.ToDateString(row.DepartureDate),
-                    LenghtOfStay = (row.DepartureDate - row.ArrivalDate).TotalDays,
-                    AmountExclVat = AmountExcludedVat(row.TotalAmount),
-                    VatAmount = VatAmount(row.TotalAmount),
-                    TotalAmount = row.TotalAmount
+                    ReferenceCode = record.ReferenceCode,
+                    InvoiceNumber = record.InvoiceNumber,
+                    HotelName = record.HotelName,
+                    HotelConfirmationNumber = record.HotelConfirmationNumber,
+                    RoomTypes = string.Join("; ", record.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
+                    GuestName = record.GuestName ?? string.Empty,
+                    ArrivalDate = DateTimeFormatters.ToDateString(record.ArrivalDate),
+                    DepartureDate = DateTimeFormatters.ToDateString(record.DepartureDate),
+                    LenghtOfStay = (record.DepartureDate - record.ArrivalDate).TotalDays,
+                    AmountExclVat = AmountExcludedVat(record.TotalAmount),
+                    VatAmount = VatAmount(record.TotalAmount),
+                    TotalAmount = record.TotalAmount
                 };
                 
-                _csvWriter.WriteRecord(line);
+                _csvWriter.WriteRecord(row);
                 await _csvWriter.NextRecordAsync();
                 await _streamWriter.FlushAsync();
             }
