@@ -6,7 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
-using HappyTravel.Edo.Api.Models.Reports;
+using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Formatters;
 
@@ -20,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<Result> GetReport(Stream stream, DateTime dateFrom, DateTime dateEnd)
+        public async Task<Result<Stream>> GetSupplierWiseReport(Suppliers supplier, DateTime dateFrom, DateTime dateEnd)
         {
             if (dateFrom == default || dateEnd == default)
                 return Result.Failure<Stream>("Range dates required");
@@ -34,8 +35,9 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 where 
                     booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                     booking.Created >= dateFrom &&
-                    booking.Created < dateEnd
-                select new DirectConnectivityReportOne
+                    booking.Created < dateEnd &&
+                    booking.Supplier == supplier
+                select new SupplierWiseRecordProjection
                 {
                     ReferenceCode = booking.ReferenceCode,
                     InvoiceNumber = invoice.Number,
@@ -48,25 +50,26 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     TotalAmount = order.Price
                 };
 
-            await Generate(stream, query);
-            return Result.Success();
+            return await Generate(query);
         }
         
         
-        private async Task Generate(Stream stream, IEnumerable<DirectConnectivityReportOne> rows)
+        private async Task<Stream> Generate(IEnumerable<SupplierWiseRecordProjection> rows)
         {
+            var stream = new MemoryStream();
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
 
+            _csvWriter.WriteHeader<SupplierWiseReportLine>();
             await _csvWriter.NextRecordAsync();
             foreach (var row in rows)
             {
-                var line = new
+                var line = new SupplierWiseReportLine
                 {
-                    row.ReferenceCode,
-                    row.InvoiceNumber,
-                    row.HotelName,
-                    row.HotelConfirmationNumber,
+                    ReferenceCode = row.ReferenceCode,
+                    InvoiceNumber = row.InvoiceNumber,
+                    HotelName = row.HotelName,
+                    HotelConfirmationNumber = row.HotelConfirmationNumber,
                     RoomTypes = string.Join("; ", row.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
                     GuestName = row.GuestName ?? string.Empty,
                     ArrivalDate = DateTimeFormatters.ToDateString(row.ArrivalDate),
@@ -74,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     LenghtOfStay = (row.DepartureDate - row.ArrivalDate).TotalDays,
                     AmountExclVat = AmountExcludedVat(row.TotalAmount),
                     VatAmount = VatAmount(row.TotalAmount),
-                    row.TotalAmount
+                    TotalAmount = row.TotalAmount
                 };
                 
                 _csvWriter.WriteRecord(line);
@@ -83,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
             }
             
             stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
 
 

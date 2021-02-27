@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Bookings;
 
-namespace HappyTravel.Edo.Api.Models.Reports
+namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
-    public record DirectConnectivityReportOne
+    public readonly struct SupplierWiseRecordProjection
     {
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }

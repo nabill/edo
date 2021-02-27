@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -95,21 +96,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Returns DirectConnectivityReport
         /// </summary>
-        [HttpGet("reports/direct-connectivity-report")]
+        [HttpGet("reports/direct-connectivity-report/supplier-wise")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
-        public async Task<IActionResult> GetDirectConnectivityReport(DateTime from, DateTime end)
+        public async Task<IActionResult> GetDirectConnectivityReport(Suppliers supplier, DateTime from, DateTime end)
         {
-            var stream = new MemoryStream();
-            
-            var (_, isFailure, error) = await _directConnectivity.GetReport(stream, from, end);
+            var (_, isFailure, stream, error) = await _directConnectivity.GetSupplierWiseReport(supplier, from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = "report.csv"
+                FileDownloadName = $"supplier-wise-report.csv-{from:g}-{end:g}.csv"
             };
         }
         
