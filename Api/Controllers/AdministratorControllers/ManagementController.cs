@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"supplier-wise-report.csv-{from:g}-{end:g}.csv"
+                FileDownloadName = $"direct-connectivity-report-{supplier}-{from:g}-{end:g}.csv"
             };
         }
         
