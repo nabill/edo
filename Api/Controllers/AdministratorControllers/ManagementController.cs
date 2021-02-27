@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
-        public async Task<IActionResult> GetDirectConnectivityReport(Suppliers supplier, DateTime from, DateTime end)
+        public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(Suppliers supplier, DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _directConnectivity.GetSupplierWiseReport(supplier, from, end);
             if (isFailure)
