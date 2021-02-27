@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Return DirectConnectivityReport
+        ///     Returns DirectConnectivityReport
         /// </summary>
         [HttpGet("reports/direct-connectivity-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
