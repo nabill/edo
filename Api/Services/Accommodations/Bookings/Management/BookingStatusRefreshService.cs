@@ -181,7 +181,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             BookingStatuses.Pending, 
             BookingStatuses.WaitingForResponse,
             BookingStatuses.Confirmed,
-            BookingStatuses.PendingCancellation
+            BookingStatuses.PendingCancellation,
+            BookingStatuses.InternalProcessing
         };
         
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
