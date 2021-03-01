@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -7,12 +5,8 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Common.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -24,13 +18,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public ManagementController(IAdministratorInvitationService invitationService,
             IAdministratorRegistrationService registrationService,
-            ITokenInfoAccessor tokenInfoAccessor,
-            IDirectConnectivityReportService directConnectivity)
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _invitationService = invitationService;
             _registrationService = registrationService;
             _tokenInfoAccessor = tokenInfoAccessor;
-            _directConnectivity = directConnectivity;
         }
 
 
@@ -93,29 +85,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        /// <summary>
-        ///     Returns supplier wise direct connectivity report
-        /// </summary>
-        [HttpGet("reports/direct-connectivity-report/supplier-wise")]
-        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
-        public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(Suppliers supplier, DateTime from, DateTime end)
-        {
-            var (_, isFailure, stream, error) = await _directConnectivity.GetSupplierWiseReport(supplier, from, end);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
-            {
-                FileDownloadName = $"direct-connectivity-report-{supplier}-{from:g}-{end:g}.csv"
-            };
-        }
-        
-        
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private readonly IDirectConnectivityReportService _directConnectivity;
     }
 }

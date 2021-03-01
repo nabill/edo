@@ -77,6 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
             
             _csvWriter.WriteHeader<TRow>();
             await _csvWriter.NextRecordAsync();
+            await _streamWriter.FlushAsync();
+            
             foreach (var record in records)
             {
                 var (_, isFailure, row, error) = Map(record);
