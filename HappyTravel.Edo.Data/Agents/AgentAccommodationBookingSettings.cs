@@ -18,6 +18,6 @@ namespace HappyTravel.Edo.Data.Agents
         
         public bool IsSupplierVisible { get; set; }
         
-        public bool AreSystemTagsVisible { get; set; }
+        public bool AreTagsVisible { get; set; }
     }
 }

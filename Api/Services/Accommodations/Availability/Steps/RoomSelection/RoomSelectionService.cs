@@ -151,11 +151,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        var systemTags = searchSettings.AreSystemTagsVisible
+                        var tags = searchSettings.AreTagsVisible
                             ? rs.Tags
                             : new List<string>();
 
-                        return rs.ToRoomContractSet(supplier, systemTags);
+                        return rs.ToRoomContractSet(supplier, tags);
                     });
             }
 
