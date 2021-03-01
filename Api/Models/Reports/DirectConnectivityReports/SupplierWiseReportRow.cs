@@ -14,5 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public decimal AmountExclVat { get; init; }
         public decimal VatAmount { get; init; }
         public decimal TotalAmount { get; init; }
+        public string Supplier { get; init; }
     }
 }

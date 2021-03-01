@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Formatters;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Documents
 {
@@ -22,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<Result<Stream>> GetSupplierWiseReport(Suppliers supplier, DateTime dateFrom, DateTime dateEnd)
+        public async Task<Result<Stream>> GetSupplierWiseReport(DateTime dateFrom, DateTime dateEnd)
         {
             return await Validate()
                 .Map(GetRecords)
@@ -37,9 +35,6 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 if ((dateEnd - dateFrom).TotalDays > MaxRange)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
-                if (supplier == default)
-                    return Result.Failure<Stream>("Supplier is required");
-
                 return Result.Success();
             }
 
@@ -52,8 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     where 
                         booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                         booking.Created >= dateFrom &&
-                        booking.Created < dateEnd &&
-                        booking.Supplier == supplier
+                        booking.Created < dateEnd
                     select new SupplierWiseRecordProjection
                     {
                         ReferenceCode = booking.ReferenceCode,
@@ -64,13 +58,14 @@ namespace HappyTravel.Edo.Api.Services.Documents
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        TotalAmount = order.Price
+                        TotalAmount = order.Price,
+                        Supplier = booking.Supplier
                     };
             }
         }
 
 
-        public async Task<Result<Stream>> GetAgencyWiseReport(int agencyId, DateTime dateFrom, DateTime dateEnd)
+        public async Task<Result<Stream>> GetAgencyWiseReport(DateTime dateFrom, DateTime dateEnd)
         {
             return await Validate()
                 .Map(GetRecords)
@@ -85,9 +80,6 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 if ((dateEnd - dateFrom).TotalDays > MaxRange)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
-                if (await _context.Agencies.AnyAsync(a => a.Id == agencyId))
-                    return Result.Failure<Stream>($"Agency '{agencyId}' not exists");
-
                 return Result.Success();
             }
             
@@ -101,8 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     where 
                         booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                         booking.Created >= dateFrom &&
-                        booking.Created < dateEnd &&
-                        booking.AgencyId == agencyId
+                        booking.Created < dateEnd
                     select new AgencyWiseRecordProjection
                     {
                         Date = booking.Created,
@@ -178,7 +169,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
                     AmountExclVat = Math.Round(AmountExcludedVat(e.TotalAmount), 2),
                     VatAmount = Math.Round(VatAmount(e.TotalAmount), 2),
-                    TotalAmount = e.TotalAmount
+                    TotalAmount = e.TotalAmount,
+                    Supplier = EnumFormatters.FromDescription(e.Supplier)
                 },
                 AgencyWiseRecordProjection e => new AgencyWiseReportRow
                 {
