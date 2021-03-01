@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var roomSetAvailability = dataWithMarkup.Data;
             var location = roomSetAvailability.Accommodation.Location;
             var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
-                roomSetAvailability.RoomContractSet.SystemTags);
+                roomSetAvailability.RoomContractSet.Tags);
 
             return new BookingAvailabilityInfo(
                 roomSetAvailability.Accommodation.Id,

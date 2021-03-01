@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public static List<RoomContractSet> ToEdoRoomContractSets(this IEnumerable<EdoContracts.Accommodations.Internals.RoomContractSet> roomContractSets, Suppliers? supplier)
         {
             return roomContractSets
-                .Select(rs => rs.ToRoomContractSet(supplier, rs.SystemTags))
+                .Select(rs => rs.ToRoomContractSet(supplier, rs.Tags))
                 .ToList();
         }
     }
