@@ -23,66 +23,66 @@ namespace HappyTravel.Edo.Api.Services.Documents
 
         public async Task<Result<Stream>> GetSupplierWiseReport(Suppliers supplier, DateTime dateFrom, DateTime dateEnd)
         {
-            if (dateFrom == default || dateEnd == default)
-                return Result.Failure<Stream>("Range dates required");
+            return await Validate()
+                .Map(GetRecords)
+                .Bind(Generate<SupplierWiseRecordProjection, SupplierWiseReportRow>);
+
+
+            Result Validate()
+            {
+                if (dateFrom == default || dateEnd == default)
+                    return Result.Failure<Stream>("Range dates required");
             
-            if ((dateEnd - dateFrom).TotalDays > MaxRange)
-                return Result.Failure<Stream>("Permissible interval exceeded");
+                if ((dateEnd - dateFrom).TotalDays > MaxRange)
+                    return Result.Failure<Stream>("Permissible interval exceeded");
 
-            if (supplier == default)
-                return Result.Failure<Stream>("Supplier is required");
+                if (supplier == default)
+                    return Result.Failure<Stream>("Supplier is required");
 
-            var query = from booking in _context.Bookings
-                join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
-                join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                where 
-                    booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
-                    booking.Created >= dateFrom &&
-                    booking.Created < dateEnd &&
-                    booking.Supplier == supplier
-                select new SupplierWiseRecordProjection
-                {
-                    ReferenceCode = booking.ReferenceCode,
-                    InvoiceNumber = invoice.Number,
-                    AccommodationName = booking.AccommodationName,
-                    ConfirmationNumber = booking.SupplierReferenceCode,
-                    Rooms = booking.Rooms,
-                    GuestName = booking.MainPassengerName,
-                    ArrivalDate = booking.CheckInDate,
-                    DepartureDate = booking.CheckOutDate,
-                    TotalAmount = order.Price
-                };
+                return Result.Success();
+            }
 
-            return await Generate(query);
+
+            IQueryable<SupplierWiseRecordProjection> GetRecords()
+            {
+                return from booking in _context.Bookings
+                    join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
+                    join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
+                    where 
+                        booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
+                        booking.Created >= dateFrom &&
+                        booking.Created < dateEnd &&
+                        booking.Supplier == supplier
+                    select new SupplierWiseRecordProjection
+                    {
+                        ReferenceCode = booking.ReferenceCode,
+                        InvoiceNumber = invoice.Number,
+                        AccommodationName = booking.AccommodationName,
+                        ConfirmationNumber = booking.SupplierReferenceCode,
+                        Rooms = booking.Rooms,
+                        GuestName = booking.MainPassengerName,
+                        ArrivalDate = booking.CheckInDate,
+                        DepartureDate = booking.CheckOutDate,
+                        TotalAmount = order.Price
+                    };
+            }
         }
         
         
-        private async Task<Stream> Generate(IEnumerable<SupplierWiseRecordProjection> records)
+        private async Task<Result<Stream>> Generate<TProjection, TRow>(IEnumerable<TProjection> records)
         {
             var stream = new MemoryStream();
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
-
-            _csvWriter.WriteHeader<SupplierWiseReportRow>();
+            
+            _csvWriter.WriteHeader<TRow>();
             await _csvWriter.NextRecordAsync();
             foreach (var record in records)
             {
-                var row = new SupplierWiseReportRow
-                {
-                    ReferenceCode = record.ReferenceCode,
-                    InvoiceNumber = record.InvoiceNumber,
-                    AccommodationName = record.AccommodationName,
-                    ConfirmationNumber = record.ConfirmationNumber,
-                    RoomTypes = string.Join("; ", record.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
-                    GuestName = record.GuestName ?? string.Empty,
-                    ArrivalDate = DateTimeFormatters.ToDateString(record.ArrivalDate),
-                    DepartureDate = DateTimeFormatters.ToDateString(record.DepartureDate),
-                    LenghtOfStay = (record.DepartureDate - record.ArrivalDate).TotalDays,
-                    AmountExclVat = Math.Round(AmountExcludedVat(record.TotalAmount), 2),
-                    VatAmount = Math.Round(VatAmount(record.TotalAmount), 2),
-                    TotalAmount = record.TotalAmount
-                };
-                
+                var (_, isFailure, row, error) = Map(record);
+                if (isFailure)
+                    return Result.Failure<Stream>(error);
+
                 _csvWriter.WriteRecord(row);
                 await _csvWriter.NextRecordAsync();
                 await _streamWriter.FlushAsync();
@@ -104,7 +104,31 @@ namespace HappyTravel.Edo.Api.Services.Documents
             return totalAmount / (1m + Vat / 100m);
         }
 
-        
+
+        private static Result<object> Map<T>(T entity)
+        {
+            return entity switch
+            {
+                SupplierWiseRecordProjection e => new SupplierWiseReportRow
+                {
+                    ReferenceCode = e.ReferenceCode,
+                    InvoiceNumber = e.InvoiceNumber,
+                    AccommodationName = e.AccommodationName,
+                    ConfirmationNumber = e.ConfirmationNumber,
+                    RoomTypes = string.Join("; ", e.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
+                    GuestName = e.GuestName ?? string.Empty,
+                    ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
+                    DepartureDate = DateTimeFormatters.ToDateString(e.DepartureDate),
+                    LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
+                    AmountExclVat = Math.Round(AmountExcludedVat(e.TotalAmount), 2),
+                    VatAmount = Math.Round(VatAmount(e.TotalAmount), 2),
+                    TotalAmount = e.TotalAmount
+                },
+                _ => Result.Failure<object>($"Type {typeof(T)} is not supported")
+            };
+        }
+
+
         private const int Vat = 5;
         private const int MaxRange = 31;
         private CsvWriter _csvWriter;
