@@ -41,8 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 {
                     ReferenceCode = booking.ReferenceCode,
                     InvoiceNumber = invoice.Number,
-                    HotelName = booking.AccommodationName,
-                    HotelConfirmationNumber = booking.SupplierReferenceCode,
+                    AccommodationName = booking.AccommodationName,
+                    ConfirmationNumber = booking.SupplierReferenceCode,
                     Rooms = booking.Rooms,
                     GuestName = booking.MainPassengerName,
                     ArrivalDate = booking.CheckInDate,
@@ -68,8 +68,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 {
                     ReferenceCode = record.ReferenceCode,
                     InvoiceNumber = record.InvoiceNumber,
-                    HotelName = record.HotelName,
-                    HotelConfirmationNumber = record.HotelConfirmationNumber,
+                    AccommodationName = record.AccommodationName,
+                    ConfirmationNumber = record.ConfirmationNumber,
                     RoomTypes = string.Join("; ", record.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
                     GuestName = record.GuestName ?? string.Empty,
                     ArrivalDate = DateTimeFormatters.ToDateString(record.ArrivalDate),
