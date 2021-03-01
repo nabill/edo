@@ -15,9 +15,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         Task<Result<Booking>> Get(int id);
 
-        Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
+        Task SetConfirmationDate(Booking booking);
         
-        Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
+        Task UpdateBookingFromDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
  
         Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, PaymentMethods paymentMethod, AgentContext agentContext, string languageCode);
 
