@@ -70,11 +70,11 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<Result<Stream>> GetAgentWiseReport(int agencyId, int agentId, DateTime dateFrom, DateTime dateEnd)
+        public async Task<Result<Stream>> GetAgencyWiseReport(int agencyId, DateTime dateFrom, DateTime dateEnd)
         {
             return await Validate()
                 .Map(GetRecords)
-                .Bind(Generate<AgentWiseRecordProjection, AgentWiseReportRow>);
+                .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
 
 
             async Task<Result> Validate()
@@ -85,33 +85,30 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 if ((dateEnd - dateFrom).TotalDays > MaxRange)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
-                if (await _context.AgentAgencyRelations.AnyAsync(r => r.AgencyId == agencyId && r.AgentId == agentId))
-                    return Result.Failure<Stream>($"Agent '{agentId}' in agency '{agencyId}' not exists");
+                if (await _context.Agencies.AnyAsync(a => a.Id == agencyId))
+                    return Result.Failure<Stream>($"Agency '{agencyId}' not exists");
 
                 return Result.Success();
             }
             
             
-            IQueryable<AgentWiseRecordProjection> GetRecords()
+            IQueryable<AgencyWiseRecordProjection> GetRecords()
             {
                 return from booking in _context.Bookings
                     join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                    join agent in _context.Agents on booking.AgentId equals agent.Id
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
                     where 
                         booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                         booking.Created >= dateFrom &&
                         booking.Created < dateEnd &&
-                        booking.AgencyId == agencyId &&
-                        booking.AgentId == agentId
-                    select new AgentWiseRecordProjection
+                        booking.AgencyId == agencyId
+                    select new AgencyWiseRecordProjection
                     {
                         Date = booking.Created,
                         ReferenceCode = booking.ReferenceCode,
                         InvoiceNumber = invoice.Number,
                         AgencyName = agency.Name,
-                        AgentName = $"{agent.FirstName} {agent.LastName}",
                         PaymentMethod = booking.PaymentMethod,
                         AccommodationName = booking.AccommodationName,
                         ConfirmationNumber = booking.SupplierReferenceCode,
@@ -183,13 +180,12 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     VatAmount = Math.Round(VatAmount(e.TotalAmount), 2),
                     TotalAmount = e.TotalAmount
                 },
-                AgentWiseRecordProjection e => new AgentWiseReportRow
+                AgencyWiseRecordProjection e => new AgencyWiseReportRow
                 {
                     Date = DateTimeFormatters.ToDateString(e.Date),
                     ReferenceCode = e.ReferenceCode,
                     InvoiceNumber = e.InvoiceNumber,
                     AgencyName = e.AgencyName,
-                    AgentName = e.AgentName,
                     PaymentMethod = EnumFormatters.FromDescription(e.PaymentMethod),
                     GuestName = e.GuestName,
                     AccommodationName = e.AccommodationName,

@@ -1,12 +1,11 @@
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
-    public readonly struct AgentWiseReportRow
+    public readonly struct AgencyWiseReportRow
     {
         public string Date { get; init; }
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }
         public string AgencyName { get; init; }
-        public string AgentName { get; init; }
         public string PaymentMethod { get; init; }
         public string GuestName { get; init; }
         public string AccommodationName { get; init; }

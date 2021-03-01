@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Documents
     {
         public Task<Result<Stream>> GetSupplierWiseReport(Suppliers supplier, DateTime fromDate, DateTime endDate);
 
-        public Task<Result<Stream>> GetAgentWiseReport(int agencyId, int agentId, DateTime fromDate, DateTime endDate);
+        public Task<Result<Stream>> GetAgencyWiseReport(int agencyId, DateTime fromDate, DateTime endDate);
     }
 }
