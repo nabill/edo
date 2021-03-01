@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
                     where 
-                        booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
+                        booking.Tags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                         booking.Created >= dateFrom &&
                         booking.Created < dateEnd
                     select new AgencyWiseRecordProjection
