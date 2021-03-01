@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            await UpdateBookingDetails();
+            await _bookingRecordManager.UpdateBookingFromDetails(bookingResponse, booking);
 
             switch (bookingResponse.Status)
             {
@@ -90,24 +90,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             _logger.LogBookingResponseProcessSuccess(
                 $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. " +
                 $"New status: {bookingResponse.Status}");
-
-
-            Task UpdateBookingDetails() => _bookingRecordManager.UpdateBookingDetails(bookingResponse, booking);
-            
-            //TICKET https://happytravel.atlassian.net/browse/NIJO-315
-            /*
-            async Task<Result> LogAppliedMarkups()
-            {
-                long availabilityId = ??? ;
-                
-                var (_, isGetAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(availabilityId);
-                if (isGetAvailabilityFailure)
-                    return Result.Fail(cachedAvailabilityError);
-
-                await _markupLogger.Write(bookingResponse.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
-                return Result.Success();
-            }
-            */
         }
         
         private Task<Result> ProcessCancellation(Edo.Data.Bookings.Booking booking, UserInfo user)
@@ -148,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private async Task ProcessConfirmation(Edo.Data.Bookings.Booking booking, EdoContracts.Accommodations.Booking bookingResponse)
         {
             await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
-                .Tap(Confirm)
+                .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
@@ -158,8 +140,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 => _bookingInfoService.GetAccommodationBookingInfo(referenceCode, languageCode);
 
 
-            Task Confirm(AccommodationBookingInfo bookingInfo) 
-                => _bookingRecordManager.Confirm(bookingResponse, booking);
+            Task SetConfirmationDate(AccommodationBookingInfo _) 
+                => _bookingRecordManager.SetConfirmationDate(booking);
             
             
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
