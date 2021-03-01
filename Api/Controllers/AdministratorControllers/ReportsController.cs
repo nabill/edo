@@ -40,7 +40,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"direct-connectivity-report-{supplier}-{from:g}-{end:g}.csv"
+                FileDownloadName = $"direct-connectivity-report-supplier-{supplier}-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        /// <summary>
+        ///     Returns agent wise direct connectivity report
+        /// </summary>
+        [HttpGet("direct-connectivity-report/agent-wise")]
+        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
+        public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(int agencyId, int agentId, DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _directConnectivityReportService.GetAgentWiseReport(agencyId, agentId, from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"direct-connectivity-report-agent-{agentId}-{from:g}-{end:g}.csv"
             };
         }
         

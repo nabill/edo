@@ -9,5 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
     public interface IDirectConnectivityReportService
     {
         public Task<Result<Stream>> GetSupplierWiseReport(Suppliers supplier, DateTime fromDate, DateTime endDate);
+
+        public Task<Result<Stream>> GetAgentWiseReport(int agencyId, int agentId, DateTime fromDate, DateTime endDate);
     }
 }
