@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
@@ -64,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
         
         private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) 
-            => $"{searchId}::{resultId}::{roomContractSetId}";
+            => _doubleFlow.BuildKey(searchId.ToString(), resultId.ToString(), roomContractSetId.ToString());
         
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
