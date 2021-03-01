@@ -116,10 +116,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (supplier, availability) = r;
                         var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
+                        var roomContractSets = availability.RoomContractSets
+                            .Select(rs => searchSettings.AreSystemTagsVisible
+                                ? rs
+                                : rs.WithEmptySystemTags())
+                            .ToList();
                         
                         return new WideAvailabilityResult(availability.Id,
                             availability.Accommodation,
-                            availability.RoomContractSets,
+                            roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,

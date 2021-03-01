@@ -1356,6 +1356,16 @@
                 The list of room contracts within a set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.Supplier">
+            <summary>
+            Supplier
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.SystemTags">
+            <summary>
+            System tags returned by connector, e.g. "DirectConnectivity"
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
             <summary>
                 The availability ID.

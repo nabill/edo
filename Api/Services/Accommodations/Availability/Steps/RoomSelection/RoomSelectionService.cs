@@ -84,7 +84,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
-            
+
+            var checkInDate = selectedResults
+                .Select(s => s.Result.CheckInDate)
+                .FirstOrDefault();
+
             var supplierTasks = selectedResults
                 .Select(GetSupplierAvailability)
                 .ToArray();
@@ -147,25 +151,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        return rs.ToRoomContractSet(supplier);
+                        var systemTags = searchSettings.AreSystemTagsVisible
+                            ? rs.Tags
+                            : new List<string>();
+
+                        return rs.ToRoomContractSet(supplier, systemTags);
                     });
             }
-            
 
-            bool SettingsFilter(RoomContractSet roomSet)
-            {
-                if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
-                    return false;
 
-                var deadlineDate = roomSet.Deadline.Date;
-                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide
-                    && deadlineDate.HasValue && deadlineDate.Value.Date <= _dateTimeProvider.UtcTomorrow())
-                {
-                    return false;
-                }
-                
-                return true;
-            }
+            bool SettingsFilter(RoomContractSet roomSet) 
+                => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, checkInDate, searchSettings, _dateTimeProvider);
         }
 
 
