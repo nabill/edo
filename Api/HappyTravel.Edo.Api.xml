@@ -401,6 +401,11 @@
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSupplerWiseDirectConnectivityReport(HappyTravel.Edo.Common.Enums.Suppliers,System.DateTime,System.DateTime)">
+            <summary>
+                Returns supplier wise direct connectivity report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.

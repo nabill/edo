@@ -18,6 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
         AccommodationDuplicatesReportApproval = 1024,
         BookingManagement = 2048,
         AgentManagement = 4096,
-        BalanceManualCorrection = 8192
+        BalanceManualCorrection = 8192,
+        DirectConnectivityReport = 16384,
     }
 }
