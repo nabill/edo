@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 {
     public static class RoomContractSetAvailabilityExtensions
     {
-        public static RoomContractSetAvailability? ToRoomContractSetAvailability(this in EdoContracts.Accommodations.RoomContractSetAvailability? availability, Suppliers? supplier, List<string> systemTags)
+        public static RoomContractSetAvailability? ToRoomContractSetAvailability(this in EdoContracts.Accommodations.RoomContractSetAvailability? availability, Suppliers? supplier, List<string> tags)
         {
             if (availability is null)
                 return null;
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 availabilityValue.CheckOutDate,
                 availabilityValue.NumberOfNights,
                 availabilityValue.Accommodation,
-                availabilityValue.RoomContractSet.ToRoomContractSet(supplier, systemTags));
+                availabilityValue.RoomContractSet.ToRoomContractSet(supplier, tags));
         }
     }
 }

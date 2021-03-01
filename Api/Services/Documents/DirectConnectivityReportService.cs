@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                     where 
-                        booking.SystemTags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
+                        booking.Tags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
                         booking.Created >= dateFrom &&
                         booking.Created < dateEnd &&
                         booking.Supplier == supplier

@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod,
             in AccommodationBookingRequest bookingRequest, string languageCode, Suppliers supplier,
-            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate, string htId, List<string> systemTags)
+            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate, string htId, List<string> tags)
         {
             var booking = new Booking
             {
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 CheckInDate = checkInDate,
                 CheckOutDate = checkOutDate,
                 HtId = htId,
-                SystemTags = systemTags
+                Tags = tags
             };
             
             AddRequestInfo(bookingRequest);

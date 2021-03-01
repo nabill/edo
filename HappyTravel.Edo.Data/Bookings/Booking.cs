@@ -48,6 +48,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public string AccommodationName { get; set; }
         public AccommodationLocation Location { get; set; }
         
-        public List<string> SystemTags { get; set; }
+        public List<string> Tags { get; set; }
     }
 }

@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ? result.Supplier
                     : (Suppliers?) null;
 
-                var tags = settings.AreSystemTagsVisible
+                var tags = settings.AreTagsVisible
                     ? availabilityData.Value.RoomContractSet.Tags
                     : new List<string>(0);
                 

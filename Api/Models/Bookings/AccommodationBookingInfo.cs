@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
             BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? supplier,
-            BookingAgentInformation agentInformation, PaymentMethods paymentMethod, List<string> systemTags)
+            BookingAgentInformation agentInformation, PaymentMethods paymentMethod, List<string> tags)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Supplier = supplier;
             AgentInformation = agentInformation;
             PaymentMethod = paymentMethod;
-            SystemTags = systemTags;
+            Tags = tags;
         }
 
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public Suppliers? Supplier { get; }
         public BookingAgentInformation AgentInformation { get; }
         public PaymentMethods PaymentMethod { get; }
-        public List<string> SystemTags { get; }
+        public List<string> Tags { get; }
 
         public readonly struct BookingAgentInformation
         {
