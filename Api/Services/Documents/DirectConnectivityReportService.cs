@@ -29,6 +29,9 @@ namespace HappyTravel.Edo.Api.Services.Documents
             if ((dateEnd - dateFrom).TotalDays > MaxRange)
                 return Result.Failure<Stream>("Permissible interval exceeded");
 
+            if (supplier == default)
+                return Result.Failure<Stream>("Supplier is required");
+
             var query = from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
@@ -75,8 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Documents
                     ArrivalDate = DateTimeFormatters.ToDateString(record.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(record.DepartureDate),
                     LenghtOfStay = (record.DepartureDate - record.ArrivalDate).TotalDays,
-                    AmountExclVat = AmountExcludedVat(record.TotalAmount),
-                    VatAmount = VatAmount(record.TotalAmount),
+                    AmountExclVat = Math.Round(AmountExcludedVat(record.TotalAmount), 2),
+                    VatAmount = Math.Round(VatAmount(record.TotalAmount), 2),
                     TotalAmount = record.TotalAmount
                 };
                 
@@ -98,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
 
         private static decimal AmountExcludedVat(decimal totalAmount)
         {
-            return totalAmount / (1 + Vat / 100);
+            return totalAmount / (1m + Vat / 100m);
         }
 
         

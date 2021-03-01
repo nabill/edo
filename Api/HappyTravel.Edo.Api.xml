@@ -300,9 +300,9 @@
             </summary>
             <param name="code">Invitation code.</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.GetDirectConnectivityReport(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.GetSupplerWiseDirectConnectivityReport(HappyTravel.Edo.Common.Enums.Suppliers,System.DateTime,System.DateTime)">
             <summary>
-                Returns DirectConnectivityReport
+                Returns supplier wise direct connectivity report
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
