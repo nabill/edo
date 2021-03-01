@@ -83,8 +83,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok();
         }
-        
-        
+
+
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
