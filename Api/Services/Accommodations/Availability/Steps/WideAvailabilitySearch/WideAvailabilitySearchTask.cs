@@ -129,10 +129,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
                             : string.Empty;
-                        
+
                         var roomContractSets = accommodationAvailability.RoomContractSets
-                            .ToRoomContractSetList()
-                            .ApplySearchFilters(searchSettings, _dateTimeProvider, connectorRequest.CheckInDate);
+                            .ToEdoRoomContractSets(supplier)
+                            .Where(roomSet => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, connectorRequest.CheckInDate, searchSettings,
+                                _dateTimeProvider))
+                            .ToList();
 
                         htIdMapping.TryGetValue(accommodationAvailability.Accommodation.Id, out var htId);
 
@@ -177,8 +179,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return _storage.SaveState(searchId, state, supplier);
             }
         }
-
-
+        
+        
         private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings)
         {
             var roomDetails = request.RoomDetails

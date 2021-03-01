@@ -92,7 +92,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     availabilityInfo.RoomContractSet.Deadline.Date,
                     availabilityInfo.CheckInDate,
                     availabilityInfo.CheckOutDate,
-                    availabilityInfo.HtId);
+                    availabilityInfo.HtId,
+                    availabilityInfo.RoomContractSet.Tags);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
