@@ -658,6 +658,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
             services.AddTransient<IAvailabilitySearchAreaService, AvailabilitySearchAreaService>();
 
+            services.AddTransient<IAgencyManagementService, AgencyManagementService>();
+            services.AddTransient<IAgencyService, AgencyService>();
+
             services.AddTransient<IApiClientService, ApiClientService>();
 
             //TODO: move to Consul when it will be ready

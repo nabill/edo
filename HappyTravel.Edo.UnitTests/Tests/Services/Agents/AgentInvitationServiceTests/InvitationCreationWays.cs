@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
@@ -9,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.UnitTests.Utility;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -21,13 +19,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
     {
         public InvitationCreationWays()
         {
-            var counterpartyServiceMock = new Mock<ICounterpartyService>();
-
-            counterpartyServiceMock
-                .Setup(c => c.Get(It.IsAny<int>(), default))
-                .ReturnsAsync(Result.Success(FakeCounterpartyInfo));
-
-            counterpartyServiceMock
+            var agencyServiceMock = new Mock<IAgencyService>();
+            
+            agencyServiceMock
                 .Setup(c => c.GetAgency(It.IsAny<int>(), Agent))
                 .ReturnsAsync(Result.Success(FakeAgencyInfo));
 
@@ -40,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
             _invitationService = new AgentInvitationService(optionsMock.Object,
                 _userInvitationService,
-                counterpartyServiceMock.Object,
+                agencyServiceMock.Object,
                 MockEdoContextFactory.Create().Object);
         }
 

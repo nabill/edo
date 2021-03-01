@@ -93,6 +93,22 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Deactivates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for deactivation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.ActivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for activation.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -244,22 +260,6 @@
             <param name="request">Request data for Activation.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
-            <summary>
-             Deactivates specified agency.
-            </summary>
-            <param name="agencyId">Id of the agency.</param>
-            <param name="request">Request data for deactivation.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
-            <summary>
-             Activates specified agency.
-            </summary>
-            <param name="agencyId">Id of the agency.</param>
-            <param name="request">Request data for activation.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
             <summary>
              Returns counterparties predictions when searching
@@ -406,6 +406,19 @@
             Adds an accommodation duplicate report.
             </summary>
             <param name="request">Duplicate accommodation info</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetAgency(System.Int32)">
+            <summary>
+                Gets agency.
+            </summary>
+            <param name="agencyId">Agency Id.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetChildAgencies">
+            <summary>
+                Gets child agencies.
+            </summary>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
@@ -835,19 +848,6 @@
             </summary>
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetAgency(System.Int32)">
-            <summary>
-                Gets agency.
-            </summary>
-            <param name="agencyId">Agency Id.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetChildAgencies">
-            <summary>
-                Gets child agencies.
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetCounterparty">
             <summary>
