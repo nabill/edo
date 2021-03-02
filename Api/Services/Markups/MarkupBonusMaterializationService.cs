@@ -58,12 +58,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 from appliedMarkup in _context.AppliedBookingMarkups
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
-                where markupsForMaterialization.Contains(appliedMarkup.Id) && appliedMarkup.Paid == null
+                where 
+                    markupsForMaterialization.Contains(appliedMarkup.Id) &&
+                    appliedMarkup.Paid == null &&
+                    policy.AgencyId != null
                 select new MaterializationData
                 {
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    AgencyId = policy.Id,
+                    AgencyId = policy.AgencyId.Value,
                     Amount = appliedMarkup.Amount,
                     ScopeType = policy.ScopeType
                 };
