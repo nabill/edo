@@ -1,11 +1,14 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -16,13 +19,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
-        public ManagementController(IAdministratorInvitationService invitationService,
-            IAdministratorRegistrationService registrationService,
-            ITokenInfoAccessor tokenInfoAccessor)
+        public ManagementController(IInvitationService invitationService,
+            ITokenInfoAccessor tokenInfoAccessor,
+            IAdministratorContext administratorContext)
         {
             _invitationService = invitationService;
-            _registrationService = registrationService;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _administratorContext = administratorContext;
         }
 
 
@@ -37,7 +40,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AdministratorInvitation)]
         public async Task<IActionResult> InviteAdministrator([FromBody] AdministratorInvitationInfo invitationInfo)
         {
-            var (_, isFailure, error) = await _invitationService.SendInvitation(invitationInfo);
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+
+            var (_, isFailure, error) = await _invitationService.Create(invitationInfo.ToUserInvitationData(),
+                UserInvitationTypes.Administrator, true, admin.Id);
+
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -59,7 +66,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
-            var (_, isFailure, error) = await _registrationService.RegisterByInvitation(invitationCode, identity);
+            var (_, isFailure, error) = await _invitationService.Accept(invitationCode, default, identity);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -85,8 +92,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
-        private readonly IAdministratorInvitationService _invitationService;
-        private readonly IAdministratorRegistrationService _registrationService;
+        private readonly IInvitationService _invitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly IAdministratorContext _administratorContext;
     }
 }

@@ -1471,6 +1471,11 @@
                 Id of the counterparty agency.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CounterpartyId">
+            <summary>
+                Id of the counterparty.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
             <summary>
             File name of the image
@@ -1573,7 +1578,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Title">
             <summary>
-                Agent title, Mr, Mrs etc.
+                Title, Mr, Mrs etc.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.FirstName">
@@ -1588,7 +1593,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Position">
             <summary>
-                Agent position or designation.
+                Position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Email">
+            <summary>
+                Email
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgentId">
@@ -2060,6 +2070,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
             <summary>
                 Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.AgentRegistrationInfo">
+            <summary>
+            Prefilled user registration info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.ChildAgencyRegistrationInfo">
+            <summary>
+            Prefilled child agency registration info. Used only for child agency invitations.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">

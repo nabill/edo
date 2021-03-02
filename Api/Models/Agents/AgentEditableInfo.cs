@@ -13,11 +13,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
             FirstName = firstName;
             LastName = lastName;
             Position = position;
+            Email = email;
         }
 
 
         /// <summary>
-        ///     Agent title, Mr, Mrs etc.
+        ///     Title, Mr, Mrs etc.
         /// </summary>
         [Required]
         public string Title { get; }
@@ -35,8 +36,13 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string LastName { get; }
 
         /// <summary>
-        ///     Agent position or designation.
+        ///     Position or designation.
         /// </summary>
         public string Position { get; }
+
+        /// <summary>
+        ///     Email
+        /// </summary>
+        public string Email { get; }
     }
 }

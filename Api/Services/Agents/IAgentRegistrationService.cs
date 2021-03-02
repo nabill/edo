@@ -8,9 +8,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         Task<Result> RegisterWithCounterparty(AgentEditableInfo agentData, CounterpartyEditRequest counterpartyData,
             string externalIdentity, string email);
-
-
-        Task<Result> RegisterInvited(AgentEditableInfo registrationInfo,
-            string invitationCode, string externalIdentity, string email);
     }
 }

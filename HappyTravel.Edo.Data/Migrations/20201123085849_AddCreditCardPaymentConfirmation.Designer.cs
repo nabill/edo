@@ -1208,39 +1208,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.ToTable("SupplierOrders");
                 });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AdminInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
-                        .IsRequired()
-                        .HasColumnName("Data")
-                        .HasColumnType("jsonb");
-
-                    b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
-                        .IsRequired()
-                        .HasColumnName("Data")
-                        .HasColumnType("jsonb");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.CreditCardPaymentConfirmation", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking", "Booking")
-                        .WithOne("CreditCardPaymentConfirmation")
-                        .HasForeignKey("HappyTravel.Edo.Data.Booking.CreditCardPaymentConfirmation", "BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
 #pragma warning restore 612, 618
         }
     }

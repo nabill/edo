@@ -255,6 +255,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
                 $"ERROR | CounterpartyBillingNotificationService: {{message}}");
             
+            AgentRegistrationNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1702, "AgentRegistrationNotificationFailure"),
+                $"ERROR | InvitationService: {{message}}");
+            
+            ChildAgencyRegistrationNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1703, "ChildAgencyRegistrationNotificationFailure"),
+                $"ERROR | InvitationService: {{message}}");
+            
         }
     
                 
@@ -443,6 +451,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, string message)
             => CounterpartyAccountAddedNotificationFailureOccured(logger, message, null);
+                
+         public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string message)
+            => AgentRegistrationNotificationFailureOccured(logger, message, null);
+                
+         public static void LogChildAgencyRegistrationNotificationFailure(this ILogger logger, string message)
+            => ChildAgencyRegistrationNotificationFailureOccured(logger, message, null);
     
     
         
@@ -569,5 +583,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> MapperClientExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> CounterpartyAccountAddedNotificationFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ChildAgencyRegistrationNotificationFailureOccured;
     }
 }

@@ -44,7 +44,6 @@ using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
-using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -91,6 +90,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using IdentityModel.Client;
 using Prometheus;
@@ -198,29 +198,27 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var agentInvitationTemplateId = mailSettings[configuration["Edo:Email:AgentInvitationTemplateId"]];
-            services.Configure<AgentInvitationOptions>(options =>
-            {
-                options.MailTemplateId = agentInvitationTemplateId;
-                options.EdoPublicUrl = edoPublicUrl;
-            });
-
             var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-            services.Configure<AdministratorInvitationOptions>(options =>
+            var childAgencyInvitationTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyInvitationTemplateId"]];
+            services.Configure<InvitationOptions>(options =>
             {
-                options.MailTemplateId = administratorInvitationTemplateId;
+                options.AgentInvitationTemplateId = agentInvitationTemplateId;
+                options.AdminInvitationTemplateId = administratorInvitationTemplateId;
+                options.ChildAgencyInvitationTemplateId = childAgencyInvitationTemplateId;
                 options.EdoPublicUrl = edoPublicUrl;
+                options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
             });
-            services.Configure<UserInvitationOptions>(options =>
-                options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);
             var masterAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:MasterAgentRegistrationTemplateId"]];
             var regularAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:RegularAgentRegistrationTemplateId"]];
+            var childAgencyRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyRegistrationMailTemplateId"]];
             services.Configure<AgentRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
                 options.MasterAgentMailTemplateId = masterAgentRegistrationMailTemplateId;
                 options.RegularAgentMailTemplateId = regularAgentRegistrationMailTemplateId;
+                options.ChildAgencyMailTemplateId = childAgencyRegistrationMailTemplateId;
             });
 
             var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];
@@ -499,8 +497,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-
-            services.AddTransient<IAgentInvitationService, AgentInvitationService>();
+            
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
@@ -511,11 +508,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
-            services.AddTransient<IUserInvitationService, UserInvitationService>();
-            services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
+            services.AddTransient<IInvitationService, InvitationService>();
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
-
-            services.AddTransient<IAdministratorRegistrationService, AdministratorRegistrationService>();
+            
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddScoped<IEntityLocker, EntityLocker>();

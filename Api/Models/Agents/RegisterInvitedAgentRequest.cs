@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public struct RegisterInvitedAgentRequest
+    public readonly struct RegisterInvitedAgentRequest
     {
         [JsonConstructor]
         public RegisterInvitedAgentRequest(AgentEditableInfo registrationInfo, string invitationCode)
