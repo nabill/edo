@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -125,6 +126,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
                 return Result.Success();
             }
+        }
+
+
+        public Task<Result> CancelManually(Booking booking, DateTime cancellationDate, UserInfo user)
+        {
+            return SetBookingCancelled()
+                .Bind(ProcessCancellation);
+            
+            
+            async Task<Result> SetBookingCancelled()
+            {
+                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Cancelled);
+                return Result.Success();
+            }
+
+
+            Task<Result> ProcessCancellation() 
+                => _statusChangesProcessor.ProcessCancellation(booking, cancellationDate, user);
         }
         
 

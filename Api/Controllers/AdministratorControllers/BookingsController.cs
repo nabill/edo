@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Bookings;
@@ -129,16 +130,36 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Cancel accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
-        /// <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/cancel")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> Cancel(int bookingId, [FromQuery] bool requireSupplierConfirmation = true)
+        public async Task<IActionResult> Cancel(int bookingId)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
-            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, admin, requireSupplierConfirmation);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, admin);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
+        
+        /// <summary>
+        ///     Cancel accommodation booking manually, without requests to supplier. Cancellation penalties are applied.
+        /// </summary>
+        /// <param name="bookingId">Id of booking to cancel</param>
+        /// <param name="cancellationRequest">Cancellation request</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/cancel-manually")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> Cancel(int bookingId, [FromBody] ManualBookingCancellationRequest cancellationRequest)
+        {
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingManagementService.CancelManually(bookingId, cancellationRequest.CancellationDate, cancellationRequest.Reason, admin);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

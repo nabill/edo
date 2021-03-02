@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -12,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         Task<Result> Void(Booking booking, UserInfo user);
 
-        Task<Result> Refund(Booking booking, UserInfo user);
+        Task<Result> Refund(Booking booking, DateTime operationDate, UserInfo user);
 
         Task<Result> PayForAccountBooking(string referenceCode, AgentContext agent);
     }
