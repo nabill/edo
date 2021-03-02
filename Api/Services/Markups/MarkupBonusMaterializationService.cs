@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null &&
-                    new[] { MarkupPolicyScopeType.Agent, MarkupPolicyScopeType.Agency }.Contains(policy.ScopeType)
+                    SupportedPolicyScopeTypes.Contains(policy.ScopeType)
                 select appliedMarkup.Id;
 
             return query.ToListAsync();
@@ -157,6 +157,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 await _context.SaveChangesAsync();
             }
         }
+
+
+        private static readonly HashSet<MarkupPolicyScopeType> SupportedPolicyScopeTypes 
+            = new() {MarkupPolicyScopeType.Agent, MarkupPolicyScopeType.Agency};
 
 
         private readonly EdoContext _context;
