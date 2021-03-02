@@ -1,13 +1,10 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -22,21 +19,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             ISupplierConnectorManager supplierConnectorFactory,
             IDateTimeProvider dateTimeProvider,
             IBookingResponseProcessor responseProcessor,
-            ISupplierOrderService supplierOrderService,
-            IBookingMoneyReturnService moneyReturnService)
+            IBookingStatusChangesProcessor statusChangesProcessor)
         {
             _bookingRecordManager = bookingRecordManager;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
             _dateTimeProvider = dateTimeProvider;
             _responseProcessor = responseProcessor;
-            _supplierOrderService = supplierOrderService;
-            _moneyReturnService = moneyReturnService;
+            _statusChangesProcessor = statusChangesProcessor;
         }
         
         
-        public async Task<Result> Cancel(Booking booking, UserInfo user,
-            bool requireProviderConfirmation = true)
+        public async Task<Result> Cancel(Booking booking, UserInfo user)
         {
             if (booking.Status == BookingStatuses.Cancelled)
             {
@@ -67,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             async Task<Result<Booking>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
-                return isCancelFailure && requireProviderConfirmation
+                return isCancelFailure
                     ? Result.Failure<Booking>(cancelError.Detail)
                     : Result.Success(booking);
             }
@@ -118,32 +112,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public Task<Result> Discard(Booking booking, UserInfo user)
         {
-            return CancelSupplierOrder()
-                .Bind(ReturnMoney)
-                .Tap(SetBookingDiscarded);
-            
-            async Task<Result> CancelSupplierOrder()
+            return SetBookingDiscarded()
+                .Bind(ProcessDiscarding);
+
+
+            Task<Result> ProcessDiscarding() 
+                => _statusChangesProcessor.ProcessDiscarding(booking, user);
+
+
+            async Task<Result> SetBookingDiscarded()
             {
-                await _supplierOrderService.Cancel(booking.ReferenceCode);
+                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
                 return Result.Success();
             }
-
-
-            Task<Result> ReturnMoney() 
-                => _moneyReturnService.ReturnMoney(booking, user);
-            
-            
-            Task SetBookingDiscarded() 
-                => _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
         }
-
+        
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly ISupplierOrderService _supplierOrderService;
-        private readonly IBookingMoneyReturnService _moneyReturnService;
+        private readonly IBookingStatusChangesProcessor _statusChangesProcessor;
         private readonly ILogger<BookingManagementService> _logger;
     }
 }
