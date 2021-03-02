@@ -122,8 +122,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _invitationService.Create(request.RegistrationInfo.ToUserInvitationData(), UserInvitationTypes.Agent, true,
-                agent.AgentId, agent.AgencyId);
+            var (_, isFailure, error) = await _invitationService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
+                UserInvitationTypes.Agent, true, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CreateInvitation([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _invitationService.Create(request.RegistrationInfo.ToUserInvitationData(),
+            var (_, isFailure, code, error) = await _invitationService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
                 UserInvitationTypes.Agent, false, agent.AgentId, agent.AgencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
