@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
             {
-                return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), true)
+                return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo())
                     .Finally(CreateResult);
 
 

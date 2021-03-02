@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     /// </summary>
     public interface IBookingManagementService
     {
-        Task<Result> Cancel(Booking booking, UserInfo user, bool requireSupplierConfirmation = true);
+        Task<Result> Cancel(Booking booking, UserInfo user);
         
         Task<Result> RefreshStatus(Booking booking, UserInfo user);
 
