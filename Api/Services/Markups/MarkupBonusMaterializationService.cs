@@ -11,6 +11,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -34,8 +35,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     booking.Status == BookingStatuses.Confirmed &&
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
-                    appliedMarkup.Paid == null && 
-                    policy.ScopeType == MarkupPolicyScopeType.Agent
+                    appliedMarkup.Paid == null &&
+                    new[] { MarkupPolicyScopeType.Agent, MarkupPolicyScopeType.Agency }.Contains(policy.ScopeType)
                 select appliedMarkup.Id;
 
             return query.ToListAsync();
@@ -45,15 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result<BatchOperationResult>> Materialize(List<int> markupsForMaterialization)
         {
             foreach (var materializationData in await GetData(markupsForMaterialization))
-            {
-                await Result.Success(materializationData)
-                    .BindWithTransaction(_context, m => Result.Success(m)
-                        .Map(ApplyBonus)
-                        .Map(MarkAsPaid)
-                        .Tap(WriteLog)
-                    );
-            }
-            
+                await ApplyBonus(materializationData);
+
             return new BatchOperationResult($"{markupsForMaterialization.Count} markups materialized", false);
         }
 
@@ -64,59 +58,101 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 from appliedMarkup in _context.AppliedBookingMarkups
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
-                join agency in _context.Agencies on booking.AgencyId equals agency.Id
-                join agencyAccount in _context.AgencyAccounts on agency.Id equals agencyAccount.AgencyId
                 where markupsForMaterialization.Contains(appliedMarkup.Id) && appliedMarkup.Paid == null
                 select new MaterializationData
                 {
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    AgencyAccountId = agencyAccount.Id,
+                    AgencyId = policy.Id,
                     Amount = appliedMarkup.Amount,
-                    Paid = _dateTimeProvider.UtcNow()
+                    ScopeType = policy.ScopeType
                 };
 
             return query.ToListAsync();
         }
 
 
-        private async Task<MaterializationData> ApplyBonus(MaterializationData data)
+        private async Task ApplyBonus(MaterializationData data)
+        {
+            var applyBonusTask = data.ScopeType switch
+            {
+                MarkupPolicyScopeType.Agency => ApplyAgencyBonus(),
+                MarkupPolicyScopeType.Agent => ApplyAgentBonus(),
+                _ => Task.CompletedTask
+            };
+
+            await applyBonusTask;
+
+
+            Task ApplyAgentBonus() => Apply(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
+
+
+            async Task ApplyAgencyBonus()
+            {
+                var parentAgencyQuery = from agency in _context.Agencies
+                    join parentAgency in _context.Agencies on agency.ParentId equals parentAgency.Id
+                    where agency.Id == data.AgencyId
+                    select parentAgency.Id;
+
+                var parentAgencyId = await parentAgencyQuery.SingleOrDefaultAsync();
+                await Apply(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+            }
+        }
+
+
+        private async Task Apply(int policyId, string referenceCode, int agencyId, decimal amount)
         {
             var agencyAccount = await _context.AgencyAccounts
-                .SingleOrDefaultAsync(a => a.Id == data.AgencyAccountId);
+                .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+                
+            if(agencyAccount is null)
+                return;
 
-            agencyAccount.Balance += data.Amount;
-            _context.AgencyAccounts.Update(agencyAccount);
-            await _context.SaveChangesAsync();
-            _context.Entry(agencyAccount).State = EntityState.Detached;
-            return data;
-        }
-
-
-        private async Task<MaterializationData> MarkAsPaid(MaterializationData data)
-        {
-            var appliedMarkup = await _context.AppliedBookingMarkups
-                .SingleOrDefaultAsync(a => a.PolicyId == data.PolicyId && a.ReferenceCode == data.ReferenceCode);
-
-            appliedMarkup.Paid = _dateTimeProvider.UtcNow();
-            _context.AppliedBookingMarkups.Update(appliedMarkup);
-            await _context.SaveChangesAsync();
-            _context.Entry(appliedMarkup).State = EntityState.Detached;
-            return data;
-        }
-
-
-        private async Task WriteLog(MaterializationData data)
-        {
-            _context.MaterializationBonusLogs.Add(new MaterializationBonusLog
+            var paidDate = _dateTimeProvider.UtcNow();
+            
+            await using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                PolicyId = data.PolicyId,
-                ReferenceCode = data.ReferenceCode,
-                AgencyAccountId = data.AgencyAccountId,
-                Amount = data.Amount,
-                Created = data.Paid
-            });
-            await _context.SaveChangesAsync();
+                await UpdateBalance();
+                await MarkAsPaid();
+                await WriteLog();
+
+                await transaction.CommitAsync();
+            }
+
+
+            async Task UpdateBalance()
+            {
+                agencyAccount.Balance += amount;
+                _context.AgencyAccounts.Update(agencyAccount);
+                await _context.SaveChangesAsync();
+                _context.Detach(agencyAccount);
+            }
+
+
+            async Task MarkAsPaid()
+            {
+                var appliedMarkup = await _context.AppliedBookingMarkups
+                    .SingleOrDefaultAsync(a => a.PolicyId == policyId && a.ReferenceCode == referenceCode);
+
+                appliedMarkup.Paid = paidDate;
+                _context.AppliedBookingMarkups.Update(appliedMarkup);
+                await _context.SaveChangesAsync();
+                _context.Detach(appliedMarkup);
+            }
+
+
+            async Task WriteLog()
+            {
+                await _context.MaterializationBonusLogs.AddAsync(new MaterializationBonusLog
+                {
+                    PolicyId = policyId,
+                    ReferenceCode = referenceCode,
+                    AgencyAccountId = agencyAccount.Id,
+                    Amount = amount,
+                    Created = paidDate
+                });
+                await _context.SaveChangesAsync();
+            }
         }
 
 

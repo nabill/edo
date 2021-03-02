@@ -1,4 +1,5 @@
 using System;
+using HappyTravel.Edo.Common.Enums.Markup;
 
 namespace HappyTravel.Edo.Api.Models.Markups
 {
@@ -6,8 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Markups
     {
         public int PolicyId { get; init; }
         public string ReferenceCode { get; init; }
-        public int AgencyAccountId { get; init; }
+        public int AgencyId { get; init; }
         public decimal Amount { get; init; }
-        public DateTime Paid { get; init; }
+        public MarkupPolicyScopeType ScopeType { get; init; }
     }
 }
