@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
@@ -10,10 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     /// </summary>
     public interface IBookingManagementService
     {
-        Task<Result> Cancel(Booking booking, UserInfo user, bool requireSupplierConfirmation = true);
+        Task<Result> Cancel(Booking booking, UserInfo user);
         
         Task<Result> RefreshStatus(Booking booking, UserInfo user);
 
         Task<Result> Discard(Booking booking, UserInfo user);
+
+        Task<Result> CancelManually(Booking booking, DateTime cancellationDate, UserInfo user);
     }
 }

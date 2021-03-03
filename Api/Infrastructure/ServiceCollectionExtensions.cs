@@ -575,6 +575,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingRateChecker, BookingRateChecker>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
+            
+            services.AddTransient<IBookingStatusChangesProcessor, BookingStatusChangesProcessor>();
+            
             services.AddTransient<IBookingMoneyReturnService, BookingMoneyReturnService>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
@@ -660,6 +663,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencyService, AgencyService>();
 
             services.AddTransient<IApiClientService, ApiClientService>();
+            services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

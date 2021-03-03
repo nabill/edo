@@ -33,12 +33,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
-            return isFailure ? await GetDeadlineByRoomSelectionStorage() : result;
+            return isFailure 
+                ? await GetDeadlineByRoomSelectionStorage() 
+                : result;
 
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, enabledSuppliers))
+                var selectedResult = await _roomSelectionStorage.GetResult(searchId, resultId, enabledSuppliers);
+                var selectedRoomSet = selectedResult
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
@@ -49,7 +52,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 if (selectedRoomSet.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                return await MakeProviderRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
+                var checkInDate = selectedResult.Select(s => s.Result.CheckInDate).FirstOrDefault();
+                return await MakeSupplierRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
+                    .Bind(deadline => ProcessDeadline(deadline, checkInDate, agent))
+                    .Map(d => d.ToDeadline());
             }
 
 
@@ -64,13 +70,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 if (selectedRoom is null || selectedRoom.Value.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                return await MakeProviderRequest(selectedResult.SupplierKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId);
+                return await MakeSupplierRequest(selectedResult.SupplierKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId)
+                    .Bind(d => ProcessDeadline(d, selectedResult.a.CheckInDate, agent))
+                    .Map(d => d.ToDeadline());
             }
 
 
-            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers supplier, Guid roomSetId, string availabilityId)
-                => _supplierConnectorManager.Get(supplier)
-                    .GetDeadline(availabilityId, roomSetId, languageCode).Map(d => d.ToDeadline());
+            Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(Suppliers supplier, Guid roomSetId, string availabilityId)
+                => _supplierConnectorManager.Get(supplier).GetDeadline(availabilityId, roomSetId, languageCode);
+        }
+        
+        
+        private async Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTime checkInDate, AgentContext agent)
+        {
+            var settings = await _accommodationBookingSettingsService.Get(agent);
+            return DeadlinePolicyProcessor.Process(deadline, checkInDate, settings.CancellationPolicyProcessSettings);
         }
 
 

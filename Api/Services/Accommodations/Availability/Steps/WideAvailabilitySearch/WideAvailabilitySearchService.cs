@@ -116,10 +116,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (supplier, availability) = r;
                         var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
+                        var roomContractSets = availability.RoomContractSets
+                            .Select(rs => searchSettings.AreTagsVisible
+                                ? rs
+                                : rs.WithEmptyTags())
+                            .ToList();
                         
                         return new WideAvailabilityResult(availability.Id,
                             availability.Accommodation,
-                            availability.RoomContractSets,
+                            roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
@@ -140,21 +145,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
-                List<SupplierCodeMapping> supplierCodeMappings = new List<SupplierCodeMapping>();
                 // If new flow
-                if (accommodationCodes.Any())
+                accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings);
+
+                supplierCodeMappings ??= new List<SupplierCodeMapping>(0);
+                
+                if (NoRequestDataForSupplier(supplierCodeMappings , supplier))
                 {
-                    accommodationCodes.TryGetValue(supplier, out supplierCodeMappings);
-                    if ((supplierCodeMappings == null || !supplierCodeMappings.Any()))
-                    {
-                        await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
-                        continue;
-                    }
+                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                    continue;
                 }
                 
                 // Starting search tasks in a separate thread
                 StartSearchTask(supplier, supplierCodeMappings);
             }
+
+
+            bool NoRequestDataForSupplier(IEnumerable<SupplierCodeMapping> codes, Suppliers supplier)
+                => !codes.Any() && !location.Equals(default) && !location.Suppliers.Contains(supplier);
             
             
             void StartSearchTask(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)

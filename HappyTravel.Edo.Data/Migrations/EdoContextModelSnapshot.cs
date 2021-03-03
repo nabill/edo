@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasPostgresExtension("uuid-ossp")
                 .UseIdentityByDefaultColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.HasSequence("itn_seq");
 
@@ -538,7 +538,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("SupplierReferenceCode")
                         .HasColumnType("text");
 
-                    b.Property<List<string>>("SystemTags")
+                    b.Property<List<string>>("Tags")
                         .HasColumnType("text[]");
 
                     b.Property<decimal>("TotalPrice")

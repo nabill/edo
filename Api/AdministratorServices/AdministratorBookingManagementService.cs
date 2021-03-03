@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
@@ -38,16 +39,28 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Cancel(int bookingId, Administrator admin, bool requireSupplierConfirmation)
+        public async Task<Result> Cancel(int bookingId, Administrator admin)
         {
             return await GetBooking(bookingId)
-                .Bind(ProcessCancel);
+                .Bind(Cancel);
                 
             
-            Task<Result> ProcessCancel(Booking booking) 
+            Task<Result> Cancel(Booking booking) 
                 => _managementService.Cancel(booking, admin.ToUserInfo());
         }
 
+        
+        public async Task<Result> CancelManually(int bookingId, DateTime cancellationDate, string reason, Administrator admin)
+        {
+            // TODO: AA-26 Store cancellation reason
+            return await GetBooking(bookingId)
+                .Bind(CancelManually);
+                
+            
+            Task<Result> CancelManually(Booking booking) 
+                => _managementService.CancelManually(booking, cancellationDate, admin.ToUserInfo());
+        }
+        
 
         private Task<Result<Booking>> GetBooking(int id) 
             => _recordManager.Get(id);

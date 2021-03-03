@@ -57,6 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                             on relation.AgentId equals agent.Id
                         where relation.AgencyId == agencyId
                             && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)
+                            && relation.IsActive
                         select new EmailAndSetting
                         {
                             Email = agent.Email,

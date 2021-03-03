@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             var bookingDetails = GetDetails(booking, accommodation);
             var supplier = GetSupplier(booking, settings);
-            var systemTags = GetSystemTags(booking, settings);
+            var tags = GetTags(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
             
             return new AccommodationBookingInfo(booking.Id,
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 supplier,
                 agentInformation,
                 booking.PaymentMethod,
-                systemTags);
+                tags);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)
@@ -206,11 +206,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 };
             
             
-            static List<string> GetSystemTags(Booking booking, AccommodationBookingSettings? settings)
+            static List<string> GetTags(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => booking.SystemTags,
-                    {AreSystemTagsVisible: true} => booking.SystemTags,
+                    null => booking.Tags,
+                    {AreTagsVisible: true} => booking.Tags,
                     _ => new List<string>()
                 };
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
@@ -39,11 +40,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var dataWithMarkup = result.Data;
             var roomSetAvailability = dataWithMarkup.Data;
             var location = roomSetAvailability.Accommodation.Location;
+            var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
+                roomSetAvailability.RoomContractSet.Tags);
 
             return new BookingAvailabilityInfo(
                 roomSetAvailability.Accommodation.Id,
                 roomSetAvailability.Accommodation.Name,
-                roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source),
+                roomContractSet,
                 location.LocalityZone,
                 location.Locality,
                 location.Country,
@@ -61,7 +64,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
         
-        private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) => $"{searchId}::{resultId}::{roomContractSetId}";
+        private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) 
+            => _doubleFlow.BuildKey(searchId.ToString(), resultId.ToString(), roomContractSetId.ToString());
+        
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         private readonly IDoubleFlow _doubleFlow;

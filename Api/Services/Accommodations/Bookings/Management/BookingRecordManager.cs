@@ -92,7 +92,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     availabilityInfo.RoomContractSet.Deadline.Date,
                     availabilityInfo.CheckInDate,
                     availabilityInfo.CheckOutDate,
-                    availabilityInfo.HtId);
+                    availabilityInfo.HtId,
+                    availabilityInfo.RoomContractSet.Tags);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -117,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking)
+        public async Task UpdateBookingFromDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking)
         {
             booking.SupplierReferenceCode = bookingDetails.SupplierReferenceCode;
             booking.Status = bookingDetails.Status.ToInternalStatus();
@@ -148,10 +149,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Booking booking)
+        public async Task SetConfirmationDate(Booking booking)
         {
             booking.ConfirmationDate = _dateTimeProvider.UtcNow();
-            return UpdateBookingDetails(bookingDetails, booking);
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Detach(booking);;
         }
 
 
