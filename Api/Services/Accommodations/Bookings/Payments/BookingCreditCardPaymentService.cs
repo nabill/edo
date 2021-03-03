@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -55,12 +56,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result> Refund(Booking booking, UserInfo user)
+        public async Task<Result> Refund(Booking booking, DateTime operationDate, UserInfo user)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Failure($"Refund is only available for payments with '{BookingPaymentStatuses.Captured}' status");
             
-            return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, user, _paymentCallbackService);
+            return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, user, operationDate, _paymentCallbackService);
         }
 
 

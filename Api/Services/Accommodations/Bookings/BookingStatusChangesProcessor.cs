@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
@@ -22,6 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ISupplierOrderService supplierOrderService,
             IBookingDocumentsMailingService documentsMailingService,
             IBookingMoneyReturnService moneyReturnService,
+            IDateTimeProvider dateTimeProvider,
             EdoContext context,
             ILogger<BookingStatusChangesProcessor> logger)
         {
@@ -31,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _supplierOrderService = supplierOrderService;
             _documentsMailingService = documentsMailingService;
             _moneyReturnService = moneyReturnService;
+            _dateTimeProvider = dateTimeProvider;
             _context = context;
             _logger = logger;
         }
@@ -70,11 +74,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public Task<Result> ProcessCancellation(Edo.Data.Bookings.Booking booking, UserInfo user)
+        public Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, UserInfo user)
         {
             return SendNotifications()
                 .Tap(CancelSupplierOrder)
-                .Bind(() => ReturnMoney(booking, user));
+                .Bind(() => ReturnMoney(booking, cancellationDate, user));
 
             
             Task CancelSupplierOrder() 
@@ -103,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task ProcessRejection(Edo.Data.Bookings.Booking booking, UserInfo user)
         {
             return CancelSupplierOrder()
-                .Bind(() => ReturnMoney(booking, user));
+                .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
 
             
             async Task<Result> CancelSupplierOrder()
@@ -117,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<Result> ProcessDiscarding(Booking booking, UserInfo user)
         {
             return CancelSupplierOrder()
-                .Bind(() => ReturnMoney(booking, user));
+                .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
             
             
             async Task<Result> CancelSupplierOrder()
@@ -128,8 +132,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        private Task<Result> ReturnMoney(Booking booking, UserInfo user) 
-            => _moneyReturnService.ReturnMoney(booking, user);
+        private Task<Result> ReturnMoney(Booking booking, DateTime operationDate, UserInfo user) 
+            => _moneyReturnService.ReturnMoney(booking, operationDate, user);
         
         
         private readonly IBookingInfoService _bookingInfoService;
@@ -138,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly IBookingMoneyReturnService _moneyReturnService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
         private readonly ILogger<BookingStatusChangesProcessor> _logger;
     }
