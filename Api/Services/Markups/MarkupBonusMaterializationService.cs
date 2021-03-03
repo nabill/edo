@@ -80,19 +80,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var applyBonusTask = data.ScopeType switch
             {
-                MarkupPolicyScopeType.Agency => ApplyAgencyBonus(),
-                MarkupPolicyScopeType.Agent => ApplyAgentBonus(),
+                MarkupPolicyScopeType.Agency => ApplyAgencyScopeBonus(),
+                MarkupPolicyScopeType.Agent => ApplyAgentScopeBonus(),
                 _ => Task.CompletedTask
             };
 
             await applyBonusTask;
 
 
-            Task ApplyAgencyBonus() 
-                => ApplyBonus(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
+            Task ApplyAgentScopeBonus() 
+                => ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
 
 
-            async Task ApplyAgentBonus()
+            async Task ApplyAgencyScopeBonus()
             {
                 var parentAgencyQuery = from agency in _context.Agencies
                     join parentAgency in _context.Agencies on agency.ParentId equals parentAgency.Id
@@ -100,12 +100,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     select parentAgency.Id;
 
                 var parentAgencyId = await parentAgencyQuery.SingleOrDefaultAsync();
-                await ApplyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+                await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
             }
         }
 
 
-        private async Task ApplyBonus(int policyId, string referenceCode, int agencyId, decimal amount)
+        private async Task ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, decimal amount)
         {
             var agencyAccount = await _context.AgencyAccounts
                 .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
