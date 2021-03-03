@@ -12,6 +12,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.EdoContracts.General.Enums;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -87,10 +88,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             await applyBonusTask;
 
 
-            Task ApplyAgentBonus() => Apply(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
+            Task ApplyAgencyBonus() 
+                => ApplyBonus(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
 
 
-            async Task ApplyAgencyBonus()
+            async Task ApplyAgentBonus()
             {
                 var parentAgencyQuery = from agency in _context.Agencies
                     join parentAgency in _context.Agencies on agency.ParentId equals parentAgency.Id
@@ -98,29 +100,27 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     select parentAgency.Id;
 
                 var parentAgencyId = await parentAgencyQuery.SingleOrDefaultAsync();
-                await Apply(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+                await ApplyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
             }
         }
 
 
-        private async Task Apply(int policyId, string referenceCode, int agencyId, decimal amount)
+        private async Task ApplyBonus(int policyId, string referenceCode, int agencyId, decimal amount)
         {
             var agencyAccount = await _context.AgencyAccounts
                 .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
                 
-            if(agencyAccount is null)
+            if (agencyAccount is null)
                 return;
 
             var paidDate = _dateTimeProvider.UtcNow();
-            
-            await using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                await UpdateBalance();
-                await MarkAsPaid();
-                await WriteLog();
 
-                await transaction.CommitAsync();
-            }
+            await Result.Success()
+                .BindWithTransaction(_context, () => Result.Success()
+                    .Tap(UpdateBalance)
+                    .Tap(MarkAsPaid)
+                    .Tap(WriteLog)
+                );
 
 
             async Task UpdateBalance()
