@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -52,7 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Refund(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService, string reason)
+        public async Task<Result> Refund(string referenceCode, UserInfo user, DateTime operationDate, IPaymentCallbackService paymentCallbackService,
+            string reason)
         {
             return await GetChargingAccountId()
                 .Bind(GetRefundableAmount)
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             
             async Task<Result<(int accountId, MoneyAmount)>> GetRefundableAmount(int accountId)
             {
-                var (_, isFailure, refundableAmount, error) = await paymentCallbackService.GetRefundableAmount(referenceCode);
+                var (_, isFailure, refundableAmount, error) = await paymentCallbackService.GetRefundableAmount(referenceCode, operationDate);
                 if (isFailure)
                     return Result.Failure<(int, MoneyAmount)>(error);
 

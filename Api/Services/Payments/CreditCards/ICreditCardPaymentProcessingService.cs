@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -24,6 +25,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
 
-        Task<Result> RefundMoney(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
+        Task<Result> RefundMoney(string referenceCode, UserInfo user, DateTime operationDate, IPaymentCallbackService paymentCallbackService);
     }
 }

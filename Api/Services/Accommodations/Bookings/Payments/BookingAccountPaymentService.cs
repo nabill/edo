@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -32,13 +33,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result> Refund(Booking booking, UserInfo user)
+        public async Task<Result> Refund(Booking booking, DateTime operationDate, UserInfo user)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Success();
 
             var reason = $"Refunding money for booking {booking.ReferenceCode}";
-            return await _accountPaymentService.Refund(booking.ReferenceCode, user, _paymentCallbackService, reason);
+            return await _accountPaymentService.Refund(booking.ReferenceCode, user, operationDate, _paymentCallbackService, reason);
         }
 
         
