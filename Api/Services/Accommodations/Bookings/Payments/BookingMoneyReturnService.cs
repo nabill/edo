@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
         
         
-        public async Task<Result> ReturnMoney(Booking booking, UserInfo user)
+        public async Task<Result> ReturnMoney(Booking booking, DateTime operationDate, UserInfo user)
         {
             return booking.PaymentMethod switch
             {
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 {
                     BookingPaymentStatuses.NotPaid => Result.Success(),
                     BookingPaymentStatuses.Refunded => Result.Success(),
-                    BookingPaymentStatuses.Captured => await _accountPaymentService.Refund(booking, user),
+                    BookingPaymentStatuses.Captured => await _accountPaymentService.Refund(booking, operationDate, user),
                     _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentStatus), $"Invalid payment status {booking.PaymentStatus}")
                 };
 
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     BookingPaymentStatuses.Refunded => Result.Success(),
                     BookingPaymentStatuses.Voided => Result.Success(),
                     BookingPaymentStatuses.Authorized => await _creditCardPaymentService.Void(booking, user),
-                    BookingPaymentStatuses.Captured => await _creditCardPaymentService.Refund(booking, user),
+                    BookingPaymentStatuses.Captured => await _creditCardPaymentService.Refund(booking, operationDate, user),
                     _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentStatus), $"Invalid payment status {booking.PaymentStatus}")
                 };
         }
