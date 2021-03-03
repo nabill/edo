@@ -3,7 +3,7 @@
     public enum UserInvitationStatuses
     {
         Active = 1,
-        Disabled = 2,
+        Revoked = 2,
         Resent = 3,
         Accepted = 4
     }

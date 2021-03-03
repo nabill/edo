@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         Task<Result<string>> Create(UserInvitationData prefilledData, UserInvitationTypes invitationType,
             bool shouldSendInvitationMail, int inviterUserId, int? inviterAgencyId = null);
 
-        Task<Result> Disable(string code);
+        Task<Result> Revoke(string code);
 
         Task<Result<string>> Resend(string code);
 

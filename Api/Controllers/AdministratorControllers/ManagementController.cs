@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DisableInvitation(string code)
         {
-            var (_, isFailure, error) = await _invitationRecordService.Disable(code);
+            var (_, isFailure, error) = await _invitationRecordService.Revoke(code);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

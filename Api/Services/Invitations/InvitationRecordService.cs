@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        public async Task<Result> Disable(string code)
+        public async Task<Result> Revoke(string code)
         {
             return await GetActiveInvitation(code)
                 .Tap(SaveDisabled);
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             Task SaveDisabled(UserInvitation invitation)
             {
-                invitation.InvitationStatus = UserInvitationStatuses.Disabled;
+                invitation.InvitationStatus = UserInvitationStatuses.Revoked;
                 _context.Update(invitation);
                 return _context.SaveChangesAsync();
             }
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             {
                 var (_, isFailure, newCode, error) = await Create(GetInvitationData(oldInvitation),
                     oldInvitation.InvitationType,
-                    true,
+                    shouldSendInvitationMail: true,
                     oldInvitation.InviterUserId,
                     oldInvitation.InviterAgencyId);
 

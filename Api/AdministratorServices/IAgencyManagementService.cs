@@ -16,6 +16,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId);
 
-        Task<AgencyInfo> Create(string name, int counterpartyId, int? parentId);
+        Task<AgencyInfo> Create(string name, int counterpartyId, int? parentAgencyId);
     }
 }
