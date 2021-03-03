@@ -37,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 {
                     CounterpartyContractKind.CashPayments => TimeSpan.FromDays(-3),
                     CounterpartyContractKind.CreditPayments => TimeSpan.FromDays(-1),
+                    CounterpartyContractKind.CreditCardPayments => TimeSpan.FromDays(-1),
                     null => DefaultPolicyDateShift,
                     _ => throw new ArgumentOutOfRangeException(nameof(contractKind), contractKind, "Unknown contract kind")
                 };
