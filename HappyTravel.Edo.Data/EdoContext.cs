@@ -398,7 +398,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Email).IsRequired();
                 inv.Property(i => i.Created).IsRequired();
                 inv.Property(i => i.InviterUserId).IsRequired();
-                inv.Property(i => i.InvitationStatus).IsRequired();
+                inv.Property(i => i.InvitationStatus).HasDefaultValue(UserInvitationStatuses.Active);
                 inv.Property(i => i.InvitationType).IsRequired();
             });
         }
