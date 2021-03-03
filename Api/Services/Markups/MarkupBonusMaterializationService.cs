@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -12,6 +13,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,10 +48,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result<BatchOperationResult>> Materialize(List<int> markupsForMaterialization)
         {
-            foreach (var materializationData in await GetData(markupsForMaterialization))
-                await ApplyBonus(materializationData);
+            var hasErrors = false;
+            var stringBuilder = new StringBuilder();
 
-            return new BatchOperationResult($"{markupsForMaterialization.Count} markups materialized", false);
+            foreach (var materializationData in await GetData(markupsForMaterialization))
+            {
+                var (_, isFailure, error) = await ApplyBonus(materializationData);
+                if (isFailure)
+                {
+                    hasErrors = true;
+                    stringBuilder.Append(error);
+                }
+            }
+
+            return new BatchOperationResult($"{markupsForMaterialization.Count} markups materialized. {stringBuilder}", hasErrors);
         }
 
 
@@ -68,7 +80,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
                     AgencyId = policy.AgencyId.Value,
-                    Amount = appliedMarkup.Amount,
+                    Amount = new MoneyAmount
+                    {
+                        Amount = appliedMarkup.Amount,
+                        Currency = appliedMarkup.Currency
+                    },
                     ScopeType = policy.ScopeType
                 };
 
@@ -76,23 +92,23 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private async Task ApplyBonus(MaterializationData data)
+        private async Task<Result> ApplyBonus(MaterializationData data)
         {
             var applyBonusTask = data.ScopeType switch
             {
                 MarkupPolicyScopeType.Agency => ApplyAgencyScopeBonus(),
                 MarkupPolicyScopeType.Agent => ApplyAgentScopeBonus(),
-                _ => Task.CompletedTask
+                _ => Task.FromResult(Result.Failure($"MarkupPolicyScopeType {data.ScopeType} is not supported"))
             };
 
-            await applyBonusTask;
+            return await applyBonusTask;
 
 
-            Task ApplyAgentScopeBonus() 
+            Task<Result> ApplyAgentScopeBonus() 
                 => ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
 
 
-            async Task ApplyAgencyScopeBonus()
+            async Task<Result> ApplyAgencyScopeBonus()
             {
                 var parentAgencyQuery = from agency in _context.Agencies
                     join parentAgency in _context.Agencies on agency.ParentId equals parentAgency.Id
@@ -100,22 +116,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     select parentAgency.Id;
 
                 var parentAgencyId = await parentAgencyQuery.SingleOrDefaultAsync();
-                await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
             }
         }
 
 
-        private async Task ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, decimal amount)
+        private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, MoneyAmount amount)
         {
             var agencyAccount = await _context.AgencyAccounts
-                .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
-                
+                .SingleOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == amount.Currency);
+
             if (agencyAccount is null)
-                return;
+                return Result.Failure($"Account for agency '{agencyId}' with currency {amount.Currency} not found");
 
             var paidDate = _dateTimeProvider.UtcNow();
 
-            await Result.Success()
+            return await Result.Success()
                 .BindWithTransaction(_context, () => Result.Success()
                     .Tap(UpdateBalance)
                     .Tap(MarkAsPaid)
@@ -125,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task UpdateBalance()
             {
-                agencyAccount.Balance += amount;
+                agencyAccount.Balance += amount.Amount;
                 _context.AgencyAccounts.Update(agencyAccount);
                 await _context.SaveChangesAsync();
                 _context.Detach(agencyAccount);
@@ -151,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     PolicyId = policyId,
                     ReferenceCode = referenceCode,
                     AgencyAccountId = agencyAccount.Id,
-                    Amount = amount,
+                    Amount = amount.Amount,
                     Created = paidDate
                 });
                 await _context.SaveChangesAsync();
