@@ -9,18 +9,20 @@ using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Invitations
 {
-    public interface IInvitationService
+    public interface IInvitationRecordService
     {
         Task<Result<string>> Create(UserInvitationData prefilledData, UserInvitationTypes invitationType,
             bool shouldSendInvitationMail, int inviterUserId, int? inviterAgencyId = null);
-        
+
         Task<Result> Disable(string code);
 
         Task<Result<string>> Resend(string code);
 
-        Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity);
+        Task<Result> Accept(string code);
 
         Task<Result<UserInvitation>> GetActiveInvitation(string code);
+
+        UserInvitationData GetInvitationData(UserInvitation invitation);
 
         Task<List<AgentInvitationResponse>> GetAgentAcceptedInvitations(int agentId);
 

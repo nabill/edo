@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
-    public class InvitationOptions
+    public class InvitationRecordOptions
     {
         public string AgentInvitationTemplateId { get; set; }
         public string AdminInvitationTemplateId { get; set; }

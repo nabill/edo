@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<AgencyInfo> Create(string name, int counterpartyId, int? parentId)
         {
-            var now = DateTime.UtcNow;
+            var now = _dateTimeProvider.UtcNow();
             var agency = new Agency
             {
                 Name = name,

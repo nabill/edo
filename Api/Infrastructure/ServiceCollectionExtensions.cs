@@ -200,7 +200,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var agentInvitationTemplateId = mailSettings[configuration["Edo:Email:AgentInvitationTemplateId"]];
             var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             var childAgencyInvitationTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyInvitationTemplateId"]];
-            services.Configure<InvitationOptions>(options =>
+            services.Configure<InvitationRecordOptions>(options =>
             {
                 options.AgentInvitationTemplateId = agentInvitationTemplateId;
                 options.AdminInvitationTemplateId = administratorInvitationTemplateId;
@@ -508,7 +508,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
-            services.AddTransient<IInvitationService, InvitationService>();
+            services.AddTransient<IInvitationRecordService, InvitationRecordService>();
+            services.AddTransient<IInvitationAcceptAgentService, InvitationAcceptAgentService>();
+            services.AddTransient<IInvitationAcceptAdminService, InvitationAcceptAdminService>();
+
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
             
             services.AddScoped<IManagementAuditService, ManagementAuditService>();

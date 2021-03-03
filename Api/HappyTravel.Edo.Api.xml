@@ -421,6 +421,18 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.InviteChildAgency(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
+            <summary>
+                Invites to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GenerateChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
+            <summary>
+                Invites to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
             <summary>
                 Transfers money from an agency account to a child agency account

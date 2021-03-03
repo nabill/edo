@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public AgenciesController(IAgencyService agencyService,
             IAgentContextService agentContextService,
-            IInvitationService invitationService)
+            IInvitationRecordService invitationRecordService)
         {
             _agencyService = agencyService;
             _agentContextService = agentContextService;
-            _invitationService = invitationService;
+            _invitationRecordService = invitationRecordService;
         }
 
 
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteChildAgency([FromBody] UserInvitationData request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _invitationService.Create(request,
+            var (_, isFailure, code, error) = await _invitationRecordService.Create(request,
                 UserInvitationTypes.ChildAgency, true, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GenerateChildAgencyInvite([FromBody] UserInvitationData request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _invitationService.Create(request,
+            var (_, isFailure, code, error) = await _invitationRecordService.Create(request,
                 UserInvitationTypes.ChildAgency, false, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -106,6 +106,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
         private readonly IAgencyService _agencyService;
         private readonly IAgentContextService _agentContextService;
-        private readonly IInvitationService _invitationService;
+        private readonly IInvitationRecordService _invitationRecordService;
     }
 }

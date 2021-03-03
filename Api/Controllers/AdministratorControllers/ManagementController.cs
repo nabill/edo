@@ -19,11 +19,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
-        public ManagementController(IInvitationService invitationService,
+        public ManagementController(IInvitationRecordService invitationRecordService,
+            IInvitationAcceptAdminService invitationAcceptAdminService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAdministratorContext administratorContext)
         {
-            _invitationService = invitationService;
+            _invitationRecordService = invitationRecordService;
+            _invitationAcceptAdminService = invitationAcceptAdminService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _administratorContext = administratorContext;
         }
@@ -42,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
 
-            var (_, isFailure, error) = await _invitationService.Create(invitationInfo.ToUserInvitationData(),
+            var (_, isFailure, error) = await _invitationRecordService.Create(invitationInfo.ToUserInvitationData(),
                 UserInvitationTypes.Administrator, true, admin.Id);
 
             if (isFailure)
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
-            var (_, isFailure, error) = await _invitationService.Accept(invitationCode, default, identity);
+            var (_, isFailure, error) = await _invitationAcceptAdminService.Accept(invitationCode, default, identity);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -83,7 +85,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DisableInvitation(string code)
         {
-            var (_, isFailure, error) = await _invitationService.Disable(code);
+            var (_, isFailure, error) = await _invitationRecordService.Disable(code);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -92,7 +94,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
-        private readonly IInvitationService _invitationService;
+        private readonly IInvitationRecordService _invitationRecordService;
+        private readonly IInvitationAcceptAdminService _invitationAcceptAdminService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAdministratorContext _administratorContext;
     }
