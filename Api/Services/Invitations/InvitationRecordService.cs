@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,13 +6,11 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -195,22 +190,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        public Task<List<AgentInvitationResponse>> GetAgentAcceptedInvitations(int agentId)
-            => GetInvitationsWithInviter(i => i.InviterUserId == agentId && i.InvitationStatus == UserInvitationStatuses.Accepted);
-
-
-        public Task<List<AgentInvitationResponse>> GetAgentNotAcceptedInvitations(int agentId)
-            => GetInvitationsWithInviter(i => i.InviterUserId == agentId && i.InvitationStatus != UserInvitationStatuses.Accepted);
-
-
-        public Task<List<AgentInvitationResponse>> GetAgencyAcceptedInvitations(int agencyId)
-            => GetInvitationsWithInviter(i => i.InviterAgencyId == agencyId && i.InvitationStatus == UserInvitationStatuses.Accepted);
-
-
-        public Task<List<AgentInvitationResponse>> GetAgencyNotAcceptedInvitations(int agencyId)
-            => GetInvitationsWithInviter(i => i.InviterAgencyId == agencyId && i.InvitationStatus != UserInvitationStatuses.Accepted);
-
-
         public Task<Result<UserInvitation>> GetActiveInvitation(string code)
         {
             return GetInvitation()
@@ -234,35 +213,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         public UserInvitationData GetInvitationData(UserInvitation invitation)
             => JsonConvert.DeserializeObject<UserInvitationData>(invitation.Data);
-
-
-        private async Task<List<AgentInvitationResponse>> GetInvitationsWithInviter(Expression<Func<UserInvitation, bool>> filterExpression)
-        {
-            var rows = await _context
-                .UserInvitations
-                .Where(i => i.InvitationStatus != UserInvitationStatuses.Resent)
-                .Where(filterExpression)
-                .Join(
-                    _context.Agents,
-                    invite => invite.InviterUserId,
-                    agent => agent.Id,
-                    (invite, inviter) => new { Invite = invite, Inviter = inviter }
-                )
-                .ToListAsync();
-
-            return rows.Select(r => new { r.Invite, r.Inviter, Data = GetInvitationData(r.Invite) })
-                .Select(i => new AgentInvitationResponse(
-                    i.Invite.CodeHash,
-                    i.Data.AgentRegistrationInfo.Title,
-                    i.Data.AgentRegistrationInfo.FirstName,
-                    i.Data.AgentRegistrationInfo.LastName,
-                    i.Data.AgentRegistrationInfo.Position,
-                    i.Invite.Email,
-                    $"{i.Inviter.FirstName} {i.Inviter.LastName}",
-                    DateTimeFormatters.ToDateString(i.Invite.Created))
-                )
-                .ToList();
-        }
 
 
         private readonly TimeSpan _invitationExpirationPeriod = TimeSpan.FromDays(7);

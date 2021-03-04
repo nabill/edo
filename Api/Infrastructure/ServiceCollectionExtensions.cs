@@ -508,6 +508,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
             services.AddTransient<IInvitationRecordService, InvitationRecordService>();
+            services.AddTransient<IInvitationRecordsListService, InvitationRecordsListService>();
             services.AddTransient<IInvitationAcceptAgentService, InvitationAcceptAgentService>();
             services.AddTransient<IInvitationAcceptAdminService, InvitationAcceptAdminService>();
 
