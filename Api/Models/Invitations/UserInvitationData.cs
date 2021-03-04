@@ -9,10 +9,10 @@ namespace HappyTravel.Edo.Api.Models.Invitations
     public readonly struct UserInvitationData
     {
         [JsonConstructor]
-        public UserInvitationData(AgentEditableInfo agentRegistrationInfo,
+        public UserInvitationData(UserDescriptionInfo userRegistrationInfo,
             AgencyInfo childAgencyRegistrationInfo)
         {
-            AgentRegistrationInfo = agentRegistrationInfo;
+            UserRegistrationInfo = userRegistrationInfo;
             ChildAgencyRegistrationInfo = childAgencyRegistrationInfo;
         }
 
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// Prefilled user registration info.
         /// </summary>
         [Required]
-        public AgentEditableInfo AgentRegistrationInfo { get; }
+        public UserDescriptionInfo UserRegistrationInfo { get; }
 
         /// <summary>
         /// Prefilled child agency registration info. Used only for child agency invitations.

@@ -9,11 +9,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentService
     {
-        Task<Result<Agent>> Add(AgentEditableInfo agentRegistration, string externalIdentity, string email);
+        Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration, string externalIdentity, string email);
 
         Task<Result<Agent>> GetMasterAgent(int agencyId);
 
-        Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo, AgentContext agentContext);
+        Task<UserDescriptionInfo> UpdateCurrentAgent(UserDescriptionInfo newInfo, AgentContext agentContext);
 
         IQueryable<SlimAgentInfo> GetAgents(AgentContext agentContext);
 

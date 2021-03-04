@@ -196,10 +196,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             var data = JsonConvert.DeserializeObject<UserInvitationData>(invitation.Data);
 
-            return Ok(new AgentInvitationInfo(data.AgentRegistrationInfo,
+            return Ok(new AgentInvitationInfo(data.UserRegistrationInfo,
                 invitation.InviterAgencyId.Value,
                 invitation.InviterUserId,
-                data.AgentRegistrationInfo.Email));
+                data.UserRegistrationInfo.Email));
         }
         
         
@@ -300,10 +300,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Updates current agent properties.
         /// </summary>
         [HttpPut("agent/properties")]
-        [ProducesResponseType(typeof(AgentEditableInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(UserDescriptionInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AgentRequired]
-        public async Task<IActionResult> UpdateCurrentAgent([FromBody] AgentEditableInfo newInfo)
+        public async Task<IActionResult> UpdateCurrentAgent([FromBody] UserDescriptionInfo newInfo)
         {
             var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo, await _agentContextService.GetAgent());
 

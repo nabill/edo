@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.Management;
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorInvitation)]
-        public async Task<IActionResult> InviteAdministrator([FromBody] AdministratorInvitationInfo invitationInfo)
+        public async Task<IActionResult> InviteAdministrator([FromBody] UserDescriptionInfo invitationInfo)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
 

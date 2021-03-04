@@ -15,7 +15,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public class InvitationAcceptAdminService : IInvitationAcceptAdminService
     {
-
         public InvitationAcceptAdminService(
             IInvitationRecordService invitationRecordService,
             EdoContext context,
@@ -63,11 +62,11 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
                 var administrator = new Administrator
                 {
-                    Email = invitationData.AgentRegistrationInfo.Email,
-                    FirstName = invitationData.AgentRegistrationInfo.FirstName,
-                    LastName = invitationData.AgentRegistrationInfo.LastName,
+                    Email = invitationData.UserRegistrationInfo.Email,
+                    FirstName = invitationData.UserRegistrationInfo.FirstName,
+                    LastName = invitationData.UserRegistrationInfo.LastName,
                     IdentityHash = HashGenerator.ComputeSha256(identity),
-                    Position = invitationData.AgentRegistrationInfo.Position,
+                    Position = invitationData.UserRegistrationInfo.Position,
                     Created = now,
                     Updated = now
                 };

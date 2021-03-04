@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 var newInvitation = new UserInvitation
                 {
                     CodeHash = HashGenerator.ComputeSha256(invitationCode),
-                    Email = prefilledData.AgentRegistrationInfo.Email,
+                    Email = prefilledData.UserRegistrationInfo.Email,
                     Created = now,
                     InviterUserId = inviterUserId,
                     InviterAgencyId = inviterAgencyId,
@@ -99,8 +99,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 {
                     AgencyName = agencyName,
                     InvitationCode = invitationCode,
-                    UserEmailAddress = prefilledData.AgentRegistrationInfo.Email,
-                    UserName = $"{prefilledData.AgentRegistrationInfo.FirstName} {prefilledData.AgentRegistrationInfo.LastName}"
+                    UserEmailAddress = prefilledData.UserRegistrationInfo.Email,
+                    UserName = $"{prefilledData.UserRegistrationInfo.FirstName} {prefilledData.UserRegistrationInfo.LastName}"
                 };
 
                 var templateId = GetTemplateId();
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     return Result.Failure("Could not find invitation mail template");
 
                 return await _mailSender.Send(templateId,
-                    prefilledData.AgentRegistrationInfo.Email,
+                    prefilledData.UserRegistrationInfo.Email,
                     messagePayload);
             }
 
@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             void LogInvitationCreated()
                 => _logger.LogInvitationCreated(
-                    $"The invitation with type {invitationType} created for the user '{prefilledData.AgentRegistrationInfo.Email}'");
+                    $"The invitation with type {invitationType} created for the user '{prefilledData.UserRegistrationInfo.Email}'");
         }
 
 

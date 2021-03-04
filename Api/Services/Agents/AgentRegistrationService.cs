@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result> RegisterWithCounterparty(AgentEditableInfo agentData, CounterpartyEditRequest counterpartyData, string externalIdentity,
+        public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyEditRequest counterpartyData, string externalIdentity,
             string email)
         {
             return Result.Success()

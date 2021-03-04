@@ -287,7 +287,7 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo)">
             <summary>
                 Send invitation to administrator.
             </summary>
@@ -624,7 +624,7 @@
             </summary>
             <returns>Current agent information.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdateCurrentAgent(HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdateCurrentAgent(HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo)">
             <summary>
                 Updates current agent properties.
             </summary>
@@ -1615,31 +1615,6 @@
                 List of counterparties, associated with agent.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Title">
-            <summary>
-                Title, Mr, Mrs etc.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.FirstName">
-            <summary>
-                First name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.LastName">
-            <summary>
-                Last name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Position">
-            <summary>
-                Position or designation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Email">
-            <summary>
-                Email
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgentId">
             <summary>
                 Agent ID.
@@ -1955,6 +1930,31 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo.Title">
+            <summary>
+                Title, Mr, Mrs etc.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo.Position">
+            <summary>
+                Position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.UserDescriptionInfo.Email">
+            <summary>
+                Email
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.CounterpartyName">
             <summary>
             Agency name
@@ -2111,7 +2111,7 @@
                 Indicates if extra cot needed.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.AgentRegistrationInfo">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.UserRegistrationInfo">
             <summary>
             Prefilled user registration info.
             </summary>

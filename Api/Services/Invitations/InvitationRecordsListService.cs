@@ -56,10 +56,10 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             return rows.Select(r => new { r.Invite, r.Inviter, Data = _invitationRecordService.GetInvitationData(r.Invite) })
                 .Select(i => new AgentInvitationResponse(
                     i.Invite.CodeHash,
-                    i.Data.AgentRegistrationInfo.Title,
-                    i.Data.AgentRegistrationInfo.FirstName,
-                    i.Data.AgentRegistrationInfo.LastName,
-                    i.Data.AgentRegistrationInfo.Position,
+                    i.Data.UserRegistrationInfo.Title,
+                    i.Data.UserRegistrationInfo.FirstName,
+                    i.Data.UserRegistrationInfo.LastName,
+                    i.Data.UserRegistrationInfo.Position,
                     i.Invite.Email,
                     $"{i.Inviter.FirstName} {i.Inviter.LastName}",
                     DateTimeFormatters.ToDateString(i.Invite.Created))

@@ -84,11 +84,11 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             bool IsEmailFilled(AcceptPipeValues values)
-                => !string.IsNullOrWhiteSpace(values.InvitationData.AgentRegistrationInfo.Email);
+                => !string.IsNullOrWhiteSpace(values.InvitationData.UserRegistrationInfo.Email);
 
 
             async Task<bool> IsAgentEmailUnique(AcceptPipeValues values)
-                => !await _context.Agents.AnyAsync(a => a.Email == values.InvitationData.AgentRegistrationInfo.Email);
+                => !await _context.Agents.AnyAsync(a => a.Email == values.InvitationData.UserRegistrationInfo.Email);
 
 
             Task SaveAccepted(AcceptPipeValues _)
@@ -97,8 +97,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<Result<AcceptPipeValues>> CreateAgent(AcceptPipeValues values)
             {
-                var (_, isFailure, agent, error) = await _agentService.Add(values.InvitationData.AgentRegistrationInfo, identity,
-                    values.InvitationData.AgentRegistrationInfo.Email);
+                var (_, isFailure, agent, error) = await _agentService.Add(values.InvitationData.UserRegistrationInfo, identity,
+                    values.InvitationData.UserRegistrationInfo.Email);
 
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             void LogSuccess(AcceptPipeValues values)
-                => _logger.LogAgentRegistrationSuccess($"Agent {values.InvitationData.AgentRegistrationInfo.Email} successfully registered " +
+                => _logger.LogAgentRegistrationSuccess($"Agent {values.InvitationData.UserRegistrationInfo.Email} successfully registered " +
                     $"and bound to agency ID:'{values.Invitation.InviterAgencyId.Value}'");
 
 
@@ -166,7 +166,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     return;
                 }
 
-                var registrationInfo = values.InvitationData.AgentRegistrationInfo;
+                var registrationInfo = values.InvitationData.UserRegistrationInfo;
                 var position = string.IsNullOrWhiteSpace(registrationInfo.Position)
                     ? "a new employee"
                     : registrationInfo.Position;

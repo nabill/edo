@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct SendAgentInvitationRequest
     {
         [JsonConstructor]
-        public SendAgentInvitationRequest(AgentEditableInfo registrationInfo, string email)
+        public SendAgentInvitationRequest(UserDescriptionInfo registrationInfo, string email)
         {
             RegistrationInfo = registrationInfo;
             Email = email;
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Regular agent personal information.
         /// </summary>
         [Required]
-        public AgentEditableInfo RegistrationInfo { get; }
+        public UserDescriptionInfo RegistrationInfo { get; }
 
         /// <summary>
         ///     E-mail for invitation.

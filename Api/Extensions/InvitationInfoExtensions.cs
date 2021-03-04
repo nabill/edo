@@ -7,13 +7,9 @@ namespace HappyTravel.Edo.Api.Extensions
 {
     public static class InvitationInfoExtensions
     {
-        public static UserInvitationData ToUserInvitationData(this AdministratorInvitationInfo info)
-            => new UserInvitationData(new AgentEditableInfo(info.Title, info.FirstName, info.LastName, info.Position, info.Email), default);
-
-
-        public static UserInvitationData ToUserInvitationData(this AgentEditableInfo info, string email = null)
+        public static UserInvitationData ToUserInvitationData(this UserDescriptionInfo info, string email = null)
         {
-            var newInfo = new AgentEditableInfo(info.Title, info.FirstName, info.LastName, info.Position, email ?? info.Email);
+            var newInfo = new UserDescriptionInfo(info.Title, info.FirstName, info.LastName, info.Position, email ?? info.Email);
             return new UserInvitationData(newInfo, default);
         }
     }
