@@ -206,7 +206,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AdminInvitationTemplateId = administratorInvitationTemplateId;
                 options.ChildAgencyInvitationTemplateId = childAgencyInvitationTemplateId;
                 options.EdoPublicUrl = edoPublicUrl;
-                options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
             });
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);

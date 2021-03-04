@@ -228,7 +228,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            bool InvitationIsActual(UserInvitation invitation) => invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
+            bool InvitationIsActual(UserInvitation invitation) => invitation.Created + _invitationExpirationPeriod > _dateTimeProvider.UtcNow();
         }
 
 
@@ -264,6 +264,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .ToList();
         }
 
+
+        private readonly TimeSpan _invitationExpirationPeriod = TimeSpan.FromDays(7);
 
         private readonly InvitationRecordOptions _options;
         private readonly ILogger<InvitationRecordService> _logger;
