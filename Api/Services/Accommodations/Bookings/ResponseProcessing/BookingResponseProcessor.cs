@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                     await _statusChangesProcessor.ProcessConfirmation(booking);
                     break;
                 case BookingStatusCodes.Cancelled:
-                    await _statusChangesProcessor.ProcessCancellation(booking, UserInfo.InternalServiceAccount);
+                    await _statusChangesProcessor.ProcessCancellation(booking, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
                     break;
                 case BookingStatusCodes.Rejected:
                     await _statusChangesProcessor.ProcessRejection(booking, UserInfo.InternalServiceAccount);

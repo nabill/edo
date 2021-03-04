@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -8,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task ProcessConfirmation(Edo.Data.Bookings.Booking booking);
 
-        Task<Result> ProcessCancellation(Edo.Data.Bookings.Booking booking, UserInfo user);
+        Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, UserInfo user);
 
         Task ProcessRejection(Edo.Data.Bookings.Booking booking, UserInfo user);
 

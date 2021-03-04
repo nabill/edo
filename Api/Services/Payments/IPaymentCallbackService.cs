@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data.Payments;
@@ -9,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         Task<Result<MoneyAmount>> GetChargingAmount(string referenceCode);
 
-        Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode);
+        Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode, DateTime operationDate);
 
         Task<Result> ProcessPaymentChanges(Payment payment);
         

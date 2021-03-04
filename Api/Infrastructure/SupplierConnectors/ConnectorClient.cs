@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
@@ -26,7 +27,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             _clientFactory = clientFactory;
             _securityTokenManager = securityTokenManager;
             _logger = logger;
-            _serializer = new JsonSerializer();
+            _serializer = new JsonSerializer
+            {
+                Converters = {new ProblemDetailsConverter()}
+            };
         }
 
 

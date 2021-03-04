@@ -1,7 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -18,12 +18,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     {
         public BookingPaymentCallbackService(EdoContext context,
             IBookingRecordManager bookingRecordManager,
-            IDateTimeProvider dateTimeProvider,
             ILogger<BookingPaymentCallbackService> logger)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
-            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
@@ -38,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode)
+        public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode, DateTime operationDate)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
@@ -47,8 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Discarded)
                 return new MoneyAmount(booking.TotalPrice, booking.Currency);
 
-            var now = _dateTimeProvider.UtcNow();
-            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.Calculate(booking, now);
+            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.Calculate(booking, operationDate);
         }
 
 
@@ -129,7 +126,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingPaymentCallbackService> _logger;
     }
 }
