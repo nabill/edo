@@ -126,8 +126,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 if (firstPolicy.ScopeType == MarkupPolicyScopeType.Agency && 
                     secondPolicy.ScopeType == MarkupPolicyScopeType.Agency &&
                     firstPolicy.AgencyId != secondPolicy.AgencyId)
+                {
                     return true;
-    
+                }
+                
                 return firstPolicy.Order < secondPolicy.Order;
             }
         }
