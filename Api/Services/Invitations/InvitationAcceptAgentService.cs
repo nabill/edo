@@ -41,14 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity)
         {
-            return await Result.Success()
-                .Ensure(IsIdentityPresent, "User should have identity")
-                .Bind(GetActiveInvitation)
-                .Map(GetInvitationData)
-                .Ensure(IsInvitationCorrectType, "Incorrect invitation type")
-                .Ensure(IsAgencyIdFilled, "Could not find inviter's agency id")
-                .Ensure(IsEmailFilled, "Agent email required")
-                .Ensure(IsAgentEmailUnique, "Agent with this email already exists")
+            return await GetActiveInvitation()
+                .Bind(Validate)
                 .BindWithTransaction(_context, values => Result.Success(values)
                     .Tap(SaveAccepted)
                     .Bind(CreateAgent)
@@ -59,20 +53,31 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .OnFailure(LogFailed);
 
 
-            bool IsIdentityPresent()
-                => !string.IsNullOrWhiteSpace(identity);
+            async Task<Result<AcceptPipeValues>> GetActiveInvitation()
+            {
+                var (_, isFailure, invitation, error) = await _invitationRecordService.GetActiveInvitation(invitationCode);
+                if (isFailure)
+                    return Result.Failure<AcceptPipeValues>(error);
 
-
-            Task<Result<UserInvitation>> GetActiveInvitation()
-                => _invitationRecordService.GetActiveInvitation(invitationCode);
-
-
-            AcceptPipeValues GetInvitationData(UserInvitation invitation)
-                => new AcceptPipeValues
+                return new AcceptPipeValues
                 {
                     Invitation = invitation,
                     InvitationData = filledData.Equals(default) ? _invitationRecordService.GetInvitationData(invitation) : filledData
                 };
+            }
+
+
+            Task<Result<AcceptPipeValues>> Validate(AcceptPipeValues values)
+                => Result.Success(values)
+                    .Ensure(IsIdentityPresent, "User should have identity")
+                    .Ensure(IsInvitationCorrectType, "Incorrect invitation type")
+                    .Ensure(IsAgencyIdFilled, "Could not find inviter's agency id")
+                    .Ensure(IsEmailFilled, "Agent email required")
+                    .Ensure(IsAgentEmailUnique, "Agent with this email already exists");
+
+
+            bool IsIdentityPresent(AcceptPipeValues _)
+                => !string.IsNullOrWhiteSpace(identity);
 
 
             bool IsInvitationCorrectType(AcceptPipeValues values) 
