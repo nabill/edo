@@ -40,16 +40,20 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     .Tap(WriteAuditLog));
 
 
-            Task<Result<UserInvitation>> GetActiveInvitation() => _invitationRecordService.GetActiveInvitation(invitationCode);
+            Task<Result<UserInvitation>> GetActiveInvitation()
+                => _invitationRecordService.GetActiveInvitation(invitationCode);
 
 
-            bool IsIdentityPresent(UserInvitation _) => !string.IsNullOrWhiteSpace(identity);
+            bool IsIdentityPresent(UserInvitation _)
+                => !string.IsNullOrWhiteSpace(identity);
 
 
-            bool IsInvitationCorrectType(UserInvitation invitation) => invitation.InvitationType == UserInvitationTypes.Administrator;
+            bool IsInvitationCorrectType(UserInvitation invitation)
+                => invitation.InvitationType == UserInvitationTypes.Administrator;
 
 
-            Task SaveAccepted(UserInvitation invitation) => _invitationRecordService.Accept(invitationCode);
+            Task SaveAccepted(UserInvitation invitation)
+                => _invitationRecordService.Accept(invitationCode);
 
 
             async Task<Result<Administrator>> CreateAdmin(UserInvitation invitation)

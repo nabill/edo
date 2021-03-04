@@ -123,8 +123,9 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 };
 
 
-            void LogInvitationCreated() => _logger.LogInvitationCreated(
-                $"The invitation with type {invitationType} created for the user '{prefilledData.AgentRegistrationInfo.Email}'");
+            void LogInvitationCreated()
+                => _logger.LogInvitationCreated(
+                    $"The invitation with type {invitationType} created for the user '{prefilledData.AgentRegistrationInfo.Email}'");
         }
 
 
@@ -207,7 +208,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            bool InvitationIsActual(UserInvitation invitation) => invitation.Created + _invitationExpirationPeriod > _dateTimeProvider.UtcNow();
+            bool InvitationIsActual(UserInvitation invitation)
+                => invitation.Created + _invitationExpirationPeriod > _dateTimeProvider.UtcNow();
         }
 
 

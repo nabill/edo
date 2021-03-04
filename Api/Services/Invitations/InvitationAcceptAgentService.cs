@@ -59,10 +59,12 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .OnFailure(LogFailed);
 
 
-            bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(identity);
+            bool IsIdentityPresent()
+                => !string.IsNullOrWhiteSpace(identity);
 
 
-            Task<Result<UserInvitation>> GetActiveInvitation() => _invitationRecordService.GetActiveInvitation(invitationCode);
+            Task<Result<UserInvitation>> GetActiveInvitation()
+                => _invitationRecordService.GetActiveInvitation(invitationCode);
 
 
             AcceptPipeValues GetInvitationData(UserInvitation invitation)
@@ -77,17 +79,20 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 => values.Invitation.InvitationType == UserInvitationTypes.Agent || values.Invitation.InvitationType == UserInvitationTypes.ChildAgency;
 
 
-            bool IsAgencyIdFilled(AcceptPipeValues values) => values.Invitation.InviterAgencyId.HasValue;
+            bool IsAgencyIdFilled(AcceptPipeValues values)
+                => values.Invitation.InviterAgencyId.HasValue;
 
 
-            bool IsEmailFilled(AcceptPipeValues values) => !string.IsNullOrWhiteSpace(values.InvitationData.AgentRegistrationInfo.Email);
+            bool IsEmailFilled(AcceptPipeValues values)
+                => !string.IsNullOrWhiteSpace(values.InvitationData.AgentRegistrationInfo.Email);
 
 
             async Task<bool> IsAgentEmailUnique(AcceptPipeValues values)
                 => !await _context.Agents.AnyAsync(a => a.Email == values.InvitationData.AgentRegistrationInfo.Email);
 
 
-            Task SaveAccepted(AcceptPipeValues _) => _invitationRecordService.Accept(invitationCode);
+            Task SaveAccepted(AcceptPipeValues _)
+                => _invitationRecordService.Accept(invitationCode);
 
 
             async Task<Result<AcceptPipeValues>> CreateAgent(AcceptPipeValues values)
@@ -180,10 +185,12 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            void LogFailed(string error) => _logger.LogAgentRegistrationFailed(error);
+            void LogFailed(string error)
+                => _logger.LogAgentRegistrationFailed(error);
 
 
-            void LogNotificationFailed(string error) => _logger.LogAgentRegistrationNotificationFailure(error);
+            void LogNotificationFailed(string error)
+                => _logger.LogAgentRegistrationNotificationFailure(error);
         }
 
 
