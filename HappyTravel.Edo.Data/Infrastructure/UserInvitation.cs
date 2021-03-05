@@ -1,7 +1,7 @@
 using System;
 using HappyTravel.Edo.Common.Enums;
 
-namespace HappyTravel.Edo.Data.Agents
+namespace HappyTravel.Edo.Data.Infrastructure
 {
     public class UserInvitation
     {

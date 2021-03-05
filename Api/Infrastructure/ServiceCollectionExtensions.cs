@@ -200,14 +200,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var agentInvitationTemplateId = mailSettings[configuration["Edo:Email:AgentInvitationTemplateId"]];
-            var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             var childAgencyInvitationTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyInvitationTemplateId"]];
-            services.Configure<InvitationRecordOptions>(options =>
+            services.Configure<AgentInvitationMailOptions>(options =>
             {
                 options.AgentInvitationTemplateId = agentInvitationTemplateId;
-                options.AdminInvitationTemplateId = administratorInvitationTemplateId;
                 options.ChildAgencyInvitationTemplateId = childAgencyInvitationTemplateId;
-                options.EdoPublicUrl = edoPublicUrl;
+            });
+
+            var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+            services.Configure<AdminInvitationMailOptions>(options =>
+            {
+                options.AdminInvitationTemplateId = administratorInvitationTemplateId;
             });
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);
@@ -513,6 +516,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentInvitationRecordListService, AgentInvitationRecordListService>();
             services.AddTransient<IAgentInvitationAcceptService, AgentInvitationAcceptService>();
             services.AddTransient<IAdminInvitationAcceptService, AdminInvitationAcceptService>();
+            services.AddTransient<IAgentInvitationCreateService, AgentInvitationCreateService>();
+            services.AddTransient<IAdminInvitationCreateService, AdminInvitationCreateService>();
 
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
             

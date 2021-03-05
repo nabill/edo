@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
@@ -41,7 +42,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IHttpClientFactory httpClientFactory,
             IAgentService agentService,
             IAgentStatusManagementService agentStatusManagementService,
-            IAgentInvitationRecordListService agentInvitationRecordListService)
+            IAgentInvitationRecordListService agentInvitationRecordListService,
+            IAgentInvitationCreateService agentInvitationCreateService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -55,6 +57,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentService = agentService;
             _agentStatusManagementService = agentStatusManagementService;
             _agentInvitationRecordListService = agentInvitationRecordListService;
+            _agentInvitationCreateService = agentInvitationCreateService;
         }
 
 
@@ -127,8 +130,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _invitationRecordService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
-                UserInvitationTypes.Agent, true, agent.AgentId, agent.AgencyId);
+            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.RegistrationInfo.ToUserInvitationData(request.Email),
+                UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -148,7 +151,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> Resend(string invitationCode)
         {
-            var (_, isFailure, error) = await _invitationRecordService.Resend(invitationCode);
+            var (_, isFailure, error) = await _agentInvitationCreateService.Resend(invitationCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -167,8 +170,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CreateInvitation([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _invitationRecordService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
-                UserInvitationTypes.Agent, false, agent.AgentId, agent.AgencyId);
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
+                UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -490,5 +493,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgentStatusManagementService _agentStatusManagementService;
         private readonly IAgentInvitationRecordListService _agentInvitationRecordListService;
+        private readonly IAgentInvitationCreateService _agentInvitationCreateService;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
-using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.Extensions
 {

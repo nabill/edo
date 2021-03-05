@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Agents
+namespace HappyTravel.Edo.Api.Models.Users
 {
     public readonly struct UserDescriptionInfo
     {

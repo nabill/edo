@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Formatters;
 using Microsoft.EntityFrameworkCore;
 

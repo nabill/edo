@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Management;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
@@ -39,20 +39,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                     .Tap(WriteAuditLog));
 
 
-            Task<Result<UserInvitation>> GetActiveInvitation()
-                => _invitationRecordService.GetActiveInvitation(invitationCode);
+            Task<Result<UserInvitation>> GetActiveInvitation() => _invitationRecordService.GetActiveInvitation(invitationCode);
 
 
-            bool IsIdentityPresent(UserInvitation _)
-                => !string.IsNullOrWhiteSpace(identity);
+            bool IsIdentityPresent(UserInvitation _) => !string.IsNullOrWhiteSpace(identity);
 
 
-            bool IsInvitationCorrectType(UserInvitation invitation)
-                => invitation.InvitationType == UserInvitationTypes.Administrator;
+            bool IsInvitationCorrectType(UserInvitation invitation) => invitation.InvitationType == UserInvitationTypes.Administrator;
 
 
-            Task SaveAccepted(UserInvitation invitation)
-                => _invitationRecordService.SetAccepted(invitationCode);
+            Task SaveAccepted(UserInvitation invitation) => _invitationRecordService.SetAccepted(invitationCode);
 
 
             async Task<Result<Administrator>> CreateAdmin(UserInvitation invitation)

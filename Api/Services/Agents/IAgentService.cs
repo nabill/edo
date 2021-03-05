@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Agents

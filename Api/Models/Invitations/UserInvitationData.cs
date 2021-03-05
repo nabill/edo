@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Agencies;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Invitations
