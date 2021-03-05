@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -12,9 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Invitations
 {
-    public class InvitationRecordsListService : IInvitationRecordsListService
+    public class AgentInvitationRecordListService : IAgentInvitationRecordListService
     {
-        public InvitationRecordsListService(
+        public AgentInvitationRecordListService(
             EdoContext context,
             IInvitationRecordService invitationRecordService)
         {

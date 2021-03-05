@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Management;
@@ -11,11 +11,11 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Management;
 
-namespace HappyTravel.Edo.Api.Services.Invitations
+namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 {
-    public class InvitationAcceptAdminService : IInvitationAcceptAdminService
+    public class AdminInvitationAcceptService : IAdminInvitationAcceptService
     {
-        public InvitationAcceptAdminService(
+        public AdminInvitationAcceptService(
             IInvitationRecordService invitationRecordService,
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             Task SaveAccepted(UserInvitation invitation)
-                => _invitationRecordService.Accept(invitationCode);
+                => _invitationRecordService.SetAccepted(invitationCode);
 
 
             async Task<Result<Administrator>> CreateAdmin(UserInvitation invitation)

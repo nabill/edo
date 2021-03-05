@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Invitations;
 
 namespace HappyTravel.Edo.Api.Services.Invitations
 {
-    public interface IInvitationAcceptAgentService
+    public interface IAgentInvitationAcceptService
     {
         Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity);
     }

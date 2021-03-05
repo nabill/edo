@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 
-namespace HappyTravel.Edo.Api.Services.Invitations
+namespace HappyTravel.Edo.Api.Infrastructure.Invitations
 {
     public interface IInvitationRecordService
     {
@@ -16,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         Task<Result<string>> Resend(string code);
 
-        Task<Result> Accept(string code);
+        Task<Result> SetAccepted(string code);
 
         Task<Result<UserInvitation>> GetActiveInvitation(string code);
 

@@ -78,7 +78,9 @@ using Amazon.S3;
 using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
+using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
@@ -508,9 +510,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
             services.AddTransient<IInvitationRecordService, InvitationRecordService>();
-            services.AddTransient<IInvitationRecordsListService, InvitationRecordsListService>();
-            services.AddTransient<IInvitationAcceptAgentService, InvitationAcceptAgentService>();
-            services.AddTransient<IInvitationAcceptAdminService, InvitationAcceptAdminService>();
+            services.AddTransient<IAgentInvitationRecordListService, AgentInvitationRecordListService>();
+            services.AddTransient<IAgentInvitationAcceptService, AgentInvitationAcceptService>();
+            services.AddTransient<IAdminInvitationAcceptService, AdminInvitationAcceptService>();
 
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
             

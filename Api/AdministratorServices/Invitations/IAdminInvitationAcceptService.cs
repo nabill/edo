@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Invitations;
 
-namespace HappyTravel.Edo.Api.Services.Invitations
+namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 {
-    public interface IInvitationAcceptAdminService
+    public interface IAdminInvitationAcceptService
     {
         Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity);
     }

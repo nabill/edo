@@ -1,12 +1,13 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +21,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class ManagementController : BaseController
     {
         public ManagementController(IInvitationRecordService invitationRecordService,
-            IInvitationAcceptAdminService invitationAcceptAdminService,
+            IAdminInvitationAcceptService adminInvitationAcceptService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAdministratorContext administratorContext)
         {
             _invitationRecordService = invitationRecordService;
-            _invitationAcceptAdminService = invitationAcceptAdminService;
+            _adminInvitationAcceptService = adminInvitationAcceptService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _administratorContext = administratorContext;
         }
@@ -68,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
-            var (_, isFailure, error) = await _invitationAcceptAdminService.Accept(invitationCode, default, identity);
+            var (_, isFailure, error) = await _adminInvitationAcceptService.Accept(invitationCode, default, identity);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -95,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         private readonly IInvitationRecordService _invitationRecordService;
-        private readonly IInvitationAcceptAdminService _invitationAcceptAdminService;
+        private readonly IAdminInvitationAcceptService _adminInvitationAcceptService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAdministratorContext _administratorContext;
     }

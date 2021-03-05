@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -18,12 +19,12 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Invitations
 {
-    public class InvitationAcceptAgentService : IInvitationAcceptAgentService
+    public class AgentInvitationAcceptService : IAgentInvitationAcceptService
     {
-        public InvitationAcceptAgentService(
+        public AgentInvitationAcceptService(
             EdoContext context,
             MailSenderWithCompanyInfo mailSender,
-            ILogger<InvitationAcceptAgentService> logger,
+            ILogger<AgentInvitationAcceptService> logger,
             IAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
@@ -97,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             Task SaveAccepted(AcceptPipeValues _)
-                => _invitationRecordService.Accept(invitationCode);
+                => _invitationRecordService.SetAccepted(invitationCode);
 
 
             async Task<Result<AcceptPipeValues>> CreateAgent(AcceptPipeValues values)
@@ -214,7 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         private readonly EdoContext _context;
         private readonly MailSenderWithCompanyInfo _mailSender;
-        private readonly ILogger<InvitationAcceptAgentService> _logger;
+        private readonly ILogger<AgentInvitationAcceptService> _logger;
         private readonly IAgencyManagementService _agencyManagementService;
         private readonly Agents.IAgentService _agentService;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;

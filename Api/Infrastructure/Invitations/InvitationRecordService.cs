@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Invitations;
@@ -17,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Invitations
+namespace HappyTravel.Edo.Api.Infrastructure.Invitations
 {
     public class InvitationRecordService : IInvitationRecordService
     {
@@ -132,10 +131,10 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         public async Task<Result> Revoke(string code)
         {
             return await GetActiveInvitation(code)
-                .Tap(SaveDisabled);
+                .Tap(SaveRevoked);
 
 
-            Task SaveDisabled(UserInvitation invitation)
+            Task SaveRevoked(UserInvitation invitation)
             {
                 invitation.InvitationStatus = UserInvitationStatuses.Revoked;
                 _context.Update(invitation);
@@ -176,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        public async Task<Result> Accept(string code)
+        public async Task<Result> SetAccepted(string code)
         {
             return await GetActiveInvitation(code)
                 .Tap(SaveAccepted);
