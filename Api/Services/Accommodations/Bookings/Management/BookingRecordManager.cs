@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -10,13 +9,10 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
@@ -115,56 +111,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 await _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.SupplierPrice, booking.Supplier);
                 return booking.ReferenceCode;
             }
-        }
-
-
-        public async Task UpdateBookingFromDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking)
-        {
-            booking.SupplierReferenceCode = bookingDetails.SupplierReferenceCode;
-            booking.Status = bookingDetails.Status.ToInternalStatus();
-            booking.UpdateMode = bookingDetails.BookingUpdateMode;
-            booking.Rooms = UpdateSupplierReferenceCodes(booking.Rooms, bookingDetails.Rooms);
-            
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Entry(booking).State = EntityState.Detached;
-
-
-            static List<BookedRoom> UpdateSupplierReferenceCodes(List<BookedRoom> existingRooms, List<SlimRoomOccupation> updatedRooms)
-            {
-                // TODO: NIJO-928 Find corresponding room in more solid way
-                // We cannot find corresponding room if room count differs
-                if (updatedRooms == null || existingRooms.Count != updatedRooms.Count)
-                    return existingRooms;
-                
-                var changedBookedRooms = new List<BookedRoom>(existingRooms.Count);
-                for (var i = 0; i < updatedRooms.Count; i++)
-                {
-                    var changedBookedRoom = new BookedRoom(existingRooms[i], updatedRooms[i].SupplierRoomReferenceCode);
-                    changedBookedRooms.Add(changedBookedRoom);
-                }
-
-                return changedBookedRooms;
-            }
-        }
-
-
-        public async Task SetConfirmationDate(Booking booking)
-        {
-            booking.ConfirmationDate = _dateTimeProvider.UtcNow();
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Detach(booking);;
-        }
-
-
-        public async Task SetStatus(string referenceCode, BookingStatuses status)
-        {
-            var (_, _, booking, _) = await Get(referenceCode);
-            booking.Status = status;
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Detach(booking);
         }
 
 

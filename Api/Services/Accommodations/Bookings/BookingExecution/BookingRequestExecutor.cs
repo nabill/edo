@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -22,11 +25,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public BookingRequestExecutor(ISupplierConnectorManager supplierConnectorManager,
             IBookingResponseProcessor responseProcessor,
             AvailabilityAnalyticsService analyticsService,
+            IBookingRecordsUpdater bookingRecordsUpdater,
+            IDateTimeProvider dateTimeProvider,
             ILogger<BookingRequestExecutor> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _responseProcessor = responseProcessor;
             _analyticsService = analyticsService;
+            _bookingRecordsUpdater = bookingRecordsUpdater;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
 
@@ -34,12 +41,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public async Task<Result<Booking>> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, AgentContext agent, string languageCode)
         {
             var bookingRequestResult = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
-            if (bookingRequestResult.IsFailure)
-                return bookingRequestResult;
+            if (bookingRequestResult.IsSuccess)
+                _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
             
-            _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
-            await ProcessResponse(bookingRequestResult.Value);
-            return bookingRequestResult.Value;
+            await ProcessRequestResult(bookingRequestResult);
+            return bookingRequestResult;
             
             async Task<Result<Booking>> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId,
                 Data.Bookings.Booking booking, string languageCode)
@@ -108,14 +114,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
             
             
-            Task ProcessResponse(Booking response) 
-                => _responseProcessor.ProcessResponse(response);
+            async Task ProcessRequestResult(Result<Booking> responseResult)
+            {
+                if (responseResult.IsSuccess)
+                {
+                    await _responseProcessor.ProcessResponse(responseResult.Value);
+                }
+                else
+                {
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.Invalid, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
+                }
+            }
         }
 
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingResponseProcessor _responseProcessor;
         private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingRequestExecutor> _logger;
     }
 }
