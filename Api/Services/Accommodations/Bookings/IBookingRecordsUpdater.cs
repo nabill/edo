@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user);
 
-        Task UpdateBookingFromDetails(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
+        Task UpdateWithSupplierData(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
             List<SlimRoomOccupation> updatedRooms);
     }
 }

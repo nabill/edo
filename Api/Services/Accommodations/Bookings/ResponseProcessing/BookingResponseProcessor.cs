@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            await _recordsUpdater.UpdateBookingFromDetails(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
+            await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
                 bookingResponse.Rooms);
             
             var (_, isUpdateFailure, updateError) = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);

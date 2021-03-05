@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task UpdateBookingFromDetails(Edo.Data.Bookings.Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
+        public async Task UpdateWithSupplierData(Edo.Data.Bookings.Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
             List<SlimRoomOccupation> updatedRooms)
         {
             booking.SupplierReferenceCode = supplierReferenceCode;
