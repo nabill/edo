@@ -16,22 +16,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 {
     public class FinancialAccountBookingFlow : IFinancialAccountBookingFlow
     {
-        public FinancialAccountBookingFlow(IBookingRecordManager bookingRecordManager,
-            IDateTimeProvider dateTimeProvider,
+        public FinancialAccountBookingFlow(IDateTimeProvider dateTimeProvider,
             IBookingAccountPaymentService accountPaymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingRateChecker rateChecker,
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
+            IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor)
         {
-            _bookingRecordManager = bookingRecordManager;
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _rateChecker = rateChecker;
             _documentsService = documentsService;
             _bookingInfoService = bookingInfoService;
+            _registrationService = registrationService;
             _requestExecutor = requestExecutor;
         }
         
@@ -65,8 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
             async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, PaymentMethods.BankTransfer, agentContext, languageCode);
-                var (_, _, booking, _) = await _bookingRecordManager.Get(referenceCode);
+                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentMethods.BankTransfer, agentContext, languageCode);
                 return (booking, bookingAvailability);
             }
 
@@ -114,13 +113,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         
         
-        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingInfoService _bookingInfoService;
+        private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
     }
 }
