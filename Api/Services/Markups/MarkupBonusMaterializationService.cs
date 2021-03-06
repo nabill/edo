@@ -110,13 +110,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result> ApplyAgencyScopeBonus()
             {
-                var parentAgencyQuery = from agency in _context.Agencies
-                    join parentAgency in _context.Agencies on agency.ParentId equals parentAgency.Id
-                    where agency.Id == data.AgencyId
-                    select parentAgency.Id;
-
-                var parentAgencyId = await parentAgencyQuery.SingleOrDefaultAsync();
-                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+                var parentAgencyId = await _context.Agencies
+                    .Where(a => a.Id == data.AgencyId)
+                    .Select(a => a.ParentId)
+                    .SingleOrDefaultAsync();
+                
+                if (parentAgencyId is null)
+                    return Result.Failure($"Cannot retrieve parent agency for agency id '{data.AgencyId}'");
+                
+                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value, data.Amount);
             }
         }
 
