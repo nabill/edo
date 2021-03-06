@@ -13,6 +13,6 @@ namespace HappyTravel.Edo.Data.Agents
         public int? ParentId { get; set; }
         
         public bool IsActive { get; set; }
-        public List<int> Ancestors { get; init; }
+        public List<int> Ancestors { get; init; } = new();
     }
 }
