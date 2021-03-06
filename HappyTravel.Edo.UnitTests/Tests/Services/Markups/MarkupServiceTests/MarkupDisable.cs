@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -66,6 +67,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             
             edoContextMock.Setup(c => c.MarkupPolicies)
                 .Returns(DbSetMockProvider.GetDbSetMock(_policies));
+
+            edoContextMock.Setup(c => c.Agencies)
+                .Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
@@ -118,6 +122,29 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 ScopeType = MarkupPolicyScopeType.EndClient,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 14}},
+            }
+        };
+
+
+        private readonly IEnumerable<Agency> _agencies = new[]
+        {
+            new Agency
+            {
+                Id = AgentContext.AgencyId,
+                Name = "Child agency",
+                Ancestors = new List<int> {2000, 1000}
+            },
+            new Agency
+            {
+                Id = 1000,
+                Name = "Parent agency",
+                Ancestors = new List<int>{2000}
+            },
+            new Agency
+            {
+                Id = 2000,
+                Name = "Root agency",
+                Ancestors = new()
             }
         };
         
