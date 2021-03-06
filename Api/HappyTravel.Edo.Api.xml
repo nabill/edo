@@ -184,12 +184,19 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32,System.Boolean)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32)">
             <summary>
                 Cancel accommodation booking by admin.
             </summary>
             <param name="bookingId">Id of booking to cancel</param>
-            <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest)">
+            <summary>
+                Cancel accommodation booking manually, without requests to supplier. Cancellation penalties are applied.
+            </summary>
+            <param name="bookingId">Id of booking to cancel</param>
+            <param name="cancellationRequest">Cancellation request</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
@@ -2150,6 +2157,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyReadOnlyVerificationRequest.Reason">
             <summary>
                 Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.CancellationDate">
+            <summary>
+            Date when booking was actually cancelled on supplier end. This value affects applied cancellation penalties
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.Reason">
+            <summary>
+            Cancellation reason
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupInfo.Id">

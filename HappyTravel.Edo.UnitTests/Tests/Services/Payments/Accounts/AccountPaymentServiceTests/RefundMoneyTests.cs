@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
     
             var dateTimeProviderMock = new Mock<IDateTimeProvider>();
-            dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(new DateTime(2020, 1, 1));
+            dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(CancellationDate);
     
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, mockedEdoContext,
                 dateTimeProviderMock.Object);
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(), paymentService, "reason");
+            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(),  CancellationDate, paymentService, "reason");
     
             Assert.True(isSuccess);
             Assert.Equal(1100m, _account.Balance);
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(), paymentService, "reason");
+            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(), CancellationDate, paymentService, "reason");
         
             Assert.True(isSuccess);
             Assert.Equal(PaymentStatuses.Refunded, _payment.Status);
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithInvalidAccount();
             
-            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(), paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(),  CancellationDate, paymentService, "reason");
         
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                     .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-                paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>()))
+                paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTime>()))
                     .ReturnsAsync(new MoneyAmount());
 
                 paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToUserInfo(), paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToUserInfo(), CancellationDate, paymentService, "reason");
         
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                 .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-            paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>()))
+            paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(moneyAmount);
 
             paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));
@@ -184,6 +184,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             ReferenceCode = "ReferenceCode"
         };
 
+        private static readonly DateTime CancellationDate = new DateTime(2020, 1, 1);
 
         private readonly AccountPaymentService _accountPaymentService;
         private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", 1, true, InAgencyPermissions.All);
