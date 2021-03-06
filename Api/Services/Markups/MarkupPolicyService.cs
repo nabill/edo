@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var agencyTreeIds = await _context.Agencies
                     .Where(a => a.Id == agencyId)
                     .Select(a => a.Ancestors)
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync() ?? new List<int>();
                 
                 agencyTreeIds.Add(agencyId);
                 
