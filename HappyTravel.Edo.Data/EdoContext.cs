@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<UploadedImage> UploadedImages { get; set; }
         
         public DbSet<ApiClient> ApiClients { get; set; }
-        public DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
+        public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
