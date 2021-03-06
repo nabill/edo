@@ -32,12 +32,41 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return Result.Success();
         }
+        
+        
+        public async Task<Result> Update(int agencyId)
+        {
+            var isAgencyExists = await _context.Agencies
+                .AnyAsync(a => a.Id == agencyId);
+            
+            if(!isAgencyExists)
+                return Result.Failure($"Agency with id '{agencyId}' not found");
+            
+            var displayedMarkupFormula = await GetAgencyMarkupFormula(agencyId);
+            
+            // TODO: implement saving displayed markup formula
+
+            return Result.Success();
+        }
 
 
         private async Task<string> GetAgentMarkupFormula(int agentId, int agencyId)
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.AgentId == agentId && p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agent)
+                .OrderBy(p => p.Order)
+                .ToListAsync();
+
+            return policies.Any()
+                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
+                : string.Empty;
+        }
+        
+        
+        private async Task<string> GetAgencyMarkupFormula(int agencyId)
+        {
+            var policies = await _context.MarkupPolicies
+                .Where(p => p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agency)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
