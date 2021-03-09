@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
-using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -30,7 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             List<AppliedMarkup> appliedMarkups,
             decimal supplierPrice,
             string availabilityId,
-            string htId)
+            string htId,
+            List<PaymentMethods> availablePaymentMethods)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -49,6 +48,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             SupplierPrice = supplierPrice;
             AvailabilityId = availabilityId;
             HtId = htId;
+            AvailablePaymentMethods = availablePaymentMethods;
         }
 
 
@@ -69,6 +69,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public decimal SupplierPrice { get; }
         public string AvailabilityId { get; }
         public string HtId { get; }
+        public List<PaymentMethods> AvailablePaymentMethods { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)

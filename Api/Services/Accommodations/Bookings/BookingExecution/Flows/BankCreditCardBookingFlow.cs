@@ -21,7 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
     public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
         public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
-            IBookingRateChecker rateChecker,
             IBookingNotificationService bookingNotificationService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
@@ -33,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             ILogger<BankCreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
-            _rateChecker = rateChecker;
             _bookingNotificationService = bookingNotificationService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
@@ -49,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             return await GetCachedAvailability(bookingRequest)
-                .Check(CheckRateRestrictions)
+                .Ensure(IsPaymentMethodAllowed, "Payment method is not allowed")
                 .Map(Register);
 
 
@@ -57,8 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => await _evaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId);
 
                 
-            Task<Result> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
-                => _rateChecker.Check(bookingRequest, availabilityInfo, PaymentMethods.CreditCard, agentContext);
+            bool IsPaymentMethodAllowed(BookingAvailabilityInfo availabilityInfo) 
+                => availabilityInfo.AvailablePaymentMethods.Contains(PaymentMethods.CreditCard);
 
 
             async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
@@ -141,7 +139,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         
         private readonly IBookingRequestStorage _requestStorage;
-        private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
