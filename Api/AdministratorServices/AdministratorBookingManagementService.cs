@@ -67,6 +67,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> CancelManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo());
         }
+        
+        
+        public async Task<Result> RejectManually(int bookingId, string reason, Administrator admin)
+        {
+            // TODO: AA-26 Store rejection reason
+            return await GetBooking(bookingId)
+                .Bind(RejectManually);
+
+
+            Task<Result> RejectManually(Booking booking)
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo());
+        }
 
 
         private Task<Result<Booking>> GetBooking(int id) 
