@@ -3,17 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.SupplierOrders;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
@@ -21,96 +11,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     internal class BookingRecordManager : IBookingRecordManager
     {
-        public BookingRecordManager(EdoContext context,
-            IDateTimeProvider dateTimeProvider,
-            ITagProcessor tagProcessor,
-            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
-            ISupplierOrderService supplierOrderService)
+        public BookingRecordManager(EdoContext context)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
-            _tagProcessor = tagProcessor;
-            _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
-            _supplierOrderService = supplierOrderService;
-        }
-
-
-        public async Task<string> Register(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod, AgentContext agentContext, string languageCode)
-        {
-            var (_, _, referenceCode, _) = await Result.Success()
-                .Map(GetTags)
-                .Map(Create)
-                .Map(SaveMarkups)
-                .Map(CreateSupplierOrder);
-
-            return referenceCode;
-
-
-            async Task<(string itn, string referenceCode)> GetTags()
-            {
-                string itn;
-                if (string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber))
-                {
-                    itn = await _tagProcessor.GenerateItn();
-                }
-                else
-                {
-                    // User can send reference code instead of itn
-                    if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
-                        itn = bookingRequest.ItineraryNumber;
-
-                    if (!await AreExistBookingsForItn(itn, agentContext.AgentId))
-                        itn = await _tagProcessor.GenerateItn();
-                }
-
-                var referenceCode = await _tagProcessor.GenerateReferenceCode(
-                    ServiceTypes.HTL,
-                    availabilityInfo.CountryCode,
-                    itn);
-
-                return (itn, referenceCode);
-            }
-
-
-            async Task<Booking> Create((string itn, string referenceCode) tags)
-            {
-                var createdBooking = BookingFactory.Create(
-                    _dateTimeProvider.UtcNow(),
-                    agentContext,
-                    tags.itn,
-                    tags.referenceCode,
-                    availabilityInfo,
-                    paymentMethod,
-                    bookingRequest,
-                    languageCode,
-                    availabilityInfo.Supplier,
-                    availabilityInfo.RoomContractSet.Deadline.Date,
-                    availabilityInfo.CheckInDate,
-                    availabilityInfo.CheckOutDate,
-                    availabilityInfo.HtId,
-                    availabilityInfo.RoomContractSet.Tags);
-
-                _context.Bookings.Add(createdBooking);
-                await _context.SaveChangesAsync();
-                _context.Entry(createdBooking).State = EntityState.Detached;
-
-                return createdBooking;
-            }
-
-
-            async Task<Booking> SaveMarkups(Booking booking)
-            {
-                await _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
-                return booking;
-            }
-
-
-            async Task<string> CreateSupplierOrder(Booking booking)
-            {
-                await _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.SupplierPrice, booking.Supplier);
-                return booking.ReferenceCode;
-            }
         }
 
 
@@ -138,15 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        // TODO: Replace method when will be added other services 
-        private Task<bool> AreExistBookingsForItn(string itn, int agentId)
-            => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
-
-
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ITagProcessor _tagProcessor;
-        private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
-        private readonly ISupplierOrderService _supplierOrderService;
     }
 }
