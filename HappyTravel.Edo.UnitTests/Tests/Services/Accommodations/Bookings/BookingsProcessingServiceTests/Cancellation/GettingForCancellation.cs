@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
                 context.Object,
-                Mock.Of<IBookingRecordManager>(),
+                Mock.Of<IBookingRecordsUpdater>(),
                 Mock.Of<IDateTimeProvider>());
         }
 

@@ -70,23 +70,34 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     agentId.ToString());
 
 
-            Task<List<MarkupPolicy>> GetOrderedPolicies() 
-                => _context.MarkupPolicies
-                .Where(p => p.Target == policyTarget)
-                .Where(p =>
-                    p.ScopeType == MarkupPolicyScopeType.Global ||
-                    p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
-                    p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId == agencyId ||
-                    p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId ||
-                    p.ScopeType == MarkupPolicyScopeType.EndClient && p.AgentId == agentId
-                )
-                .Where(p => p.ScopeType != MarkupPolicyScopeType.EndClient || userSettings.IsEndClientMarkupsEnabled)
-                .OrderBy(SortByScope)
-                .ThenBy(p => p.Order)
-                .ToListAsync();
-        }
+            async Task<List<MarkupPolicy>> GetOrderedPolicies()
+            {
+                var agencyTreeIds = await _context.Agencies
+                    .Where(a => a.Id == agencyId)
+                    .Select(a => a.Ancestors)
+                    .SingleOrDefaultAsync() ?? new List<int>();
+                
+                agencyTreeIds.Add(agencyId);
+                
+                var policies = await _context.MarkupPolicies
+                    .Where(p => p.Target == policyTarget)
+                    .Where(p =>
+                        p.ScopeType == MarkupPolicyScopeType.Global ||
+                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
+                        p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
+                        p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId ||
+                        p.ScopeType == MarkupPolicyScopeType.EndClient && p.AgentId == agentId
+                    )
+                    .Where(p => p.ScopeType != MarkupPolicyScopeType.EndClient || userSettings.IsEndClientMarkupsEnabled)
+                    .ToListAsync();
 
-        private static readonly Expression<Func<MarkupPolicy, int>> SortByScope = policy => (int) policy.ScopeType;
+                return policies
+                    .OrderBy(p => p.ScopeType)
+                    .ThenBy(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId.HasValue ? agencyTreeIds.IndexOf(p.AgencyId.Value) : 0)
+                    .ThenBy(p => p.Order)
+                    .ToList();
+            }
+        }
 
         private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
         private static readonly TimeSpan AgentSettingsCachingTime = TimeSpan.FromMinutes(2);

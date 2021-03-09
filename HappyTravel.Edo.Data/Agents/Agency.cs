@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -12,5 +13,6 @@ namespace HappyTravel.Edo.Data.Agents
         public int? ParentId { get; set; }
         
         public bool IsActive { get; set; }
+        public List<int> Ancestors { get; init; } = new();
     }
 }

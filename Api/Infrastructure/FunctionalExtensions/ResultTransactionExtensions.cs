@@ -7,6 +7,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 {
     public static class ResultTransactionExtensions
     {
+        public static Task<Result> BindWithTransaction(
+            this Result target,
+            EdoContext context,
+            Func<Task<Result>> f)
+        {
+            var (_, isFailure, error) = target;
+            if (isFailure)
+                return Task.FromResult(Result.Failure(error));
+
+            return WithTransactionScope(context, f);
+        }
+        
+        
         public static Task<Result<T>> BindWithTransaction<T>(
             this Result target,
             EdoContext context,

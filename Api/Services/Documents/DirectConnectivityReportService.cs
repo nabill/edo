@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
 
 
-            async Task<Result> Validate()
+            Result Validate()
             {
                 if (dateFrom == default || dateEnd == default)
                     return Result.Failure<Stream>("Range dates required");
