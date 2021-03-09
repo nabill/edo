@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         {
             return await GetActiveInvitation()
                 .Ensure(IsIdentityPresent, "User should have identity")
-                .Ensure(IsInvitationCorrectType, "Incorrect invitation type")
+                .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Tap(SaveAccepted)
                     .Bind(CreateAdmin)
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 => !string.IsNullOrWhiteSpace(identity);
 
 
-            bool IsInvitationCorrectType(UserInvitation invitation) 
+            bool IsInvitationTypeCorrect(UserInvitation invitation) 
                 => invitation.InvitationType == UserInvitationTypes.Administrator;
 
 

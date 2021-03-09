@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             Task<Result> SetOldInvitationResent(UserInvitation _)
-                => _invitationRecordService.SetResent(oldInvitationCode);
+                => _invitationRecordService.SetToResent(oldInvitationCode);
 
 
             UserInvitationData GetInvitationData(UserInvitation invitation)

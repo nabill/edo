@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
     {
         Task<Result> Revoke(string code);
 
-        Task<Result> SetResent(string code);
+        Task<Result> SetToResent(string code);
 
         Task<Result> SetAccepted(string code);
 

@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             Task<Result<AcceptPipeValues>> Validate(AcceptPipeValues values)
                 => Result.Success(values)
                     .Ensure(IsIdentityPresent, "User should have identity")
-                    .Ensure(IsInvitationCorrectType, "Incorrect invitation type")
+                    .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                     .Ensure(IsAgencyIdFilled, "Could not find inviter's agency id")
                     .Ensure(IsEmailFilled, "Agent email required")
                     .Ensure(IsAgentEmailUnique, "Agent with this email already exists");
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 => !string.IsNullOrWhiteSpace(identity);
 
 
-            bool IsInvitationCorrectType(AcceptPipeValues values) 
+            bool IsInvitationTypeCorrect(AcceptPipeValues values) 
                 => values.Invitation.InvitationType == UserInvitationTypes.Agent || values.Invitation.InvitationType == UserInvitationTypes.ChildAgency;
 
 

@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
         }
 
 
-        public async Task<Result> SetResent(string code)
+        public async Task<Result> SetToResent(string code)
         {
             return await GetActiveInvitation(code)
                 .Tap(SaveResent);
