@@ -126,7 +126,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
         }
 
-        
+
+        public async Task NotifyBookingManualCorrectionNeeded(string referenceCode)
+        {
+            await _mailSender.Send(_options.BookingManualCorrectionNeededTemplateId, _options.CcNotificationAddresses, new BookingManualCorrectionNeeded
+            {
+                ReferenceCode = referenceCode
+            });
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()

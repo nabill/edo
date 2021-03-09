@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IBookingDocumentsMailingService documentsMailingService,
             ISupplierOrderService supplierOrderService,
             EdoContext context,
-            ILogger<BookingRecordsUpdater> logger)
+            ILogger<BookingRecordsUpdater> logger,
+            IBookingNotificationService bookingNotificationService)
         {
             _dateTimeProvider = dateTimeProvider;
             _infoService = infoService;
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _supplierOrderService = supplierOrderService;
             _context = context;
             _logger = logger;
+            _bookingNotificationService = bookingNotificationService;
         }
         
         public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user)
@@ -54,8 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 BookingStatuses.Rejected => await ProcessDiscarding(booking, user),
                 BookingStatuses.Invalid => await ProcessDiscarding(booking, user),
                 BookingStatuses.Discarded => await ProcessDiscarding(booking, user),
-                // TODO: Consider admin notification send for this status
-                BookingStatuses.ManualCorrectionNeeded => Result.Success(),
+                BookingStatuses.ManualCorrectionNeeded => await ProcessManualCorrectionNeeding(booking, user),
                 BookingStatuses.PendingCancellation => Result.Success(),
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
             };
@@ -170,6 +171,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
         }
 
+
+        private async Task<Result> ProcessManualCorrectionNeeding(Booking booking, UserInfo user)
+        {
+            await _bookingNotificationService.NotifyBookingManualCorrectionNeeded(booking.ReferenceCode);
+            return Result.Success();
+        }
+
         
         private Task<Result> ReturnMoney(Booking booking, DateTime operationDate, UserInfo user) 
             => _moneyReturnService.ReturnMoney(booking, operationDate, user);
@@ -201,5 +209,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly EdoContext _context;
         private readonly ILogger<BookingRecordsUpdater> _logger;
+        private readonly IBookingNotificationService _bookingNotificationService;
     }
 }
