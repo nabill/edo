@@ -6,9 +6,10 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.Extensions.Logging;
+using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing
 {
@@ -18,13 +19,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             IBookingRecordManager bookingRecordManager,
             ILogger<BookingResponseProcessor> logger,
             IDateTimeProvider dateTimeProvider, 
-            IBookingStatusChangesProcessor statusChangesProcessor)
+            EdoContext context,
+            IBookingRecordsUpdater recordsUpdater)
         {
             _bookingAuditLogService = bookingAuditLogService;
             _bookingRecordManager = bookingRecordManager;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
-            _statusChangesProcessor = statusChangesProcessor;
+            _context = context;
+            _recordsUpdater = recordsUpdater;
         }
         
         
@@ -56,19 +59,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            await _bookingRecordManager.UpdateBookingFromDetails(bookingResponse, booking);
-
-            switch (bookingResponse.Status)
+            await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
+                bookingResponse.Rooms);
+            
+            var (_, isUpdateFailure, updateError) = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
+            if (isUpdateFailure)
             {
-                case BookingStatusCodes.Confirmed:
-                    await _statusChangesProcessor.ProcessConfirmation(booking);
-                    break;
-                case BookingStatusCodes.Cancelled:
-                    await _statusChangesProcessor.ProcessCancellation(booking, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
-                    break;
-                case BookingStatusCodes.Rejected:
-                    await _statusChangesProcessor.ProcessRejection(booking, UserInfo.InternalServiceAccount);
-                    break;
+                _logger.LogBookingResponseProcessFailure(updateError);
+                return;
             }
 
             _logger.LogBookingResponseProcessSuccess(
@@ -86,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
             else
             {
-                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                await _recordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
             }
@@ -99,6 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private readonly ILogger<BookingResponseProcessor> _logger;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingStatusChangesProcessor _statusChangesProcessor;
+        private readonly EdoContext _context;
+        private readonly IBookingRecordsUpdater _recordsUpdater;
     }
 }

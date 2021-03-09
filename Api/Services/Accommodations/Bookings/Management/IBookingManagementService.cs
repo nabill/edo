@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
@@ -14,9 +13,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         Task<Result> Cancel(Booking booking, UserInfo user);
         
         Task<Result> RefreshStatus(Booking booking, UserInfo user);
-
-        Task<Result> Discard(Booking booking, UserInfo user);
-
-        Task<Result> CancelManually(Booking booking, DateTime cancellationDate, UserInfo user);
     }
 }

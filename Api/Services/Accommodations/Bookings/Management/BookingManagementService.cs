@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -13,21 +12,20 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
+    // TODO: Rename to SupplierBookingManagementService
     public class BookingManagementService : IBookingManagementService
     {
-        public BookingManagementService(IBookingRecordManager bookingRecordManager,
+        public BookingManagementService(IBookingRecordsUpdater bookingRecordsUpdater,
             ILogger<BookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
             IDateTimeProvider dateTimeProvider,
-            IBookingResponseProcessor responseProcessor,
-            IBookingStatusChangesProcessor statusChangesProcessor)
+            IBookingResponseProcessor responseProcessor)
         {
-            _bookingRecordManager = bookingRecordManager;
+            _bookingRecordsUpdater = bookingRecordsUpdater;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
             _dateTimeProvider = dateTimeProvider;
             _responseProcessor = responseProcessor;
-            _statusChangesProcessor = statusChangesProcessor;
         }
         
         
@@ -70,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             async Task<Result> ProcessCancellation(Booking b)
             {
-                await _bookingRecordManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation);
+                await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user);
                 return b.UpdateMode == BookingUpdateModes.Synchronous
                     ? await RefreshStatus(b, user)
                     : Result.Success();
@@ -111,47 +109,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public Task<Result> Discard(Booking booking, UserInfo user)
-        {
-            return SetBookingDiscarded()
-                .Bind(ProcessDiscarding);
-
-
-            Task<Result> ProcessDiscarding() 
-                => _statusChangesProcessor.ProcessDiscarding(booking, user);
-
-
-            async Task<Result> SetBookingDiscarded()
-            {
-                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
-                return Result.Success();
-            }
-        }
-
-
-        public Task<Result> CancelManually(Booking booking, DateTime cancellationDate, UserInfo user)
-        {
-            return SetBookingCancelled()
-                .Bind(ProcessCancellation);
-            
-            
-            async Task<Result> SetBookingCancelled()
-            {
-                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Cancelled);
-                return Result.Success();
-            }
-
-
-            Task<Result> ProcessCancellation() 
-                => _statusChangesProcessor.ProcessCancellation(booking, cancellationDate, user);
-        }
-        
-
-        private readonly IBookingRecordManager _bookingRecordManager;
+        private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly IBookingStatusChangesProcessor _statusChangesProcessor;
         private readonly ILogger<BookingManagementService> _logger;
     }
 }
