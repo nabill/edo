@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task NotifyBookingManualCorrectionNeeded(string referenceCode)
         {
-            await _mailSender.Send(_options.BookingManualCorrectionNeededTemplateId, _options.CcNotificationAddresses, new BookingManualCorrectionNeeded
+            await _mailSender.Send(_options.BookingManualCorrectionNeededTemplateId, _options.CcNotificationAddresses, new BookingManualCorrectionNeededData
             {
                 ReferenceCode = referenceCode
             });
