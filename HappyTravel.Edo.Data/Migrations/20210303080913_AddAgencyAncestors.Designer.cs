@@ -1354,11 +1354,11 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
 
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
+                    // b.Property<AdminInvitation.AdminInvitationData>("Data")
+                    //     .IsRequired()
+                    //     .ValueGeneratedOnUpdateSometimes()
+                    //     .HasColumnType("jsonb")
+                    //     .HasColumnName("Data");
 
                     b.HasDiscriminator().HasValue(2);
                 });
@@ -1367,11 +1367,11 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
 
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
+                    // b.Property<AgentInvitation.AgentInvitationData>("Data")
+                    //     .IsRequired()
+                    //     .ValueGeneratedOnUpdateSometimes()
+                    //     .HasColumnType("jsonb")
+                    //     .HasColumnName("Data");
 
                     b.Property<bool>("IsResent")
                         .HasColumnType("boolean");
