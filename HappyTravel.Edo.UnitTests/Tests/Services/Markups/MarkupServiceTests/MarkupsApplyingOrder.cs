@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -34,6 +35,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var edoContextMock = MockEdoContextFactory.Create();
             edoContextMock.Setup(c => c.MarkupPolicies)
                 .Returns(DbSetMockProvider.GetDbSetMock(allPolicies));
+            
+            edoContextMock.Setup(c => c.Agencies)
+                .Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
@@ -118,15 +122,37 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 if (firstPolicy.ScopeType != secondPolicy.ScopeType)
                     return true;
-    
+
+                if (firstPolicy.ScopeType == MarkupPolicyScopeType.Agency && 
+                    secondPolicy.ScopeType == MarkupPolicyScopeType.Agency &&
+                    firstPolicy.AgencyId != secondPolicy.AgencyId)
+                {
+                    return true;
+                }
+                
                 return firstPolicy.Order < secondPolicy.Order;
+            }
+        }
+
+
+        [Fact]
+        public async Task Agencies_policies_should_be_ordered_by_agency_tree()
+        {
+            var agencyTreeIds = _agencies[0].Ancestors;
+            agencyTreeIds.Add(AgentContext.AgencyId);
+            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var agencyPolicies = policies.Where(p => p.ScopeType == MarkupPolicyScopeType.Agency).ToList();
+            
+            for (var i = 0; i < agencyPolicies.Count - 1; i++)
+            {
+                Assert.True(agencyPolicies[i].AgencyId == agencyTreeIds[i]);
             }
         }
     
         [Theory]
-        [InlineData(100, Currencies.EUR, 42065202)]
-        [InlineData(240.5, Currencies.USD, 101075202.0)]
-        [InlineData(0.13, Currencies.USD, 119802.00)]
+        [InlineData(100, Currencies.EUR, 4206528602)]
+        [InlineData(240.5, Currencies.USD, 10107528602.0)]
+        [InlineData(0.13, Currencies.USD, 11988602.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
@@ -219,7 +245,27 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 ScopeType = MarkupPolicyScopeType.Agency,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
-            }
+            },
+            new MarkupPolicy
+            {
+                Id = 10,
+                Order = 1,
+                AgencyId = 1000,
+                Target = MarkupPolicyTarget.AccommodationAvailability,
+                ScopeType = MarkupPolicyScopeType.Agency,
+                TemplateId = 2,
+                TemplateSettings = new Dictionary<string, decimal> {{"addition", 43}},
+            },
+            new MarkupPolicy
+            {
+                Id = 11,
+                Order = 1,
+                AgencyId = 2000,
+                Target = MarkupPolicyTarget.AccommodationAvailability,
+                ScopeType = MarkupPolicyScopeType.Agency,
+                TemplateId = 1,
+                TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
+            },
         };
         
         private IEnumerable<MarkupPolicy> _endClientPolicies = new[]
@@ -243,6 +289,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 ScopeType = MarkupPolicyScopeType.EndClient,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 14}},
+            }
+        };
+        
+        private readonly List<Agency> _agencies = new()
+        {
+            new Agency
+            {
+                Id = AgentContext.AgencyId,
+                Name = "Child agency",
+                Ancestors = new List<int> {2000, 1000}
+            },
+            new Agency
+            {
+                Id = 1000,
+                Name = "Parent agency",
+                Ancestors = new List<int>{2000}
+            },
+            new Agency
+            {
+                Id = 2000,
+                Name = "Root agency",
+                Ancestors = new()
             }
         };
 
