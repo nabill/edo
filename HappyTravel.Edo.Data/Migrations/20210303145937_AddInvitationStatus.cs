@@ -6,8 +6,7 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.AlterColumn<string>(
                 name: "Data",
                 table: "UserInvitations",
                 type: "text",
@@ -88,9 +87,11 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.Sql(
                 "UPDATE \"UserInvitations\" SET \"IsActive\" = TRUE, \"IsResent\" = FALSE, \"IsAccepted\" = TRUE WHERE \"InvitationStatus\" = 4");
 
-            migrationBuilder.DropColumn(
+            migrationBuilder.AlterColumn<string>(
                 name: "Data",
-                table: "UserInvitations");
+                table: "UserInvitations",
+                type: "jsonb",
+                nullable: true);
 
             migrationBuilder.DropColumn(
                 name: "InvitationStatus",
