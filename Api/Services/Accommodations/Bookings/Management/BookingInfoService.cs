@@ -143,7 +143,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         Status = b.Status,
                         PaymentStatus = b.PaymentStatus,
                         Rooms = b.Rooms,
-                        Supplier = b.Supplier
+                        Supplier = b.Supplier,
+                        Created = b.Created
                     }
                 );
 

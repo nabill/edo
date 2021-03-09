@@ -14,5 +14,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> RefreshStatus(int bookingId, Administrator admin);
 
         Task<Result> CancelManually(int bookingId, DateTime cancellationDate, string reason, Administrator admin);
+        
+        Task<Result> RejectManually(int bookingId, string reason, Administrator admin);
     }
 }
