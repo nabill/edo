@@ -199,6 +199,14 @@
             <param name="cancellationRequest">Cancellation request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Reject(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingRejectionRequest)">
+            <summary>
+                Reject accommodation booking manually, without requests to supplier. Cancellation penalties not applied.
+            </summary>
+            <param name="bookingId">Id of booking to reject</param>
+            <param name="rejectionRequest">Rejection request</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -2167,6 +2175,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.Reason">
             <summary>
             Cancellation reason
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingRejectionRequest.Reason">
+            <summary>
+            Rejection reason
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupInfo.Id">

@@ -167,6 +167,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        ///     Reject accommodation booking manually, without requests to supplier. Cancellation penalties not applied.
+        /// </summary>
+        /// <param name="bookingId">Id of booking to reject</param>
+        /// <param name="rejectionRequest">Rejection request</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/reject-manually")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> Reject(int bookingId, [FromBody] ManualBookingRejectionRequest rejectionRequest)
+        {
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingManagementService.RejectManually(bookingId, rejectionRequest.Reason, admin);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
+        
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
         private readonly IAdministratorBookingManagementService _bookingManagementService;
