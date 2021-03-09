@@ -10,6 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Invitations
     {
         [JsonConstructor]
         public UserInvitationData(UserDescriptionInfo userRegistrationInfo,
+            // Think about removing such a special property from there
             AgencyInfo childAgencyRegistrationInfo)
         {
             UserRegistrationInfo = userRegistrationInfo;
