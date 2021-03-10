@@ -1,23 +1,24 @@
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Agents
+namespace HappyTravel.Edo.Api.Models.Users
 {
-    public readonly struct AgentEditableInfo
+    public readonly struct UserDescriptionInfo
     {
         [JsonConstructor]
-        public AgentEditableInfo(string title, string firstName, string lastName,
+        public UserDescriptionInfo(string title, string firstName, string lastName,
             string position, string email)
         {
             Title = title;
             FirstName = firstName;
             LastName = lastName;
             Position = position;
+            Email = email;
         }
 
 
         /// <summary>
-        ///     Agent title, Mr, Mrs etc.
+        ///     Title, Mr, Mrs etc.
         /// </summary>
         [Required]
         public string Title { get; }
@@ -35,8 +36,13 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string LastName { get; }
 
         /// <summary>
-        ///     Agent position or designation.
+        ///     Position or designation.
         /// </summary>
         public string Position { get; }
+
+        /// <summary>
+        ///     Email
+        /// </summary>
+        public string Email { get; }
     }
 }

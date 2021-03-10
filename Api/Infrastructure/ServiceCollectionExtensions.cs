@@ -44,7 +44,6 @@ using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
-using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -79,7 +78,9 @@ using Amazon.S3;
 using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
+using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
+using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
@@ -91,6 +92,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using IdentityModel.Client;
 using Prometheus;
@@ -198,29 +200,29 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var agentInvitationTemplateId = mailSettings[configuration["Edo:Email:AgentInvitationTemplateId"]];
-            services.Configure<AgentInvitationOptions>(options =>
+            var childAgencyInvitationTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyInvitationTemplateId"]];
+            services.Configure<AgentInvitationMailOptions>(options =>
             {
-                options.MailTemplateId = agentInvitationTemplateId;
-                options.EdoPublicUrl = edoPublicUrl;
+                options.AgentInvitationTemplateId = agentInvitationTemplateId;
+                options.ChildAgencyInvitationTemplateId = childAgencyInvitationTemplateId;
             });
 
             var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-            services.Configure<AdministratorInvitationOptions>(options =>
+            services.Configure<AdminInvitationMailOptions>(options =>
             {
-                options.MailTemplateId = administratorInvitationTemplateId;
-                options.EdoPublicUrl = edoPublicUrl;
+                options.AdminInvitationTemplateId = administratorInvitationTemplateId;
             });
-            services.Configure<UserInvitationOptions>(options =>
-                options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);
             var masterAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:MasterAgentRegistrationTemplateId"]];
             var regularAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:RegularAgentRegistrationTemplateId"]];
+            var childAgencyRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyRegistrationMailTemplateId"]];
             services.Configure<AgentRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
                 options.MasterAgentMailTemplateId = masterAgentRegistrationMailTemplateId;
                 options.RegularAgentMailTemplateId = regularAgentRegistrationMailTemplateId;
+                options.ChildAgencyMailTemplateId = childAgencyRegistrationMailTemplateId;
             });
 
             var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];
@@ -501,8 +503,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-
-            services.AddTransient<IAgentInvitationService, AgentInvitationService>();
+            
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
@@ -513,11 +514,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
-            services.AddTransient<IUserInvitationService, UserInvitationService>();
-            services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
-            services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
+            services.AddTransient<IInvitationRecordService, InvitationRecordService>();
+            services.AddTransient<IAgentInvitationRecordListService, AgentInvitationRecordListService>();
+            services.AddTransient<IAgentInvitationAcceptService, AgentInvitationAcceptService>();
+            services.AddTransient<IAdminInvitationAcceptService, AdminInvitationAcceptService>();
+            services.AddTransient<IAgentInvitationCreateService, AgentInvitationCreateService>();
+            services.AddTransient<IAdminInvitationCreateService, AdminInvitationCreateService>();
 
-            services.AddTransient<IAdministratorRegistrationService, AdministratorRegistrationService>();
+            services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
+            
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddScoped<IEntityLocker, EntityLocker>();
@@ -576,7 +581,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBankCreditCardBookingFlow, BankCreditCardBookingFlow>();
             services.AddTransient<IBookingInfoService, BookingInfoService>();
             services.AddTransient<IBookingRequestExecutor, BookingRequestExecutor>();
-            services.AddTransient<IBookingRateChecker, BookingRateChecker>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
             
