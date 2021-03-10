@@ -42,9 +42,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
 
+        public async Task<Result<AgencyInfo>> Get(int agencyId)
+        {
+            var agency = await _context.Agencies.Where(a => a.Id == agencyId)
+                .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId)).SingleOrDefaultAsync();
+
+            return agency.Equals(default)
+                ? Result.Failure<AgencyInfo>("Could not find specified agency")
+                : agency;
+        }
+
+
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId)
             => _context.Agencies.Where(a => a.ParentId == parentAgencyId)
-                .Select(a => new AgencyInfo(a.Name, a.Id))
+                .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId))
                 .ToListAsync();
 
 
@@ -108,6 +119,24 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 foreach (var childAgency in childAgencies)
                     await ChangeActivityStatus(childAgency, status);
             }
+        }
+
+
+        public async Task<AgencyInfo> Create(string name, int counterpartyId, int? parentAgencyId)
+        {
+            var now = _dateTimeProvider.UtcNow();
+            var agency = new Agency
+            {
+                Name = name,
+                CounterpartyId = counterpartyId,
+                Created = now,
+                Modified = now,
+                ParentId = parentAgencyId,
+            };
+            _context.Agencies.Add(agency);
+
+            await _context.SaveChangesAsync();
+            return new AgencyInfo(agency.Name, agency.Id, counterpartyId);
         }
 
 

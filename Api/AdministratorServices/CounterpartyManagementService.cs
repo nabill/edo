@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<List<AgencyInfo>> GetAgencies()
                 => _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
-                    .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync();
+                    .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId)).ToListAsync();
         }
 
 

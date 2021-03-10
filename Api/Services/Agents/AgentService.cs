@@ -7,7 +7,7 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<Agent>> Add(AgentEditableInfo agentRegistration,
+        public async Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration,
             string externalIdentity,
             string email)
         {
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo, AgentContext agentContext)
+        public async Task<UserDescriptionInfo> UpdateCurrentAgent(UserDescriptionInfo newInfo, AgentContext agentContext)
         {
             var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == agentContext.AgentId);
 
@@ -180,9 +180,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
         
         
-        private async ValueTask<Result> Validate(AgentEditableInfo agentRegistration, string externalIdentity)
+        private async ValueTask<Result> Validate(UserDescriptionInfo agentRegistration, string externalIdentity)
         {
-            var fieldValidateResult = GenericValidator<AgentEditableInfo>.Validate(v =>
+            var fieldValidateResult = GenericValidator<UserDescriptionInfo>.Validate(v =>
             {
                 v.RuleFor(a => a.Title).NotEmpty();
                 v.RuleFor(a => a.FirstName).NotEmpty();

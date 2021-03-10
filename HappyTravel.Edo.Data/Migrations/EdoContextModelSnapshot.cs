@@ -357,36 +357,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Counterparties");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.InvitationBase", b =>
-                {
-                    b.Property<string>("CodeHash")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("InvitationType")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsAccepted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("CodeHash");
-
-                    b.ToTable("UserInvitations");
-
-                    b.HasDiscriminator<int>("InvitationType");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
                 {
                     b.Property<int>("Id")
@@ -414,6 +384,40 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgencyId", "FileName");
 
                     b.ToTable("UploadedImages");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UserInvitation", b =>
+                {
+                    b.Property<string>("CodeHash")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("InvitationStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("InvitationType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("InviterAgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InviterUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CodeHash");
+
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.AppliedBookingMarkup", b =>
@@ -1371,35 +1375,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AdminInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
-
-                    b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
-
-                    b.Property<bool>("IsResent")
-                        .HasColumnType("boolean");
-
-                    b.HasDiscriminator().HasValue(1);
                 });
 #pragma warning restore 612, 618
         }

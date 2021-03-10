@@ -1,11 +1,12 @@
+using HappyTravel.Edo.Api.Models.Users;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public struct RegisterAgentWithCounterpartyRequest
+    public readonly struct RegisterAgentWithCounterpartyRequest
     {
         [JsonConstructor]
-        public RegisterAgentWithCounterpartyRequest(AgentEditableInfo agent, CounterpartyEditRequest counterparty)
+        public RegisterAgentWithCounterpartyRequest(UserDescriptionInfo agent, CounterpartyEditRequest counterparty)
         {
             Agent = agent;
             Counterparty = counterparty;
@@ -15,7 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     Agent personal information.
         /// </summary>
-        public AgentEditableInfo Agent { get; }
+        public UserDescriptionInfo Agent { get; }
 
         /// <summary>
         ///     Agent affiliated counterparty information.

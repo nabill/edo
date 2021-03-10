@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
-    public class AgentInvitationData : DataWithCompanyInfo
+    public class InvitationData : DataWithCompanyInfo
     {
         public string AgencyName { get; set; }
         public string InvitationCode { get; set; }
