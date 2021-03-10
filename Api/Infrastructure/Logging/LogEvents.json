@@ -60,5 +60,7 @@
     {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "source": "AnalyticsService", "isException": false},
     {"id": 1601, "name": "MapperClientException", "level": "Error", "source": "AccommodationMapperClient", "isException": true},
-    {"id": 1701, "name": "CounterpartyAccountAddedNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false}
+    {"id": 1701, "name": "CounterpartyAccountAddedNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false},
+    {"id": 1702, "name": "AgentRegistrationNotificationFailure", "level": "Error", "source": "InvitationService", "isException": false},
+    {"id": 1703, "name": "ChildAgencyRegistrationNotificationFailure", "level": "Error", "source": "InvitationService", "isException": false}
 ]

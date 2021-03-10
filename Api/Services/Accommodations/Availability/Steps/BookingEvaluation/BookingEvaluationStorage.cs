@@ -7,7 +7,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.General.Enums;
 using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -21,29 +21,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            Suppliers supplier)
+            Suppliers supplier, List<PaymentMethods> availablePaymentMethods)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
-            var dataToSave = SupplierData.Create(supplier, availability);
-            return _doubleFlow.SetAsync(key, dataToSave, CacheExpirationTime);
-        }
-
-
-        public async Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, Guid resultId, Guid roomContractSetId)
-        {
-            var key = BuildKey(searchId, resultId, roomContractSetId);
+            var result = SupplierData.Create(supplier, availability);
+            var roomSetAvailability = availability.Data;
             
-            var result = await _doubleFlow.GetAsync<SupplierData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
-            if (result.Equals(default))
-                return Result.Failure<BookingAvailabilityInfo>("Could not find evaluation result");
-
-            var dataWithMarkup = result.Data;
-            var roomSetAvailability = dataWithMarkup.Data;
             var location = roomSetAvailability.Accommodation.Location;
             var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
                 roomSetAvailability.RoomContractSet.Tags);
-
-            return new BookingAvailabilityInfo(
+            
+            var dataWithMarkup = result.Data;
+            
+            var bookingAvailabilityInfo = new BookingAvailabilityInfo(
                 roomSetAvailability.Accommodation.Id,
                 roomSetAvailability.Accommodation.Name,
                 roomContractSet,
@@ -60,7 +50,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 dataWithMarkup.AppliedMarkups,
                 dataWithMarkup.SupplierPrice,
                 roomSetAvailability.AvailabilityId,
-                roomSetAvailability.Accommodation.HtId);
+                roomSetAvailability.Accommodation.HtId,
+                availablePaymentMethods);
+            
+            return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
+        }
+
+
+        public async Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, Guid resultId, Guid roomContractSetId)
+        {
+            var key = BuildKey(searchId, resultId, roomContractSetId);
+            
+            var result = await _doubleFlow.GetAsync<BookingAvailabilityInfo>(key, CacheExpirationTime);
+            return result.Equals(default) 
+                ? Result.Failure<BookingAvailabilityInfo>("Could not find evaluation result") 
+                : result;
         }
 
         

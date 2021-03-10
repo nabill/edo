@@ -8,7 +8,6 @@ namespace HappyTravel.Edo.Data.Agents
         public InAgencyPermissions InAgencyPermissions { get; set; }
         public int AgencyId { get; set; }
         public AgentAgencyRelationTypes Type { get; set; }
-        public string DisplayedMarkupFormula { get; set; }
         public bool IsActive { get; set; }
 
 

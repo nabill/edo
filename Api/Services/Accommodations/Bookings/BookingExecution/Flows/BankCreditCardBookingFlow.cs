@@ -21,8 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
     public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
         public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
-            IBookingRateChecker rateChecker,
-            IBookingRecordManager bookingRecordManager,
             IBookingNotificationService bookingNotificationService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
@@ -30,11 +28,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider,
+            IBookingRegistrationService registrationService,
             ILogger<BankCreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
-            _rateChecker = rateChecker;
-            _bookingRecordManager = bookingRecordManager;
             _bookingNotificationService = bookingNotificationService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
@@ -42,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _documentsService = documentsService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
+            _registrationService = registrationService;
             _logger = logger;
         }
         
@@ -49,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             return await GetCachedAvailability(bookingRequest)
-                .Check(CheckRateRestrictions)
+                .Ensure(IsPaymentMethodAllowed, "Payment method is not allowed")
                 .Map(Register);
 
 
@@ -57,15 +55,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => await _evaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId);
 
                 
-            Task<Result> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
-                => _rateChecker.Check(bookingRequest, availabilityInfo, PaymentMethods.CreditCard, agentContext);
+            bool IsPaymentMethodAllowed(BookingAvailabilityInfo availabilityInfo) 
+                => availabilityInfo.AvailablePaymentMethods.Contains(PaymentMethods.CreditCard);
 
 
             async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, PaymentMethods.CreditCard, agentContext, languageCode);
-                await _requestStorage.Set(referenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
-                return referenceCode;
+                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentMethods.CreditCard, agentContext, languageCode);
+                await _requestStorage.Set(booking.ReferenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
+                return booking.ReferenceCode;
             }
 
 
@@ -141,8 +139,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         
         private readonly IBookingRequestStorage _requestStorage;
-        private readonly IBookingRateChecker _rateChecker;
-        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
@@ -150,6 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingRegistrationService _registrationService;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }
 }

@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
         {
-            var agency = await _context.Agencies.SingleOrDefaultAsync(agency => agency.Id == agencyId);
+            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
             if (agency is null)
                 return Result.Failure<List<SlimAgentInfo>>($"Agency with ID {agencyId} not found");
 
@@ -29,6 +29,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             var agents = from relation in relations
                    join agent in _context.Agents on relation.AgentId equals agent.Id
+                   join displayMarkupFormula in _context.DisplayMarkupFormulas on new
+                   {
+                       relation.AgentId,
+                       relation.AgencyId
+                   } equals new
+                   {
+                       AgentId = displayMarkupFormula.AgentId.Value,
+                       AgencyId = displayMarkupFormula.AgencyId.Value
+                   } into formulas
+                   from formula in formulas.DefaultIfEmpty()
                    let name = $"{agent.FirstName} {agent.LastName}"
                    let created = agent.Created.ToEpochTime()
                    select new SlimAgentInfo
@@ -37,8 +47,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                        Name = name,
                        Created = created,
                        IsActive = relation.IsActive,
-                       MarkupSettings = !string.IsNullOrWhiteSpace(relation.DisplayedMarkupFormula)
-                           ? relation.DisplayedMarkupFormula
+                       MarkupSettings = formula != null
+                           ? formula.DisplayFormula
                            : string.Empty
                    };
 

@@ -7,10 +7,11 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Markup;
 using IdentityModel;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<Agent>> Add(AgentEditableInfo agentRegistration,
+        public async Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration,
             string externalIdentity,
             string email)
         {
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo, AgentContext agentContext)
+        public async Task<UserDescriptionInfo> UpdateCurrentAgent(UserDescriptionInfo newInfo, AgentContext agentContext)
         {
             var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == agentContext.AgentId);
 
@@ -90,6 +91,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return from relation in relations
                 join agent in _context.Agents on relation.AgentId equals agent.Id
+                join displayMarkupFormula in _context.DisplayMarkupFormulas on new
+                {
+                    relation.AgentId,
+                    relation.AgencyId
+                } equals new
+                {
+                    AgentId = displayMarkupFormula.AgentId.Value,
+                    AgencyId = displayMarkupFormula.AgencyId.Value
+                } into formulas
+                from formula in formulas.DefaultIfEmpty()
                 let name = $"{agent.FirstName} {agent.LastName}"
                 let created = agent.Created.ToEpochTime()
                 select new SlimAgentInfo
@@ -98,8 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Name = name,
                     Created = created,
                     IsActive = relation.IsActive,
-                    MarkupSettings = canObserveMarkups && !string.IsNullOrWhiteSpace(relation.DisplayedMarkupFormula)
-                        ? relation.DisplayedMarkupFormula
+                    MarkupSettings = canObserveMarkups && formula != null
+                        ? formula.DisplayFormula
                         : string.Empty
                 };
         }
@@ -169,9 +180,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
         
         
-        private async ValueTask<Result> Validate(AgentEditableInfo agentRegistration, string externalIdentity)
+        private async ValueTask<Result> Validate(UserDescriptionInfo agentRegistration, string externalIdentity)
         {
-            var fieldValidateResult = GenericValidator<AgentEditableInfo>.Validate(v =>
+            var fieldValidateResult = GenericValidator<UserDescriptionInfo>.Validate(v =>
             {
                 v.RuleFor(a => a.Title).NotEmpty();
                 v.RuleFor(a => a.FirstName).NotEmpty();
