@@ -52,12 +52,60 @@ namespace HappyTravel.Edo.Api.Services.Markups
             await _context.SaveChangesAsync();
             return Result.Success();
         }
+        
+        
+        public async Task<Result> Update(int agencyId)
+        {
+            var counterpartyId = await (from agency in _context.Agencies
+                join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                where agency.Id == agencyId
+                select agency.CounterpartyId).SingleOrDefaultAsync();
+            
+            if (counterpartyId == default)
+                return Result.Failure($"Agency with id '{agencyId}' not found");
+            
+            var formula = await GetAgencyMarkupFormula(agencyId);
+            var displayedMarkupFormula = await _context.DisplayMarkupFormulas
+                .SingleOrDefaultAsync(f => f.AgencyId == agencyId && f.AgentId == null);
+            
+            if (displayedMarkupFormula is null)
+            {
+                _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
+                {
+                    CounterpartyId = counterpartyId,
+                    AgencyId = agencyId,
+                    AgentId = null,
+                    DisplayFormula = formula
+                });
+            }
+            else
+            {
+                displayedMarkupFormula.DisplayFormula = formula;
+                _context.DisplayMarkupFormulas.Update(displayedMarkupFormula);
+            }
+
+            await _context.SaveChangesAsync();
+            return Result.Success();
+        }
 
 
         private async Task<string> GetAgentMarkupFormula(int agentId, int agencyId)
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.AgentId == agentId && p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agent)
+                .OrderBy(p => p.Order)
+                .ToListAsync();
+
+            return policies.Any()
+                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
+                : string.Empty;
+        }
+        
+        
+        private async Task<string> GetAgencyMarkupFormula(int agencyId)
+        {
+            var policies = await _context.MarkupPolicies
+                .Where(p => p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agency)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 

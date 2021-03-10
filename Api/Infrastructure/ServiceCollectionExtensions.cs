@@ -540,6 +540,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
             services.AddScoped<IAgentMarkupPolicyManager, AgentMarkupPolicyManager>();
+            services.AddScoped<IAgencyMarkupPolicyManager, AgencyMarkupPolicyManager>();
             services.AddTransient<IMarkupPolicyAuditService, MarkupPolicyAuditService>();
             services.AddScoped<IAdminMarkupPolicyManager, AdminMarkupPolicyManager>();
 
