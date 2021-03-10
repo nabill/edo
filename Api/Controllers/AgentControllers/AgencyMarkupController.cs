@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Agency id</param>
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
-        [HttpPost("agency/agencies/{agencyId}/markups")]
+        [HttpPost("agency/child-agencies/{agencyId}/markups")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Agency id</param>
         /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
-        [HttpDelete("agency/agencies/{agencyId}/markups/{policyId}")]
+        [HttpDelete("agency/child-agencies/{agencyId}/markups/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="policyId">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
-        [HttpPut("agency/agencies/{agencyId}/markups/{policyId}")]
+        [HttpPut("agency/child-agencies/{agencyId}/markups/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
