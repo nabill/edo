@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             AccommodationBookingSettings settings, DateTime date)
         {
             var deadlineDate = availability.RoomContractSet.Deadline.Date ?? availability.CheckInDate;
-            if (deadlineDate.Date <= date.AddDays(-1))
+            if (date.AddDays(1) <= deadlineDate.Date)
                 return AllAvailablePaymentMethods;
 
             return settings.PassedDeadlineOffersMode switch
