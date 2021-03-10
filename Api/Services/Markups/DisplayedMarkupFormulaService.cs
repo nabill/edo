@@ -56,16 +56,35 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         public async Task<Result> Update(int agencyId)
         {
-            var isAgencyExists = await _context.Agencies
-                .AnyAsync(a => a.Id == agencyId);
+            var counterpartyId = await (from agency in _context.Agencies
+                join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                where agency.Id == agencyId
+                select agency.CounterpartyId).SingleOrDefaultAsync();
             
-            if(!isAgencyExists)
+            if (counterpartyId == default)
                 return Result.Failure($"Agency with id '{agencyId}' not found");
             
-            var displayedMarkupFormula = await GetAgencyMarkupFormula(agencyId);
+            var formula = await GetAgencyMarkupFormula(agencyId);
+            var displayedMarkupFormula = await _context.DisplayMarkupFormulas
+                .SingleOrDefaultAsync(f => f.AgencyId == agencyId && f.AgentId == null);
             
-            // TODO: implement saving displayed markup formula
+            if (displayedMarkupFormula is null)
+            {
+                _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
+                {
+                    CounterpartyId = counterpartyId,
+                    AgencyId = agencyId,
+                    AgentId = null,
+                    DisplayFormula = formula
+                });
+            }
+            else
+            {
+                displayedMarkupFormula.DisplayFormula = formula;
+                _context.DisplayMarkupFormulas.Update(displayedMarkupFormula);
+            }
 
+            await _context.SaveChangesAsync();
             return Result.Success();
         }
 
