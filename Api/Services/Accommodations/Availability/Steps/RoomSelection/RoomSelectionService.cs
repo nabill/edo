@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -112,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId, resultId, source, result.Accommodation.Id, result.AvailabilityId, searchSettings, agent, languageCode);
+                    .GetSupplierAvailability(searchId, resultId, source, result.Accommodation.Id, result.AvailabilityId, searchSettings, result.HtId, agent, languageCode);
             }
             
 
