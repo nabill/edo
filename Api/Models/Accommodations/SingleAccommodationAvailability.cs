@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public class SingleAccommodationAvailability
+    public readonly struct SingleAccommodationAvailability
     {
         public SingleAccommodationAvailability(
             string availabilityId,
