@@ -1428,6 +1428,11 @@
                 Information about a selected room contract set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailablePaymentMethods">
+            <summary>
+            List of available payment methods
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Id">
             <summary>
             Report id
