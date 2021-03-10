@@ -6,10 +6,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct AgencyInfo
     {
         [JsonConstructor]
-        public AgencyInfo(string name, int? id)
+        public AgencyInfo(string name, int? id, int? counterpartyId)
         {
             Name = name;
             Id = id;
+            CounterpartyId = counterpartyId;
         }
 
 
@@ -23,5 +24,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Id of the counterparty agency.
         /// </summary>
         public int? Id { get; }
+
+        /// <summary>
+        ///     Id of the counterparty.
+        /// </summary>
+        public int? CounterpartyId { get; }
     }
 }

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
 
-            return Result.Success(new AgencyInfo(agency.Name, agency.Id));
+            return Result.Success(new AgencyInfo(agency.Name, agency.Id, agency.CounterpartyId));
         }
 
 

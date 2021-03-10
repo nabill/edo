@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -15,10 +16,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public class CounterpartyService : ICounterpartyService
     {
         public CounterpartyService(EdoContext context,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IAgencyManagementService agencyManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
+            _agencyManagementService = agencyManagementService;
         }
 
 
@@ -50,17 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Counterparties.Add(createdCounterparty);
             await _context.SaveChangesAsync();
 
-            var defaultAgency = new Agency
-            {
-                Name = createdCounterparty.Name,
-                CounterpartyId = createdCounterparty.Id,
-                Created = now,
-                Modified = now,
-                ParentId = null,
-            };
-            _context.Agencies.Add(defaultAgency);
+            await _agencyManagementService.Create(createdCounterparty.Name, createdCounterparty.Id, null);
 
-            await _context.SaveChangesAsync();
             return await GetCounterpartyInfo(createdCounterparty.Id);
         }
 
@@ -178,5 +172,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAgencyManagementService _agencyManagementService;
     }
 }
