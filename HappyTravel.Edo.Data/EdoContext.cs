@@ -91,6 +91,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<UploadedImage> UploadedImages { get; set; }
         
         public DbSet<ApiClient> ApiClients { get; set; }
+        public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -256,6 +257,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingMarkup(builder);
             BuildMaterializationBonusLog(builder);
             BuildApiClients(builder);
+            BuildDisplayMarkupFormulas(builder);
         }
 
 
@@ -846,6 +848,16 @@ namespace HappyTravel.Edo.Data
                 ac.HasIndex(a => new { a.Name, a.PasswordHash });
                 ac.HasIndex(a => a.AgencyId);
                 ac.HasIndex(a => a.AgentId);
+            });
+        }
+
+
+        private static void BuildDisplayMarkupFormulas(ModelBuilder builder)
+        {
+            builder.Entity<DisplayMarkupFormula>(b =>
+            {
+                b.HasIndex(f => new {f.CounterpartyId, f.AgencyId, f.AgentId}).IsUnique();
+                b.Property(f => f.DisplayFormula).IsRequired();
             });
         }
 

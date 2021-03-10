@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Markup;
 using IdentityModel;
 using Microsoft.EntityFrameworkCore;
 
@@ -90,6 +91,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return from relation in relations
                 join agent in _context.Agents on relation.AgentId equals agent.Id
+                join displayMarkupFormula in _context.DisplayMarkupFormulas on new
+                {
+                    relation.AgentId,
+                    relation.AgencyId
+                } equals new
+                {
+                    AgentId = displayMarkupFormula.AgentId.Value,
+                    AgencyId = displayMarkupFormula.AgencyId.Value
+                } into formulas
+                from formula in formulas.DefaultIfEmpty()
                 let name = $"{agent.FirstName} {agent.LastName}"
                 let created = agent.Created.ToEpochTime()
                 select new SlimAgentInfo
@@ -98,8 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Name = name,
                     Created = created,
                     IsActive = relation.IsActive,
-                    MarkupSettings = canObserveMarkups && !string.IsNullOrWhiteSpace(relation.DisplayedMarkupFormula)
-                        ? relation.DisplayedMarkupFormula
+                    MarkupSettings = canObserveMarkups && formula != null
+                        ? formula.DisplayFormula
                         : string.Empty
                 };
         }
