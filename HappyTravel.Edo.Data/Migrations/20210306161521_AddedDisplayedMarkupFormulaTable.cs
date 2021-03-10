@@ -7,10 +7,6 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "DisplayedMarkupFormula",
-                table: "AgentAgencyRelations");
-
             migrationBuilder.CreateTable(
                 name: "DisplayMarkupFormulas",
                 columns: table => new
@@ -26,6 +22,18 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     table.PrimaryKey("PK_DisplayMarkupFormulas", x => x.Id);
                 });
+            
+            migrationBuilder.Sql(@"
+                INSERT INTO ""DisplayMarkupFormulas"" (""CounterpartyId"", ""AgencyId"", ""AgentId"", ""DisplayFormula"")
+                SELECT c.""Id"", r.""AgencyId"", r.""AgentId"", r.""DisplayedMarkupFormula"" FROM ""AgentAgencyRelations"" AS r 
+                JOIN ""Agencies"" AS a ON a.""Id"" = r.""AgencyId""
+                JOIN ""Counterparties"" AS c ON c.""Id"" = a.""CounterpartyId""
+                WHERE r.""DisplayedMarkupFormula"" IS NOT NULL
+                ");
+
+            migrationBuilder.DropColumn(
+                name: "DisplayedMarkupFormula",
+                table: "AgentAgencyRelations");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DisplayMarkupFormulas_CounterpartyId_AgencyId_AgentId",
