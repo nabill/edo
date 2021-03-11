@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         
         private async Task<Result<Agency>> GetAgency(int agencyId, AgentContext agent)
         {
-            var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId && ag.ParentId == agent.AgencyId);
+            var agency = await _context.Agencies.SingleOrDefaultAsync(ag => ag.Id == agencyId && ag.ParentId == agent.AgencyId);
             return agency ?? Result.Failure<Agency>("Could not find agency with specified id");
         }
         
@@ -73,7 +73,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
         
         
-        private static bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
+        private static bool ConvertToDbStatus(ActivityStatus status) 
+            => status == ActivityStatus.Active;
 
 
         private readonly EdoContext _context;
