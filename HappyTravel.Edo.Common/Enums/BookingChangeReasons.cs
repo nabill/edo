@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BookingChangeReasons
     {
-        ChangedByAgent = 0,
-        ChangedByAdministrator = 1,
-        ReceivedFromSupplier = 2
+        None = 0,
+        ReceivedFromSupplier = 1,
+        ChangedByAdministrator = 2
     }
 }
