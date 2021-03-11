@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> DeactivateAgency(int agencyId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agencyManagementService.DeactivateAgency(agencyId, agent);
+            var (_, isFailure, error) = await _agencyManagementService.DeactivateChildAgency(agencyId, agent);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> ActivateAgency(int agencyId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agencyManagementService.ActivateAgency(agencyId, agent);
+            var (_, isFailure, error) = await _agencyManagementService.ActivateChildAgency(agencyId, agent);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

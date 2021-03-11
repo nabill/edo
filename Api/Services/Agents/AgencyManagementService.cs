@@ -20,14 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result> DeactivateAgency(int agencyId, AgentContext agent)
+        public Task<Result> DeactivateChildAgency(int agencyId, AgentContext agent)
             => GetAgency(agencyId, agent)
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive));
+                .Bind(agency => ChangeActivityStatus(agency, ActivityStatus.NotActive));
 
 
-        public Task<Result> ActivateAgency(int agencyId, AgentContext agent)
+        public Task<Result> ActivateChildAgency(int agencyId, AgentContext agent)
             => GetAgency(agencyId, agent)
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.Active));
+                .Bind(agency => ChangeActivityStatus(agency, ActivityStatus.Active));
 
         
         private async Task<Result<Agency>> GetAgency(int agencyId, AgentContext agent)
