@@ -496,6 +496,31 @@
                 Deletes the image for logo
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates markup policy.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.RemovePolicy(System.Int32,System.Int32)">
+            <summary>
+                Deletes policy.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings">
             <summary>
                 Gets Advanced Purchase Rates settings for an agency.
