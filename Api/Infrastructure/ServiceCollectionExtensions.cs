@@ -81,6 +81,7 @@ using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
@@ -669,6 +670,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
             services.AddTransient<IAvailabilitySearchAreaService, AvailabilitySearchAreaService>();
 
+            services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
             services.AddTransient<IAgencyManagementService, AgencyManagementService>();
             services.AddTransient<IAgencyService, AgencyService>();
 

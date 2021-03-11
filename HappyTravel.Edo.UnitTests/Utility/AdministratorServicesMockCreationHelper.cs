@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        public AgencyManagementService GetAgencyManagementService(EdoContext context)
+        public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
         {
             return new(context,
                 Mock.Of<IDateTimeProvider>(),

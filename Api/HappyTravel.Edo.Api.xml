@@ -458,6 +458,20 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.DeactivateAgency(System.Int32)">
+            <summary>
+             Deactivates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.ActivateAgency(System.Int32)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
             <summary>
                 Transfers money from an agency account to a child agency account
