@@ -51,26 +51,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Check(CheckAgainstSettings);
 
 
-            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId));
+                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
                 if (result.Equals(default))
-                    return Result.Failure<(Suppliers, RoomContractSet, string)>("Could not find selected room contract set");
+                    return Result.Failure<(Suppliers, RoomContractSet, string, string)>("Could not find selected room contract set");
                 
                 return result;
             }
 
             
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string, string) selectedSet)
             {
-                var (supplier, roomContractSet, availabilityId) = selectedSet;
+                var (supplier, roomContractSet, availabilityId, _) = selectedSet;
                 return _supplierConnectorManager
                     .Get(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
                     responseWithDeadline.AppliedMarkups, responseWithDeadline.SupplierPrice);
                 
-                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods);
+                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods, result.htId);
             }
 
 

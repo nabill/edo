@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
@@ -15,18 +15,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public Task SaveResult(Guid searchId, Guid resultId, AccommodationAvailability details, Suppliers supplier)
+        public Task SaveResult(Guid searchId, Guid resultId, SingleAccommodationAvailability details, Suppliers supplier)
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return _storage.Save(keyPrefix, details, supplier);
         }
 
 
-        public async Task<List<(Suppliers Supplier, AccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<Suppliers> suppliers)
+        public async Task<List<(Suppliers Supplier, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<Suppliers> suppliers)
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
-            return (await _storage.Get<AccommodationAvailability>(keyPrefix, suppliers))
-                .Where(t => !t.Result.Equals(default(AccommodationAvailability)))
+            return (await _storage.Get<SingleAccommodationAvailability>(keyPrefix, suppliers))
+                .Where(t => !t.Result.Equals(default(SingleAccommodationAvailability)))
                 .ToList();
         }
 

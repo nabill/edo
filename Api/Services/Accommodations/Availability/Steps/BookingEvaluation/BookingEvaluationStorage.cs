@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            Suppliers supplier, List<PaymentMethods> availablePaymentMethods)
+            Suppliers supplier, List<PaymentMethods> availablePaymentMethods, string htId)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             var result = SupplierData.Create(supplier, availability);
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 dataWithMarkup.AppliedMarkups,
                 dataWithMarkup.SupplierPrice,
                 roomSetAvailability.AvailabilityId,
-                roomSetAvailability.Accommodation.HtId,
+                htId,
                 availablePaymentMethods);
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);

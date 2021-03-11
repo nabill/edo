@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Suppliers supplier,
             string accommodationId, string availabilityId,
             AccommodationBookingSettings settings,
+            string htId,
             AgentContext agent,
             string languageCode)
         {
@@ -45,10 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Map(ApplyMarkups)
                 .Map(AddSupplierData)
                 .Tap(SaveToCache);
-
-
-            Task SaveToCache(SupplierData<AccommodationAvailability> details) 
-                => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
@@ -69,6 +66,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             SupplierData<AccommodationAvailability> AddSupplierData(AccommodationAvailability availabilityDetails)
                 => SupplierData.Create(supplier, availabilityDetails);
+            
+            
+            Task SaveToCache(SupplierData<AccommodationAvailability> details)
+            {
+                var availabilityData = details.Data;
+                var result = new SingleAccommodationAvailability(availabilityData.AvailabilityId,
+                    availabilityData.CheckInDate,
+                    availabilityData.RoomContractSets,
+                    htId);
+                
+                return _roomSelectionStorage.SaveResult(searchId, resultId, result, details.Source);
+            }
         }
         
         
