@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Id of the agency.</param>
         /// <returns></returns>
         [HttpPost("agency/child-agencies/{agencyId}/deactivate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DeactivateAgency(int agencyId)
         {
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Id of the agency.</param>
         /// <returns></returns>
         [HttpPost("agency/child-agencies/{agencyId}/activate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ActivateAgency(int agencyId)
         {
