@@ -49,6 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             await SetStatus(booking, status);
 
+            await AddEntryToStatusHistory(booking, status, date, user);
+            
             return status switch
             {
                 BookingStatuses.Confirmed => await ProcessConfirmation(booking),
@@ -202,8 +204,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             await _context.SaveChangesAsync();
             _context.Detach(booking);
         }
-        
-        
+
+
+        private async Task AddEntryToStatusHistory(Booking booking, BookingStatuses status, DateTime date, UserInfo user)
+        {
+            var entry = _context.BookingStatusHistory.Add(new BookingStatusHistoryEntry
+            {
+                BookingId = booking.Id,
+                UserId = user.Id,
+                UserType = user.Type,
+                CreatedAt = date,
+                Status = status,
+                ChangeReason = BookingChangeReasons.None
+            });
+            await _context.SaveChangesAsync();
+            _context.Detach(entry);
+        }
+
+
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _infoService;
         private readonly IBookingNotificationService _notificationService;
