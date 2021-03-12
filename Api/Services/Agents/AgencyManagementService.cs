@@ -2,7 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Data;
@@ -39,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private Task<Result> ChangeActivityStatus(Agency agency, ActivityStatus status)
         {
-            var convertedStatus = ConvertToDbStatus(status);
-            if (convertedStatus == agency.IsActive)
+            var isActive = ToBoolean(status);
+            if (isActive == agency.IsActive)
                 return Task.FromResult(Result.Success());
 
             return ChangeAgencyActivityStatus()
@@ -49,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result> ChangeAgencyActivityStatus()
             {
-                agency.IsActive = convertedStatus;
+                agency.IsActive = isActive;
                 agency.Modified = _dateTimeProvider.UtcNow();
 
                 _context.Update(agency);
@@ -65,16 +64,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .ToListAsync();
 
                 foreach (var account in agencyAccounts)
-                    account.IsActive = convertedStatus;
+                    account.IsActive = isActive;
 
                 _context.UpdateRange(agencyAccounts);
                 await _context.SaveChangesAsync();
             }
         }
-        
-        
-        private static bool ConvertToDbStatus(ActivityStatus status) 
-            => status == ActivityStatus.Active;
+
+
+        private static bool ToBoolean(ActivityStatus status)
+            => status switch
+            {
+                ActivityStatus.Active => true,
+                _ => false
+            };
 
 
         private readonly EdoContext _context;
