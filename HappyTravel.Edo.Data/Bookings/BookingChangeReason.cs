@@ -6,5 +6,6 @@ namespace HappyTravel.Edo.Data.Bookings
     {
         public ChangeSources ChangeSource { get; set; }
         public BookingChangeEvents ChangeEvent { get; set; }
+        public string ChangeReason { get; set; }
     }
 }

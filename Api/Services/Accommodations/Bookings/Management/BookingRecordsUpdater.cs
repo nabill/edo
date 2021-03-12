@@ -217,7 +217,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 CreatedAt = date,
                 Status = status,
                 ChangeSource = reason.ChangeSource,
-                ChangeEvent = reason.ChangeEvent
+                ChangeEvent = reason.ChangeEvent,
+                ChangeReason = reason.ChangeReason
             });
             await _context.SaveChangesAsync();
             _context.Detach(entry);

@@ -72,7 +72,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo(), new BookingChangeReason 
                 { 
                     ChangeSource = ChangeSources.Administrator,
-                    ChangeEvent = BookingChangeEvents.CanceledManually
+                    ChangeEvent = BookingChangeEvents.CanceledManually,
+                    ChangeReason = reason
                 });
         }
         
@@ -88,7 +89,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
                 { 
                     ChangeSource = ChangeSources.Administrator,
-                    ChangeEvent = BookingChangeEvents.RejectedManually
+                    ChangeEvent = BookingChangeEvents.RejectedManually,
+                    ChangeReason = reason
                 });
         }
 
