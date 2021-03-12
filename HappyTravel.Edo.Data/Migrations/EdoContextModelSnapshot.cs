@@ -846,36 +846,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Administrators");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Management.BookingManagementAuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<int>("AdministratorId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BookingId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("OperationType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BookingManagementAuditLogs");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")

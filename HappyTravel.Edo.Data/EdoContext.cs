@@ -92,7 +92,6 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<ApiClient> ApiClients { get; set; }
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
-        public DbSet<BookingManagementAuditLogEntry> BookingManagementAuditLogs { get; set; }
 
 
         [DbFunction("jsonb_to_string")]

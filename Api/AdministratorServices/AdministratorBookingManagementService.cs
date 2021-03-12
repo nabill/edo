@@ -16,109 +16,77 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public AdministratorBookingManagementService(IBookingRecordManager recordManager,
             IBookingManagementService managementService,
             IDateTimeProvider dateTimeProvider,
-            IBookingRecordsUpdater recordsUpdater,
-            EdoContext context)
+            IBookingRecordsUpdater recordsUpdater)
         {
             _recordManager = recordManager;
             _managementService = managementService;
             _dateTimeProvider = dateTimeProvider;
             _recordsUpdater = recordsUpdater;
-            _context = context;
         }
         
         public Task<Result> Discard(int bookingId, Administrator admin)
         {
             return GetBooking(bookingId)
-                .Bind(ProcessDiscard)
-                .Tap(WriteLog);
+                .Bind(ProcessDiscard);
 
             
             Task<Result> ProcessDiscard(Booking booking) 
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), admin.ToUserInfo());
-
-
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.Discard);
         }
 
 
         public Task<Result> RefreshStatus(int bookingId, Administrator admin)
         {
             return GetBooking(bookingId)
-                .Bind(ProcessRefresh)
-                .Tap(WriteLog);
+                .Bind(ProcessRefresh);
             
             
             Task<Result> ProcessRefresh(Booking booking) 
                 => _managementService.RefreshStatus(booking, admin.ToUserInfo());
-            
-            
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.RefreshStatus);
         }
 
 
         public async Task<Result> Cancel(int bookingId, Administrator admin)
         {
             return await GetBooking(bookingId)
-                .Bind(Cancel)
-                .Tap(WriteLog);
+                .Bind(Cancel);
                 
             
             Task<Result> Cancel(Booking booking) 
                 => _managementService.Cancel(booking, admin.ToUserInfo());
-            
-            
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.Cancel);
         }
 
 
         public async Task<Result> CancelManually(int bookingId, DateTime cancellationDate, string reason, Administrator admin)
         {
             return await GetBooking(bookingId)
-                .Bind(CancelManually)
-                .Tap(WriteLog);
+                .Bind(CancelManually);
 
 
             Task<Result> CancelManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo());
-            
-            
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.CancelManually, reason, cancellationDate);
         }
         
         
         public async Task<Result> RejectManually(int bookingId, string reason, Administrator admin)
         {
             return await GetBooking(bookingId)
-                .Bind(RejectManually)
-                .Tap(WriteLog);
+                .Bind(RejectManually);
 
 
             Task<Result> RejectManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo());
-            
-            
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.RejectManually, reason);
         }
 
 
         public async Task<Result> ConfirmManually(int bookingId, DateTime confirmationDate, string reason, Administrator admin)
         {
             return await GetBooking(bookingId)
-                .Bind(ConfirmManually)
-                .Tap(WriteLog);
+                .Bind(ConfirmManually);
 
 
             Task<Result> ConfirmManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Confirmed, confirmationDate, admin.ToUserInfo());
-            
-            
-            Task WriteLog() 
-                => WriteAuditLog(bookingId, admin, BookingManagementOperationTypes.ConfirmManually, reason, confirmationDate);
         }
 
 
@@ -126,26 +94,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => _recordManager.Get(id);
 
 
-        private async Task WriteAuditLog(int bookingId, Administrator admin, BookingManagementOperationTypes type, string reason = default, DateTime? date = null)
-        {
-            var logEntry = new BookingManagementAuditLogEntry
-            {
-                BookingId = bookingId,
-                AdministratorId = admin.Id,
-                Reason = reason,
-                Date = date,
-                Created = _dateTimeProvider.UtcNow(),
-                OperationType = type
-            };
-            _context.BookingManagementAuditLogs.Add(logEntry);
-            await _context.SaveChangesAsync();
-        }
-
-
         private readonly IBookingRecordManager _recordManager;
         private readonly IBookingManagementService _managementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordsUpdater _recordsUpdater;
-        private readonly EdoContext _context;
     }
 }
