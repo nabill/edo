@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             async Task<Result> ProcessCancellation(Booking b)
             {
-                await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user);
+                await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user, BookingChangeReasons.ChangedBySystemAtAgentRequest);
                 return b.UpdateMode == BookingUpdateModes.Synchronous
                     ? await RefreshStatus(b, user)
                     : Result.Success();

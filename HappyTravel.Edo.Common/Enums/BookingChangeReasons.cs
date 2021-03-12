@@ -7,7 +7,8 @@ namespace HappyTravel.Edo.Common.Enums
     public enum BookingChangeReasons
     {
         None = 0,
-        ReceivedFromSupplier = 1,
-        ChangedByAdministrator = 2
+        ChangedBySystemAtAgentRequest = 1,
+        ReceivedFromSupplier = 2,
+        ChangedByAdministrator = 3
     }
 }
