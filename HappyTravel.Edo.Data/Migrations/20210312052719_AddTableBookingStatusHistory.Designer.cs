@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210311101455_AddTableBookingStatusHistory")]
+    [Migration("20210312052719_AddTableBookingStatusHistory")]
     partial class AddTableBookingStatusHistory
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -580,9 +580,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("AgentId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("BookingId")
                         .HasColumnType("integer");
 
@@ -595,11 +592,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AgentId");
-
                     b.HasIndex("BookingId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserType");
 
                     b.ToTable("BookingStatusHistory");
                 });

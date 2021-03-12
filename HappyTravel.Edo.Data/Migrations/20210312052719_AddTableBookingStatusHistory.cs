@@ -15,7 +15,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BookingId = table.Column<int>(type: "integer", nullable: false),
-                    AgentId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    UserType = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     ChangeReason = table.Column<int>(type: "integer", nullable: false)
@@ -26,14 +27,19 @@ namespace HappyTravel.Edo.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingStatusHistory_AgentId",
-                table: "BookingStatusHistory",
-                column: "AgentId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_BookingStatusHistory_BookingId",
                 table: "BookingStatusHistory",
                 column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingStatusHistory_UserId",
+                table: "BookingStatusHistory",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingStatusHistory_UserType",
+                table: "BookingStatusHistory",
+                column: "UserType");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

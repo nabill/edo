@@ -870,7 +870,8 @@ namespace HappyTravel.Edo.Data
             {
                 e.HasKey(bshe => bshe.Id);
                 e.HasIndex(bshe => bshe.BookingId);
-                e.HasIndex(bshe => bshe.AgentId);
+                e.HasIndex(bshe => bshe.UserId);
+                e.HasIndex(bshe => bshe.UserType);
                 e.Property(bshe => bshe.CreatedAt).IsRequired();
                 e.Property(bshe => bshe.Status).IsRequired();
                 e.Property(bshe => bshe.ChangeReason).IsRequired();
