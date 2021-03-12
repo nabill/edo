@@ -587,11 +587,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("ChangeEvent")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ChangeSource")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("SourceOfChange")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

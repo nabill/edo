@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     AgencyId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    SourceOfChange = table.Column<int>(type: "integer", nullable: false),
+                    ChangeSource = table.Column<int>(type: "integer", nullable: false),
                     ChangeEvent = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
