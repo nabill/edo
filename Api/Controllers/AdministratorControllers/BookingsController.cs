@@ -194,7 +194,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="bookingId">Id of booking to confirm</param>
         /// <param name="confirmationRequest">Confirmation request</param>
         /// <returns></returns>
-        [HttpPost("accommodations/bookings/{bookingId}/reject-manually")]
+        [HttpPost("accommodations/bookings/{bookingId}/confirm-manually")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
