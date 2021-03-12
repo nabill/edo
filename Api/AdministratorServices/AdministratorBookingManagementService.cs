@@ -31,7 +31,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             
             Task<Result> ProcessDiscard(Booking booking) 
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), administrator.ToUserInfo(), BookingChangeReasons.ChangedByAdministrator);
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), administrator.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.Discarded
+                });
         }
 
 
@@ -65,7 +69,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             Task<Result> CancelManually(Booking booking)
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo(), BookingChangeReasons.ChangedByAdministrator);
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.CanceledManually
+                });
         }
         
         
@@ -77,7 +85,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             Task<Result> RejectManually(Booking booking)
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), BookingChangeReasons.ChangedByAdministrator);
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.RejectedManually
+                });
         }
 
 

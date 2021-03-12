@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingRecordsUpdater
     {
-        Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReasons reason);
+        Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason = null);    // TODO: Need remove "= null" later
 
         Task UpdateWithSupplierData(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
             List<SlimRoomOccupation> updatedRooms);
