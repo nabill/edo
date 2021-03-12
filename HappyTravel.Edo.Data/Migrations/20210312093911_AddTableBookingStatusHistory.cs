@@ -17,9 +17,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     BookingId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     UserType = table.Column<int>(type: "integer", nullable: false),
+                    AgencyId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    ChangeReason = table.Column<int>(type: "integer", nullable: false)
+                    SourceOfChange = table.Column<int>(type: "integer", nullable: false),
+                    ChangeEvent = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

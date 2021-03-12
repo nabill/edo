@@ -9,8 +9,10 @@ namespace HappyTravel.Edo.Data.Bookings
         public int BookingId { get; set; }
         public int UserId { get; set; }
         public UserTypes UserType { get; set; }
+        public int? AgencyId { get; set; }
         public DateTime CreatedAt { get; set; }
         public BookingStatuses Status { get; set; }
-        public BookingChangeReasons ChangeReason { get; set; }
+        public SourcesOfChange SourceOfChange { get; set; }
+        public ChangeEvents ChangeEvent { get; set; }
     }
 }
