@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210312093911_AddTableBookingStatusHistory")]
+    [Migration("20210312121616_AddTableBookingStatusHistory")]
     partial class AddTableBookingStatusHistory
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -589,11 +589,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("ChangeEvent")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ChangeSource")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("SourceOfChange")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
