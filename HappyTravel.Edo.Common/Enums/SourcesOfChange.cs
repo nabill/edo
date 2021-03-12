@@ -4,11 +4,11 @@ using Newtonsoft.Json.Converters;
 namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum BookingChangeReasons
+    public enum SourcesOfChange
     {
         None = 0,
-        ChangedBySystemAtAgentRequest = 1,
-        ReceivedFromSupplier = 2,
-        ChangedByAdministrator = 3
+        Supplier = 1,
+        System = 2,
+        Administrator = 3
     }
 }

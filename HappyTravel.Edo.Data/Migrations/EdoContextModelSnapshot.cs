@@ -578,14 +578,20 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int?>("AgencyId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("BookingId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ChangeReason")
+                    b.Property<int>("ChangeEvent")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("SourceOfChange")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
