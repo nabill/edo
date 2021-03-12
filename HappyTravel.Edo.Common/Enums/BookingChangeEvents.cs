@@ -9,6 +9,9 @@ namespace HappyTravel.Edo.Common.Enums
         None = 0,   // TODO: Need reorder later and set integer values for all
         Discarded,
         CanceledManually,
-        RejectedManually
+        RejectedManually,
+        Charge,
+        Finalize,
+        Cancel
     }
 }

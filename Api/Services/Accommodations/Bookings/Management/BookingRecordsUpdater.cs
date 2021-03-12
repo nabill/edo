@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
 
-        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason = null)    // TODO: Need remove "= null" later
+        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason) 
         {
             if (booking.Status == status)
                 return Result.Success();

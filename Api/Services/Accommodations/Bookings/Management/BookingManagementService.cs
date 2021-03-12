@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user, new BookingChangeReason 
                 { 
                     ChangeSource = ChangeSources.System,
-                    ChangeEvent = BookingChangeEvents.None  // TODO: Information is required where the method Cancel is called from
+                    ChangeEvent = BookingChangeEvents.Cancel  // TODO: Information is required where the method Cancel is called from
                 });
 
                 return b.UpdateMode == BookingUpdateModes.Synchronous
