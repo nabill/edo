@@ -366,6 +366,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
+            await _agentContextInternal.RefreshAgentContext();
+
             return Ok(permissions);
         }
 
