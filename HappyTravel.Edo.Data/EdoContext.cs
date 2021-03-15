@@ -307,6 +307,9 @@ namespace HappyTravel.Edo.Data
                     .IsRequired()
                     .HasDefaultValue(true);
                 agency.HasIndex(a => a.CounterpartyId);
+                agency.HasIndex(a => a.Ancestors)
+                    .HasMethod("gin")
+                    .HasOperators("gin_trgm_ops");
             });
         }
 

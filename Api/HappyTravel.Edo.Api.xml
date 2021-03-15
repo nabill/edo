@@ -207,6 +207,14 @@
             <param name="rejectionRequest">Rejection request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Reject(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
+            <summary>
+                Confirm accommodation booking manually
+            </summary>
+            <param name="bookingId">Id of booking to confirm</param>
+            <param name="confirmationRequest">Confirmation request</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -456,6 +464,20 @@
             <summary>
                 Invites to create child agency.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.DeactivateAgency(System.Int32)">
+            <summary>
+             Deactivates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.ActivateAgency(System.Int32)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
@@ -2212,6 +2234,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.Reason">
             <summary>
             Cancellation reason
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest.ConfirmationDate">
+            <summary>
+            Date when booking was actually confirmed
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest.Reason">
+            <summary>
+            Confirmation reason
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingRejectionRequest.Reason">

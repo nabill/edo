@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public class AgencyService : IAgencyService
     {
         public AgencyService(IAgentService agentService,
-            IAgencyManagementService agencyManagementService,
+            IAdminAgencyManagementService agencyManagementService,
             EdoContext context)
         {
             _agentService = agentService;
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly IAgentService _agentService;
-        private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly EdoContext _context;
     }
 }
