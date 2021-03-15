@@ -92,6 +92,7 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<ApiClient> ApiClients { get; set; }
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
+        public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -258,6 +259,7 @@ namespace HappyTravel.Edo.Data
             BuildMaterializationBonusLog(builder);
             BuildApiClients(builder);
             BuildDisplayMarkupFormulas(builder);
+            BuildBookingStatusHistory(builder);
         }
 
 
@@ -860,6 +862,24 @@ namespace HappyTravel.Edo.Data
             {
                 b.HasIndex(f => new {f.CounterpartyId, f.AgencyId, f.AgentId}).IsUnique();
                 b.Property(f => f.DisplayFormula).IsRequired();
+            });
+        }
+
+
+        private static void BuildBookingStatusHistory(ModelBuilder builder)
+        {
+            builder.Entity<BookingStatusHistoryEntry>(e =>
+            {
+                e.HasKey(bshe => bshe.Id);
+                e.HasIndex(bshe => bshe.BookingId);
+                e.HasIndex(bshe => bshe.UserId);
+                e.HasIndex(bshe => bshe.UserType);
+                e.Property(bshe => bshe.AgencyId);
+                e.Property(bshe => bshe.CreatedAt).IsRequired();
+                e.Property(bshe => bshe.Status).IsRequired();
+                e.Property(bshe => bshe.ChangeSource).IsRequired();
+                e.Property(bshe => bshe.ChangeEvent).IsRequired();
+                e.ToTable("BookingStatusHistory");
             });
         }
 
