@@ -188,6 +188,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        ///     Confirm accommodation booking manually
+        /// </summary>
+        /// <param name="bookingId">Id of booking to confirm</param>
+        /// <param name="confirmationRequest">Confirmation request</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/confirm-manually")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> Reject(int bookingId, [FromBody] ManualBookingConfirmationRequest confirmationRequest)
+        {
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingManagementService.ConfirmManually(bookingId, confirmationRequest.ConfirmationDate, confirmationRequest.Reason, admin);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
+        
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
         private readonly IAdministratorBookingManagementService _bookingManagementService;
