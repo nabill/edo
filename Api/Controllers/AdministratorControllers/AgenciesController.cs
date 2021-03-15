@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
             IAgentService agentService,
-            IAgencyManagementService agencyManagementService)
+            IAdminAgencyManagementService agencyManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
@@ -165,6 +165,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
-        private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAdminAgencyManagementService _agencyManagementService;
     }
 }

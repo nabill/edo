@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             MailSenderWithCompanyInfo mailSender,
             IOptions<AgentInvitationMailOptions> options,
             IInvitationRecordService invitationRecordService,
-            IAgencyManagementService agencyManagementService)
+            IAdminAgencyManagementService agencyManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -164,6 +164,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly AgentInvitationMailOptions _options;
         private readonly IInvitationRecordService _invitationRecordService;
-        private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAdminAgencyManagementService _agencyManagementService;
     }
 }

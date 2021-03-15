@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public CounterpartyService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAgencyManagementService agencyManagementService)
+            IAdminAgencyManagementService agencyManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -172,6 +172,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAdminAgencyManagementService _agencyManagementService;
     }
 }

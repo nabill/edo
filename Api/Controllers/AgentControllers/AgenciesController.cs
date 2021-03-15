@@ -8,7 +8,9 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
+using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
@@ -24,11 +26,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public AgenciesController(IAgencyService agencyService,
             IAgentContextService agentContextService,
-            IAgentInvitationCreateService agentInvitationCreateService)
+            IAgentInvitationCreateService agentInvitationCreateService,
+            IAgencyManagementService agencyManagementService)
         {
             _agencyService = agencyService;
             _agentContextService = agentContextService;
             _agentInvitationCreateService = agentInvitationCreateService;
+            _agencyManagementService = agencyManagementService;
         }
 
 
@@ -103,10 +107,51 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(code);
         }
+        
+        
+        /// <summary>
+        ///  Deactivates specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        /// <returns></returns>
+        [HttpPost("agency/child-agencies/{agencyId}/deactivate")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> DeactivateAgency(int agencyId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, error) = await _agencyManagementService.DeactivateChildAgency(agencyId, agent);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///  Activates specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        /// <returns></returns>
+        [HttpPost("agency/child-agencies/{agencyId}/activate")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ActivateAgency(int agencyId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, error) = await _agencyManagementService.ActivateChildAgency(agencyId, agent);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
 
 
         private readonly IAgencyService _agencyService;
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
+        private readonly IAgencyManagementService _agencyManagementService;
     }
 }
