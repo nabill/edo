@@ -141,8 +141,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Ancestors")
-                        .HasMethod("gin")
-                        .HasOperators(new[] { "gin_trgm_ops" });
+                        .HasMethod("gin");
 
                     b.HasIndex("CounterpartyId");
 

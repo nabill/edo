@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210311062536_AddAncestorsIndex")]
+    [Migration("20210315090046_AddAncestorsIndex")]
     partial class AddAncestorsIndex
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -143,8 +143,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Ancestors")
-                        .HasMethod("gin")
-                        .HasOperators(new[] { "gin_trgm_ops" });
+                        .HasMethod("gin");
 
                     b.HasIndex("CounterpartyId");
 

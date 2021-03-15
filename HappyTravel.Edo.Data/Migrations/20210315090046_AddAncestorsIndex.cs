@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
@@ -11,8 +10,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "IX_Agencies_Ancestors",
                 table: "Agencies",
                 column: "Ancestors")
-                .Annotation("Npgsql:IndexMethod", "gin")
-                .Annotation("Npgsql:IndexOperators", new[] { "gin_trgm_ops" });
+                .Annotation("Npgsql:IndexMethod", "gin");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
