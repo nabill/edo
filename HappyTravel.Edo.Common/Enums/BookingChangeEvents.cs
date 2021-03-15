@@ -10,6 +10,7 @@ namespace HappyTravel.Edo.Common.Enums
         Discarded,
         CanceledManually,
         RejectedManually,
+        ConfirmManually,
         Charge,
         Finalize,
         Cancel
