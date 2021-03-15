@@ -42,13 +42,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _bookingNotificationService = bookingNotificationService;
         }
         
-        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user)
+
+        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason) 
         {
             if (booking.Status == status)
                 return Result.Success();
 
             await SetStatus(booking, status);
 
+            await AddEntryToStatusHistory(booking, status, date, user, reason);
+            
             return status switch
             {
                 BookingStatuses.Confirmed => await ProcessConfirmation(booking, date),
@@ -202,8 +205,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             await _context.SaveChangesAsync();
             _context.Detach(booking);
         }
-        
-        
+
+
+        private async Task AddEntryToStatusHistory(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason)
+        {
+            var entry = _context.BookingStatusHistory.Add(new BookingStatusHistoryEntry
+            {
+                BookingId = booking.Id,
+                UserId = user.Id,
+                UserType = user.Type,
+                CreatedAt = date,
+                Status = status,
+                ChangeSource = reason.ChangeSource,
+                ChangeEvent = reason.ChangeEvent,
+                ChangeReason = reason.ChangeReason
+            });
+            await _context.SaveChangesAsync();
+            _context.Detach(entry);
+        }
+
+
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _infoService;
         private readonly IBookingNotificationService _notificationService;

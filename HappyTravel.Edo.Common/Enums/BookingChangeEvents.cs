@@ -6,6 +6,13 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BookingChangeEvents
     {
-        None = 0
+        None = 0,   // TODO: Need reorder later and set integer values for all
+        Discarded,
+        CanceledManually,
+        RejectedManually,
+        ConfirmManually,
+        Charge,
+        Finalize,
+        Cancel
     }
 }

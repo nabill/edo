@@ -879,6 +879,7 @@ namespace HappyTravel.Edo.Data
                 e.Property(bshe => bshe.Status).IsRequired();
                 e.Property(bshe => bshe.ChangeSource).IsRequired();
                 e.Property(bshe => bshe.ChangeEvent).IsRequired();
+                e.Property(bshe => bshe.ChangeReason);
                 e.ToTable("BookingStatusHistory");
             });
         }

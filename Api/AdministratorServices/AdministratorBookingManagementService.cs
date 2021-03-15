@@ -31,7 +31,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             
             Task<Result> ProcessDiscard(Booking booking) 
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), admin.ToUserInfo());
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.Discarded
+                });
         }
 
 
@@ -64,7 +68,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             Task<Result> CancelManually(Booking booking)
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo());
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.CanceledManually,
+                    ChangeReason = reason
+                });
         }
         
         
@@ -75,7 +84,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             Task<Result> RejectManually(Booking booking)
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo());
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.RejectedManually,
+                    ChangeReason = reason
+                });
         }
 
 
@@ -86,7 +100,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             Task<Result> ConfirmManually(Booking booking)
-                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Confirmed, confirmationDate, admin.ToUserInfo());
+                => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Confirmed, confirmationDate, admin.ToUserInfo(), new BookingChangeReason 
+                {
+                    ChangeSource = ChangeSources.Administrator,
+                    ChangeEvent = BookingChangeEvents.ConfirmManually,
+                    ChangeReason = reason
+                });
         }
 
 
