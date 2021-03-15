@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
         Task<Result<string>> Send(UserDescriptionInfo prefilledData, int inviterUserId);
 
-        Task<Result<string>> Resend(string oldInvitationCode);
+        Task<Result<string>> Resend(string oldInvitationCodeHash);
     }
 }

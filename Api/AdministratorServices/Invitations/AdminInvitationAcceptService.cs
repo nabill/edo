@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
 
             Task<Result<UserInvitation>> GetActiveInvitation() 
-                => _invitationRecordService.GetActiveInvitation(invitationCode);
+                => _invitationRecordService.GetActiveInvitationByCode(invitationCode);
 
 
             bool IsIdentityPresent(UserInvitation _) 

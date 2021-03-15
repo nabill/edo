@@ -110,9 +110,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         }
 
 
-        public Task<Result<string>> Resend(string oldInvitationCode)
+        public Task<Result<string>> Resend(string oldInvitationCodeHash)
         {
-            return _invitationRecordService.GetActiveInvitation(oldInvitationCode)
+            return _invitationRecordService.GetActiveInvitationByHash(oldInvitationCodeHash)
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Check(SetOldInvitationResent)
                     .Bind(SendNewInvitation));
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
 
             Task<Result> SetOldInvitationResent(UserInvitation _)
-                => _invitationRecordService.SetToResent(oldInvitationCode);
+                => _invitationRecordService.SetToResent(oldInvitationCodeHash);
 
 
             UserDescriptionInfo GetInvitationData(UserInvitation invitation)

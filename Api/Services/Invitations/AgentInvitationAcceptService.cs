@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<Result<AcceptPipeValues>> GetActiveInvitation()
             {
-                var (_, isFailure, invitation, error) = await _invitationRecordService.GetActiveInvitation(invitationCode);
+                var (_, isFailure, invitation, error) = await _invitationRecordService.GetActiveInvitationByCode(invitationCode);
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
 
