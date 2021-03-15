@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task AddEntryToStatusHistory(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason)
         {
-            var entry = _context.BookingStatusHistory.Add(new BookingStatusHistoryEntry
+            var bookingStatusHistoryEntry = new BookingStatusHistoryEntry
             {
                 BookingId = booking.Id,
                 UserId = user.Id,
@@ -219,9 +219,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ChangeSource = reason.ChangeSource,
                 ChangeEvent = reason.ChangeEvent,
                 ChangeReason = reason.ChangeReason
-            });
+            };
+            if (user.Type == UserTypes.Agent)
+            {
+                bookingStatusHistoryEntry.AgencyId = booking.AgencyId;
+            }
+
+            var entry = _context.BookingStatusHistory.Add(bookingStatusHistoryEntry);
             await _context.SaveChangesAsync();
-            _context.Detach(entry);
+            _context.Detach(entry.Entity);
         }
 
 
