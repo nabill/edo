@@ -16,9 +16,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public class AgencyManagementService : IAgencyManagementService
+    public class AdminAgencyManagementService : IAdminAgencyManagementService
     {
-        public AgencyManagementService(EdoContext context,
+        public AdminAgencyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService)
         {

@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Models.Agencies;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public interface IAgencyManagementService
+    public interface IAdminAgencyManagementService
     {
         Task<Result> DeactivateAgency(int agencyId, string reason);
 

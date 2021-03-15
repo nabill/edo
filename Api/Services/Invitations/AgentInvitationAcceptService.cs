@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             EdoContext context,
             MailSenderWithCompanyInfo mailSender,
             ILogger<AgentInvitationAcceptService> logger,
-            IAgencyManagementService agencyManagementService,
+            IAdminAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
             IInvitationRecordService invitationRecordService)
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly EdoContext _context;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly ILogger<AgentInvitationAcceptService> _logger;
-        private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly Agents.IAgentService _agentService;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
         private readonly IInvitationRecordService _invitationRecordService;

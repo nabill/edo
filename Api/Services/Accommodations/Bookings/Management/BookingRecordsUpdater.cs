@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             return status switch
             {
-                BookingStatuses.Confirmed => await ProcessConfirmation(booking),
+                BookingStatuses.Confirmed => await ProcessConfirmation(booking, date),
                 BookingStatuses.Cancelled => await ProcessCancellation(booking, date, user),
                 BookingStatuses.Rejected => await ProcessDiscarding(booking, user),
                 BookingStatuses.Invalid => await ProcessDiscarding(booking, user),
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
 
-        private async Task<Result> ProcessConfirmation(Edo.Data.Bookings.Booking booking)
+        private async Task<Result> ProcessConfirmation(Edo.Data.Bookings.Booking booking, DateTime confirmationDate)
         {
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task SetConfirmationDate(AccommodationBookingInfo _) 
-                => this.SetConfirmationDate(booking, _dateTimeProvider.UtcNow());
+                => this.SetConfirmationDate(booking, confirmationDate);
 
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
