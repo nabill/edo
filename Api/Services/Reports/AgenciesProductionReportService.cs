@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                 if (fromDate == default || endDate == default)
                     return Result.Failure<Stream>("Range dates required");
             
-                if ((fromDate - fromDate).TotalDays > MaxRange)
+                if ((endDate - fromDate).TotalDays > MaxRange)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
                 return Result.Success();
