@@ -21,9 +21,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
         }
 
 
-        public async Task<Result> Revoke(string code)
+        public async Task<Result> Revoke(string codeHash)
         {
-            return await GetActiveInvitation(code)
+            return await GetActiveInvitationByHash(codeHash)
                 .Tap(SaveRevoked);
 
 
@@ -36,9 +36,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
         }
 
 
-        public async Task<Result> SetToResent(string code)
+        public async Task<Result> SetToResent(string codeHash)
         {
-            return await GetActiveInvitation(code)
+            return await GetActiveInvitationByHash(codeHash)
                 .Tap(SaveResent);
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
 
         public async Task<Result> SetAccepted(string code)
         {
-            return await GetActiveInvitation(code)
+            return await GetActiveInvitationByCode(code)
                 .Tap(SaveAccepted);
 
 
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
         }
 
 
-        public Task<Result<UserInvitation>> GetActiveInvitation(string code)
+        public Task<Result<UserInvitation>> GetActiveInvitationByHash(string codeHash)
         {
             return GetInvitation()
                 .Ensure(InvitationIsActual, "Invitation expired");
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
             {
                 var invitation = await _context.UserInvitations
                     .SingleOrDefaultAsync(i
-                        => i.CodeHash == HashGenerator.ComputeSha256(code)
+                        => i.CodeHash == codeHash
                         && i.InvitationStatus == UserInvitationStatuses.Active);
 
                 return invitation ?? Result.Failure<UserInvitation>("Invitation with specified code either does not exist, or is not active.");
@@ -86,6 +86,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
             bool InvitationIsActual(UserInvitation invitation)
                 => invitation.Created + _invitationExpirationPeriod > _dateTimeProvider.UtcNow();
         }
+
+
+        public Task<Result<UserInvitation>> GetActiveInvitationByCode(string code)
+            => GetActiveInvitationByHash(HashGenerator.ComputeSha256(code));
 
 
         public UserInvitationData GetInvitationData(UserInvitation invitation)

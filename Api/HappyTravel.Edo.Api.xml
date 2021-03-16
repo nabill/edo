@@ -321,7 +321,7 @@
             <summary>
                 Disable invitation.
             </summary>
-            <param name="code">Invitation code.</param>
+            <param name="codeHash">Invitation code hash.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
@@ -636,7 +636,7 @@
             <summary>
                Resend agent invitation
             </summary>
-            <param name="invitationCode">Invitation code</param>>
+            <param name="invitationCodeHash">Invitation code hash</param>>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
@@ -656,7 +656,7 @@
             <summary>
                 Disable invitation.
             </summary>
-            <param name="code">Invitation code.</param>
+            <param name="codeHash">Invitation code hash.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyNotAcceptedInvitations">
             <summary>
