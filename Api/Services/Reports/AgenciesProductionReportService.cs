@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
             Result Validate()
             {
                 if (fromDate == default || endDate == default)
-                    return Result.Failure<Stream>("Range dates required");
+                    return Result.Failure<Stream>($"The interval for generating a report should not exceed {MaxRange} days");
             
                 if ((endDate - fromDate).TotalDays > MaxRange)
                     return Result.Failure<Stream>("Permissible interval exceeded");
