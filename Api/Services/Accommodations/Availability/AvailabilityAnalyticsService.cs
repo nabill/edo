@@ -63,17 +63,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var adultsCount = passengers.Count(p => p.Age != null && p.Age >= AdultAge);
             var childrenCount = passengers.Count(p => p.Age != null && p.Age < AdultAge);
             
-            var @event = new AccommodationBookingEvent(accommodationId: booking.AccommodationId,
-                accommodationName: booking.AccommodationName,
-                country: booking.Location.Country,
-                locality: booking.Location.Locality,
-                adultCount: adultsCount,
-                childrenCount: childrenCount,
-                numberOfNights: (booking.CheckOutDate - booking.CheckInDate).Days,
-                roomCount: booking.Rooms.Count,
+            var @event = new AccommodationBookingEvent(booking.AccommodationId,
+                booking.AccommodationName,
+                booking.Location.Country,
+                booking.Location.Locality,
+                adultsCount,
+                childrenCount,
+                (booking.CheckOutDate - booking.CheckInDate).Days,
+                booking.Rooms.Count,
                 bookingRequest.SearchId,
                 bookingRequest.ResultId,
-                bookingRequest.RoomContractSetId);
+                bookingRequest.RoomContractSetId,
+                booking.TotalPrice);
             
             _analytics.LogEvent(@event, "booking-request-sent", agent, booking.Location.Coordinates);
         }
