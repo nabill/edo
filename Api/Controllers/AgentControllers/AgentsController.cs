@@ -143,20 +143,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///    Resend agent invitation
         /// </summary>
-        /// <param name="invitationCode">Invitation code</param>>
-        [HttpPost("agent/invitations/{invitationCode}/resend")]
+        /// <param name="invitationCodeHash">Invitation code hash</param>>
+        [HttpPost("agent/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
-        public async Task<IActionResult> Resend(string invitationCode)
+        public async Task<IActionResult> Resend(string invitationCodeHash)
         {
-            var (_, isFailure, error) = await _agentInvitationCreateService.Resend(invitationCode);
+            var (_, isFailure, error) = await _agentInvitationCreateService.Resend(invitationCodeHash);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
+
 
         /// <summary>
         ///     Creates invitation for regular agent.
@@ -190,7 +191,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetInvitationData(string code)
         {
             var (_, isFailure, invitation, error) = await _invitationRecordService
-                .GetActiveInvitation(code);
+                .GetActiveInvitationByCode(code);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -210,13 +211,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Disable invitation.
         /// </summary>
-        /// <param name="code">Invitation code.</param>
-        [HttpPost("agent/invitations/{code}/disable")]
+        /// <param name="codeHash">Invitation code hash.</param>
+        [HttpPost("agent/invitations/{codeHash}/disable")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DisableInvitation(string code)
+        public async Task<IActionResult> DisableInvitation(string codeHash)
         {
-            var (_, isFailure, error) = await _invitationRecordService.Revoke(code);
+            var (_, isFailure, error) = await _invitationRecordService.Revoke(codeHash);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

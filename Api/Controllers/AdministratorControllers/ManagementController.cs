@@ -79,13 +79,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Disable invitation.
         /// </summary>
-        /// <param name="code">Invitation code.</param>
-        [HttpPost("invitations/{code}/disable")]
+        /// <param name="codeHash">Invitation code hash.</param>
+        [HttpPost("invitations/{codeHash}/disable")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DisableInvitation(string code)
+        public async Task<IActionResult> DisableInvitation(string codeHash)
         {
-            var (_, isFailure, error) = await _invitationRecordService.Revoke(code);
+            var (_, isFailure, error) = await _invitationRecordService.Revoke(codeHash);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
