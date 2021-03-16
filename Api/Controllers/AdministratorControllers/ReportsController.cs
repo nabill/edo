@@ -6,8 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Documents;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Api.Services.Reports;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -19,9 +18,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ReportsController : BaseController
     {
-        public ReportsController(IDirectConnectivityReportService directConnectivityReportService)
+        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesSalesSummaryReportService agenciesSalesSummaryReportService)
         {
             _directConnectivityReportService = directConnectivityReportService;
+            _agenciesSalesSummaryReportService = agenciesSalesSummaryReportService;
         }
         
         
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/supplier-wise")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _directConnectivityReportService.GetSupplierWiseReport(from, end);
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/agency-wise")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.DirectConnectivityReport)]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetAgencyWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _directConnectivityReportService.GetAgencyWiseReport(from, end);
@@ -65,6 +65,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        ///     Returns agencies sales summary report
+        /// </summary>
+        [HttpGet("agencies-sales-summary-report")]
+        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        public async Task<IActionResult> GetAgenciesSalesSummaryReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _agenciesSalesSummaryReportService.GetReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"agencies-production-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
         private readonly IDirectConnectivityReportService _directConnectivityReportService;
+        private readonly IAgenciesSalesSummaryReportService _agenciesSalesSummaryReportService;
     }
 }

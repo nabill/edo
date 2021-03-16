@@ -10,7 +10,7 @@ using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Data;
 using HappyTravel.Formatters;
 
-namespace HappyTravel.Edo.Api.Services.Documents
+namespace HappyTravel.Edo.Api.Services.Reports
 {
     public class DirectConnectivityReportService : IDirectConnectivityReportService, IDisposable
     {
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 if (dateFrom == default || dateEnd == default)
                     return Result.Failure<Stream>("Range dates required");
             
-                if ((dateEnd - dateFrom).TotalDays > MaxRange)
+                if ((dateEnd - dateFrom).TotalDays > MaxDaysInReport)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
                 return Result.Success();
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 if (dateFrom == default || dateEnd == default)
                     return Result.Failure<Stream>("Range dates required");
             
-                if ((dateEnd - dateFrom).TotalDays > MaxRange)
+                if ((dateEnd - dateFrom).TotalDays > MaxDaysInReport)
                     return Result.Failure<Stream>("Permissible interval exceeded");
 
                 return Result.Success();
@@ -195,7 +195,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
 
 
         private const int Vat = 5;
-        private const int MaxRange = 31;
+        private const int MaxDaysInReport = 31;
         private CsvWriter _csvWriter;
         private StreamWriter _streamWriter;
         
