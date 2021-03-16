@@ -54,10 +54,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     select new AgencyProduction
                     {
                         AgencyName = grouped.Key.Name,
-                        TotalBookings = grouped.Count(b => b != null),
+                        BookingCount = grouped.Count(b => b != null),
                         Currency = grouped.Key.Currency.ToString(),
                         Revenue = grouped.Sum(b => b.TotalPrice),
-                        Nights = grouped.Sum(b => (b.CheckOutDate - b.CheckInDate).Days),
+                        NightCount = grouped.Sum(b => (b.CheckOutDate - b.CheckInDate).Days),
                         IsActive = grouped.Key.IsActive
                     };
             }
