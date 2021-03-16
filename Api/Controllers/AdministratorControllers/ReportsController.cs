@@ -72,8 +72,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agencies-production-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        //[AdministratorPermissions(AdministratorPermissions.AgenciesProductionReport)]
-        [AllowAnonymous]
+        [AdministratorPermissions(AdministratorPermissions.AgenciesProductionReport)]
         public async Task<IActionResult> GetAgenciesProductionReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _agenciesProductionReportService.GetReport(from, end);
