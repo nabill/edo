@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Models.Reports
 {
-    public readonly struct AgencyProduction
+    public readonly struct AgencySalesSummary
     {
         public string AgencyName { get; init; }
         public int BookingCount { get; init; }

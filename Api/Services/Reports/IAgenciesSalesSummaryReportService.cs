@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.Services.Reports
 {
-    public interface IAgenciesProductionReportService
+    public interface IAgenciesSalesSummaryReportService
     {
         public Task<Result<Stream>> GetReport(DateTime fromDate, DateTime endDate);
     }

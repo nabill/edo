@@ -18,10 +18,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ReportsController : BaseController
     {
-        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesProductionReportService agenciesProductionReportService)
+        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesSalesSummaryReportService agenciesSalesSummaryReportService)
         {
             _directConnectivityReportService = directConnectivityReportService;
-            _agenciesProductionReportService = agenciesProductionReportService;
+            _agenciesSalesSummaryReportService = agenciesSalesSummaryReportService;
         }
         
         
@@ -66,15 +66,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Returns agencies production report
+        ///     Returns agencies sales summary report
         /// </summary>
-        [HttpGet("agencies-production-report")]
+        [HttpGet("agencies-sales-summary-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
-        public async Task<IActionResult> GetAgenciesProductionReport(DateTime from, DateTime end)
+        public async Task<IActionResult> GetAgenciesSalesSummaryReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _agenciesProductionReportService.GetReport(from, end);
+            var (_, isFailure, stream, error) = await _agenciesSalesSummaryReportService.GetReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -86,6 +86,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         private readonly IDirectConnectivityReportService _directConnectivityReportService;
-        private readonly IAgenciesProductionReportService _agenciesProductionReportService;
+        private readonly IAgenciesSalesSummaryReportService _agenciesSalesSummaryReportService;
     }
 }

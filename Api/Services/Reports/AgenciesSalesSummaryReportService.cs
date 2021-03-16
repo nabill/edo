@@ -11,9 +11,9 @@ using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Services.Reports
 {
-    public class AgenciesProductionReportService : IAgenciesProductionReportService
+    public class AgenciesSalesSummaryReportService : IAgenciesSalesSummaryReportService
     {
-        public AgenciesProductionReportService(EdoContext context)
+        public AgenciesSalesSummaryReportService(EdoContext context)
         {
             _context = context;
         }
@@ -28,16 +28,16 @@ namespace HappyTravel.Edo.Api.Services.Reports
             Result Validate()
             {
                 if (fromDate == default || endDate == default)
-                    return Result.Failure<Stream>($"The interval for generating a report should not exceed {MaxRange} days");
+                    return Result.Failure<Stream>("Range dates required");
             
-                if ((endDate - fromDate).TotalDays > MaxRange)
-                    return Result.Failure<Stream>("Permissible interval exceeded");
+                if ((endDate - fromDate).TotalDays > MaxDaysInReport)
+                    return Result.Failure<Stream>($"The interval for generating a report should not exceed {MaxDaysInReport} days");
 
                 return Result.Success();
             }
             
             
-            IQueryable<AgencyProduction> GetRecords()
+            IQueryable<AgencySalesSummary> GetRecords()
             {
                 var bookingsQuery = _context.Bookings
                     .Where(b => b.Created >= fromDate && b.Created < endDate);
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         agency.IsActive,
                         booking.Currency
                     } into grouped
-                    select new AgencyProduction
+                    select new AgencySalesSummary
                     {
                         AgencyName = grouped.Key.Name,
                         BookingCount = grouped.Count(b => b != null),
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
         
         
-        private const int MaxRange = 31;
+        private const int MaxDaysInReport = 31;
         private CsvWriter _csvWriter;
         private StreamWriter _streamWriter;
         
