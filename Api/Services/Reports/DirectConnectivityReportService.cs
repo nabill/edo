@@ -10,7 +10,7 @@ using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Data;
 using HappyTravel.Formatters;
 
-namespace HappyTravel.Edo.Api.Services.Documents
+namespace HappyTravel.Edo.Api.Services.Reports
 {
     public class DirectConnectivityReportService : IDirectConnectivityReportService, IDisposable
     {

@@ -434,6 +434,11 @@
                 Returns agency wise direct connectivity report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgenciesProductionReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agencies production report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
