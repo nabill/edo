@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.NotificationCenter.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMessages()
         {
+            await _messageService.GetMessages();
             return Ok();
         }
         
