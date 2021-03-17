@@ -44,5 +44,17 @@ namespace HappyTravel.Edo.Api.Models.Users
         ///     Email
         /// </summary>
         public string Email { get; }
+
+
+        public override int GetHashCode()
+            => (Title, FirstName, LastName, Position, Email).GetHashCode();
+
+
+        public bool Equals(UserDescriptionInfo other)
+            => (Title, FirstName, LastName, Position, Email) == (other.Title, other.FirstName, other.LastName, other.Position, other.Email);
+
+
+        public override bool Equals(object obj)
+            => obj is UserDescriptionInfo other && Equals(other);
     }
 }
