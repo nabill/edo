@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
                 MessageType.SuccessfulPaymentReceipt 
                     => _signalRSender.SendSuccessfulPaymentReceipt(request.AgentId, request.ShortMessage),
                 
-                MessageType.BookingBuePayment 
+                MessageType.BookingDuePayment 
                     => _signalRSender.SendBookingBuePayment(request.AgentId, request.ShortMessage),
                 
                 MessageType.BookingCancelled 

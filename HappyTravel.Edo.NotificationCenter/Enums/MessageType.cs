@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.NotificationCenter.Enums
         BookingInvoice,
         DeadlineApproaching,
         SuccessfulPaymentReceipt,
-        BookingBuePayment,
+        BookingDuePayment,
         BookingCancelled,
         BookingFinalized
     }
