@@ -22,6 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
 
-        Task<Result<List<BookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId);
+        Task<Result<List<BookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId, AgentContext agent);
     }
 }

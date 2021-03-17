@@ -281,7 +281,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<AgentBoundedData<SlimAccommodationBookingInfo>>), (int) HttpStatusCode.OK)]
         [HttpGet("agency")]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [InAgencyPermissions((InAgencyPermissions.AgencyBookingsManagement))]
+        [InAgencyPermissions(InAgencyPermissions.AgencyBookingsManagement)]
         [EnableQuery]
         public async Task<ActionResult<IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>>>> GetAgencyBookings()
         {
@@ -299,10 +299,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [AgentRequired]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetStatusHistory(bookingId);
+            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetBookingStatusHistory(bookingId, agent);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
