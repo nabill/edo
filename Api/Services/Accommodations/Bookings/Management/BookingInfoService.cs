@@ -158,16 +158,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var booking = await _context.Bookings
                 .SingleOrDefaultAsync(b => b.Id == bookingId && b.AgencyId == agent.AgencyId);
             if (booking is null)
-                return Result.Failure<List<BookingStatusHistoryEntry>>($"Booking with ID {bookingId} not found");
+                return Result.Failure<List<BookingStatusHistoryEntry>>($"Booking with Id {bookingId} not found");
 
             var history = await _context.BookingStatusHistory
                 .Where(bsh => bsh.BookingId == bookingId)
                 .OrderBy(bsh => bsh.Id)
                 .ToListAsync();
 
-            return history is null
-                ? new List<BookingStatusHistoryEntry>(0)
-                : history;
+            return history ?? new(0);
         }
 
 

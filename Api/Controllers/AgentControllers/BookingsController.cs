@@ -298,8 +298,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [AgentRequired]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        [AgentRequired]
         public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
