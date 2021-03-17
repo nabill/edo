@@ -10,11 +10,13 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
@@ -284,6 +286,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<ActionResult<IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>>>> GetAgencyBookings()
         {
             return Ok(_bookingInfoService.GetAgencyBookingsInfo(await _agentContextService.GetAgent()));
+        }
+
+
+        /// <summary>
+        ///     Gets booking status changes history
+        /// </summary>
+        /// <param name="bookingId">Booking ID for retrieving status change history</param>
+        /// <returns>List of booking status change events</returns>
+        [HttpGet("{bookingId}/status-history")]
+        [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [AgentRequired]
+        public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetStatusHistory(bookingId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(statusHistory);
         }
 
 
