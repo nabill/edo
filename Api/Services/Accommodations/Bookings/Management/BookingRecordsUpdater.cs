@@ -186,6 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 (from bookings in _context.Bookings
                     join agencies in _context.Agencies on bookings.AgencyId equals agencies.Id
                     join agents in _context.Agents on bookings.AgentId equals agents.Id
+                    where bookings.Id == booking.Id
                     select new {AgentName = $"{agents.FirstName} {agents.LastName}", AgencyName = agencies.Name})
                 .SingleOrDefaultAsync();
             
