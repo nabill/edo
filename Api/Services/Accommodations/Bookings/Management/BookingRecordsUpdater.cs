@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -14,6 +15,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -177,7 +179,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result> ProcessManualCorrectionNeeding(Booking booking, UserInfo user)
         {
-            await _bookingNotificationService.NotifyBookingManualCorrectionNeeded(booking.ReferenceCode);
+            var additionalInfo = await 
+                (from bookings in _context.Bookings
+                    join agencies in _context.Agencies on bookings.AgencyId equals agencies.Id
+                    join agents in _context.Agents on bookings.AgentId equals agents.Id
+                    select new {AgentName = $"{agents.FirstName} {agents.LastName}", AgencyName = agencies.Name})
+                .SingleOrDefaultAsync();
+            
+            if (additionalInfo is null)
+                return Result.Failure($"Cannot get additional info for booking id '{booking.Id}'");
+            
+            await _bookingNotificationService.NotifyBookingManualCorrectionNeeded(
+                booking.ReferenceCode,
+                additionalInfo.AgentName,
+                additionalInfo.AgencyName,
+                DateTimeFormatters.ToDateString(booking.DeadlineDate ?? booking.CheckOutDate));
             return Result.Success();
         }
 
