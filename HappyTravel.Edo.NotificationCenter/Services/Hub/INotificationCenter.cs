@@ -4,12 +4,12 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Hub
 {
     public interface INotificationCenter
     {
-        Task BookingVoucher(string message);
-        Task BookingInvoice(string message);
-        Task DeadlineApproaching(string message);
-        Task SuccessfulPaymentReceipt(string message);
-        Task BookingBuePayment(string message);
-        Task BookingCancelled(string message);
-        Task BookingFinalized(string message);
+        Task BookingVoucher(int messageId, string message);
+        Task BookingInvoice(int messageId, string message);
+        Task DeadlineApproaching(int messageId, string message);
+        Task SuccessfulPaymentReceipt(int messageId, string message);
+        Task BookingBuePayment(int messageId, string message);
+        Task BookingCancelled(int messageId, string message);
+        Task BookingFinalized(int messageId, string message);
     }
 }
