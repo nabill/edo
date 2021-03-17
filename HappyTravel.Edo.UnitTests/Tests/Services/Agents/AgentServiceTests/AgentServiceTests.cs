@@ -6,10 +6,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -29,6 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
+            edoContextMock.Setup(x => x.DisplayMarkupFormulas).Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
 
             _agentService = new AgentService(edoContextMock.Object, new DefaultDateTimeProvider());
         }
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         [Fact]
         public async Task Edit_agent_should_change_fields()
         {
-            var newInfo = new AgentEditableInfo("newTitle", "newFn", "newLn", "newPos", string.Empty);
+            var newInfo = new UserDescriptionInfo("newTitle", "newFn", "newLn", "newPos", string.Empty);
             var changedAgent = _agents.Single(a => a.Id == AgentContext.AgentId);
             var expectedValues = new[] {"newTitle", "newFn", "newLn", "newPos"};
 

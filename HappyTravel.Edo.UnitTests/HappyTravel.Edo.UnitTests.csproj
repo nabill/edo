@@ -35,4 +35,8 @@
       <ProjectReference Include="..\Api\HappyTravel.Edo.Api.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Tests\Services\Agents\AgentInvitationServiceTests\" />
+    </ItemGroup>
+
 </Project>

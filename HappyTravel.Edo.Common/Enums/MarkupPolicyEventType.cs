@@ -10,5 +10,8 @@ namespace HappyTravel.Edo.Common.Enums
         AgentMarkupCreated = 1,
         AgentMarkupUpdated = 2,
         AgentMarkupDeleted = 3,
+        AgencyMarkupCreated = 4,
+        AgencyMarkupUpdated = 5,
+        AgencyMarkupDeleted = 6
     }
 }

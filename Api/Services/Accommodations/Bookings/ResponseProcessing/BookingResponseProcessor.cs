@@ -62,7 +62,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
                 bookingResponse.Rooms);
             
-            var (_, isUpdateFailure, updateError) = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
+            var (_, isUpdateFailure, updateError) 
+                = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.None,  // TODO: Need set source and event later
+                    ChangeEvent = BookingChangeEvents.None
+                });
             if (isUpdateFailure)
             {
                 _logger.LogBookingResponseProcessFailure(updateError);
@@ -84,7 +89,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
             else
             {
-                await _recordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount);
+                await _recordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.None,      // TODO: Need set source and event later
+                    ChangeEvent = BookingChangeEvents.None
+                });
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
             }

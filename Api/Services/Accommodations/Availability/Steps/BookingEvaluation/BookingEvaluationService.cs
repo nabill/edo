@@ -9,7 +9,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
@@ -33,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _bookingEvaluationStorage = bookingEvaluationStorage;
         }
         
+        
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
@@ -50,26 +51,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Check(CheckAgainstSettings);
 
 
-            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId));
+                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
                 if (result.Equals(default))
-                    return Result.Failure<(Suppliers, RoomContractSet, string)>("Could not find selected room contract set");
+                    return Result.Failure<(Suppliers, RoomContractSet, string, string)>("Could not find selected room contract set");
                 
                 return result;
             }
 
             
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string, string) selectedSet)
             {
-                var (supplier, roomContractSet, availabilityId) = selectedSet;
+                var (supplier, roomContractSet, availabilityId, _) = selectedSet;
                 return _supplierConnectorManager
                     .Get(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
@@ -116,8 +117,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
-                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
-                    responseWithDeadline.AppliedMarkups, responseWithDeadline.SupplierPrice), result.Supplier);
+
+                var paymentMethods = GetAvailablePaymentMethods(responseWithDeadline.Data.Value);
+
+                var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
+                    responseWithDeadline.AppliedMarkups, responseWithDeadline.SupplierPrice);
+                
+                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods, result.htId);
             }
 
 
@@ -134,8 +140,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var tags = settings.AreTagsVisible
                     ? availabilityData.Value.RoomContractSet.Tags
                     : new List<string>(0);
-                
-                return availabilityDetails.Data.ToRoomContractSetAvailability(supplier, tags);
+
+                return availabilityDetails.Data.ToRoomContractSetAvailability(supplier, tags, GetAvailablePaymentMethods(availabilityData.Value));
             }
 
 
@@ -150,6 +156,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ? Unit.Instance
                     : ProblemDetailsBuilder.Fail<Unit>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
             }
+            
+            
+            List<PaymentMethods> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability)
+                => BookingPaymentMethodsHelper.GetAvailablePaymentMethods(availability, settings, _dateTimeProvider.UtcNow());
         }
         
         

@@ -207,6 +207,14 @@
             <param name="rejectionRequest">Rejection request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Reject(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
+            <summary>
+                Confirm accommodation booking manually
+            </summary>
+            <param name="bookingId">Id of booking to confirm</param>
+            <param name="confirmationRequest">Confirmation request</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -295,7 +303,7 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
                 Send invitation to administrator.
             </summary>
@@ -313,7 +321,7 @@
             <summary>
                 Disable invitation.
             </summary>
-            <param name="code">Invitation code.</param>
+            <param name="codeHash">Invitation code hash.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
@@ -426,6 +434,11 @@
                 Returns agency wise direct connectivity report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgenciesSalesSummaryReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agencies sales summary report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
@@ -444,6 +457,32 @@
             <summary>
                 Gets child agencies.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.InviteChildAgency(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
+            <summary>
+                Invites to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GenerateChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
+            <summary>
+                Invites to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.DeactivateAgency(System.Int32)">
+            <summary>
+             Deactivates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.ActivateAgency(System.Int32)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
@@ -483,6 +522,31 @@
             <summary>
                 Deletes the image for logo
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates markup policy.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.RemovePolicy(System.Int32,System.Int32)">
+            <summary>
+                Deletes policy.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings">
             <summary>
@@ -572,7 +636,7 @@
             <summary>
                Resend agent invitation
             </summary>
-            <param name="invitationCode">Invitation code</param>>
+            <param name="invitationCodeHash">Invitation code hash</param>>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
@@ -592,7 +656,7 @@
             <summary>
                 Disable invitation.
             </summary>
-            <param name="code">Invitation code.</param>
+            <param name="codeHash">Invitation code hash.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyNotAcceptedInvitations">
             <summary>
@@ -620,7 +684,7 @@
             </summary>
             <returns>Current agent information.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdateCurrentAgent(HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdateCurrentAgent(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
                 Updates current agent properties.
             </summary>
@@ -1416,6 +1480,11 @@
                 Information about a selected room contract set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailablePaymentMethods">
+            <summary>
+            List of available payment methods
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Id">
             <summary>
             Report id
@@ -1504,6 +1573,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Id">
             <summary>
                 Id of the counterparty agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CounterpartyId">
+            <summary>
+                Id of the counterparty.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
@@ -1604,26 +1678,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
             <summary>
                 List of counterparties, associated with agent.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Title">
-            <summary>
-                Agent title, Mr, Mrs etc.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.FirstName">
-            <summary>
-                First name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.LastName">
-            <summary>
-                Last name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Position">
-            <summary>
-                Agent position or designation.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgentId">
@@ -2097,6 +2151,16 @@
                 Indicates if extra cot needed.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.UserRegistrationInfo">
+            <summary>
+            Prefilled user registration info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.ChildAgencyRegistrationInfo">
+            <summary>
+            Prefilled child agency registration info. Used only for child agency invitations.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
             <summary>
                 Country Alpha-2 code.
@@ -2175,6 +2239,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.Reason">
             <summary>
             Cancellation reason
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest.ConfirmationDate">
+            <summary>
+            Date when booking was actually confirmed
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest.Reason">
+            <summary>
+            Confirmation reason
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingRejectionRequest.Reason">
@@ -2640,6 +2714,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
                 Payfort tokenization url
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Title">
+            <summary>
+                Title, Mr, Mrs etc.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Position">
+            <summary>
+                Position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Email">
+            <summary>
+                Email
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">

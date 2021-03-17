@@ -95,7 +95,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             {
                 if (booking.CheckInDate <= _dateTimeProvider.UtcNow())
                 {
-                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc);
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
+                    { 
+                        ChangeSource = ChangeSources.System,
+                        ChangeEvent = BookingChangeEvents.Charge
+                    });
                     return Result.Failure<string>($"Unable to charge for booking {booking.ReferenceCode}. Reason: check in date expired");
                 }
                 
@@ -104,7 +108,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc);
                     if (isRefreshingFailure)
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc);
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
+                        { 
+                            ChangeSource = ChangeSources.System,
+                            ChangeEvent = BookingChangeEvents.Charge
+                        });
                         return Result.Failure<string>(refreshingError);
                     }
                     
@@ -113,7 +121,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
                     if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc);
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
+                        { 
+                            ChangeSource = ChangeSources.System,
+                            ChangeEvent = BookingChangeEvents.Charge
+                        });
                         return Result.Failure<string>($"Booking {booking.ReferenceCode} with status {booking.Status} cannot be charged");
                     }
                 }
@@ -125,7 +137,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     var (_, isCancelFailure, error) = await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo());
                     if (isCancelFailure)
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc);
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
+                        { 
+                            ChangeSource = ChangeSources.System,
+                            ChangeEvent = BookingChangeEvents.Charge
+                        });
                         return Result.Failure<string>(error);
                     }
                 }

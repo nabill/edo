@@ -45,9 +45,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<BookingRequest> BookingRequests { get; set; }
         public DbSet<CreditCardPaymentConfirmation> CreditCardPaymentConfirmations { get; set; }
 
-        public DbSet<InvitationBase> UserInvitations { get; set; }
-        public DbSet<AgentInvitation> AgentInvitations { get; set; }
-        public DbSet<AdminInvitation> AdminInvitations { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
 
         public virtual DbSet<AgencyAccount> AgencyAccounts { get; set; }
 
@@ -93,6 +91,8 @@ namespace HappyTravel.Edo.Data
         public DbSet<UploadedImage> UploadedImages { get; set; }
         
         public DbSet<ApiClient> ApiClients { get; set; }
+        public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
+        public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -258,6 +258,8 @@ namespace HappyTravel.Edo.Data
             BuildBookingMarkup(builder);
             BuildMaterializationBonusLog(builder);
             BuildApiClients(builder);
+            BuildDisplayMarkupFormulas(builder);
+            BuildBookingStatusHistory(builder);
         }
 
 
@@ -307,6 +309,8 @@ namespace HappyTravel.Edo.Data
                     .IsRequired()
                     .HasDefaultValue(true);
                 agency.HasIndex(a => a.CounterpartyId);
+                agency.HasIndex(a => a.Ancestors)
+                    .HasMethod("gin");
             });
         }
 
@@ -394,32 +398,14 @@ namespace HappyTravel.Edo.Data
 
         private void BuildInvitations(ModelBuilder builder)
         {
-            builder.Entity<InvitationBase>(inv =>
+            builder.Entity<UserInvitation>(inv =>
             {
                 inv.HasKey(i => i.CodeHash);
-                inv.Property(i => i.Created).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
-                inv.Property(i => i.IsAccepted).HasDefaultValue(false);
+                inv.Property(i => i.Created).IsRequired();
+                inv.Property(i => i.InviterUserId).IsRequired();
+                inv.Property(i => i.InvitationStatus).HasDefaultValue(UserInvitationStatuses.Active);
                 inv.Property(i => i.InvitationType).IsRequired();
-                inv.HasDiscriminator<UserInvitationTypes>("InvitationType")
-                    .HasValue<AgentInvitation>(UserInvitationTypes.Agent)
-                    .HasValue<AdminInvitation>(UserInvitationTypes.Administrator);
-            });
-
-            builder.Entity<AgentInvitation>(inv =>
-            {
-                inv.Property(i => i.Data)
-                    .HasColumnType("jsonb")
-                    .HasColumnName("Data")
-                    .IsRequired();
-            });
-
-            builder.Entity<AdminInvitation>(inv =>
-            {
-                inv.Property(i => i.Data)
-                    .HasColumnType("jsonb")
-                    .HasColumnName("Data")
-                    .IsRequired();
             });
         }
 
@@ -866,6 +852,35 @@ namespace HappyTravel.Edo.Data
                 ac.HasIndex(a => new { a.Name, a.PasswordHash });
                 ac.HasIndex(a => a.AgencyId);
                 ac.HasIndex(a => a.AgentId);
+            });
+        }
+
+
+        private static void BuildDisplayMarkupFormulas(ModelBuilder builder)
+        {
+            builder.Entity<DisplayMarkupFormula>(b =>
+            {
+                b.HasIndex(f => new {f.CounterpartyId, f.AgencyId, f.AgentId}).IsUnique();
+                b.Property(f => f.DisplayFormula).IsRequired();
+            });
+        }
+
+
+        private static void BuildBookingStatusHistory(ModelBuilder builder)
+        {
+            builder.Entity<BookingStatusHistoryEntry>(e =>
+            {
+                e.HasKey(bshe => bshe.Id);
+                e.HasIndex(bshe => bshe.BookingId);
+                e.HasIndex(bshe => bshe.UserId);
+                e.HasIndex(bshe => bshe.UserType);
+                e.Property(bshe => bshe.AgencyId);
+                e.Property(bshe => bshe.CreatedAt).IsRequired();
+                e.Property(bshe => bshe.Status).IsRequired();
+                e.Property(bshe => bshe.ChangeSource).IsRequired();
+                e.Property(bshe => bshe.ChangeEvent).IsRequired();
+                e.Property(bshe => bshe.ChangeReason);
+                e.ToTable("BookingStatusHistory");
             });
         }
 

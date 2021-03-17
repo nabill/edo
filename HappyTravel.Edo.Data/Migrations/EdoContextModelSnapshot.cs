@@ -140,6 +140,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Ancestors")
+                        .HasMethod("gin");
+
                     b.HasIndex("CounterpartyId");
 
                     b.ToTable("Agencies");
@@ -215,9 +218,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("DisplayedMarkupFormula")
-                        .HasColumnType("text");
 
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
@@ -358,36 +358,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Counterparties");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.InvitationBase", b =>
-                {
-                    b.Property<string>("CodeHash")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("InvitationType")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsAccepted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("CodeHash");
-
-                    b.ToTable("UserInvitations");
-
-                    b.HasDiscriminator<int>("InvitationType");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
@@ -604,6 +574,51 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("BookingRequests");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("AgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ChangeEvent")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ChangeReason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ChangeSource")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserType");
+
+                    b.ToTable("BookingStatusHistory");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.CreditCardPaymentConfirmation", b =>
                 {
                     b.Property<int>("BookingId")
@@ -713,6 +728,40 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("EntityDescriptor");
 
                     b.ToTable("EntityLock");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.UserInvitation", b =>
+                {
+                    b.Property<string>("CodeHash")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("InvitationStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("InvitationType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("InviterAgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InviterUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CodeHash");
+
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
@@ -884,6 +933,34 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ServiceAccounts");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Markup.DisplayMarkupFormula", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("AgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CounterpartyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DisplayFormula")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CounterpartyId", "AgencyId", "AgentId")
+                        .IsUnique();
+
+                    b.ToTable("DisplayMarkupFormulas");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicy", b =>
@@ -1346,35 +1423,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AdminInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
-
-                    b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
-                        .IsRequired()
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("Data");
-
-                    b.Property<bool>("IsResent")
-                        .HasColumnType("boolean");
-
-                    b.HasDiscriminator().HasValue(1);
                 });
 #pragma warning restore 612, 618
         }

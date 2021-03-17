@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             
             bool IsContractTypeValid(Counterparty _) 
-                => !contractKind.Equals(default);
+                => !contractKind.Equals(default(CounterpartyContractKind));
             
             
             async Task SetContractType(Counterparty counterparty)
