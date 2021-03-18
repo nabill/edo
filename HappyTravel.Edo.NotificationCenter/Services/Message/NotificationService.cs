@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
             await _context.SaveChangesAsync();
 
             if (notification.Protocols.Contains(ProtocolTypes.WebSocket))
-                await _signalRSender.SendNotificationAdded(notification.AgentId, entry.Entity.Id, notification.Message);
+                await _signalRSender.FireNotificationAddedEvent(notification.AgentId, entry.Entity.Id, notification.Message);
 
             if (notification.Protocols.Contains(ProtocolTypes.Email) && notification.EmailSettings.HasValue)
                 await SendEmail(notification.EmailSettings.Value);

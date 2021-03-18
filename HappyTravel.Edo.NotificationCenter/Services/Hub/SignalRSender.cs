@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Hub
 {
     public class SignalRSender : Hub<INotificationCenter>
     {
-        public Task SendNotificationAdded(int agentId, int messageId, string message)
+        public Task FireNotificationAddedEvent(int agentId, int messageId, string message)
             => Clients.Group(BuildAgentGroupName(agentId)).NotificationAdded(messageId, message);
 
 
