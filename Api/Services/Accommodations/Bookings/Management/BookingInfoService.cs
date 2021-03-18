@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
@@ -34,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             return from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
-                where booking.AgencyId == agentContext.AgencyId
+                where booking.AgencyId == agentContext.AgencyId && !BookingStatusesToHide.Contains(booking.Status)
                 select new AgentBoundedData<SlimAccommodationBookingInfo>
                 {
                     Agent = new SlimAgentDescription
@@ -125,9 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             var bookingData = _context.Bookings
                 .Where(b => b.AgentId == agentContext.AgentId)
-                .Where(b => 
-                    (b.PaymentMethod == PaymentMethods.BankTransfer)
-                    || (b.PaymentMethod != PaymentMethods.BankTransfer && b.PaymentStatus != BookingPaymentStatuses.NotPaid))
+                .Where(b => !BookingStatusesToHide.Contains(b.Status))
                 .Select(b =>
                     new SlimAccommodationBookingInfo
                     {
@@ -230,7 +226,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }
         }
-        
+
+
+        private static readonly HashSet<BookingStatuses> BookingStatusesToHide = new()
+        {
+            BookingStatuses.Created,
+            BookingStatuses.Invalid
+        };
         
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
