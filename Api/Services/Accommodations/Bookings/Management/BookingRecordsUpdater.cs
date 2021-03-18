@@ -63,7 +63,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 BookingStatuses.Discarded => await ProcessDiscarding(booking, user),
                 BookingStatuses.ManualCorrectionNeeded => await ProcessManualCorrectionNeeding(booking, user),
                 BookingStatuses.PendingCancellation => Result.Success(),
-                BookingStatuses.InternalProcessing => Result.Success(),
                 BookingStatuses.WaitingForResponse => Result.Success(),
                 BookingStatuses.Pending => Result.Success(),
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Invalid status value")

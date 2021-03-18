@@ -128,7 +128,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             new Booking {Id = 7, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.Confirmed, PaymentMethod = PaymentMethods.CreditCard},
             new Booking {Id = 8, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.Pending, PaymentMethod = PaymentMethods.CreditCard},
             new Booking {Id = 9, PaymentStatus = BookingPaymentStatuses.Refunded, Status = BookingStatuses.Cancelled, PaymentMethod = PaymentMethods.BankTransfer},
-            new Booking {Id = 10, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.InternalProcessing, PaymentMethod = PaymentMethods.BankTransfer},
             new Booking {Id = 11, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.WaitingForResponse, PaymentMethod = PaymentMethods.Offline},
         };
     }

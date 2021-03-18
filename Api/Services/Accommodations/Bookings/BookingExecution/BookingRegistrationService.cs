@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 Created = created,
                 ItineraryNumber = itineraryNumber,
                 ReferenceCode = referenceCode,
-                Status = BookingStatuses.InternalProcessing,
+                Status = BookingStatuses.Created,
                 PaymentMethod = paymentMethod,
                 LanguageCode = languageCode,
                 Supplier = supplier,

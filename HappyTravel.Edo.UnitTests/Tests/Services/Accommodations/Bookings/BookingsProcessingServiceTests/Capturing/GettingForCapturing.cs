@@ -161,7 +161,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 CreateBooking(id: 3, statusCode: BookingStatuses.Invalid),
                 CreateBooking(id: 4, statusCode: BookingStatuses.Pending),
                 CreateBooking(id: 5, statusCode: BookingStatuses.Rejected),
-                CreateBooking(id: 6, statusCode: BookingStatuses.InternalProcessing),
                 CreateBooking(id: 7, statusCode: BookingStatuses.WaitingForResponse)
             };
             var service = CreateProcessingService(bookings);
@@ -173,7 +172,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             Assert.DoesNotContain(3, bookingsToCapture);
             Assert.Contains(4, bookingsToCapture);
             Assert.DoesNotContain(5, bookingsToCapture);
-            Assert.DoesNotContain(6, bookingsToCapture);
             Assert.Contains(7, bookingsToCapture);
 
             static Booking CreateBooking(int id, BookingStatuses statusCode) => new Booking

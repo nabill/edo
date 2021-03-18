@@ -6,9 +6,18 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BookingStatuses
     {
-        // TODO: Remove not needed statuses and migrate existing bookings statuses
-        InternalProcessing = 0,
+        // The status with which booking is created. If booking exists in this status for a long time this means that it 
+        // is not properly created (not paid by credit card, not met some validation etc.) and can be treated as not existing
+        Created = 0,
+        
+        /// <summary>
+        /// Waiting for supplier updates, typically for async web hooks
+        /// </summary>
         WaitingForResponse = 1,
+        
+        /// <summary>
+        /// Waiting for status update, typically for sync bookings
+        /// </summary>
         Pending = 2,
         
         /// <summary>
@@ -25,6 +34,10 @@ namespace HappyTravel.Edo.Common.Enums
         /// Rejected by supplier
         /// </summary>
         Rejected = 5,
+        
+        /// <summary>
+        /// This status means that booking is not finished properly and can be treated as not existing
+        /// </summary>
         Invalid = 6,
         
         /// <summary>
