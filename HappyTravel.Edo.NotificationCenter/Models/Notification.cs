@@ -1,20 +1,13 @@
-using HappyTravel.Edo.NotificationCenter.Enums;
+using HappyTravel.Edo.Common.Enums.Notifications;
+using HappyTravel.Edo.Common.Models.Notifications;
 
 namespace HappyTravel.Edo.NotificationCenter.Models
 {
     public readonly struct Notification
     {
-        public int AgentId { get; init; }
+        public int UserId { get; init; }
         public string Message { get; init; }
         public ProtocolTypes[] Protocols { get; init; }
         public EmailSettings? EmailSettings { get; init; }
-    }
-
-
-    public readonly struct EmailSettings
-    {
-        public string Email { get; init; }
-        public string TemplateId { get; init; }
-        public object Data { get; init; }
     }
 }

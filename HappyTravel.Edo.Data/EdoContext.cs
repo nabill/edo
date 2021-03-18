@@ -892,9 +892,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<Notification>(b =>
             {
-                b.Property(n => n.Protocols).HasColumnType("jsonb");
-                b.Property(n => n.EmailSettings).HasColumnType("jsonb");
-                b.HasIndex(n => n.AgentId);
+                b.HasIndex(n => n.UserId);
                 b.HasIndex(n => n.IsRead);
             });
         }

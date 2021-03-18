@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums.Notifications;
+using HappyTravel.Edo.Common.Models.Notifications;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.NotificationCenter.Enums;
 using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,16 +23,16 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
-                AgentId = notification.AgentId,
+                UserId = notification.UserId,
                 Message = notification.Message,
-                Protocols = JsonSerializer.Serialize(notification.Protocols),
+                Protocols = notification.Protocols,
                 EmailSettings = JsonSerializer.Serialize(notification.EmailSettings),
                 Created = DateTime.UtcNow
             });
             await _context.SaveChangesAsync();
 
             if (notification.Protocols.Contains(ProtocolTypes.WebSocket))
-                await _signalRSender.FireNotificationAddedEvent(notification.AgentId, entry.Entity.Id, notification.Message);
+                await _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message);
 
             if (notification.Protocols.Contains(ProtocolTypes.Email) && notification.EmailSettings.HasValue)
                 await SendEmail(notification.EmailSettings.Value);
@@ -52,16 +53,16 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
         }
 
 
-        public Task<List<NotificationSlim>> GetMessages(int agentId, int top, int skip)
+        public Task<List<NotificationSlim>> GetMessages(int userId, int top, int skip)
         {
             return _context.Notifications
-                .Where(n => n.AgentId == agentId)
+                .Where(n => n.UserId == userId)
                 .Take(top)
                 .Skip(skip)
                 .Select(n => new NotificationSlim
                 {
                     Id = n.Id,
-                    AgentId = n.AgentId,
+                    AgentId = n.UserId,
                     Message = n.Message,
                     Created = n.Created,
                     IsRead = n.IsRead

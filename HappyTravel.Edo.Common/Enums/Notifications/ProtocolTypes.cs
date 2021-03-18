@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.NotificationCenter.Enums
+namespace HappyTravel.Edo.Common.Enums.Notifications
 {
     public enum ProtocolTypes
     {
