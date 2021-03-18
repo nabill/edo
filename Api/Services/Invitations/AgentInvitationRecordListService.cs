@@ -63,7 +63,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     i.Data.UserRegistrationInfo.Position,
                     i.Invite.Email,
                     $"{i.Inviter.FirstName} {i.Inviter.LastName}",
-                    DateTimeFormatters.ToDateString(i.Invite.Created))
+                    DateTimeFormatters.ToDateString(i.Invite.Created),
+                    i.Invite.InvitationStatus)
                 )
                 .ToList();
         }
