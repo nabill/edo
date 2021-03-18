@@ -36,8 +36,12 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             {
                 var task = protocol switch
                 {
-                    ProtocolTypes.Email when settings is EmailSettings emailSettings => SendEmail(emailSettings),
-                    ProtocolTypes.WebSocket => _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message),
+                    ProtocolTypes.Email when settings is EmailSettings emailSettings 
+                        => SendEmail(emailSettings),
+                    
+                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
+                        => _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message),
+                    
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
                 
