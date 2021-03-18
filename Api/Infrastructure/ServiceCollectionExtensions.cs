@@ -94,6 +94,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
+using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using IdentityModel.Client;
 using Prometheus;
@@ -676,6 +677,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();
+            services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
