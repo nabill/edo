@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
                 if (defaultOption.IsFailure)
                     return Result.Failure<NotificationOptionSlim>(defaultOption.Error);
 
-                if (defaultOption.Value.IsMandatory && !option.EnabledProtocols.Any())
+                if (defaultOption.Value.IsMandatory && option.EnabledProtocols != default)
                     return Result.Failure<NotificationOptionSlim>($"Notification type '{type}' is mandatory");
 
                 return defaultOption;
@@ -87,14 +87,14 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
         private readonly Dictionary<NotificationType, Models.Notifications.NotificationOptionSlim> _defaultOptions = new()
         {
-            {NotificationType.BookingVoucher, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = true}},
-            {NotificationType.BookingInvoice, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = true}},
-            {NotificationType.DeadlineApproaching, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = false}},
-            {NotificationType.SuccessfulPaymentReceipt, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = true}},
-            {NotificationType.BookingDuePayment, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = false}},
-            {NotificationType.BookingCancelled, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = false}},
-            {NotificationType.BookingFinalized, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = false}},
-            {NotificationType.BookingStatusChanged, new() {EnabledProtocols = new(){ProtocolTypes.Email, ProtocolTypes.WebSocket}, IsMandatory = false}},
+            {NotificationType.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationType.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationType.DeadlineApproaching, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationType.SuccessfulPaymentReceipt, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationType.BookingDuePayment, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationType.BookingCancelled, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationType.BookingFinalized, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationType.BookingStatusChanged, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
         };
 
 
