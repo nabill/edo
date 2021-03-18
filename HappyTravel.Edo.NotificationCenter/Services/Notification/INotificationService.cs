@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
     {
         Task Add(Models.Notification notification);
         Task MarkAsRead(int notificationId);
-        Task<List<NotificationSlim>> GetMessages(int userId, int top, int skip);
+        Task<List<NotificationSlim>> GetNotifications(int userId, int top, int skip);
     }
 }
