@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
 {
     public interface IMessageService
     {
-        Task Add(Request request);
+        Task Add(NotificationInfo request);
         Task MarkAsRead(int messageId);
         Task GetMessages();
     }

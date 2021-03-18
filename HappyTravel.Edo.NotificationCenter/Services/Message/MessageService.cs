@@ -13,16 +13,16 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
             _signalRSender = signalRSender;
         }
         
-        public async Task Add(Request request)
+        public async Task Add(NotificationInfo request)
         {
             // TODO: store message in database
             const int messageId = default;
-            
-            if (request.Protocols.Contains(ProtocolTypes.WebSocket))
-                await SendSignalR(request, messageId);
 
-            if (request.Protocols.Contains(ProtocolTypes.Email))
-                await SendEmail(request);
+            if (request.Protocols.Contains(ProtocolTypes.WebSocket))
+                await _signalRSender.SendNotificationAdded(request.AgentId, messageId, request.Message);
+
+            if (request.Protocols.Contains(ProtocolTypes.Email) && request.EmailSettings.HasValue)
+                await SendEmail(request.EmailSettings.Value);
         }
 
 
@@ -40,37 +40,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
         }
 
 
-        private Task SendSignalR(Request request, int messageId)
-        {
-            return request.MessageType switch
-            {
-                MessageType.BookingVoucher 
-                    => _signalRSender.SendBookingVoucher(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.BookingInvoice 
-                    => _signalRSender.SendBookingInvoice(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.DeadlineApproaching 
-                    => _signalRSender.SendDeadlineApproaching(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.SuccessfulPaymentReceipt 
-                    => _signalRSender.SendSuccessfulPaymentReceipt(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.BookingDuePayment 
-                    => _signalRSender.SendBookingBuePayment(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.BookingCancelled 
-                    => _signalRSender.SendBookingCancelled(request.AgentId, messageId, request.ShortMessage),
-                
-                MessageType.BookingFinalized 
-                    => _signalRSender.SendBookingFinalized(request.AgentId, messageId, request.ShortMessage),
-                
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-
-
-        private Task SendEmail(Request request)
+        private Task SendEmail(EmailSettings settings)
         {
             // TODO: implement sending e-mails
             return Task.CompletedTask;

@@ -10,6 +10,8 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.NotificationCenter.Infrastructure;
+using HappyTravel.Edo.NotificationCenter.Services.Hub;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
@@ -69,7 +71,7 @@ namespace HappyTravel.Edo.Api
                 .AddCacheFlowJsonSerialization()
                 .AddTracing(HostingEnvironment, Configuration)
                 .AddUserEventLogging(Configuration, vaultClient);
-            
+
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
@@ -124,6 +126,7 @@ namespace HappyTravel.Edo.Api
             services.AddSwaggerGenNewtonsoftSupport();
             
             services.AddOData();
+            services.AddNotificationCenter();
             
             services.AddMvcCore(options =>
                 {
@@ -221,6 +224,7 @@ namespace HappyTravel.Edo.Api
                     endpoints.MapControllers();
                     endpoints.EnableDependencyInjection();
                     endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
+                    endpoints.MapHub<SignalRSender>("notifications");
                 });
         }
 
