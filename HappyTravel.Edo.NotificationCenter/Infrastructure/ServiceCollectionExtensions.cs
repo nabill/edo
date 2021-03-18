@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.NotificationCenter.Infrastructure
     {
         public static IServiceCollection AddNotificationCenter(this IServiceCollection services)
         {
-            services.AddTransient<IMessageService, MessageService>();
+            services.AddTransient<INotificationService, NotificationService>();
             services.AddSignalR();
 
             return services;

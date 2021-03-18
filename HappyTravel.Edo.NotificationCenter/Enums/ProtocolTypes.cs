@@ -2,7 +2,8 @@ namespace HappyTravel.Edo.NotificationCenter.Enums
 {
     public enum ProtocolTypes
     {
-        WebSocket,
-        Email
+        None = 0,
+        WebSocket = 1,
+        Email = 2
     }
 }

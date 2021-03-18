@@ -2,7 +2,7 @@ using HappyTravel.Edo.NotificationCenter.Enums;
 
 namespace HappyTravel.Edo.NotificationCenter.Models
 {
-    public readonly struct NotificationInfo
+    public readonly struct Notification
     {
         public int AgentId { get; init; }
         public string Message { get; init; }
