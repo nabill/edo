@@ -303,8 +303,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetBookingStatusHistory(bookingId, agent);
 
+            var (_, bookingIsFailure, _, bookingError) = await _bookingRecordManager.Get(bookingId)
+                .CheckPermissions(agent);
+            if (bookingIsFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(bookingError));
+
+            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetBookingStatusHistory(bookingId, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
