@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.Notifications;
 using HappyTravel.Edo.Common.Models.Notifications;
 
@@ -7,7 +8,6 @@ namespace HappyTravel.Edo.NotificationCenter.Models
     {
         public int UserId { get; init; }
         public string Message { get; init; }
-        public ProtocolTypes[] Protocols { get; init; }
-        public EmailSettings? EmailSettings { get; init; }
+        public Dictionary<ProtocolTypes, ISendingSettings> SendingSettings { get; init; }
     }
 }

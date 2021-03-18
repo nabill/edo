@@ -25,17 +25,26 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             {
                 UserId = notification.UserId,
                 Message = notification.Message,
-                Protocols = notification.Protocols,
-                EmailSettings = JsonSerializer.Serialize(notification.EmailSettings),
+                SendingSettings = notification.SendingSettings,
                 Created = DateTime.UtcNow
             });
             await _context.SaveChangesAsync();
 
-            if (notification.Protocols.Contains(ProtocolTypes.WebSocket))
-                await _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message);
+            var tasks = new List<Task>();
 
-            if (notification.Protocols.Contains(ProtocolTypes.Email) && notification.EmailSettings.HasValue)
-                await SendEmail(notification.EmailSettings.Value);
+            foreach (var (protocol, settings) in notification.SendingSettings)
+            {
+                var task = protocol switch
+                {
+                    ProtocolTypes.Email when settings is EmailSettings emailSettings => SendEmail(emailSettings),
+                    ProtocolTypes.WebSocket => _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message),
+                    _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
+                };
+                
+                tasks.Add(task);
+            }
+
+            await Task.WhenAll(tasks);
         }
 
 
