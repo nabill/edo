@@ -9,7 +9,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.NotificationCenter.Services.Message
+namespace HappyTravel.Edo.NotificationCenter.Services.Notification
 {
     public class NotificationService : INotificationService
     {
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Message
             _signalRSender = signalRSender;
         }
         
-        public async Task Add(Notification notification)
+        public async Task Add(Models.Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {

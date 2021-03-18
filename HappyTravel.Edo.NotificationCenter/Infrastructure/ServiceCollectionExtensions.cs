@@ -1,4 +1,4 @@
-using HappyTravel.Edo.NotificationCenter.Services.Message;
+using HappyTravel.Edo.NotificationCenter.Services.Notification;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HappyTravel.Edo.NotificationCenter.Infrastructure
