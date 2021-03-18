@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                 .Select(n => new NotificationSlim
                 {
                     Id = n.Id,
-                    AgentId = n.UserId,
+                    UserId = n.UserId,
                     Message = n.Message,
                     Created = n.Created,
                     IsRead = n.IsRead
