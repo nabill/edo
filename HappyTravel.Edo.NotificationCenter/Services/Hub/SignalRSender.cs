@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Hub
     public class SignalRSender : Hub<INotificationCenter>
     {
         public Task FireNotificationAddedEvent(int agentId, int messageId, string message)
-            => Clients.Group(BuildAgentGroupName(agentId)).NotificationAdded(messageId, message);
+            => Clients.Group(BuildUserGroupName(agentId)).NotificationAdded(messageId, message);
 
 
         public Task Join(string roomName) 
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Hub
             => Groups.RemoveFromGroupAsync(Context.ConnectionId, roomName);
 
 
-        private static string BuildAgentGroupName(int agentId) 
-            => $"agent-{agentId}";
+        private static string BuildUserGroupName(int userId) 
+            => $"user-{userId}";
     }
 }
