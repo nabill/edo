@@ -155,11 +155,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         public async Task<Result<List<BookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId, AgentContext agent)
         {
-            var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && b.AgencyId == agent.AgencyId);
-            if (booking is null)
-                return Result.Failure<List<BookingStatusHistoryEntry>>($"Booking with Id {bookingId} not found");
-
             var history = await _context.BookingStatusHistory
                 .Where(bsh => bsh.BookingId == bookingId)
                 .OrderBy(bsh => bsh.Id)
