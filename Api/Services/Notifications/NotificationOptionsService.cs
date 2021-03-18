@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public Task<Result> Update(NotificationType type, Models.Notifications.NotificationOptionSlim option, AgentContext agentContext)
+        public Task<Result> Update(NotificationType type, NotificationOptionSlim option, AgentContext agentContext)
         {
             return CheckMandatory()
                 .Bind(SaveOption);
@@ -85,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
                 .SingleOrDefaultAsync(o => o.AgencyId == agencyId && o.AgentId == agentId && o.Type == type);
 
 
-        private readonly Dictionary<NotificationType, Models.Notifications.NotificationOptionSlim> _defaultOptions = new()
+        private readonly Dictionary<NotificationType, NotificationOptionSlim> _defaultOptions = new()
         {
             {NotificationType.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
             {NotificationType.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
