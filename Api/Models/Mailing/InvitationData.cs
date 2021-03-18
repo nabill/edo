@@ -6,5 +6,6 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string InvitationCode { get; set; }
         public string UserEmailAddress { get; set; }
         public string UserName { get; set; }
+        public string FrontendBaseUrl { get; set; }
     }
 }
