@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -148,6 +149,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
         
+        public async Task<Result<List<BookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId, AgentContext agent)
+        {
+            var history = await _context.BookingStatusHistory
+                .Where(bsh => bsh.BookingId == bookingId)
+                .OrderBy(bsh => bsh.Id)
+                .ToListAsync();
+
+            return history ?? new(0);
+        }
+
+
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.Supplier, booking.AccommodationId, languageCode);
