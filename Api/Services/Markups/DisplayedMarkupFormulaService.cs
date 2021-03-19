@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> Update(int agentId, int agencyId)
+        public async Task<Result> UpdateAgentFormula(int agentId, int agencyId)
         {
             var counterpartyId = await (from relation in _context.AgentAgencyRelations
                 join agency in _context.Agencies on relation.AgencyId equals agency.Id
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public async Task<Result> Update(int agencyId)
+        public async Task<Result> UpdateAgencyFormula(int agencyId)
         {
             var counterpartyId = await (from agency in _context.Agencies
                 join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
@@ -89,6 +89,45 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public async Task<Result> UpdateCounterpartyFormula(int counterpartyId)
+        {
+            var isCounterpartyExists = await _context.Counterparties.AnyAsync(c => c.Id == counterpartyId);
+            if (!isCounterpartyExists)
+                return Result.Failure($"Counterparty with id '{counterpartyId}' not found");
+            
+            var formula = await GetCounterpartyMarkupFormula(counterpartyId);
+            var displayedMarkupFormula = await _context.DisplayMarkupFormulas
+                .SingleOrDefaultAsync(f => f.CounterpartyId == counterpartyId && f.AgencyId == null && f.AgentId == null);
+            
+            if (displayedMarkupFormula is null)
+            {
+                _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
+                {
+                    CounterpartyId = counterpartyId,
+                    AgencyId = null,
+                    AgentId = null,
+                    DisplayFormula = formula
+                });
+            }
+            else
+            {
+                displayedMarkupFormula.DisplayFormula = formula;
+                _context.DisplayMarkupFormulas.Update(displayedMarkupFormula);
+            }
+
+            await _context.SaveChangesAsync();
+            return Result.Success();
+        }
+
+
+        public async Task<Result> UpdateGlobalFormula()
+        {
+            // TODO: implement saving global markup formulas
+            // Now we can't saving formula without counterpartyId because counterpartyId is not nullable
+            return await Task.FromResult(Result.Success());
+        }
+
+
         private async Task<string> GetAgentMarkupFormula(int agentId, int agencyId)
         {
             var policies = await _context.MarkupPolicies
@@ -106,6 +145,32 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agency)
+                .OrderBy(p => p.Order)
+                .ToListAsync();
+
+            return policies.Any()
+                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
+                : string.Empty;
+        }
+
+
+        private async Task<string> GetCounterpartyMarkupFormula(int counterpartyId)
+        {
+            var policies = await _context.MarkupPolicies
+                .Where(p => p.CounterpartyId == counterpartyId && p.ScopeType == MarkupPolicyScopeType.Counterparty)
+                .OrderBy(p => p.Order)
+                .ToListAsync();
+
+            return policies.Any()
+                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
+                : string.Empty;
+        }
+        
+        
+        private async Task<string> GetGlobalMarkupFormula()
+        {
+            var policies = await _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
