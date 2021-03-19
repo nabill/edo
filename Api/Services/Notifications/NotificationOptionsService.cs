@@ -18,36 +18,36 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public async Task<Result<NotificationOptionSlim>> GetNotificationOptions(NotificationType type, AgentContext agent)
+        public async Task<Result<SlimNotificationOption>> GetNotificationOptions(NotificationType type, AgentContext agent)
         {
             var option = await GetOption(type, agent.AgentId, agent.AgencyId);
 
             return option is null 
                 ? GetDefaultOption(type) 
-                : new NotificationOptionSlim {EnabledProtocols = option.EnabledProtocols, IsMandatory = option.IsMandatory};
+                : new SlimNotificationOption {EnabledProtocols = option.EnabledProtocols, IsMandatory = option.IsMandatory};
         }
 
 
-        public Task<Result> Update(NotificationType type, NotificationOptionSlim option, AgentContext agentContext)
+        public Task<Result> Update(NotificationType type, SlimNotificationOption option, AgentContext agentContext)
         {
             return CheckMandatory()
                 .Bind(SaveOption);
 
 
-            Result<NotificationOptionSlim> CheckMandatory()
+            Result<SlimNotificationOption> CheckMandatory()
             {
                 var defaultOption = GetDefaultOption(type);
                 if (defaultOption.IsFailure)
-                    return Result.Failure<NotificationOptionSlim>(defaultOption.Error);
+                    return Result.Failure<SlimNotificationOption>(defaultOption.Error);
 
                 if (defaultOption.Value.IsMandatory && option.EnabledProtocols != default)
-                    return Result.Failure<NotificationOptionSlim>($"Notification type '{type}' is mandatory");
+                    return Result.Failure<SlimNotificationOption>($"Notification type '{type}' is mandatory");
 
                 return defaultOption;
             }
 
 
-            async Task<Result> SaveOption(NotificationOptionSlim defaultOption)
+            async Task<Result> SaveOption(SlimNotificationOption defaultOption)
             {
                 var entity = await GetOption(type, agentContext.AgentId, agentContext.AgencyId);
 
@@ -73,10 +73,10 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private Result<NotificationOptionSlim> GetDefaultOption(NotificationType type) => 
+        private Result<SlimNotificationOption> GetDefaultOption(NotificationType type) => 
             _defaultOptions.TryGetValue(type, out var value) 
                 ? value 
-                : Result.Failure<NotificationOptionSlim>($"Cannot find options for type '{type}'");
+                : Result.Failure<SlimNotificationOption>($"Cannot find options for type '{type}'");
 
 
         private Task<NotificationOption> GetOption(NotificationType type, int agentId, int agencyId) 
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
                 .SingleOrDefaultAsync(o => o.AgencyId == agencyId && o.AgentId == agentId && o.Type == type);
 
 
-        private readonly Dictionary<NotificationType, NotificationOptionSlim> _defaultOptions = new()
+        private readonly Dictionary<NotificationType, SlimNotificationOption> _defaultOptions = new()
         {
             {NotificationType.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
             {NotificationType.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
