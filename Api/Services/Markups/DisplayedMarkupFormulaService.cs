@@ -124,6 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             // TODO: implement saving global markup formulas
             // Now we can't saving formula without counterpartyId because counterpartyId is not nullable
+            // https://github.com/happy-travel/edo/issues/551
             return await Task.FromResult(Result.Success());
         }
 
