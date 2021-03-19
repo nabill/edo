@@ -2,8 +2,9 @@ namespace HappyTravel.Edo.Common.Enums.Markup
 {
     public enum MarkupPolicyEventOperationType
     {
-        Created,
-        Modified,
-        Deleted
+        None = 0,
+        Created = 1,
+        Modified = 2,
+        Deleted = 3
     }
 }
