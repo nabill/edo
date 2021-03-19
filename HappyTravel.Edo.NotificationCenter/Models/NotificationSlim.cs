@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.NotificationCenter.Models
 {
-    public readonly struct NotificationSlim
+    public readonly struct SlimNotification
     {
         public int Id { get; init; }
         public int UserId { get; init; }

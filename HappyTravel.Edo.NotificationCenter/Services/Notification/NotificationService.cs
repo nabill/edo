@@ -66,13 +66,13 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        public Task<List<NotificationSlim>> GetNotifications(int userId, int top, int skip)
+        public Task<List<SlimNotification>> GetNotifications(int userId, int top, int skip)
         {
             return _context.Notifications
                 .Where(n => n.UserId == userId)
                 .Take(top)
                 .Skip(skip)
-                .Select(n => new NotificationSlim
+                .Select(n => new SlimNotification
                 {
                     Id = n.Id,
                     UserId = n.UserId,
