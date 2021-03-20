@@ -1,3 +1,4 @@
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
@@ -6,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public AgentInvitationResponse(string id, string title, string firstName, string lastName,
-            string position, string email, string createdBy, string created)
+            string position, string email, string createdBy, string created, UserInvitationStatuses status)
         {
             Id = id;
             Title = title;
@@ -16,6 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             Email = email;
             CreatedBy = createdBy;
             Created = created;
+            Status = status;
         }
 
         public string Id { get; }
@@ -26,5 +28,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Email { get; }
         public string CreatedBy { get; }
         public string Created { get; }
+        public UserInvitationStatuses Status { get; }
     }
 }

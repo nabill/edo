@@ -27,5 +27,17 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// Prefilled child agency registration info. Used only for child agency invitations.
         /// </summary>
         public AgencyInfo ChildAgencyRegistrationInfo { get; }
+
+
+        public override int GetHashCode()
+            => (UserRegistrationInfo, ChildAgencyRegistrationInfo).GetHashCode();
+
+
+        public bool Equals(UserInvitationData other)
+            => UserRegistrationInfo.Equals(other.UserRegistrationInfo) && ChildAgencyRegistrationInfo.Equals(other.ChildAgencyRegistrationInfo);
+
+
+        public override bool Equals(object obj)
+            => obj is UserInvitationData other && Equals(other);
     }
 }
