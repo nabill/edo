@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
@@ -39,14 +38,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
                 .Map(SavePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupCreated));
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created));
 
             if (isFailure)
                 return Result.Failure(error);
-
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
+            
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
 
 
             async Task<MarkupPolicy> SavePolicy()
@@ -81,15 +78,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var (_, isFailure, markupPolicy, error) = await GetPolicy()
                 .Map(DeletePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupDeleted));
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
 
             if (isFailure)
                 return Result.Failure(error);
 
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
-
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
 
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
@@ -117,14 +111,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             var (_, isFailure, markupPolicy, error) = await ValidateSettings()
                 .Bind(UpdatePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupUpdated));
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified));
 
             if (isFailure)
                 return Result.Failure(error);
 
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
 
 
             Result ValidateSettings() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
@@ -214,27 +206,63 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
-            return policy.AgentId.HasValue
-                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value, policy.AgencyId.Value)
-                : Task.FromResult(Result.Success());
+            return policy.ScopeType switch
+            {
+                MarkupPolicyScopeType.Agent when policy.AgentId.HasValue && policy.AgencyId.HasValue
+                    => _displayedMarkupFormulaService.UpdateAgentFormula(policy.AgentId.Value, policy.AgencyId.Value),
+                
+                MarkupPolicyScopeType.Agency when policy.AgencyId.HasValue
+                    => _displayedMarkupFormulaService.UpdateAgencyFormula(policy.AgencyId.Value),
+                
+                MarkupPolicyScopeType.Counterparty when policy.CounterpartyId.HasValue
+                    => _displayedMarkupFormulaService.UpdateCounterpartyFormula(policy.CounterpartyId.Value),
+                
+                MarkupPolicyScopeType.Global
+                    => _displayedMarkupFormulaService.UpdateGlobalFormula(),
+
+                _ => Task.FromResult(Result.Success())
+            };
         }
 
 
-        private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
-            => policy.ScopeType == MarkupPolicyScopeType.Agent;
-
-
-        private async Task WriteAuditLog(MarkupPolicy policy, MarkupPolicyEventType markupPolicyEventType)
+        private async Task WriteAuditLog(MarkupPolicy policy, MarkupPolicyEventOperationType type)
         {
-            // currently logging only for agents
-            if (policy.ScopeType != MarkupPolicyScopeType.Agent)
-                return;
-
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            
+            var writeLogTask = (policy.ScopeType, type) switch
+            {
+                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Created) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupCreated),
+                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Modified) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupUpdated),
+                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Deleted) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupDeleted),
+                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Created) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupCreated),
+                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Modified) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupUpdated),
+                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Deleted) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupDeleted),
+                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Created) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupCreated),
+                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Modified) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupUpdated),
+                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Deleted) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupDeleted),
+                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Created) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupCreated),
+                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Modified) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupUpdated),
+                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Deleted) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupDeleted),
+                _ => Task.CompletedTask
+            };
 
-            await _markupPolicyAuditService.Write(markupPolicyEventType,
-                new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value),
-                administrator.ToUserInfo());
+            await writeLogTask;
+            
+            
+            Task WriteAgentLog(MarkupPolicyEventType eventType)
+                => _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value), administrator.ToUserInfo());
+
+
+            Task WriteAgencyLog(MarkupPolicyEventType eventType) 
+                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value), administrator.ToUserInfo());
+
+
+            Task WriteCounterpartyLog(MarkupPolicyEventType eventType) 
+                => _markupPolicyAuditService.Write(eventType, new CounterpartyMarkupPolicyData(policy.Id, policy.CounterpartyId.Value), administrator.ToUserInfo());
+
+
+            Task WriteGlobalLog(MarkupPolicyEventType eventType) 
+                => _markupPolicyAuditService.Write(eventType, new GlobalMarkupPolicyData(policy.Id), administrator.ToUserInfo());
         }
 
 

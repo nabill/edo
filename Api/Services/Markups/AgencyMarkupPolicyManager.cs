@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
-            => _displayedMarkupFormulaService.Update(policy.AgencyId.Value);
+            => _displayedMarkupFormulaService.UpdateAgencyFormula(policy.AgencyId.Value);
         
         
         private readonly IMarkupPolicyTemplateService _templateService;
