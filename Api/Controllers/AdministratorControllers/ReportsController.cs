@@ -18,10 +18,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ReportsController : BaseController
     {
-        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesSalesSummaryReportService agenciesSalesSummaryReportService)
+        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesProductivityReportService agenciesProductivityReportService)
         {
             _directConnectivityReportService = directConnectivityReportService;
-            _agenciesSalesSummaryReportService = agenciesSalesSummaryReportService;
+            _agenciesProductivityReportService = agenciesProductivityReportService;
         }
         
         
@@ -66,26 +66,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Returns agencies sales summary report
+        ///     Returns agencies productivity report
         /// </summary>
-        [HttpGet("agencies-sales-summary-report")]
+        [HttpGet("agencies-productivity-report")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
-        public async Task<IActionResult> GetAgenciesSalesSummaryReport(DateTime from, DateTime end)
+        public async Task<IActionResult> GetAgenciesProductivityReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _agenciesSalesSummaryReportService.GetReport(from, end);
+            var (_, isFailure, stream, error) = await _agenciesProductivityReportService.GetReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"agencies-production-report-{from:g}-{end:g}.csv"
+                FileDownloadName = $"agencies-productivity-report-{from:g}-{end:g}.csv"
             };
         }
         
         
         private readonly IDirectConnectivityReportService _directConnectivityReportService;
-        private readonly IAgenciesSalesSummaryReportService _agenciesSalesSummaryReportService;
+        private readonly IAgenciesProductivityReportService _agenciesProductivityReportService;
     }
 }
