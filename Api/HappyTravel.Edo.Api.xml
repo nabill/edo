@@ -1932,6 +1932,11 @@
             True if contract is loaded to counterparty
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.MarkupFormula">
+            <summary>
+            Displayed markup formula
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.

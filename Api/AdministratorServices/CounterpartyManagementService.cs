@@ -54,15 +54,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<List<CounterpartyInfo>> Get(string languageCode)
         {
             var counterparties = await (from cp in _context.Counterparties
-                join c in _context.Countries
-                    on cp.CountryCode equals c.Code
+                join c in _context.Countries on cp.CountryCode equals c.Code
+                join formula in _context.DisplayMarkupFormulas on new
+                {
+                    cp.Id,
+                    AgencyId = (int?) null,
+                    AgentId = (int?) null
+                } equals new
+                {
+                    Id = formula.CounterpartyId,
+                    formula.AgencyId,
+                    formula.AgentId
+                } into formulas
+                from markupFormula in formulas.DefaultIfEmpty()
                 select new
                 {
                     Counterparty = cp,
-                    Country = c
+                    Country = c,
+                    MarkupFormula = markupFormula == null ? null : markupFormula.DisplayFormula
                 }).ToListAsync();
 
-            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode)).ToList();
+            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode, c.MarkupFormula)).ToList();
         }
 
 
@@ -205,7 +217,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
-        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
+        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.Address,
