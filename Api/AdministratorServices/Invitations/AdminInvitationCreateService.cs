@@ -100,7 +100,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 {
                     InvitationCode = invitationCode,
                     UserEmailAddress = prefilledData.Email,
-                    UserName = $"{prefilledData.FirstName} {prefilledData.LastName}"
+                    UserName = $"{prefilledData.FirstName} {prefilledData.LastName}",
+                    FrontendBaseUrl = _options.FrontendBaseUrl
                 };
 
                 return await _mailSender.Send(_options.AdminInvitationTemplateId,

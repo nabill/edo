@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace HappyTravel.Edo.Api.Services.Documents
+namespace HappyTravel.Edo.Api.Services.Reports
 {
     public interface IDirectConnectivityReportService
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
@@ -32,6 +33,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
+using StackExchange.Redis;
 
 namespace HappyTravel.Edo.Api
 {
@@ -66,7 +68,15 @@ namespace HappyTravel.Edo.Api
                 .AddLocalization()
                 .AddMemoryCache()
                 .AddMemoryFlow()
-                .AddStackExchangeRedisCache(options => { options.Configuration = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration); })
+                .AddStackExchangeRedisCache(options =>
+                {
+                    var host = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration);
+                    options.ConfigurationOptions = new ConfigurationOptions
+                    {
+                        EndPoints = {new DnsEndPoint(host, 6379)},
+                        AsyncTimeout = 15000, // set to 15 seconds before we stop storing large objects in Redis
+                    };
+                })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
                 .AddTracing(HostingEnvironment, Configuration)

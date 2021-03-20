@@ -434,6 +434,11 @@
                 Returns agency wise direct connectivity report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgenciesSalesSummaryReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agencies sales summary report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
@@ -902,6 +907,13 @@
                 Gets all bookings for an agency of current agent.
             </summary>
             <returns>List of slim booking data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
+            <summary>
+                Gets booking status changes history
+            </summary>
+            <param name="bookingId">Booking ID for retrieving status change history</param>
+            <returns>List of booking status change events</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
@@ -1918,6 +1930,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsContractUploaded">
             <summary>
             True if contract is loaded to counterparty
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.MarkupFormula">
+            <summary>
+            Displayed markup formula
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">

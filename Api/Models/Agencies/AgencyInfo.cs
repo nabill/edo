@@ -29,5 +29,17 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Id of the counterparty.
         /// </summary>
         public int? CounterpartyId { get; }
+
+
+        public override int GetHashCode()
+            => (Name, Id, CounterpartyId).GetHashCode();
+
+
+        public bool Equals(AgencyInfo other)
+            => (Name, Id, CounterpartyId) == (other.Name, other.Id, other.CounterpartyId);
+
+
+        public override bool Equals(object obj)
+            => obj is AgencyInfo other && Equals(other);
     }
 }

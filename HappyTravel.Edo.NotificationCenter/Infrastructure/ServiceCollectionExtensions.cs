@@ -1,3 +1,4 @@
+using HappyTravel.Edo.NotificationCenter.Services.Hub;
 using HappyTravel.Edo.NotificationCenter.Services.Notification;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +9,7 @@ namespace HappyTravel.Edo.NotificationCenter.Infrastructure
         public static IServiceCollection AddNotificationCenter(this IServiceCollection services)
         {
             services.AddTransient<INotificationService, NotificationService>();
+            services.AddTransient<SignalRSender>();
             services.AddSignalR();
 
             return services;
