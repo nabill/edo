@@ -11,9 +11,9 @@ using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Services.Reports
 {
-    public class AgenciesSalesSummaryReportService : IAgenciesSalesSummaryReportService
+    public class AgenciesProductivityReportService : IAgenciesProductivityReportService
     {
-        public AgenciesSalesSummaryReportService(EdoContext context)
+        public AgenciesProductivityReportService(EdoContext context)
         {
             _context = context;
         }
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
             }
             
             
-            IQueryable<AgencySalesSummary> GetRecords()
+            IQueryable<AgencyProductivity> GetRecords()
             {
                 var bookingsQuery = _context.Bookings
                     .Where(b => b.Created >= fromDate && b.Created < endDate);
@@ -49,16 +49,22 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     {
                         agency.Name,
                         agency.IsActive,
-                        booking.Currency
+                        booking.Currency,
+                        booking.AccommodationName,
+                        booking.Location.Locality,
+                        booking.Location.Country
                     } into grouped
-                    select new AgencySalesSummary
+                    select new AgencyProductivity
                     {
                         AgencyName = grouped.Key.Name,
                         BookingCount = grouped.Count(b => b != null),
                         Currency = grouped.Key.Currency.ToString(),
                         Revenue = grouped.Sum(b => b.TotalPrice),
                         NightCount = grouped.Sum(b => (b.CheckOutDate - b.CheckInDate).Days),
-                        IsActive = grouped.Key.IsActive
+                        IsActive = grouped.Key.IsActive,
+                        CountryName = grouped.Key.Country,
+                        LocalityName = grouped.Key.Locality,
+                        AccommodationName = grouped.Key.AccommodationName
                     };
             }
         }
