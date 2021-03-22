@@ -94,8 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("{scopeType}")]
         [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, [FromQuery] int? counterpartyId, [FromQuery] int? agencyId,
-            [FromQuery] int? agentId)
+        public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, [FromQuery] int? counterpartyId, [FromQuery] int? agencyId, [FromQuery] int? agentId)
         {
             var scope = scopeType switch
             {

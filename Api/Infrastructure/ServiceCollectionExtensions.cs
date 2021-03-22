@@ -190,14 +190,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #region mailing setting
 
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
-            var edoPublicUrl = mailSettings[configuration["Edo:Email:EdoPublicUrl"]];
+            var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
+            
 
             var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
-                options.BaseUrl = new Uri(edoPublicUrl);
+                options.BaseUrl = new Uri(edoAgentAppFrontendUrl);
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
 
@@ -210,9 +211,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+            var edoManagementFrontendUrl = mailSettings[configuration["Edo:Email:EdoManagementFrontendUrl"]];
             services.Configure<AdminInvitationMailOptions>(options =>
             {
                 options.AdminInvitationTemplateId = administratorInvitationTemplateId;
+                options.FrontendBaseUrl = edoManagementFrontendUrl;
             });
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);
@@ -677,7 +680,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();
-            services.AddTransient<IAgenciesSalesSummaryReportService, AgenciesSalesSummaryReportService>();
+            services.AddTransient<IAgenciesProductivityReportService, AgenciesProductivityReportService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

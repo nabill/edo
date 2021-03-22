@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Markup;
+using HappyTravel.Edo.Data.Notifications;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
@@ -93,6 +94,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<ApiClient> ApiClients { get; set; }
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
         public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -260,6 +262,7 @@ namespace HappyTravel.Edo.Data
             BuildApiClients(builder);
             BuildDisplayMarkupFormulas(builder);
             BuildBookingStatusHistory(builder);
+            BuildNotifications(builder);
         }
 
 
@@ -881,6 +884,17 @@ namespace HappyTravel.Edo.Data
                 e.Property(bshe => bshe.ChangeEvent).IsRequired();
                 e.Property(bshe => bshe.ChangeReason);
                 e.ToTable("BookingStatusHistory");
+            });
+        }
+
+
+        private static void BuildNotifications(ModelBuilder builder)
+        {
+            builder.Entity<Notification>(b =>
+            {
+                b.Property(n => n.SendingSettings).HasColumnType("jsonb");
+                b.HasIndex(n => n.UserId);
+                b.HasIndex(n => n.IsRead);
             });
         }
 

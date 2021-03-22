@@ -10,6 +10,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Management;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 {
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
             return await GetActiveInvitation()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
+                .Ensure(IsEmailUnique, "Administrator with same mail is already registered")
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Tap(SaveAccepted)
                     .Bind(CreateAdmin)
@@ -49,6 +51,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
             bool IsInvitationTypeCorrect(UserInvitation invitation) 
                 => invitation.InvitationType == UserInvitationTypes.Administrator;
+
+
+            async Task<bool> IsEmailUnique(UserInvitation invitation) 
+                => !await _context.Administrators.AnyAsync(a => a.Email == invitation.Email);
 
 
             Task SaveAccepted(UserInvitation invitation) 
