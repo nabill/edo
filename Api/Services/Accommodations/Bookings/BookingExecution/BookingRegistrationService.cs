@@ -182,11 +182,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                             r.IsAdvancePurchaseRate,
                             string.Empty))
                     .ToList();
-                
-                
-                List<Passenger> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers
-                    .Select(p=> new Passenger(p.Title, p.LastName, p.FirstName, p.IsLeader, p.Age))
-                    .ToList();
+
+
+                List<Passenger> GetCorrespondingPassengers(int number)
+                    => bookingRequestRoomDetails[number].Passengers
+                        .Select(p => new Passenger(p.Title, p.LastName.Trim(), p.FirstName.Trim(), p.IsLeader, p.Age))
+                        .ToList();
             }
         }
         
