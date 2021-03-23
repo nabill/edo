@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
         public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<NotificationOption> NotificationOptions { get; set; }
+        public DbSet<NotificationOptions> NotificationOptions { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -903,7 +903,7 @@ namespace HappyTravel.Edo.Data
 
         private static void BuildNotificationOptions(ModelBuilder builder)
         {
-            builder.Entity<NotificationOption>(b =>
+            builder.Entity<NotificationOptions>(b =>
             {
                 b.HasIndex(o => new {o.AgencyId, o.AgentId, o.Type}).IsUnique();
             });

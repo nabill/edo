@@ -18,23 +18,23 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public async Task<Result<SlimNotificationOption>> GetNotificationOptions(NotificationType type, AgentContext agent)
+        public async Task<Result<SlimNotificationOption>> GetNotificationOptions(NotificationTypes type, AgentContext agent)
         {
-            var option = await GetOption(type, agent.AgentId, agent.AgencyId);
+            var options = await GetOptions(type, agent.AgentId, agent.AgencyId);
 
-            return option is null 
+            return options is null 
                 ? GetDefaultOption(type) 
-                : new SlimNotificationOption {EnabledProtocols = option.EnabledProtocols, IsMandatory = option.IsMandatory};
+                : new SlimNotificationOption {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
 
-        public Task<Result> Update(NotificationType type, SlimNotificationOption option, AgentContext agentContext)
+        public Task<Result> Update(NotificationTypes type, SlimNotificationOption option, AgentContext agentContext)
         {
-            return CheckMandatory()
+            return Validate()
                 .Bind(SaveOption);
 
 
-            Result<SlimNotificationOption> CheckMandatory()
+            Result<SlimNotificationOption> Validate()
             {
                 var defaultOption = GetDefaultOption(type);
                 if (defaultOption.IsFailure)
@@ -49,11 +49,11 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
             async Task<Result> SaveOption(SlimNotificationOption defaultOption)
             {
-                var entity = await GetOption(type, agentContext.AgentId, agentContext.AgencyId);
+                var entity = await GetOptions(type, agentContext.AgentId, agentContext.AgencyId);
 
                 if (entity is null)
                 {
-                    _context.NotificationOptions.Add(new NotificationOption
+                    _context.NotificationOptions.Add(new NotificationOptions
                     {
                         AgentId = agentContext.AgentId,
                         AgencyId = agentContext.AgencyId,
@@ -73,27 +73,27 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private Result<SlimNotificationOption> GetDefaultOption(NotificationType type) => 
+        private Result<SlimNotificationOption> GetDefaultOption(NotificationTypes type) => 
             _defaultOptions.TryGetValue(type, out var value) 
                 ? value 
                 : Result.Failure<SlimNotificationOption>($"Cannot find options for type '{type}'");
 
 
-        private Task<NotificationOption> GetOption(NotificationType type, int agentId, int agencyId) 
+        private Task<NotificationOptions> GetOptions(NotificationTypes type, int agentId, int agencyId) 
             => _context.NotificationOptions
                 .SingleOrDefaultAsync(o => o.AgencyId == agencyId && o.AgentId == agentId && o.Type == type);
 
 
-        private readonly Dictionary<NotificationType, SlimNotificationOption> _defaultOptions = new()
+        private readonly Dictionary<NotificationTypes, SlimNotificationOption> _defaultOptions = new()
         {
-            {NotificationType.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationType.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationType.DeadlineApproaching, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationType.SuccessfulPaymentReceipt, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationType.BookingDuePayment, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationType.BookingCancelled, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationType.BookingFinalized, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationType.BookingStatusChanged, new() {EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationTypes.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationTypes.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationTypes.DeadlineApproaching, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationTypes.SuccessfulPaymentReceipt, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
+            {NotificationTypes.BookingDuePaymentDate, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationTypes.BookingCancelled, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationTypes.BookingFinalized, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
+            {NotificationTypes.BookingStatusChanged, new() {EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false}},
         };
 
 
