@@ -253,8 +253,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Where(c => c.CounterpartyId == counterpartyId)
                 .Select(c => new CounterpartyAccountInfo
                 {
+                    Id = c.Id,
                     Currency = c.Currency,
-                    Id = c.Id
+                    Balance = c.Balance
                 })
                 .ToListAsync();
         }
