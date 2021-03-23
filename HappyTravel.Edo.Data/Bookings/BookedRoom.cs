@@ -12,13 +12,15 @@ namespace HappyTravel.Edo.Data.Bookings
         {
         }
         
-        public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan, 
-            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails, List<Passenger> passengers,
+        public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan,
+            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails,
+            List<Passenger> passengers, bool isAdvancePurchaseRate,
             string supplierRoomReferenceCode)
         {
             Type = type;
             Passengers = passengers;
             SupplierRoomReferenceCode = supplierRoomReferenceCode;
+            IsAdvancePurchaseRate = isAdvancePurchaseRate;
             IsExtraBedNeeded = isExtraBedNeeded;
             Price = price;
             BoardBasis = boardBasis;
@@ -33,7 +35,7 @@ namespace HappyTravel.Edo.Data.Bookings
 
         public BookedRoom(BookedRoom room, string supplierRoomReferenceCode) : this(room.Type, room.IsExtraBedNeeded, room.Price,
             room.BoardBasis, room.MealPlan, room.DeadlineDate, room.ContractDescription, room.Remarks, room.DeadlineDetails, room.Passengers,
-            supplierRoomReferenceCode)
+            room.IsAdvancePurchaseRate, supplierRoomReferenceCode)
         { }
         
 
@@ -48,5 +50,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public MoneyAmount Price { get; set;}
         public List<Passenger> Passengers { get; set;}
         public string SupplierRoomReferenceCode { get; set;}
+        public bool IsAdvancePurchaseRate { get; set; }
     }
 }

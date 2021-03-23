@@ -179,6 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                             r.Remarks,
                             r.Deadline,
                             GetCorrespondingPassengers(number),
+                            r.IsAdvancePurchaseRate,
                             string.Empty))
                     .ToList();
 
