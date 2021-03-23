@@ -1,16 +1,17 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 
@@ -228,6 +229,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
+        
+        
+        
+        /// <summary>
+        /// Gets a list of counterparty accounts
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        [HttpGet("counterparties/{counterpartyId}/accounts")]
+        [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int)HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetAccounts(int counterpartyId) 
+            => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
 
 
         private readonly IAgencyAccountService _agencyAccountService;

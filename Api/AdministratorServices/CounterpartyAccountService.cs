@@ -1,13 +1,14 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -243,6 +244,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return account;
             }
+        }
+
+
+        public Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId)
+        {
+            return _context.CounterpartyAccounts
+                .Where(c => c.CounterpartyId == counterpartyId)
+                .Select(c => new CounterpartyAccountInfo
+                {
+                    Currency = c.Currency,
+                    Id = c.Id
+                })
+                .ToListAsync();
         }
 
 

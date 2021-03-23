@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Money.Enums;
@@ -20,5 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> IncreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user);
 
         Task<Result> DecreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user);
+        
+        Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId);
     }
 }
