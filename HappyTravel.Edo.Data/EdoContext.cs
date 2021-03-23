@@ -95,6 +95,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
         public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationOptions> NotificationOptions { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -263,6 +264,7 @@ namespace HappyTravel.Edo.Data
             BuildDisplayMarkupFormulas(builder);
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
+            BuildNotificationOptions(builder);
         }
 
 
@@ -895,6 +897,15 @@ namespace HappyTravel.Edo.Data
                 b.Property(n => n.SendingSettings).HasColumnType("jsonb");
                 b.HasIndex(n => n.UserId);
                 b.HasIndex(n => n.IsRead);
+            });
+        }
+
+
+        private static void BuildNotificationOptions(ModelBuilder builder)
+        {
+            builder.Entity<NotificationOptions>(b =>
+            {
+                b.HasIndex(o => new {o.AgencyId, o.AgentId, o.Type}).IsUnique();
             });
         }
 
