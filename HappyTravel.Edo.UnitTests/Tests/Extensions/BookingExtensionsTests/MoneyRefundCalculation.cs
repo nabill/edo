@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Api.Extensions;
+using System.Globalization;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
@@ -140,10 +140,36 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
             Assert.Equal(expectedPenalty, cancellationPenalty.Amount);
         }
+        
+        
+        [Theory]
+        [InlineData("2019/01/01")]
+        [InlineData("2021/01/01")]
+        public void Advance_purchase_rate_rooms_should_refund_nothing_ignoring_policies(string deadline)
+        {
+            var deadlineDate = DateTime.ParseExact(deadline, "yyyy/MM/dd", CultureInfo.InvariantCulture);
+            _booking.Rooms = new List<BookedRoom>
+            {
+                MakeBookedRoom(
+                    deadline: new Deadline(
+                        deadlineDate,
+                        new List<CancellationPolicy>
+                        {
+                            new(fromDate: deadlineDate, 72.00)
+                        }, null, true),
+                    price: new MoneyAmount(100m, Currencies.USD),
+                    isAdvancePurchaseRate: true)
+            };
+            var forDate = new DateTime(2020, 2, 2);
+
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
+
+            Assert.Equal(100m, cancellationPenalty.Amount);
+        }
 
 
-        private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy>? policies = null) =>
-            new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(), default);
+        private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy>? policies = null, bool isAdvancePurchaseRate = false) =>
+            new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(), isAdvancePurchaseRate, default);
 
 
         private readonly Booking _booking = new Booking{Currency = Currencies.USD};
