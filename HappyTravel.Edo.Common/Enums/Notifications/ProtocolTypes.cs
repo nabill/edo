@@ -1,8 +1,10 @@
+using System;
+
 namespace HappyTravel.Edo.Common.Enums.Notifications
 {
+    [Flags]
     public enum ProtocolTypes
     {
-        None = 0,
         WebSocket = 1,
         Email = 2
     }
