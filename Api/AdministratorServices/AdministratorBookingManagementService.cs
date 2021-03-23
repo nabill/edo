@@ -34,7 +34,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
                 { 
                     ChangeSource = ChangeSources.Administrator,
-                    ChangeEvent = BookingChangeEvents.Discarded
+                    ChangeEvent = BookingChangeEvents.Discarded,
+                    ChangeReason = "Discarded by the administrator"
                 });
         }
 
@@ -46,7 +47,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             
             Task<Result> ProcessRefresh(Booking booking) 
-                => _managementService.RefreshStatus(booking, admin.ToUserInfo());
+                => _managementService.RefreshStatus(booking, admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Supplier,
+                    ChangeEvent = BookingChangeEvents.Refresh,
+                    ChangeReason = "Updated on request to the supplier by the administrator"
+                });
         }
 
 

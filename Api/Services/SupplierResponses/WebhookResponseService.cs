@@ -23,7 +23,11 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
-            await _responseProcessor.ProcessResponse(bookingDetails);
+            await _responseProcessor.ProcessResponse(bookingDetails, new Data.Bookings.BookingChangeReason 
+            { 
+                ChangeSource = ChangeSources.Supplier,
+                ChangeEvent = BookingChangeEvents.ResponseFromSupplier
+            });
             return Result.Success();
         }
 

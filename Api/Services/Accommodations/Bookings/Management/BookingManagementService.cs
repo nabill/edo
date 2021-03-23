@@ -68,14 +68,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             async Task<Result> ProcessCancellation(Booking b)
             {
-                await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user, new BookingChangeReason 
-                { 
-                    ChangeSource = ChangeSources.System,
-                    ChangeEvent = BookingChangeEvents.Cancel  // TODO: Information is required where the method Cancel is called from
-                });
+                var changeReason = new BookingChangeReason
+                {
+                    ChangeSource = ChangeSources.System,    // TODO: Information is required where the method Cancel is called from
+                    ChangeEvent = BookingChangeEvents.Cancel  
+                };
+
+                await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user, changeReason);
 
                 return b.UpdateMode == BookingUpdateModes.Synchronous
-                    ? await RefreshStatus(b, user)
+                    ? await RefreshStatus(b, user, changeReason)
                     : Result.Success();
             }
 
@@ -89,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
 
-        public async Task<Result> RefreshStatus(Booking booking, UserInfo user)
+        public async Task<Result> RefreshStatus(Booking booking, UserInfo user, BookingChangeReason changeReason)
         {
             var oldStatus = booking.Status;
             var referenceCode = booking.ReferenceCode;
@@ -105,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return Result.Failure(getDetailsError.Detail);
             }
 
-            await _responseProcessor.ProcessResponse(newDetails);
+            await _responseProcessor.ProcessResponse(newDetails, changeReason);
 
             _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status for a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");

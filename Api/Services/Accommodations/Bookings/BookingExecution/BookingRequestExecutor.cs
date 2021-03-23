@@ -119,7 +119,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             {
                 if (responseResult.IsSuccess)
                 {
-                    await _responseProcessor.ProcessResponse(responseResult.Value);
+                    await _responseProcessor.ProcessResponse(responseResult.Value, new Data.Bookings.BookingChangeReason 
+                    { 
+                        ChangeSource = ChangeSources.System,
+                        ChangeEvent = BookingChangeEvents.Finalize
+                    });
                 }
                 else
                 {

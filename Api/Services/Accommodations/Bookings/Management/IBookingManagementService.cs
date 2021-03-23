@@ -12,6 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         Task<Result> Cancel(Booking booking, UserInfo user);
         
-        Task<Result> RefreshStatus(Booking booking, UserInfo user);
+        Task<Result> RefreshStatus(Booking booking, UserInfo user, BookingChangeReason changeReason);
     }
 }

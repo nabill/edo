@@ -105,7 +105,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 
                 if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
-                    var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc);
+                    var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc, 
+                        new BookingChangeReason 
+                        { 
+                            ChangeSource = ChangeSources.System,
+                            ChangeEvent = BookingChangeEvents.Charge
+                        });
                     if (isRefreshingFailure)
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         }
         
         
-        public async Task ProcessResponse(Booking bookingResponse)
+        public async Task ProcessResponse(Booking bookingResponse, Data.Bookings.BookingChangeReason changeReason)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(bookingResponse.ReferenceCode);
             if (isFailure)
@@ -63,11 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 bookingResponse.Rooms);
             
             var (_, isUpdateFailure, updateError) 
-                = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
-                { 
-                    ChangeSource = ChangeSources.None,  // TODO: Need set source and event later
-                    ChangeEvent = BookingChangeEvents.None
-                });
+                = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, changeReason);
             if (isUpdateFailure)
             {
                 _logger.LogBookingResponseProcessFailure(updateError);

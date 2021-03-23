@@ -13,6 +13,8 @@ namespace HappyTravel.Edo.Common.Enums
         ConfirmManually = 4,
         Charge = 5,
         Finalize = 6,
-        Cancel = 7
+        Cancel = 7,
+        Refresh = 8,
+        ResponseFromSupplier = 9
     }
 }
