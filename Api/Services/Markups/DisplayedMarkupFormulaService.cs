@@ -122,10 +122,28 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result> UpdateGlobalFormula()
         {
-            // TODO: implement saving global markup formulas
-            // Now we can't saving formula without counterpartyId because counterpartyId is not nullable
-            // https://github.com/happy-travel/edo/issues/551
-            return await Task.FromResult(Result.Success());
+            var displayedMarkupFormula = await _context.DisplayMarkupFormulas
+                .SingleOrDefaultAsync(f => f.CounterpartyId == null && f.AgencyId == null && f.AgentId == null);
+            
+            var formula = await GetGlobalMarkupFormula();
+            if (displayedMarkupFormula is null)
+            {
+                _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
+                {
+                    CounterpartyId = null,
+                    AgencyId = null,
+                    AgentId = null,
+                    DisplayFormula = formula
+                });
+            }
+            else
+            {
+                displayedMarkupFormula.DisplayFormula = formula;
+                _context.DisplayMarkupFormulas.Update(displayedMarkupFormula);
+            }
+
+            await _context.SaveChangesAsync();
+            return Result.Success();
         }
 
 
