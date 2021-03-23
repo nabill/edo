@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         {
             return code switch
             {
-                BookingStatusCodes.InternalProcessing => BookingStatuses.InternalProcessing,
+                BookingStatusCodes.InternalProcessing => BookingStatuses.WaitingForResponse,
                 BookingStatusCodes.WaitingForResponse => BookingStatuses.Pending,
                 BookingStatusCodes.Pending => BookingStatuses.Pending,
                 BookingStatusCodes.Confirmed => BookingStatuses.Confirmed,
