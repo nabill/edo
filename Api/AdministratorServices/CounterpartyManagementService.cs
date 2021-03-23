@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 join c in _context.Countries on cp.CountryCode equals c.Code
                 join formula in _context.DisplayMarkupFormulas on new
                 {
-                    cp.Id,
+                    Id = (int?) cp.Id,
                     AgencyId = (int?) null,
                     AgentId = (int?) null
                 } equals new
