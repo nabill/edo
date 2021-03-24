@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 { 
                     ChangeSource = ChangeSources.Administrator,
                     ChangeEvent = BookingChangeEvents.Discarded,
-                    ChangeReason = "Discarded by the administrator"
+                    ChangeReason = "Discarded by an administrator"
                 });
         }
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 { 
                     ChangeSource = ChangeSources.Supplier,
                     ChangeEvent = BookingChangeEvents.Refresh,
-                    ChangeReason = "Updated on request to the supplier by the administrator"
+                    ChangeReason = "Updated on request to the supplier by an administrator"
                 });
         }
 
