@@ -424,6 +424,12 @@
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.GetAccounts(System.Int32)">
+            <summary>
+            Gets a list of counterparty accounts
+            </summary>
+            <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns supplier wise direct connectivity report
