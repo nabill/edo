@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CodeProcessors.TagProcessorTe
         {
             var dbContext = CreateDbContextWithDuplicateItnValidation();
             
-            var tagProcessor = new TagProcessor(dbContext, Options.Create(new BookingOptions()));
+            var tagProcessor = new TagProcessor(dbContext, Options.Create(new TagProcessingOptions()));
             while (_currentItn < MaxItnNumbersCount)
             {
                 await tagProcessor.GenerateItn();
@@ -50,11 +50,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CodeProcessors.TagProcessorTe
         }
 
 
-        [InlineData("DEV", ServiceTypes.HTL, "ABC", "DEV-HTL-ABC-000001-00")]
-        [InlineData(null, ServiceTypes.HTL, "BCA", "HTL-BCA-000001-00")]
-        [InlineData("STG", ServiceTypes.HTL, "CBA", "STG-HTL-CBA-000001-00")]
+        [InlineData("DEV", "DEV-HTL-ABC-000001")]
+        [InlineData(null, "HTL-ABC-000001")]
+        [InlineData("STG", "STG-HTL-ABC-000001")]
         [Theory]
-        public async Task Generated_reference_codes_should_equals(string prefix, ServiceTypes serviceType, string destinationCode, string result)
+        public async Task Generated_reference_codes_should_be_valid(string prefix, string result)
         {
             var context = MockEdoContextFactory.Create();
             context.Setup(e => e.GenerateNextItnMember(It.IsAny<string>()))
@@ -62,31 +62,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CodeProcessors.TagProcessorTe
             context.Setup(e => e.RegisterItn(It.IsAny<string>()))
                 .Returns(() => Task.CompletedTask);
             
-            var tagProcessor = new TagProcessor(context.Object, Options.Create(new BookingOptions
+            var tagProcessor = new TagProcessor(context.Object, Options.Create(new TagProcessingOptions
             {
                 ReferenceCodePrefix = prefix
             }));
             
             var itn = await tagProcessor.GenerateItn();
 
-            var referenceCode = await tagProcessor.GenerateReferenceCode(serviceType, destinationCode, itn);
-            Assert.Equal(referenceCode, result);
-        }
-
-        [InlineData("DEV-HTL-ABC-000001-00", "DEV")]
-        [InlineData("HTL-BCA-000001-00", null)]
-        [InlineData("STG-HTL-CBA-000001-00", "STG")]
-        [Theory]
-        public void Get_itn_from_reference_code_should_success(string referenceCode, string prefix)
-        {
-            var context = MockEdoContextFactory.Create();
-            var tagProcessor = new TagProcessor(context.Object, Options.Create(new BookingOptions
-            {
-                ReferenceCodePrefix = prefix
-            }));
+            var sequentialReferenceCode = await tagProcessor.GenerateReferenceCode(ServiceTypes.HTL, "ABC", itn);
+            var nonSequentialReferenceCode = await tagProcessor.GenerateNonSequentialReferenceCode(ServiceTypes.HTL, "ABC");
             
-            Assert.True(tagProcessor.TryGetItnFromReferenceCode(referenceCode, out var result));
-            Assert.Equal("000001", result);
+            Assert.Equal($"{result}-00", sequentialReferenceCode);
+            Assert.Equal(result, nonSequentialReferenceCode);
+
+            Assert.True(tagProcessor.TryGetItnFromReferenceCode(sequentialReferenceCode, out var r));
+            Assert.Equal(itn, r);
+            
+            Assert.True(tagProcessor.TryGetItnFromReferenceCode(nonSequentialReferenceCode, out r));
+            Assert.Equal(itn, r);
         }
         
         

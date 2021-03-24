@@ -11,10 +11,10 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
 {
     internal class TagProcessor : ITagProcessor
     {
-        public TagProcessor(EdoContext context, IOptions<BookingOptions> bookingOptions)
+        public TagProcessor(EdoContext context, IOptions<TagProcessingOptions> tagProcessingOptions)
         {
             _context = context;
-            _bookingOptions = bookingOptions.Value;
+            _tagProcessingOptions = tagProcessingOptions.Value;
         }
 
 
@@ -23,14 +23,14 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
             var currentNumber = await _context.GenerateNextItnMember(itineraryNumber);
             var values = new List<string>
             {
-                _bookingOptions.ReferenceCodePrefix,
+                _tagProcessingOptions.ReferenceCodePrefix,
                 serviceType.ToString(),
                 destinationCode,
                 itineraryNumber,
                 currentNumber.ToString("D2")
             };
 
-            return string.Join(ReferenceCodeItemsSeparator, values.Where(v => v is not null));
+            return string.Join(ReferenceCodeItemsSeparator, values.Where(v => !string.IsNullOrEmpty(v)));
         }
 
 
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
             if (referenceCodeItems.Length < 3)
                 return false;
 
-            var position = string.IsNullOrEmpty(_bookingOptions.ReferenceCodePrefix) ? 2 : 3;
+            var position = string.IsNullOrEmpty(_tagProcessingOptions.ReferenceCodePrefix) ? 2 : 3;
             itn = referenceCodeItems[position];
             return true;
         }
@@ -54,10 +54,15 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
         public async Task<string> GenerateNonSequentialReferenceCode(ServiceTypes serviceType, string destinationCode)
         {
             var itineraryNumber = await GenerateItn();
-
-            return string.Join(ReferenceCodeItemsSeparator, serviceType,
+            var values = new List<string>
+            {
+                _tagProcessingOptions.ReferenceCodePrefix,
+                serviceType.ToString(),
                 destinationCode,
-                itineraryNumber);
+                itineraryNumber
+            };
+
+            return string.Join(ReferenceCodeItemsSeparator, values.Where(v => !string.IsNullOrEmpty(v)));
         }
 
 
@@ -133,6 +138,6 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
             .ToArray();
 
         private readonly EdoContext _context;
-        private readonly BookingOptions _bookingOptions;
+        private readonly TagProcessingOptions _tagProcessingOptions;
     }
 }
