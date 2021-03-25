@@ -283,7 +283,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var bookingOptions = vaultClient.Get(configuration["Edo:Booking:Options"]).GetAwaiter().GetResult();
             services.Configure<BookingOptions>(options =>
             {
-                options.DisableStatusUpdateForSuppliers = JsonConvert.DeserializeObject<List<Suppliers>>(bookingOptions["disableStatusUpdateForSuppliers"]);
+                options.DisableStatusUpdateForSuppliers = bookingOptions["disableStatusUpdateForSuppliers"]
+                    .Split(';')
+                    .Select(c => c.Trim())
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(Enum.Parse<Suppliers>)
+                    .ToList();
             });
 
             #endregion
