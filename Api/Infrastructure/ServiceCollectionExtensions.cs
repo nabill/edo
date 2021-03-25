@@ -267,6 +267,31 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             
             #endregion
+            
+            #region tag processing options
+            
+            var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
+            services.Configure<TagProcessingOptions>(options =>
+            {
+                options.ReferenceCodePrefix = tagProcessingOptions["referenceCodePrefix"];
+            });
+            
+            #endregion
+
+            #region booking options
+
+            var bookingOptions = vaultClient.Get(configuration["Edo:Booking:Options"]).GetAwaiter().GetResult();
+            services.Configure<BookingOptions>(options =>
+            {
+                options.DisableStatusUpdateForSuppliers = bookingOptions["disableStatusUpdateForSuppliers"]
+                    .Split(';')
+                    .Select(c => c.Trim())
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(Enum.Parse<Suppliers>)
+                    .ToList();
+            });
+
+            #endregion
 
             var databaseOptions = vaultClient.Get(configuration["Edo:Database:Options"]).GetAwaiter().GetResult();
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
