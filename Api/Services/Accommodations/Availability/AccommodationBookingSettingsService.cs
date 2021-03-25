@@ -57,6 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isMarkupDisabled = default;
             bool isSupplierVisible = default;
             bool areTagsVisible = default;
+            bool canSearchOnlyDirectContracts = default;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
@@ -85,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
                 isSupplierVisible = agentSettingsValue.IsSupplierVisible;
                 areTagsVisible = agentSettingsValue.AreTagsVisible;
+                canSearchOnlyDirectContracts = agentSettingsValue.CanSearchOnlyDirectContracts;
             }
 
 
@@ -96,6 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
                 isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
                 areTagsVisible = areTagsVisible || agencySettingsValue.AreTagsVisible;
+                canSearchOnlyDirectContracts = canSearchOnlyDirectContracts || agencySettingsValue.CanSearchOnlyDirectContracts;
             }
         }
 
