@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string MarkupFormula { get; }
 
         /// <summary>
-        /// 
+        /// Counterparty verification date
         /// </summary>
         public DateTime? VerificationDate { get; }
     }
