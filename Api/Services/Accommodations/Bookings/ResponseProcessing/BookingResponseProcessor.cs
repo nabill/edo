@@ -52,16 +52,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            if (bookingResponse.Status.ToInternalStatus() == booking.Status)
-            {
-                _logger.LogBookingResponseProcessSuccess(
-                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No changes applied");
-                return;
-            }
-
             await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
                 bookingResponse.Rooms);
             
+            if (bookingResponse.Status.ToInternalStatus() == booking.Status)
+            {
+                _logger.LogBookingResponseProcessSuccess(
+                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No status changes applied");
+                return;
+            }
+
             var (_, isUpdateFailure, updateError) 
                 = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
                 { 
