@@ -52,6 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
+            await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
+                bookingResponse.Rooms);
+            
             if (bookingResponse.Status.ToInternalStatus() == booking.Status)
             {
                 _logger.LogBookingResponseProcessSuccess(
@@ -59,9 +62,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
-                bookingResponse.Rooms);
-            
             var (_, isUpdateFailure, updateError) 
                 = await _recordsUpdater.ChangeStatus(booking, bookingResponse.Status.ToInternalStatus(), _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
                 { 
