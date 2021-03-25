@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agencies;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -27,12 +26,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public AgenciesController(IAgencyService agencyService,
             IAgentContextService agentContextService,
             IAgentInvitationCreateService agentInvitationCreateService,
-            IAgencyManagementService agencyManagementService)
+            IAgencyManagementService agencyManagementService,
+            IAgentInvitationAcceptService agentInvitationAcceptService,
+            IHttpClientFactory httpClientFactory,
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _agencyService = agencyService;
             _agentContextService = agentContextService;
             _agentInvitationCreateService = agentInvitationCreateService;
             _agencyManagementService = agencyManagementService;
+            _agentInvitationAcceptService = agentInvitationAcceptService;
+            _httpClientFactory = httpClientFactory;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
 
@@ -107,8 +112,30 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(code);
         }
-        
-        
+
+
+        /// <summary>
+        ///     Accepts invitation to create child agency.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("agency/invitations/{invitationCode}/accept")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AcceptChildAgencyInvite([FromBody] UserInvitationData request, [FromRoute] string invitationCode)
+        {
+            var identity = _tokenInfoAccessor.GetIdentity();
+            if (string.IsNullOrWhiteSpace(identity))
+                return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
+
+            var (_, isFailure, error) = await _agentInvitationAcceptService.Accept(invitationCode, request, identity);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
         /// <summary>
         ///  Deactivates specified agency.
         /// </summary>
@@ -152,6 +179,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgencyService _agencyService;
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
+        private readonly IAgentInvitationAcceptService _agentInvitationAcceptService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgencyManagementService _agencyManagementService;
     }
 }
