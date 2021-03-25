@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             if (result == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
-            return Result.Success(new CounterpartyInfo(
+            return new CounterpartyInfo(
                 result.Counterparty.Id,
                 result.Counterparty.Name,
                 result.Counterparty.Address,
@@ -166,7 +166,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 result.Counterparty.Website,
                 result.Counterparty.VatNumber,
                 result.Counterparty.BillingEmail,
-                result.Counterparty.IsContractUploaded));
+                result.Counterparty.IsContractUploaded,
+                result.Counterparty.State,
+                result.Counterparty.Verified);
         }
 
         
