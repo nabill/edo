@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             if (bookingResponse.Status.ToInternalStatus() == booking.Status)
             {
                 _logger.LogBookingResponseProcessSuccess(
-                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No changes applied");
+                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No status changes applied");
                 return;
             }
 
