@@ -278,8 +278,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             #endregion
 
-            services.Configure<BookingOptions>(configuration.GetSection("Edo:Booking"));
-            
+            #region booking options
+
+            var bookingOptions = vaultClient.Get(configuration["Edo:Booking:Options"]).GetAwaiter().GetResult();
+            services.Configure<BookingOptions>(options =>
+            {
+                options.DisableStatusUpdateForSuppliers = JsonConvert.DeserializeObject<List<Suppliers>>(bookingOptions["disableStatusUpdateForSuppliers"]);
+            });
+
+            #endregion
+
             var databaseOptions = vaultClient.Get(configuration["Edo:Database:Options"]).GetAwaiter().GetResult();
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
