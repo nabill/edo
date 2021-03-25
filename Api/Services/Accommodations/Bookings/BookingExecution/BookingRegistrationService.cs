@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             {
                 booking.Nationality = bookingRequestInternal.Nationality;
                 booking.Residency = bookingRequestInternal.Residency;
-                booking.MainPassengerName = bookingRequestInternal.MainPassengerName;
+                booking.MainPassengerName = bookingRequestInternal.MainPassengerName.Trim();
             }
 
             void AddServiceDetails()
