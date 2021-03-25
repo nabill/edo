@@ -278,6 +278,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             #endregion
 
+            services.Configure<BookingOptions>(configuration.GetSection("Edo:Booking"));
+            
             var databaseOptions = vaultClient.Get(configuration["Edo:Database:Options"]).GetAwaiter().GetResult();
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
