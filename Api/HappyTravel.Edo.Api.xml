@@ -477,6 +477,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData,System.String)">
+            <summary>
+                Accepts invitation to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.DeactivateAgency(System.Int32)">
             <summary>
              Deactivates specified agency.
