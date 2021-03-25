@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -21,12 +23,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IDoubleFlow flow, 
             IDateTimeProvider dateTimeProvider, 
             IBookingManagementService bookingManagement,
-            EdoContext context)
+            EdoContext context,
+            IOptions<BookingOptions> bookingOptions)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
             _bookingManagement = bookingManagement;
             _context = context;
+            _bookingOptions = bookingOptions.Value;
         }
 
 
@@ -115,7 +119,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 .Where(b => 
                     !excludedIds.Contains(b.Id) &&
                     b.CheckInDate > now &&
-                    BookingStatusesForRefresh.Contains(b.Status))
+                    BookingStatusesForRefresh.Contains(b.Status) &&
+                    !_bookingOptions.DisableStatusUpdateForSuppliers.Contains(b.Supplier))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -213,5 +218,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingManagementService _bookingManagement;
         private readonly EdoContext _context;
+        private readonly BookingOptions _bookingOptions;
     }
 }
