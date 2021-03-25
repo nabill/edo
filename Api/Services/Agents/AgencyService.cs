@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -23,15 +23,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent)
+        public async Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             var agentRelations = await _agentService.GetAgentRelations(agent);
             if (agentRelations.All(r => r.AgencyId != agencyId))
                 return Result.Failure<AgencyInfo>("The agent is not affiliated with agency");
 
-            var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
+            var agencyInfo = await _agencyManagementService.Get(agencyId, languageCode);
 
-            return Result.Success(new AgencyInfo(agency.Name, agency.Id, agency.CounterpartyId));
+            return Result.Success(agencyInfo.Value);
         }
 
 

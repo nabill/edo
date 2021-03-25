@@ -5,18 +5,16 @@ using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Edo.Data.Locations;
-using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -33,28 +31,21 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId)
         {
-            var counterpartyData = await (from cp in _context.Counterparties
-                join c in _context.Countries
-                    on cp.CountryCode equals c.Code
-                where cp.Id == counterpartyId
-                select new
-                {
-                    Counterparty = cp,
-                    Country = c
-                }).SingleOrDefaultAsync();
-            if (counterpartyData == default)
+            var counterparty = await _context.Counterparties
+                .Where(cp => cp.Id == counterpartyId)
+                .SingleOrDefaultAsync();
+            if (counterparty == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
-            return ToCounterpartyInfo(counterpartyData.Counterparty, counterpartyData.Country, languageCode);
+            return ToCounterpartyInfo(counterparty);
         }
 
 
-        public async Task<List<CounterpartyInfo>> Get(string languageCode)
+        public async Task<List<CounterpartyInfo>> Get()
         {
             var counterparties = await (from cp in _context.Counterparties
-                join c in _context.Countries on cp.CountryCode equals c.Code
                 join formula in _context.DisplayMarkupFormulas on new
                 {
                     Id = (int?) cp.Id,
@@ -70,11 +61,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 select new
                 {
                     Counterparty = cp,
-                    Country = c,
                     MarkupFormula = markupFormula == null ? null : markupFormula.DisplayFormula
                 }).ToListAsync();
 
-            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode, c.MarkupFormula)).ToList();
+            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.MarkupFormula)).ToList();
         }
 
 
@@ -90,26 +80,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         && !string.IsNullOrEmpty(c.Name) && c.Name.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.FirstName) && a.FirstName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.LastName) && a.LastName.ToLower().StartsWith(query.ToLower())
-                            || !string.IsNullOrEmpty(c.BillingEmail) && c.BillingEmail.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.Email) && a.Email.ToLower().StartsWith(query.ToLower())
-                    select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, c.BillingEmail ?? a.Email))
+                    select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, a.Email))
                 .Distinct()
                 .ToListAsync();
 
 
-        public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
-        {
-            return GetCounterparty(counterpartyId)
-                .Map(counterparty => GetAgencies());
+        public Task<List<AgencyInfo>> GetAllCounterpartyAgencies(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+        => (
+                from a in _context.Agencies
+                join c in _context.Countries on a.CountryCode equals c.Code
+                where a.CounterpartyId == counterpartyId
+                select a.ToAgencyInfo(c.Names, languageCode))
+            .ToListAsync();
 
 
-            Task<List<AgencyInfo>> GetAgencies()
-                => _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
-                    .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId)).ToListAsync();
-        }
-
-
-        public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId, string languageCode)
+        public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId)
         {
             return GetCounterparty(counterpartyId)
                 .Bind(UpdateCounterparty);
@@ -117,29 +103,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
             {
-                var (_, isFailure, error) = CounterpartyValidator.Validate(changedCounterpartyInfo);
-                if (isFailure)
-                    return Result.Failure<CounterpartyInfo>(error);
-
-                counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
-                counterpartyToUpdate.City = changedCounterpartyInfo.City;
-                counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
-                counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                if (string.IsNullOrWhiteSpace(changedCounterpartyInfo.Name))
+                    return Result.Failure<CounterpartyInfo>("Name must not be empty");
+                
                 counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
-                counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
-                counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
-                counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                // Hardcoded because only USD is supported
-                counterpartyToUpdate.PreferredCurrency = Currencies.USD;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
                 counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
-                counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
 
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
-                return await Get(counterpartyId, languageCode);
+                return await Get(counterpartyId);
             }
         }
 
@@ -217,21 +192,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
-        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode, string markupFormula = null)
+        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
-                counterparty.Address,
-                counterparty.CountryCode,
-                LocalizationHelper.GetValueFromSerializedString(country.Names, languageCode),
-                counterparty.City,
-                counterparty.Phone,
-                counterparty.Fax,
-                counterparty.PostalCode,
-                counterparty.PreferredCurrency,
                 counterparty.PreferredPaymentMethod,
-                counterparty.Website,
                 counterparty.VatNumber,
-                counterparty.BillingEmail,
                 counterparty.IsContractUploaded);
 
 
