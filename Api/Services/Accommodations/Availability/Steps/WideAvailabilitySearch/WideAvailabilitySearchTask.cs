@@ -215,8 +215,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);
             }
-
-            // TODO: think about how to do so that not need to override
+            
+            
             EdoContracts.General.Enums.SearchFilters ConvertSearchFilters(SearchFilters filters)
             {
                 EdoContracts.General.Enums.SearchFilters resultedFilter = default;
