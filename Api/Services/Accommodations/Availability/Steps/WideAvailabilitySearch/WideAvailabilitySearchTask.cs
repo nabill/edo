@@ -190,13 +190,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges, r.Type, r.IsExtraBedNeeded))
                 .ToList();
 
+            var searchFilters = Convert(request.Filters);
+
             if (request.HtIds is null || !request.HtIds.Any())
             {
                 // Same request for all suppliers
                 // Remove when will support the new flow only
                 return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    ConvertSearchFilters(request.Filters), 
+                    searchFilters | searchSettings.DefaultSearchFilters,
                     roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
                         location.Coordinates, location.Distance,
@@ -210,14 +212,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Residency,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    ConvertSearchFilters(request.Filters),
+                    searchFilters | searchSettings.DefaultSearchFilters,
                     roomDetails,
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);
             }
-            
-            
-            EdoContracts.General.Enums.SearchFilters ConvertSearchFilters(SearchFilters filters)
+
+
+            static EdoContracts.General.Enums.SearchFilters Convert(SearchFilters filters)
             {
                 EdoContracts.General.Enums.SearchFilters resultedFilter = default;
 
@@ -244,9 +246,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                 if (filters.HasFlag(SearchFilters.ExcludeNonRefundable))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeNonRefundable;
-
-                if (searchSettings.CanSearchOnlyDirectContracts)
-                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.DirectContractsOnly;
 
                 return resultedFilter;
             }
