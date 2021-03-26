@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
+using SearchFilters = HappyTravel.Edo.Api.Models.Availabilities.SearchFilters;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
@@ -195,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Remove when will support the new flow only
                 return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    OverrideDirectContractSearchFilter(request.Filters), 
+                    ConvertSearchFilters(request.Filters), 
                     roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
                         location.Coordinates, location.Distance,
@@ -209,16 +210,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Residency,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    OverrideDirectContractSearchFilter(request.Filters),
+                    ConvertSearchFilters(request.Filters),
                     roomDetails,
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);
             }
 
             // TODO: think about how to do so that not need to override
-            SearchFilters OverrideDirectContractSearchFilter(SearchFilters filters) => searchSettings.CanSearchOnlyDirectContracts
-                ? filters | SearchFilters.DirectContractsOnly
-                : filters & ~SearchFilters.DirectContractsOnly;
+            EdoContracts.General.Enums.SearchFilters ConvertSearchFilters(SearchFilters filters)
+            {
+                EdoContracts.General.Enums.SearchFilters resultedFilter = default;
+
+                if (filters.HasFlag(SearchFilters.AvailableOnly))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableOnly;
+
+                if (filters.HasFlag(SearchFilters.AvailableWeighted))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableWeighted;
+
+                if (filters.HasFlag(SearchFilters.BestArrangement))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestArrangement;
+
+                if (filters.HasFlag(SearchFilters.BestContract))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestContract;
+
+                if (filters.HasFlag(SearchFilters.BestPrice))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestPrice;
+
+                if (filters.HasFlag(SearchFilters.ExcludeDynamic))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeDynamic;
+
+                if (filters.HasFlag(SearchFilters.BestRoomPlans))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestRoomPlans;
+
+                if (filters.HasFlag(SearchFilters.ExcludeNonRefundable))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeNonRefundable;
+
+                if (searchSettings.CanSearchOnlyDirectContracts)
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.DirectContractsOnly;
+
+                return resultedFilter;
+            }
         }
 
 
