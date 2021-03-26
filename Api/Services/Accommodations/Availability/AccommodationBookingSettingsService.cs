@@ -75,7 +75,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled, 
                 isSupplierVisible,
                 counterpartySettings.CancellationPolicyProcessSettings,
-                areTagsVisible);
+                areTagsVisible,
+                canSearchOnlyDirectContracts);
 
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)

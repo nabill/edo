@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
-            var connectorRequest = CreateRequest(availabilityRequest, location, accommodationCodeMappings);
+            var connectorRequest = CreateRequest(availabilityRequest, location, accommodationCodeMappings, searchSettings);
 
             try
             {
@@ -181,7 +182,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings)
+        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings,
+            AccommodationBookingSettings searchSettings)
         {
             var roomDetails = request.RoomDetails
                 .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges, r.Type, r.IsExtraBedNeeded))
@@ -193,7 +195,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Remove when will support the new flow only
                 return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters, roomDetails,
+                    OverrideDirectContractSearchFilter(request.Filters), 
+                    roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
                         location.Coordinates, location.Distance,
                         location.Source, location.Type),
@@ -206,11 +209,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Residency,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters,
+                    OverrideDirectContractSearchFilter(request.Filters),
                     roomDetails,
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);
             }
+
+            // TODO: think about how to do so that not need to override
+            SearchFilters OverrideDirectContractSearchFilter(SearchFilters filters) => searchSettings.CanSearchOnlyDirectContracts
+                ? filters | SearchFilters.DirectContractsOnly
+                : filters & ~SearchFilters.DirectContractsOnly;
         }
 
 
