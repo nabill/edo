@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Remove when will support the new flow only
                 return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    searchFilters | searchSettings.DefaultSearchFilters,
+                    searchFilters | searchSettings.AdditionalSearchFilters,
                     roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
                         location.Coordinates, location.Distance,
@@ -212,7 +212,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Residency,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    searchFilters | searchSettings.DefaultSearchFilters,
+                    searchFilters | searchSettings.AdditionalSearchFilters,
                     roomDetails,
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);

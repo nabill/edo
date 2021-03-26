@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -20,6 +21,6 @@ namespace HappyTravel.Edo.Data.Agents
         
         public bool AreTagsVisible { get; set; }
         
-        public bool CanSearchOnlyDirectContracts { get; set; }
+        public SearchFilters AdditionalSearchFilters { get; set; }
     }
 }

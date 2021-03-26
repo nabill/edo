@@ -16,7 +16,5 @@ namespace HappyTravel.Edo.Data.Agents
         public bool IsSupplierVisible { get; set; }
         
         public bool AreTagsVisible { get; set; }
-        
-        public bool CanSearchOnlyDirectContracts { get; set; }
     }
 }

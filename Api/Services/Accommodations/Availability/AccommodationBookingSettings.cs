@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isSupplierVisible,
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings,
             bool areTagsVisible,
-            SearchFilters defaultSearchFilters)
+            SearchFilters additionalSearchFilters)
         {
             CancellationPolicyProcessSettings = cancellationPolicyProcessSettings;
             AreTagsVisible = areTagsVisible;
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode = passedDeadlineOffersMode;
             IsMarkupDisabled = isMarkupDisabled;
             IsSupplierVisible = isSupplierVisible;
-            DefaultSearchFilters = defaultSearchFilters;
+            AdditionalSearchFilters = additionalSearchFilters;
         }
         
         public List<Suppliers> EnabledConnectors { get; }
@@ -33,6 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public bool IsSupplierVisible { get; }
         public CancellationPolicyProcessSettings CancellationPolicyProcessSettings { get; }
         public bool AreTagsVisible { get; }
-        public SearchFilters DefaultSearchFilters { get; }
+        public SearchFilters AdditionalSearchFilters { get; }
     }
 }
