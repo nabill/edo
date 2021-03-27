@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
         
-        public async Task<Result> Cancel(Booking booking, UserInfo user)
+        public async Task<Result> Cancel(Booking booking, UserInfo user, BookingChangeReason changeReason)
         {
             if (booking.Status == BookingStatuses.Cancelled)
             {

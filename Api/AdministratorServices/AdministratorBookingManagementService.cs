@@ -63,7 +63,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 
             
             Task<Result> Cancel(Booking booking) 
-                => _managementService.Cancel(booking, admin.ToUserInfo());
+                => _managementService.Cancel(booking, admin.ToUserInfo(), new BookingChangeReason 
+                { 
+                    ChangeSource = ChangeSources.Supplier,
+                    ChangeEvent = BookingChangeEvents.Cancel,
+                    ChangeReason = "Canceled on request from administrator"
+                });
         }
 
 
