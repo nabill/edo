@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Common.Enums
     public enum BookingChangeEvents
     {
         None = 0,
-        Discarded = 1,
-        CanceledManually = 2,
-        RejectedManually = 3,
+        Discard = 1,
+        CancelManually = 2,
+        RejectManually = 3,
         ConfirmManually = 4,
         Charge = 5,
         Finalize = 6,
