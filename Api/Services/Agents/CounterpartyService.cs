@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         //}
 
 
-        public Task<Agency> GetDefaultAgency(int counterpartyId)
+        public Task<Agency> GetRootAgency(int counterpartyId)
             => _context.Agencies
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
 

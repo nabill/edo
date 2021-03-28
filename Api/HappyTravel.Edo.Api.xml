@@ -424,6 +424,12 @@
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.GetAccounts(System.Int32)">
+            <summary>
+            Gets a list of counterparty accounts
+            </summary>
+            <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns supplier wise direct connectivity report
@@ -468,12 +474,6 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GenerateChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
             <summary>
                 Invites to create child agency.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData,System.String)">
-            <summary>
-                Accepts invitation to create child agency.
             </summary>
             <returns></returns>
         </member>
@@ -1580,17 +1580,67 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
             <summary>
-                Name of the counterparty agency.
+                Name of the agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Id">
             <summary>
-                Id of the counterparty agency.
+                Id of the agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CounterpartyId">
             <summary>
                 Id of the counterparty.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CountryName">
+            <summary>
+            Country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
@@ -1808,39 +1858,19 @@
             Client password
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyCreateRequest.CounterpartyInfo">
+            <summary>
+            Information to create a new counterparty.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyCreateRequest.RootAgencyInfo">
+            <summary>
+            Information to create a root agency for newly created counterparty.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Name">
             <summary>
                 Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Address">
-            <summary>
-                Counterparty address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.CountryCode">
-            <summary>
-                Two-letter international country code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.City">
-            <summary>
-                City name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Phone">
-            <summary>
-                Phone number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Fax">
-            <summary>
-                Fax number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PostalCode">
-            <summary>
-                Postal code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredPaymentMethod">
@@ -1848,19 +1878,9 @@
                 Preferable way to do payments.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Website">
-            <summary>
-                Counterparty site url.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.VatNumber">
             <summary>
             Value added tax identification number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.BillingEmail">
-            <summary>
-            E-mail for billing operations
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Id">
@@ -1873,64 +1893,9 @@
                 Counterparty name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Address">
-            <summary>
-                Counterparty address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.CountryCode">
-            <summary>
-                Two-letter international country code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.CountryName">
-            <summary>
-            Country name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.City">
-            <summary>
-                City name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Phone">
-            <summary>
-                Phone number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Fax">
-            <summary>
-                Fax number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.PostalCode">
-            <summary>
-                Postal code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.PreferredCurrency">
-            <summary>
-                Preferable payments currency.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.PreferredPaymentMethod">
             <summary>
                 Preferable way to do payments.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Website">
-            <summary>
-                Counterparty site url.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VatNumber">
-            <summary>
-            Value added tax identification number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.BillingEmail">
-            <summary>
-            E-mail for billing operations
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsContractUploaded">

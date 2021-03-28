@@ -202,7 +202,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 Name = "Test",
-                CountryCode = "AF",
                 IsActive = true,
                 State = CounterpartyStates.PendingVerification
             },
@@ -210,7 +209,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 2,
                 Name = "Test1",
-                CountryCode = "AF",
                 IsActive = false,
                 State = CounterpartyStates.PendingVerification
             },
@@ -218,7 +216,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 3,
                 Name = "Test",
-                CountryCode = "AF",
                 IsActive = true,
                 State = CounterpartyStates.ReadOnly
             },
@@ -226,7 +223,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 14,
                 Name = "CounterpartyWithBillingEmail",
-                BillingEmail = "predictionsExample@mail.com",
                 State = CounterpartyStates.FullAccess,
                 IsActive = true
             },
@@ -246,6 +242,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 1,
                 CounterpartyId = 1,
                 Name = "agencyName",
+                CountryCode = "AF",
                 IsActive = true
             },
             new Agency
@@ -253,6 +250,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 2,
                 CounterpartyId = 1,
                 Name = "agencyName2",
+                CountryCode = "AF",
+                ParentId = 1,
                 IsActive = true
             },
             new Agency
@@ -260,6 +259,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 3,
                 CounterpartyId = 2,
                 Name = "agencyName3",
+                CountryCode = "AF",
                 IsActive = false
             },
             new Agency
@@ -267,6 +267,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 5,
                 CounterpartyId = 2,
                 Name = "childAgency",
+                CountryCode = "AF",
                 IsActive = false,
                 ParentId = 3
             },
@@ -275,6 +276,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 4,
                 CounterpartyId = 1,
                 Name = "childAgency",
+                CountryCode = "AF",
                 ParentId = 1,
                 IsActive = true
             },
@@ -283,6 +285,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 14,
                 CounterpartyId = 14,
                 Name = "AgencyExampleForPredictions",
+                BillingEmail = "predictionsExample@mail.com",
+                CountryCode = "AF",
                 IsActive = true
             },
             new Agency
@@ -290,6 +294,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 15,
                 CounterpartyId = 15,
                 Name = "AgencyExampleForPredictions1",
+                CountryCode = "AF",
                 IsActive = true
             },
         };

@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                             || !string.IsNullOrEmpty(a.FirstName) && a.FirstName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.LastName) && a.LastName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.Email) && a.Email.ToLower().StartsWith(query.ToLower())
-                    select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, a.Email))
+                    select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, ag.BillingEmail ?? a.Email))
                 .Distinct()
                 .ToListAsync();
 
@@ -109,7 +109,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
-                counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
 
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
@@ -196,7 +195,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.PreferredPaymentMethod,
-                counterparty.VatNumber,
                 counterparty.IsContractUploaded);
 
 
