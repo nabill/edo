@@ -195,7 +195,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.PreferredPaymentMethod,
-                counterparty.IsContractUploaded);
+                counterparty.IsContractUploaded,
+                counterparty.State,
+                counterparty.Verified,
+                markupFormula);
 
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;

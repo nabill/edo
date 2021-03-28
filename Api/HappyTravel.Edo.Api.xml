@@ -477,6 +477,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData,System.String)">
+            <summary>
+                Accepts invitation to create child agency.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.DeactivateAgency(System.Int32)">
             <summary>
              Deactivates specified agency.
@@ -1903,9 +1909,19 @@
             True if contract is loaded to counterparty
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationState">
+            <summary>
+            Verification state of the counterparty
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.MarkupFormula">
             <summary>
             Displayed markup formula
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationDate">
+            <summary>
+            Counterparty verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">

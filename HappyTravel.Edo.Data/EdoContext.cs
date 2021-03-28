@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Data
         public virtual Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
 
 
-        public async Task<int> GenerateNextItnMember(string itn)
+        public async virtual Task<int> GenerateNextItnMember(string itn)
         {
             var entityInfo = this.GetEntityInfo<ItnNumerator>();
             var currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];

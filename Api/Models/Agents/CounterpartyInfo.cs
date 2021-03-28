@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
@@ -9,13 +11,15 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public CounterpartyInfo(int id, string name, PaymentMethods preferredPaymentMethod,
-            bool isContractUploaded, string markupFormula = null)
+            bool isContractUploaded, CounterpartyStates verificationState, DateTime? verificationDate, string markupFormula = null)
         {
             Id = id;
             Name = name;
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
+            VerificationState = verificationState;
             MarkupFormula = markupFormula;
+            VerificationDate = verificationDate;
         }
 
         /// <summary>
@@ -38,11 +42,21 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// True if contract is loaded to counterparty
         /// </summary>
         public bool IsContractUploaded { get; }
-        
-        
+
+        /// <summary>
+        /// Verification state of the counterparty
+        /// </summary>
+        public CounterpartyStates VerificationState { get; }
+
+
         /// <summary>
         /// Displayed markup formula
         /// </summary>
         public string MarkupFormula { get; }
+
+        /// <summary>
+        /// Counterparty verification date
+        /// </summary>
+        public DateTime? VerificationDate { get; }
     }
 }
