@@ -21,6 +21,6 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Phone,
                 agency.PostalCode,
                 agency.Website,
-                agency.PreferredCurrency);
+                agency.VatNumber);
     }
 }

@@ -26,27 +26,33 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<CounterpartyInfo>> Add(CounterpartyCreateRequest request)
         {
-            var (_, isFailure, error) = AgencyValidator.Validate(request);
-            if (isFailure)
-                return Result.Failure<CounterpartyInfo>(error);
+            return await AgencyValidator.Validate(request.RootAgencyInfo)
+                .Map(CreateCounterparty)
+                .Tap(CreateRootAgency)
+                .Bind(c => GetCounterpartyInfo(c.Id));
 
-            var now = _dateTimeProvider.UtcNow();
-            var createdCounterparty = new Counterparty
+
+            async Task<Counterparty> CreateCounterparty()
             {
-                Name = request.Name,
-                PreferredPaymentMethod = request.PreferredPaymentMethod,
-                State = CounterpartyStates.PendingVerification,
-                Created = now,
-                Updated = now
-            };
+                var now = _dateTimeProvider.UtcNow();
+                var createdCounterparty = new Counterparty
+                {
+                    Name = request.CounterpartyInfo.Name,
+                    PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
+                    State = CounterpartyStates.PendingVerification,
+                    Created = now,
+                    Updated = now
+                };
 
-            _context.Counterparties.Add(createdCounterparty);
-            await _context.SaveChangesAsync();
+                _context.Counterparties.Add(createdCounterparty);
+                await _context.SaveChangesAsync();
 
-            await _agencyManagementService.Create(createdCounterparty.Name, createdCounterparty.Id, request.Address, request.BillingEmail,
-                request.City, request.CountryCode, request.Fax, request.Phone, request.PostalCode, request.Website, null);
+                return createdCounterparty;
+            }
 
-            return await GetCounterpartyInfo(createdCounterparty.Id);
+
+            Task CreateRootAgency(Counterparty newCounterparty)
+                => _agencyManagementService.Create(request.RootAgencyInfo, counterpartyId: newCounterparty.Id, parentAgencyId: null);
         }
 
 
@@ -141,7 +147,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 result.Id,
                 result.Name,
                 result.PreferredPaymentMethod,
-                result.VatNumber,
                 result.IsContractUploaded));
         }
 

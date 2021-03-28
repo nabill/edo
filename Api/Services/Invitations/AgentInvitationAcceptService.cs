@@ -132,14 +132,14 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (isGetAgencyFailure)
                     return Result.Failure<AcceptPipeValues>(error);
 
-                var agencyRegInfo = values.InvitationData.ChildAgencyRegistrationInfo;
-                var (_, isValidationFailure, validationError) = AgencyValidator.Validate(agencyRegInfo);
+                var (_, isValidationFailure, validationError) = AgencyValidator.Validate(values.InvitationData.ChildAgencyRegistrationInfo);
                 if (isValidationFailure)
                     return Result.Failure<AcceptPipeValues>(validationError);
 
-                var childAgency = await _agencyManagementService.Create(agencyRegInfo.Name, inviterAgency.CounterpartyId.Value, agencyRegInfo.Address,
-                    agencyRegInfo.BillingEmail, agencyRegInfo.City, agencyRegInfo.CountryCode, agencyRegInfo.Fax, agencyRegInfo.Phone,
-                    agencyRegInfo.PostalCode, agencyRegInfo.Website, inviterAgency.Id);
+                var childAgency = await _agencyManagementService.Create(
+                    values.InvitationData.ChildAgencyRegistrationInfo,
+                    counterpartyId: inviterAgency.CounterpartyId.Value,
+                    parentAgencyId: inviterAgency.Id);
 
                 values.AgencyName = childAgency.Name;
                 values.AgencyId = childAgency.Id.Value;

@@ -1,7 +1,6 @@
 using System;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -15,7 +14,6 @@ namespace HappyTravel.Edo.Data.Agents
         public string VerificationReason { get; set; }
         public DateTime? Verified { get; set; }
         public DateTime Updated { get; set; }
-        public string VatNumber { get; set; }
         public bool IsActive { get; set; }
         public bool IsContractUploaded { get; set; }
         public CounterpartyContractKind? ContractKind { get; set; }

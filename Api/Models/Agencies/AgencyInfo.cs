@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -8,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, Currencies preferredCurrency)
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber)
         {
             Name = name;
             Id = id;
@@ -22,6 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Phone = phone;
             PostalCode = postalCode;
             Website = website;
+            VatNumber = vatNumber;
         }
 
 
@@ -88,6 +88,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// E-mail for billing operations
         /// </summary>
         public string BillingEmail { get; }
+
+        /// <summary>
+        /// Value added tax identification number
+        /// </summary>
+        public string VatNumber { get; }
 
 
         public override int GetHashCode()

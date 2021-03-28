@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Data.Agents
         public string Fax { get; set; }
         public string PostalCode { get; set; }
         public Currencies PreferredCurrency { get; set; }
+        public string VatNumber { get; set; }
         public string BillingEmail { get; set; }
         public string Website { get; set; }
         public DateTime Created { get; set; }

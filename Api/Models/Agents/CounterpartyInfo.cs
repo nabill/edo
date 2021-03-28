@@ -9,12 +9,11 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public CounterpartyInfo(int id, string name, PaymentMethods preferredPaymentMethod,
-            string vatNumber, bool isContractUploaded, string markupFormula = null)
+            bool isContractUploaded, string markupFormula = null)
         {
             Id = id;
             Name = name;
             PreferredPaymentMethod = preferredPaymentMethod;
-            VatNumber = vatNumber;
             IsContractUploaded = isContractUploaded;
             MarkupFormula = markupFormula;
         }
@@ -34,11 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Preferable way to do payments.
         /// </summary>
         public PaymentMethods PreferredPaymentMethod { get; }
-
-        /// <summary>
-        /// Value added tax identification number
-        /// </summary>
-        public string VatNumber { get; }
 
         /// <summary>
         /// True if contract is loaded to counterparty
