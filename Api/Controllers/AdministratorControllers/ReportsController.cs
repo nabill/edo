@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Reports;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -31,7 +32,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/supplier-wise")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        //[AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _directConnectivityReportService.GetSupplierWiseReport(from, end);
