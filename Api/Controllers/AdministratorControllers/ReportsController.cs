@@ -32,8 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/supplier-wise")]
         [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        //[AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
-        [AllowAnonymous]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _directConnectivityReportService.GetSupplierWiseReport(from, end);
