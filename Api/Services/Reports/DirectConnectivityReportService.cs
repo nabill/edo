@@ -162,6 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     InvoiceNumber = e.InvoiceNumber,
                     AccommodationName = e.AccommodationName,
                     ConfirmationNumber = e.ConfirmationNumber,
+                    RoomsConfirmationNumbers = string.Join("; ", e.Rooms.Select(r => r.SupplierRoomReferenceCode)),
                     RoomTypes = string.Join("; ", e.Rooms.Select(r => EnumFormatters.FromDescription(r.Type))),
                     GuestName = e.GuestName ?? string.Empty,
                     ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
@@ -187,6 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
                     TotalAmount = e.TotalAmount,
                     ConfirmationNumber = e.ConfirmationNumber,
+                    RoomsConfirmationNumbers = string.Join("; ", e.Rooms.Select(r => r.SupplierRoomReferenceCode)),
                     PaymentStatus = EnumFormatters.FromDescription(e.PaymentStatus)
                 },
                 _ => Result.Failure<object>($"Type {typeof(T)} is not supported")
