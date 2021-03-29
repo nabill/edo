@@ -178,36 +178,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(code);
         }
-
-
-        /// <summary>
-        ///     Gets invitation data.
-        /// </summary>
-        /// <param name="code">Invitation code.</param>
-        /// <returns>Invitation data, including pre-filled registration information.</returns>
-        [HttpGet("agent/invitations/{code}")]
-        [ProducesResponseType(typeof(AgentInvitationInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetInvitationData(string code)
-        {
-            var (_, isFailure, invitation, error) = await _invitationRecordService
-                .GetActiveInvitationByCode(code);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            if (!invitation.InviterAgencyId.HasValue)
-                return BadRequest(ProblemDetailsBuilder.Build("Could not get agent invitation"));
-
-            var data = JsonConvert.DeserializeObject<UserInvitationData>(invitation.Data);
-
-            return Ok(new AgentInvitationInfo(data.UserRegistrationInfo,
-                data.ChildAgencyRegistrationInfo,
-                invitation.InvitationType,
-                invitation.InviterAgencyId.Value,
-                invitation.InviterUserId,
-                data.UserRegistrationInfo.Email));
-        }
         
         
         /// <summary>
