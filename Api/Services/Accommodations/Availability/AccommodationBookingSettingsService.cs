@@ -73,10 +73,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return new AccommodationBookingSettings(enabledConnectors,
                 aprMode.Value,
                 passedDeadlineOffersMode.Value,
-                isMarkupDisabled, 
-                isSupplierVisible,
+                isMarkupDisabled: isMarkupDisabled, 
+                isSupplierVisible: isSupplierVisible,
                 counterpartySettings.CancellationPolicyProcessSettings,
-                areTagsVisible,
+                areTagsVisible: areTagsVisible,
                 additionalSearchFilters);
 
 
