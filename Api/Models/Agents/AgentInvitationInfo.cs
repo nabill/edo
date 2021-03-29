@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
@@ -7,23 +9,35 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct AgentInvitationInfo
     {
         [JsonConstructor]
-        public AgentInvitationInfo(UserDescriptionInfo registrationInfo, int agencyId, int agentId, string email)
+        public AgentInvitationInfo(UserDescriptionInfo userRegistrationInfo, AgencyInfo? childAgencyRegistrationInfo,
+            UserInvitationTypes userInvitationType, int agencyId, int agentId, string email)
         {
-            RegistrationInfo = registrationInfo;
+            UserRegistrationInfo = userRegistrationInfo;
+            ChildAgencyRegistrationInfo = childAgencyRegistrationInfo;
+            UserInvitationType = userInvitationType;
             AgencyId = agencyId;
             Email = email;
             AgentId = agentId;
         }
 
-
         /// <summary>
-        ///     Regular agent personal information.
+        /// Prefilled user registration info.
         /// </summary>
         [Required]
-        public UserDescriptionInfo RegistrationInfo { get; }
+        public UserDescriptionInfo UserRegistrationInfo { get; }
 
         /// <summary>
-        ///     Related agency id.
+        /// Prefilled child agency registration info. Used only for child agency invitations.
+        /// </summary>
+        public AgencyInfo? ChildAgencyRegistrationInfo { get; }
+
+        /// <summary>
+        /// Type of the invitation
+        /// </summary>
+        public UserInvitationTypes UserInvitationType { get; }
+
+        /// <summary>
+        ///     Inviter agency id.
         /// </summary>
         [Required]
         public int AgencyId { get; }

@@ -202,6 +202,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var data = JsonConvert.DeserializeObject<UserInvitationData>(invitation.Data);
 
             return Ok(new AgentInvitationInfo(data.UserRegistrationInfo,
+                data.ChildAgencyRegistrationInfo,
+                invitation.InvitationType,
                 invitation.InviterAgencyId.Value,
                 invitation.InviterUserId,
                 data.UserRegistrationInfo.Email));
