@@ -58,7 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        TotalAmount = order.Price,
+                        Amount = order.SupplierPrice,
+                        Currency = order.SupplierCurrency,
                         Supplier = booking.Supplier
                     };
             }
@@ -107,7 +108,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        TotalAmount = order.Price,
+                        Amount = order.SupplierPrice,
+                        Currency = order.SupplierCurrency,
                         PaymentStatus = booking.PaymentStatus
                     };
             }
@@ -168,9 +170,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(e.DepartureDate),
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
-                    AmountExclVat = Math.Round(AmountExcludedVat(e.TotalAmount), 2),
-                    VatAmount = Math.Round(VatAmount(e.TotalAmount), 2),
-                    TotalAmount = e.TotalAmount,
+                    AmountExclVat = Math.Round(AmountExcludedVat(e.Amount), 2),
+                    VatAmount = Math.Round(VatAmount(e.Amount), 2),
+                    Amount = e.Amount,
+                    Currency = e.Currency,
                     Supplier = EnumFormatters.FromDescription(e.Supplier)
                 },
                 AgencyWiseRecordProjection e => new AgencyWiseReportRow
@@ -186,7 +189,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(e.DepartureDate),
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
-                    TotalAmount = e.TotalAmount,
+                    Amount = e.Amount,
+                    Currency = e.Currency,
                     ConfirmationNumber = e.ConfirmationNumber,
                     RoomsConfirmationNumbers = string.Join("; ", e.Rooms.Select(r => r.SupplierRoomReferenceCode)),
                     PaymentStatus = EnumFormatters.FromDescription(e.PaymentStatus)

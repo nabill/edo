@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
     public interface ISupplierOrderService
     {
-        Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice, Suppliers supplier);
+        Task Add(string referenceCode, ServiceTypes serviceType, decimal priceInUsd, MoneyAmount supplierPrice, Suppliers supplier);
 
         Task Cancel(string referenceCode);
     }

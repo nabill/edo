@@ -1461,7 +1461,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("PriceInUsd")
                         .HasColumnType("numeric");
 
                     b.Property<string>("ReferenceCode")
@@ -1473,6 +1473,12 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Supplier")
                         .HasColumnType("integer");
+
+                    b.Property<int>("SupplierCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("SupplierPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");

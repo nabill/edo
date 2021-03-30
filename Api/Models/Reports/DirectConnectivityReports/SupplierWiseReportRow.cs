@@ -1,3 +1,5 @@
+using HappyTravel.Money.Enums;
+
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
     public readonly struct SupplierWiseReportRow
@@ -14,7 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public double LenghtOfStay { get; init; }
         public decimal AmountExclVat { get; init; }
         public decimal VatAmount { get; init; }
-        public decimal TotalAmount { get; init; }
+        public decimal Amount { get; init; }
+        public Currencies Currency { get; init; }
         public string Supplier { get; init; }
     }
 }

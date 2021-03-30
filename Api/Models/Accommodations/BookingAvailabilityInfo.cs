@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -26,7 +27,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             int numberOfNights,
             Suppliers supplier,
             List<AppliedMarkup> appliedMarkups,
-            decimal supplierPrice,
+            decimal priceInUsd,
+            MoneyAmount supplierPrice,
             string availabilityId,
             string htId,
             List<PaymentMethods> availablePaymentMethods)
@@ -45,6 +47,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             NumberOfNights = numberOfNights;
             Supplier = supplier;
             AppliedMarkups = appliedMarkups;
+            PriceInUsd = priceInUsd;
             SupplierPrice = supplierPrice;
             AvailabilityId = availabilityId;
             HtId = htId;
@@ -66,7 +69,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public int NumberOfNights { get; }
         public Suppliers Supplier { get; }
         public List<AppliedMarkup> AppliedMarkups { get; }
-        public decimal SupplierPrice { get; }
+        public decimal PriceInUsd { get; }
+        public MoneyAmount SupplierPrice { get; }
         public string AvailabilityId { get; }
         public string HtId { get; }
         public List<PaymentMethods> AvailablePaymentMethods { get; }
