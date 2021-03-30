@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
         public async Task<IActionResult> GetChildAgency(int agencyId)
         {
-            var (_, isFailure, agency, error) = await _childAgencyService.GetChildAgency(agencyId, await _agentContextService.GetAgent());
+            var (_, isFailure, agency, error) = await _childAgencyService.Get(agencyId, await _agentContextService.GetAgent());
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<ChildAgencyInfo>), (int)HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
         public async Task<IActionResult> GetChildAgencies()
-            => Ok(await _childAgencyService.GetChildAgencies(await _agentContextService.GetAgent()));
+            => Ok(await _childAgencyService.Get(await _agentContextService.GetAgent()));
 
 
         /// <summary>

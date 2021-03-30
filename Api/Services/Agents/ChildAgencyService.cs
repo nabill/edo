@@ -18,10 +18,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<ChildAgencyInfo>> GetChildAgency(int agencyId, AgentContext agent)
+        public async Task<Result<ChildAgencyInfo>> Get(int agencyId, AgentContext agent)
         {
             var agencyInfo = await GetChildAgencyInfos(agent.AgencyId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(a => a.Id == agencyId);
 
             return agencyInfo.Equals(default) 
                 ? Result.Failure<ChildAgencyInfo>("Could not get child agency")
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<List<ChildAgencyInfo>> GetChildAgencies(AgentContext agent)
+        public Task<List<ChildAgencyInfo>> Get(AgentContext agent)
             => GetChildAgencyInfos(agent.AgencyId)
                 .ToListAsync();
 
