@@ -232,9 +232,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 UserType = user.Type,
                 CreatedAt = date,
                 Status = status,
-                ChangeSource = reason.ChangeSource,
-                ChangeEvent = reason.ChangeEvent,
-                ChangeReason = reason.ChangeReason
+                ChangeSource = reason.Source,
+                ChangeEvent = reason.Event,
+                ChangeReason = reason.Reason
             };
             if (user.Type == UserTypes.Agent)
             {

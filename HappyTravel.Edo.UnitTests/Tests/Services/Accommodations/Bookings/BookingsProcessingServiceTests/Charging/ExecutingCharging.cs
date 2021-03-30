@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingServiceMock
                 .Verify(
-                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), new BookingChangeReason { ChangeSource = ChangeSources.Supplier, ChangeEvent = BookingChangeEvents.Cancel }),
+                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), new BookingChangeReason { Source = ChangeSources.Supplier, Event = BookingChangeEvents.Cancel }),
                     Times.Exactly(0)
                 );
         }

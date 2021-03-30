@@ -70,8 +70,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 var changeReason = new BookingChangeReason
                 {
-                    ChangeSource = ChangeSources.System,    // TODO: Information is required where the method Cancel is called from
-                    ChangeEvent = BookingChangeEvents.Cancel  
+                    Source = ChangeSources.System,    // TODO: Information is required where the method Cancel is called from
+                    Event = BookingChangeEvents.Cancel  
                 };
 
                 await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), user, changeReason);

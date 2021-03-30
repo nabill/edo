@@ -97,9 +97,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 {
                     await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                     { 
-                        ChangeSource = ChangeSources.System,
-                        ChangeEvent = BookingChangeEvents.Charge,
-                        ChangeReason = "Unable to charge due to expiration of check in date"
+                        Source = ChangeSources.System,
+                        Event = BookingChangeEvents.Charge,
+                        Reason = "Unable to charge due to expiration of check in date"
                     });
                     return Result.Failure<string>($"Unable to charge for booking {booking.ReferenceCode}. Reason: check in date expired");
                 }
@@ -109,17 +109,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc, 
                         new BookingChangeReason 
                         { 
-                            ChangeSource = ChangeSources.System,
-                            ChangeEvent = BookingChangeEvents.Charge,
-                            ChangeReason = "Refresh booking status before payment"
+                            Source = ChangeSources.System,
+                            Event = BookingChangeEvents.Charge,
+                            Reason = "Refresh booking status before payment"
                         });
                     if (isRefreshingFailure)
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
-                            ChangeSource = ChangeSources.System,
-                            ChangeEvent = BookingChangeEvents.Charge,
-                            ChangeReason = "Failure in refreshing booking status before payment"
+                            Source = ChangeSources.System,
+                            Event = BookingChangeEvents.Charge,
+                            Reason = "Failure in refreshing booking status before payment"
                         });
                         return Result.Failure<string>(refreshingError);
                     }
@@ -131,9 +131,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
-                            ChangeSource = ChangeSources.System,
-                            ChangeEvent = BookingChangeEvents.Charge,
-                            ChangeReason = "After refreshing the booking received a status requiring refreshing"
+                            Source = ChangeSources.System,
+                            Event = BookingChangeEvents.Charge,
+                            Reason = "After refreshing the booking received a status requiring refreshing"
                         });
                         return Result.Failure<string>($"Booking {booking.ReferenceCode} with status {booking.Status} cannot be charged");
                     }
@@ -145,17 +145,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 {
                     var (_, isCancelFailure, error) = await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), new BookingChangeReason 
                     { 
-                        ChangeSource = ChangeSources.System,
-                        ChangeEvent = BookingChangeEvents.Charge,
-                        ChangeReason = "Canceled due to an error while trying to charge"
+                        Source = ChangeSources.System,
+                        Event = BookingChangeEvents.Charge,
+                        Reason = "Canceled due to an error while trying to charge"
                     });
                     if (isCancelFailure)
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
-                            ChangeSource = ChangeSources.System,
-                            ChangeEvent = BookingChangeEvents.Charge,
-                            ChangeReason = "It is impossible to cancel the booking for which the error occurred during charge"
+                            Source = ChangeSources.System,
+                            Event = BookingChangeEvents.Charge,
+                            Reason = "It is impossible to cancel the booking for which the error occurred during charge"
                         });
                         return Result.Failure<string>(error);
                     }
@@ -230,9 +230,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             {
                 return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), new BookingChangeReason 
                     { 
-                        ChangeSource = ChangeSources.System,    // TODO: Maybe need use "Supplier"?
-                        ChangeEvent = BookingChangeEvents.Cancel,
-                        ChangeReason = "Cancellation of booking from the internal booking controller"
+                        Source = ChangeSources.System,    // TODO: Maybe need use "Supplier"?
+                        Event = BookingChangeEvents.Cancel,
+                        Reason = "Cancellation of booking from the internal booking controller"
                 })
                     .Finally(CreateResult);
 

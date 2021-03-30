@@ -25,8 +25,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
             
             await _responseProcessor.ProcessResponse(bookingDetails, new Data.Bookings.BookingChangeReason 
             { 
-                ChangeSource = ChangeSources.Supplier,
-                ChangeEvent = BookingChangeEvents.ResponseFromSupplier
+                Source = ChangeSources.Supplier,
+                Event = BookingChangeEvents.ResponseFromSupplier
             });
             return Result.Success();
         }
