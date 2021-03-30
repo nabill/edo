@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public double LenghtOfStay { get; init; }
         public decimal TotalAmount { get; init; }
         public string ConfirmationNumber { get; init; }
+        public string RoomsConfirmationNumbers { get; init; }
         public string PaymentStatus { get; init; }
     }
 }

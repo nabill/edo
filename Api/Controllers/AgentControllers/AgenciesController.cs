@@ -4,10 +4,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -118,16 +120,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Accepts invitation to create child agency.
         /// </summary>
         /// <returns></returns>
-        [HttpPost("agency/invitations/{invitationCode}/accept")]
+        [HttpPost("agency/register")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AcceptChildAgencyInvite([FromBody] UserInvitationData request, [FromRoute] string invitationCode)
+        public async Task<IActionResult> AcceptChildAgencyInvite([FromBody] RegisterInvitedAgencyRequest request)
         {
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
-            var (_, isFailure, error) = await _agentInvitationAcceptService.Accept(invitationCode, request, identity);
+            var (_, isFailure, error) = await _agentInvitationAcceptService.Accept(
+                request.InvitationCode,
+                request.ToUserInvitationData(),
+                identity);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
