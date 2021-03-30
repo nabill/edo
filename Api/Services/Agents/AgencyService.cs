@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
@@ -23,19 +21,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent)
+        public async Task<Result<AgencyInfo>> GetChildAgency(int agencyId, AgentContext agent)
         {
-            var agentRelations = await _agentService.GetAgentRelations(agent);
-            if (agentRelations.All(r => r.AgencyId != agencyId))
-                return Result.Failure<AgencyInfo>("The agent is not affiliated with agency");
+            var agency = await _context.Agencies
+                .SingleOrDefaultAsync(a => a.Id == agencyId && a.ParentId == agent.AgencyId);
 
-            var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
-
-            return Result.Success(new AgencyInfo(agency.Name, agency.Id, agency.CounterpartyId));
+            return agency is null
+                ? Result.Failure<AgencyInfo>("Could not get child agency")
+                : new AgencyInfo(agency.Name, agency.Id, agency.CounterpartyId);
         }
 
 
-        public Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent) => _agencyManagementService.GetChildAgencies(agent.AgencyId);
+        public Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent) 
+            => _agencyManagementService.GetChildAgencies(agent.AgencyId);
 
 
         private readonly IAgentService _agentService;

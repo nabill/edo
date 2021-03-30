@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgencyService
     {
-        Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent);
+        Task<Result<AgencyInfo>> GetChildAgency(int agencyId, AgentContext agent);
 
         Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent);
     }
