@@ -48,13 +48,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="agencyId">Agency Id.</param>
         /// <returns></returns>
-        [HttpGet("agencies/{agencyId}")]
+        [HttpGet("agency/child-agencies/{agencyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AgentRequired]
-        public async Task<IActionResult> GetAgency(int agencyId)
+        [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
+        public async Task<IActionResult> GetChildAgency(int agencyId)
         {
-            var (_, isFailure, agency, error) = await _agencyService.GetAgency(agencyId, await _agentContextService.GetAgent());
+            var (_, isFailure, agency, error) = await _agencyService.GetChildAgency(agencyId, await _agentContextService.GetAgent());
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
