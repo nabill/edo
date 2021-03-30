@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -19,19 +20,38 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<ChildAgencyInfo>> GetChildAgency(int agencyId, AgentContext agent)
         {
-            var agency = await _context.Agencies
-                .SingleOrDefaultAsync(a => a.Id == agencyId && a.ParentId == agent.AgencyId);
+            var agencyInfo = await GetChildAgencyInfos(agent.AgencyId)
+                .SingleOrDefaultAsync();
 
-            return agency is null
+            return agencyInfo.Equals(default) 
                 ? Result.Failure<ChildAgencyInfo>("Could not get child agency")
-                : new ChildAgencyInfo(agency.Id, agency.Name, agency.IsActive, agency.Created);
+                : agencyInfo;
         }
 
 
         public Task<List<ChildAgencyInfo>> GetChildAgencies(AgentContext agent)
-            => _context.Agencies.Where(a => a.ParentId == agent.AgencyId)
-                .Select(a => new ChildAgencyInfo(a.Id, a.Name, a.IsActive, a.Created))
+            => GetChildAgencyInfos(agent.AgencyId)
                 .ToListAsync();
+
+
+        private IQueryable<ChildAgencyInfo> GetChildAgencyInfos(int parentAgencyId)
+        {
+            return from agency in _context.Agencies
+                join agencyAccount in _context.AgencyAccounts on agency.Id equals agencyAccount.AgencyId
+                where agency.ParentId == parentAgencyId
+                select new ChildAgencyInfo
+                {
+                    Id = agency.Id,
+                    Name = agency.Name,
+                    AccountBalance = new MoneyAmount
+                    {
+                        Amount = agencyAccount.Balance,
+                        Currency = agencyAccount.Currency
+                    },
+                    Created = agency.Created,
+                    IsActive = agency.IsActive
+                };
+        }
 
 
         private readonly EdoContext _context;

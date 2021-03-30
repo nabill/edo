@@ -1,35 +1,45 @@
 using System;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
     public readonly struct ChildAgencyInfo
     {
-        public ChildAgencyInfo(int id, string name, bool isActive, DateTime created)
-        {
-            Id = id;
-            Name = name;
-            IsActive = isActive;
-            Created = created;
-        }
-
         /// <summary>
         /// Agency id
         /// </summary>
-        public int Id { get; }
+        public int Id { get; init; }
         
         /// <summary>
         /// Agency name
         /// </summary>
-        public string Name { get; }
+        public string Name { get; init;}
         
         /// <summary>
         /// Activity state
         /// </summary>
-        public bool IsActive { get; }
+        public bool IsActive { get; init;}
         
         /// <summary>
         /// Created date
         /// </summary>
-        public DateTime Created { get; }
+        public DateTime Created { get; init;}
+
+        /// <summary>
+        /// Virtual account balance
+        /// </summary>
+        public MoneyAmount AccountBalance { get; init;}
+        
+        
+        public bool Equals(ChildAgencyInfo other) 
+            => Id == other.Id;
+
+
+        public override bool Equals(object obj) 
+            => obj is ChildAgencyInfo other && Equals(other);
+
+
+        public override int GetHashCode() 
+            => Id;
     }
 }
