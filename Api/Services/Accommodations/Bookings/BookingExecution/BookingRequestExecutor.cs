@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 {
                     await _responseProcessor.ProcessResponse(responseResult.Value, new Data.Bookings.BookingChangeReason 
                     { 
-                        Source = ChangeSources.System,
+                        Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Finalize
                     });
                 }
@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 {
                     await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.Invalid, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
                     { 
-                        Source = ChangeSources.System,
+                        Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Finalize
                     });
                 }

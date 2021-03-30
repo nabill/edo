@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             Task<Result> Cancel(Booking booking) 
                 => _managementService.Cancel(booking, agent.ToUserInfo(), new BookingChangeReason 
                 { 
-                    Source = Common.Enums.ChangeSources.Supplier,
+                    Source = Common.Enums.BookingChangeSources.Supplier,
                     Event = Common.Enums.BookingChangeEvents.Cancel,
                     Reason = "Ñanceled on request from agent"
                 });
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             Task<Result> Cancel(Booking booking) 
                 => _managementService.Cancel(booking, agent.ToUserInfo(), new BookingChangeReason 
                 {
-                    Source = Common.Enums.ChangeSources.Supplier,
+                    Source = Common.Enums.BookingChangeSources.Supplier,
                     Event = Common.Enums.BookingChangeEvents.Cancel,
                     Reason = "Ñanceled on request from agent"
                 });

@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 var changeReason = new BookingChangeReason
                 {
-                    Source = ChangeSources.System,    // TODO: Information is required where the method Cancel is called from
+                    Source = BookingChangeSources.System,    // TODO: Information is required where the method Cancel is called from
                     Event = BookingChangeEvents.Cancel  
                 };
 

@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
 
             await _responseProcessor.ProcessResponse(bookingDetails, new Data.Bookings.BookingChangeReason 
             { 
-                Source = Common.Enums.ChangeSources.Supplier,
+                Source = Common.Enums.BookingChangeSources.Supplier,
                 Event = Common.Enums.BookingChangeEvents.None,
                 Reason = "Received a response from Netstorming"
             });
