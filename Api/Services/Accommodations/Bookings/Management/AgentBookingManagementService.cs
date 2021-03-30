@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 { 
                     Source = Common.Enums.BookingChangeSources.Supplier,
                     Event = Common.Enums.BookingChangeEvents.Cancel,
-                    Reason = "Ñanceled on request from agent"
+                    Reason = "Canceled on request from agent"
                 });
         }
         
