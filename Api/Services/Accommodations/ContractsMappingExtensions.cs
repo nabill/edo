@@ -84,34 +84,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private static Deadline ToRoomContractSetDeadline(this IReadOnlyCollection<RoomContract> roomContracts)
         {
-            var contracts = roomContracts
+            var contractsWithDeadline = roomContracts
                 .Where(contract => contract.Deadline.Date.HasValue)
                 .ToList();
             
-            if (!contracts.Any())
+            if (!contractsWithDeadline.Any())
                 return default;
             
             var totalAmount = Convert.ToDouble(roomContracts.Sum(r => r.Rate.FinalPrice.Amount));
-            var date = contracts
+            var deadlineDate = contractsWithDeadline
                 .Select(contract => contract.Deadline.Date.Value)
                 .OrderByDescending(d => d)
                 .FirstOrDefault();
 
-            var policies = contracts
-                .SelectMany(contract => contract.Deadline.Policies.Select(policy => new
+            var policies = contractsWithDeadline
+                .SelectMany(c => c.Deadline.Policies.Select(p => p.FromDate.Date))
+                .Distinct()
+                .OrderBy(d => d)
+                .Select(date =>
                 {
-                    Amount = Convert.ToDouble(contract.Rate.FinalPrice.Amount),
-                    Policy = policy
-                }))
-                .GroupBy(x => x.Policy.FromDate.Date)
-                .Select(x => new CancellationPolicy(x.Key, CalculatePercent(x.Sum(y => y.Amount * y.Policy.Percentage))))
+                    var amount = contractsWithDeadline.Sum(contract 
+                        => contract.Deadline.Policies
+                            .Where(p => p.FromDate <= date)
+                            .OrderByDescending(p => p.FromDate)
+                            .Select(p => p.Percentage * Convert.ToDouble(contract.Rate.FinalPrice.Amount))
+                            .FirstOrDefault()
+                        );
+
+                    return new CancellationPolicy(date, CalculatePercent(amount));
+                })
                 .ToList();
 
 
             double CalculatePercent(double amount) 
                 => amount / totalAmount;
 
-            return new Deadline(date, policies, new List<string>(), true);
+            return new Deadline(deadlineDate, policies, new List<string>(), true);
         }
     }
 }
