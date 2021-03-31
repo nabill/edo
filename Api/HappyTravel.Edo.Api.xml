@@ -191,7 +191,7 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.CancelManually(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest)">
             <summary>
                 Cancel accommodation booking manually, without requests to supplier. Cancellation penalties are applied.
             </summary>
@@ -207,7 +207,7 @@
             <param name="rejectionRequest">Rejection request</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Reject(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.ConfirmManually(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
             <summary>
                 Confirm accommodation booking manually
             </summary>

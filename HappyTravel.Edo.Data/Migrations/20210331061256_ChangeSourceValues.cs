@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var sql = "UPDATE \"public\".\"BookingStatusHistory\" SET \"ChangeSource\" = '4' WHERE  \"ChangeSource\" = 2;" +
-                "UPDATE \"public\".\"BookingStatusHistory\" SET \"ChangeSource\" = '1' WHERE  \"ChangeSource\" = 3";
+            var sql = "UPDATE \"public\".\"BookingStatusHistory\" SET \"Source\" = '4' WHERE  \"Source\" = 2;" +
+                "UPDATE \"public\".\"BookingStatusHistory\" SET \"Source\" = '1' WHERE  \"Source\" = 3";
 
             migrationBuilder.Sql(sql);
         }
