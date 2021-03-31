@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task UpdateWithSupplierData(Edo.Data.Bookings.Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
+        public async Task UpdateWithSupplierData(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
             List<SlimRoomOccupation> updatedRooms)
         {
             booking.SupplierReferenceCode = supplierReferenceCode;
@@ -232,9 +232,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 UserType = user.Type,
                 CreatedAt = date,
                 Status = status,
-                ChangeSource = reason.ChangeSource,
-                ChangeEvent = reason.ChangeEvent,
-                ChangeReason = reason.ChangeReason
+                Initiator = reason.Initiator,
+                Source = reason.Source,
+                Event = reason.Event,
+                Reason = reason.Reason
             };
             if (user.Type == UserTypes.Agent)
             {

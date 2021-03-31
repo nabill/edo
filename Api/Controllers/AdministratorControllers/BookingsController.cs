@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> Cancel(int bookingId, [FromBody] ManualBookingCancellationRequest cancellationRequest)
+        public async Task<IActionResult> CancelManually(int bookingId, [FromBody] ManualBookingCancellationRequest cancellationRequest)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
             var (_, isFailure, error) = await _bookingManagementService.CancelManually(bookingId, cancellationRequest.CancellationDate, cancellationRequest.Reason, admin);
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> Reject(int bookingId, [FromBody] ManualBookingConfirmationRequest confirmationRequest)
+        public async Task<IActionResult> ConfirmManually(int bookingId, [FromBody] ManualBookingConfirmationRequest confirmationRequest)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
             var (_, isFailure, error) = await _bookingManagementService.ConfirmManually(bookingId, confirmationRequest.ConfirmationDate, confirmationRequest.Reason, admin);
