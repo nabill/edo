@@ -127,7 +127,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 CheckOutDate = checkOutDate,
                 HtId = htId,
                 Tags = tags,
-                IsDirectContract = isDirectContract
+                IsDirectContract = isDirectContract,
+                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies
             };
             
             AddRequestInfo(bookingRequest);
@@ -192,8 +193,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         .ToList();
             }
         }
-        
-        
+
+
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
