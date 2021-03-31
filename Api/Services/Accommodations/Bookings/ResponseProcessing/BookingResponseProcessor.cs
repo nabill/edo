@@ -87,8 +87,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             {
                 await _recordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
                 { 
-                    Source = BookingChangeSources.None,      // TODO: Need set source and event later
-                    Event = BookingChangeEvents.None
+                    Initiator = BookingChangeInitiators.System,
+                    Source = BookingChangeSources.Supplier,  
+                    Event = BookingChangeEvents.ResponseFromSupplier
                 });
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");

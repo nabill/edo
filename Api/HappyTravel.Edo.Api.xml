@@ -452,7 +452,7 @@
             <param name="request">Duplicate accommodation info</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetAgency(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetChildAgency(System.Int32)">
             <summary>
                 Gets agency.
             </summary>

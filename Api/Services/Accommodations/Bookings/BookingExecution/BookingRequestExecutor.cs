@@ -117,21 +117,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             
             async Task ProcessRequestResult(Result<Booking> responseResult)
             {
+                var changeReason = new Data.Bookings.BookingChangeReason
+                {
+                    Initiator = BookingChangeInitiators.System, // TODO: Is the system the initiator?
+                    Source = BookingChangeSources.System,
+                    Event = BookingChangeEvents.Finalize
+                };
+
                 if (responseResult.IsSuccess)
                 {
-                    await _responseProcessor.ProcessResponse(responseResult.Value, new Data.Bookings.BookingChangeReason 
-                    { 
-                        Source = BookingChangeSources.System,
-                        Event = BookingChangeEvents.Finalize
-                    });
+                    await _responseProcessor.ProcessResponse(responseResult.Value, changeReason);
                 }
                 else
                 {
-                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.Invalid, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
-                    { 
-                        Source = BookingChangeSources.System,
-                        Event = BookingChangeEvents.Finalize
-                    });
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.Invalid, _dateTimeProvider.UtcNow(), 
+                        UserInfo.InternalServiceAccount, changeReason);
                 }
             }
         }

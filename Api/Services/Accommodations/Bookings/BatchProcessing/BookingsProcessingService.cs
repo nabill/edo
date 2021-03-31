@@ -97,6 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 {
                     await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                     { 
+                        Initiator = BookingChangeInitiators.System,
                         Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Charge,
                         Reason = "Unable to charge due to expiration of check in date"
@@ -109,6 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc, 
                         new BookingChangeReason 
                         { 
+                            Initiator = BookingChangeInitiators.System,
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "Refresh booking status before payment"
@@ -117,6 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
+                            Initiator = BookingChangeInitiators.System,
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "Failure in refreshing booking status before payment"
@@ -131,6 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
+                            Initiator = BookingChangeInitiators.System,
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "After refreshing the booking received a status requiring refreshing"
@@ -145,6 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 {
                     var (_, isCancelFailure, error) = await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), new BookingChangeReason 
                     { 
+                        Initiator = BookingChangeInitiators.System,
                         Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Charge,
                         Reason = "Canceled due to an error while trying to charge"
@@ -153,6 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     {
                         await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
                         { 
+                            Initiator = BookingChangeInitiators.System,
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "It is impossible to cancel the booking for which the error occurred during charge"
@@ -230,7 +236,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             {
                 return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), new BookingChangeReason 
                     { 
-                        Source = BookingChangeSources.System,    // TODO: Maybe need use "Supplier"?
+                        Initiator = BookingChangeInitiators.System,    
+                        Source = BookingChangeSources.Supplier,
                         Event = BookingChangeEvents.Cancel,
                         Reason = "Cancellation of booking from the internal booking controller"
                 })

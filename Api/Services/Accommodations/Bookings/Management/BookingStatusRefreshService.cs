@@ -157,6 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             Task<Result> RefreshBookingStatus() 
                 => _bookingManagement.RefreshStatus(booking, userInfo, new BookingChangeReason 
                 { 
+                    Initiator = userInfo.Type == UserTypes.Agent ? BookingChangeInitiators.Agent : BookingChangeInitiators.System,
                     Source = BookingChangeSources.Supplier,
                     Event = BookingChangeEvents.Refresh
                 });
