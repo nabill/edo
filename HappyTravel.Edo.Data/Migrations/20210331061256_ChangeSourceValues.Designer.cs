@@ -10,6 +10,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210331061256_ChangeSourceValues")]
+    partial class ChangeSourceValues
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -465,9 +467,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("HtId")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDirectContract")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -526,8 +525,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgentId");
 
                     b.HasIndex("CounterpartyId");
-
-                    b.HasIndex("IsDirectContract");
 
                     b.HasIndex("ItineraryNumber");
 
