@@ -75,15 +75,15 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.Sql(
                 "UPDATE \"Agencies\" a " +
                 "SET \"Address\" = (SELECT \"Address\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"BillingEmail\" = (SELECT \"BillingEmail\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"City\" = (SELECT \"City\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"CountryCode\" = (SELECT \"CountryCode\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"Fax\" = (SELECT \"Fax\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"Phone\" = (SELECT \"Phone\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"PostalCode\" = (SELECT \"PostalCode\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"PreferredCurrency\" = (SELECT \"PreferredCurrency\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"VatNumber\" = (SELECT \"VatNumber\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
-                "SET \"Website\" = (SELECT \"Website\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") ");
+                ", \"BillingEmail\" = (SELECT \"BillingEmail\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"City\" = (SELECT \"City\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"CountryCode\" = (SELECT \"CountryCode\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"Fax\" = (SELECT \"Fax\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"Phone\" = (SELECT \"Phone\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"PostalCode\" = (SELECT \"PostalCode\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"PreferredCurrency\" = (SELECT \"PreferredCurrency\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"VatNumber\" = (SELECT \"VatNumber\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") " +
+                ", \"Website\" = (SELECT \"Website\" FROM \"Counterparties\" WHERE \"Id\" = a.\"CounterpartyId\") ");
 
             
             migrationBuilder.DropColumn(
@@ -187,15 +187,15 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.Sql(
                 "UPDATE \"Counterparties\" c " +
                 "SET \"Address\" = (SELECT \"Address\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"BillingEmail\" = (SELECT \"BillingEmail\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"City\" = (SELECT \"City\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"CountryCode\" = (SELECT \"CountryCode\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"Fax\" = (SELECT \"Fax\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"Phone\" = (SELECT \"Phone\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"PostalCode\" = (SELECT \"PostalCode\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"PreferredCurrency\" = (SELECT \"PreferredCurrency\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"VatNumber\" = (SELECT \"VatNumber\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
-                "SET \"Website\" = (SELECT \"Website\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) ");
+                ", \"BillingEmail\" = (SELECT \"BillingEmail\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"City\" = (SELECT \"City\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"CountryCode\" = (SELECT \"CountryCode\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"Fax\" = (SELECT \"Fax\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"Phone\" = (SELECT \"Phone\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"PostalCode\" = (SELECT \"PostalCode\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"PreferredCurrency\" = (SELECT \"PreferredCurrency\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"VatNumber\" = (SELECT \"VatNumber\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) " +
+                ", \"Website\" = (SELECT \"Website\" FROM \"Agencies\" a WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" IS NULL) ");
 
 
             migrationBuilder.DropColumn(
