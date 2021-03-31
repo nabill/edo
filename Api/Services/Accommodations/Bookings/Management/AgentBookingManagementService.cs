@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     Initiator = BookingChangeInitiators.Agent,
                     Source = BookingChangeSources.Supplier,
                     Event = BookingChangeEvents.Cancel,
-                    Reason = "Ñanceled on request from agent"
+                    Reason = "Canceled on request from agent"
                 });
         }
 
