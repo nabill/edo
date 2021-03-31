@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 {
     [JsonConverter(typeof (StringEnumConverter))]
     [Flags]
-    public enum SearchFilters
+    public enum ClientSearchFilters
     {
         AvailableOnly = 1,
         AvailableWeighted = 2,
