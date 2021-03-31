@@ -49,5 +49,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public AccommodationLocation Location { get; set; }
         
         public List<string> Tags { get; set; }
+        public bool IsDirectContract { get; set; }
     }
 }
