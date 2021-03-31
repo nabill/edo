@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
-            var connectorRequest = CreateRequest(availabilityRequest, location, accommodationCodeMappings);
+            var connectorRequest = CreateRequest(availabilityRequest, location, accommodationCodeMappings, searchSettings);
 
             try
             {
@@ -181,11 +182,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings)
+        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings,
+            AccommodationBookingSettings searchSettings)
         {
             var roomDetails = request.RoomDetails
                 .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges, r.Type, r.IsExtraBedNeeded))
                 .ToList();
+
+            var searchFilters = Convert(request.Filters);
 
             if (request.HtIds is null || !request.HtIds.Any())
             {
@@ -193,7 +197,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Remove when will support the new flow only
                 return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters, roomDetails,
+                    searchFilters | searchSettings.AdditionalSearchFilters,
+                    roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
                         location.Coordinates, location.Distance,
                         location.Source, location.Type),
@@ -206,10 +211,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Residency,
                     request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters,
+                    searchFilters | searchSettings.AdditionalSearchFilters,
                     roomDetails,
                     null,
                     request.PropertyType, request.Ratings, supplierAccommodationCodes);
+            }
+
+
+            static EdoContracts.General.Enums.SearchFilters Convert(ClientSearchFilters filters)
+            {
+                EdoContracts.General.Enums.SearchFilters resultedFilter = default;
+
+                if (filters.HasFlag(ClientSearchFilters.AvailableOnly))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableOnly;
+
+                if (filters.HasFlag(ClientSearchFilters.AvailableWeighted))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableWeighted;
+
+                if (filters.HasFlag(ClientSearchFilters.BestArrangement))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestArrangement;
+
+                if (filters.HasFlag(ClientSearchFilters.BestContract))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestContract;
+
+                if (filters.HasFlag(ClientSearchFilters.BestPrice))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestPrice;
+
+                if (filters.HasFlag(ClientSearchFilters.ExcludeDynamic))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeDynamic;
+
+                if (filters.HasFlag(ClientSearchFilters.BestRoomPlans))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestRoomPlans;
+
+                if (filters.HasFlag(ClientSearchFilters.ExcludeNonRefundable))
+                    resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeNonRefundable;
+
+                return resultedFilter;
             }
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -12,7 +13,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isMarkupDisabled,
             bool isSupplierVisible,
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings,
-            bool areTagsVisible)
+            bool areTagsVisible,
+            SearchFilters additionalSearchFilters)
         {
             CancellationPolicyProcessSettings = cancellationPolicyProcessSettings;
             AreTagsVisible = areTagsVisible;
@@ -21,6 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode = passedDeadlineOffersMode;
             IsMarkupDisabled = isMarkupDisabled;
             IsSupplierVisible = isSupplierVisible;
+            AdditionalSearchFilters = additionalSearchFilters;
         }
         
         public List<Suppliers> EnabledConnectors { get; }
@@ -30,5 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public bool IsSupplierVisible { get; }
         public CancellationPolicyProcessSettings CancellationPolicyProcessSettings { get; }
         public bool AreTagsVisible { get; }
+        public SearchFilters AdditionalSearchFilters { get; }
     }
 }

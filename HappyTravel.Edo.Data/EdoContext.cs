@@ -577,6 +577,8 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
+
+                booking.HasIndex(b => b.IsDirectContract);
             });
         }
 
@@ -883,9 +885,10 @@ namespace HappyTravel.Edo.Data
                 e.Property(bshe => bshe.AgencyId);
                 e.Property(bshe => bshe.CreatedAt).IsRequired();
                 e.Property(bshe => bshe.Status).IsRequired();
-                e.Property(bshe => bshe.ChangeSource).IsRequired();
-                e.Property(bshe => bshe.ChangeEvent).IsRequired();
-                e.Property(bshe => bshe.ChangeReason);
+                e.Property(bshe => bshe.Initiator).IsRequired();
+                e.Property(bshe => bshe.Source).IsRequired();
+                e.Property(bshe => bshe.Event).IsRequired();
+                e.Property(bshe => bshe.Reason);
                 e.ToTable("BookingStatusHistory");
             });
         }

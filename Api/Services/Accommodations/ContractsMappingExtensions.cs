@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -10,13 +11,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, Suppliers? supplier, List<string> tags)
         {
+            var roomContractList = roomContractSet.RoomContracts.ToRoomContractList();
+            
             return new RoomContractSet(roomContractSet.Id,
                 roomContractSet.Rate.ToRate(),
-                roomContractSet.Deadline.ToDeadline(),
-                roomContractSet.RoomContracts.ToRoomContractList(),
+                roomContractList.ToRoomContractSetDeadline(),
+                roomContractList,
                 roomContractSet.IsAdvancePurchaseRate,
                 supplier,
-                tags);
+                tags,
+                roomContractSet.IsDirectContract);
         }
 
         
@@ -75,6 +79,39 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return roomContractSets
                 .Select(ToRoomContract)
                 .ToList();
+        }
+
+
+        private static Deadline ToRoomContractSetDeadline(this IReadOnlyCollection<RoomContract> roomContracts)
+        {
+            var contracts = roomContracts
+                .Where(contract => contract.Deadline.Date.HasValue)
+                .ToList();
+            
+            if (!contracts.Any())
+                return default;
+            
+            var totalAmount = Convert.ToDouble(roomContracts.Sum(r => r.Rate.FinalPrice.Amount));
+            var date = contracts
+                .Select(contract => contract.Deadline.Date.Value)
+                .OrderByDescending(d => d)
+                .FirstOrDefault();
+
+            var policies = contracts
+                .SelectMany(contract => contract.Deadline.Policies.Select(policy => new
+                {
+                    Amount = Convert.ToDouble(contract.Rate.FinalPrice.Amount),
+                    Policy = policy
+                }))
+                .GroupBy(x => x.Policy.FromDate.Date)
+                .Select(x => new CancellationPolicy(x.Key, CalculatePercent(x.Sum(y => y.Amount * y.Policy.Percentage))))
+                .ToList();
+
+
+            double CalculatePercent(double amount) 
+                => amount / totalAmount;
+
+            return new Deadline(date, policies, new List<string>(), true);
         }
     }
 }
