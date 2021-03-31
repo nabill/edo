@@ -7,7 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public AgentInvitationResponse(string id, string title, string firstName, string lastName,
-            string position, string email, string createdBy, string created, UserInvitationStatuses status)
+            string position, string email, string createdBy, string created, UserInvitationStatuses status, 
+            bool isExpired)
         {
             Id = id;
             Title = title;
@@ -18,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             CreatedBy = createdBy;
             Created = created;
             Status = status;
+            IsExpired = isExpired;
         }
 
         public string Id { get; }
@@ -29,5 +31,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string CreatedBy { get; }
         public string Created { get; }
         public UserInvitationStatuses Status { get; }
+        public bool IsExpired { get; }
     }
 }

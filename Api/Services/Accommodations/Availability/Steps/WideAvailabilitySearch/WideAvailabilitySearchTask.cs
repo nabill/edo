@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
-using SearchFilters = HappyTravel.Edo.Api.Models.Availabilities.SearchFilters;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
@@ -219,32 +218,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            static EdoContracts.General.Enums.SearchFilters Convert(SearchFilters filters)
+            static EdoContracts.General.Enums.SearchFilters Convert(ClientSearchFilters filters)
             {
                 EdoContracts.General.Enums.SearchFilters resultedFilter = default;
 
-                if (filters.HasFlag(SearchFilters.AvailableOnly))
+                if (filters.HasFlag(ClientSearchFilters.AvailableOnly))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableOnly;
 
-                if (filters.HasFlag(SearchFilters.AvailableWeighted))
+                if (filters.HasFlag(ClientSearchFilters.AvailableWeighted))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.AvailableWeighted;
 
-                if (filters.HasFlag(SearchFilters.BestArrangement))
+                if (filters.HasFlag(ClientSearchFilters.BestArrangement))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestArrangement;
 
-                if (filters.HasFlag(SearchFilters.BestContract))
+                if (filters.HasFlag(ClientSearchFilters.BestContract))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestContract;
 
-                if (filters.HasFlag(SearchFilters.BestPrice))
+                if (filters.HasFlag(ClientSearchFilters.BestPrice))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestPrice;
 
-                if (filters.HasFlag(SearchFilters.ExcludeDynamic))
+                if (filters.HasFlag(ClientSearchFilters.ExcludeDynamic))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeDynamic;
 
-                if (filters.HasFlag(SearchFilters.BestRoomPlans))
+                if (filters.HasFlag(ClientSearchFilters.BestRoomPlans))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.BestRoomPlans;
 
-                if (filters.HasFlag(SearchFilters.ExcludeNonRefundable))
+                if (filters.HasFlag(ClientSearchFilters.ExcludeNonRefundable))
                     resultedFilter |= EdoContracts.General.Enums.SearchFilters.ExcludeNonRefundable;
 
                 return resultedFilter;
