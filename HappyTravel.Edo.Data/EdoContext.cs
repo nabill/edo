@@ -576,6 +576,8 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
+
+                booking.HasIndex(b => b.IsDirectContract);
             });
         }
 

@@ -543,6 +543,13 @@
             <param name="settings">Markup settings</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.GetChildAgencyPolicies(System.Int32)">
+            <summary>
+            Gets markup policies for a child agency.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.RemovePolicy(System.Int32,System.Int32)">
             <summary>
                 Deletes policy.
@@ -1469,6 +1476,11 @@
             System tags returned by connector, e.g. "DirectConnectivity"
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
+            <summary>
+            Direct contract mark
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
             <summary>
                 The availability ID.
@@ -1597,6 +1609,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CounterpartyId">
             <summary>
                 Id of the counterparty.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Name">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.IsActive">
+            <summary>
+            Activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Created">
+            <summary>
+            Created date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.AccountBalance">
+            <summary>
+            Virtual account balance
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">

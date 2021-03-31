@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -57,6 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isMarkupDisabled = default;
             bool isSupplierVisible = default;
             bool areTagsVisible = default;
+            SearchFilters additionalSearchFilters = default;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
@@ -71,10 +73,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return new AccommodationBookingSettings(enabledConnectors,
                 aprMode.Value,
                 passedDeadlineOffersMode.Value,
-                isMarkupDisabled, 
-                isSupplierVisible,
+                isMarkupDisabled: isMarkupDisabled, 
+                isSupplierVisible: isSupplierVisible,
                 counterpartySettings.CancellationPolicyProcessSettings,
-                areTagsVisible);
+                areTagsVisible: areTagsVisible,
+                additionalSearchFilters);
 
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
@@ -85,6 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
                 isSupplierVisible = agentSettingsValue.IsSupplierVisible;
                 areTagsVisible = agentSettingsValue.AreTagsVisible;
+                additionalSearchFilters = agentSettingsValue.AdditionalSearchFilters;
             }
 
 

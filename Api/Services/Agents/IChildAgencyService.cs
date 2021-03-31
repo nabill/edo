@@ -6,10 +6,10 @@ using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public interface IAgencyService
+    public interface IChildAgencyService
     {
-        Task<Result<AgencyInfo>> GetChildAgency(int agencyId, AgentContext agent);
+        Task<Result<ChildAgencyInfo>> Get(int agencyId, AgentContext agent);
 
-        Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent);
+        Task<List<ChildAgencyInfo>> Get(AgentContext agent);
     }
 }
