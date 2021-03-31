@@ -452,7 +452,7 @@
             <param name="request">Duplicate accommodation info</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetAgency(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetChildAgency(System.Int32)">
             <summary>
                 Gets agency.
             </summary>
@@ -477,7 +477,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData,System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest)">
             <summary>
                 Accepts invitation to create child agency.
             </summary>
@@ -541,6 +541,13 @@
             </summary>
             <param name="agencyId">Agency id</param>
             <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.GetChildAgencyPolicies(System.Int32)">
+            <summary>
+            Gets markup policies for a child agency.
+            </summary>
+            <param name="agencyId">Agency id</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyMarkupController.RemovePolicy(System.Int32,System.Int32)">
@@ -656,13 +663,6 @@
             </summary>
             <param name="request">Regular agent registration request.</param>
             <returns>Invitation code.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetInvitationData(System.String)">
-            <summary>
-                Gets invitation data.
-            </summary>
-            <param name="code">Invitation code.</param>
-            <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.DisableInvitation(System.String)">
             <summary>
@@ -1088,6 +1088,13 @@
             <summary>
                 Refresh booking statuses
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InvitationsController.GetInvitationData(System.String)">
+            <summary>
+                Gets invitation data.
+            </summary>
+            <param name="code">Invitation code.</param>
+            <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetCountries(System.String)">
             <summary>
@@ -1604,6 +1611,31 @@
                 Id of the counterparty.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Name">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.IsActive">
+            <summary>
+            Activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Created">
+            <summary>
+            Created date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.AccountBalance">
+            <summary>
+            Virtual account balance
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
             <summary>
             File name of the image
@@ -1769,14 +1801,24 @@
             Activity state
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.RegistrationInfo">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.UserRegistrationInfo">
             <summary>
-                Regular agent personal information.
+            Prefilled user registration info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.ChildAgencyRegistrationInfo">
+            <summary>
+            Prefilled child agency registration info. Used only for child agency invitations.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.UserInvitationType">
+            <summary>
+            Type of the invitation
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgencyId">
             <summary>
-                Related agency id.
+                Inviter agency id.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgentId">
@@ -1972,6 +2014,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Counterparty">
             <summary>
                 Agent affiliated counterparty information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest.RegistrationInfo">
+            <summary>
+                Regular agent personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest.ChildAgencyRegistrationInfo">
+            <summary>
+            Prefilled child agency registration info. Used only for child agency invitations.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest.InvitationCode">
+            <summary>
+                Invitation code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgentRequest.RegistrationInfo">
