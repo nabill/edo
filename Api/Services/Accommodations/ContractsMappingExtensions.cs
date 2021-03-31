@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 roomContractSet.RoomContracts.ToRoomContractList(),
                 roomContractSet.IsAdvancePurchaseRate,
                 supplier,
-                tags);
+                tags,
+                roomContractSet.IsDirectContract);
         }
 
         

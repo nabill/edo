@@ -1476,6 +1476,11 @@
             System tags returned by connector, e.g. "DirectConnectivity"
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
+            <summary>
+            Direct contract mark
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
             <summary>
                 The availability ID.

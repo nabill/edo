@@ -155,15 +155,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         
 
         private static AccommodationBookingSettings CreateSettings(AprMode aprMode = default, PassedDeadlineOffersMode deadlineOffersMode = default)
-            => new(default, aprMode,
-                deadlineOffersMode, default, default, default, default);
+            => new(default, aprMode, deadlineOffersMode, isMarkupDisabled: default, 
+                isSupplierVisible: default, default, areTagsVisible: default, default);
 
 
         private static RoomContractSetAvailability CreateAvailability(bool isApr = false, DateTime? checkInDate = null, DateTime? deadlineDate = null)
         {
             var deadline = new Deadline(deadlineDate);
             var roomContractSetWithApr = new RoomContractSet(default, default, deadline, default,
-                default, isAdvancePurchaseRate: isApr);
+                default, default, isAdvancePurchaseRate: isApr);
 
             return new RoomContractSetAvailability(default, checkInDate ?? default,
                 default, default, default, roomContractSetWithApr);
