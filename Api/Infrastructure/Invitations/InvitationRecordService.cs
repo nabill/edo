@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
 
 
             bool InvitationIsActual(UserInvitation invitation)
-                => invitation.Created + _invitationExpirationPeriod > _dateTimeProvider.UtcNow();
+                => !invitation.IsExpired(_dateTimeProvider.UtcNow());
         }
 
 
@@ -95,8 +95,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
         public UserInvitationData GetInvitationData(UserInvitation invitation)
             => JsonConvert.DeserializeObject<UserInvitationData>(invitation.Data);
 
-
-        private readonly TimeSpan _invitationExpirationPeriod = TimeSpan.FromDays(7);
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
