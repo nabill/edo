@@ -578,6 +578,10 @@ namespace HappyTravel.Edo.Data
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
 
+                booking.Property(b => b.CancellationPolicies)
+                    .HasColumnType("jsonb")
+                    .HasDefaultValueSql("'[]'::jsonb");
+
                 booking.HasIndex(b => b.IsDirectContract);
             });
         }
