@@ -38,15 +38,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result<string>> GetEmail()
             {
-                var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId);
-                if (isFailure)
-                    return Result.Failure<string>(error);
+                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyId);
 
-                if (!string.IsNullOrWhiteSpace(counterpartyInfo.BillingEmail))
-                    return counterpartyInfo.BillingEmail;
+                if (!string.IsNullOrWhiteSpace(rootAgency.BillingEmail))
+                    return rootAgency.BillingEmail;
 
-                var defaultAgency = await _counterpartyService.GetDefaultAgency(counterpartyId);
-                return await _agentService.GetMasterAgent(defaultAgency.Id)
+                return await _agentService.GetMasterAgent(rootAgency.Id)
                     .Map(master => master.Email);
             }
 

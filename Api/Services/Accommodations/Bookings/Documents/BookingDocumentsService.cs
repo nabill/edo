@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -12,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
@@ -100,12 +103,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         public async Task<Result> GenerateInvoice(Data.Bookings.Booking booking)
         {
-            var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
-            if (isCounterpartyFailure)
-                return Result.Failure(counterpartyError);
+            var rootAgency = await _counterpartyService.GetRootAgency(booking.CounterpartyId);
 
             var invoiceData = new BookingInvoiceData(
-                GetBuyerInfo(in counterparty),
+                GetBuyerInfo(rootAgency),
                 GetSellerDetails(booking, _bankDetails),
                 booking.ReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
@@ -155,10 +156,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 return sellerDetails;
             }
 
-            static BookingInvoiceData.BuyerInfo GetBuyerInfo(in CounterpartyInfo counterparty) => new BookingInvoiceData.BuyerInfo(counterparty.Name, 
-                counterparty.Address,
-                counterparty.Phone,
-                counterparty.BillingEmail);
+            static BookingInvoiceData.BuyerInfo GetBuyerInfo(Agency agency) => new BookingInvoiceData.BuyerInfo(agency.Name, 
+                agency.Address,
+                agency.Phone,
+                agency.BillingEmail);
         }
 
 

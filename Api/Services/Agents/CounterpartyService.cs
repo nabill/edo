@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -25,37 +24,35 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Add(CounterpartyEditRequest counterparty)
+        public async Task<Result<CounterpartyInfo>> Add(CounterpartyCreateRequest request)
         {
-            var (_, isFailure, error) = CounterpartyValidator.Validate(counterparty);
-            if (isFailure)
-                return Result.Failure<CounterpartyInfo>(error);
+            return await AgencyValidator.Validate(request.RootAgencyInfo)
+                .Map(CreateCounterparty)
+                .Tap(CreateRootAgency)
+                .Bind(c => GetCounterpartyInfo(c.Id));
 
-            var now = _dateTimeProvider.UtcNow();
-            var createdCounterparty = new Counterparty
+
+            async Task<Counterparty> CreateCounterparty()
             {
-                Address = counterparty.Address,
-                City = counterparty.City,
-                CountryCode = counterparty.CountryCode,
-                Fax = counterparty.Fax,
-                Name = counterparty.Name,
-                Phone = counterparty.Phone,
-                Website = counterparty.Website,
-                PostalCode = counterparty.PostalCode,
-                // Hardcoded because only USD is supported
-                PreferredCurrency = Currencies.USD,
-                PreferredPaymentMethod = counterparty.PreferredPaymentMethod,
-                State = CounterpartyStates.PendingVerification,
-                Created = now,
-                Updated = now
-            };
+                var now = _dateTimeProvider.UtcNow();
+                var createdCounterparty = new Counterparty
+                {
+                    Name = request.CounterpartyInfo.Name,
+                    PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
+                    State = CounterpartyStates.PendingVerification,
+                    Created = now,
+                    Updated = now
+                };
 
-            _context.Counterparties.Add(createdCounterparty);
-            await _context.SaveChangesAsync();
+                _context.Counterparties.Add(createdCounterparty);
+                await _context.SaveChangesAsync();
 
-            await _agencyManagementService.Create(createdCounterparty.Name, createdCounterparty.Id, null);
+                return createdCounterparty;
+            }
 
-            return await GetCounterpartyInfo(createdCounterparty.Id);
+
+            Task CreateRootAgency(Counterparty newCounterparty)
+                => _agencyManagementService.Create(request.RootAgencyInfo, counterpartyId: newCounterparty.Id, parentAgencyId: null);
         }
 
 
@@ -126,49 +123,34 @@ namespace HappyTravel.Edo.Api.Services.Agents
         //}
 
 
-        public Task<Agency> GetDefaultAgency(int counterpartyId)
+        public Task<Agency> GetRootAgency(int counterpartyId)
             => _context.Agencies
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId)
         {
-            return await GetCounterpartyInfo(counterpartyId, languageCode);
+            return await GetCounterpartyInfo(counterpartyId);
         }
 
 
-        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode )
+        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId)
         {
-            var result = await (from cp in _context.Counterparties
-                join c in _context.Countries on cp.CountryCode equals c.Code
-                where cp.Id == counterpartyId
-                select new
-                {
-                    Counterparty = cp,
-                    Country = c
-                }).SingleOrDefaultAsync();
+            var result = await _context.Counterparties
+                .Where(cp => cp.Id == counterpartyId)
+                .SingleOrDefaultAsync();
 
             if (result == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
-
+            
             return new CounterpartyInfo(
-                result.Counterparty.Id,
-                result.Counterparty.Name,
-                result.Counterparty.Address,
-                result.Counterparty.CountryCode,
-                LocalizationHelper.GetValueFromSerializedString(result.Country.Names, languageCode),
-                result.Counterparty.City,
-                result.Counterparty.Phone,
-                result.Counterparty.Fax,
-                result.Counterparty.PostalCode,
-                result.Counterparty.PreferredCurrency,
-                result.Counterparty.PreferredPaymentMethod,
-                result.Counterparty.Website,
-                result.Counterparty.VatNumber,
-                result.Counterparty.BillingEmail,
-                result.Counterparty.IsContractUploaded,
-                result.Counterparty.State,
-                result.Counterparty.Verified);
+                result.Id,
+                result.Name,
+                result.LegalAddress,
+                result.PreferredPaymentMethod,
+                result.IsContractUploaded,
+                result.State,
+                result.Verified);
         }
 
         

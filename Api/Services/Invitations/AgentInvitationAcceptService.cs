@@ -32,8 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             Agents.IAgentService agentService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
             IInvitationRecordService invitationRecordService,
-            IAccountManagementService accountManagementService,
-            ICounterpartyService counterpartyService)
+            IAccountManagementService accountManagementService)
         {
             _context = context;
             _mailSender = mailSender;
@@ -43,7 +42,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             _notificationOptions = notificationOptions.Value;
             _invitationRecordService = invitationRecordService;
             _accountManagementService = accountManagementService;
-            _counterpartyService = counterpartyService;
         }
 
 
@@ -138,16 +136,17 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (isGetAgencyFailure)
                     return Result.Failure<AcceptPipeValues>(agencyError);
 
-                var (_, isGetCounterpartyFailure, inviterCounterparty, counterpartyError) = 
-                    await _counterpartyService.Get(inviterAgency.CounterpartyId.Value);
-                if (isGetCounterpartyFailure)
-                    return Result.Failure<AcceptPipeValues>(counterpartyError);
+                var (_, isValidationFailure, validationError) = AgencyValidator.Validate(values.InvitationData.ChildAgencyRegistrationInfo);
+                if (isValidationFailure)
+                    return Result.Failure<AcceptPipeValues>(validationError);
 
                 var childAgency = await _agencyManagementService.Create(
-                    values.InvitationData.ChildAgencyRegistrationInfo.Name, inviterAgency.CounterpartyId.Value, inviterAgency.Id);
+                    values.InvitationData.ChildAgencyRegistrationInfo,
+                    counterpartyId: inviterAgency.CounterpartyId.Value,
+                    parentAgencyId: inviterAgency.Id);
 
                 var childAgencyRecord = await _context.Agencies.SingleAsync(a => a.Id == childAgency.Id.Value);
-                await _accountManagementService.CreateForAgency(childAgencyRecord, inviterCounterparty.PreferredCurrency);
+                await _accountManagementService.CreateForAgency(childAgencyRecord, childAgencyRecord.PreferredCurrency);
 
                 values.AgencyName = childAgency.Name;
                 values.AgencyId = childAgency.Id.Value;
@@ -237,6 +236,5 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAccountManagementService _accountManagementService;
-        private readonly ICounterpartyService _counterpartyService;
     }
 }

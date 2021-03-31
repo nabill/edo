@@ -10,6 +10,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210329233441_MoveFieldsToAgency")]
+    partial class MoveFieldsToAgency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,10 +340,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<bool>("IsContractUploaded")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LegalAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -445,11 +443,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
-                    b.Property<List<CancellationPolicy>>("CancellationPolicies")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'[]'::jsonb");
-
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -473,9 +466,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("HtId")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsDirectContract")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
@@ -535,8 +525,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgentId");
 
                     b.HasIndex("CounterpartyId");
-
-                    b.HasIndex("IsDirectContract");
 
                     b.HasIndex("ItineraryNumber");
 
@@ -603,20 +591,17 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("Event")
+                    b.Property<int>("ChangeEvent")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Initiator")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Reason")
+                    b.Property<string>("ChangeReason")
                         .HasColumnType("text");
 
-                    b.Property<int>("Source")
+                    b.Property<int>("ChangeSource")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
