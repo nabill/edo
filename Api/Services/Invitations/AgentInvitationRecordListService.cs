@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -15,12 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public class AgentInvitationRecordListService : IAgentInvitationRecordListService
     {
-        public AgentInvitationRecordListService(
-            EdoContext context,
-            IInvitationRecordService invitationRecordService)
+        public AgentInvitationRecordListService(EdoContext context,
+            IInvitationRecordService invitationRecordService,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _invitationRecordService = invitationRecordService;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -64,7 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     i.Invite.Email,
                     $"{i.Inviter.FirstName} {i.Inviter.LastName}",
                     DateTimeFormatters.ToDateString(i.Invite.Created),
-                    i.Invite.InvitationStatus)
+                    i.Invite.InvitationStatus,
+                    i.Invite.IsExpired(_dateTimeProvider.UtcNow()))
                 )
                 .ToList();
         }
@@ -72,5 +75,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         private readonly EdoContext _context;
         private readonly IInvitationRecordService _invitationRecordService;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

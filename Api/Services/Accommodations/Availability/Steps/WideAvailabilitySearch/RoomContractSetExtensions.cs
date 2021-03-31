@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 rs.Rooms,
                 rs.IsAdvancePurchaseRate,
                 rs.Supplier,
-                tags);
+                tags,
+                rs.IsDirectContract);
     }
 }

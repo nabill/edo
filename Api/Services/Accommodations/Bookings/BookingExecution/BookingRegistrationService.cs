@@ -87,7 +87,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     availabilityInfo.CheckInDate,
                     availabilityInfo.CheckOutDate,
                     availabilityInfo.HtId,
-                    availabilityInfo.RoomContractSet.Tags);
+                    availabilityInfo.RoomContractSet.Tags,
+                    availabilityInfo.RoomContractSet.IsDirectContract);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -109,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod,
             in AccommodationBookingRequest bookingRequest, string languageCode, Suppliers supplier,
-            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate, string htId, List<string> tags)
+            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate, string htId, List<string> tags, bool isDirectContract)
         {
             var booking = new Booking
             {
@@ -125,7 +126,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 CheckInDate = checkInDate,
                 CheckOutDate = checkOutDate,
                 HtId = htId,
-                Tags = tags
+                Tags = tags,
+                IsDirectContract = isDirectContract,
+                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies
             };
             
             AddRequestInfo(bookingRequest);
@@ -190,8 +193,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         .ToList();
             }
         }
-        
-        
+
+
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();

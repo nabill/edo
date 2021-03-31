@@ -4,8 +4,9 @@ namespace HappyTravel.Edo.Data.Bookings
 {
     public class BookingChangeReason
     {
-        public ChangeSources ChangeSource { get; set; }
-        public BookingChangeEvents ChangeEvent { get; set; }
-        public string ChangeReason { get; set; }
+        public BookingChangeInitiators Initiator { get; set; }
+        public BookingChangeSources Source { get; set; }
+        public BookingChangeEvents Event { get; set; }
+        public string Reason { get; set; }
     }
 }

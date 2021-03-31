@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -22,8 +23,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _policyManager = policyManager;
             _agentContext = agentContext;
         }
-        
-        
+
+
         /// <summary>
         /// Creates markup policy.
         /// </summary>
@@ -43,6 +44,27 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
+        }
+
+
+        /// <summary>
+        /// Gets markup policies for a child agency.
+        /// </summary>
+        /// <param name="agencyId">Agency id</param>
+        /// <returns></returns>
+        [HttpGet("agency/child-agencies/{agencyId}/markups")]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<MarkupInfo>), (int)HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
+        public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId)
+        {
+            var agent = await _agentContext.GetAgent();
+
+            var (_, isFailure, markupList, error) = await _policyManager.GetForChildAgency(agencyId, agent);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok(markupList);
         }
 
 

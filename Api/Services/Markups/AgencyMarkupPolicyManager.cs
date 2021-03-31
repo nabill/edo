@@ -125,6 +125,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public Task<Result<List<MarkupInfo>>> GetForChildAgency(int agencyId, AgentContext agent)
+        {
+            return Result.Success(agencyId)
+                .Ensure(IsSpecifiedAgencyChild, "Specified agency is not a child agency or does not exist.")
+                .Map(Get);
+
+
+            async Task<bool> IsSpecifiedAgencyChild(int childAgencyId)
+                => await _context.Agencies.AnyAsync(a => a.Id == childAgencyId && a.ParentId == agent.AgencyId && a.IsActive);
+        }
+
+
         public async Task<List<MarkupInfo>> Get(int agencyId)
         {
             var policies = await GetAgencyPolicies(agencyId);
