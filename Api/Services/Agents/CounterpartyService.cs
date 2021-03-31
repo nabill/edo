@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return new CounterpartyInfo(
                 result.Id,
                 result.Name,
-                result.Address,
+                result.LegalAddress,
                 result.PreferredPaymentMethod,
                 result.IsContractUploaded,
                 result.State,

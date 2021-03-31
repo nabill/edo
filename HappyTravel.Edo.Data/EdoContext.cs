@@ -316,7 +316,7 @@ namespace HappyTravel.Edo.Data
                 agency.HasIndex(a => a.CounterpartyId);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
-                agency.Property(c => c.LegalAddress).IsRequired();
+                agency.Property(c => c.Address).IsRequired();
                 agency.Property(c => c.City).IsRequired();
                 agency.Property(c => c.CountryCode).IsRequired();
                 agency.Property(c => c.Phone).IsRequired();
@@ -514,7 +514,7 @@ namespace HappyTravel.Edo.Data
                 counterparty.HasKey(c => c.Id);
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
-                counterparty.Property(c => c.Address).IsRequired();
+                counterparty.Property(c => c.LegalAddress).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
                 counterparty.Property(c => c.State).IsRequired();
                 counterparty.Property(c => c.IsActive)

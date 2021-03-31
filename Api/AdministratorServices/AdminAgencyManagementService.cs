@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public async Task<AgencyInfo> Create(AgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
-            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.LegalAddress, agencyInfo.BillingEmail, agencyInfo.City,
+            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.City,
                 agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber, parentAgencyId);
         
         
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 Created = now,
                 Modified = now,
                 ParentId = parentAgencyId,
-                LegalAddress = address,
+                Address = address,
                 BillingEmail = billingEmail,
                 City = city,
                 CountryCode = countryCode,

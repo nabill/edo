@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Name,
                 agency.Id,
                 agency.CounterpartyId,
-                agency.LegalAddress,
+                agency.Address,
                 agency.BillingEmail,
                 agency.City,
                 agency.CountryCode,

@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             }
 
             static BookingInvoiceData.BuyerInfo GetBuyerInfo(Agency agency) => new BookingInvoiceData.BuyerInfo(agency.Name, 
-                agency.LegalAddress,
+                agency.Address,
                 agency.Phone,
                 agency.BillingEmail);
         }
