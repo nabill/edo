@@ -1599,7 +1599,7 @@
                 Id of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Address">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.LegalAddress">
             <summary>
                 Agency address.
             </summary>
@@ -1907,6 +1907,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Name">
             <summary>
                 Counterparty name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Address">
+            <summary>
+                Agency address.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.PreferredPaymentMethod">

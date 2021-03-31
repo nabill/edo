@@ -87,10 +87,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
             
             migrationBuilder.DropColumn(
-                name: "Address",
-                table: "Counterparties");
-
-            migrationBuilder.DropColumn(
                 name: "BillingEmail",
                 table: "Counterparties");
 
@@ -129,13 +125,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Address",
-                table: "Counterparties",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
             migrationBuilder.AddColumn<string>(
                 name: "BillingEmail",
                 table: "Counterparties",
