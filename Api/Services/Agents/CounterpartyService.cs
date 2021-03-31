@@ -142,10 +142,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             if (result == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
-
+            
             return new CounterpartyInfo(
                 result.Id,
                 result.Name,
+                result.Address,
                 result.PreferredPaymentMethod,
                 result.IsContractUploaded,
                 result.State,

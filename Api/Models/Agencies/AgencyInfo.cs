@@ -6,13 +6,13 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct AgencyInfo
     {
         [JsonConstructor]
-        public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
+        public AgencyInfo(string name, int? id, int? counterpartyId, string legalAddress, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber)
         {
             Name = name;
             Id = id;
             CounterpartyId = counterpartyId;
-            Address = address;
+            LegalAddress = legalAddress;
             BillingEmail = billingEmail;
             City = city;
             CountryCode = countryCode;
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Agency address.
         /// </summary>
         [Required]
-        public string Address { get; }
+        public string LegalAddress { get; }
 
         /// <summary>
         ///     Two-letter international country code.

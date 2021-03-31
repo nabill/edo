@@ -194,6 +194,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
+                counterparty.Address,
                 counterparty.PreferredPaymentMethod,
                 counterparty.IsContractUploaded,
                 counterparty.State,

@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         public int Id { get; set; }
         public int CounterpartyId { get; set; }
         public string Name { get; set; }
-        public string Address { get; set; }
+        public string LegalAddress { get; set; }
         public string CountryCode { get; set; }
         public string City { get; set; }
         public string Phone { get; set; }
