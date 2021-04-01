@@ -64,6 +64,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        [HttpPut("agency")]
+        [ProducesResponseType(typeof(SlimAgencyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
+        public async Task<IActionResult> EditSelfAgency([FromBody] EditAgencyInfo info)
+        {
+            var (_, isFailure, agency, error) = await _agencyService.Edit(await _agentContextService.GetAgent(), info, LanguageCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(agency);
+        }
+
+
         /// <summary>
         ///     Gets agency.
         /// </summary>
@@ -93,6 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
         public async Task<IActionResult> GetChildAgencies()
             => Ok(await _childAgencyService.Get(await _agentContextService.GetAgent()));
+
 
 
         /// <summary>

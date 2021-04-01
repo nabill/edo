@@ -9,5 +9,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public interface IAgencyService
     {
         Task<Result<SlimAgencyInfo>> Get(AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode);
+
+        Task<Result<SlimAgencyInfo>> Edit(AgentContext agent, EditAgencyInfo editAgencyInfo,
+            string languageCode = LocalizationHelper.DefaultLanguageCode);
     }
 }

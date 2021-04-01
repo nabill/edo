@@ -5,14 +5,20 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgencyService : IAgencyService
     {
-        public AgencyService(IAdminAgencyManagementService adminAgencyManagementService)
+        public AgencyService(IAdminAgencyManagementService adminAgencyManagementService,
+            IDateTimeProvider dateTimeProvider,
+            EdoContext edoContext)
         {
             _adminAgencyManagementService = adminAgencyManagementService;
+            _dateTimeProvider = dateTimeProvider;
+            _edoContext = edoContext;
         }
 
 
@@ -34,6 +40,43 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public Task<Result<SlimAgencyInfo>> Edit(AgentContext agent, EditAgencyInfo editAgencyInfo,
+            string languageCode = LocalizationHelper.DefaultLanguageCode)
+        {
+            return Validate()
+                .Tap(UpdateAgencyRecord)
+                .Bind(GetUpdatedAgencyInfo);
+
+
+            Result Validate()
+                => AgencyValidator.Validate(editAgencyInfo);
+
+
+            async Task UpdateAgencyRecord()
+            {
+                var agencyRecord = await _edoContext.Agencies.SingleAsync(a => a.Id == agent.AgencyId);
+
+                agencyRecord.Address = editAgencyInfo.Address ?? agencyRecord.Address;
+                agencyRecord.Phone = editAgencyInfo.Phone ?? agencyRecord.Phone;
+                agencyRecord.Fax = editAgencyInfo.Fax ?? agencyRecord.Fax;
+                agencyRecord.PostalCode = editAgencyInfo.PostalCode ?? agencyRecord.PostalCode;
+                agencyRecord.Website = editAgencyInfo.Website ?? agencyRecord.Website;
+                agencyRecord.BillingEmail = editAgencyInfo.BillingEmail ?? agencyRecord.BillingEmail;
+
+                agencyRecord.Modified = _dateTimeProvider.UtcNow();
+
+                _edoContext.Update(agencyRecord);
+                await _edoContext.SaveChangesAsync();
+            }
+
+
+            Task<Result<SlimAgencyInfo>> GetUpdatedAgencyInfo()
+                => Get(agent, languageCode);
+        }
+
+
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly EdoContext _edoContext;
     }
 }
