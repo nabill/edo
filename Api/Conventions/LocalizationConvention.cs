@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Conventions
         {
             var culturePrefix = new AttributeRouteModel(new RouteAttribute("{culture}"));
 
-            foreach (var controller in application.Controllers)
+            foreach (var controller in application.Controllers.Where(c => c.DisplayName != "Microsoft.AspNet.OData.MetadataController (Microsoft.AspNetCore.OData)"))
             {
                 var matchedSelectors = controller.Selectors.Where(x => x.AttributeRouteModel != null).ToList();
                 if (matchedSelectors.Any())
