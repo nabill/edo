@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
             {
                 var appliedMarkups = new List<AppliedMarkup>();
-                var priceInUsd = response?.RoomContractSet.Rate.FinalPrice.Amount ?? default;
+                var convertedPrice = response?.RoomContractSet.Rate.FinalPrice ?? default;
                 // Saving all the changes in price that was done by markups
                 Action<MarkupApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
                 {
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 };
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(response, agent, logAction);
-                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, priceInUsd, supplierPrice);
+                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, convertedPrice, supplierPrice);
             }
 
             
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var paymentMethods = GetAvailablePaymentMethods(responseWithDeadline.Data.Value);
 
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
-                    responseWithDeadline.AppliedMarkups, responseWithDeadline.PriceInUsd, responseWithDeadline.SupplierPrice);
+                    responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedPrice, responseWithDeadline.SupplierPrice);
                 
                 return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods, result.htId);
             }

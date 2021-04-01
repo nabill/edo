@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 roomSetAvailability.NumberOfNights,
                 result.Source,
                 dataWithMarkup.AppliedMarkups,
-                dataWithMarkup.PriceInUsd,
+                dataWithMarkup.ConvertedPrice,
                 dataWithMarkup.SupplierPrice,
                 roomSetAvailability.AvailabilityId,
                 htId,
