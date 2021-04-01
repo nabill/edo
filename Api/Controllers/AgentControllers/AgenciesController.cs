@@ -31,7 +31,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgencyManagementService agencyManagementService,
             IAgentInvitationAcceptService agentInvitationAcceptService,
             IHttpClientFactory httpClientFactory,
-            ITokenInfoAccessor tokenInfoAccessor)
+            ITokenInfoAccessor tokenInfoAccessor,
+            IAgencyService agencyService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -40,6 +41,26 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationAcceptService = agentInvitationAcceptService;
             _httpClientFactory = httpClientFactory;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _agencyService = agencyService;
+        }
+
+
+        /// <summary>
+        ///     Gets current agent's agency.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("agency")]
+        [ProducesResponseType(typeof(SlimAgencyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AgentRequired]
+        public async Task<IActionResult> GetSelfAgency()
+        {
+            var (_, isFailure, agency, error) = await _agencyService.Get(await _agentContextService.GetAgent(), LanguageCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(agency);
         }
 
 
@@ -187,6 +208,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationAcceptService _agentInvitationAcceptService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly IAgencyService _agencyService;
         private readonly IAgencyManagementService _agencyManagementService;
     }
 }
