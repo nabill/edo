@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -56,31 +57,42 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.PendingVerification,
                     "Verification as read-only is only available for counterparties that are in pending verification step")
-                .BindWithTransaction(_context, c => SetReadOnlyVerificationState(c)
+                .Bind(GetRootAgencyCurrency)
+                .BindWithTransaction(_context, values => SetReadOnlyVerificationState(values)
                     .Bind(CreateAccountForCounterparty)
-                    .Bind(() => CreateAccountsForAgencies(c)))
+                    .Bind(CreateAccountsForAgencies))
                 .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
 
 
-            async Task<Result<Counterparty>> SetReadOnlyVerificationState(Counterparty counterparty)
+            async Task<Result<(Counterparty, Currencies)>> SetReadOnlyVerificationState((Counterparty counterparty, Currencies currency) values)
             {
-                await SetVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
-                return counterparty;
+                await SetVerificationState(values.counterparty, CounterpartyStates.ReadOnly, verificationReason);
+                return values;
             }
 
 
-            Task<Result> CreateAccountForCounterparty(Counterparty counterparty)
+            async Task<Result<(Counterparty counterparty, Currencies currency)>> GetRootAgencyCurrency(Counterparty counterparty)
+            {
+                var rootAgency = await _context.Agencies.SingleOrDefaultAsync(a => a.ParentId == null && a.CounterpartyId == counterpartyId);
+                if (rootAgency == null)
+                    return Result.Failure<(Counterparty, Currencies)>("Can't find the root agency.");
+
+                return (counterparty, rootAgency.PreferredCurrency);
+            }
+
+
+            Task<Result> CreateAccountForCounterparty((Counterparty counterparty, Currencies currency) values)
                 => _accountManagementService
-                    .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
+                    .CreateForCounterparty(values.counterparty, values.currency);
 
 
-            async Task<Result> CreateAccountsForAgencies(Counterparty counterparty)
+            async Task<Result> CreateAccountsForAgencies()
             {
                 var agencies = await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId).ToListAsync();
 
                 foreach (var agency in agencies)
                 {
-                    var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, counterparty.PreferredCurrency);
+                    var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, agency.PreferredCurrency);
                     if (isFailure)
                         return Result.Failure("Error while creating accounts for agencies");
                 }

@@ -316,6 +316,11 @@ namespace HappyTravel.Edo.Data
                 agency.HasIndex(a => a.CounterpartyId);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
+                agency.Property(c => c.Address).IsRequired();
+                agency.Property(c => c.City).IsRequired();
+                agency.Property(c => c.CountryCode).IsRequired();
+                agency.Property(c => c.Phone).IsRequired();
+                agency.Property(c => c.PreferredCurrency).IsRequired();
             });
         }
 
@@ -508,12 +513,8 @@ namespace HappyTravel.Edo.Data
             {
                 counterparty.HasKey(c => c.Id);
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
-                counterparty.Property(c => c.Address).IsRequired();
-                counterparty.Property(c => c.City).IsRequired();
-                counterparty.Property(c => c.CountryCode).IsRequired();
                 counterparty.Property(c => c.Name).IsRequired();
-                counterparty.Property(c => c.Phone).IsRequired();
-                counterparty.Property(c => c.PreferredCurrency).IsRequired();
+                counterparty.Property(c => c.LegalAddress).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
                 counterparty.Property(c => c.State).IsRequired();
                 counterparty.Property(c => c.IsActive)
@@ -576,6 +577,12 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
+
+                booking.Property(b => b.CancellationPolicies)
+                    .HasColumnType("jsonb")
+                    .HasDefaultValueSql("'[]'::jsonb");
+
+                booking.HasIndex(b => b.IsDirectContract);
             });
         }
 
@@ -882,9 +889,10 @@ namespace HappyTravel.Edo.Data
                 e.Property(bshe => bshe.AgencyId);
                 e.Property(bshe => bshe.CreatedAt).IsRequired();
                 e.Property(bshe => bshe.Status).IsRequired();
-                e.Property(bshe => bshe.ChangeSource).IsRequired();
-                e.Property(bshe => bshe.ChangeEvent).IsRequired();
-                e.Property(bshe => bshe.ChangeReason);
+                e.Property(bshe => bshe.Initiator).IsRequired();
+                e.Property(bshe => bshe.Source).IsRequired();
+                e.Property(bshe => bshe.Event).IsRequired();
+                e.Property(bshe => bshe.Reason);
                 e.ToTable("BookingStatusHistory");
             });
         }

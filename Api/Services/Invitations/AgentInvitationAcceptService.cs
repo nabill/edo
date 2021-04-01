@@ -10,6 +10,8 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -29,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             IAdminAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
-            IInvitationRecordService invitationRecordService)
+            IInvitationRecordService invitationRecordService,
+            IAccountManagementService accountManagementService)
         {
             _context = context;
             _mailSender = mailSender;
@@ -38,6 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             _agentService = agentService;
             _notificationOptions = notificationOptions.Value;
             _invitationRecordService = invitationRecordService;
+            _accountManagementService = accountManagementService;
         }
 
 
@@ -127,12 +131,22 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     return values;
                 }
 
-                var (_, isGetAgencyFailure, inviterAgency, error) = await _agencyManagementService.Get(values.Invitation.InviterAgencyId.Value);
+                var (_, isGetAgencyFailure, inviterAgency, agencyError) =
+                    await _agencyManagementService.Get(values.Invitation.InviterAgencyId.Value);
                 if (isGetAgencyFailure)
-                    return Result.Failure<AcceptPipeValues>(error);
+                    return Result.Failure<AcceptPipeValues>(agencyError);
+
+                var (_, isValidationFailure, validationError) = AgencyValidator.Validate(values.InvitationData.ChildAgencyRegistrationInfo);
+                if (isValidationFailure)
+                    return Result.Failure<AcceptPipeValues>(validationError);
 
                 var childAgency = await _agencyManagementService.Create(
-                    values.InvitationData.ChildAgencyRegistrationInfo.Name, inviterAgency.CounterpartyId.Value, inviterAgency.Id);
+                    values.InvitationData.ChildAgencyRegistrationInfo,
+                    counterpartyId: inviterAgency.CounterpartyId.Value,
+                    parentAgencyId: inviterAgency.Id);
+
+                var childAgencyRecord = await _context.Agencies.SingleAsync(a => a.Id == childAgency.Id.Value);
+                await _accountManagementService.CreateForAgency(childAgencyRecord, childAgencyRecord.PreferredCurrency);
 
                 values.AgencyName = childAgency.Name;
                 values.AgencyId = childAgency.Id.Value;
@@ -221,5 +235,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly Agents.IAgentService _agentService;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
         private readonly IInvitationRecordService _invitationRecordService;
+        private readonly IAccountManagementService _accountManagementService;
     }
 }

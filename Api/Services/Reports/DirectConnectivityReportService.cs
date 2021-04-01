@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                     where 
-                        booking.Tags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
+                        booking.IsDirectContract &&
                         booking.Created >= dateFrom &&
                         booking.Created < dateEnd
                     select new SupplierWiseRecordProjection
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
                     where 
-                        booking.Tags.Contains(EdoContracts.Accommodations.Constants.CommonTags.DirectConnectivity) &&
+                        booking.IsDirectContract &&
                         booking.Created >= dateFrom &&
                         booking.Created < dateEnd
                     select new AgencyWiseRecordProjection

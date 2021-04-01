@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AgentAccommodationBookingSettings settings)
         {
-            var doesRelationExist = await _context.AgentAgencyRelations
+             var doesRelationExist = await _context.AgentAgencyRelations
                 .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
 
             if (!doesRelationExist)

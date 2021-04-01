@@ -116,14 +116,32 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<List<int>>("Ancestors")
                         .HasColumnType("integer[]");
+
+                    b.Property<string>("BillingEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -139,6 +157,22 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PreferredCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VatNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -290,29 +324,11 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int?>("ContractKind")
                         .HasColumnType("integer");
 
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Fax")
-                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -322,19 +338,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<bool>("IsContractUploaded")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("LegalAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PreferredCurrency")
-                        .HasColumnType("integer");
 
                     b.Property<int>("PreferredPaymentMethod")
                         .HasColumnType("integer");
@@ -345,17 +355,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Updated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("VatNumber")
-                        .HasColumnType("text");
-
                     b.Property<string>("VerificationReason")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Verified")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Website")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -441,6 +445,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
+                    b.Property<List<CancellationPolicy>>("CancellationPolicies")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -464,6 +473,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("HtId")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDirectContract")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
@@ -523,6 +535,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgentId");
 
                     b.HasIndex("CounterpartyId");
+
+                    b.HasIndex("IsDirectContract");
 
                     b.HasIndex("ItineraryNumber");
 
@@ -589,17 +603,20 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ChangeEvent")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ChangeReason")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ChangeSource")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Event")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Initiator")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

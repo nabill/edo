@@ -4,6 +4,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
+using CancellationPolicy = HappyTravel.Edo.Data.Bookings.CancellationPolicy;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
@@ -13,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, DateTime? deadlineDate,
-            List<BookedRoom> roomDetails, int numberOfPassengers)
+            List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created)
         {
             ReferenceCode = referenceCode;
             AgentReference = agentReference;
@@ -27,6 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AccommodationName = accommodationName;
             DeadlineDate = deadlineDate;
             NumberOfPassengers = numberOfPassengers;
+            CancellationPolicies = cancellationPolicies;
+            Created = created;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
         
@@ -56,6 +59,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public ContactInfo ContactInfo { get; }
         public DateTime? DeadlineDate { get; }
         public int NumberOfPassengers { get; }
+        public List<CancellationPolicy> CancellationPolicies { get; }
+        public DateTime Created { get; }
         public List<BookedRoom> RoomDetails { get; }
     }
 }

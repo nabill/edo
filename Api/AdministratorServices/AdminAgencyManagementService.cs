@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -12,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -42,20 +44,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
 
-        public async Task<Result<AgencyInfo>> Get(int agencyId)
+        public async Task<Result<AgencyInfo>> Get(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            var agency = await _context.Agencies.Where(a => a.Id == agencyId)
-                .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId)).SingleOrDefaultAsync();
+            var agencyInfo = await (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    where a.Id == agencyId
+                    select a.ToAgencyInfo(c.Names, languageCode))
+                .SingleOrDefaultAsync();
 
-            return agency.Equals(default)
+            return agencyInfo.Equals(default)
                 ? Result.Failure<AgencyInfo>("Could not find specified agency")
-                : agency;
+                : agencyInfo;
         }
 
 
-        public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId)
-            => _context.Agencies.Where(a => a.ParentId == parentAgencyId)
-                .Select(a => new AgencyInfo(a.Name, a.Id, a.CounterpartyId))
+        public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    where a.ParentId == parentAgencyId
+                    select a.ToAgencyInfo(c.Names, languageCode))
                 .ToListAsync();
 
 
@@ -122,7 +131,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<AgencyInfo> Create(string name, int counterpartyId, int? parentAgencyId)
+        public async Task<AgencyInfo> Create(AgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
+            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.City,
+                agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber, parentAgencyId);
+        
+        
+        public async Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
+            string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId)
         {
             var now = _dateTimeProvider.UtcNow();
             var agency = new Agency
@@ -132,11 +147,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 Created = now,
                 Modified = now,
                 ParentId = parentAgencyId,
+                Address = address,
+                BillingEmail = billingEmail,
+                City = city,
+                CountryCode = countryCode,
+                Fax = fax,
+                Phone = phone,
+                PostalCode = postalCode,
+                Website = website,
+                VatNumber = vatNumber,
+                // Hardcode because we only support USD
+                PreferredCurrency = Currencies.USD,
             };
             _context.Agencies.Add(agency);
 
             await _context.SaveChangesAsync();
-            return new AgencyInfo(agency.Name, agency.Id, counterpartyId);
+            return (await Get(agency.Id)).Value;
         }
 
 

@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyEditRequest counterpartyData, string externalIdentity,
+        public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData, string externalIdentity,
             string email)
         {
             return Result.Success()
@@ -65,11 +65,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task AddMasterAgentAgencyRelation((CounterpartyInfo counterparty, Agent agent) counterpartyUserInfo)
             {
                 var (counterparty, agent) = counterpartyUserInfo;
-                var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
+                var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
                     PermissionSets.Master,
-                    defaultAgency.Id);
+                    rootAgency.Id);
             }
 
 

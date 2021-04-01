@@ -202,7 +202,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     booking.AccommodationName,
                     booking.DeadlineDate,
                     booking.Rooms,
-                    passengerNumber);
+                    passengerNumber,
+                    booking.CancellationPolicies,
+                    booking.Created);
             }
             
             

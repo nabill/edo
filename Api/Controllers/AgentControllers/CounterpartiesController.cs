@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetCounterparty()
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(agent.CounterpartyId, LanguageCode);
+            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(agent.CounterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

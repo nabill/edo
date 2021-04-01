@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
-            => Ok(await _agencyManagementService.GetChildAgencies(agencyId));
+            => Ok(await _agencyManagementService.GetChildAgencies(agencyId, LanguageCode));
 
 
         /// <summary>
