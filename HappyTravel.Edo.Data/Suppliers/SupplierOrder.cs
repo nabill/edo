@@ -1,5 +1,6 @@
 using System;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Suppliers
 {
@@ -7,7 +8,10 @@ namespace HappyTravel.Edo.Data.Suppliers
     {
         public int Id { get; set; }
         public Common.Enums.Suppliers Supplier { get; set; }
-        public decimal Price { get; set; }
+        public decimal ConvertedSupplierPrice { get; set; }
+        public Currencies ConvertedSupplierCurrency { get; set; }
+        public decimal OriginalSupplierPrice { get; set; }
+        public Currencies OriginalSupplierCurrency { get; set; }
         public SupplierOrderState State { get; set; }
         public ServiceTypes Type { get; set; }
         public string ReferenceCode { get; set; }
