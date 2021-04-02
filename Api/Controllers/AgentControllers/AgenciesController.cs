@@ -110,19 +110,61 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             => Ok(await _childAgencyService.Get(await _agentContextService.GetAgent()));
 
 
-
         /// <summary>
-        ///     Invites to create child agency.
+        ///     Sends an email inviting to create a child agency.
         /// </summary>
+        /// <param name="request">Request for child agency invitation</param>
         /// <returns></returns>
         [HttpPost("agency/invitations/send")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
         public async Task<IActionResult> InviteChildAgency([FromBody] UserInvitationData request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Send(request,
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request,
+                UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Resends an email inviting to create a child agency.
+        /// </summary>
+        /// <param name="invitationCodeHash">Invitation code hash</param>>
+        /// <returns></returns>
+        [HttpPost("agency/invitations/{invitationCodeHash}/resend")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
+        public async Task<IActionResult> ResendInvitationChildAgency([FromRoute] string invitationCodeHash)
+        {
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Resend(invitationCodeHash);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Invites to create child agency.
+        /// </summary>
+        /// <param name="request">Request for child agency invitation</param>
+        /// <returns>Invitation code</returns>
+        [HttpPost("agency/invitations/generate")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
+        public async Task<IActionResult> GenerateChildAgencyInvite([FromBody] UserInvitationData request)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request,
                 UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -133,18 +175,17 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Invites to create child agency.
+        ///     Recreates the invitation to create child agency.
         /// </summary>
-        /// <returns></returns>
-        [HttpPost("agency/invitations/generate")]
+        /// <param name="invitationCodeHash">Invitation code hash</param>>
+        /// <returns>Invitation code</returns>
+        [HttpPost("agency/invitations/{invitationCodeHash}/regenerate")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
-        public async Task<IActionResult> GenerateChildAgencyInvite([FromBody] UserInvitationData request)
+        public async Task<IActionResult> RegenerateChildAgencyInvite([FromRoute] string invitationCodeHash)
         {
-            var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request,
-                UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Recreate(invitationCodeHash);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
