@@ -18,16 +18,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
             }, agencyInfo);
         }
-
-
-        public static Result Validate(in EditAgencyRequest agencyRequest)
-        {
-            return GenericValidator<EditAgencyRequest>.Validate(v =>
-            {
-                v.RuleFor(c => c.Address).NotEmpty();
-                v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
-                v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
-            }, agencyRequest);
-        }
     }
 }

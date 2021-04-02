@@ -1692,32 +1692,32 @@
             Virtual account balance
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.Address">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Address">
             <summary>
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.Phone">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Phone">
             <summary>
                 Phone number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.Fax">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Fax">
             <summary>
                 Fax number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.PostalCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.PostalCode">
             <summary>
                 Postal code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.Website">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Website">
             <summary>
                 Agency site url.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyInfo.BillingEmail">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.BillingEmail">
             <summary>
             E-mail for billing operations
             </summary>
