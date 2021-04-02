@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<SlimAgencyInfo>> Edit(AgentContext agent, EditAgencyInfo editAgencyInfo,
+        public Task<Result<SlimAgencyInfo>> Edit(AgentContext agent, EditAgencyRequest editAgencyRequest,
             string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             return Validate()
@@ -49,19 +49,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
             Result Validate()
-                => AgencyValidator.Validate(editAgencyInfo);
+                => AgencyValidator.Validate(editAgencyRequest);
 
 
             async Task UpdateAgencyRecord()
             {
                 var agencyRecord = await _edoContext.Agencies.SingleAsync(a => a.Id == agent.AgencyId);
 
-                agencyRecord.Address = editAgencyInfo.Address ?? agencyRecord.Address;
-                agencyRecord.Phone = editAgencyInfo.Phone ?? agencyRecord.Phone;
-                agencyRecord.Fax = editAgencyInfo.Fax ?? agencyRecord.Fax;
-                agencyRecord.PostalCode = editAgencyInfo.PostalCode ?? agencyRecord.PostalCode;
-                agencyRecord.Website = editAgencyInfo.Website ?? agencyRecord.Website;
-                agencyRecord.BillingEmail = editAgencyInfo.BillingEmail ?? agencyRecord.BillingEmail;
+                agencyRecord.Address = editAgencyRequest.Address;
+                agencyRecord.Phone = editAgencyRequest.Phone;
+                agencyRecord.Fax = editAgencyRequest.Fax;
+                agencyRecord.PostalCode = editAgencyRequest.PostalCode;
+                agencyRecord.Website = editAgencyRequest.Website;
+                agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 

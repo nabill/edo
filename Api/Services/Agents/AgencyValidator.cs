@@ -20,15 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public static Result Validate(in EditAgencyInfo agencyInfo)
+        public static Result Validate(in EditAgencyRequest agencyRequest)
         {
-            // Here we allow Address and Phone to be null, which indicates that values are not to be changed.
-            return GenericValidator<EditAgencyInfo>.Validate(v =>
+            return GenericValidator<EditAgencyRequest>.Validate(v =>
             {
-                v.RuleFor(c => c.Address).NotEmpty().When(i => i.Address != null);
-                v.RuleFor(c => c.Phone).Matches(@"^[0-9]{3,30}$").When(i => i.Phone != null);
+                v.RuleFor(c => c.Address).NotEmpty();
+                v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
                 v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
-            }, agencyInfo);
+            }, agencyRequest);
         }
     }
 }
