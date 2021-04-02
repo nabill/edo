@@ -1,3 +1,5 @@
+using HappyTravel.Money.Enums;
+
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
     public readonly struct AgencyWiseReportRow
@@ -13,7 +15,8 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string ArrivalDate { get; init; }
         public string DepartureDate { get; init; }
         public double LenghtOfStay { get; init; }
-        public decimal TotalAmount { get; init; }
+        public decimal Amount { get; init; }
+        public Currencies Currency { get; init; }
         public string ConfirmationNumber { get; init; }
         public string RoomsConfirmationNumbers { get; init; }
         public string PaymentStatus { get; init; }
