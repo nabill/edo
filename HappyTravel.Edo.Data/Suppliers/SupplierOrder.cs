@@ -8,10 +8,10 @@ namespace HappyTravel.Edo.Data.Suppliers
     {
         public int Id { get; set; }
         public Common.Enums.Suppliers Supplier { get; set; }
-        public decimal ConvertedPrice { get; set; }
-        public Currencies ConvertedCurrency { get; set; }
-        public decimal SupplierPrice { get; set; }
-        public Currencies SupplierCurrency { get; set; }
+        public decimal ConvertedSupplierPrice { get; set; }
+        public Currencies ConvertedSupplierCurrency { get; set; }
+        public decimal OriginalSupplierPrice { get; set; }
+        public Currencies OriginalSupplierCurrency { get; set; }
         public SupplierOrderState State { get; set; }
         public ServiceTypes Type { get; set; }
         public string ReferenceCode { get; set; }

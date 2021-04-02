@@ -17,18 +17,17 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
         }
 
 
-        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedPrice, MoneyAmount supplierPrice, Suppliers supplier)
+        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Suppliers supplier)
         {
             var now = _dateTimeProvider.UtcNow();
-            var (amount, currency) = supplierPrice;
             var supplierOrder = new SupplierOrder
             {
                 Created = now,
                 Modified = now,
-                ConvertedPrice = convertedPrice.Amount,
-                ConvertedCurrency = convertedPrice.Currency,
-                SupplierPrice = amount,
-                SupplierCurrency = currency,
+                ConvertedSupplierPrice = convertedSupplierPrice.Amount,
+                ConvertedSupplierCurrency = originalSupplierPrice.Currency,
+                OriginalSupplierPrice = originalSupplierPrice.Amount,
+                OriginalSupplierCurrency = originalSupplierPrice.Currency,
                 State = SupplierOrderState.Created,
                 Supplier = supplier,
                 Type = serviceType,

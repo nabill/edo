@@ -18,7 +18,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210401133837_AddConvertedPrice")]
+    [Migration("20210402035622_AddConvertedPrice")]
     partial class AddConvertedPrice
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1474,10 +1474,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("ConvertedCurrency")
+                    b.Property<int>("ConvertedSupplierCurrency")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("ConvertedPrice")
+                    b.Property<decimal>("ConvertedSupplierPrice")
                         .HasColumnType("numeric");
 
                     b.Property<DateTime>("Created")
@@ -1485,6 +1485,12 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("OriginalSupplierCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("OriginalSupplierPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()
@@ -1495,12 +1501,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Supplier")
                         .HasColumnType("integer");
-
-                    b.Property<int>("SupplierCurrency")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("SupplierPrice")
-                        .HasColumnType("numeric");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");

@@ -43,13 +43,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
 
-            var evaluationOnConnectorResult = await EvaluateOnConnector(result);
-            if (evaluationOnConnectorResult.IsFailure)
-                return Result.Failure<RoomContractSetAvailability?, ProblemDetails>(evaluationOnConnectorResult.Error);
+            var connectorEvaluationResult = await EvaluateOnConnector(result);
+            if (connectorEvaluationResult.IsFailure)
+                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(connectorEvaluationResult.Error.Detail);
 
-            var supplierPrice = evaluationOnConnectorResult.Value?.RoomContractSet.Rate.FinalPrice ?? default;
+            var originalSupplierPrice = connectorEvaluationResult.Value?.RoomContractSet.Rate.FinalPrice ?? default;
             
-            return await ConvertCurrencies(evaluationOnConnectorResult.Value)
+            return await ConvertCurrencies(connectorEvaluationResult.Value)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
                 .Tap(SaveToCache)
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
             {
                 var appliedMarkups = new List<AppliedMarkup>();
-                var convertedPrice = response?.RoomContractSet.Rate.FinalPrice ?? default;
+                var convertedSupplierPrice = response?.RoomContractSet.Rate.FinalPrice ?? default;
                 // Saving all the changes in price that was done by markups
                 Action<MarkupApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
                 {
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 };
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(response, agent, logAction);
-                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, convertedPrice, supplierPrice);
+                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, convertedSupplierPrice, originalSupplierPrice);
             }
 
             
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var paymentMethods = GetAvailablePaymentMethods(responseWithDeadline.Data.Value);
 
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
-                    responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedPrice, responseWithDeadline.SupplierPrice);
+                    responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedSupplierPrice, responseWithDeadline.OriginalSupplierPrice);
                 
                 return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods, result.htId);
             }

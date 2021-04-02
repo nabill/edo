@@ -27,8 +27,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             int numberOfNights,
             Suppliers supplier,
             List<AppliedMarkup> appliedMarkups,
-            MoneyAmount convertedPrice,
-            MoneyAmount supplierPrice,
+            MoneyAmount convertedSupplierPrice,
+            MoneyAmount originalSupplierPrice,
             string availabilityId,
             string htId,
             List<PaymentMethods> availablePaymentMethods)
@@ -47,8 +47,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             NumberOfNights = numberOfNights;
             Supplier = supplier;
             AppliedMarkups = appliedMarkups;
-            ConvertedPrice = convertedPrice;
-            SupplierPrice = supplierPrice;
+            ConvertedSupplierPrice = convertedSupplierPrice;
+            OriginalSupplierPrice = originalSupplierPrice;
             AvailabilityId = availabilityId;
             HtId = htId;
             AvailablePaymentMethods = availablePaymentMethods;
@@ -69,8 +69,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public int NumberOfNights { get; }
         public Suppliers Supplier { get; }
         public List<AppliedMarkup> AppliedMarkups { get; }
-        public MoneyAmount ConvertedPrice { get; }
-        public MoneyAmount SupplierPrice { get; }
+        public MoneyAmount ConvertedSupplierPrice { get; }
+        public MoneyAmount OriginalSupplierPrice { get; }
         public string AvailabilityId { get; }
         public string HtId { get; }
         public List<PaymentMethods> AvailablePaymentMethods { get; }

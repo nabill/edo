@@ -58,8 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        Amount = order.SupplierPrice,
-                        Currency = order.SupplierCurrency,
+                        Amount = order.OriginalSupplierPrice,
+                        Currency = order.OriginalSupplierCurrency,
                         Supplier = booking.Supplier
                     };
             }
@@ -108,8 +108,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        Amount = order.SupplierPrice,
-                        Currency = order.SupplierCurrency,
+                        Amount = order.OriginalSupplierPrice,
+                        Currency = order.OriginalSupplierCurrency,
                         PaymentStatus = booking.PaymentStatus
                     };
             }
