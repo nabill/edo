@@ -1,4 +1,5 @@
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
@@ -17,6 +18,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         /// Balance
         /// </summary>
-        public decimal Balance { get; init; }
+        public MoneyAmount Balance { get; init; }
     }
 }

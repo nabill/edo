@@ -45,7 +45,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Where(a => a.AgencyId == agent.AgencyId && a.IsActive)
                 .Select(a => new AgencyAccountInfo
                 {
-                    Balance = a.Balance,
+                    Balance = new MoneyAmount
+                    {
+                        Amount = a.Balance,
+                        Currency = a.Currency
+                    },
                     Currency = a.Currency,
                     Id = a.Id
                 })

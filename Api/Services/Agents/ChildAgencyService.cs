@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -39,7 +40,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 Accounts = agencyAccounts.Select(acc =>
                     new AgencyAccountInfo
                     {
-                        Balance = acc.Balance,
+                        Balance = new MoneyAmount
+                        {
+                            Amount = acc.Balance,
+                            Currency = acc.Currency
+                        },
                         Currency = acc.Currency,
                         Id = acc.Id
                     }).ToList()
