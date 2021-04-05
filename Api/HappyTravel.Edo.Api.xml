@@ -511,6 +511,11 @@
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.GetAccounts">
+            <summary>
+                Gets agency accounts list
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetBanner(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
                 Uploads an image for banner
@@ -1484,7 +1489,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
             <summary>
-            Direct contract mark
+            Direct contract flag
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
@@ -1602,6 +1607,21 @@
             List of available room contracts sets
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
+            <summary>
+            Account id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Currency">
+            <summary>
+            Currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
+            <summary>
+            Balance
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -1687,9 +1707,9 @@
             Created date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.AccountBalance">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Accounts">
             <summary>
-            Virtual account balance
+            Virtual accounts
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Address">
@@ -1775,6 +1795,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Name">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.IsActive">
+            <summary>
+            Activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Created">
+            <summary>
+            Created date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
@@ -2065,6 +2105,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationDate">
             <summary>
             Counterparty verification date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsActive">
+            <summary>
+            Activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
