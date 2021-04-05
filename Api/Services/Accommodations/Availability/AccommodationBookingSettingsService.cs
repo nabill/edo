@@ -59,12 +59,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isSupplierVisible = default;
             bool areTagsVisible = default;
             SearchFilters additionalSearchFilters = default;
+            var cancellationPolicyProcessSettings = counterpartySettings.CancellationPolicyProcessSettings;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
             
             if (agencySettings.HasValue)
                 SetValuesFromAgencySettings(agencySettings.Value);
+            
+            if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
+                OverrideCancellationPolicyProcessSettings();
 
             enabledConnectors ??= _supplierOptions.EnabledSuppliers;
             aprMode ??= DefaultAprMode;
@@ -75,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode.Value,
                 isMarkupDisabled: isMarkupDisabled, 
                 isSupplierVisible: isSupplierVisible,
-                counterpartySettings.CancellationPolicyProcessSettings,
+                cancellationPolicyProcessSettings,
                 areTagsVisible: areTagsVisible,
                 additionalSearchFilters);
 
@@ -100,6 +104,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
                 isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
                 areTagsVisible = areTagsVisible || agencySettingsValue.AreTagsVisible;
+            }
+
+
+            void OverrideCancellationPolicyProcessSettings()
+            {
+                cancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
+                {
+                    PolicyStartDateShift = TimeSpan.FromDays(agencySettings.Value.CustomDeadlineShift.Value)
+                };
             }
         }
 
