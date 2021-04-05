@@ -141,9 +141,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///    Resend agent invitation
+        ///    Resend agent invitation email
         /// </summary>
-        /// <param name="invitationCodeHash">Invitation code hash</param>>
+        /// <param name="invitationCodeHash">Invitation code hash</param>
         [HttpPost("agent/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> Resend(string invitationCodeHash)
         {
-            var (_, isFailure, error) = await _agentInvitationCreateService.Resend(invitationCodeHash);
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Resend(invitationCodeHash);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -178,8 +178,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(code);
         }
-        
-        
+
+
+        /// <summary>
+        ///     Recreates invitation for regular agent.
+        /// </summary>
+        /// <param name="invitationCodeHash">Invitation code hash</param>
+        /// <returns>Invitation code.</returns>
+        [HttpPost("agent/invitations/{invitationCodeHash}/regenerate")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
+        public async Task<IActionResult> RecreateInvitation(string invitationCodeHash)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Recreate(invitationCodeHash);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(code);
+        }
+
+
         /// <summary>
         ///     Disable invitation.
         /// </summary>

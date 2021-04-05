@@ -150,7 +150,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 result.PreferredPaymentMethod,
                 result.IsContractUploaded,
                 result.State,
-                result.Verified);
+                result.Verified,
+                result.IsActive);
         }
 
         

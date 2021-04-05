@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
@@ -15,7 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string GuestName { get; init; }
         public DateTime ArrivalDate { get; init; }
         public DateTime DepartureDate { get; init; }
-        public decimal TotalAmount { get; init; }
+        public decimal Amount { get; init; }
+        public Currencies Currency { get; init; }
         public Suppliers Supplier { get; init; }
     }
 }

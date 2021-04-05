@@ -13,11 +13,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isMarkupDisabled,
             bool isSupplierVisible,
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings,
-            bool areTagsVisible,
+            bool isDirectContractFlagVisible,
             SearchFilters additionalSearchFilters)
         {
             CancellationPolicyProcessSettings = cancellationPolicyProcessSettings;
-            AreTagsVisible = areTagsVisible;
+            IsDirectContractFlagVisible = isDirectContractFlagVisible;
             EnabledConnectors = enabledConnectors;
             AprMode = aprMode;
             PassedDeadlineOffersMode = passedDeadlineOffersMode;
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public bool IsMarkupDisabled { get; }
         public bool IsSupplierVisible { get; }
         public CancellationPolicyProcessSettings CancellationPolicyProcessSettings { get; }
-        public bool AreTagsVisible { get; }
+        public bool IsDirectContractFlagVisible { get; }
         public SearchFilters AdditionalSearchFilters { get; }
     }
 }

@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             var bookingDetails = GetDetails(booking, accommodation);
             var supplier = GetSupplier(booking, settings);
-            var tags = GetTags(booking, settings);
+            var isDirectContract = GetDirectContractFlag(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
             
             return new AccommodationBookingInfo(booking.Id,
@@ -183,7 +183,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 supplier,
                 agentInformation,
                 booking.PaymentMethod,
-                tags);
+                booking.Tags,
+                isDirectContract);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)
@@ -217,12 +218,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 };
             
             
-            static List<string> GetTags(Booking booking, AccommodationBookingSettings? settings)
+            static bool? GetDirectContractFlag(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => booking.Tags,
-                    {AreTagsVisible: true} => booking.Tags,
-                    _ => new List<string>()
+                    {IsDirectContractFlagVisible: true} => booking.IsDirectContract,
+                    _ => null
                 };
 
 

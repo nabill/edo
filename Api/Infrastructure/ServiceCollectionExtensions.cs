@@ -703,6 +703,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
             services.AddTransient<IAgencyManagementService, AgencyManagementService>();
             services.AddTransient<IChildAgencyService, ChildAgencyService>();
+            services.AddTransient<IAgencyService, AgencyService>();
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();

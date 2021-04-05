@@ -452,6 +452,12 @@
             <param name="request">Duplicate accommodation info</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
+            <summary>
+                Gets current agent's agency.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetChildAgency(System.Int32)">
             <summary>
                 Gets agency.
@@ -467,15 +473,31 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.InviteChildAgency(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
             <summary>
-                Invites to create child agency.
+                Sends an email inviting to create a child agency.
             </summary>
+            <param name="request">Request for child agency invitation</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.ResendInvitationChildAgency(System.String)">
+            <summary>
+                Resends an email inviting to create a child agency.
+            </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GenerateChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
             <summary>
                 Invites to create child agency.
             </summary>
-            <returns></returns>
+            <param name="request">Request for child agency invitation</param>
+            <returns>Invitation code</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.RegenerateChildAgencyInvite(System.String)">
+            <summary>
+                Recreates the invitation to create child agency.
+            </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>>
+            <returns>Invitation code</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest)">
             <summary>
@@ -504,6 +526,11 @@
             <param name="payerAccountId">Id of the payer agency account</param>
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.GetAccounts">
+            <summary>
+                Gets agency accounts list
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetBanner(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
@@ -653,15 +680,22 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Resend(System.String)">
             <summary>
-               Resend agent invitation
+               Resend agent invitation email
             </summary>
-            <param name="invitationCodeHash">Invitation code hash</param>>
+            <param name="invitationCodeHash">Invitation code hash</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Creates invitation for regular agent.
             </summary>
             <param name="request">Regular agent registration request.</param>
+            <returns>Invitation code.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RecreateInvitation(System.String)">
+            <summary>
+                Recreates invitation for regular agent.
+            </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>
             <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.DisableInvitation(System.String)">
@@ -1478,7 +1512,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
             <summary>
-            Direct contract mark
+            Direct contract flag
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
@@ -1596,6 +1630,21 @@
             List of available room contracts sets
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
+            <summary>
+            Account id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Currency">
+            <summary>
+            Currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
+            <summary>
+            Balance
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -1681,9 +1730,114 @@
             Created date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.AccountBalance">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Accounts">
             <summary>
-            Virtual account balance
+            Virtual accounts
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
+            <summary>
+                Name of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CountryName">
+            <summary>
+            Country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Name">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.IsActive">
+            <summary>
+            Activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Created">
+            <summary>
+            Created date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.FileName">
@@ -1974,6 +2128,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationDate">
             <summary>
             Counterparty verification date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsActive">
+            <summary>
+            Activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">

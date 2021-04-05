@@ -95,37 +95,75 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             int inviterUserId, int? inviterAgencyId = null)
         {
             return Create(prefilledData, invitationType, inviterUserId, inviterAgencyId)
-                .Check(SendInvitationMail);
+                .Check(SendInvitationMailPipe);
 
 
-            async Task<Result> SendInvitationMail(string invitationCode)
+            Task<Result> SendInvitationMailPipe(string invitationCode) 
+                => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
+        }
+
+
+        public Task<Result<string>> Recreate(string oldInvitationCodeHash)
+        {
+            return _invitationRecordService.GetActiveInvitationByHash(oldInvitationCodeHash)
+                .BindWithTransaction(_context, invitation => Result.Success(invitation)
+                    .Check(SetOldInvitationResent)
+                    .Bind(CreateNewInvitation));
+
+
+            Task<Result> SetOldInvitationResent(UserInvitation _)
+                => _invitationRecordService.SetToResent(oldInvitationCodeHash);
+
+
+            Task<Result<string>> CreateNewInvitation(UserInvitation oldInvitation)
+                => Create(GetInvitationData(oldInvitation), oldInvitation.InvitationType, oldInvitation.InviterUserId, oldInvitation.InviterAgencyId);
+        }
+
+
+        public Task<Result<string>> Resend(string oldInvitationCodeHash)
+        {
+            return Recreate(oldInvitationCodeHash)
+                .Check(SendInvitationMailPipe);
+
+
+            Task<Result> SendInvitationMailPipe(string newInvitationCode)
+                => _invitationRecordService.GetActiveInvitationByCode(newInvitationCode)
+                    .Bind(i => SendInvitationMail(newInvitationCode, GetInvitationData(i), i.InvitationType, i.InviterAgencyId));
+        }
+
+
+        private UserInvitationData GetInvitationData(UserInvitation invitation)
+            => _invitationRecordService.GetInvitationData(invitation);
+
+
+        private async Task<Result> SendInvitationMail(string invitationCode, UserInvitationData prefilledData,
+            UserInvitationTypes invitationType, int? inviterAgencyId)
+        {
+            string agencyName = null;
+            if (inviterAgencyId.HasValue)
             {
-                string agencyName = null;
-                if (inviterAgencyId.HasValue)
-                {
-                    var getAgencyResult = await _agencyManagementService.Get(inviterAgencyId.Value);
-                    if (getAgencyResult.IsFailure)
-                        return Result.Failure("Could not find inviter agency");
+                var getAgencyResult = await _agencyManagementService.Get(inviterAgencyId.Value);
+                if (getAgencyResult.IsFailure)
+                    return Result.Failure("Could not find inviter agency");
 
-                    agencyName = getAgencyResult.Value.Name;
-                }
-
-                var messagePayload = new InvitationData
-                {
-                    AgencyName = agencyName,
-                    InvitationCode = invitationCode,
-                    UserEmailAddress = prefilledData.UserRegistrationInfo.Email,
-                    UserName = $"{prefilledData.UserRegistrationInfo.FirstName} {prefilledData.UserRegistrationInfo.LastName}"
-                };
-
-                var templateId = GetTemplateId();
-                if (string.IsNullOrWhiteSpace(templateId))
-                    return Result.Failure("Could not find invitation mail template");
-
-                return await _mailSender.Send(templateId,
-                    prefilledData.UserRegistrationInfo.Email,
-                    messagePayload);
+                agencyName = getAgencyResult.Value.Name;
             }
+
+            var messagePayload = new InvitationData
+            {
+                AgencyName = agencyName,
+                InvitationCode = invitationCode,
+                UserEmailAddress = prefilledData.UserRegistrationInfo.Email,
+                UserName = $"{prefilledData.UserRegistrationInfo.FirstName} {prefilledData.UserRegistrationInfo.LastName}"
+            };
+
+            var templateId = GetTemplateId();
+            if (string.IsNullOrWhiteSpace(templateId))
+                return Result.Failure("Could not find invitation mail template");
+
+            return await _mailSender.Send(templateId,
+                prefilledData.UserRegistrationInfo.Email,
+                messagePayload);
 
 
             string GetTemplateId()
@@ -137,26 +175,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 };
         }
 
-
-        public Task<Result<string>> Resend(string oldInvitationCodeHash)
-        {
-            return _invitationRecordService.GetActiveInvitationByHash(oldInvitationCodeHash)
-                .BindWithTransaction(_context, invitation => Result.Success(invitation)
-                    .Check(SetOldInvitationResent)
-                    .Bind(SendNewInvitation));
-
-
-            Task<Result<string>> SendNewInvitation(UserInvitation oldInvitation)
-                => Send(GetInvitationData(oldInvitation), oldInvitation.InvitationType, oldInvitation.InviterUserId, oldInvitation.InviterAgencyId);
-
-
-            Task<Result> SetOldInvitationResent(UserInvitation _)
-                => _invitationRecordService.SetToResent(oldInvitationCodeHash);
-
-
-            UserInvitationData GetInvitationData(UserInvitation invitation)
-                => _invitationRecordService.GetInvitationData(invitation);
-        }
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;

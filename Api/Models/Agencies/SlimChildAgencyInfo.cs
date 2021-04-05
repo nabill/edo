@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct ChildAgencyInfo
+    public struct SlimChildAgencyInfo
     {
         /// <summary>
         /// Agency id
@@ -24,22 +23,5 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Created date
         /// </summary>
         public DateTime Created { get; init;}
-        
-        /// <summary>
-        /// Virtual accounts
-        /// </summary>
-        public List<AgencyAccountInfo> Accounts { get; init; }
-        
-        
-        public bool Equals(ChildAgencyInfo other) 
-            => Id == other.Id;
-
-
-        public override bool Equals(object obj) 
-            => obj is ChildAgencyInfo other && Equals(other);
-
-
-        public override int GetHashCode() 
-            => Id;
     }
 }

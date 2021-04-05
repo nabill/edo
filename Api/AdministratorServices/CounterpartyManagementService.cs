@@ -199,6 +199,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterparty.IsContractUploaded,
                 counterparty.State,
                 counterparty.Verified,
+                counterparty.IsActive,
                 markupFormula);
 
 

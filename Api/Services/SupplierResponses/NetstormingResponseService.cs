@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
                 return Result.Failure(bookingDetailsError);
             }
 
-            await _responseProcessor.ProcessResponse(bookingDetails, new Data.Bookings.BookingChangeReason 
+            await _responseProcessor.ProcessResponse(bookingDetails, UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
             { 
                 Initiator = Common.Enums.BookingChangeInitiators.Supplier,
                 Source = Common.Enums.BookingChangeSources.Supplier,
