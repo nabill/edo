@@ -150,11 +150,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        var tags = searchSettings.AreTagsVisible
-                            ? rs.Tags
-                            : new List<string>();
+                        var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
 
-                        return rs.ToRoomContractSet(supplier, tags);
+                        return rs.ToRoomContractSet(supplier, isDirectContractFlag);
                     });
             }
 

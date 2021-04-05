@@ -11,7 +11,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
             BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? supplier,
-            BookingAgentInformation agentInformation, PaymentMethods paymentMethod, List<string> tags)
+            BookingAgentInformation agentInformation, PaymentMethods paymentMethod, List<string> tags,
+            bool? isDirectContract)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
@@ -22,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AgentInformation = agentInformation;
             PaymentMethod = paymentMethod;
             Tags = tags;
+            IsDirectContract = isDirectContract;
         }
 
 
@@ -45,6 +47,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingAgentInformation AgentInformation { get; }
         public PaymentMethods PaymentMethod { get; }
         public List<string> Tags { get; }
+        public bool? IsDirectContract { get; }
 
         public readonly struct BookingAgentInformation
         {

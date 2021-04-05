@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
             bool isSupplierVisible = default;
-            bool areTagsVisible = default;
+            bool isDirectContractFlagVisible = default;
             SearchFilters additionalSearchFilters = default;
             var cancellationPolicyProcessSettings = counterpartySettings.CancellationPolicyProcessSettings;
             
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isMarkupDisabled: isMarkupDisabled, 
                 isSupplierVisible: isSupplierVisible,
                 cancellationPolicyProcessSettings,
-                areTagsVisible: areTagsVisible,
+                isDirectContractFlagVisible: isDirectContractFlagVisible,
                 additionalSearchFilters);
 
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
                 isSupplierVisible = agentSettingsValue.IsSupplierVisible;
-                areTagsVisible = agentSettingsValue.AreTagsVisible;
+                isDirectContractFlagVisible = agentSettingsValue.IsDirectContractFlagVisible;
                 additionalSearchFilters = agentSettingsValue.AdditionalSearchFilters;
             }
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
                 isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
-                areTagsVisible = areTagsVisible || agencySettingsValue.AreTagsVisible;
+                isDirectContractFlagVisible = isDirectContractFlagVisible || agencySettingsValue.IsDirectContractFlagVisible;
             }
 
 

@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
             var location = roomSetAvailability.Accommodation.Location;
             var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
-                roomSetAvailability.RoomContractSet.Tags);
+                roomSetAvailability.RoomContractSet.IsDirectContract);
             
             var dataWithMarkup = result.Data;
             
@@ -52,7 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 dataWithMarkup.OriginalSupplierPrice,
                 roomSetAvailability.AvailabilityId,
                 htId,
-                availablePaymentMethods);
+                availablePaymentMethods,
+                roomSetAvailability.RoomContractSet.IsDirectContract);
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }

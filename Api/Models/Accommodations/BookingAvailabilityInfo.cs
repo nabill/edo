@@ -31,7 +31,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             MoneyAmount originalSupplierPrice,
             string availabilityId,
             string htId,
-            List<PaymentMethods> availablePaymentMethods)
+            List<PaymentMethods> availablePaymentMethods,
+            bool isDirectContract)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -52,6 +53,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AvailabilityId = availabilityId;
             HtId = htId;
             AvailablePaymentMethods = availablePaymentMethods;
+            IsDirectContract = isDirectContract;
         }
 
 
@@ -74,6 +76,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string AvailabilityId { get; }
         public string HtId { get; }
         public List<PaymentMethods> AvailablePaymentMethods { get; }
+        public bool IsDirectContract { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
