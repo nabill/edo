@@ -40,10 +40,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
                 .Map(Create)
+                .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder);
 
             return booking;
+
 
             async Task<(string itn, string referenceCode)> GetTags()
             {
@@ -98,12 +100,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
+            async Task LogBookingStatus(Booking booking)
+            {
+                var bookingStatusHistoryEntry = new BookingStatusHistoryEntry
+                {
+                    BookingId = booking.Id,
+                    UserId = agentContext.AgentId,
+                    UserType = UserTypes.Agent,
+                    AgencyId = agentContext.AgencyId,
+                    CreatedAt = booking.Created,
+                    Status = BookingStatuses.Created,
+                    Initiator = BookingChangeInitiators.Agent,
+                    Source = BookingChangeSources.None,
+                    Event = BookingChangeEvents.Create
+                };
+
+                var entry = _context.BookingStatusHistory.Add(bookingStatusHistoryEntry);
+                await _context.SaveChangesAsync();
+                _context.Detach(entry.Entity);
+            }
+
+
             Task SaveMarkups(Booking booking) 
                 => _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
 
 
             Task CreateSupplierOrder(Booking booking) 
-                => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.SupplierPrice, booking.Supplier);
+                => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.ConvertedSupplierPrice, availabilityInfo.OriginalSupplierPrice, booking.Supplier);
         }
 
 

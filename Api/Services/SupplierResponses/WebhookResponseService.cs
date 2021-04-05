@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
-            await _responseProcessor.ProcessResponse(bookingDetails, new Data.Bookings.BookingChangeReason 
+            await _responseProcessor.ProcessResponse(bookingDetails, UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
             { 
                 Initiator = BookingChangeInitiators.Supplier,
                 Source = BookingChangeSources.Supplier,

@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.SupplierOrders
@@ -16,14 +17,17 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
         }
 
 
-        public async Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice, Suppliers supplier)
+        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Suppliers supplier)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
             {
                 Created = now,
                 Modified = now,
-                Price = supplierPrice,
+                ConvertedSupplierPrice = convertedSupplierPrice.Amount,
+                ConvertedSupplierCurrency = originalSupplierPrice.Currency,
+                OriginalSupplierPrice = originalSupplierPrice.Amount,
+                OriginalSupplierCurrency = originalSupplierPrice.Currency,
                 State = SupplierOrderState.Created,
                 Supplier = supplier,
                 Type = serviceType,
