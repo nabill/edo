@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             Assert.Contains(1, bookingsToCapture);
             Assert.Contains(2, bookingsToCapture);
-            Assert.Contains(3, bookingsToCapture);
+            Assert.DoesNotContain(3, bookingsToCapture);
             Assert.DoesNotContain(4, bookingsToCapture);
             Assert.DoesNotContain(5, bookingsToCapture);
 
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var bookingsToCapture = await service.GetForCharge(date);
 
             Assert.Contains(1, bookingsToCapture);
-            Assert.Contains(2, bookingsToCapture);
+            Assert.DoesNotContain(2, bookingsToCapture);
             Assert.DoesNotContain(3, bookingsToCapture);
             Assert.DoesNotContain(4, bookingsToCapture);
 
