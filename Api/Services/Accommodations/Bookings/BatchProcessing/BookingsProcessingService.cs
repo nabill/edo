@@ -46,12 +46,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         public Task<List<int>> GetForCapture(DateTime date)
         {
             date = date.Date;
-            var daysBeforeDeadline = BookingConstants.DaysBeforeDeadlineWhenToPay;
 
             return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
-                .Where(b => b.CheckInDate <= date.AddDays(daysBeforeDeadline) 
-                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date.AddDays(daysBeforeDeadline)))
+                .Where(b => b.CheckInDate <= date 
+                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -72,12 +71,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         public Task<List<int>> GetForCharge(DateTime date)
         {
             date = date.Date;
-            var daysBeforeDeadline = BookingConstants.DaysBeforeDeadlineWhenToPay;
 
             return _context.Bookings
                 .Where(IsBookingValidForChargePredicate)
-                .Where(b => b.CheckInDate <= date.AddDays(daysBeforeDeadline) 
-                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date.AddDays(daysBeforeDeadline)))
+                .Where(b => b.CheckInDate <= date
+                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -334,7 +332,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             BookingStatuses.Confirmed
         };
 
-        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new()
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Refunded, BookingPaymentStatuses.Voided
         };
