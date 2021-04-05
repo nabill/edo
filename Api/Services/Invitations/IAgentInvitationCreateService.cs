@@ -12,6 +12,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
         Task<Result<string>> Send(UserInvitationData prefilledData, UserInvitationTypes invitationType,
             int inviterUserId, int? inviterAgencyId = null);
+        
+        Task<Result<string>> Recreate(string oldInvitationCodeHash);
 
         Task<Result<string>> Resend(string oldInvitationCodeHash);
     }

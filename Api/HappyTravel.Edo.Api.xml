@@ -473,15 +473,31 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.InviteChildAgency(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
             <summary>
-                Invites to create child agency.
+                Sends an email inviting to create a child agency.
             </summary>
+            <param name="request">Request for child agency invitation</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.ResendInvitationChildAgency(System.String)">
+            <summary>
+                Resends an email inviting to create a child agency.
+            </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GenerateChildAgencyInvite(HappyTravel.Edo.Api.Models.Invitations.UserInvitationData)">
             <summary>
                 Invites to create child agency.
             </summary>
-            <returns></returns>
+            <param name="request">Request for child agency invitation</param>
+            <returns>Invitation code</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.RegenerateChildAgencyInvite(System.String)">
+            <summary>
+                Recreates the invitation to create child agency.
+            </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>>
+            <returns>Invitation code</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.AcceptChildAgencyInvite(HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest)">
             <summary>
@@ -664,15 +680,21 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Resend(System.String)">
             <summary>
-               Resend agent invitation
+               Resend agent invitation email
             </summary>
-            <param name="invitationCodeHash">Invitation code hash</param>>
+            <param name="invitationCodeHash">Invitation code hash</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Creates invitation for regular agent.
             </summary>
             <param name="request">Regular agent registration request.</param>
+            <returns>Invitation code.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RecreateInvitation(System.String)">
+            <summary>
+                Recreates invitation for regular agent.
+            </summary>
             <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.DisableInvitation(System.String)">

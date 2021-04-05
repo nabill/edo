@@ -126,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                 if (responseResult.IsSuccess)
                 {
-                    await _responseProcessor.ProcessResponse(responseResult.Value, changeReason);
+                    await _responseProcessor.ProcessResponse(responseResult.Value, agent.ToUserInfo(), changeReason);
                 }
                 else
                 {
