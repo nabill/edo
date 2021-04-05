@@ -58,7 +58,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SetSettings()
             {
-                // Validate CustomDeadlineShift if set, it must be a negative integer
                 if (settings.CustomDeadlineShift.HasValue && settings.CustomDeadlineShift >= 0) 
                     return Result.Failure("Deadline shift must be less than zero");
                 
