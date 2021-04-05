@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     roomContractSetDeadline, 
                     shiftedRoomContracts, 
                     roomContractSet.Tags, 
-                    roomContractSet.IsAdvancePurchaseRate
+                    isDirectContract: roomContractSet.IsDirectContract,
+                    isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate
                 );
 
 
@@ -40,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 => new(roomContract.BoardBasis,
                     roomContract.MealPlan,
                     roomContract.ContractTypeCode,
-                    roomContract.IsAvailableImmediately,
+                    isAvailableImmediately: roomContract.IsAvailableImmediately,
                     roomContract.IsDynamic,
                     roomContract.ContractDescription,
                     roomContract.Remarks,
@@ -51,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     roomContract.Type,
                     roomContract.IsExtraBedNeeded,
                     roomContractDeadline,
-                    roomContract.IsAdvancePurchaseRate
+                    isAdvancePurchaseRate: roomContract.IsAdvancePurchaseRate
                 );
         }
     }

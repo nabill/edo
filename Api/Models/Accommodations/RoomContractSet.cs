@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public List<string> Tags { get; }
         
         /// <summary>
-        /// Direct contract mark
+        /// Direct contract flag
         /// </summary>
         public bool IsDirectContract { get; }
     }

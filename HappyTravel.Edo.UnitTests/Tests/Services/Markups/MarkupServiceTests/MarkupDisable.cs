@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var accommodationBookingsSettingsMock = new Mock<IAccommodationBookingSettingsService>();
             accommodationBookingsSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, isMarkupDisabled: false, isSupplierVisible: default, default, areTagsVisible: default, default));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, isMarkupDisabled: false, isSupplierVisible: default, default, isDirectContractFlagVisible: default, default));
             var markupService = CreateMarkupService(accommodationBookingsSettingsMock.Object);
             var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
             accommodationBookingSettingsServiceMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, isMarkupDisabled: true, isSupplierVisible: false, default, areTagsVisible: default, default));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, isMarkupDisabled: true, isSupplierVisible: false, default, isDirectContractFlagVisible: default, default));
             var markupService = CreateMarkupService(accommodationBookingSettingsServiceMock.Object);
             var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             

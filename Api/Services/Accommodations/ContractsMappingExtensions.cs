@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public static class ContractsMappingExtensions
     {
-        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, Suppliers? supplier, List<string> tags)
+        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, Suppliers? supplier, bool isDirectContract)
         {
             var roomContractList = roomContractSet.RoomContracts.ToRoomContractList();
             
@@ -17,16 +17,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 roomContractSet.Rate.ToRate(),
                 roomContractList.ToRoomContractSetDeadline(),
                 roomContractList,
-                roomContractSet.IsAdvancePurchaseRate,
+                isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 supplier,
-                tags,
-                roomContractSet.IsDirectContract);
+                roomContractSet.Tags,
+                isDirectContract: isDirectContract);
         }
 
         
         public static Deadline ToDeadline(this in EdoContracts.Accommodations.Deadline deadline)
         {
-            return new (deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks, deadline.IsFinal);
+            return new (deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks, isFinal: deadline.IsFinal);
         }
 
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 roomContract.ContractTypeCode, roomContract.IsAvailableImmediately, roomContract.IsDynamic,
                 roomContract.ContractDescription, roomContract.Remarks, roomContract.DailyRoomRates.ToDailyRateList(), roomContract.Rate.ToRate(),
                 roomContract.AdultsNumber, roomContract.ChildrenAges, roomContract.Type, roomContract.IsExtraBedNeeded,
-                roomContract.Deadline.ToDeadline(), roomContract.IsAdvancePurchaseRate);
+                roomContract.Deadline.ToDeadline(), isAdvancePurchaseRate: roomContract.IsAdvancePurchaseRate);
         }
         
         
