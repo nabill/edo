@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,7 +29,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationCreateService agentInvitationCreateService,
             IAgencyManagementService agencyManagementService,
             IAgentInvitationAcceptService agentInvitationAcceptService,
-            IHttpClientFactory httpClientFactory,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgencyService agencyService)
         {
@@ -39,7 +37,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationCreateService = agentInvitationCreateService;
             _agencyManagementService = agencyManagementService;
             _agentInvitationAcceptService = agentInvitationAcceptService;
-            _httpClientFactory = httpClientFactory;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agencyService = agencyService;
         }
@@ -104,11 +101,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("agency/child-agencies")]
-        [ProducesResponseType(typeof(List<ChildAgencyInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<SlimChildAgencyInfo>), (int)HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
         public async Task<IActionResult> GetChildAgencies()
             => Ok(await _childAgencyService.Get(await _agentContextService.GetAgent()));
-
 
 
         /// <summary>
@@ -222,7 +218,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
         private readonly IAgentInvitationAcceptService _agentInvitationAcceptService;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgencyService _agencyService;
         private readonly IAgencyManagementService _agencyManagementService;

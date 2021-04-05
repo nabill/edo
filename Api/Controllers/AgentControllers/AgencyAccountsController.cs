@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -44,6 +46,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
+        
+        /// <summary>
+        ///     Gets agency accounts list
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(List<AgencyAccountInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveBalance)]
+        public async Task<IActionResult> GetAccounts() 
+            => Ok(await _accountPaymentService.GetAgencyAccounts(await _agentContextService.GetAgent()));
+
+
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IAgentContextService _agentContextService;
     }

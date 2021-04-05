@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
@@ -36,6 +38,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Where(a => a.AgencyId == agencyId && a.IsActive)
                 .AnyAsync(a => a.Balance > 0);
         }
+
+
+        public Task<List<AgencyAccountInfo>> GetAgencyAccounts(AgentContext agent)
+            => _context.AgencyAccounts
+                .Where(a => a.AgencyId == agent.AgencyId && a.IsActive)
+                .Select(a => new AgencyAccountInfo
+                {
+                    Balance = new MoneyAmount
+                    {
+                        Amount = a.Balance,
+                        Currency = a.Currency
+                    },
+                    Currency = a.Currency,
+                    Id = a.Id
+                })
+                .ToListAsync();
 
 
         public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) 
