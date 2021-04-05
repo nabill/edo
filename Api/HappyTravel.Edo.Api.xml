@@ -695,6 +695,7 @@
             <summary>
                 Recreates invitation for regular agent.
             </summary>
+            <param name="invitationCodeHash">Invitation code hash</param>
             <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.DisableInvitation(System.String)">

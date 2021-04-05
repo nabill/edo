@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var roomContractSets = availability.RoomContractSets
                             .Select(rs => searchSettings.IsDirectContractFlagVisible
                                 ? rs
-                                : rs.WithEmptyDirectContractsFlag())
+                                : rs.WithFalseDirectContractsFlag())
                             .ToList();
                         
                         return new WideAvailabilityResult(availability.Id,

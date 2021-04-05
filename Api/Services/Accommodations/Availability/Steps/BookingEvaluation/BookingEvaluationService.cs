@@ -143,9 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ? result.Supplier
                     : (Suppliers?) null;
 
-                bool? isDirectContract = settings.IsDirectContractFlagVisible
-                    ? availabilityData.Value.RoomContractSet.IsDirectContract
-                    : null;
+                var isDirectContract = settings.IsDirectContractFlagVisible && availabilityData.Value.RoomContractSet.IsDirectContract;
 
                 return availabilityDetails.Data.ToRoomContractSetAvailability(supplier, isDirectContract, GetAvailablePaymentMethods(availabilityData.Value));
             }
