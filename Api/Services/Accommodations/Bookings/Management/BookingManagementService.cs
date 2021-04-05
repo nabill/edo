@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return Result.Failure(getDetailsError.Detail);
             }
 
-            await _responseProcessor.ProcessResponse(newDetails, changeReason);
+            await _responseProcessor.ProcessResponse(newDetails, user, changeReason);
 
             _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status for a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");

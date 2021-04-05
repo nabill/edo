@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,38 +21,51 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<ChildAgencyInfo>> Get(int agencyId, AgentContext agent)
         {
-            var agencyInfo = await GetChildAgencyInfos(agent.AgencyId)
+            var agency = await GetChildAgencies(agent.AgencyId)
                 .SingleOrDefaultAsync(a => a.Id == agencyId);
 
-            return agencyInfo.Equals(default) 
-                ? Result.Failure<ChildAgencyInfo>("Could not get child agency")
-                : agencyInfo;
+            if (agency == default)
+                return Result.Failure<ChildAgencyInfo>("Could not get child agency");
+
+            var agencyAccounts = await _context.AgencyAccounts
+                .Where(acc => acc.AgencyId == agency.Id)
+                .ToListAsync();
+
+            return new ChildAgencyInfo
+            {
+                Id = agency.Id,
+                Name = agency.Name,
+                Created = agency.Created,
+                IsActive = agency.IsActive,
+                Accounts = agencyAccounts.Select(acc =>
+                    new AgencyAccountInfo
+                    {
+                        Balance = new MoneyAmount
+                        {
+                            Amount = acc.Balance,
+                            Currency = acc.Currency
+                        },
+                        Currency = acc.Currency,
+                        Id = acc.Id
+                    }).ToList()
+            };
         }
 
 
-        public Task<List<ChildAgencyInfo>> Get(AgentContext agent)
-            => GetChildAgencyInfos(agent.AgencyId)
+        public Task<List<SlimChildAgencyInfo>> Get(AgentContext agent)
+            => GetChildAgencies(agent.AgencyId)
+                .Select(a => new SlimChildAgencyInfo
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Created = a.Created,
+                    IsActive = a.IsActive
+                })
                 .ToListAsync();
 
 
-        private IQueryable<ChildAgencyInfo> GetChildAgencyInfos(int parentAgencyId)
-        {
-            return from agency in _context.Agencies
-                join agencyAccount in _context.AgencyAccounts on agency.Id equals agencyAccount.AgencyId
-                where agency.ParentId == parentAgencyId
-                select new ChildAgencyInfo
-                {
-                    Id = agency.Id,
-                    Name = agency.Name,
-                    AccountBalance = new MoneyAmount
-                    {
-                        Amount = agencyAccount.Balance,
-                        Currency = agencyAccount.Currency
-                    },
-                    Created = agency.Created,
-                    IsActive = agency.IsActive
-                };
-        }
+        private IQueryable<Agency> GetChildAgencies(int parentAgencyId) 
+            => _context.Agencies.Where(a => a.ParentId == parentAgencyId);
 
 
         private readonly EdoContext _context;
