@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         }
         
         
-        public async Task ProcessResponse(Booking bookingResponse, UserInfo user, BookingChangeEvents eventType, BookingChangeInitiators initiator)
+        public async Task ProcessResponse(Booking bookingResponse, UserInfo user, BookingChangeEvents eventType)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(bookingResponse.ReferenceCode);
             if (isFailure)
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
             if (bookingResponse.Status == BookingStatusCodes.NotFound)
             {
-                await ProcessBookingNotFound(booking, bookingResponse, eventType, initiator);
+                await ProcessBookingNotFound(booking, bookingResponse, eventType);
                 return;
             }
 
@@ -66,7 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             var changeReason = new BookingChangeReason
             {
                 Event = eventType,
-                Initiator = initiator,
                 Source = BookingChangeSources.Supplier
             };
             
@@ -88,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         }
 
 
-        private async Task ProcessBookingNotFound(Data.Bookings.Booking booking, Booking bookingResponse, BookingChangeEvents eventType, BookingChangeInitiators initiator)
+        private async Task ProcessBookingNotFound(Data.Bookings.Booking booking, Booking bookingResponse, BookingChangeEvents eventType)
         {
             if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout)
             {
@@ -99,7 +98,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             {
                 await _recordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), UserInfo.InternalServiceAccount, new Data.Bookings.BookingChangeReason 
                 { 
-                    Initiator = initiator,
                     Source = BookingChangeSources.System,  
                     Event = eventType
                 });

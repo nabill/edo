@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     /// </summary>
     public interface IBookingManagementService
     {
-        Task<Result> Cancel(Booking booking, UserInfo user, BookingChangeEvents eventType, BookingChangeInitiators initiator);
+        Task<Result> Cancel(Booking booking, UserInfo user, BookingChangeEvents eventType);
         
-        Task<Result> RefreshStatus(Booking booking, UserInfo user, BookingChangeEvents eventType, BookingChangeInitiators initiator);
+        Task<Result> RefreshStatus(Booking booking, UserInfo user, BookingChangeEvents eventType);
     }
 }

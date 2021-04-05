@@ -232,7 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 UserType = user.Type,
                 CreatedAt = date,
                 Status = status,
-                Initiator = reason.Initiator,
+                Initiator = GetInitiatorType(user),
                 Source = reason.Source,
                 Event = reason.Event,
                 Reason = reason.Reason
@@ -245,6 +245,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var entry = _context.BookingStatusHistory.Add(bookingStatusHistoryEntry);
             await _context.SaveChangesAsync();
             _context.Detach(entry.Entity);
+
+
+            static BookingChangeInitiators GetInitiatorType(UserInfo userInfo)
+                => userInfo.Type switch
+                {
+                    UserTypes.Admin => BookingChangeInitiators.Administrator,
+                    UserTypes.Agent => BookingChangeInitiators.Agent,
+                    UserTypes.ServiceAccount => BookingChangeInitiators.System,
+                    UserTypes.InternalServiceAccount => BookingChangeInitiators.System,
+                    UserTypes.Supplier => BookingChangeInitiators.Supplier,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
         }
 
 

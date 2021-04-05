@@ -14,6 +14,10 @@ namespace HappyTravel.Edo.Api.Models.Users
         public int Id { get; }
         public UserTypes Type { get; }
         
-        public static UserInfo InternalServiceAccount => new UserInfo(0, UserTypes.InternalServiceAccount);
+        public static UserInfo InternalServiceAccount 
+            => new UserInfo(0, UserTypes.InternalServiceAccount);
+        
+        public static UserInfo AnonymousSupplier 
+            => new UserInfo(0, UserTypes.Supplier);
     }
 }
