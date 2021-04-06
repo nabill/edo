@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             => AllAvailablePaymentMethods
                 .Intersect(GetAprPaymentMethods(availability, settings))
                 .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, date))
-                .Intersect(GetConytactKindPaymentMethods(contractKind))
+                .Intersect(GetContractKindPaymentMethods(contractKind))
                 .ToList();
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        private static List<PaymentMethods> GetConytactKindPaymentMethods(CounterpartyContractKind contractKind)
+        private static List<PaymentMethods> GetContractKindPaymentMethods(CounterpartyContractKind contractKind)
         {
             return contractKind switch
             {
