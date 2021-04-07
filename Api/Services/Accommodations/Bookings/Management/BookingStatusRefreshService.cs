@@ -22,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public BookingStatusRefreshService(
             IDoubleFlow flow, 
             IDateTimeProvider dateTimeProvider, 
-            IBookingManagementService bookingManagement,
+            ISupplierBookingManagementService supplierBookingManagement,
             EdoContext context,
             IOptions<BookingOptions> bookingOptions)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
-            _bookingManagement = bookingManagement;
+            _supplierBookingManagement = supplierBookingManagement;
             _context = context;
             _bookingOptions = bookingOptions.Value;
         }
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task<Result> RefreshBookingStatus() 
-                => _bookingManagement.RefreshStatus(booking, userInfo, BookingChangeEvents.Refresh);
+                => _supplierBookingManagement.RefreshStatus(booking, userInfo, BookingChangeEvents.Refresh);
 
 
             BookingStatusRefreshState GetUpdatedState()
@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private readonly IDoubleFlow _flow;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingManagementService _bookingManagement;
+        private readonly ISupplierBookingManagementService _supplierBookingManagement;
         private readonly EdoContext _context;
         private readonly BookingOptions _bookingOptions;
     }

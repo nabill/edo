@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
     {
         public BookingsProcessingService(IBookingAccountPaymentService accountPaymentService,
             IBookingCreditCardPaymentService creditCardPaymentService,
-            IBookingManagementService bookingManagementService,
+            ISupplierBookingManagementService supplierBookingManagementService,
             IBookingNotificationService bookingNotificationService,
             IBookingReportsService reportsService,
             EdoContext context,
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         {
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
-            _bookingManagementService = bookingManagementService;
+            _supplierBookingManagementService = supplierBookingManagementService;
             _bookingNotificationService = bookingNotificationService;
             _reportsService = reportsService;
             _context = context;
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 
                 if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
-                    var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc,
+                    var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, serviceAcc,
                         BookingChangeEvents.Charge);
                     
                     if (isRefreshingFailure)
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
                 if (chargeResult.IsFailure)
                 {
-                    var (_, isCancelFailure, error) = await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(),
+                    var (_, isCancelFailure, error) = await _supplierBookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(),
                         BookingChangeEvents.Charge); 
 
                     if (isCancelFailure)
@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
             {
-                return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), BookingChangeEvents.Cancel)
+                return _supplierBookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), BookingChangeEvents.Cancel)
                     .Finally(CreateResult);
 
 
@@ -363,7 +363,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
-        private readonly IBookingManagementService _bookingManagementService;
+        private readonly ISupplierBookingManagementService _supplierBookingManagementService;
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingReportsService _reportsService;
         private readonly EdoContext _context;

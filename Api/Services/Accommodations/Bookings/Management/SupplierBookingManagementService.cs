@@ -12,11 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
-    // TODO: Rename to SupplierBookingManagementService
-    public class BookingManagementService : IBookingManagementService
+    public class SupplierBookingManagementService : ISupplierBookingManagementService
     {
-        public BookingManagementService(IBookingRecordsUpdater bookingRecordsUpdater,
-            ILogger<BookingManagementService> logger,
+        public SupplierBookingManagementService(IBookingRecordsUpdater bookingRecordsUpdater,
+            ILogger<SupplierBookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
             IDateTimeProvider dateTimeProvider,
             IBookingResponseProcessor responseProcessor)
@@ -120,6 +119,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly ILogger<BookingManagementService> _logger;
+        private readonly ILogger<SupplierBookingManagementService> _logger;
     }
 }

@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     /// <summary>
     /// Common booking management service to be used by agents, administrators, service accounts
     /// </summary>
-    public interface IBookingManagementService
+    public interface ISupplierBookingManagementService
     {
         Task<Result> Cancel(Booking booking, UserInfo user, BookingChangeEvents eventType);
         

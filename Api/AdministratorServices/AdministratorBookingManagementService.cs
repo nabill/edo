@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AdministratorBookingManagementService : IAdministratorBookingManagementService
     {
         public AdministratorBookingManagementService(IBookingRecordManager recordManager,
-            IBookingManagementService managementService,
+            ISupplierBookingManagementService managementService,
             IDateTimeProvider dateTimeProvider,
             IBookingRecordsUpdater recordsUpdater)
         {
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IBookingRecordManager _recordManager;
-        private readonly IBookingManagementService _managementService;
+        private readonly ISupplierBookingManagementService _managementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordsUpdater _recordsUpdater;
     }
