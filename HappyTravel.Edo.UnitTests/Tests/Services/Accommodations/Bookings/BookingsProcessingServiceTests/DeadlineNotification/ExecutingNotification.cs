@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             var service = new BookingsProcessingService(Mock.Of<IBookingAccountPaymentService>(),
                 Mock.Of<IBookingCreditCardPaymentService>(),
-                Mock.Of<IBookingManagementService>(),
+                Mock.Of<ISupplierBookingManagementService>(),
                 notificationService,
                 Mock.Of<IBookingReportsService>(),
                 context.Object,

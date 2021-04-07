@@ -7,6 +7,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
@@ -24,12 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             ITagProcessor tagProcessor,
             IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
+            IBookingChangeLogService changeLogService,
             ISupplierOrderService supplierOrderService)
         {
             _context = context;
             _tagProcessor = tagProcessor;
             _dateTimeProvider = dateTimeProvider;
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
+            _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
         }
         
@@ -100,24 +104,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
-            async Task LogBookingStatus(Booking booking)
+            Task LogBookingStatus(Booking booking)
             {
-                var bookingStatusHistoryEntry = new BookingStatusHistoryEntry
+                var changeReason = new BookingChangeReason
                 {
-                    BookingId = booking.Id,
-                    UserId = agentContext.AgentId,
-                    UserType = UserTypes.Agent,
-                    AgencyId = agentContext.AgencyId,
-                    CreatedAt = booking.Created,
-                    Status = BookingStatuses.Created,
-                    Initiator = BookingChangeInitiators.Agent,
-                    Source = BookingChangeSources.None,
-                    Event = BookingChangeEvents.Create
+                    Event = BookingChangeEvents.Create,
+                    Source = BookingChangeSources.System
                 };
-
-                var entry = _context.BookingStatusHistory.Add(bookingStatusHistoryEntry);
-                await _context.SaveChangesAsync();
-                _context.Detach(entry.Entity);
+                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created, 
+                    agentContext.ToUserInfo(), changeReason);
             }
 
 
@@ -227,6 +222,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly ITagProcessor _tagProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
+        private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
     }
 }
