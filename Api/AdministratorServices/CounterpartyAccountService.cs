@@ -255,7 +255,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     Id = c.Id,
                     Currency = c.Currency,
-                    Balance = c.Balance
+                    Balance = new MoneyAmount
+                    {
+                        Amount = c.Balance,
+                        Currency = c.Currency
+                    }
                 })
                 .ToListAsync();
         }
