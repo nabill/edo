@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Cancel_valid_bookings_should_succeed()
         {
-            var service = CreateProcessingService(Mock.Of<IBookingManagementService>());
+            var service = CreateProcessingService(Mock.Of<ISupplierBookingManagementService>());
 
             var (isSuccess, _, _, _) = await service.Cancel(new List<int> {1, 2}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
 
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Cancel_invalid_booking_should_fail()
         {
-            var service = CreateProcessingService(Mock.Of<IBookingManagementService>());
+            var service = CreateProcessingService(Mock.Of<ISupplierBookingManagementService>());
 
             var (_, isFailure, _, _) = await service.Cancel(new List<int> {3, 4}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
 
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task All_bookings_should_be_cancelled()
         {
-            var bookingServiceMock = new Mock<IBookingManagementService>();
+            var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
             var service = CreateProcessingService(bookingServiceMock.Object);
 
             await service.Cancel(new List<int> {1, 2}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private BookingsProcessingService CreateProcessingService(IBookingManagementService bookingManagementService)
+        private BookingsProcessingService CreateProcessingService(ISupplierBookingManagementService supplierBookingManagementService)
         {
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             var service = new BookingsProcessingService(Mock.Of<IBookingAccountPaymentService>(),
                 Mock.Of<IBookingCreditCardPaymentService>(), 
-               bookingManagementService, 
+               supplierBookingManagementService, 
                Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
                 context.Object,

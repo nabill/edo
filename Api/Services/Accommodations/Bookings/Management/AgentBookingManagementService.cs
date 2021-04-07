@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class AgentBookingManagementService : IAgentBookingManagementService
     {
-        public AgentBookingManagementService(IBookingManagementService managementService, 
+        public AgentBookingManagementService(ISupplierBookingManagementService managementService, 
             IBookingRecordManager recordManager, IBookingStatusRefreshService statusRefreshService)
         {
             _managementService = managementService;
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             => _recordManager.Get(referenceCode).CheckPermissions(agent);
 
         
-        private readonly IBookingManagementService _managementService;
+        private readonly ISupplierBookingManagementService _managementService;
         private readonly IBookingRecordManager _recordManager;
         private readonly IBookingStatusRefreshService _statusRefreshService;
     }
