@@ -29,9 +29,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IBookingMoneyReturnService moneyReturnService,
             IBookingDocumentsMailingService documentsMailingService,
             ISupplierOrderService supplierOrderService,
+            IBookingChangeLogService bookingChangeLogService,
             EdoContext context,
-            ILogger<BookingRecordsUpdater> logger,
-            IBookingNotificationService bookingNotificationService)
+            ILogger<BookingRecordsUpdater> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _infoService = infoService;
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _supplierOrderService = supplierOrderService;
             _context = context;
             _logger = logger;
-            _bookingNotificationService = bookingNotificationService;
+            _bookingChangeLogService = bookingChangeLogService;
         }
         
 
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             await SetStatus(booking, status);
 
-            await AddEntryToStatusHistory(booking, status, date, user, reason);
+            await _bookingChangeLogService.Write(booking, status, date, user, reason);
             
             return status switch
             {
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             if (additionalInfo is null)
                 return Result.Failure($"Cannot get additional info for booking id '{booking.Id}'");
             
-            await _bookingNotificationService.NotifyBookingManualCorrectionNeeded(
+            await _notificationService.NotifyBookingManualCorrectionNeeded(
                 booking.ReferenceCode,
                 additionalInfo.AgentName,
                 additionalInfo.AgencyName,
@@ -223,31 +223,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task AddEntryToStatusHistory(Booking booking, BookingStatuses status, DateTime date, UserInfo user, BookingChangeReason reason)
-        {
-            var bookingStatusHistoryEntry = new BookingStatusHistoryEntry
-            {
-                BookingId = booking.Id,
-                UserId = user.Id,
-                UserType = user.Type,
-                CreatedAt = date,
-                Status = status,
-                Initiator = reason.Initiator,
-                Source = reason.Source,
-                Event = reason.Event,
-                Reason = reason.Reason
-            };
-            if (user.Type == UserTypes.Agent)
-            {
-                bookingStatusHistoryEntry.AgencyId = booking.AgencyId;
-            }
-
-            var entry = _context.BookingStatusHistory.Add(bookingStatusHistoryEntry);
-            await _context.SaveChangesAsync();
-            _context.Detach(entry.Entity);
-        }
-
-
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _infoService;
         private readonly IBookingNotificationService _notificationService;
@@ -256,6 +231,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly EdoContext _context;
         private readonly ILogger<BookingRecordsUpdater> _logger;
-        private readonly IBookingNotificationService _bookingNotificationService;
+        private readonly IBookingChangeLogService _bookingChangeLogService;
     }
 }
