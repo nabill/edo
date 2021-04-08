@@ -306,7 +306,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) && 
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
-            booking.PaymentMethod == PaymentMethods.CreditCard;
+            PaymentMethodsForCancellation.Contains(booking.PaymentMethod);
         
         private static readonly HashSet<BookingStatuses> BookingStatusesForCancellation = new HashSet<BookingStatuses>
         {
@@ -316,6 +316,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new()
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Refunded, BookingPaymentStatuses.Voided
+        };
+        
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCancellation = new()
+        {
+            PaymentMethods.CreditCard, PaymentMethods.Offline
         };
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
