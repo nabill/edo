@@ -8,11 +8,11 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Common.Enums.Notifications;
-using HappyTravel.Edo.Common.Models.Notifications;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.NotificationCenter.Services.Notification;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Formatters;
 using HappyTravel.Money.Models;
@@ -54,14 +54,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         LogoUrl = voucher.LogoUrl
                     };
 
-                    _notificationService.Add(new NotificationCenter.Models.Notification
+                    _notificationService.Add(new Notification
                     {
                         UserId = booking.AgentId,
                         Message = JsonSerializer.Serialize(voucherData),
                         SendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>
                         {
                             [ProtocolTypes.WebSocket ] = new WebSocketSettings { NotificationType = NotificationTypes.BookingVoucher }
-                            // TODO: Sending by email will be implemented in the task AA-____
+                            // TODO: Sending by email will be implemented in the task AA-128
                         }
                     });
 

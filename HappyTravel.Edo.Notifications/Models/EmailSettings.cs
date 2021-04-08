@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.Common.Models.Notifications
+namespace HappyTravel.Edo.Notifications.Models
 {
     public readonly struct EmailSettings : ISendingSettings
     {

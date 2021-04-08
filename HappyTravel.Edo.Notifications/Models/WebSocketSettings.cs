@@ -1,6 +1,6 @@
-using HappyTravel.Edo.Common.Enums.Notifications;
+using HappyTravel.Edo.Notifications.Enums;
 
-namespace HappyTravel.Edo.Common.Models.Notifications
+namespace HappyTravel.Edo.Notifications.Models
 {
     public class WebSocketSettings : ISendingSettings
     {

@@ -65,6 +65,7 @@
     <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.NotificationCenter\HappyTravel.Edo.NotificationCenter.csproj" />
+    <ProjectReference Include="..\HappyTravel.Edo.Notifications\HappyTravel.Edo.Notifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>

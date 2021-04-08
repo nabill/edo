@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Notifications;
-using HappyTravel.Edo.Common.Enums.Notifications;
+using HappyTravel.Edo.Notifications.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Notifications
 {

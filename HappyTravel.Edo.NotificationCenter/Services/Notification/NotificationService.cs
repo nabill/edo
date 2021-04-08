@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Common.Enums.Notifications;
-using HappyTravel.Edo.Common.Models.Notifications;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             _signalRSender = signalRSender;
         }
         
-        public async Task Add(Models.Notification notification)
+        public async Task Add(Notifications.Models.Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {

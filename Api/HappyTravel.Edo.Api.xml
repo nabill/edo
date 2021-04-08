@@ -3017,7 +3017,7 @@
             </summary>
             <returns>List of the slim booking models </returns>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.IBookingManagementService">
+        <member name="T:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.ISupplierBookingManagementService">
             <summary>
             Common booking management service to be used by agents, administrators, service accounts
             </summary>

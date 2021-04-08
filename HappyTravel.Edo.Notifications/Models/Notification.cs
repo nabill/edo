@@ -1,8 +1,7 @@
+using HappyTravel.Edo.Notifications.Enums;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums.Notifications;
-using HappyTravel.Edo.Common.Models.Notifications;
 
-namespace HappyTravel.Edo.NotificationCenter.Models
+namespace HappyTravel.Edo.Notifications.Models
 {
     public readonly struct Notification
     {
