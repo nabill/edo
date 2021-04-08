@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             {
                 var deadlineDate = bookingAvailability.RoomContractSet.Deadline.Date;
                 var dueDate = deadlineDate == null || deadlineDate == DateTime.MinValue ? bookingAvailability.CheckInDate : deadlineDate.Value;
-                return dueDate > _dateTimeProvider.UtcToday();
+                return dueDate - OfflinePaymentAdditionalDays > _dateTimeProvider.UtcToday();
             }
 
 
@@ -101,9 +101,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             //         () => _logger.LogBookingFinalizationFailure(
             //             $"Failed to book using account. Reference code: '{booking.ReferenceCode}'. Error: {result.Error.Detail}"));
         }
-        
-        
-        
+
+
+        private static readonly TimeSpan OfflinePaymentAdditionalDays = TimeSpan.FromDays(3);
+
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingDocumentsService _documentsService;
