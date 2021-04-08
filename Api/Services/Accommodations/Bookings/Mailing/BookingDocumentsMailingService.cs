@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -7,8 +8,11 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Common.Enums.Notifications;
+using HappyTravel.Edo.Common.Models.Notifications;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
+using HappyTravel.Edo.NotificationCenter.Services.Notification;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Formatters;
 using HappyTravel.Money.Models;
@@ -19,10 +23,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationService, MailSenderWithCompanyInfo mailSender,
             IOptions<BookingMailingOptions> options)
         {
             _documentsService = documentsService;
+            _notificationService = notificationService;
             _mailSender = mailSender;
             _options = options.Value;
         }
@@ -48,7 +53,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         BannerUrl = voucher.BannerUrl,
                         LogoUrl = voucher.LogoUrl
                     };
-                    
+
+                    _notificationService.Add(new NotificationCenter.Models.Notification
+                    {
+                        UserId = booking.AgentId,
+                        Message = JsonSerializer.Serialize(voucherData),
+                        SendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>
+                        {
+                            [ProtocolTypes.WebSocket ] = new WebSocketSettings { NotificationType = NotificationTypes.BookingVoucher }
+                            // TODO: Sending by email will be implemented in the task AA-____
+                        }
+                    });
+
                     return _mailSender.Send(_options.VoucherTemplateId, email, voucherData);
                 });
         }
@@ -140,6 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         
         private readonly IBookingDocumentsService _documentsService;
+        private readonly INotificationService _notificationService;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }

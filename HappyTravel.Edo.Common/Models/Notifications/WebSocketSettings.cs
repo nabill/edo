@@ -1,7 +1,9 @@
+using HappyTravel.Edo.Common.Enums.Notifications;
+
 namespace HappyTravel.Edo.Common.Models.Notifications
 {
     public class WebSocketSettings : ISendingSettings
     {
-        // TODO add specific settings for event like type or color
+        public NotificationTypes NotificationType { get; init; }
     }
 }
