@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
             var options = await GetOptions(type, agent.AgentId, agent.AgencyId);
 
             return options is null 
-                ? NotificationOptionsHelper.GetDefaultOptions(type) 
+                ? NotificationOptionsHelper.TryGetDefaultOptions(type) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
             Result<SlimNotificationOptions> Validate()
             {
-                var defaultOptions = NotificationOptionsHelper.GetDefaultOptions(type);
+                var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(type);
                 if (defaultOptions.IsFailure)
                     return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 

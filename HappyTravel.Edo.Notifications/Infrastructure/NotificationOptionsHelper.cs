@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
 {
     public static class NotificationOptionsHelper
     {
-        public static Result<SlimNotificationOptions> GetDefaultOptions(NotificationTypes type) 
+        public static Result<SlimNotificationOptions> TryGetDefaultOptions(NotificationTypes type) 
             => _defaultOptions.TryGetValue(type, out var value)
                 ? value
                 : Result.Failure<SlimNotificationOptions>($"Cannot find options for type '{type}'");
