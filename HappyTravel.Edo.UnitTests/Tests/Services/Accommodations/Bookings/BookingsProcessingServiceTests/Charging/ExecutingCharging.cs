@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         public async Task When_payment_fails_bookings_should_be_cancelled()
         {
             var bookingAccountPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
-            var bookingServiceMock = new Mock<IBookingManagementService>();
+            var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
 
             bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<UserInfo>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingServiceMock
                 .Verify(
-                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), It.IsAny<BookingChangeReason>()),
+                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), It.IsAny<BookingChangeEvents>()),
                     Times.Exactly(2)
                 );
         }
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         public async Task When_payment_succeed_bookings_should_not_be_cancelled()
         {
             var bookingPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
-            var bookingServiceMock = new Mock<IBookingManagementService>();
+            var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
 
             var service = CreateProcessingService(bookingPaymentServiceMock.Object, bookingServiceMock.Object);
 
@@ -95,17 +95,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingServiceMock
                 .Verify(
-                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), new BookingChangeReason { Source = BookingChangeSources.Supplier, Event = BookingChangeEvents.Cancel }),
+                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), It.IsAny<BookingChangeEvents>()),
                     Times.Exactly(0)
                 );
         }
 
 
         private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService? bookingPaymentService = null,
-            IBookingManagementService? bookingManagementService = null)
+            ISupplierBookingManagementService? bookingManagementService = null)
         {
             bookingPaymentService ??= Mock.Of<IBookingAccountPaymentService>();
-            bookingManagementService ??= Mock.Of<IBookingManagementService>();
+            bookingManagementService ??= Mock.Of<ISupplierBookingManagementService>();
 
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)

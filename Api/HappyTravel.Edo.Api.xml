@@ -1512,7 +1512,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
             <summary>
-            Direct contract mark
+            Direct contract flag
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">

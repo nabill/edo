@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Management;
 
@@ -14,7 +13,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AdministratorBookingManagementService : IAdministratorBookingManagementService
     {
         public AdministratorBookingManagementService(IBookingRecordManager recordManager,
-            IBookingManagementService managementService,
+            ISupplierBookingManagementService managementService,
             IDateTimeProvider dateTimeProvider,
             IBookingRecordsUpdater recordsUpdater)
         {
@@ -33,7 +32,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> ProcessDiscard(Booking booking) 
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Discarded, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
                 { 
-                    Initiator = BookingChangeInitiators.Administrator,
                     Source = BookingChangeSources.Administrator,
                     Event = BookingChangeEvents.Discard,
                     Reason = "Discarded by an administrator"
@@ -45,16 +43,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return GetBooking(bookingId)
                 .Bind(ProcessRefresh);
-            
-            
-            Task<Result> ProcessRefresh(Booking booking) 
-                => _managementService.RefreshStatus(booking, admin.ToUserInfo(), new BookingChangeReason 
-                { 
-                    Initiator = BookingChangeInitiators.Administrator,
-                    Source = BookingChangeSources.Supplier,
-                    Event = BookingChangeEvents.Refresh,
-                    Reason = "Updated on request to the supplier by an administrator"
-                });
+
+
+            Task<Result> ProcessRefresh(Booking booking)
+                => _managementService.RefreshStatus(booking, admin.ToUserInfo(), BookingChangeEvents.Refresh);
         }
 
 
@@ -65,13 +57,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 
             
             Task<Result> Cancel(Booking booking) 
-                => _managementService.Cancel(booking, admin.ToUserInfo(), new BookingChangeReason 
-                { 
-                    Initiator = BookingChangeInitiators.Administrator,
-                    Source = BookingChangeSources.Supplier,
-                    Event = BookingChangeEvents.Cancel,
-                    Reason = "Canceled on request from administrator"
-                });
+                => _managementService.Cancel(booking, admin.ToUserInfo(), BookingChangeEvents.Cancel);
         }
 
 
@@ -84,7 +70,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> CancelManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Cancelled, cancellationDate, admin.ToUserInfo(), new BookingChangeReason 
                 { 
-                    Initiator = BookingChangeInitiators.Administrator,
                     Source = BookingChangeSources.Administrator,
                     Event = BookingChangeEvents.CancelManually,
                     Reason = reason
@@ -101,7 +86,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> RejectManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Rejected, _dateTimeProvider.UtcNow(), admin.ToUserInfo(), new BookingChangeReason 
                 { 
-                    Initiator = BookingChangeInitiators.Administrator,
                     Source = BookingChangeSources.Administrator,
                     Event = BookingChangeEvents.RejectManually,
                     Reason = reason
@@ -118,7 +102,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> ConfirmManually(Booking booking)
                 => _recordsUpdater.ChangeStatus(booking, BookingStatuses.Confirmed, confirmationDate, admin.ToUserInfo(), new BookingChangeReason 
                 {
-                    Initiator = BookingChangeInitiators.Administrator,
                     Source = BookingChangeSources.Administrator,
                     Event = BookingChangeEvents.ConfirmManually,
                     Reason = reason
@@ -131,7 +114,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IBookingRecordManager _recordManager;
-        private readonly IBookingManagementService _managementService;
+        private readonly ISupplierBookingManagementService _managementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordsUpdater _recordsUpdater;
     }

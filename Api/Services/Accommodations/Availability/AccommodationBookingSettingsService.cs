@@ -57,14 +57,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
             bool isSupplierVisible = default;
-            bool areTagsVisible = default;
+            bool isDirectContractFlagVisible = default;
             SearchFilters additionalSearchFilters = default;
+            var cancellationPolicyProcessSettings = counterpartySettings.CancellationPolicyProcessSettings;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
             
             if (agencySettings.HasValue)
                 SetValuesFromAgencySettings(agencySettings.Value);
+            
+            if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
+                OverrideCancellationPolicyProcessSettings();
 
             enabledConnectors ??= _supplierOptions.EnabledSuppliers;
             aprMode ??= DefaultAprMode;
@@ -75,8 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode.Value,
                 isMarkupDisabled: isMarkupDisabled, 
                 isSupplierVisible: isSupplierVisible,
-                counterpartySettings.CancellationPolicyProcessSettings,
-                areTagsVisible: areTagsVisible,
+                cancellationPolicyProcessSettings,
+                isDirectContractFlagVisible: isDirectContractFlagVisible,
                 additionalSearchFilters);
 
 
@@ -87,8 +91,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
                 isSupplierVisible = agentSettingsValue.IsSupplierVisible;
-                areTagsVisible = agentSettingsValue.AreTagsVisible;
                 additionalSearchFilters = agentSettingsValue.AdditionalSearchFilters;
+                isDirectContractFlagVisible = agentSettingsValue.IsDirectContractFlagVisible;
             }
 
 
@@ -99,7 +103,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
                 isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
-                areTagsVisible = areTagsVisible || agencySettingsValue.AreTagsVisible;
+                isDirectContractFlagVisible = isDirectContractFlagVisible || agencySettingsValue.IsDirectContractFlagVisible;
+            }
+
+
+            void OverrideCancellationPolicyProcessSettings()
+            {
+                cancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
+                {
+                    PolicyStartDateShift = TimeSpan.FromDays(agencySettings.Value.CustomDeadlineShift.Value)
+                };
             }
         }
 
