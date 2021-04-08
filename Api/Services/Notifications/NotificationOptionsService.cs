@@ -1,12 +1,12 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Notifications;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Notifications;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Notifications.Models;
+using HappyTravel.Edo.Notifications.Infrastructure;
 
 namespace HappyTravel.Edo.Api.Services.Notifications
 {
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
             var options = await GetOptions(type, agent.AgentId, agent.AgencyId);
 
             return options is null 
-                ? GetDefaultOptions(type) 
+                ? NotificationHelper.GetDefaultOptions(type) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
             Result<SlimNotificationOptions> Validate()
             {
-                var defaultOptions = GetDefaultOptions(type);
+                var defaultOptions = NotificationHelper.GetDefaultOptions(type);
                 if (defaultOptions.IsFailure)
                     return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
@@ -73,28 +73,9 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private Result<SlimNotificationOptions> GetDefaultOptions(NotificationTypes type) => 
-            _defaultOptions.TryGetValue(type, out var value) 
-                ? value 
-                : Result.Failure<SlimNotificationOptions>($"Cannot find options for type '{type}'");
-
-
         private Task<NotificationOptions> GetOptions(NotificationTypes type, int agentId, int agencyId) 
             => _context.NotificationOptions
                 .SingleOrDefaultAsync(o => o.AgencyId == agencyId && o.AgentId == agentId && o.Type == type);
-
-
-        private readonly Dictionary<NotificationTypes, SlimNotificationOptions> _defaultOptions = new()
-        {
-            {NotificationTypes.BookingVoucher, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationTypes.BookingInvoice, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationTypes.DeadlineApproaching, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationTypes.SuccessfulPaymentReceipt, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true}},
-            {NotificationTypes.BookingDuePaymentDate, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationTypes.BookingCancelled, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationTypes.BookingFinalized, new() {EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false}},
-            {NotificationTypes.BookingStatusChanged, new() {EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false}},
-        };
 
 
         private readonly EdoContext _context;
