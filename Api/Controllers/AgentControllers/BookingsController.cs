@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("book-by-offline")]
+        [HttpPost("book-for-offline")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
