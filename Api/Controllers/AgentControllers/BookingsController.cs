@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> BookByOffline([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingInfo, error) = await _offlinePaymentBookingFlow.BookByOffline(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, bookingInfo, error) = await _offlinePaymentBookingFlow.Book(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

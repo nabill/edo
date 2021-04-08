@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.General.Enums;
 
@@ -32,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
         
 
-        public Task<Result<AccommodationBookingInfo>> BookByOffline(AccommodationBookingRequest bookingRequest,
+        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
             return GetCachedAvailability(bookingRequest)

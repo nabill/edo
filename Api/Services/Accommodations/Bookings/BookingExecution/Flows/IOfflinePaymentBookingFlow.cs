@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 {
     public interface IOfflinePaymentBookingFlow
     {
-        Task<Result<AccommodationBookingInfo>> BookByOffline(AccommodationBookingRequest bookingRequest,
+        Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp);
     }
 }
