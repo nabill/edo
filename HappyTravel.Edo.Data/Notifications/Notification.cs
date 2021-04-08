@@ -10,6 +10,7 @@ namespace HappyTravel.Edo.Data.Notifications
         public int Id { get; set; }
         public int UserId { get; set; }
         public string Message { get; set; }
+        public NotificationTypes Type { get; set; }
         public Dictionary<ProtocolTypes, ISendingSettings> SendingSettings { get; set; }
         public DateTime Created { get; set; }
         public bool IsRead { get; set; }

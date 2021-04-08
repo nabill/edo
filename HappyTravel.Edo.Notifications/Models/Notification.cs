@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.Notifications.Models
     {
         public int UserId { get; init; }
         public string Message { get; init; }
+        public NotificationTypes Type { get; init; }
         public Dictionary<ProtocolTypes, ISendingSettings> SendingSettings { get; init; }
     }
 }

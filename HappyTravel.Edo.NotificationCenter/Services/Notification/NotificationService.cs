@@ -18,12 +18,14 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             _signalRSender = signalRSender;
         }
         
+
         public async Task Add(Notifications.Models.Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
                 UserId = notification.UserId,
                 Message = notification.Message,
+                Type = notification.Type,
                 SendingSettings = notification.SendingSettings,
                 Created = DateTime.UtcNow
             });
@@ -65,9 +67,9 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        public Task<List<SlimNotification>> GetNotifications(int userId, int top, int skip)
+        public async Task<List<SlimNotification>> GetNotifications(int userId, int top, int skip)
         {
-            return _context.Notifications
+            return await _context.Notifications
                 .Where(n => n.UserId == userId)
                 .Take(top)
                 .Skip(skip)
@@ -76,6 +78,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                     Id = n.Id,
                     UserId = n.UserId,
                     Message = n.Message,
+                    Type = n.Type,
                     Created = n.Created,
                     IsRead = n.IsRead
                 })
@@ -85,7 +88,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
 
         private Task SendEmail(EmailSettings settings)
         {
-            // TODO: implement sending e-mails
+            // TODO: Sending e-mails will be implemented later in task AA-128
             return Task.CompletedTask;
         }
 
