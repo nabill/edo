@@ -19,52 +19,61 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
         public async Task<Result> Send(SlimAgentContext agent, string message, NotificationTypes notificationType, string email = "", string templateId = "")
         {
-            var notificationOptions = await _notificationOptionsService.GetNotificationOptions(notificationType, agent);
-            if (notificationOptions.IsFailure)
-                return Result.Failure(notificationOptions.Error);
+            return await _notificationOptionsService.GetNotificationOptions(notificationType, agent)
+                .Map(GetSettings)
+                .Tap(sendingSettings => AddNotification(agent.AgentId, message, sendingSettings));
 
-            var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
-            if ((notificationOptions.Value.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
-                sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { NotificationType = notificationType });
-            if ((notificationOptions.Value.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Email = email, TemplateId = templateId });
 
-            await _notificationService.Add(new Notification
+            Dictionary<ProtocolTypes, ISendingSettings> GetSettings(SlimNotificationOptions notificationOptions)
             {
-                UserId = agent.AgentId,
-                Message = message,
-                SendingSettings = sendingSettings
-            });
+                var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
 
-            return Result.Success();
+                if ((notificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
+                    sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { NotificationType = notificationType });
+
+                if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+                    sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Email = email, TemplateId = templateId });
+
+                return sendingSettings;
+            }
         }
 
 
         public async Task<Result> Send(SlimAgentContext agent, string message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
         {
-            var notificationOptions = await _notificationOptionsService.GetNotificationOptions(notificationType, agent);
-            if (notificationOptions.IsFailure)
-                return Result.Failure(notificationOptions.Error);
+            return await _notificationOptionsService.GetNotificationOptions(notificationType, agent)
+                .Map(GetSettings)
+                .Tap(sendingSettings => AddNotification(agent.AgentId, message, sendingSettings));
 
-            var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
-            if ((notificationOptions.Value.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
-                sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { NotificationType = notificationType });
-            if ((notificationOptions.Value.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+
+            Dictionary<ProtocolTypes, ISendingSettings> GetSettings(SlimNotificationOptions notificationOptions)
             {
-                foreach (var email in emails)
-                {
-                    sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Email = email, TemplateId = templateId });
-                }
-            }    
+                var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
 
+                if ((notificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
+                    sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { NotificationType = notificationType });
+
+                if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+                {
+                    foreach (var email in emails)
+                    {
+                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Email = email, TemplateId = templateId });
+                    }
+                }
+
+                return sendingSettings;
+            }
+        }
+
+
+        private async Task AddNotification(int userId, string message, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
+        {
             await _notificationService.Add(new Notification
             {
-                UserId = agent.AgentId,
+                UserId = userId,
                 Message = message,
                 SendingSettings = sendingSettings
             });
-
-            return Result.Success();
         }
 
 
