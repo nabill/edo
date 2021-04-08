@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,8 +40,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
                 return Result.Failure(bookingDetailsError);
             }
 
-            await _responseProcessor.ProcessResponse(bookingDetails, UserInfo.InternalServiceAccount, Common.Enums.BookingChangeEvents.SupplierWebHook,
-                Common.Enums.BookingChangeInitiators.Supplier);
+            await _responseProcessor.ProcessResponse(bookingDetails, UserInfo.FromSupplier(Suppliers.Netstorming), Common.Enums.BookingChangeEvents.SupplierWebHook);
 
             return Result.Success();
         }
