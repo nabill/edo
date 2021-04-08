@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Notifications.Infrastructure
 {
-    public static class NotificationHelper
+    public static class NotificationOptionsHelper
     {
         public static Result<SlimNotificationOptions> GetDefaultOptions(NotificationTypes type) 
             => _defaultOptions.TryGetValue(type, out var value)
