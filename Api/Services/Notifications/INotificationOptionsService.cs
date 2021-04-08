@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 {
     public interface INotificationOptionsService
     {
-        Task<Result<SlimNotificationOptions>> GetNotificationOptions(NotificationTypes type, AgentContext agent);
+        Task<Result<SlimNotificationOptions>> GetNotificationOptions(NotificationTypes type, SlimAgentContext agent);
 
-        Task<Result> Update(NotificationTypes type, SlimNotificationOptions option, AgentContext agentContext);
+        Task<Result> Update(NotificationTypes type, SlimNotificationOptions option, SlimAgentContext agentContext);
     }
 }

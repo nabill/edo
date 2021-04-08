@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public async Task<Result<SlimNotificationOptions>> GetNotificationOptions(NotificationTypes type, AgentContext agent)
+        public async Task<Result<SlimNotificationOptions>> GetNotificationOptions(NotificationTypes type, SlimAgentContext agent)
         {
             var options = await GetOptions(type, agent.AgentId, agent.AgencyId);
 
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public Task<Result> Update(NotificationTypes type, SlimNotificationOptions options, AgentContext agentContext)
+        public Task<Result> Update(NotificationTypes type, SlimNotificationOptions options, SlimAgentContext agentContext)
         {
             return Validate()
                 .Bind(SaveOptions);
