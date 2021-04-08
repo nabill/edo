@@ -36,14 +36,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         {
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentMethodAllowed, "Payment method is not allowed")
-                .Ensure(IsNotDeadlinePassed, "Deadline already passed, can not book")
+                .Ensure(IsDeadlineNotPassed, "Deadline already passed, can not book")
                 .Map(RegisterBooking)
                 .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo);
 
 
-            bool IsNotDeadlinePassed(BookingAvailabilityInfo bookingAvailability)
+            bool IsDeadlineNotPassed(BookingAvailabilityInfo bookingAvailability)
             {
                 var deadlineDate = bookingAvailability.RoomContractSet.Deadline.Date;
                 var dueDate = deadlineDate == null || deadlineDate == DateTime.MinValue ? bookingAvailability.CheckInDate : deadlineDate.Value;
