@@ -6,6 +6,7 @@ namespace HappyTravel.Edo.NotificationCenter.Models
     public readonly struct SlimNotification
     {
         public int Id { get; init; }
+        public ReceiverTypes Receiver { get; init; }
         public int UserId { get; init; }
         public string Message { get; init; }
         public NotificationTypes Type { get; init; }

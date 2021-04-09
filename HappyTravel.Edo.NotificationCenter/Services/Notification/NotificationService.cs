@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
+                Receiver = notification.Receiver,
                 UserId = notification.UserId,
                 Message = notification.Message,
                 Type = notification.Type,
@@ -41,7 +42,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message),
+                        => _signalRSender.FireNotificationAddedEvent(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -67,14 +68,15 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        public async Task<List<SlimNotification>> GetNotifications(int userId, int top, int skip)
+        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
         {
             return await _context.Notifications
-                .Where(n => n.UserId == userId)
+                .Where(n => n.Receiver == receiver && n.UserId == userId)
                 .Take(top)
                 .Skip(skip)
                 .Select(n => new SlimNotification
                 {
+                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
                     Message = n.Message,

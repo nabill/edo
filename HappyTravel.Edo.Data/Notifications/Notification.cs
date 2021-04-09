@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Data.Notifications
     public class Notification : IEntity
     {
         public int Id { get; set; }
+        public ReceiverTypes Receiver { get; set; }
         public int UserId { get; set; }
         public string Message { get; set; }
         public NotificationTypes Type { get; set; }
