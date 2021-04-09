@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
+      <ProjectReference Include="..\HappyTravel.Edo.Notifications\HappyTravel.Edo.Notifications.csproj" />
     </ItemGroup>
 
 </Project>
