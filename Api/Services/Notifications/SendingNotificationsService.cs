@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
                     sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
                 if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                    sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = emails, TemplateId = templateId });
+                    sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = emails ?? new(0), TemplateId = templateId });
 
                 return sendingSettings;
             }
