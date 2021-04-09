@@ -8,8 +8,8 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -58,12 +58,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
 
             bool IsPaymentMethodAllowed(BookingAvailabilityInfo availabilityInfo) 
-                => availabilityInfo.AvailablePaymentMethods.Contains(PaymentMethods.Offline);
+                => availabilityInfo.AvailablePaymentMethods.Contains(PaymentTypes.Offline);
 
 
             async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
             {
-                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentMethods.Offline, agentContext, languageCode);
+                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
                 return (booking, bookingAvailability);
             }
             
