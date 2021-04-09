@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Common.Enums
         [Description("Other")] 
         None = 0,
         
-        [Description("Bank Transfer")] 
+        [Description("Virtual Account")] 
         VirtualAccount = 1,
         
         [Description("Credit Card")] 
