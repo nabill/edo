@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) 
+            Task<Result<string>> Capture(Booking booking, ApiCaller serviceAcc) 
                 => _creditCardPaymentService.Capture(booking, serviceAccount.ToUserInfo());
         }
 
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
 
-            async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
+            async Task<Result<string>> Charge(Booking booking, ApiCaller serviceAcc)
             {
                 if (booking.CheckInDate <= _dateTimeProvider.UtcNow())
                 {
@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
 
-            Task<Result<string>> Notify(Booking booking, UserInfo _)
+            Task<Result<string>> Notify(Booking booking, ApiCaller _)
             {
                 return NotifyAgent()
                     .Finally(CreateResult);
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
 
-            Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
+            Task<Result<string>> ProcessBooking(Booking booking, ApiCaller _)
             {
                 return _supplierBookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), BookingChangeEvents.Cancel)
                     .Finally(CreateResult);
@@ -256,7 +256,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
             Expression<Func<Booking, bool>> predicate,
-            Func<Booking, UserInfo, Task<Result<string>>> action,
+            Func<Booking, ApiCaller, Task<Result<string>>> action,
             ServiceAccount serviceAccount)
         {
             var bookings = await GetBookings();
