@@ -19,23 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
         public async Task<Result> Send(SlimAgentContext agent, string message, NotificationTypes notificationType, string email = "", string templateId = "")
         {
-            return await _notificationOptionsService.GetNotificationOptions(notificationType, agent)
-                .Map(GetSettings)
-                .Tap(sendingSettings => AddNotification(agent.AgentId, message, notificationType, sendingSettings));
-
-
-            Dictionary<ProtocolTypes, ISendingSettings> GetSettings(SlimNotificationOptions notificationOptions)
-            {
-                var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
-
-                if ((notificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
-                    sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
-
-                if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                    sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = new List<string> { email }, TemplateId = templateId });
-
-                return sendingSettings;
-            }
+            return await Send(agent, message, notificationType, new List<string> { email }, templateId);
         }
 
 
