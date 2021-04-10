@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Common.Enums.Notifications;
-using HappyTravel.Edo.Common.Models.Notifications;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +18,15 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             _signalRSender = signalRSender;
         }
         
-        public async Task Add(Models.Notification notification)
+
+        public async Task Add(Notifications.Models.Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
+                Receiver = notification.Receiver,
                 UserId = notification.UserId,
                 Message = notification.Message,
+                Type = notification.Type,
                 SendingSettings = notification.SendingSettings,
                 Created = DateTime.UtcNow
             });
@@ -40,7 +42,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => _signalRSender.FireNotificationAddedEvent(notification.UserId, entry.Entity.Id, notification.Message),
+                        => _signalRSender.FireNotificationAddedEvent(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -66,17 +68,19 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        public Task<List<SlimNotification>> GetNotifications(int userId, int top, int skip)
+        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
         {
-            return _context.Notifications
-                .Where(n => n.UserId == userId)
+            return await _context.Notifications
+                .Where(n => n.Receiver == receiver && n.UserId == userId)
                 .Take(top)
                 .Skip(skip)
                 .Select(n => new SlimNotification
                 {
+                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
                     Message = n.Message,
+                    Type = n.Type,
                     Created = n.Created,
                     IsRead = n.IsRead
                 })
@@ -86,7 +90,7 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
 
         private Task SendEmail(EmailSettings settings)
         {
-            // TODO: implement sending e-mails
+            // TODO: Sending e-mails will be implemented later in task AA-128
             return Task.CompletedTask;
         }
 

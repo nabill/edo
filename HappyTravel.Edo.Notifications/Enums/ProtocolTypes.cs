@@ -1,6 +1,6 @@
 using System;
 
-namespace HappyTravel.Edo.Common.Enums.Notifications
+namespace HappyTravel.Edo.Notifications.Enums
 {
     [Flags]
     public enum ProtocolTypes
