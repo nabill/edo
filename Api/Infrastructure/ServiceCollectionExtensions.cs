@@ -711,6 +711,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();
             services.AddTransient<IAgenciesProductivityReportService, AgenciesProductivityReportService>();
             services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
+            services.AddTransient<ISendingNotificationsService, SendingNotificationsService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

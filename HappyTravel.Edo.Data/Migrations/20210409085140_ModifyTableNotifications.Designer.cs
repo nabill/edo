@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -18,8 +18,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210331140508_RenameAddressLegalAddress")]
-    partial class RenameAddressLegalAddress
+    [Migration("20210409085140_ModifyTableNotifications")]
+    partial class ModifyTableNotifications
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -447,6 +447,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
+                    b.Property<List<CancellationPolicy>>("CancellationPolicies")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -470,6 +475,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("HtId")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDirectContract")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
@@ -529,6 +537,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgentId");
 
                     b.HasIndex("CounterpartyId");
+
+                    b.HasIndex("IsDirectContract");
 
                     b.HasIndex("ItineraryNumber");
 
@@ -592,20 +602,26 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int?>("AgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ApiCallerType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("BookingId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ChangeEvent")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ChangeReason")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ChangeSource")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Event")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Initiator")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -613,16 +629,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserType")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ApiCallerType");
 
                     b.HasIndex("BookingId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserType");
 
                     b.ToTable("BookingStatusHistory");
                 });
@@ -1037,6 +1050,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int>("ApiCallerType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1047,9 +1063,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserType")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -1095,8 +1108,14 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("text");
 
+                    b.Property<int>("Receiver")
+                        .HasColumnType("integer");
+
                     b.Property<Dictionary<ProtocolTypes, ISendingSettings>>("SendingSettings")
                         .HasColumnType("jsonb");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1104,6 +1123,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsRead");
+
+                    b.HasIndex("Receiver");
 
                     b.HasIndex("UserId");
 
@@ -1206,6 +1227,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<int>("ApiCallerType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1220,9 +1244,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserType")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -1335,6 +1356,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<int>("ApiCallerType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1358,9 +1382,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserType")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("CreditCardAuditLogs");
@@ -1373,6 +1394,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int>("ApiCallerType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1380,9 +1404,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserType")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -1461,13 +1482,22 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int>("ConvertedSupplierCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("ConvertedSupplierPrice")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<decimal>("Price")
+                    b.Property<int>("OriginalSupplierCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("OriginalSupplierPrice")
                         .HasColumnType("numeric");
 
                     b.Property<string>("ReferenceCode")
