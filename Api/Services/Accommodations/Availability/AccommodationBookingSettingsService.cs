@@ -73,10 +73,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var cancellationPolicyProcessSettings = counterpartySettings.CancellationPolicyProcessSettings;
 
             if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
+            {
                 cancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
                 {
                     PolicyStartDateShift = TimeSpan.FromDays(agencySettings.Value.CustomDeadlineShift.Value)
                 };
+            }
 
             return new AccommodationBookingSettings(enabledConnectors,
                 aprMode.Value,
