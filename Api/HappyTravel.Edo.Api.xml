@@ -2780,7 +2780,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest.Comment">
             <summary>
-                Optional payment comment.
+                Mandatory payment comment.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Amount">
