@@ -52,8 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
             Maybe<AgencyAccommodationBookingSettings> agencySettings, CounterpartyAccommodationBookingSettings counterpartySettings)
         {
-            var agentSettingsValue = agentSettings.HasValue ? agentSettings.Value : null;
-            var agencySettingsValue = agencySettings.HasValue ? agencySettings.Value : null;
+            var agentSettingsValue = agentSettings.HasValue 
+                ? agentSettings.Value
+                : null;
+            var agencySettingsValue = agencySettings.HasValue 
+                ? agencySettings.Value
+                : null;
 
             List<Suppliers> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? _supplierOptions.EnabledSuppliers;
             AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
