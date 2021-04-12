@@ -5,9 +5,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 if (data.IsConfirmed)
                     return Result.Failure<Booking>("Payment already confirmed");
 
-                if (data.booking.PaymentMethod != PaymentMethods.CreditCard)
+                if (data.booking.PaymentMethod != PaymentTypes.CreditCard)
                     return Result.Failure<Booking>($"Wrong payment method {data.booking.PaymentMethod}");
 
                 return data.booking;
