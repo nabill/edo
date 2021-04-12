@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.NotificationCenter.Services.Hub
 {
-    public interface INotificationCenter
+    public interface INotificationClient
     {
-        Task NotificationAdded(int messageId, string message);
+        Task ReceiveMessage(int messageId, string message);
     }
 }

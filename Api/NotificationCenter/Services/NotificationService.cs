@@ -5,15 +5,16 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
-using HappyTravel.Edo.NotificationCenter.Services.Hub;
+using HappyTravel.Edo.Api.NotificationCenter.Hubs;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
+using Microsoft.AspNetCore.SignalR;
 
-namespace HappyTravel.Edo.NotificationCenter.Services.Notification
+namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public class NotificationService : INotificationService
     {
-        public NotificationService(EdoContext context, NotificationHub notificationHub)
+        public NotificationService(EdoContext context, IHubContext<NotificationHub, INotificationClient> notificationHub)
         {
             _context = context;
             _notificationHub = notificationHub;
@@ -43,7 +44,9 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => _notificationHub.SendPrivateMessage(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
+                        => _notificationHub.Clients
+                            .User(BuildUserName(notification.Receiver, notification.UserId))
+                            .ReceiveMessage(entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -96,7 +99,18 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        private readonly Hub.NotificationHub _notificationHub;
+        private static string BuildUserName(ReceiverTypes receiver, int userId)
+        {
+            return receiver switch
+            {
+                ReceiverTypes.AgentApp => $"agent-{userId}",
+                ReceiverTypes.AdminPanel => $"admin-{userId}",
+                _ => $"unknown-{userId}",
+            };
+        }
+
+
+        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHub;
         private readonly EdoContext _context;
     }
 }
