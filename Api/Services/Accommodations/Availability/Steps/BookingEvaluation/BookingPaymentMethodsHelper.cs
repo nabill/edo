@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
     public static class BookingPaymentMethodsHelper
     {
-        public static List<PaymentMethods> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
+        public static List<PaymentTypes> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
             AccommodationBookingSettings settings, CounterpartyContractKind contractKind, DateTime date)
             => AllAvailablePaymentMethods
                 .Intersect(GetAprPaymentMethods(availability, settings))
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .ToList();
 
 
-        private static List<PaymentMethods> GetAprPaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
+        private static List<PaymentTypes> GetAprPaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
             AccommodationBookingSettings settings)
         {
             if (!availability.RoomContractSet.IsAdvancePurchaseRate)
@@ -28,14 +28,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 AprMode.Hide => EmptyPaymentMethodsList,
                 AprMode.DisplayOnly => EmptyPaymentMethodsList,
-                AprMode.CardPurchasesOnly => new List<PaymentMethods> {PaymentMethods.CreditCard},
-                AprMode.CardAndAccountPurchases => new List<PaymentMethods> {PaymentMethods.BankTransfer, PaymentMethods.CreditCard},
+                AprMode.CardPurchasesOnly => new List<PaymentTypes> {PaymentTypes.CreditCard},
+                AprMode.CardAndAccountPurchases => new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard},
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.AprMode), $"Invalid value {settings.AprMode}")
             };
         }
 
 
-        private static List<PaymentMethods> GetPassedDeadlinePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
+        private static List<PaymentTypes> GetPassedDeadlinePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
             AccommodationBookingSettings settings, DateTime date)
         {
             var deadlineDate = availability.RoomContractSet.Deadline.Date ?? availability.CheckInDate;
@@ -46,32 +46,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 PassedDeadlineOffersMode.Hide => EmptyPaymentMethodsList,
                 PassedDeadlineOffersMode.DisplayOnly => EmptyPaymentMethodsList,
-                PassedDeadlineOffersMode.CardPurchasesOnly => new List<PaymentMethods> {PaymentMethods.CreditCard},
-                PassedDeadlineOffersMode.CardAndAccountPurchases => new List<PaymentMethods> {PaymentMethods.BankTransfer, PaymentMethods.CreditCard},
+                PassedDeadlineOffersMode.CardPurchasesOnly => new List<PaymentTypes> {PaymentTypes.CreditCard},
+                PassedDeadlineOffersMode.CardAndAccountPurchases => new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard},
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.PassedDeadlineOffersMode), $"Invalid value {settings.PassedDeadlineOffersMode}")
             };
         }
 
 
-        private static List<PaymentMethods> GetContractKindPaymentMethods(CounterpartyContractKind contractKind)
+        private static List<PaymentTypes> GetContractKindPaymentMethods(CounterpartyContractKind contractKind)
         {
             return contractKind switch
             {
-                CounterpartyContractKind.CashPayments => new List<PaymentMethods> { PaymentMethods.Offline, PaymentMethods.CreditCard },
-                CounterpartyContractKind.CreditCardPayments => new List<PaymentMethods> { PaymentMethods.Offline, PaymentMethods.CreditCard },
-                CounterpartyContractKind.CreditPayments => new List<PaymentMethods> { PaymentMethods.BankTransfer, PaymentMethods.CreditCard },
+                CounterpartyContractKind.CashPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                CounterpartyContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                CounterpartyContractKind.CreditPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
                 _ => throw new ArgumentOutOfRangeException(nameof(contractKind), $"Invalid value {contractKind}")
             };
         }
 
 
-        private static readonly List<PaymentMethods> AllAvailablePaymentMethods = new()
+        private static readonly List<PaymentTypes> AllAvailablePaymentMethods = new()
         {
-            PaymentMethods.BankTransfer,
-            PaymentMethods.CreditCard,
-            PaymentMethods.Offline
+            PaymentTypes.VirtualAccount,
+            PaymentTypes.CreditCard,
+            PaymentTypes.Offline
         };
 
-        private static readonly List<PaymentMethods> EmptyPaymentMethodsList = new(0);
+        private static readonly List<PaymentTypes> EmptyPaymentMethodsList = new(0);
     }
 }
