@@ -13,11 +13,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
     {
         // Display tests
         [Theory]
-        // deadline date does not matter
+        // Deadline date does not matter
         [InlineData(19, 20, PassedDeadlineOffersMode.DisplayOnly)]
         [InlineData(19, 20, PassedDeadlineOffersMode.CardAndAccountPurchases)]
         [InlineData(19, 20, PassedDeadlineOffersMode.CardPurchasesOnly)]
-        // deadline did not come yet
+        // Deadline did not come yet
         [InlineData(21, 20, PassedDeadlineOffersMode.Hide)]
         public void Display_should_be_allowed_when_deadline_conditions_met(int deadlineDay, int tommorowDay, PassedDeadlineOffersMode deadlineMode)
         {
@@ -35,11 +35,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         [Theory]
-        // show apr room sets
+        // Show apr room sets
         [InlineData(AprMode.DisplayOnly, true)]
         [InlineData(AprMode.CardAndAccountPurchases, true)]
         [InlineData(AprMode.CardPurchasesOnly, true)]
-        // room set is not apr
+        // Room set is not apr
         [InlineData(AprMode.Hide, false)]
         public void Display_should_be_allowed_when_apr_conditions_met(AprMode aprMode, bool isRoomSetApr)
         {
@@ -57,9 +57,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         [Theory]
-        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.DisplayOnly, true)] // apr ok, deadline not ok
-        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // apr not ok, deadline not ok
-        [InlineData(21, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // apr not ok, deadline ok
+        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.DisplayOnly, true)] // Apr ok, deadline not ok
+        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // Apr not ok, deadline not ok
+        [InlineData(21, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // Apr not ok, deadline ok
         public void Display_should_not_be_allowed_when_any_condition_not_met(int deadlineDay, int tommorowDay, PassedDeadlineOffersMode deadlineMode,
             AprMode aprMode, bool isRoomSetApr)
         {
@@ -78,10 +78,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
         // Evaluation tests
         [Theory]
-        // deadline date does not matter
+        // Deadline date does not matter
         [InlineData(19, 20, PassedDeadlineOffersMode.CardAndAccountPurchases)]
         [InlineData(19, 20, PassedDeadlineOffersMode.CardPurchasesOnly)]
-        // deadline did not come yet
+        // Deadline did not come yet
         [InlineData(21, 20, PassedDeadlineOffersMode.Hide)]
         public void Eval_should_be_allowed_when_deadline_conditions_met(int deadlineDay, int tommorowDay, PassedDeadlineOffersMode deadlineMode)
         {
@@ -99,10 +99,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         [Theory]
-        // show apr room sets
+        // Show apr room sets
         [InlineData(AprMode.CardAndAccountPurchases, true)]
         [InlineData(AprMode.CardPurchasesOnly, true)]
-        // room set is not apr
+        // Room set is not apr
         [InlineData(AprMode.Hide, false)]
         public void Eval_should_be_allowed_when_apr_conditions_met(AprMode aprMode, bool isRoomSetApr)
         {
@@ -120,9 +120,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         [Theory]
-        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.CardAndAccountPurchases, true)] // apr ok, deadline not ok
-        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // apr not ok, deadline not ok
-        [InlineData(21, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // apr not ok, deadline ok
+        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.CardAndAccountPurchases, true)] // Apr ok, deadline not ok
+        [InlineData(19, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // Apr not ok, deadline not ok
+        [InlineData(21, 20, PassedDeadlineOffersMode.Hide, AprMode.Hide, true)] // Apr not ok, deadline ok
         public void Eval_should_not_be_allowed_when_any_condition_not_met(int deadlineDay, int tommorowDay, PassedDeadlineOffersMode deadlineMode,
             AprMode aprMode, bool isRoomSetApr)
         {
@@ -141,9 +141,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
         // Display only tests
         [Theory]
-        [InlineData(21, 20, PassedDeadlineOffersMode.CardAndAccountPurchases, AprMode.DisplayOnly, true)] // apr display only
-        [InlineData(19, 20, PassedDeadlineOffersMode.DisplayOnly, AprMode.CardAndAccountPurchases, true)] // deadline display only
-        [InlineData(19, 20, PassedDeadlineOffersMode.DisplayOnly, AprMode.DisplayOnly, true)] // both apr and deadline display only
+        [InlineData(21, 20, PassedDeadlineOffersMode.CardAndAccountPurchases, AprMode.DisplayOnly, true)] // Apr display only
+        [InlineData(19, 20, PassedDeadlineOffersMode.DisplayOnly, AprMode.CardAndAccountPurchases, true)] // Deadline display only
+        [InlineData(19, 20, PassedDeadlineOffersMode.DisplayOnly, AprMode.DisplayOnly, true)] // Both apr and deadline display only
         public void Display_should_be_allowed_but_eval_not_when_display_only_mode(int deadlineDay, int tommorowDay, PassedDeadlineOffersMode deadlineMode,
             AprMode aprMode, bool isRoomSetApr)
         {
