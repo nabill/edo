@@ -12,7 +12,6 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -51,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns>List of payment methods.</returns>
         [HttpGet("methods")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentTypes>), (int) HttpStatusCode.OK)]
         public IActionResult GetPaymentMethods() => Ok(_paymentSettingsService.GetAvailableAgentPaymentMethods());
 
 

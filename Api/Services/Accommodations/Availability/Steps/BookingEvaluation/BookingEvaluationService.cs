@@ -11,8 +11,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
@@ -171,7 +169,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
             
             
-            List<PaymentMethods> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
+            List<PaymentTypes> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in CounterpartyContractKind contractKind)
                 => BookingPaymentMethodsHelper.GetAvailablePaymentMethods(availability, settings, contractKind, _dateTimeProvider.UtcNow());
         }

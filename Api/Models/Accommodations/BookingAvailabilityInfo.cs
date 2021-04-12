@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -31,7 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             MoneyAmount originalSupplierPrice,
             string availabilityId,
             string htId,
-            List<PaymentMethods> availablePaymentMethods,
+            List<PaymentTypes> availablePaymentMethods,
             bool isDirectContract)
         {
             AccommodationId = accommodationId;
@@ -75,7 +74,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public MoneyAmount OriginalSupplierPrice { get; }
         public string AvailabilityId { get; }
         public string HtId { get; }
-        public List<PaymentMethods> AvailablePaymentMethods { get; }
+        public List<PaymentTypes> AvailablePaymentMethods { get; }
         public bool IsDirectContract { get; }
 
 

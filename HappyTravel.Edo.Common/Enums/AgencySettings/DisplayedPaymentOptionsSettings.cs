@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Common.Enums.AgencySettings
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DisplayedPaymentOptionsSettings
     {
-        CreditCardAndBankTransfer = 0,
+        CreditCardAndVirtualAccount = 0,
         CreditCard = 1,
     }
 }

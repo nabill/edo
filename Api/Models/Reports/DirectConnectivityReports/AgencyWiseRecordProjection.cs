@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
@@ -13,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }
         public string AgencyName { get; init; }
-        public PaymentMethods PaymentMethod { get; init; }
+        public PaymentTypes PaymentMethod { get; init; }
         public string GuestName { get; init; }
         public string AccommodationName { get; init; }
         public List<BookedRoom> Rooms { get; init; }

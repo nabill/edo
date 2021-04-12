@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.NotificationCenter", "HappyTravel.Edo.NotificationCenter\HappyTravel.Edo.NotificationCenter.csproj", "{4101AEEF-3B54-4B47-A4A4-426ACBE1EEC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Edo.Notifications", "HappyTravel.Edo.Notifications\HappyTravel.Edo.Notifications.csproj", "{D0241090-A76F-4AE4-9B79-FF93C1885822}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.Notifications", "HappyTravel.Edo.Notifications\HappyTravel.Edo.Notifications.csproj", "{D0241090-A76F-4AE4-9B79-FF93C1885822}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
