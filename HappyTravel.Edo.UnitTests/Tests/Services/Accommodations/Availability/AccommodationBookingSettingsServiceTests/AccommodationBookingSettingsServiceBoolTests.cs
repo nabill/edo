@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -20,6 +19,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
     public class AccommodationBookingSettingsServiceBoolTests
     {
         // Settings combined from two sources
+        [Fact]
+        public async Task Combined_bool_settings_must_be_false_if_no_source_found()
+        {
+            var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
+            var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+            var counterpartySettings = default(CounterpartyAccommodationBookingSettings);
+
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
+            var flow = GetDoubleFlow();
+
+            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, counterpartySettingsService,
+                supplierOptions);
+
+            var settings = await service.Get(_agentContext);
+
+            Assert.False(settings.IsMarkupDisabled);
+            Assert.False(settings.IsSupplierVisible);
+            Assert.False(settings.IsDirectContractFlagVisible);
+        }
+
+
         [Theory]
         [InlineData(false, false, false)]
         [InlineData(false, false, true)]
