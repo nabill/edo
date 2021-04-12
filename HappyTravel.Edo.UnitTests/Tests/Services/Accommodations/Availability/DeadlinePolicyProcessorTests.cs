@@ -76,9 +76,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
 
             var shiftedDeadline = DeadlinePolicyProcessor.Process(originalDeadline, checkIn, settings);
 
-            Assert.True(originalDeadline.Policies.Select(p => p.FromDate + shiftSpan)
-                .SafeSequenceEqual(shiftedDeadline.Policies.Select(p => p.FromDate)));
-
             for (int i = 0; i < originalDeadline.Policies.Count; i++)
                 Assert.Equal(expectedShiftedDates[i], shiftedDeadline.Policies[i].FromDate);
         }
