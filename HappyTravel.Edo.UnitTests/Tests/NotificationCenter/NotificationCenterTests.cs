@@ -20,11 +20,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
             mockClients.Setup(clients => clients.User(It.IsAny<string>())).Returns(mockClientProxy.Object);
             notificationHub.Setup(x => x.Clients).Returns(() => mockClients.Object);
 
+            var userId = "agent-1";
             var messageId = 1;
             var message = "Test message";
 
             // act
-            await notificationHub.Object.Clients.User("identifier").ReceiveMessage(messageId, message);
+            await notificationHub.Object.Clients.User(userId).ReceiveMessage(messageId, message);
 
             // assert
             mockClientProxy.Verify(x => x.ReceiveMessage(messageId, message), Times.Once);
