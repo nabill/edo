@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
             List<PaymentTypes> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in CounterpartyContractKind contractKind)
-                => BookingPaymentMethodsHelper.GetAvailablePaymentMethods(availability, settings, contractKind, _dateTimeProvider.UtcNow());
+                => BookingPaymentMethodsHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
         }
         
         
