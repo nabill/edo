@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -25,6 +26,6 @@ namespace HappyTravel.Edo.Api.Extensions
 
         private static AgencyInfo ToAgencyInfo(this ChildAgencyRegistrationInfo info)
             => new AgencyInfo(info.Name, default, default, info.Address, info.BillingEmail, info.City, info.CountryCode, info.CountryName,
-                info.Fax, info.Phone, info.PostalCode, info.Website, info.VatNumber);
+                info.Fax, info.Phone, info.PostalCode, info.Website, info.VatNumber, PaymentTypes.None);
     }
 }

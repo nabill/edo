@@ -19,6 +19,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .ToList();
 
 
+        public static PaymentTypes GetDefaultPaymentType(CounterpartyContractKind? contractKind)
+            => contractKind switch
+            {
+                CounterpartyContractKind.CashPayments => PaymentTypes.Offline,
+                CounterpartyContractKind.CreditCardPayments => PaymentTypes.CreditCard,
+                CounterpartyContractKind.CreditPayments => PaymentTypes.VirtualAccount,
+                _ => PaymentTypes.None
+            };
+
+
         private static List<PaymentTypes> GetAprPaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
             AccommodationBookingSettings settings)
         {
