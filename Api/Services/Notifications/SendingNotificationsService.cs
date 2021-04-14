@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Notifications
@@ -17,13 +18,13 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public async Task<Result> Send(SlimAgentContext agent, string message, NotificationTypes notificationType, string email = "", string templateId = "")
+        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
         {
             return await Send(agent, message, notificationType, new List<string> { email }, templateId);
         }
 
 
-        public async Task<Result> Send(SlimAgentContext agent, string message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
+        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
         {
             return await _notificationOptionsService.GetNotificationOptions(notificationType, agent)
                 .Map(GetSettings)
@@ -45,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private async Task AddNotification(ReceiverTypes receiver, int userId, string message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
+        private async Task AddNotification(ReceiverTypes receiver, int userId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
         {
             await _notificationService.Add(new Notification
             {

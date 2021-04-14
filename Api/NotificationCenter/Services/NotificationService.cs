@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -27,7 +28,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             {
                 Receiver = notification.Receiver,
                 UserId = notification.UserId,
-                Message = notification.Message,
+                Message = notification.Message.ToString(),
                 Type = notification.Type,
                 SendingSettings = notification.SendingSettings,
                 Created = DateTime.UtcNow
@@ -60,7 +61,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, string message)
+        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, JsonDocument message)
         {
             await _notificationHub.Clients
                 .Group(userId.ToString())

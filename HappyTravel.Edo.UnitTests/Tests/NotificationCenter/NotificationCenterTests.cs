@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -20,9 +21,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
             mockClients.Setup(clients => clients.User(It.IsAny<string>())).Returns(mockClientProxy.Object);
             notificationHub.Setup(x => x.Clients).Returns(() => mockClients.Object);
 
-            var userId = "agent-1";
+            var userId = "1";
             var messageId = 1;
-            var message = "Test message";
+            var message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes("Test message"));
 
             // Act
             await notificationHub.Object.Clients.User(userId).ReceiveMessage(messageId, message);
