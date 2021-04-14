@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
         [Trait("NotificationHub", "ReceiveMessage")]
         public async Task The_message_must_be_sent_via_the_hub()
         {
-            // arrange
+            // Arrange
             var notificationHub = new Mock<IHubContext<NotificationHub, INotificationClient>>();
             var mockClientProxy = new Mock<INotificationClient>();
             var mockClients = new Mock<IHubClients<INotificationClient>>();
@@ -24,10 +24,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
             var messageId = 1;
             var message = "Test message";
 
-            // act
+            // Act
             await notificationHub.Object.Clients.User(userId).ReceiveMessage(messageId, message);
 
-            // assert
+            // Assert
             mockClientProxy.Verify(x => x.ReceiveMessage(messageId, message), Times.Once);
         }
 

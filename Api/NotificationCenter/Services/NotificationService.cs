@@ -44,9 +44,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => _notificationHub.Clients
-                            .User(BuildUserName(notification.Receiver, notification.UserId))
-                            .ReceiveMessage(entry.Entity.Id, notification.Message),
+                        => //_notificationHub.Clients
+                           // .User(BuildUserName(notification.Receiver, notification.UserId))
+                           // .ReceiveMessage(entry.Entity.Id, notification.Message),
+                           NotificationHub.SendPrivateMessage(_notificationHub, notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
