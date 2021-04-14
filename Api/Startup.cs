@@ -231,12 +231,11 @@ namespace HappyTravel.Edo.Api
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
-                    endpoints.MapHub<NotificationHub>("/notifications");
                     endpoints.MapMetrics();
                     endpoints.MapControllers();
                     endpoints.EnableDependencyInjection();
                     endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
-                    endpoints.MapHub<SignalRSender>("/notifications");
+                    endpoints.MapHub<NotificationHub>("/signalr/notifications");
                     endpoints.MapHub<SearchHub>("/signalr/search");
                 });
         }

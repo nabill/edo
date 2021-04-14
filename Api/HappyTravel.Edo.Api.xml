@@ -1313,7 +1313,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Infrastructure.TokenRetrieval.FromAuthorizationHeaderOrQueryString">
             <summary>
-            Reads the token from the authrorization header and from query string for SignalR hubs.
+            Reads the token from the authorization header and from query string for SignalR hubs.
             </summary>
             <returns></returns>
         </member>
