@@ -19,13 +19,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
         }
 
 
-        public static async Task SendPrivateMessage(IHubContext<NotificationHub, INotificationClient> hub, ReceiverTypes receiver, int userId, int messageId, string message)
+        /*public static async Task SendPrivateMessage(IHubContext<NotificationHub, INotificationClient> hub, ReceiverTypes receiver, int userId, int messageId, string message)
         {
             await hub.Clients
                 .Group(userId.ToString())
                 //.User(BuildUserId(receiver, userId))
                 .ReceiveMessage(messageId, message);
-        }
+        }*/
 
 
         public override async Task OnConnectedAsync()
