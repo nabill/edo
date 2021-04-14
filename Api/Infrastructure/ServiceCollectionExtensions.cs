@@ -116,6 +116,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     options.ApiName = apiName;
                     options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
+                    options.TokenRetriever = TokenRetrieval.FromAuthorizationHeaderOrQueryString();
                 });
 
             return services;
