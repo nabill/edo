@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SendToastMessage() 
-                => _hubContext.Clients.Group(agent.AgentId.ToString()).SearchStateChanged(searchId);
+                => _hubContext.Clients.Group(agent.AgentId.ToString()).SearchStateChanged(new SearchStateChangedToastMessage(searchId));
 
 
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
