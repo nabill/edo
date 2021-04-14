@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Hubs.Search
 {
     public interface ISearchHub
     {
-        public Task SearchStateChanged(SearchStateChangedToastMessage message);
+        public Task SearchStateChanged(SearchStateChangedMessage message);
     }
 }

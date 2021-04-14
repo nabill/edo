@@ -2,9 +2,9 @@ using System;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
 {
-    public readonly struct SearchStateChangedToastMessage
+    public readonly struct SearchStateChangedMessage
     {
-        public SearchStateChangedToastMessage(Guid searchId)
+        public SearchStateChangedMessage(Guid searchId)
         {
             SearchId = searchId;
         }
