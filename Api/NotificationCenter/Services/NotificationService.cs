@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                            // .User(BuildUserName(notification.Receiver, notification.UserId))
                            // .ReceiveMessage(entry.Entity.Id, notification.Message),
                            //NotificationHub.SendPrivateMessage(_notificationHub, notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
-                           SendPrivateMessage(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
+                           SendPrivateMessage(notification.Receiver, 197, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -59,6 +59,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             await Task.WhenAll(tasks);
         }
 
+
         private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, string message)
         {
             await _notificationHub.Clients
@@ -66,6 +67,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 //.User(BuildUserId(receiver, userId))
                 .ReceiveMessage(messageId, message);
         }
+
 
         public async Task MarkAsRead(int notificationId)
         {

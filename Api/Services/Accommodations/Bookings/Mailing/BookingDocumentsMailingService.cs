@@ -53,14 +53,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         LogoUrl = voucher.LogoUrl
                     };
 
+                    JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+                    {
+                        //WriteIndented = true
+                    };
+                    var doc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(voucherData, options));
+
                     // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
                     // Sending by email via NotificationCenter will be implemented in the task AA-128.
                     await _sendingNotificationsService.Send(agent: new Models.Agents.SlimAgentContext(booking.AgentId, booking.AgencyId), 
-                        message: JsonSerializer.Serialize(voucherData), 
+                        message: JsonSerializer.Serialize(voucherData, options), 
                         notificationType: NotificationTypes.BookingVoucher, 
                         email: email, 
                         templateId: _options.VoucherTemplateId);
-
                     // TODO: This line will be removed after implementing the task AA-128.
                     return await _mailSender.Send(_options.VoucherTemplateId, email, voucherData);
                 });
