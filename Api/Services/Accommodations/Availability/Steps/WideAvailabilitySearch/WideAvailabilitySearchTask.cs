@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -18,7 +17,6 @@ using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -36,7 +34,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             ISupplierConnectorManager supplierConnectorManager,
             IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchTask> logger,
-            IHttpContextAccessor httpContextAccessor,
             IHubContext<SearchHub, ISearchHub> hubContext)
         {
             _storage = storage;
@@ -45,7 +42,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _supplierConnectorManager = supplierConnectorManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
             _hubContext = hubContext;
         }
 
@@ -59,7 +55,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
-                serviceProvider.GetRequiredService<IHttpContextAccessor>(),
                 serviceProvider.GetRequiredService<IHubContext<SearchHub, ISearchHub>>()
             );
         }
@@ -272,7 +267,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHubContext<SearchHub, ISearchHub> _hubContext;
     }
 }
