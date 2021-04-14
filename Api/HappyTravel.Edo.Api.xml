@@ -170,6 +170,13 @@
             <param name="agentId">Agent Id</param>
             <returns>List of bookings</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingByReferenceCode(System.String)">
+            <summary>
+                Gets booking data by reference code.
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Discards accommodation booking by admin.
@@ -1313,7 +1320,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Infrastructure.TokenRetrieval.FromAuthorizationHeaderOrQueryString">
             <summary>
-            Reads the token from the authrorization header and from query string for SignalR hubs.
+            Reads the token from the authorization header and from query string for SignalR hubs.
             </summary>
             <returns></returns>
         </member>

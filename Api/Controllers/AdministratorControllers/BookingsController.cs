@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +22,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public BookingsController(IAdministratorContext administratorContext,
             IBookingService bookingService,
-            IAdministratorBookingManagementService bookingManagementService)
+            IAdministratorBookingManagementService bookingManagementService,
+            IBookingInfoService bookingInfoService)
         {
             _administratorContext = administratorContext;
             _bookingService = bookingService;
             _bookingManagementService = bookingManagementService;
+            _bookingInfoService = bookingInfoService;
         }
 
 
@@ -83,6 +86,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(bookings);
+        }
+        
+        
+        /// <summary>
+        ///     Gets booking data by reference code.
+        /// </summary>
+        /// <param name="referenceCode">Booking reference code</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("bookings/{referenceCode}")]
+        [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
+        {
+            var (_, isFailure, bookingData, error) =
+                await _bookingInfoService.GetAccommodationBookingInfo(referenceCode, LanguageCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookingData);
         }
 
 
@@ -212,5 +236,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
         private readonly IAdministratorBookingManagementService _bookingManagementService;
+        private readonly IBookingInfoService _bookingInfoService;
     }
 }
