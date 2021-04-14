@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
@@ -32,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
         
         
-        public Task<Result> SendVoucher(Booking booking, string email, string languageCode)
+        public Task<Result> SendVoucher(Booking booking, string email, string languageCode, SlimAgentContext agent)
         {
             return _documentsService.GenerateVoucher(booking, languageCode)
                 .Bind(async voucher =>
@@ -55,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
                     // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
                     // Sending by email via NotificationCenter will be implemented in the task AA-128.
-                    await _sendingNotificationsService.Send(agent: new Models.Agents.SlimAgentContext(booking.AgentId, booking.AgencyId), 
+                    await _sendingNotificationsService.Send(agent: agent, 
                         message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(voucherData, new(JsonSerializerDefaults.Web))), 
                         notificationType: NotificationTypes.BookingVoucher, 
                         email: email, 
@@ -66,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins)
+        public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins, SlimAgentContext agent)
         {
             // TODO: hardcoded to be removed with UEDA-20
             var addresses = new List<string> {email};
@@ -108,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
                     // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
                     // Sending by email via NotificationCenter will be implemented in the task AA-128.
-                    await _sendingNotificationsService.Send(agent: new Models.Agents.SlimAgentContext(booking.AgentId, booking.AgencyId),
+                    await _sendingNotificationsService.Send(agent: agent,
                         message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(invoiceData, new(JsonSerializerDefaults.Web))),
                         notificationType: NotificationTypes.BookingInvoice,
                         emails: addresses,

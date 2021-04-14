@@ -48,8 +48,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => //_notificationHub.Clients
                            // .User(BuildUserName(notification.Receiver, notification.UserId))
                            // .ReceiveMessage(entry.Entity.Id, notification.Message),
-                           //NotificationHub.SendPrivateMessage(_notificationHub, notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
-                           SendPrivateMessage(notification.Receiver, 197, entry.Entity.Id, notification.Message),
+                           SendPrivateMessage(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -58,15 +57,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             }
 
             await Task.WhenAll(tasks);
-        }
-
-
-        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, JsonDocument message)
-        {
-            await _notificationHub.Clients
-                .Group(userId.ToString())
-                //.User(BuildUserId(receiver, userId))
-                .ReceiveMessage(messageId, message);
         }
 
 
@@ -111,14 +101,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private static string BuildUserName(ReceiverTypes receiver, int userId)
+        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, JsonDocument message)
         {
-            return receiver switch
-            {
-                ReceiverTypes.AgentApp => $"agent-{userId}",
-                ReceiverTypes.AdminPanel => $"admin-{userId}",
-                _ => $"unknown-{userId}",
-            };
+            await _notificationHub.Clients
+                .Group(userId.ToString())
+                //.User(BuildUserId(receiver, userId))
+                .ReceiveMessage(messageId, message);
         }
 
 
