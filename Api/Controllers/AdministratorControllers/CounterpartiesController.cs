@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,11 +25,32 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService,
             IContractFileManagementService contractFileManagementService,
-            ICounterpartyVerificationService counterpartyVerificationService)
+            ICounterpartyVerificationService counterpartyVerificationService,
+            IBookingService bookingService)
         {
             _counterpartyManagementService = counterpartyManagementService;
             _contractFileManagementService = contractFileManagementService;
             _counterpartyVerificationService = counterpartyVerificationService;
+            _bookingService = bookingService;
+        }
+
+
+        /// <summary>
+        ///     Gets a list of all bookings made by the counterparty
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("counterparties/{counterpartyId}/bookings")]
+        [ProducesResponseType(typeof(List<Booking>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetCounterpartyBookings([FromRoute] int counterpartyId)
+        {
+            var (_, isFailure, bookings, error) = await _bookingService.GetCounterpartyBookings(counterpartyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookings);
         }
 
 
@@ -59,8 +81,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> Get() 
-            => Ok(await _counterpartyManagementService.Get());
+        public async Task<IActionResult> Get() => Ok(await _counterpartyManagementService.Get());
 
 
         /// <summary>
@@ -81,8 +102,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
-        
+
+
         /// <summary>
         ///     Sets counterparty fully verified.
         /// </summary>
@@ -102,7 +123,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
-        
+
         /// <summary>
         ///     Sets counterparty declined verification.
         /// </summary>
@@ -132,8 +153,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AgencyInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetAgencies(int counterpartyId)
-            => Ok(await _counterpartyManagementService.GetAllCounterpartyAgencies(counterpartyId));
+        public async Task<IActionResult> GetAgencies(int counterpartyId) => Ok(await _counterpartyManagementService.GetAllCounterpartyAgencies(counterpartyId));
 
 
         /// <summary>
@@ -177,7 +197,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
+
+
         /// <summary>
         ///  Activates specified counterparty
         /// </summary>
@@ -220,8 +241,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to save the contract file for</param>
         /// <param name="file">A pdf file of the contract with the given counterparty</param>
         [HttpPut("{counterpartyId}/contract-file")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> AddContractFile(int counterpartyId, [FromForm] IFormFile file)
         {
@@ -236,8 +257,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         [HttpGet("{counterpartyId}/contract-file")]
-        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetContractFile(int counterpartyId)
         {
@@ -253,5 +274,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IContractFileManagementService _contractFileManagementService;
         private readonly ICounterpartyVerificationService _counterpartyVerificationService;
+        private readonly IBookingService _bookingService;
     }
 }

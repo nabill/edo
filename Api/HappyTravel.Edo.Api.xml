@@ -50,6 +50,13 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgencyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agency
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
             <summary>
                 Gets setting which tells what payment methods to show for booking payment.
@@ -109,6 +116,13 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.GetAgentBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agent
+            </summary>
+            <param name="agentId">Agent Id</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -148,27 +162,6 @@
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Source agency Id</param>
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the agency
-            </summary>
-            <param name="agencyId">Agency Id</param>
-            <returns>List of bookings</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetCounterpartyBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the counterparty
-            </summary>
-            <param name="counterpartyId">Counterparty Id</param>
-            <returns>List of bookings</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the agent
-            </summary>
-            <param name="agentId">Agent Id</param>
-            <returns>List of bookings</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
@@ -214,6 +207,13 @@
             <param name="bookingId">Id of booking to confirm</param>
             <param name="confirmationRequest">Confirmation request</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the counterparty
+            </summary>
+            <param name="counterpartyId">Counterparty Id</param>
+            <returns>List of bookings</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
@@ -303,21 +303,21 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
                 Send invitation to administrator.
             </summary>
             <param name="invitationInfo">Administrator invitation info.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.RegisterAdministrator(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.RegisterAdministrator(System.String)">
             <summary>
                 Register current user as administrator by invitation code.
             </summary>
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.DisableInvitation(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.DisableInvitation(System.String)">
             <summary>
                 Disable invitation.
             </summary>

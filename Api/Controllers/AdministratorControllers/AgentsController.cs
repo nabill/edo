@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -20,14 +22,36 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class AgentsController : BaseController
     {
         public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService,
-            IAgentMovementService agentMovementService, IApiClientManagementService apiClientManagementService)
+            IAgentMovementService agentMovementService,
+            IApiClientManagementService apiClientManagementService,
+            IBookingService bookingService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentMovementService = agentMovementService;
             _apiClientManagementService = apiClientManagementService;
+            _bookingService = bookingService;
         }
-        
-        
+
+
+        /// <summary>
+        ///     Gets a list of all bookings made by the agent
+        /// </summary>
+        /// <param name="agentId">Agent Id</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("agents/{agentId}/bookings")]
+        [ProducesResponseType(typeof(List<Booking>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetAgentBookings([FromRoute] int agentId)
+        {
+            var (_, isFailure, bookings, error) = await _bookingService.GetAgentBookings(agentId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookings);
+        }
+
+
         /// <summary>
         /// Updates agent's availability search settings
         /// </summary>
@@ -36,10 +60,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpPut("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettings settings, [FromRoute] int agentId,
+            [FromRoute] int agencyId)
         {
             var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
             if (isFailure)
@@ -47,7 +72,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok();
         }
-        
+
+
         /// <summary>
         /// Gets agent's availability search settings
         /// </summary>
@@ -55,7 +81,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgentAccommodationBookingSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgentAccommodationBookingSettings), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
@@ -66,8 +92,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok(settings);
         }
-        
-        
+
+
         /// <summary>
         /// Moves agent from one agency to another
         /// <param name="agentId">Agent Id</param>
@@ -83,11 +109,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             var (_, isFailure, error) = await _agentMovementService.Move(agentId, agencyId, targetAgencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
+
             return Ok();
         }
-        
-        
+
+
         /// <summary>
         /// Sets api client for an agent
         /// <param name="agentId">Agent Id</param>
@@ -103,11 +129,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             var (_, isFailure, error) = await _apiClientManagementService.Set(agencyId, agentId, apiClientData);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
+
             return Ok();
         }
-        
-        
+
+
         /// <summary>
         /// Deletes api client for an agent
         /// <param name="agentId">Agent Id</param>
@@ -122,14 +148,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             var (_, isFailure, error) = await _apiClientManagementService.Delete(agencyId, agentId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
+
             return Ok();
         }
-        
-        
-        
+
+
         private readonly IAgentSystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentMovementService _agentMovementService;
         private readonly IApiClientManagementService _apiClientManagementService;
+        private readonly IBookingService _bookingService;
     }
 }
