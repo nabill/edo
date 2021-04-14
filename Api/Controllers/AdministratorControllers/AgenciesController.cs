@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <returns>List of bookings</returns>
-        [HttpGet("agencies/{agencyId}/accommodations/bookings")]
+        [HttpGet("{agencyId}/accommodations/bookings")]
         [ProducesResponseType(typeof(List<Booking>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]

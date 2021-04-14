@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id</param>
         /// <returns>List of bookings</returns>
-        [HttpGet("counterparties/{counterpartyId}/bookings")]
+        [HttpGet("{counterpartyId}/accommodations/bookings")]
         [ProducesResponseType(typeof(List<Booking>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
