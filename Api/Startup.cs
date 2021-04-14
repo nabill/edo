@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.NotificationCenter.Services.Hub;
@@ -235,6 +236,7 @@ namespace HappyTravel.Edo.Api
                     endpoints.EnableDependencyInjection();
                     endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
                     endpoints.MapHub<SignalRSender>("/notifications");
+                    endpoints.MapHub<SearchHub>("/signalr/search");
                 });
         }
 
