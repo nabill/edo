@@ -79,9 +79,23 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (!string.IsNullOrWhiteSpace(agentData.Position))
                     agent += $" ({agentData.Position})";
 
+                var agency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
+
                 var messageData = new RegistrationDataForAdmin
                 {
-                    Counterparty = counterpartyInfo,
+                    Counterparty = new RegistrationDataForAdmin.CounterpartyRegistrationMailData
+                    {
+                        Name = counterpartyInfo.Name,
+                        Address = counterpartyInfo.LegalAddress,
+                        CountryCode = agency.CountryCode,
+                        City = agency.City,
+                        Phone = agency.Phone,
+                        PostalCode = agency.PostalCode,
+                        Fax = agency.Fax,
+                        PreferredCurrency = agency.PreferredCurrency,
+                        PreferredPaymentMethod = counterpartyInfo.PreferredPaymentMethod,
+                        Website = agency.Website
+                    },
                     AgentEmail = email,
                     AgentName = agent
                 };
