@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Hubs.Search
                 return;
 
             var agent = await _context.Agents.FirstOrDefaultAsync(a => a.IdentityHash == HashGenerator.ComputeSha256(identityId));
-            if(agent is null)
+            if (agent is null)
                 return;
             
             await Groups.AddToGroupAsync(Context.ConnectionId, agent.Id.ToString());

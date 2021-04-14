@@ -1315,7 +1315,6 @@
             <summary>
             Reads the token from the authrorization header and from query string for SignalR hubs.
             </summary>
-            <param name="scheme">The scheme (defaults to Bearer).</param>
             <returns></returns>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
