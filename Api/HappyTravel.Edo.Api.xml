@@ -170,6 +170,13 @@
             <param name="agentId">Agent Id</param>
             <returns>List of bookings</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingByReferenceCode(System.String)">
+            <summary>
+                Gets booking data by reference code.
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Discards accommodation booking by admin.
@@ -302,6 +309,38 @@
             Downloads a contract pdf file
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
+            <summary>
+            Gets markup policies for a counterparty.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates counterparty markup policy.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.RemovePolicy(System.Int32,System.Int32)">
+            <summary>
+                Deletes counterparty policy.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
