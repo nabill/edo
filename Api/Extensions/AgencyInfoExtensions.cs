@@ -22,5 +22,19 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.PostalCode,
                 agency.Website,
                 agency.VatNumber);
+
+
+        public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
+            => new RegistrationAgencyInfo(
+                name,
+                info.Address,
+                info.BillingEmail,
+                info.City,
+                info.CountryCode,
+                info.Fax,
+                info.Phone,
+                info.PostalCode,
+                info.Website,
+                info.VatNumber);
     }
 }

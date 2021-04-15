@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<AgencyInfo> Create(AgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
+        public async Task<AgencyInfo> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
             => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.City,
                 agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber, parentAgencyId);
         

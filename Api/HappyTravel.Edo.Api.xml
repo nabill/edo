@@ -1785,6 +1785,101 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Name">
+            <summary>
+                Name of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -2190,6 +2285,21 @@
                 Invitation code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.Name">
+            <summary>
+                Counterparty name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.LegalAddress">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
             <summary>
                 Regular agent personal information.
@@ -2396,57 +2506,57 @@
                 Indicates if extra cot needed.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Name">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Name">
             <summary>
                 Name of the agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Address">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Address">
             <summary>
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.CountryCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryCode">
             <summary>
                 Two-letter international country code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.CountryName">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryName">
             <summary>
             Country name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.City">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.City">
             <summary>
                 City name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Phone">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Phone">
             <summary>
                 Phone number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Fax">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Fax">
             <summary>
                 Fax number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.PostalCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.PostalCode">
             <summary>
                 Postal code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Website">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Website">
             <summary>
                 Agency site url.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.BillingEmail">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.BillingEmail">
             <summary>
             E-mail for billing operations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.VatNumber">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.VatNumber">
             <summary>
             Value added tax identification number
             </summary>
