@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<MarkupInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int counterpartyId)
+        public async Task<IActionResult> GetCounterpartyPolicies([FromRoute] int counterpartyId)
         {
             return Ok(await _policyManager.GetMarkupForCounterparty(counterpartyId));
         }
