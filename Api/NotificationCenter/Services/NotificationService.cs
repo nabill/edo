@@ -28,6 +28,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             {
                 Receiver = notification.Receiver,
                 UserId = notification.UserId,
+                //AgencyId = notification.AgencyId,
                 Message = notification.Message.ToString(),
                 Type = notification.Type,
                 SendingSettings = notification.SendingSettings,
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => //_notificationHub.Clients
                            // .User(BuildUserName(notification.Receiver, notification.UserId))
                            // .ReceiveMessage(entry.Entity.Id, notification.Message),
-                           SendPrivateMessage(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
+                           SendPrivateMessage(notification.Receiver, notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -101,12 +102,23 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int messageId, JsonDocument message)
+        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int? agencyId, int messageId, JsonDocument message)
         {
             await _notificationHub.Clients
-                .Group(userId.ToString())
+                .Group(BuildGroupName(receiver, userId, agencyId))
                 //.User(BuildUserId(receiver, userId))
                 .ReceiveMessage(messageId, message);
+        }
+
+
+        private static string BuildGroupName(ReceiverTypes receiver, int userId, int? agencyId)
+        {
+            return receiver switch
+            {
+                ReceiverTypes.AgentApp => $"{agencyId}-{userId}",
+                ReceiverTypes.AdminPanel => $"admin-{userId}",
+                _ => $"unknown-{userId}",
+            };
         }
 
 

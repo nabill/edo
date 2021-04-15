@@ -175,7 +175,7 @@
                 Gets booking data by reference code.
             </summary>
             <param name="referenceCode">Booking reference code</param>
-            <returns>List of bookings</returns>
+            <returns>Booking Info</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>

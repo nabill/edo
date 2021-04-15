@@ -1,4 +1,5 @@
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -13,9 +14,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
     [Authorize]
     public class NotificationHub : Hub<INotificationClient>
     {
-        public NotificationHub(EdoContext context)
+        public NotificationHub(EdoContext context, IAgentContextService agentContextService)
         {
             _context = context;
+            _agentContextService = agentContextService;
         }
 
 
@@ -38,13 +40,24 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
                 .Where(a => a.IdentityHash == HashGenerator.ComputeSha256(identityId))
                 .Select(a => a.Id)
                 .SingleOrDefaultAsync();
-
             if (agentId == default)
                 return;
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, agentId.ToString());
+            // TODO: In the future, we will take this information from the token.
+            var agencyId = await _context.AgentAgencyRelations
+                .Where(aar => aar.AgentId == agentId)
+                .Select(aar => aar.AgencyId)
+                .SingleOrDefaultAsync();
+            if (agencyId == default)
+                return;
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(agencyId, agentId));
             await base.OnConnectedAsync();
         }
+
+
+        private static string BuildGroupName(int agencyId, int agentId)
+            => $"{agencyId}-{agentId}";
 
 
         private static string BuildUserId(ReceiverTypes receiver, int userId)
@@ -59,5 +72,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
 
 
         private readonly EdoContext _context;
+        private readonly IAgentContextService _agentContextService;
     }
 }

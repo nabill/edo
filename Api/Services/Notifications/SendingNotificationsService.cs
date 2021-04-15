@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         {
             return await _notificationOptionsService.GetNotificationOptions(notificationType, agent)
                 .Map(GetSettings)
-                .Tap(sendingSettings => AddNotification(ReceiverTypes.AgentApp, agent.AgentId, message, notificationType, sendingSettings));
+                .Tap(sendingSettings => AddNotification(ReceiverTypes.AgentApp, agent, message, notificationType, sendingSettings));
 
 
             Dictionary<ProtocolTypes, ISendingSettings> GetSettings(SlimNotificationOptions notificationOptions)
@@ -46,12 +46,13 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private async Task AddNotification(ReceiverTypes receiver, int userId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
+        private async Task AddNotification(ReceiverTypes receiver, SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
         {
             await _notificationService.Add(new Notification
             {
                 Receiver = receiver,
-                UserId = userId,
+                UserId = agent.AgentId,
+                AgencyId = agent.AgencyId,
                 Message = message,
                 Type = notificationType,
                 SendingSettings = sendingSettings
