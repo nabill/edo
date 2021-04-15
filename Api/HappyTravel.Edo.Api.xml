@@ -303,7 +303,7 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetChildAgencyPolicies(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
             <summary>
             Gets markup policies for a counterparty.
             </summary>

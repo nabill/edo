@@ -14,6 +14,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         Task<Result> Modify(int policyId, MarkupPolicySettings settings);
 
         Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
+
+        Task<Result> AddCounterpartyPolicy(int counterpartyId, MarkupPolicySettings settings);
         
         Task<Result> RemoveFromCounterparty(int policyId, int counterpartyId);
         

@@ -150,6 +150,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public Task<Result> AddCounterpartyPolicy(int counterpartyId, MarkupPolicySettings settings) 
+            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Counterparty, counterpartyId)));
+
+
         public async Task<Result> RemoveFromCounterparty(int policyId, int counterpartyId)
         {
             var isCounterpartyPolicy = await _context.MarkupPolicies
