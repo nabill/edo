@@ -49,8 +49,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var agencyInfo = await (
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
+                    join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     where a.Id == agencyId
-                    select a.ToAgencyInfo(c.Names, languageCode))
+                    select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -63,8 +64,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => (
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
+                    join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(c.Names, languageCode))
+                    select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
                 .ToListAsync();
 
 
