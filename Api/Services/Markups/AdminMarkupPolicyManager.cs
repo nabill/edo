@@ -150,6 +150,46 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public Task<List<MarkupInfo>> GetGlobalMarkupPolicies()
+        {
+            return _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                .OrderBy(p => p.Order)
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .ToListAsync();
+        }
+
+
+        public Task<Result> AddGlobalMarkupPolicy(MarkupPolicySettings settings)
+            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Global)));
+
+
+        public async Task<Result> RemoveGlobalMarkupPolicy(int policyId)
+        {
+            var isGlobalPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Global &&
+                    p.Id == policyId);
+            
+            return isGlobalPolicy
+                ? await Remove(policyId)
+                : Result.Failure($"Policy '{policyId}' not found or not global");
+        }
+
+
+        public async Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings)
+        {
+            var isGlobalPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Global &&
+                    p.Id == policyId);
+            
+            return isGlobalPolicy
+                ? await Modify(policyId, settings)
+                : Result.Failure($"Policy '{policyId}' not found or not global");
+        }
+
+
         public Task<Result> AddCounterpartyPolicy(int counterpartyId, MarkupPolicySettings settings) 
             => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Counterparty, counterpartyId)));
 
