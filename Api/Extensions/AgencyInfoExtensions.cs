@@ -1,13 +1,14 @@
 ﻿using System;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
     public static class AgencyInfoExtensions
     {
-        public static AgencyInfo ToAgencyInfo(this Agency agency, string countryNames, string languageCode)
+        public static AgencyInfo ToAgencyInfo(this Agency agency, CounterpartyContractKind? contractKind, string countryNames, string languageCode)
             => new AgencyInfo(
                 agency.Name,
                 agency.Id,
@@ -21,7 +22,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Phone,
                 agency.PostalCode,
                 agency.Website,
-                agency.VatNumber);
+                agency.VatNumber,
+                BookingPaymentMethodsHelper.GetDefaultPaymentType(contractKind));
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
