@@ -20,8 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
             public string Address { get; set; }
 
-            [JsonConverter(typeof(StringEnumConverter))]
-            public PaymentTypes PreferredPaymentMethod { get; set; }
+            public string PreferredPaymentMethod { get; set; }
 
             public string Website { get; set; }
 
@@ -35,8 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
             public string PostalCode { get; set; }
 
-            [JsonConverter(typeof(StringEnumConverter))]
-            public Currencies PreferredCurrency { get; set; }
+            public string PreferredCurrency { get; set; }
         }
     }
 }
