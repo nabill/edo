@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         
         
         [Fact]
-        public async Task Verify_booking_confirmation()
+        public async Task Confirmation_should_call_notification_and_sending_invoice()
         {
             var service = CreateBookingRecordsUpdaterService();
 
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
         
         [Fact]
-        public async Task Verify_booking_cancellation()
+        public async Task Cancellation_should_call_notification_cancelling_from_supplier_return_of_the_money()
         {
             var service = CreateBookingRecordsUpdaterService();
 
@@ -54,12 +54,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        [Fact]
-        public async Task Verify_booking_rejected_invalid_discarded()
+        [Theory]
+        [InlineData(BookingStatuses.Rejected)]
+        [InlineData(BookingStatuses.Invalid)]
+        [InlineData(BookingStatuses.Discarded)]
+        public async Task Discarding_should_cancel_from_supplier_and_return_the_money(BookingStatuses status)
         {
             var service = CreateBookingRecordsUpdaterService();
 
-            await service.ChangeStatus(Bookings.First(), BookingStatuses.Rejected, DateTime.UtcNow, ApiCaller, ChangeReason);
+            await service.ChangeStatus(Bookings.First(), status, DateTime.UtcNow, ApiCaller, ChangeReason);
             
             _supplierOrderServiceMock.Verify(x => x.Cancel(It.IsAny<string>())); 
             _bookingMoneyReturnServiceMock.Verify(x => x.ReturnMoney(It.IsAny<Booking>(), It.IsAny<DateTime>(), It.IsAny<ApiCaller>()));
@@ -67,7 +70,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
 
         [Fact]
-        public async Task Verify_booking_manual_correction_needed()
+        public async Task Manual_correction_should_call_notification()
         {
             var service = CreateBookingRecordsUpdaterService();
 
