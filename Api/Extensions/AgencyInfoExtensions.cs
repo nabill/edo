@@ -24,5 +24,19 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Website,
                 agency.VatNumber,
                 BookingPaymentMethodsHelper.GetDefaultPaymentType(contractKind));
+
+
+        public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
+            => new RegistrationAgencyInfo(
+                name,
+                info.Address,
+                info.BillingEmail,
+                info.City,
+                info.CountryCode,
+                info.Fax,
+                info.Phone,
+                info.PostalCode,
+                info.Website,
+                info.VatNumber);
     }
 }
