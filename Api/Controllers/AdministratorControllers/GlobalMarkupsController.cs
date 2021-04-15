@@ -38,9 +38,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Creates counterparty markup policy.
+        /// Creates global markup policy.
         /// </summary>
-        /// <param name="counterpartyId">Counterparty id</param>
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
         [HttpPost]
@@ -58,7 +57,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Deletes counterparty policy.
+        ///     Deletes global policy.
         /// </summary>
         /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>

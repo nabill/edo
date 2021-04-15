@@ -350,15 +350,14 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
-            Creates counterparty markup policy.
+            Creates global markup policy.
             </summary>
-            <param name="counterpartyId">Counterparty id</param>
             <param name="settings">Markup settings</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy(System.Int32)">
             <summary>
-                Deletes counterparty policy.
+                Deletes global policy.
             </summary>
             <param name="policyId">Id of the policy to delete.</param>
             <returns></returns>
