@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<List<MarkupInfo>> GetMarkupForCounterparty(int counterpartyId)
+        public Task<List<MarkupInfo>> GetMarkupsForCounterparty(int counterpartyId)
         {
             return _context.MarkupPolicies
                 .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId)

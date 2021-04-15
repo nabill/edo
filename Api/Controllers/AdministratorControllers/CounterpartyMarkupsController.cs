@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetCounterpartyPolicies([FromRoute] int counterpartyId)
         {
-            return Ok(await _policyManager.GetMarkupForCounterparty(counterpartyId));
+            return Ok(await _policyManager.GetMarkupsForCounterparty(counterpartyId));
         }
         
         
