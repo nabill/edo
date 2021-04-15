@@ -1790,6 +1790,11 @@
             Value added tax identification number
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -1993,6 +1998,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
