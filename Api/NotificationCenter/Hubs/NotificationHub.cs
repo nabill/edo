@@ -1,7 +1,5 @@
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -14,20 +12,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
     [Authorize]
     public class NotificationHub : Hub<INotificationClient>
     {
-        public NotificationHub(EdoContext context, IAgentContextService agentContextService)
+        public NotificationHub(EdoContext context)
         {
             _context = context;
-            _agentContextService = agentContextService;
         }
-
-
-        /*public static async Task SendPrivateMessage(IHubContext<NotificationHub, INotificationClient> hub, ReceiverTypes receiver, int userId, int messageId, string message)
-        {
-            await hub.Clients
-                .Group(userId.ToString())
-                //.User(BuildUserId(receiver, userId))
-                .ReceiveMessage(messageId, message);
-        }*/
 
 
         public override async Task OnConnectedAsync()
@@ -60,18 +48,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
             => $"{agencyId}-{agentId}";
 
 
-        private static string BuildUserId(ReceiverTypes receiver, int userId)
-        {
-            return receiver switch
-            {
-                ReceiverTypes.AgentApp => $"agent-{userId}",
-                ReceiverTypes.AdminPanel => $"admin-{userId}",
-                _ => $"unknown-{userId}",
-            };
-        }
-
-
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
     }
 }

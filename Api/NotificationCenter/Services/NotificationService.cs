@@ -46,10 +46,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => //_notificationHub.Clients
-                           // .User(BuildUserName(notification.Receiver, notification.UserId))
-                           // .ReceiveMessage(entry.Entity.Id, notification.Message),
-                           SendPrivateMessage(notification.Receiver, notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
+                        => SendMessageToAgent(notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -102,23 +99,11 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task SendPrivateMessage(ReceiverTypes receiver, int userId, int? agencyId, int messageId, JsonDocument message)
+        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
         {
             await _notificationHub.Clients
-                .Group(BuildGroupName(receiver, userId, agencyId))
-                //.User(BuildUserId(receiver, userId))
+                .Group($"{agencyId}-{userId}")
                 .ReceiveMessage(messageId, message);
-        }
-
-
-        private static string BuildGroupName(ReceiverTypes receiver, int userId, int? agencyId)
-        {
-            return receiver switch
-            {
-                ReceiverTypes.AgentApp => $"{agencyId}-{userId}",
-                ReceiverTypes.AdminPanel => $"admin-{userId}",
-                _ => $"unknown-{userId}",
-            };
         }
 
 
