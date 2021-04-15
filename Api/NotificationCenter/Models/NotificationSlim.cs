@@ -1,5 +1,6 @@
 using HappyTravel.Edo.Notifications.Enums;
 using System;
+using System.Text.Json;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Models
 {
@@ -8,7 +9,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
         public int Id { get; init; }
         public ReceiverTypes Receiver { get; init; }
         public int UserId { get; init; }
-        public string Message { get; init; }
+        public JsonDocument Message { get; init; }
         public NotificationTypes Type { get; init; }
         public DateTime Created { get; init; }
         public bool IsRead { get; init; }

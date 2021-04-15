@@ -342,7 +342,7 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetGlobalMarkupPolicies">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetPolicies">
             <summary>
             Gets global markup policies
             </summary>

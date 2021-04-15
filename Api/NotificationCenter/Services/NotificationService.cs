@@ -28,10 +28,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             {
                 Receiver = notification.Receiver,
                 UserId = notification.UserId,
-                //AgencyId = notification.AgencyId,
-                Message = notification.Message.ToString(),
+                AgencyId = notification.AgencyId,
+                Message = notification.Message,
                 Type = notification.Type,
-                SendingSettings = notification.SendingSettings,
+                SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
                 Created = DateTime.UtcNow
             });
             await _context.SaveChangesAsync();
