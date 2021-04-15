@@ -150,6 +150,44 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public async Task<Result> RemoveFromCounterparty(int policyId, int counterpartyId)
+        {
+            var isCounterpartyPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Counterparty &&
+                    p.CounterpartyId == counterpartyId &&
+                    p.Id == policyId);
+
+            return isCounterpartyPolicy
+                ? await Remove(policyId)
+                : Result.Failure($"Policy '{policyId}' doesnt applied to the counterparty '{counterpartyId}'");
+        }
+
+
+        public async Task<Result> ModifyCounterpartyPolicy(int policyId, int counterpartyId, MarkupPolicySettings settings)
+        {
+            var isCounterpartyPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Counterparty &&
+                    p.CounterpartyId == counterpartyId &&
+                    p.Id == policyId);
+
+            return isCounterpartyPolicy
+                ? await Modify(policyId, settings)
+                : Result.Failure($"Policy '{policyId}' doesnt applied to the counterparty '{counterpartyId}'");
+        }
+
+
+        public Task<List<MarkupInfo>> GetMarkupForCounterparty(int counterpartyId)
+        {
+            return _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId)
+                .OrderBy(p => p.Order)
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .ToListAsync();
+        }
+
+
         private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
             var (type, counterpartyId, agencyId, agentId) = scope;
