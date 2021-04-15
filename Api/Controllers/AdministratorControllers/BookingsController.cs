@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Gets booking data by reference code.
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>
-        /// <returns>List of bookings</returns>
+        /// <returns>Booking Info</returns>
         [HttpGet("bookings/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
