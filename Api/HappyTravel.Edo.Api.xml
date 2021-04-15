@@ -170,6 +170,13 @@
             <param name="agentId">Agent Id</param>
             <returns>List of bookings</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingByReferenceCode(System.String)">
+            <summary>
+                Gets booking data by reference code.
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <returns>Booking Info</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Discards accommodation booking by admin.
@@ -302,6 +309,66 @@
             Downloads a contract pdf file
             </summary>
             <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
+            <summary>
+            Gets markup policies for a counterparty.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates counterparty markup policy.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.RemovePolicy(System.Int32,System.Int32)">
+            <summary>
+                Deletes counterparty policy.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="counterpartyId">Counterparty id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetPolicies">
+            <summary>
+            Gets global markup policies
+            </summary>
+            <returns>List of global markups</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates global markup policy.
+            </summary>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes global policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
@@ -1313,7 +1380,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Infrastructure.TokenRetrieval.FromAuthorizationHeaderOrQueryString">
             <summary>
-            Reads the token from the authrorization header and from query string for SignalR hubs.
+            Reads the token from the authorization header and from query string for SignalR hubs.
             </summary>
             <returns></returns>
         </member>
@@ -1723,6 +1790,11 @@
             Value added tax identification number
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -1778,6 +1850,101 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Name">
+            <summary>
+                Name of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Address">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Website">
+            <summary>
+                Agency site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -1831,6 +1998,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -2183,6 +2355,21 @@
                 Invitation code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.Name">
+            <summary>
+                Counterparty name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.LegalAddress">
+            <summary>
+                Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
             <summary>
                 Regular agent personal information.
@@ -2389,57 +2576,57 @@
                 Indicates if extra cot needed.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Name">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Name">
             <summary>
                 Name of the agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Address">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Address">
             <summary>
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.CountryCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryCode">
             <summary>
                 Two-letter international country code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.CountryName">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryName">
             <summary>
             Country name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.City">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.City">
             <summary>
                 City name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Phone">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Phone">
             <summary>
                 Phone number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Fax">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Fax">
             <summary>
                 Fax number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.PostalCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.PostalCode">
             <summary>
                 Postal code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.Website">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Website">
             <summary>
                 Agency site url.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.BillingEmail">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.BillingEmail">
             <summary>
             E-mail for billing operations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyRegistrationInfo.VatNumber">
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.VatNumber">
             <summary>
             Value added tax identification number
             </summary>

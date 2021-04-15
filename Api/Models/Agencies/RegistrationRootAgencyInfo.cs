@@ -1,35 +1,25 @@
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct SlimAgencyInfo
+    public readonly struct RegistrationRootAgencyInfo
     {
         [JsonConstructor]
-        public SlimAgencyInfo(string name, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType)
+        public RegistrationRootAgencyInfo(string address, string billingEmail, string city,
+            string countryCode, string fax, string phone, string postalCode, string website, string vatNumber)
         {
-            Name = name;
             Address = address;
             BillingEmail = billingEmail;
             City = city;
             CountryCode = countryCode;
-            CountryName = countryName;
             Fax = fax;
             Phone = phone;
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            DefaultPaymentType = defaultPaymentType;
         }
 
-
-        /// <summary>
-        ///     Name of the agency.
-        /// </summary>
-        [Required]
-        public string Name { get; }
 
         /// <summary>
         ///     Agency address.
@@ -40,12 +30,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     Two-letter international country code.
         /// </summary>
+        [Required]
         public string CountryCode { get; }
-
-        /// <summary>
-        /// Country name.
-        /// </summary>
-        public string CountryName { get; }
 
         /// <summary>
         ///     City name.
@@ -83,10 +69,5 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        /// Default payment type
-        /// </summary>
-        public PaymentTypes DefaultPaymentType { get; }
     }
 }

@@ -1,14 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Agencies
+namespace HappyTravel.Edo.Api.Models.Invitations
 {
-    public readonly struct SlimAgencyInfo
+    public readonly struct ChildAgencyInvitationInfo
     {
         [JsonConstructor]
-        public SlimAgencyInfo(string name, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType)
+        public ChildAgencyInvitationInfo(string name, string address, string billingEmail, string city,
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber)
         {
             Name = name;
             Address = address;
@@ -21,7 +20,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            DefaultPaymentType = defaultPaymentType;
         }
 
 
@@ -34,7 +32,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     Agency address.
         /// </summary>
-        [Required]
         public string Address { get; }
 
         /// <summary>
@@ -50,13 +47,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     City name.
         /// </summary>
-        [Required]
         public string City { get; }
 
         /// <summary>
         ///     Phone number. Only digits, length between 3 and 30.
         /// </summary>
-        [Required]
         public string Phone { get; }
 
         /// <summary>
@@ -83,10 +78,5 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        /// Default payment type
-        /// </summary>
-        public PaymentTypes DefaultPaymentType { get; }
     }
 }
