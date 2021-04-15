@@ -150,6 +150,88 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        public Task<List<MarkupInfo>> GetGlobalPolicies()
+        {
+            return _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                .OrderBy(p => p.Order)
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .ToListAsync();
+        }
+
+
+        public Task<Result> AddGlobalPolicy(MarkupPolicySettings settings)
+            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Global)));
+
+
+        public async Task<Result> RemoveGlobalPolicy(int policyId)
+        {
+            var isGlobalPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Global &&
+                    p.Id == policyId);
+            
+            return isGlobalPolicy
+                ? await Remove(policyId)
+                : Result.Failure($"Policy '{policyId}' not found or not global");
+        }
+
+
+        public async Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings)
+        {
+            var isGlobalPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Global &&
+                    p.Id == policyId);
+            
+            return isGlobalPolicy
+                ? await Modify(policyId, settings)
+                : Result.Failure($"Policy '{policyId}' not found or not global");
+        }
+
+
+        public Task<Result> AddCounterpartyPolicy(int counterpartyId, MarkupPolicySettings settings) 
+            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Counterparty, counterpartyId)));
+
+
+        public async Task<Result> RemoveFromCounterparty(int policyId, int counterpartyId)
+        {
+            var isCounterpartyPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Counterparty &&
+                    p.CounterpartyId == counterpartyId &&
+                    p.Id == policyId);
+
+            return isCounterpartyPolicy
+                ? await Remove(policyId)
+                : Result.Failure($"Policy '{policyId}' doesnt applied to the counterparty '{counterpartyId}'");
+        }
+
+
+        public async Task<Result> ModifyCounterpartyPolicy(int policyId, int counterpartyId, MarkupPolicySettings settings)
+        {
+            var isCounterpartyPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.ScopeType == MarkupPolicyScopeType.Counterparty &&
+                    p.CounterpartyId == counterpartyId &&
+                    p.Id == policyId);
+
+            return isCounterpartyPolicy
+                ? await Modify(policyId, settings)
+                : Result.Failure($"Policy '{policyId}' doesnt applied to the counterparty '{counterpartyId}'");
+        }
+
+
+        public Task<List<MarkupInfo>> GetMarkupsForCounterparty(int counterpartyId)
+        {
+            return _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId)
+                .OrderBy(p => p.Order)
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .ToListAsync();
+        }
+
+
         private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
             var (type, counterpartyId, agencyId, agentId) = scope;
