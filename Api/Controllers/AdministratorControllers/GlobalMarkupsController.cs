@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/markups/global")]
+    [Route("api/{v:apiVersion}/admin/global-markups")]
     [Produces("application/json")]
     public class GlobalMarkupsController : BaseController
     {
@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetGlobalMarkupPolicies()
+        public async Task<IActionResult> GetPolicies()
         {
-            return Ok(await _policyManager.GetGlobalMarkupPolicies());
+            return Ok(await _policyManager.GetGlobalPolicies());
         }
         
         
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicySettings settings)
         {
-            var (_, isFailure, error) = await _policyManager.AddGlobalMarkupPolicy(settings);
+            var (_, isFailure, error) = await _policyManager.AddGlobalPolicy(settings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
         {
-            var (_, isFailure, error) = await _policyManager.RemoveGlobalMarkupPolicy(policyId);
+            var (_, isFailure, error) = await _policyManager.RemoveGlobalPolicy(policyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

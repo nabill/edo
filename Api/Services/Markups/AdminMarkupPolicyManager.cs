@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<List<MarkupInfo>> GetGlobalMarkupPolicies()
+        public Task<List<MarkupInfo>> GetGlobalPolicies()
         {
             return _context.MarkupPolicies
                 .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
@@ -160,11 +160,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<Result> AddGlobalMarkupPolicy(MarkupPolicySettings settings)
+        public Task<Result> AddGlobalPolicy(MarkupPolicySettings settings)
             => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(MarkupPolicyScopeType.Global)));
 
 
-        public async Task<Result> RemoveGlobalMarkupPolicy(int policyId)
+        public async Task<Result> RemoveGlobalPolicy(int policyId)
         {
             var isGlobalPolicy = await _context.MarkupPolicies
                 .AnyAsync(p =>

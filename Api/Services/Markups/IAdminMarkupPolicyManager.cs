@@ -15,11 +15,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
         
-        Task<List<MarkupInfo>> GetGlobalMarkupPolicies();
+        Task<List<MarkupInfo>> GetGlobalPolicies();
 
-        Task<Result> AddGlobalMarkupPolicy(MarkupPolicySettings settings);
+        Task<Result> AddGlobalPolicy(MarkupPolicySettings settings);
 
-        Task<Result> RemoveGlobalMarkupPolicy(int policyId);
+        Task<Result> RemoveGlobalPolicy(int policyId);
 
         Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings);
 
