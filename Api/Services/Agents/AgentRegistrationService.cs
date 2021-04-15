@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Formatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -92,8 +93,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         Phone = agency.Phone,
                         PostalCode = agency.PostalCode,
                         Fax = agency.Fax,
-                        PreferredCurrency = agency.PreferredCurrency,
-                        PreferredPaymentMethod = counterpartyInfo.PreferredPaymentMethod,
+                        PreferredCurrency = EnumFormatters.FromDescription(agency.PreferredCurrency),
+                        PreferredPaymentMethod = EnumFormatters.FromDescription(counterpartyInfo.PreferredPaymentMethod),
                         Website = agency.Website
                     },
                     AgentEmail = email,
