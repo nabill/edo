@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         [JsonConstructor]
         public CreateChildAgencyInvitationRequest(UserDescriptionInfo userRegistrationInfo,
             // Think about removing such a special property from there
-            ChildAgencyRegistrationInfo childAgencyRegistrationInfo)
+            ChildAgencyInvitationInfo childAgencyRegistrationInfo)
         {
             UserRegistrationInfo = userRegistrationInfo;
             ChildAgencyRegistrationInfo = childAgencyRegistrationInfo;
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// <summary>
         /// Prefilled child agency registration info. Used only for child agency invitations.
         /// </summary>
-        public ChildAgencyRegistrationInfo ChildAgencyRegistrationInfo { get; }
+        public ChildAgencyInvitationInfo ChildAgencyRegistrationInfo { get; }
 
 
         public override int GetHashCode()
