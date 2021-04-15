@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agencies/{agencyId}/bookings")]
         [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> GetAgencyBookings([FromRoute] int agencyId)
         {
             var (_, isFailure, bookings, error) = await _bookingService.GetAgencyBookings(agencyId);
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("counterparties/{counterpartyId}/bookings")]
         [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> GetCounterpartyBookings([FromRoute] int counterpartyId)
         {
             var (_, isFailure, bookings, error) = await _bookingService.GetCounterpartyBookings(counterpartyId);
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agents/{agentId}/bookings")]
         [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> GetAgentBookings([FromRoute] int agentId)
         {
             var (_, isFailure, bookings, error) = await _bookingService.GetAgentBookings(agentId);
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("bookings/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) =
