@@ -342,6 +342,34 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetGlobalMarkupPolicies">
+            <summary>
+            Gets global markup policies
+            </summary>
+            <returns>List of global markups</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates global markup policy.
+            </summary>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes global policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
                 Send invitation to administrator.
