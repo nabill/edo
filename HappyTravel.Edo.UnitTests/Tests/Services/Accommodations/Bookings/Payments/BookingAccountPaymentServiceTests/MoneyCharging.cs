@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
                 .Verify(d => d.GenerateReceipt(It.IsAny<Booking>()), Times.Once);
 
             documentsMailingServiceMock
-                .Verify(d => d.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo, PaymentReceipt)>(), "test_agent@test.com"));
+                .Verify(d => d.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo, PaymentReceipt)>(), "test_agent@test.com", It.IsAny<ApiCaller>()));
         }
 
 

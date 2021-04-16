@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Data.Bookings;
@@ -121,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
         
         
-        public Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email)
+        public async Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email, ApiCaller apiCaller)
         {
             var (registrationInfo, paymentReceipt) = receipt;
 
@@ -153,7 +154,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 DeadlineDate = DateTimeFormatters.ToDateString(paymentReceipt.DeadlineDate)
             };
 
-            return _mailSender.Send(_options.BookingReceiptTemplateId, email, payload);
+            // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
+            // Sending by email via NotificationCenter will be implemented in the task AA-128.
+            await _sendingNotificationsService.Send(apiCaller: apiCaller,
+                        message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(payload, new(JsonSerializerDefaults.Web))),
+                        notificationType: NotificationTypes.SuccessfulPaymentReceipt,
+                        email: email,
+                        templateId: _options.BookingReceiptTemplateId);
+
+            // TODO: This line will be removed after implementing the task AA-128.
+            return await _mailSender.Send(_options.BookingReceiptTemplateId, email, payload);
         }
         
         
