@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using System;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Models
@@ -10,7 +11,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
         public BookingStatuses Status { get; init; }
         public DateTime ChangeTime { get; init; }
         public string AccommodationName { get; init; }
-        public string AccommodationPhoto { get; init; }
+        public Photo AccommodationPhoto { get; init; }
         public DateTime CheckInDate { get; init; }
         public DateTime CheckOutDate { get; init; }
     }

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
         public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
         {
-            if (apiCaller.Type != Common.Enums.ApiCallerTypes.Agent)
+            if (apiCaller.Type != Common.Enums.ApiCallerTypes.Agent)    // TODO: The implementation of sending messages for the admin will be in a separate task.
                 return Result.Success();
 
             var agent = await _agentContextService.GetAgent();

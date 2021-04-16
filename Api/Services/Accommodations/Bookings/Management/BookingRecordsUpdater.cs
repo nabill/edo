@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 Status = status,
                 ChangeTime = _dateTimeProvider.UtcNow(),
                 AccommodationName = booking.AccommodationName,
-                AccommodationPhoto = string.Empty,  // TODO: Need add Accommodation.Photos[0]
+                AccommodationPhoto = new(),  // TODO: Need add AccommodationPhoto from Booking after completed task AA-___
                 CheckInDate = booking.CheckInDate,
                 CheckOutDate = booking.CheckOutDate
             };
