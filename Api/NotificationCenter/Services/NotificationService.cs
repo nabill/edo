@@ -10,15 +10,21 @@ using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
+using HappyTravel.Edo.Api.Infrastructure;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public class NotificationService : INotificationService
     {
-        public NotificationService(EdoContext context, IHubContext<NotificationHub, INotificationClient> notificationHub)
+        public NotificationService(EdoContext context, 
+            IHubContext<AgentNotificationHub, INotificationClient> agentNotificationHub,
+            IHubContext<AdminNotificationHub, INotificationClient> adminNotificationHub,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _notificationHub = notificationHub;
+            _agentNotificationHub = agentNotificationHub;
+            _adminNotificationHub = adminNotificationHub;
+            _dateTimeProvider = dateTimeProvider;
         }
         
 
@@ -32,7 +38,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = notification.Message,
                 Type = notification.Type,
                 SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
-                Created = DateTime.UtcNow
+                Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();*/
 
@@ -45,8 +51,17 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     ProtocolTypes.Email when settings is EmailSettings emailSettings 
                         => SendEmail(emailSettings),
                     
-                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => SendMessageToAgent(notification.UserId, notification.AgencyId, /*entry.Entity.Id*/1, notification.Message),
+                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
+                        => notification.Receiver switch 
+                        {
+                            ReceiverTypes.AgentApp
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, /*entry.Entity.Id*/1, notification.Message),
+                            
+                            ReceiverTypes.AdminPanel
+                                => SendMessageToAdmin(notification.UserId, /*entry.Entity.Id*/1, notification.Message),
+
+                            _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
+                        },
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -101,13 +116,23 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
         {
-            await _notificationHub.Clients
+            await _agentNotificationHub.Clients
                 .Group($"{agencyId}-{userId}")
                 .ReceiveMessage(messageId, message);
         }
 
 
-        private readonly IHubContext<NotificationHub, INotificationClient> _notificationHub;
+        private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
+        {
+            await _agentNotificationHub.Clients
+                .Group($"admin-{userId}")
+                .ReceiveMessage(messageId, message);
+        }
+
+
         private readonly EdoContext _context;
+        private readonly IHubContext<AgentNotificationHub, INotificationClient> _agentNotificationHub;
+        private readonly IHubContext<AdminNotificationHub, INotificationClient> _adminNotificationHub;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

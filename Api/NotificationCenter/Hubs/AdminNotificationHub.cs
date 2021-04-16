@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
 {
     [Authorize]
-    public class NotificationHub : Hub<INotificationClient>
+    public class AdminNotificationHub : Hub<INotificationClient>
     {
-        public NotificationHub(EdoContext context)
+        public AdminNotificationHub(EdoContext context)
         {
             _context = context;
         }
@@ -24,28 +24,20 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
             if (string.IsNullOrEmpty(identityId))
                 return;
 
-            var agentId = await _context.Agents
+            var adminId = await _context.Administrators
                 .Where(a => a.IdentityHash == HashGenerator.ComputeSha256(identityId))
                 .Select(a => a.Id)
                 .SingleOrDefaultAsync();
-            if (agentId == default)
+            if (adminId == default)
                 return;
 
-            // TODO: In the future, we will take this information from the token.
-            var agencyId = await _context.AgentAgencyRelations
-                .Where(aar => aar.AgentId == agentId)
-                .Select(aar => aar.AgencyId)
-                .SingleOrDefaultAsync();
-            if (agencyId == default)
-                return;
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(agencyId, agentId));
+            await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(adminId));
             await base.OnConnectedAsync();
         }
 
 
-        private static string BuildGroupName(int agencyId, int agentId)
-            => $"{agencyId}-{agentId}";
+        private static string BuildGroupName(int adminId)
+            => $"admin-{adminId}";
 
 
         private readonly EdoContext _context;

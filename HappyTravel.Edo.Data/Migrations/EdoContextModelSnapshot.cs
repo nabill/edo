@@ -1137,10 +1137,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AgentId")
+                    b.Property<int?>("AgencyId")
                         .HasColumnType("integer");
 
                     b.Property<int>("EnabledProtocols")
@@ -1152,9 +1149,15 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AgencyId", "AgentId", "Type")
+                    b.HasIndex("AgencyId", "UserId", "UserType", "Type")
                         .IsUnique();
 
                     b.ToTable("NotificationOptions");

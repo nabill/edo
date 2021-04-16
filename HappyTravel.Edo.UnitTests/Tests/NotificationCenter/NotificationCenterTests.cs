@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
         public async Task The_message_must_be_sent_via_the_hub()
         {
             // Arrange
-            var notificationHub = new Mock<IHubContext<NotificationHub, INotificationClient>>();
+            var notificationHub = new Mock<IHubContext<AgentNotificationHub, INotificationClient>>();
             var mockClientProxy = new Mock<INotificationClient>();
             var mockClients = new Mock<IHubClients<INotificationClient>>();
             mockClients.Setup(clients => clients.User(It.IsAny<string>())).Returns(mockClientProxy.Object);

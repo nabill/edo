@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210415161932_ChangeTableMigrations")]
-    partial class ChangeTableMigrations
+    [Migration("20210416194528_ModifyTableNotifications2")]
+    partial class ModifyTableNotifications2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1139,10 +1139,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AgentId")
+                    b.Property<int?>("AgencyId")
                         .HasColumnType("integer");
 
                     b.Property<int>("EnabledProtocols")
@@ -1154,9 +1151,15 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AgencyId", "AgentId", "Type")
+                    b.HasIndex("AgencyId", "UserId", "UserType", "Type")
                         .IsUnique();
 
                     b.ToTable("NotificationOptions");

@@ -235,7 +235,8 @@ namespace HappyTravel.Edo.Api
                     endpoints.MapControllers();
                     endpoints.EnableDependencyInjection();
                     endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
-                    endpoints.MapHub<NotificationHub>("/signalr/notifications");
+                    endpoints.MapHub<AgentNotificationHub>("/signalr/notifications/agents");
+                    endpoints.MapHub<AdminNotificationHub>("/signalr/notifications/admins");
                     endpoints.MapHub<SearchHub>("/signalr/search");
                 });
         }
