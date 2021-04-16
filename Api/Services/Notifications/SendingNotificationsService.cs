@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
 using System.Collections.Generic;
@@ -11,10 +13,24 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 {
     public class SendingNotificationsService : ISendingNotificationsService
     {
-        public SendingNotificationsService(INotificationService notificationService, INotificationOptionsService notificationOptionsService)
+        public SendingNotificationsService(INotificationService notificationService, 
+            INotificationOptionsService notificationOptionsService,
+            IAgentContextService agentContextService)
         {
             _notificationService = notificationService;
             _notificationOptionsService = notificationOptionsService;
+            _agentContextService = agentContextService;
+        }
+
+
+        public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
+        {
+            if (apiCaller.Type != Common.Enums.ApiCallerTypes.Agent)
+                return Result.Success();
+
+            var agent = await _agentContextService.GetAgent();
+
+            return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType, new List<string> { email }, templateId);
         }
 
 
@@ -62,5 +78,6 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
         private readonly INotificationService _notificationService;
         private readonly INotificationOptionsService _notificationOptionsService;
+        private readonly IAgentContextService _agentContextService;
     }
 }

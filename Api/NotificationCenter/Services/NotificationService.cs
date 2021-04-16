@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task Add(Notifications.Models.Notification notification)
         {
-            var entry = _context.Notifications.Add(new Data.Notifications.Notification
+            /*var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
                 Receiver = notification.Receiver,
                 UserId = notification.UserId,
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
                 Created = DateTime.UtcNow
             });
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();*/
 
             var tasks = new List<Task>();
 
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => SendEmail(emailSettings),
                     
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => SendMessageToAgent(notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
+                        => SendMessageToAgent(notification.UserId, notification.AgencyId, /*entry.Entity.Id*/1, notification.Message),
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
