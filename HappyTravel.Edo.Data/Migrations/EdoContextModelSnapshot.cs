@@ -970,9 +970,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("TargetPolicyId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Discounts");

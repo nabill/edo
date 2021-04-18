@@ -44,6 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Bind(ConvertCurrencies)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
+                .Map(ApplyDiscounts)
                 .Map(AddSupplierData)
                 .Tap(SaveToCache);
 
@@ -62,6 +63,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
                 => _priceProcessor.ApplyMarkups(response, agent);
+            
+            
+            Task<AccommodationAvailability> ApplyDiscounts(AccommodationAvailability response) 
+                => _priceProcessor.ApplyDiscounts(response, agent);
 
 
             SupplierData<AccommodationAvailability> AddSupplierData(AccommodationAvailability availabilityDetails)

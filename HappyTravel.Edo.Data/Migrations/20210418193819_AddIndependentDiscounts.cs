@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddDiscountsWithMarkups : Migration
+    public partial class AddIndependentDiscounts : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AgencyId = table.Column<int>(type: "integer", nullable: false),
-                    TargetPolicyId = table.Column<int>(type: "integer", nullable: false),
                     DiscountPercent = table.Column<decimal>(type: "numeric", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false)
                 },
