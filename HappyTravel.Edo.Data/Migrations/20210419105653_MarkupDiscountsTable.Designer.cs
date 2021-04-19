@@ -18,8 +18,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210419025759_AddDiscountsTable")]
-    partial class AddDiscountsTable
+    [Migration("20210419105653_MarkupDiscountsTable")]
+    partial class MarkupDiscountsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -972,11 +972,10 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("TargetAgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TargetPolicyId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("TargetAgencyId");
 
                     b.ToTable("Discounts");
                 });

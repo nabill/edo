@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddDiscountsTable : Migration
+    public partial class MarkupDiscountsTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TargetAgencyId = table.Column<int>(type: "integer", nullable: false),
+                    TargetPolicyId = table.Column<int>(type: "integer", nullable: false),
                     DiscountPercent = table.Column<decimal>(type: "numeric", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -21,16 +22,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     table.PrimaryKey("PK_Discounts", x => x.Id);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Discounts_IsActive",
-                table: "Discounts",
-                column: "IsActive");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Discounts_TargetAgencyId",
-                table: "Discounts",
-                column: "TargetAgencyId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -968,11 +968,10 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("TargetAgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("TargetPolicyId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("TargetAgencyId");
 
                     b.ToTable("Discounts");
                 });
