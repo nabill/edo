@@ -186,16 +186,12 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        private static decimal VatAmount(decimal totalAmount)
-        {
-            return totalAmount * Vat / (100 + Vat);
-        }
+        private static decimal VatAmount(decimal totalAmount) 
+            => totalAmount * Vat / (100 + Vat);
 
 
-        private static decimal AmountExcludedVat(decimal totalAmount)
-        {
-            return totalAmount / (1m + Vat / 100m);
-        }
+        private static decimal AmountExcludedVat(decimal totalAmount) 
+            => totalAmount / (1m + Vat / 100m);
 
 
         private const int Vat = 5;
