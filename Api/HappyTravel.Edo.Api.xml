@@ -109,6 +109,20 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
+            <summary>
+                Gets agency accounts list
+            </summary>
+            <param name="agencyId">Agency Id</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings)">
+            <summary>
+            Sets agency account is active status
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <param name="agencyAccountId">Agency account Id</param>
+            <param name="agencyAccountSettings">Editable agency account settings</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -1715,6 +1729,31 @@
             List of available room contracts sets
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountFullInfo.Id">
+            <summary>
+            Account id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountFullInfo.Currency">
+            <summary>
+            Currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountFullInfo.Balance">
+            <summary>
+            Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountFullInfo.Created">
+            <summary>
+            Date and time of adding account
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountFullInfo.IsActive">
+            <summary>
+            Is the account active
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
             <summary>
             Account id
@@ -1728,6 +1767,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
             <summary>
             Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.IsActive">
+            <summary>
+            Is the account active
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">

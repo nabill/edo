@@ -55,6 +55,38 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .ToListAsync();
 
 
+        public Task<List<AgencyAccountFullInfo>> GetAgencyAccounts(int agencyId)
+            => _context.AgencyAccounts
+                .Where(a => a.AgencyId == agencyId)
+                .Select(a => new AgencyAccountFullInfo
+                {
+                    Id = a.Id,
+                    Balance = new MoneyAmount
+                    {
+                        Amount = a.Balance,
+                        Currency = a.Currency
+                    },
+                    Currency = a.Currency,
+                    Created = a.Created,
+                    IsActive = a.IsActive
+                })
+                .ToListAsync();
+
+
+        public async Task<Result> SetAgencyAccountSettings(int agencyId, int agencyAccountId, AgencyAccountSettings agencyAccountSettings)
+        {
+            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+            if (account is null)
+                Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+
+            account.IsActive = agencyAccountSettings.IsActive;
+            _context.AgencyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
         public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) 
             => GetAccountBalance(currency, agent.AgencyId);
 
