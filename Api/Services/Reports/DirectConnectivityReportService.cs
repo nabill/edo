@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
 
         private const int Vat = 5;
-        private const int MaxDaysInReport = 31;
+        private const int MaxDaysInReport = 62;
         private CsvWriter _csvWriter;
         private StreamWriter _streamWriter;
         
