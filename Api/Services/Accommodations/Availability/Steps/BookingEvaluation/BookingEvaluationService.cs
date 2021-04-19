@@ -54,7 +54,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var connectorEvaluationResult = await EvaluateOnConnector(result);
             if (connectorEvaluationResult.IsFailure)
             {
-                _logger.LogBookingEvaluationFailure($"EvaluateOnConnector returned an error: {connectorEvaluationResult.Error.Detail}");
+                _logger.LogBookingEvaluationFailure($"EvaluateOnConnector returned status code: {connectorEvaluationResult.Error.Status}, " +
+                    $"error: {connectorEvaluationResult.Error.Detail}");
                 return (RoomContractSetAvailability?)null;
             }
 
