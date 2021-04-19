@@ -9,6 +9,8 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Api.Services.Discounts;
+using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             return await ConvertCurrencies(connectorEvaluationResult.Value)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
+                .Map(ApplyDiscounts)
                 .Tap(SaveToCache)
                 .Map(ToDetails)
                 .Check(CheckAgainstSettings);
@@ -119,6 +122,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(response, agent, logAction);
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, convertedSupplierPrice, originalSupplierPrice);
+            }
+            
+            
+            async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
+                ApplyDiscounts(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> dataWithMarkup)
+            {
+                if (dataWithMarkup.Data is null)
+                    return dataWithMarkup;
+                // TODO: Change DataWithMarkup to more appropriate object storing discounts too.
+
+                var data = dataWithMarkup.Data;
+                // Saving all the changes in price that was done by markups
+                Action<DiscountApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
+                {
+                    // TODO: Add discount application logs
+                };
+                
+                var responseWithDiscounts = await _priceProcessor.ApplyDiscounts(data, agent, logAction);
+                return DataWithMarkup.Create(responseWithDiscounts, dataWithMarkup.AppliedMarkups, dataWithMarkup.ConvertedSupplierPrice, dataWithMarkup.OriginalSupplierPrice);
             }
 
             

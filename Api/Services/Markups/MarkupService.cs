@@ -40,8 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 var detailsBefore = currentData;
                 
-                var processFunction = GetPriceProcessFunction(policy);
-                currentData = await priceProcessFunc(currentData, processFunction);
+                var markupFunction = GetPriceProcessFunction(policy);
+                currentData = await priceProcessFunc(currentData, markupFunction);
 
                 logAction?.Invoke(new MarkupApplicationResult<TDetails>(detailsBefore, policy, currentData));
             }
