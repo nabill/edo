@@ -23,6 +23,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response, AgentContext agent)
             => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices);
+        
+        
+        public Task<AccommodationAvailability> ApplyDiscounts(AccommodationAvailability response, AgentContext agent)
+            => _priceProcessor.ApplyDiscounts(agent, response, ProcessPrices);
 
 
         private static async ValueTask<AccommodationAvailability> ProcessPrices(AccommodationAvailability source,

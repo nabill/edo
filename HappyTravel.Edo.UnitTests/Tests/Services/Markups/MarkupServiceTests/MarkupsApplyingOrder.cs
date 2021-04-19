@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new FakeDoubleFlow(), 
                 agentSettingsMock.Object,
                 accommodationBookingSettingsServiceMock.Object);
-            
+
             _markupService = new MarkupService(_markupPolicyService, new MarkupPolicyTemplateService(), currencyRateServiceMock.Object, new FakeMemoryFlow());
         }
     

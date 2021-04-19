@@ -94,6 +94,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
+using HappyTravel.Edo.Api.Services.Discounts;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Api.Services.Notifications;
@@ -570,6 +571,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IMarkupPolicyService, MarkupPolicyService>();
             services.AddTransient<IMarkupService, MarkupService>();
+            services.AddTransient<IDiscountService, DiscountService>();
+            
             services.AddTransient<IDisplayedMarkupFormulaService, DisplayedMarkupFormulaService>();
             services.AddTransient<IMarkupBonusMaterializationService, MarkupBonusMaterializationService>();
             services.AddTransient<IMarkupBonusDisplayService, MarkupBonusDisplayService>();
