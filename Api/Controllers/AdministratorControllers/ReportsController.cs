@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Reports;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -30,8 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Returns supplier wise direct connectivity report
         /// </summary>
         [HttpGet("direct-connectivity-report/supplier-wise")]
-        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Returns agency wise direct connectivity report
         /// </summary>
         [HttpGet("direct-connectivity-report/agency-wise")]
-        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetAgencyWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
@@ -70,8 +70,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Returns agencies productivity report
         /// </summary>
         [HttpGet("agencies-productivity-report")]
-        [ProducesResponseType(typeof(FileStream), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetAgenciesProductivityReport(DateTime from, DateTime end)
         {
@@ -84,8 +84,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"agencies-productivity-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         private readonly IDirectConnectivityReportService _directConnectivityReportService;
         private readonly IAgenciesProductivityReportService _agenciesProductivityReportService;
     }
