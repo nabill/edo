@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
@@ -37,18 +38,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Creates agency discount
+        /// Creates discount
         /// </summary>
         /// <param name="agencyId">Agency id</param>
-        /// <param name="discount">Discount settings</param>
+        /// <param name="createDiscountRequest">Discount settings</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddDiscount([FromRoute] int agencyId, [FromBody] DiscountInfo discount)
+        public async Task<IActionResult> AddDiscount([FromRoute] int agencyId, [FromBody] CreateDiscountRequest createDiscountRequest)
         {
-            var (_, isFailure, error) = await _discountManagementService.Add(agencyId, discount);
+            var (_, isFailure, error) = await _discountManagementService.Add(agencyId, createDiscountRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -97,19 +98,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Updates policy settings.
+        ///     Updates discount settings.
         /// </summary>
         /// <param name="agencyId">Agency id</param>
         /// <param name="discountId">Id of the discount.</param>
-        /// <param name="discountInfo">Updated settings.</param>
+        /// <param name="editDiscountRequest">Updated settings.</param>
         /// <returns></returns>
         [HttpPut("{discountId:int}")]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId, [FromBody] DiscountInfo discountInfo)
+        public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId, [FromBody] EditDiscountRequest editDiscountRequest)
         {
-            var (_, isFailure, error) = await _discountManagementService.Update(agencyId, discountId, discountInfo);
+            var (_, isFailure, error) = await _discountManagementService.Update(agencyId, discountId, editDiscountRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

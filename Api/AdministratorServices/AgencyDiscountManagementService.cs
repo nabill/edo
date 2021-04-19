@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,13 +19,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public Task<List<DiscountInfo>> Get(int agencyId)
-            => _context.Discounts.Where(d => d.TargetAgencyId == agencyId)
-                .Select(d => new DiscountInfo
+        {
+            return (from discount in _context.Discounts
+                join markupPolicy in _context.MarkupPolicies on discount.TargetPolicyId equals markupPolicy.Id
+                select new DiscountInfo
                 {
-                    DiscountPercent = d.DiscountPercent,
-                    Description = d.Description
-                })
-                .ToListAsync();
+                    DiscountPercent = discount.DiscountPercent,
+                    Description = discount.Description,
+                    TargetMarkupId = discount.TargetPolicyId,
+                    TargetPolicyDescription = markupPolicy.Description
+                }).ToListAsync();
+        }
 
 
         public async Task<Result> Activate(int agencyId, int discountId)
@@ -42,15 +46,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> Add(int agencyId, DiscountInfo discountInfo)
+        public Task<Result> Add(int agencyId, CreateDiscountRequest createDiscountRequest)
         {
-            return Validate(discountInfo)
+            return ValidatePercent(createDiscountRequest.DiscountPercent)
                 .Tap(async () =>
                 {
                     _context.Discounts.Add(new Discount
                     {
-                        DiscountPercent = discountInfo.DiscountPercent,
-                        Description = discountInfo.Description,
+                        DiscountPercent = createDiscountRequest.DiscountPercent,
+                        Description = createDiscountRequest.Description,
+                        TargetPolicyId = createDiscountRequest.TargetMarkupId,
                         IsActive = true,
                         TargetAgencyId = agencyId
                     });
@@ -59,20 +64,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Update(int agencyId, int discountId, DiscountInfo discountInfo)
+        public async Task<Result> Update(int agencyId, int discountId, EditDiscountRequest editDiscountRequest)
         {
             return await Get(agencyId, discountId)
-                .Check(_ => Validate(discountInfo))
+                .Check(_ => ValidatePercent(editDiscountRequest.DiscountPercent))
                 .Map(d => Update(d, discount =>
                 {
-                    discount.DiscountPercent = discountInfo.DiscountPercent;
-                    discount.Description = discountInfo.Description;
+                    discount.DiscountPercent = editDiscountRequest.DiscountPercent;
+                    discount.Description = editDiscountRequest.Description;
                 }));
         }
 
 
         private async Task<Result<Discount>> Get(int agencyId, int discountId)
-            => await _context.Discounts.SingleOrDefaultAsync(d => d.Id == discountId) ??
+            => await _context.Discounts.SingleOrDefaultAsync(d => d.Id == discountId && d.TargetAgencyId == agencyId) ??
                 Result.Failure<Discount>($"Could not find discount with id {discountId}");
 
 
@@ -84,8 +89,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Result Validate(DiscountInfo discount)
-            => discount.DiscountPercent <= MaxDiscountPercent
+        private Result ValidatePercent(decimal discountPercent)
+            => discountPercent <= MaxDiscountPercent
                 ? Result.Success()
                 : Result.Failure($"Could not set discount percent with value more than {MaxDiscountPercent}");
 

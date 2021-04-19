@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -12,8 +13,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         
         Task<Result> Deactivate(int agencyId, int discountId);
 
-        Task<Result> Add(int agencyId, DiscountInfo discountInfo);
-        
-        Task<Result> Update(int agencyId, int discountId, DiscountInfo discountInfo);
+        Task<Result> Add(int agencyId, CreateDiscountRequest discountInfo);
+
+        Task<Result> Update(int agencyId, int discountId, EditDiscountRequest editDiscountRequest);
     }
 }
