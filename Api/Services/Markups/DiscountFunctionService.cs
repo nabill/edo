@@ -57,8 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task<List<Discount>> GetAgentDiscounts()
                 => _context.Discounts
                     .Where(d => d.TargetPolicyId == policy.Id)
-                    .Where(d => d.AgencyId == agent.AgencyId)
-                    .Where(d => d.IsEnabled)
+                    .Where(d => d.TargetAgencyId == agent.AgencyId)
+                    .Where(d => d.IsActive)
                     .ToListAsync();
         }
 
