@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyPolicy(int agencyId, int discountId, [FromBody] DiscountInfo discountInfo)
+        public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId, [FromBody] DiscountInfo discountInfo)
         {
             var (_, isFailure, error) = await _discountManagementService.Update(agencyId, discountId, discountInfo);
             if (isFailure)
