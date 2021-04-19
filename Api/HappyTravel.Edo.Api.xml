@@ -512,6 +512,11 @@
                 Returns agencies productivity report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns full bookings report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
