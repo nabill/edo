@@ -26,49 +26,61 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
         public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate(fromDate, endDate)
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            
+            return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate<SupplierWiseRecordProjection, SupplierWiseReportRow>);
             
             
             IQueryable<SupplierWiseRecordProjection> GetRecords()
-                => GetRecords<SupplierWiseRecordProjection>(fromDate, endDate);
+                => GetRecords<SupplierWiseRecordProjection>(from, end);
         }
 
 
         public async Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate(fromDate, endDate)
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            
+            return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
             
             
             IQueryable<AgencyWiseRecordProjection> GetRecords()
-                => GetRecords<AgencyWiseRecordProjection>(fromDate, endDate);
+                => GetRecords<AgencyWiseRecordProjection>(from, end);
         }
 
 
         public async Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate(fromDate, endDate)
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            
+            return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate<FullBookingsReportProjection, FullBookingsReportRow>);
             
             
             IQueryable<FullBookingsReportProjection> GetRecords()
-                => GetRecords<FullBookingsReportProjection>(fromDate, endDate);
+                => GetRecords<FullBookingsReportProjection>(from, end);
         }
 
 
         public async Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate(fromDate, endDate)
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            
+            return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate);
             
             
             IQueryable<AgencyProductivity> GetRecords()
-                => GetRecords<AgencyProductivity>(fromDate, endDate);
+                => GetRecords<AgencyProductivity>(from, end);
         }
 
 
