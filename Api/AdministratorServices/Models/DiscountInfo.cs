@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         
         public int TargetMarkupId { get; init; }
         public string TargetPolicyDescription { get; init; }
+        public bool IsActive { get; init; }
     }
 }

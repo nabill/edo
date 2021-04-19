@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     DiscountPercent = discount.DiscountPercent,
                     Description = discount.Description,
                     TargetMarkupId = discount.TargetPolicyId,
-                    TargetPolicyDescription = markupPolicy.Description
+                    TargetPolicyDescription = markupPolicy.Description,
+                    IsActive = discount.IsActive
                 }).ToListAsync();
         }
 
