@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
-                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), isCheckingOrderNeeded: false);
+                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), isCheckingOrderNeeded: policy.Order != settings.Order);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
