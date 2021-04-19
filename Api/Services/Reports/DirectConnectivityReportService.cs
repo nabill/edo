@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
             var stream = new MemoryStream();
             _streamWriter = new StreamWriter(stream);
             _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
-            var mapper = _serviceProvider.GetRequiredService<IConverter<TProjection, TRow>>();
+            var converter = _serviceProvider.GetRequiredService<IConverter<TProjection, TRow>>();
             
             _csvWriter.WriteHeader<TRow>();
             await _csvWriter.NextRecordAsync();
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
             foreach (var record in records)
             {
-                var row = mapper.Convert(record, VatAmount, AmountExcludedVat);
+                var row = converter.Convert(record, VatAmount, AmountExcludedVat);
                 _csvWriter.WriteRecord(row);
                 await _csvWriter.NextRecordAsync();
                 await _streamWriter.FlushAsync();
