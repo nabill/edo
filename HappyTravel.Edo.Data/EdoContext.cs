@@ -267,7 +267,6 @@ namespace HappyTravel.Edo.Data
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
-            BuildDiscounts(builder);
         }
 
 
