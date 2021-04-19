@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
+using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
@@ -14,9 +15,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HappyTravel.Edo.Api.Services.Reports
 {
-    public class DirectConnectivityReportService : IDirectConnectivityReportService, IDisposable
+    public class ReportService : IReportService, IDisposable
     {
-        public DirectConnectivityReportService(EdoContext context, IServiceProvider serviceProvider)
+        public ReportService(EdoContext context, IServiceProvider serviceProvider)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -59,13 +60,25 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
+        public async Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate)
+        {
+            return await Validate(fromDate, endDate)
+                .Map(GetRecords)
+                .Bind(Generate);
+            
+            
+            IQueryable<AgencyProductivity> GetRecords()
+                => GetRecords<AgencyProductivity>(fromDate, endDate);
+        }
+
+
         private Result Validate(DateTime fromDate, DateTime endDate)
         {
             if (fromDate == default || endDate == default)
                 return Result.Failure("Range dates required");
             
             if ((fromDate - endDate).TotalDays > MaxDaysInReport)
-                return Result.Failure("Permissible interval exceeded");
+                return Result.Failure<Stream>($"The interval for generating a report should not exceed {MaxDaysInReport} days");
 
             return Result.Success();
         }
@@ -77,25 +90,53 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
         private async Task<Result<Stream>> Generate<TProjection, TRow>(IEnumerable<TProjection> records)
         {
-            var stream = new MemoryStream();
-            _streamWriter = new StreamWriter(stream);
-            _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
+            var stream = await Initialize<TRow>();
             var converter = _serviceProvider.GetRequiredService<IConverter<TProjection, TRow>>();
-            
-            _csvWriter.WriteHeader<TRow>();
-            await _csvWriter.NextRecordAsync();
-            await _streamWriter.FlushAsync();
 
             foreach (var record in records)
             {
                 var row = converter.Convert(record, VatAmount, AmountExcludedVat);
-                _csvWriter.WriteRecord(row);
-                await _csvWriter.NextRecordAsync();
-                await _streamWriter.FlushAsync();
+                await Write(row);
             }
             
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
+        }
+        
+        
+        private async Task<Result<Stream>> Generate<TRow>(IEnumerable<TRow> records)
+        {
+            var stream = await Initialize<TRow>();
+
+            foreach (var record in records)
+            {
+                await Write(record);
+            }
+            
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
+        }
+
+
+        private async Task<Stream> Initialize<TRow>()
+        {
+            var stream = new MemoryStream();
+            _streamWriter = new StreamWriter(stream);
+            _csvWriter = new CsvWriter(_streamWriter, CultureInfo.InvariantCulture);
+            
+            _csvWriter.WriteHeader<TRow>();
+            await _csvWriter.NextRecordAsync();
+            await _streamWriter.FlushAsync();
+            
+            return stream;
+        }
+
+
+        private async Task Write<TRow>(TRow record)
+        {
+            _csvWriter.WriteRecord(record);
+            await _csvWriter.NextRecordAsync();
+            await _streamWriter.FlushAsync();
         }
 
 

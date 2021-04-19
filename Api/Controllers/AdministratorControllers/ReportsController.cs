@@ -19,10 +19,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class ReportsController : BaseController
     {
-        public ReportsController(IDirectConnectivityReportService directConnectivityReportService, IAgenciesProductivityReportService agenciesProductivityReportService)
+        public ReportsController(IReportService reportService)
         {
-            _directConnectivityReportService = directConnectivityReportService;
-            _agenciesProductivityReportService = agenciesProductivityReportService;
+            _reportService = reportService;
         }
         
         
@@ -35,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _directConnectivityReportService.GetSupplierWiseReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetSupplierWiseReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -55,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetAgencyWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _directConnectivityReportService.GetAgencyWiseReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetAgencyWiseReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -75,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetAgenciesProductivityReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _agenciesProductivityReportService.GetReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.AgenciesProductivityReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -95,7 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetFullBookingReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _directConnectivityReportService.GetFullBookingsReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetFullBookingsReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -106,7 +105,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        private readonly IDirectConnectivityReportService _directConnectivityReportService;
-        private readonly IAgenciesProductivityReportService _agenciesProductivityReportService;
+        private readonly IReportService _reportService;
     }
 }

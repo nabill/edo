@@ -81,6 +81,7 @@ using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
@@ -712,8 +713,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencyService, AgencyService>();
 
             services.AddTransient<IApiClientService, ApiClientService>();
-            services.AddTransient<IDirectConnectivityReportService, DirectConnectivityReportService>();
-            services.AddTransient<IAgenciesProductivityReportService, AgenciesProductivityReportService>();
+            services.AddTransient<IReportService, ReportService>();
             services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
             services.AddTransient<ISendingNotificationsService, SendingNotificationsService>();
 
@@ -723,6 +723,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<AgencyWiseRecordProjection>, AgencyWiseRecordManager>();
             services.AddTransient<IRecordManager<SupplierWiseRecordProjection>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
+            services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
