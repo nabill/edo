@@ -175,7 +175,7 @@
                 Gets booking data by reference code.
             </summary>
             <param name="referenceCode">Booking reference code</param>
-            <returns>List of bookings</returns>
+            <returns>Booking Info</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
@@ -338,6 +338,34 @@
                 Updates policy settings.
             </summary>
             <param name="counterpartyId">Counterparty id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetPolicies">
+            <summary>
+            Gets global markup policies
+            </summary>
+            <returns>List of global markups</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates global markup policy.
+            </summary>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes global policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
             <param name="policyId">Id of the policy.</param>
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
@@ -1762,6 +1790,11 @@
             Value added tax identification number
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -1965,6 +1998,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
