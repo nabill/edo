@@ -3,7 +3,7 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Formatters;
 
-namespace HappyTravel.Edo.Api.Models.Reports.Converters
+namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public  class SupplierWiseRecordProjectionConverter : IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>
     {

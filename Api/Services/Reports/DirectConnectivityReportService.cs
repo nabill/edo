@@ -6,8 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
-using HappyTravel.Edo.Api.Models.Reports.Converters;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
+using HappyTravel.Edo.Api.Services.Reports.Converters;
+using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 using HappyTravel.Edo.Data;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,144 +23,56 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endTime)
+        public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate()
+            return await Validate(fromDate, endDate)
                 .Map(GetRecords)
                 .Bind(Generate<SupplierWiseRecordProjection, SupplierWiseReportRow>);
-
-
-            Result Validate() 
-                => ValidateDates(fromDate, endTime);
-
-
+            
+            
             IQueryable<SupplierWiseRecordProjection> GetRecords()
-            {
-                return from booking in _context.Bookings
-                    join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
-                    join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                    where 
-                        booking.IsDirectContract &&
-                        booking.Created >= fromDate &&
-                        booking.Created < endTime
-                    select new SupplierWiseRecordProjection
-                    {
-                        ReferenceCode = booking.ReferenceCode,
-                        InvoiceNumber = invoice.Number,
-                        AccommodationName = booking.AccommodationName,
-                        ConfirmationNumber = booking.SupplierReferenceCode,
-                        Rooms = booking.Rooms,
-                        GuestName = booking.MainPassengerName,
-                        ArrivalDate = booking.CheckInDate,
-                        DepartureDate = booking.CheckOutDate,
-                        OriginalAmount = order.OriginalSupplierPrice,
-                        OriginalCurrency = order.OriginalSupplierCurrency,
-                        ConvertedAmount = order.ConvertedSupplierPrice,
-                        ConvertedCurrency = order.ConvertedSupplierCurrency,
-                        Supplier = booking.Supplier
-                    };
-            }
+                => GetRecords<SupplierWiseRecordProjection>(fromDate, endDate);
         }
 
 
-        public async Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endTime)
+        public async Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate()
+            return await Validate(fromDate, endDate)
                 .Map(GetRecords)
                 .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
-
-
-            Result Validate() 
-                => ValidateDates(fromDate, endTime);
             
             
             IQueryable<AgencyWiseRecordProjection> GetRecords()
-            {
-                return from booking in _context.Bookings
-                    join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
-                    join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                    join agency in _context.Agencies on booking.AgencyId equals agency.Id
-                    where 
-                        booking.IsDirectContract &&
-                        booking.Created >= fromDate &&
-                        booking.Created < endTime
-                    select new AgencyWiseRecordProjection
-                    {
-                        Date = booking.Created,
-                        ReferenceCode = booking.ReferenceCode,
-                        InvoiceNumber = invoice.Number,
-                        AgencyName = agency.Name,
-                        PaymentMethod = booking.PaymentMethod,
-                        AccommodationName = booking.AccommodationName,
-                        ConfirmationNumber = booking.SupplierReferenceCode,
-                        Rooms = booking.Rooms,
-                        GuestName = booking.MainPassengerName,
-                        ArrivalDate = booking.CheckInDate,
-                        DepartureDate = booking.CheckOutDate,
-                        OriginalAmount = order.OriginalSupplierPrice,
-                        OriginalCurrency = order.OriginalSupplierCurrency,
-                        ConvertedAmount = order.ConvertedSupplierPrice,
-                        ConvertedCurrency = order.ConvertedSupplierCurrency,
-                        PaymentStatus = booking.PaymentStatus
-                    };
-            }
+                => GetRecords<AgencyWiseRecordProjection>(fromDate, endDate);
         }
 
 
-        public async Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endTime)
+        public async Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate)
         {
-            return await Validate()
+            return await Validate(fromDate, endDate)
                 .Map(GetRecords)
                 .Bind(Generate<FullBookingsReportProjection, FullBookingsReportRow>);
             
             
-            Result Validate() 
-                => ValidateDates(fromDate, endTime);
-            
-            
             IQueryable<FullBookingsReportProjection> GetRecords()
-            {
-                return from booking in _context.Bookings
-                    join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
-                    join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                    join agency in _context.Agencies on booking.AgencyId equals agency.Id
-                    where
-                        booking.CheckOutDate >= fromDate &&
-                        booking.CheckOutDate < endTime
-                    select new FullBookingsReportProjection
-                    {
-                        Created = booking.Created,
-                        ReferenceCode = booking.ReferenceCode,
-                        InvoiceNumber = invoice.Number,
-                        AgencyName = agency.Name,
-                        PaymentMethod = booking.PaymentMethod,
-                        AccommodationName = booking.AccommodationName,
-                        ConfirmationNumber = booking.SupplierReferenceCode,
-                        Rooms = booking.Rooms,
-                        GuestName = booking.MainPassengerName,
-                        ArrivalDate = booking.CheckInDate,
-                        DepartureDate = booking.CheckOutDate,
-                        OriginalAmount = order.OriginalSupplierPrice,
-                        OriginalCurrency = order.OriginalSupplierCurrency,
-                        ConvertedAmount = order.ConvertedSupplierPrice,
-                        ConvertedCurrency = order.ConvertedSupplierCurrency,
-                        PaymentStatus = booking.PaymentStatus,
-                        Supplier = booking.Supplier
-                    };
-            }
+                => GetRecords<FullBookingsReportProjection>(fromDate, endDate);
         }
 
 
-        private Result ValidateDates(DateTime dateFrom, DateTime dateEnd)
+        private Result Validate(DateTime fromDate, DateTime endDate)
         {
-            if (dateFrom == default || dateEnd == default)
+            if (fromDate == default || endDate == default)
                 return Result.Failure("Range dates required");
             
-            if ((dateEnd - dateFrom).TotalDays > MaxDaysInReport)
+            if ((fromDate - endDate).TotalDays > MaxDaysInReport)
                 return Result.Failure("Permissible interval exceeded");
 
             return Result.Success();
         }
+        
+        
+        private IQueryable<TProjection> GetRecords<TProjection>(DateTime fromDate, DateTime endDate) 
+            => _serviceProvider.GetRequiredService<IRecordManager<TProjection>>().Get(fromDate, endDate);
 
 
         private async Task<Result<Stream>> Generate<TProjection, TRow>(IEnumerable<TProjection> records)

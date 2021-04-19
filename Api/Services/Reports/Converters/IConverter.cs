@@ -1,6 +1,6 @@
 using System;
 
-namespace HappyTravel.Edo.Api.Models.Reports.Converters
+namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public interface IConverter<in TIn, out TOut>
     {
