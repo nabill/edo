@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
@@ -82,6 +81,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
                 FileDownloadName = $"agencies-productivity-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        /// <summary>
+        ///     Returns full bookings report
+        /// </summary>
+        [HttpGet("full-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        public async Task<IActionResult> GetFullBookingReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _directConnectivityReportService.GetFullBookingsReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"full-bookings-report-{from:g}-{end:g}.csv"
             };
         }
 

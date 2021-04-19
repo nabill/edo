@@ -81,6 +81,8 @@ using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Models.Reports.Converters;
+using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
@@ -713,6 +715,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgenciesProductivityReportService, AgenciesProductivityReportService>();
             services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
             services.AddTransient<ISendingNotificationsService, SendingNotificationsService>();
+
+            services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
+            services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
+            services.AddTransient<IConverter<FullBookingsReportProjection, FullBookingsReportRow>, FullBookingsReportProjectionConverter>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
