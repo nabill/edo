@@ -12,7 +12,7 @@ using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Services.Discounts
+namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class DiscountService : IDiscountService
     {
@@ -27,25 +27,27 @@ namespace HappyTravel.Edo.Api.Services.Discounts
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<DiscountApplicationResult<TDetails>> logAction)
         {
-            var discountKey = GetKey(agent);
-            var applicableDiscounts = await _flow.GetOrSetAsync(discountKey, GetAgentDiscounts, DiscountCacheLifeTime);
+            var discountsKey = GetKey(agent);
+            var applicableDiscounts = await _flow.GetOrSetAsync(discountsKey, 
+                GetAgentDiscounts,
+                DiscountCacheLifeTime);
 
-            var currentDetails = details;
+            var currentData = details;
             foreach (var discount in applicableDiscounts)
             {
-                var detailsBefore = currentDetails;
+                var dataBefore = currentData;
                 var function = GetDiscountFunction(discount);
-                currentDetails = await priceProcessFunc(detailsBefore, function);
+                currentData = await priceProcessFunc(dataBefore, function);
 
                 logAction?.Invoke(new DiscountApplicationResult<TDetails>
                 {
-                    After = currentDetails,
-                    Before = detailsBefore,
+                    After = currentData,
+                    Before = dataBefore,
                     Discount = discount
                 });
             }
 
-            var ceiledResponse = await priceProcessFunc(currentDetails, price =>
+            var ceiledResponse = await priceProcessFunc(currentData, price =>
                 new ValueTask<MoneyAmount>(MoneyRounder.Ceil(price)));
 
             return ceiledResponse;
@@ -57,13 +59,14 @@ namespace HappyTravel.Edo.Api.Services.Discounts
             
             Task<List<Discount>> GetAgentDiscounts()
                 => _context.Discounts
-                    .Where(d => d.TargetAgencyId == agent.AgencyId)
-                    .Where(d => d.IsActive)
+                    .Where(d => d.AgencyId == agent.AgencyId)
+                    .Where(d => d.IsEnabled)
                     .ToListAsync();
             
             
             static PriceProcessFunction GetDiscountFunction(Discount discount)
-                => moneyAmount =>
+            {
+                return moneyAmount =>
                 {
                     var processedAmount = new MoneyAmount
                     {
@@ -72,6 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Discounts
                     };
                     return new ValueTask<MoneyAmount>(processedAmount);
                 };
+            }
         }
         
         

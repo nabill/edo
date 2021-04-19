@@ -961,20 +961,16 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int>("AgencyId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("DiscountPercent")
                         .HasColumnType("numeric");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("TargetAgencyId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("TargetAgencyId");
 
                     b.ToTable("Discounts");
                 });
