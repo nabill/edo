@@ -18,8 +18,10 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public List<BookedRoom> Rooms { get; init; }
         public DateTime ArrivalDate { get; init; }
         public DateTime DepartureDate { get; init; }
-        public decimal Amount { get; init; }
-        public Currencies Currency { get; init; }
+        public decimal OriginalAmount { get; init; }
+        public Currencies OriginalCurrency { get; init; }
+        public decimal ConvertedAmount { get; init; }
+        public Currencies ConvertedCurrency { get; init; }
         public string ConfirmationNumber { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
     }

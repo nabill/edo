@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Discounts;
-using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            ICounterpartyService counterpartyService)
+            ICounterpartyService counterpartyService,
+            ILogger<BookingEvaluationService> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _counterpartyService = counterpartyService;
+            _logger = logger;
         }
         
         
@@ -49,7 +51,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             var connectorEvaluationResult = await EvaluateOnConnector(result);
             if (connectorEvaluationResult.IsFailure)
-                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(connectorEvaluationResult.Error.Detail);
+            {
+                _logger.LogBookingEvaluationFailure($"EvaluateOnConnector returned status code: {connectorEvaluationResult.Error.Status}, " +
+                    $"error: {connectorEvaluationResult.Error.Detail}");
+                return (RoomContractSetAvailability?)null;
+            }
 
             var originalSupplierPrice = connectorEvaluationResult.Value?.RoomContractSet.Rate.FinalPrice ?? default;
             
@@ -60,7 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             return await ConvertCurrencies(connectorEvaluationResult.Value)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
-                .Map(ApplyDiscounts)
                 .Tap(SaveToCache)
                 .Map(ToDetails)
                 .Check(CheckAgainstSettings);
@@ -122,25 +127,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(response, agent, logAction);
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, convertedSupplierPrice, originalSupplierPrice);
-            }
-            
-            
-            async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
-                ApplyDiscounts(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> dataWithMarkup)
-            {
-                if (dataWithMarkup.Data is null)
-                    return dataWithMarkup;
-                // TODO: Change DataWithMarkup to more appropriate object storing discounts too.
-
-                var data = dataWithMarkup.Data;
-                // Saving all the changes in price that was done by markups
-                Action<DiscountApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
-                {
-                    // TODO: Add discount application logs
-                };
-                
-                var responseWithDiscounts = await _priceProcessor.ApplyDiscounts(data, agent, logAction);
-                return DataWithMarkup.Create(responseWithDiscounts, dataWithMarkup.AppliedMarkups, dataWithMarkup.ConvertedSupplierPrice, dataWithMarkup.OriginalSupplierPrice);
             }
 
             
@@ -204,5 +190,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly ICounterpartyService _counterpartyService;
+        private readonly ILogger<BookingEvaluationService> _logger;
     }
 }

@@ -267,7 +267,6 @@ namespace HappyTravel.Edo.Data
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
-            BuildDiscounts(builder);
         }
 
 
@@ -928,6 +927,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<Discount>(b =>
             {
                 b.HasIndex(d => d.TargetAgencyId);
+                b.HasIndex(d => d.TargetPolicyId);
                 b.HasIndex(d => d.IsActive);
             });
         }
