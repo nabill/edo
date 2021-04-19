@@ -927,8 +927,8 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<Discount>(b =>
             {
-                b.HasIndex(d => d.AgencyId);
-                b.HasIndex(d => d.IsEnabled);
+                b.HasIndex(d => d.TargetAgencyId);
+                b.HasIndex(d => d.IsActive);
             });
         }
 
