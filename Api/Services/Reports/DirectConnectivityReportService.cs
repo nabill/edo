@@ -58,8 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        Amount = order.OriginalSupplierPrice,
-                        Currency = order.OriginalSupplierCurrency,
+                        OriginalAmount = order.OriginalSupplierPrice,
+                        OriginalCurrency = order.OriginalSupplierCurrency,
+                        ConvertedAmount = order.ConvertedSupplierPrice,
+                        ConvertedCurrency = order.ConvertedSupplierCurrency,
                         Supplier = booking.Supplier
                     };
             }
@@ -108,8 +110,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
                         GuestName = booking.MainPassengerName,
                         ArrivalDate = booking.CheckInDate,
                         DepartureDate = booking.CheckOutDate,
-                        Amount = order.OriginalSupplierPrice,
-                        Currency = order.OriginalSupplierCurrency,
+                        OriginalAmount = order.OriginalSupplierPrice,
+                        OriginalCurrency = order.OriginalSupplierCurrency,
+                        ConvertedAmount = order.ConvertedSupplierPrice,
+                        ConvertedCurrency = order.ConvertedSupplierCurrency,
                         PaymentStatus = booking.PaymentStatus
                     };
             }
@@ -170,10 +174,12 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(e.DepartureDate),
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
-                    AmountExclVat = Math.Round(AmountExcludedVat(e.Amount), 2),
-                    VatAmount = Math.Round(VatAmount(e.Amount), 2),
-                    Amount = e.Amount,
-                    Currency = e.Currency,
+                    AmountExclVat = Math.Round(AmountExcludedVat(e.OriginalAmount), 2),
+                    VatAmount = Math.Round(VatAmount(e.OriginalAmount), 2),
+                    OriginalAmount = e.OriginalAmount,
+                    OriginalCurrency = e.OriginalCurrency,
+                    ConvertedAmount = e.ConvertedAmount,
+                    ConvertedCurrency = e.ConvertedCurrency,
                     Supplier = EnumFormatters.FromDescription(e.Supplier)
                 },
                 AgencyWiseRecordProjection e => new AgencyWiseReportRow
@@ -189,8 +195,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
                     ArrivalDate = DateTimeFormatters.ToDateString(e.ArrivalDate),
                     DepartureDate = DateTimeFormatters.ToDateString(e.DepartureDate),
                     LenghtOfStay = (e.DepartureDate - e.ArrivalDate).TotalDays,
-                    Amount = e.Amount,
-                    Currency = e.Currency,
+                    OriginalAmount = e.OriginalAmount,
+                    OriginalCurrency = e.OriginalCurrency,
+                    ConvertedAmount = e.ConvertedAmount,
+                    ConvertedCurrency = e.ConvertedCurrency,
                     ConfirmationNumber = e.ConfirmationNumber,
                     RoomsConfirmationNumbers = string.Join("; ", e.Rooms.Select(r => r.SupplierRoomReferenceCode)),
                     PaymentStatus = EnumFormatters.FromDescription(e.PaymentStatus)
