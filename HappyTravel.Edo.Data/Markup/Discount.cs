@@ -4,6 +4,7 @@ namespace HappyTravel.Edo.Data.Markup
     {
         public int Id { get; set; }
         public int AgencyId { get; set; }
+        public int TargetPolicyId { get; set; }
         public decimal DiscountPercent { get; set; }
         public bool IsEnabled { get; set; }
     }

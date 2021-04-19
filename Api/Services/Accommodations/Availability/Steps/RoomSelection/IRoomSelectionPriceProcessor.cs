@@ -11,7 +11,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails, AgentContext agent);
 
         Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response, AgentContext agent);
-
-        Task<AccommodationAvailability> ApplyDiscounts(AccommodationAvailability response, AgentContext agent);
     }
 }

@@ -570,7 +570,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IMarkupPolicyService, MarkupPolicyService>();
             services.AddTransient<IMarkupService, MarkupService>();
-            services.AddTransient<IDiscountService, DiscountService>();
+            services.AddTransient<IDiscountFunctionService, DiscountFunctionService>();
             
             services.AddTransient<IDisplayedMarkupFormulaService, DisplayedMarkupFormulaService>();
             services.AddTransient<IMarkupBonusMaterializationService, MarkupBonusMaterializationService>();

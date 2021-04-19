@@ -2435,11 +2435,6 @@
             Suppliers enabled for the client
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.HasDirectContractsFilter">
-            <summary>
-            Is direct contracts only available for the client
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
                 Required. Check-in date.

@@ -61,7 +61,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 agentSettingsMock.Object,
                 accommodationBookingSettingsServiceMock.Object);
 
-            _markupService = new MarkupService(_markupPolicyService, new MarkupPolicyTemplateService(), currencyRateServiceMock.Object, new FakeMemoryFlow());
+            var discountServiceMock = new  Mock<IDiscountFunctionService>();
+            discountServiceMock.Setup(service => service.Get(It.IsAny<MarkupPolicy>(), It.IsAny<AgentContext>()))
+                .ReturnsAsync((price => new ValueTask<MoneyAmount>(price)));
+            
+            _markupService = new MarkupService(_markupPolicyService, discountServiceMock.Object, new MarkupPolicyTemplateService(), currencyRateServiceMock.Object, new FakeMemoryFlow());
         }
     
     

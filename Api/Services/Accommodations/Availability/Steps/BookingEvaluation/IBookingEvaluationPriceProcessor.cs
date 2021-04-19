@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +12,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         Task<RoomContractSetAvailability?> ApplyMarkups(RoomContractSetAvailability? response, AgentContext agent, Action<MarkupApplicationResult<RoomContractSetAvailability?>> logAction);
 
         Task<Result<RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability? availabilityDetails, AgentContext agent);
-
-        Task<RoomContractSetAvailability?> ApplyDiscounts(RoomContractSetAvailability? response, AgentContext agent, Action<DiscountApplicationResult<RoomContractSetAvailability?>> logAction);
     }
 }
