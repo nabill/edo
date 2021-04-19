@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
@@ -49,18 +50,37 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> Add(int agencyId, CreateDiscountRequest createDiscountRequest)
         {
             return ValidatePercent(createDiscountRequest.DiscountPercent)
-                .Tap(async () =>
+                .Bind(ValidateTargetMarkup)
+                .Tap(UpdateDiscount);
+
+
+            async Task<Result> ValidateTargetMarkup()
+            {
+                var targetMarkup = await _context.MarkupPolicies
+                    .SingleOrDefaultAsync(p => p.Id == createDiscountRequest.TargetMarkupId);
+
+                if (targetMarkup is null)
+                    return Result.Failure($"Could not find markup policy with id {createDiscountRequest.TargetMarkupId}");
+
+                if (targetMarkup.ScopeType != MarkupPolicyScopeType.Global)
+                    return Result.Failure("Cannot apply discount to non-global markup policy");
+
+                return Result.Success();
+            }
+
+
+            Task UpdateDiscount()
+            {
+                _context.Discounts.Add(new Discount
                 {
-                    _context.Discounts.Add(new Discount
-                    {
-                        DiscountPercent = createDiscountRequest.DiscountPercent,
-                        Description = createDiscountRequest.Description,
-                        TargetPolicyId = createDiscountRequest.TargetMarkupId,
-                        IsActive = true,
-                        TargetAgencyId = agencyId
-                    });
-                    await _context.SaveChangesAsync();
+                    DiscountPercent = createDiscountRequest.DiscountPercent,
+                    Description = createDiscountRequest.Description,
+                    TargetPolicyId = createDiscountRequest.TargetMarkupId,
+                    IsActive = true,
+                    TargetAgencyId = agencyId
                 });
+                return _context.SaveChangesAsync();
+            }
         }
 
 
