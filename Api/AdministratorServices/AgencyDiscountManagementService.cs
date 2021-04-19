@@ -51,6 +51,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return ValidatePercent(createDiscountRequest.DiscountPercent)
                 .Bind(ValidateTargetMarkup)
+                .Bind(ValidateAgency)
                 .Tap(UpdateDiscount);
 
 
@@ -67,6 +68,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return Result.Success();
             }
+
+
+            async Task<Result> ValidateAgency()
+                => await _context.Agencies.AnyAsync(a => a.Id == agencyId)
+                    ? Result.Success()
+                    : Result.Failure($"Cannot add an agency with id {agencyId}");
 
 
             Task UpdateDiscount()
