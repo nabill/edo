@@ -15,6 +15,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         Task<bool> CanPayWithAccount(AgentContext agentContext);
         Task<List<AgencyAccountInfo>> GetAgencyAccounts(AgentContext agentContext);
+        Task<List<FullAgencyAccountInfo>> GetAgencyAccounts(int agencyId);
+        Task<Result> SetAgencyAccountSettings(AgencyAccountSettings agencyAccountSettings);
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent);
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId);
         Task<Result<PaymentResponse>> Charge(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService);
