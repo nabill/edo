@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> DeactivateDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
         {
-            var (_, isFailure, error) = await _discountManagementService.Deactivate(agencyId, discountId);
+            var (_, isFailure, error) = await _discountManagementService.Stop(agencyId, discountId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> ActivateDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
         {
-            var (_, isFailure, error) = await _discountManagementService.Activate(agencyId, discountId);
+            var (_, isFailure, error) = await _discountManagementService.Start(agencyId, discountId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

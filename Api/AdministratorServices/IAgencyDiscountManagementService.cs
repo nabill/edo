@@ -9,9 +9,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         Task<List<DiscountInfo>> Get(int agencyId);
         
-        Task<Result> Activate(int agencyId, int discountId);
+        Task<Result> Start(int agencyId, int discountId);
         
-        Task<Result> Deactivate(int agencyId, int discountId);
+        Task<Result> Stop(int agencyId, int discountId);
 
         Task<Result> Add(int agencyId, CreateDiscountRequest discountInfo);
 

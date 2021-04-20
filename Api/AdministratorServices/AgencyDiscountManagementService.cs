@@ -34,11 +34,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Activate(int agencyId, int discountId) 
+        public async Task<Result> Start(int agencyId, int discountId) 
             => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = true));
 
 
-        public async Task<Result> Deactivate(int agencyId, int discountId) 
+        public async Task<Result> Stop(int agencyId, int discountId) 
             => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = false));
 
 
