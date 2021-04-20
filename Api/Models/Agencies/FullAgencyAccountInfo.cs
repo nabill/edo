@@ -4,7 +4,7 @@ using System;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct AgencyAccountFullInfo
+    public readonly struct FullAgencyAccountInfo
     {
         /// <summary>
         /// Account id

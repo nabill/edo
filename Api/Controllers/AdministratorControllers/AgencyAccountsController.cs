@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("{agencyId}/agency-accounts")]
-        [ProducesResponseType(typeof(List<AgencyAccountFullInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Sets agency account is active status
+        /// Changes an agency account activity state
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <param name="agencyAccountId">Agency account Id</param>

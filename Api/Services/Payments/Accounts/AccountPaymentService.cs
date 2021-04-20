@@ -55,10 +55,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .ToListAsync();
 
 
-        public Task<List<AgencyAccountFullInfo>> GetAgencyAccounts(int agencyId)
+        public Task<List<FullAgencyAccountInfo>> GetAgencyAccounts(int agencyId)
             => _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId)
-                .Select(a => new AgencyAccountFullInfo
+                .Select(a => new FullAgencyAccountInfo
                 {
                     Id = a.Id,
                     Balance = new MoneyAmount
