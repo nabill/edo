@@ -19,9 +19,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<DiscountInfo>> Get(int agencyId)
+        public async Task<List<DiscountInfo>> Get(int agencyId)
         {
-            return (from discount in _context.Discounts
+            var query = from discount in _context.Discounts
                 join markupPolicy in _context.MarkupPolicies on discount.TargetPolicyId equals markupPolicy.Id
                 select new DiscountInfo
                 {
@@ -30,7 +30,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     TargetMarkupId = discount.TargetPolicyId,
                     TargetPolicyDescription = markupPolicy.Description,
                     IsActive = discount.IsActive
-                }).ToListAsync();
+                };
+
+            return await query.ToListAsync();
         }
 
 
