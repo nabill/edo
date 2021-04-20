@@ -115,13 +115,13 @@
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest)">
             <summary>
             Changes an agency account activity state
             </summary>
             <param name="agencyId">Agency Id</param>
             <param name="agencyAccountId">Agency account Id</param>
-            <param name="agencyAccountSettings">Editable agency account settings</param>
+            <param name="agencyAccountRequest">Editable agency account settings</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
@@ -1742,6 +1742,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
             <summary>
             Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest.IsActive">
+            <summary>
+            Is the account active
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyId">
+            <summary>
+            Agency Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyAccountId">
+            <summary>
+            Agency account Id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.IsActive">

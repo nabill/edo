@@ -40,14 +40,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <param name="agencyAccountId">Agency account Id</param>
-        /// <param name="agencyAccountSettings">Editable agency account settings</param>
+        /// <param name="agencyAccountRequest">Editable agency account settings</param>
         [HttpPut("{agencyId}/agency-accounts/{agencyAccountId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
-        public async Task<IActionResult> SetAgencyAccountSettings([FromRoute] int agencyId, [FromRoute] int agencyAccountId, [FromBody] AgencyAccountSettings agencyAccountSettings)
+        public async Task<IActionResult> SetAgencyAccountSettings([FromRoute] int agencyId, [FromRoute] int agencyAccountId, [FromBody] AgencyAccountRequest agencyAccountRequest)
         {
-            var (_, isFailure, error) = await _accountPaymentService.SetAgencyAccountSettings(agencyId, agencyAccountId, agencyAccountSettings);
+            var (_, isFailure, error) = await _accountPaymentService.SetAgencyAccountSettings(new AgencyAccountSettings(agencyId, agencyAccountId, agencyAccountRequest.IsActive));
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

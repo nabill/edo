@@ -73,11 +73,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .ToListAsync();
 
 
-        public async Task<Result> SetAgencyAccountSettings(int agencyId, int agencyAccountId, AgencyAccountSettings agencyAccountSettings)
+        public async Task<Result> SetAgencyAccountSettings(AgencyAccountSettings agencyAccountSettings)
         {
-            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(aa => aa.AgencyId == agencyAccountSettings.AgencyId && aa.Id == agencyAccountSettings.AgencyAccountId);
             if (account is null)
-                Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+                Result.Failure($"Account Id {agencyAccountSettings.AgencyAccountId} not found in agency Id {agencyAccountSettings.AgencyId}");
 
             account.IsActive = agencyAccountSettings.IsActive;
             _context.AgencyAccounts.Update(account);
