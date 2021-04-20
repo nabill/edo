@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
-                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), isCheckingOrderNeeded: policy.Order != settings.Order);
+                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), policy);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
@@ -259,7 +259,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private Task<Result> ValidatePolicy(MarkupPolicyData policyData, bool isCheckingOrderNeeded = true)
+        private Task<Result> ValidatePolicy(MarkupPolicyData policyData, MarkupPolicy sourcePolicy = null)
         {
             return ValidateTemplate()
                 .Ensure(ScopeIsValid, "Invalid scope data")
@@ -278,7 +278,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<bool> PolicyOrderIsUniqueForScope()
             {
-                if (!isCheckingOrderNeeded)
+                if (sourcePolicy is not null && sourcePolicy.Order == policyData.Settings.Order)
                     return true;
                 
                 var isSameOrderPolicyExist = (await GetPoliciesForScope(policyData.Scope))
