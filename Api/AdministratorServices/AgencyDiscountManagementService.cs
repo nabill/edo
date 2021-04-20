@@ -34,18 +34,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Activate(int agencyId, int discountId)
-        {
-            return await Get(agencyId, discountId)
-                .Map(d => Update(d, discount => discount.IsActive = true));
-        }
+        public async Task<Result> Activate(int agencyId, int discountId) 
+            => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = true));
 
 
-        public async Task<Result> Deactivate(int agencyId, int discountId)
-        {
-            return await Get(agencyId, discountId)
-                .Map(d => Update(d, discount => discount.IsActive = false));
-        }
+        public async Task<Result> Deactivate(int agencyId, int discountId) 
+            => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = false));
 
 
         public Task<Result> Add(int agencyId, CreateDiscountRequest createDiscountRequest)
@@ -74,7 +68,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> ValidateAgency()
                 => await _context.Agencies.AnyAsync(a => a.Id == agencyId)
                     ? Result.Success()
-                    : Result.Failure($"Cannot add an agency with id {agencyId}");
+                    : Result.Failure($"Could not find an agency with id {agencyId}");
 
 
             Task UpdateDiscount()
