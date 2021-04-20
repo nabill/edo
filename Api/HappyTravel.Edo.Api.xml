@@ -512,6 +512,11 @@
                 Returns agencies productivity report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns full bookings report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
@@ -2428,6 +2433,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.EnabledSuppliers">
             <summary>
             Suppliers enabled for the client
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.HasDirectContractsFilter">
+            <summary>
+            Is direct contracts only available for the client
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
