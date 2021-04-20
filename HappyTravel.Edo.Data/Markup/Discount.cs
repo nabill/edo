@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Data.Markup
         public int TargetPolicyId { get; set; }
         public decimal DiscountPercent { get; set; }
         public bool IsActive { get; set; }
+        public string Description { get; set; }
     }
 }
