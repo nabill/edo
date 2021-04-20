@@ -109,6 +109,20 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
+            <summary>
+                Gets agency accounts list
+            </summary>
+            <param name="agencyId">Agency Id</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest)">
+            <summary>
+            Changes an agency account activity state
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <param name="agencyAccountId">Agency account Id</param>
+            <param name="agencyAccountRequest">Editable agency account settings</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.GetAgencyDiscounts(System.Int32)">
             <summary>
             Gets discounts for an agency.
@@ -148,20 +162,6 @@
             <param name="discountId">Id of the discount.</param>
             <param name="editDiscountRequest">Updated settings.</param>
             <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
-            <summary>
-                Gets agency accounts list
-            </summary>
-            <param name="agencyId">Agency Id</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest)">
-            <summary>
-            Changes an agency account activity state
-            </summary>
-            <param name="agencyId">Agency Id</param>
-            <param name="agencyAccountId">Agency account Id</param>
-            <param name="agencyAccountRequest">Editable agency account settings</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
