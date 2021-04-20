@@ -109,6 +109,60 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
+            <summary>
+                Gets agency accounts list
+            </summary>
+            <param name="agencyId">Agency Id</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest)">
+            <summary>
+            Changes an agency account activity state
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <param name="agencyAccountId">Agency account Id</param>
+            <param name="agencyAccountRequest">Editable agency account settings</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.GetAgencyDiscounts(System.Int32)">
+            <summary>
+            Gets discounts for an agency.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <returns>List of discounts</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.AddDiscount(System.Int32,HappyTravel.Edo.Api.AdministratorServices.Models.CreateDiscountRequest)">
+            <summary>
+            Creates discount
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="createDiscountRequest">Discount settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StopDiscount(System.Int32,System.Int32)">
+            <summary>
+                Deactivates discount
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="discountId">Id of the discount to deactivate.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StartDiscount(System.Int32,System.Int32)">
+            <summary>
+                Activates discount
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="discountId">Id of the discount to deactivate.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.UpdateDiscount(System.Int32,System.Int32,HappyTravel.Edo.Api.AdministratorServices.Models.EditDiscountRequest)">
+            <summary>
+                Updates discount settings.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="discountId">Id of the discount.</param>
+            <param name="editDiscountRequest">Updated settings.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -1730,6 +1784,26 @@
             Balance
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest.IsActive">
+            <summary>
+            Is the account active
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyId">
+            <summary>
+            Agency Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyAccountId">
+            <summary>
+            Agency account Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.IsActive">
+            <summary>
+            Is the account active
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -1853,6 +1927,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.BillingEmail">
             <summary>
             E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
+            <summary>
+            Account id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Currency">
+            <summary>
+            Currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Balance">
+            <summary>
+            Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Created">
+            <summary>
+            Date and time of adding account
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.IsActive">
+            <summary>
+            Is the account active
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Name">

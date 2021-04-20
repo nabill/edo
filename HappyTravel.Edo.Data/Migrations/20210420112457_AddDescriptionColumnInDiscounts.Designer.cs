@@ -6,8 +6,11 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210420112457_AddDescriptionColumnInDiscounts")]
+    partial class AddDescriptionColumnInDiscounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1122,22 +1126,19 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int?>("AgencyId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
-                    b.Property<JsonDocument>("Message")
-                        .HasColumnType("jsonb");
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
 
                     b.Property<int>("Receiver")
                         .HasColumnType("integer");
 
-                    b.Property<JsonDocument>("SendingSettings")
+                    b.Property<Dictionary<ProtocolTypes, ISendingSettings>>("SendingSettings")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("Type")
@@ -1164,7 +1165,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int?>("AgencyId")
+                    b.Property<int>("AgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
                     b.Property<int>("EnabledProtocols")
@@ -1176,15 +1180,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserType")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("AgencyId", "UserId", "UserType", "Type")
+                    b.HasIndex("AgencyId", "AgentId", "Type")
                         .IsUnique();
 
                     b.ToTable("NotificationOptions");
