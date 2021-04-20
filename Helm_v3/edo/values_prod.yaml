@@ -8,7 +8,7 @@ image:
   repository: registry.happytravel.com/edo
   tag: latest
   pullPolicy: Always
-imagePullSecrets: 
+imagePullSecrets:
   - name: travel-registry
 nameOverride: ""
 fullnameOverride: ""
