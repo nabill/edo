@@ -124,7 +124,7 @@
             <param name="createDiscountRequest">Discount settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.DeactivateDiscount(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StopDiscount(System.Int32,System.Int32)">
             <summary>
                 Deactivates discount
             </summary>
@@ -132,7 +132,7 @@
             <param name="discountId">Id of the discount to deactivate.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.ActivateDiscount(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StartDiscount(System.Int32,System.Int32)">
             <summary>
                 Activates discount
             </summary>
