@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> DeactivateDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
+        public async Task<IActionResult> StopDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
         {
             var (_, isFailure, error) = await _discountManagementService.Stop(agencyId, discountId);
             if (isFailure)
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ActivateDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
+        public async Task<IActionResult> StartDiscount([FromRoute] int agencyId, [FromRoute] int discountId)
         {
             var (_, isFailure, error) = await _discountManagementService.Start(agencyId, discountId);
             if (isFailure)
