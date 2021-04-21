@@ -50,13 +50,6 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgencyBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the agency
-            </summary>
-            <param name="agencyId">Agency Id</param>
-            <returns>List of bookings</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
             <summary>
                 Gets setting which tells what payment methods to show for booking payment.
@@ -283,13 +276,6 @@
             <param name="confirmationRequest">Confirmation request</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the counterparty
-            </summary>
-            <param name="counterpartyId">Counterparty Id</param>
-            <returns>List of bookings</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -438,7 +424,7 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
             <summary>
                 Send invitation to administrator.
             </summary>
