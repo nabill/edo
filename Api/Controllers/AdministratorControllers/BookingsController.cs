@@ -27,6 +27,63 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _bookingService = bookingService;
             _bookingManagementService = bookingManagementService;
         }
+        
+        
+        /// <summary>
+        ///     Gets a list of all bookings made by the agency
+        /// </summary>
+        /// <param name="agencyId">Agency Id</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("agencies/{agencyId}/accommodations/bookings")]
+        [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetAgencyBookings([FromRoute] int agencyId)
+        {
+            var (_, isFailure, bookings, error) = await _bookingService.GetAgencyBookings(agencyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookings);
+        }
+
+
+        /// <summary>
+        ///     Gets a list of all bookings made by the counterparty
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("counterparties/{counterpartyId}/accommodations/bookings")]
+        [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetCounterpartyBookings([FromRoute] int counterpartyId)
+        {
+            var (_, isFailure, bookings, error) = await _bookingService.GetCounterpartyBookings(counterpartyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookings);
+        }
+
+
+        /// <summary>
+        ///     Gets a list of all bookings made by the agent
+        /// </summary>
+        /// <param name="agentId">Agent Id</param>
+        /// <returns>List of bookings</returns>
+        [HttpGet("agents/{agentId}/accommodations/bookings")]
+        [ProducesResponseType(typeof(List<Booking>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetAgentBookings([FromRoute] int agentId)
+        {
+            var (_, isFailure, bookings, error) = await _bookingService.GetAgentBookings(agentId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(bookings);
+        }
 
 
         /// <summary>

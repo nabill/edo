@@ -34,25 +34,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets a list of all bookings made by the agency
-        /// </summary>
-        /// <param name="agencyId">Agency Id</param>
-        /// <returns>List of bookings</returns>
-        [HttpGet("{agencyId}/accommodations/bookings")]
-        [ProducesResponseType(typeof(List<Booking>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> GetAgencyBookings([FromRoute] int agencyId)
-        {
-            var (_, isFailure, bookings, error) = await _bookingService.GetAgencyBookings(agencyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookings);
-        }
-
-
-        /// <summary>
         ///     Gets setting which tells what payment methods to show for booking payment.
         /// </summary>
         /// <param name="agencyId">Id of an agency to get settings for</param>
