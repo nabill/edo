@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
         public BookingStatuses Status { get; init; }
         public DateTime ChangeTime { get; init; }
         public string AccommodationName { get; init; }
-        public Photo AccommodationPhoto { get; init; }
+        public ImageInfo AccommodationPhoto { get; init; }
         public DateTime CheckInDate { get; init; }
         public DateTime CheckOutDate { get; init; }
     }
