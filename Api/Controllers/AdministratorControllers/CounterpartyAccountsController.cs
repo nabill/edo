@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/")]
+    [Route("api/{v:apiVersion}/admin")]
     [Produces("application/json")]
     public class CounterpartyAccountsController : BaseController
     {
