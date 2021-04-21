@@ -4,15 +4,9 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Money.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Models.Management;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -23,14 +17,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService,
-            IAgencyAccountService agencyAccountService,
+        public PaymentsController(IAdministratorContext administratorContext,
             ICreditCardPaymentConfirmationService creditCardPaymentConfirmationService,
             IBookingOfflinePaymentService offlinePaymentService)
         {
             _administratorContext = administratorContext;
-            _counterpartyAccountService = counterpartyAccountService;
-            _agencyAccountService = agencyAccountService;
             _creditCardPaymentConfirmationService = creditCardPaymentConfirmationService;
             _offlinePaymentService = offlinePaymentService;
         }
@@ -40,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Completes payment manually
         /// </summary>
         /// <param name="bookingId">Booking id for completion</param>
-        [HttpPost("offline/{bookingId}")]
+        [HttpPost("offline/accommodations/bookings/{bookingId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
@@ -58,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Confirm credit card payment
         /// </summary>
-        [HttpPost("credit-card/{bookingId}/confirm")]
+        [HttpPost("credit-card/accommodations/bookings/{bookingId}/confirm")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
@@ -72,12 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-      
-
-
-        private readonly IAgencyAccountService _agencyAccountService;
         private readonly IAdministratorContext _administratorContext;
-        private readonly ICounterpartyAccountService _counterpartyAccountService;
         private readonly ICreditCardPaymentConfirmationService _creditCardPaymentConfirmationService;
         private readonly IBookingOfflinePaymentService _offlinePaymentService;
     }
