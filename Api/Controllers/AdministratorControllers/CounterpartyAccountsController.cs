@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty</param>
         /// <param name="currency">Currency</param>
-        [HttpGet("counterparties/{counterpartyId}/counterparty-accounts/{currency}/balance/")]
+        [HttpGet("counterparties/{counterpartyId}/counterparty-accounts/{currency}/balance")]
         [ProducesResponseType(typeof(CounterpartyBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
