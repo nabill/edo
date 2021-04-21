@@ -45,6 +45,7 @@ namespace HappyTravel.Edo.Data.Bookings
         
         public string AccommodationId { get; set; }
         public string AccommodationName { get; set; }
+        public AccommodationInfo AccommodationInfo { get; set; }
         public AccommodationLocation Location { get; set; }
         
         public List<string> Tags { get; set; }

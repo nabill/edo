@@ -2,6 +2,6 @@
 {
     public class AccommodationInfo
     {
-        public Photo Photo { get; set; }
+        public ImageInfo Photo { get; set; }
     }
 }
