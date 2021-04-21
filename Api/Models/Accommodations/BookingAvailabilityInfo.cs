@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
+            AccommodationInfo accommodationInfo,
             RoomContractSet roomContractSet,
             string zoneName,
             string localityName,
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
+            AccommodationInfo = accommodationInfo;
             RoomContractSet = roomContractSet;
             ZoneName = zoneName;
             LocalityName = localityName;
@@ -58,6 +60,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
         public string AccommodationId { get; }
         public string AccommodationName { get; }
+        public AccommodationInfo AccommodationInfo { get; }
         public RoomContractSet RoomContractSet { get; }
         public string ZoneName { get; }
         public string LocalityName { get; }
