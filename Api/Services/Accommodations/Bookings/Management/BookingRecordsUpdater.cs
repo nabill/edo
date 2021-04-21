@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
-            _context.Entry(booking).State = EntityState.Detached;
+            _context.Detach(booking);
 
 
             static List<BookedRoom> UpdateSupplierReferenceCodes(List<BookedRoom> existingRooms, List<SlimRoomOccupation> updatedRooms)
