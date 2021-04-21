@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Services.Files;
-using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,13 +24,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService,
             IContractFileManagementService contractFileManagementService,
-            ICounterpartyVerificationService counterpartyVerificationService,
-            IBookingService bookingService)
+            ICounterpartyVerificationService counterpartyVerificationService)
         {
             _counterpartyManagementService = counterpartyManagementService;
             _contractFileManagementService = contractFileManagementService;
             _counterpartyVerificationService = counterpartyVerificationService;
-            _bookingService = bookingService;
         }
 
 
@@ -255,6 +252,5 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IContractFileManagementService _contractFileManagementService;
         private readonly ICounterpartyVerificationService _counterpartyVerificationService;
-        private readonly IBookingService _bookingService;
     }
 }

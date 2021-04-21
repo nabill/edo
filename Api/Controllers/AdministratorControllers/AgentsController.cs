@@ -6,11 +6,9 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -23,13 +21,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService,
             IAgentMovementService agentMovementService,
-            IApiClientManagementService apiClientManagementService,
-            IBookingService bookingService)
+            IApiClientManagementService apiClientManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentMovementService = agentMovementService;
             _apiClientManagementService = apiClientManagementService;
-            _bookingService = bookingService;
         }
 
 
@@ -137,6 +133,5 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAgentSystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentMovementService _agentMovementService;
         private readonly IApiClientManagementService _apiClientManagementService;
-        private readonly IBookingService _bookingService;
     }
 }
