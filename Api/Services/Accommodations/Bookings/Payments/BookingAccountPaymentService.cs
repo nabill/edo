@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error while sending receipt: {error}");
 
-                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email, apiCaller);
                 return chargeMessage;
             }
 

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HappyTravel.Edo.NotificationCenter.Models;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Notifications.Enums;
 
-namespace HappyTravel.Edo.NotificationCenter.Services.Notification
+namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public interface INotificationService
     {
