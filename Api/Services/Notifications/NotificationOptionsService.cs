@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Notifications;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Notifications.Infrastructure;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Notifications
 {
@@ -18,30 +18,30 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        public async Task<Result<SlimNotificationOptions>> GetNotificationOptions(NotificationTypes type, SlimAgentContext agent)
+        public async Task<Result<SlimNotificationOptions>> GetNotificationOptions(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType)
         {
-            var options = await GetOptions(type, agent.AgentId, agent.AgencyId);
+            var options = await GetOptions(userId, userType, agencyId, notificationType);
 
             return options is null 
-                ? NotificationOptionsHelper.TryGetDefaultOptions(type) 
+                ? NotificationOptionsHelper.TryGetDefaultOptions(notificationType) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
 
-        public Task<Result> Update(NotificationTypes type, SlimNotificationOptions options, SlimAgentContext agentContext)
+        public async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
         {
-            return Validate()
+            return await Validate()
                 .Bind(SaveOptions);
 
 
             Result<SlimNotificationOptions> Validate()
             {
-                var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(type);
+                var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(notificationType);
                 if (defaultOptions.IsFailure)
                     return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
                 if (defaultOptions.Value.IsMandatory && options.EnabledProtocols != default)
-                    return Result.Failure<SlimNotificationOptions>($"Notification type '{type}' is mandatory");
+                    return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
 
                 return defaultOptions;
             }
@@ -49,14 +49,15 @@ namespace HappyTravel.Edo.Api.Services.Notifications
 
             async Task<Result> SaveOptions(SlimNotificationOptions defaultOptions)
             {
-                var entity = await GetOptions(type, agentContext.AgentId, agentContext.AgencyId);
+                var entity = await GetOptions(userId, userType, agencyId, notificationType);
 
                 if (entity is null)
                 {
                     _context.NotificationOptions.Add(new NotificationOptions
                     {
-                        AgentId = agentContext.AgentId,
-                        AgencyId = agentContext.AgencyId,
+                        UserId = userId,
+                        UserType = userType,
+                        AgencyId = agencyId,
                         EnabledProtocols = options.EnabledProtocols,
                         IsMandatory = defaultOptions.IsMandatory
                     });
@@ -73,9 +74,9 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private Task<NotificationOptions> GetOptions(NotificationTypes type, int agentId, int agencyId) 
+        private Task<NotificationOptions> GetOptions(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType) 
             => _context.NotificationOptions
-                .SingleOrDefaultAsync(o => o.AgencyId == agencyId && o.AgentId == agentId && o.Type == type);
+                .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
 
 
         private readonly EdoContext _context;

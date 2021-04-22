@@ -5,17 +5,26 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.NotificationCenter.Models;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Api.NotificationCenter.Hubs;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
+using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
+using HappyTravel.Edo.Api.Infrastructure;
 
-namespace HappyTravel.Edo.NotificationCenter.Services.Notification
+namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public class NotificationService : INotificationService
     {
-        public NotificationService(EdoContext context, Hub.SignalRSender signalRSender)
+        public NotificationService(EdoContext context, 
+            IHubContext<AgentNotificationHub, INotificationClient> agentNotificationHub,
+            IHubContext<AdminNotificationHub, INotificationClient> adminNotificationHub,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _signalRSender = signalRSender;
+            _agentNotificationHub = agentNotificationHub;
+            _adminNotificationHub = adminNotificationHub;
+            _dateTimeProvider = dateTimeProvider;
         }
         
 
@@ -25,10 +34,11 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
             {
                 Receiver = notification.Receiver,
                 UserId = notification.UserId,
+                AgencyId = notification.AgencyId,
                 Message = notification.Message,
                 Type = notification.Type,
-                SendingSettings = notification.SendingSettings,
-                Created = DateTime.UtcNow
+                SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
+                Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();
 
@@ -41,8 +51,17 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
                     ProtocolTypes.Email when settings is EmailSettings emailSettings 
                         => SendEmail(emailSettings),
                     
-                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings 
-                        => _signalRSender.FireNotificationAddedEvent(notification.Receiver, notification.UserId, entry.Entity.Id, notification.Message),
+                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
+                        => notification.Receiver switch 
+                        {
+                            ReceiverTypes.AgentApp
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, /*entry.Entity.Id*/1, notification.Message),
+                            
+                            ReceiverTypes.AdminPanel
+                                => SendMessageToAdmin(notification.UserId, entry.Entity.Id, notification.Message),
+
+                            _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
+                        },
                     
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
@@ -95,7 +114,25 @@ namespace HappyTravel.Edo.NotificationCenter.Services.Notification
         }
 
 
-        private readonly Hub.SignalRSender _signalRSender;
+        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
+        {
+            await _agentNotificationHub.Clients
+                .Group($"{agencyId}-{userId}")
+                .ReceiveMessage(messageId, message);
+        }
+
+
+        private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
+        {
+            await _agentNotificationHub.Clients
+                .Group($"admin-{userId}")
+                .ReceiveMessage(messageId, message);
+        }
+
+
         private readonly EdoContext _context;
+        private readonly IHubContext<AgentNotificationHub, INotificationClient> _agentNotificationHub;
+        private readonly IHubContext<AdminNotificationHub, INotificationClient> _adminNotificationHub;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
