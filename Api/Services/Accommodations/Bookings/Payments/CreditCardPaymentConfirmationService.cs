@@ -55,29 +55,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             }
 
 
-            async Task<Result> SendReceipt(Booking booking)
+            async Task<Result<Data.Management.Administrator>> SendReceipt(Booking booking)
             {
                 var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking);
                 if (isReceiptFailure)
-                    return Result.Failure<Booking>(receiptError);
+                    return Result.Failure<Data.Management.Administrator>(receiptError);
 
                 var email = await _edoContext.Agents
                     .Where(a => a.Id == booking.AgentId)
                     .Select(a => a.Email)
                     .SingleOrDefaultAsync();
 
-                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, email);
-                return Result.Success();
+                var (_, isFailure, administrator, error) = await _administratorContext.GetCurrent();
+                if (isFailure)
+                    return Result.Failure<Data.Management.Administrator>(error);
+
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, email, new Models.Users.ApiCaller(administrator.Id, ApiCallerTypes.Admin));
+                
+                return administrator;
             }
 
 
-            async Task<Result> SaveConfirmation()
+            async Task<Result> SaveConfirmation(Data.Management.Administrator administrator)
             {
-                var (_, isFailure, administrator, error) = await _administratorContext.GetCurrent();
-
-                if (isFailure)
-                    return Result.Failure(error);
-
                 await _edoContext.CreditCardPaymentConfirmations.AddAsync(new CreditCardPaymentConfirmation
                 {
                     BookingId = bookingId,
