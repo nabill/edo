@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Notifications.Models
 {
-    public readonly struct EmailSettings : ISendingSettings
+    public class EmailSettings : ISendingSettings
     {
-        public List<string> Emails { get; init; }
-        public string TemplateId { get; init; }
+        public List<string> Emails { get; set; }
+        public string TemplateId { get; set; }
     }
 }

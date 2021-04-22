@@ -11,6 +11,6 @@ namespace HappyTravel.Edo.Notifications.Models
         public ReceiverTypes Receiver { get; init; }
         public JsonDocument Message { get; init; }
         public NotificationTypes Type { get; init; }
-        public Dictionary<ProtocolTypes, ISendingSettings> SendingSettings { get; init; }
+        public Dictionary<ProtocolTypes, object> SendingSettings { get; init; }
     }
 }
