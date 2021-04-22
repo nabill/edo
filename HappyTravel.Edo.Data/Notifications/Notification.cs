@@ -1,19 +1,26 @@
 using System;
-using System.Collections.Generic;
+using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Notifications.Models;
 
 namespace HappyTravel.Edo.Data.Notifications
 {
-    public class Notification : IEntity
+    public class Notification : IEntity, IDisposable
     {
         public int Id { get; set; }
         public ReceiverTypes Receiver { get; set; }
         public int UserId { get; set; }
-        public string Message { get; set; }
+        public int? AgencyId { get; set; }
+        public JsonDocument Message { get; set; }
         public NotificationTypes Type { get; set; }
-        public Dictionary<ProtocolTypes, ISendingSettings> SendingSettings { get; set; }
+        public JsonDocument SendingSettings { get; set; }
         public DateTime Created { get; set; }
         public bool IsRead { get; set; }
+
+
+        public void Dispose()
+        {
+            Message?.Dispose();
+            SendingSettings?.Dispose();
+        }
     }
 }
