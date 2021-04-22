@@ -17,8 +17,8 @@ namespace HappyTravel.Edo.Data.Migrations
                 newName: "UserType");
 
             migrationBuilder.DropColumn(
-                            name: "Message",
-                            table: "Notifications");
+                name: "Message",
+                table: "Notifications");
 
             migrationBuilder.AddColumn<JsonDocument>(
                 name: "Message",
