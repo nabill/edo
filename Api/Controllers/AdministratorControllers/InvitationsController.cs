@@ -14,11 +14,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/management")]
+    [Route("api/{v:apiVersion}/admin/invitations")]
     [Produces("application/json")]
-    public class ManagementController : BaseController
+    public class InvitationsController : BaseController
     {
-        public ManagementController(IInvitationRecordService invitationRecordService,
+        public InvitationsController(IInvitationRecordService invitationRecordService,
             IAdminInvitationAcceptService adminInvitationAcceptService,
             IAdminInvitationCreateService adminInvitationCreateService,
             ITokenInfoAccessor tokenInfoAccessor,
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="invitationInfo">Administrator invitation info.</param>
         /// <returns></returns>
-        [HttpPost("invite")]
+        [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorInvitation)]
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="invitationCode">Invitation code.</param>
         /// <returns></returns>
-        [HttpPost("register")]
+        [HttpPost("accept")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> RegisterAdministrator([FromBody] string invitationCode)
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Disable invitation.
         /// </summary>
         /// <param name="codeHash">Invitation code hash.</param>
-        [HttpPost("invitations/{codeHash}/disable")]
+        [HttpPost("{codeHash}/disable")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DisableInvitation(string codeHash)
