@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Notifications.Models
 {
-    public class WebSocketSettings : ISendingSettings
+    public readonly struct WebSocketSettings : ISendingSettings
     {
 
     }
