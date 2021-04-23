@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Counterparties;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
@@ -262,6 +263,21 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     }
                 })
                 .ToListAsync();
+        }
+
+
+        public async Task<Result> SetCounterpartyAccountSettings(CounterpartyAccountSettings counterpartyAccountSettings)
+        {
+            var account = await _context.CounterpartyAccounts
+                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyAccountSettings.CounterpartyId && aa.Id == counterpartyAccountSettings.CounterpartyAccountId);
+            if (account is null)
+                Result.Failure($"Account Id {counterpartyAccountSettings.CounterpartyAccountId} not found in agency Id {counterpartyAccountSettings.CounterpartyId}");
+
+            account.IsActive = counterpartyAccountSettings.IsActive;
+            _context.CounterpartyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
         }
 
 

@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Gets agency accounts list
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
-        [HttpGet("agencies/{agencyId}/agency-accounts")]
+        [HttpGet("agencies/{agencyId}/accounts")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <param name="agencyAccountId">Agency account Id</param>
         /// <param name="agencyAccountRequest">Editable agency account settings</param>
-        [HttpPut("agencies/{agencyId}/agency-accounts/{agencyAccountId}")]
+        [HttpPut("agencies/{agencyId}/accounts/{agencyAccountId}")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]

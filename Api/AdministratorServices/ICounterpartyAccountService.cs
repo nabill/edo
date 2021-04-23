@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Counterparties;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
@@ -24,5 +25,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> DecreaseManually(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller);
         
         Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId);
+
+        Task<Result> SetCounterpartyAccountSettings(CounterpartyAccountSettings agencyAccountSettings);
     }
 }

@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Counterparties;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -148,13 +149,36 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Gets a list of counterparty accounts
+        /// Gets counterparty accounts list
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        /// <param name="counterpartyId">Counterparty Id</param>
         [HttpGet("counterparties/{counterpartyId}/accounts")]
         [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetAccounts(int counterpartyId) => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
+
+
+        /// <summary>
+        /// Changes a counterparty account activity state
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id</param>
+        /// <param name="counterpartyAccountId">Counterparty account Id</param>
+        /// <param name="counterpartyAccountRequest">Editable counterparty account settings</param>
+        [HttpPut("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> SetCounterpartyAccountSettings([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
+            [FromBody] CounterpartyAccountRequest counterpartyAccountRequest)
+        {
+            var (_, isFailure, error) = await _counterpartyAccountService.SetCounterpartyAccountSettings(
+                new CounterpartyAccountSettings(counterpartyId, counterpartyAccountId, counterpartyAccountRequest.IsActive));
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok();
+        }
 
 
         private readonly IAdministratorContext _administratorContext;
