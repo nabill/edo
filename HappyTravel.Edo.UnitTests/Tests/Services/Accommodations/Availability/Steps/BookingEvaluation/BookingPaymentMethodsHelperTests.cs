@@ -93,8 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
         
         
-        // TODO: https://github.com/happy-travel/agent-app-project/issues/132
-        [Fact(Skip = "Revert when offline payments will be supported")]
+        [Fact]
         public void Not_apr_should_return_all_payment_methods_when_deadline_is_not_reached()
         {
             var availability = CreateAvailability(
@@ -110,8 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
         
         
-        // TODO: https://github.com/happy-travel/agent-app-project/issues/132
-        [Fact(Skip = "Revert when offline payments will be supported")]
+        [Fact]
         public void Not_apr_should_return_no_payment_methods_when_deadline_is_not_reached_and_hidden()
         {
             var availability = CreateAvailability(
@@ -159,8 +157,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
 
 
-        // TODO: https://github.com/happy-travel/agent-app-project/issues/132
-        [Fact(Skip = "Revert when offline payments will be supported")]
+        [Fact]
         public void Contract_kind_card_payments_should_match()
         {
             var availability = CreateAvailability(
@@ -176,8 +173,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
 
 
-        // TODO: https://github.com/happy-travel/agent-app-project/issues/132
-        [Fact(Skip = "Revert when offline payments will be supported")]
+        [Fact]
         public void Contract_kind_cash_payments_should_match()
         {
             var availability = CreateAvailability(
@@ -193,8 +189,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
 
 
-        // TODO: https://github.com/happy-travel/agent-app-project/issues/132
-        [Fact(Skip = "Revert when offline payments will be supported")]
+        [Fact]
         public void Contract_kind_credit_payments_should_match()
         {
             var availability = CreateAvailability(
