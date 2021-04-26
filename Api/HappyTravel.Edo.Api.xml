@@ -56,27 +56,12 @@
             </summary>
             <returns>Current administrator information.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
-            <summary>
-                Gets setting which tells what payment methods to show for booking payment.
-            </summary>
-            <param name="agencyId">Id of an agency to get settings for</param>
-            <returns>Displayed payment methods setting</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
             <summary>
                 Gets agent's availability search settings
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetDisplayedPaymentOptions(HappyTravel.Edo.Common.Enums.AgencySettings.DisplayedPaymentOptionsSettings,System.Int32)">
-            <summary>
-                Sets setting which tells what payment methods to show for booking payment.
-            </summary>
-            <param name="settings">Settings to set</param>
-            <param name="agencyId">Id of an agency to set settings for</param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAccommodationBookingSettings,System.Int32)">
             <summary>
@@ -755,12 +740,6 @@
                 Gets Advanced Purchase Rates settings for an agency.
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetDisplayedPaymentOptions">
-            <summary>
-                Gets setting which tells what payment methods to show for booking payment.
-            </summary>
-            <returns>Displayed payment methods setting</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
