@@ -164,16 +164,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id</param>
         /// <param name="counterpartyAccountId">Counterparty account Id</param>
-        /// <param name="counterpartyAccountRequest">Editable counterparty account settings</param>
+        /// <param name="counterpartyAccountEditRequest">Editable counterparty account settings</param>
         [HttpPut("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SetCounterpartyAccountSettings([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
-            [FromBody] CounterpartyAccountRequest counterpartyAccountRequest)
+            [FromBody] CounterpartyAccountEditRequest counterpartyAccountEditRequest)
         {
             var (_, isFailure, error) = await _counterpartyAccountService.SetCounterpartyAccountSettings(
-                new CounterpartyAccountSettings(counterpartyId, counterpartyAccountId, counterpartyAccountRequest.IsActive));
+                new CounterpartyAccountSettings(counterpartyId, counterpartyAccountId, counterpartyAccountEditRequest.IsActive));
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

@@ -2,10 +2,10 @@
 
 namespace HappyTravel.Edo.Api.Models.Counterparties
 {
-    public readonly struct CounterpartyAccountRequest
+    public readonly struct CounterpartyAccountEditRequest
     {
         [JsonConstructor]
-        public CounterpartyAccountRequest(bool isActive)
+        public CounterpartyAccountEditRequest(bool isActive)
         {
             IsActive = isActive;
         }
