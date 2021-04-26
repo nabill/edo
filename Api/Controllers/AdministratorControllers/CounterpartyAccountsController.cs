@@ -5,7 +5,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Counterparties;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;

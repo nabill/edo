@@ -5,7 +5,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Counterparties;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;

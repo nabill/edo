@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers

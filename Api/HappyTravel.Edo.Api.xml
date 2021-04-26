@@ -1798,11 +1798,6 @@
             List of available room contracts sets
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountEditRequest.IsActive">
-            <summary>
-            Is the account active
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
             <summary>
             Account id
@@ -1816,21 +1811,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
             <summary>
             Balance
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyId">
-            <summary>
-            Agency Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyAccountId">
-            <summary>
-            Agency account Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.IsActive">
-            <summary>
-            Is the account active
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
@@ -2712,26 +2692,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
             <summary>
                 Indicates if extra cot needed.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountEditRequest.IsActive">
-            <summary>
-            Is the account active
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountSettings.CounterpartyId">
-            <summary>
-            Counterparty Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountSettings.CounterpartyAccountId">
-            <summary>
-            Counterparty account Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountSettings.IsActive">
-            <summary>
-            Is the account active
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Name">
