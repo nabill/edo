@@ -247,9 +247,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<CounterpartyAccountInfo>> Get(int counterpartyId)
+        public async Task<List<CounterpartyAccountInfo>> Get(int counterpartyId)
         {
-            return _context.CounterpartyAccounts
+            return await _context.CounterpartyAccounts
                 .Where(c => c.CounterpartyId == counterpartyId)
                 .Select(c => new CounterpartyAccountInfo
                 {

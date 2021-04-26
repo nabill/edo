@@ -28,8 +28,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<FullAgencyAccountInfo>> Get(int agencyId)
-            => _context.AgencyAccounts
+        public async Task<List<FullAgencyAccountInfo>> Get(int agencyId)
+            => await _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId)
                 .Select(a => new FullAgencyAccountInfo
                 {
