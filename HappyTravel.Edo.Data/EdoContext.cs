@@ -572,6 +572,9 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.AccommodationName)
                     .IsRequired();
 
+                booking.Property(b => b.AccommodationInfo)
+                    .HasColumnType("jsonb");
+
                 booking.Property(b => b.Location)
                     .HasColumnType("jsonb");
 
