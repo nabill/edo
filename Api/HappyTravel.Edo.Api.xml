@@ -115,13 +115,21 @@
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountEditRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.ActivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-            Changes the activity state of the agency account
+            Activates specified agency account.
             </summary>
-            <param name="agencyId">Agency Id</param>
-            <param name="agencyAccountId">Agency account Id</param>
-            <param name="agencyAccountEditRequest">Editable agency account settings</param>
+            <param name="agencyId">Agency Id.</param>
+            <param name="agencyAccountId">Agency account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for activation.</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.DeactivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+            Deactivates specified agency account.
+            </summary>
+            <param name="agencyId">Agency Id.</param>
+            <param name="agencyAccountId">Agency account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for deactivation.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.IncreaseMoneyManuallyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>

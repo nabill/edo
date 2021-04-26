@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
@@ -11,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -22,6 +25,56 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             _context = context;
             _locker = locker;
             _auditService = auditService;
+        }
+
+
+        public Task<List<FullAgencyAccountInfo>> GetAgencyAccounts(int agencyId)
+            => _context.AgencyAccounts
+                .Where(a => a.AgencyId == agencyId)
+                .Select(a => new FullAgencyAccountInfo
+                {
+                    Id = a.Id,
+                    Balance = new MoneyAmount
+                    {
+                        Amount = a.Balance,
+                        Currency = a.Currency
+                    },
+                    Currency = a.Currency,
+                    Created = a.Created,
+                    IsActive = a.IsActive
+                })
+                .ToListAsync();
+
+
+        public async Task<Result> ActivateAgencyAccount(int agencyId, int agencyAccountId, string reason)
+        {
+            var account = await _context.AgencyAccounts
+                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+
+            if (account is null)
+                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+
+            account.IsActive = true;
+            _context.AgencyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
+        public async Task<Result> DeactivateAgencyAccount(int agencyId, int agencyAccountId, string reason)
+        {
+            var account = await _context.AgencyAccounts
+                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+
+            if (account is null)
+                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+
+            account.IsActive = false;
+            _context.AgencyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
         }
 
 
