@@ -47,35 +47,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public async Task<Result> Activate(int agencyId, int agencyAccountId, string reason)
-        {
-            var account = await _context.AgencyAccounts
-                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
-
-            if (account is null)
-                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
-
-            account.IsActive = true;
-            _context.AgencyAccounts.Update(account);
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        }
+            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: true);
 
 
         public async Task<Result> Deactivate(int agencyId, int agencyAccountId, string reason)
-        {
-            var account = await _context.AgencyAccounts
-                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
-
-            if (account is null)
-                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
-
-            account.IsActive = false;
-            _context.AgencyAccounts.Update(account);
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        }
+            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: false);
 
 
         public async Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
@@ -155,6 +131,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 await _context.SaveChangesAsync();
                 return agencyAccount;
             }
+        }
+
+
+        private async Task<Result> ChangeAccountActivity(int agencyId, int agencyAccountId, bool isActive)
+        {
+            var account = await _context.AgencyAccounts
+                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+
+            if (account is null)
+                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+
+            account.IsActive = isActive;
+            _context.AgencyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
         }
 
 
