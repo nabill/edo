@@ -73,9 +73,9 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private static Dictionary<ProtocolTypes, ISendingSettings> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)
+        private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)
         {
-            var sendingSettings = new Dictionary<ProtocolTypes, ISendingSettings>();
+            var sendingSettings = new Dictionary<ProtocolTypes, object>();
 
             if ((notificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
                 sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
 
 
-        private async Task AddAdminNotification(int adminId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
+        private async Task AddAdminNotification(int adminId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             await _notificationService.Add(new Notification
             {
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Notifications
         }
         
         
-        private async Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, ISendingSettings> sendingSettings)
+        private async Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             await _notificationService.Add(new Notification
             {
