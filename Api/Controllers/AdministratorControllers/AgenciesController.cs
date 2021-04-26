@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettings settings, [FromRoute] int agencyId) 
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettings settings, [FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId, settings));
 
 
@@ -97,8 +97,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns>List of agents</returns>
         [HttpGet("{agencyId}/agents")]
-        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetAgents([FromRoute] int agencyId)
         {
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{agencyId}/child-agencies")]
-        [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AgencyInfo>), (int) HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
             => Ok(await _agencyManagementService.GetChildAgencies(agencyId, LanguageCode));
@@ -128,8 +128,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for deactivation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/deactivate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
@@ -149,8 +149,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for activation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/activate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
