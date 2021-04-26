@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Changes a counterparty account activity state
+        /// Changes the activity state of the counterparty account
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id</param>
         /// <param name="counterpartyAccountId">Counterparty account Id</param>
