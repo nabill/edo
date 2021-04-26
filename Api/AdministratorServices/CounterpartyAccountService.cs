@@ -266,15 +266,31 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetCounterpartyAccountSettings(CounterpartyAccountSettings counterpartyAccountSettings)
+        public async Task<Result> ActivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason)
         {
             var account = await _context.CounterpartyAccounts
-                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyAccountSettings.CounterpartyId && aa.Id == counterpartyAccountSettings.CounterpartyAccountId);
-            
-            if (account is null)
-                return Result.Failure($"Account Id {counterpartyAccountSettings.CounterpartyAccountId} not found in counterparty Id {counterpartyAccountSettings.CounterpartyId}");
+                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
 
-            account.IsActive = counterpartyAccountSettings.IsActive;
+            if (account is null)
+                return Result.Failure($"Account Id {counterpartyAccountId} not found in counterparty Id {counterpartyId}");
+
+            account.IsActive = true;
+            _context.CounterpartyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
+        public async Task<Result> DeactivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason)
+        {
+            var account = await _context.CounterpartyAccounts
+                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
+
+            if (account is null)
+                return Result.Failure($"Account Id {counterpartyAccountId} not found in counterparty Id {counterpartyId}");
+
+            account.IsActive = false;
             _context.CounterpartyAccounts.Update(account);
             await _context.SaveChangesAsync();
 

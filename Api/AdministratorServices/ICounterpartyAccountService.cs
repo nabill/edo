@@ -26,6 +26,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         
         Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId);
 
-        Task<Result> SetCounterpartyAccountSettings(CounterpartyAccountSettings agencyAccountSettings);
+        Task<Result> ActivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason);
+
+        Task<Result> DeactivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason);
     }
 }
