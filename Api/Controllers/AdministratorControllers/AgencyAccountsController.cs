@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
-            => Ok(await _agencyAccountService.GetAgencyAccounts(agencyId));
+            => Ok(await _agencyAccountService.Get(agencyId));
 
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ActivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _agencyAccountService.ActivateAgencyAccount(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
+            => OkOrBadRequest(await _agencyAccountService.Activate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> DeactivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _agencyAccountService.DeactivateAgencyAccount(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
+            => OkOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
 
         /// <summary>

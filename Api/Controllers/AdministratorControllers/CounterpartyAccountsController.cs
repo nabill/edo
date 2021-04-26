@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int) HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetAccounts(int counterpartyId) 
-            => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
+            => Ok(await _counterpartyAccountService.Get(counterpartyId));
 
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ActivateCounterpartyAccount([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _counterpartyAccountService.ActivateCounterpartyAccount(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
+            => OkOrBadRequest(await _counterpartyAccountService.Activate(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
 
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> DeactivateCounterpartyAccount([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _counterpartyAccountService.DeactivateCounterpartyAccount(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
+            => OkOrBadRequest(await _counterpartyAccountService.Deactivate(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
 
 
         private readonly IAdministratorContext _administratorContext;

@@ -11,11 +11,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface ICounterpartyAccountService
     {
-        Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId);
+        Task<List<CounterpartyAccountInfo>> Get(int counterpartyId);
 
-        Task<Result> ActivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason);
+        Task<Result> Activate(int counterpartyId, int counterpartyAccountId, string reason);
 
-        Task<Result> DeactivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason);
+        Task<Result> Deactivate(int counterpartyId, int counterpartyAccountId, string reason);
 
         Task<Result<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency);
 

@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<CounterpartyAccountInfo>> GetAccounts(int counterpartyId)
+        public Task<List<CounterpartyAccountInfo>> Get(int counterpartyId)
         {
             return _context.CounterpartyAccounts
                 .Where(c => c.CounterpartyId == counterpartyId)
@@ -265,7 +265,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> ActivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason)
+        public async Task<Result> Activate(int counterpartyId, int counterpartyAccountId, string reason)
         {
             var account = await _context.CounterpartyAccounts
                 .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
@@ -281,7 +281,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> DeactivateCounterpartyAccount(int counterpartyId, int counterpartyAccountId, string reason)
+        public async Task<Result> Deactivate(int counterpartyId, int counterpartyAccountId, string reason)
         {
             var account = await _context.CounterpartyAccounts
                 .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);

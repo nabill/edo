@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<FullAgencyAccountInfo>> GetAgencyAccounts(int agencyId)
+        public Task<List<FullAgencyAccountInfo>> Get(int agencyId)
             => _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId)
                 .Select(a => new FullAgencyAccountInfo
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .ToListAsync();
 
 
-        public async Task<Result> ActivateAgencyAccount(int agencyId, int agencyAccountId, string reason)
+        public async Task<Result> Activate(int agencyId, int agencyAccountId, string reason)
         {
             var account = await _context.AgencyAccounts
                 .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> DeactivateAgencyAccount(int agencyId, int agencyAccountId, string reason)
+        public async Task<Result> Deactivate(int agencyId, int agencyAccountId, string reason)
         {
             var account = await _context.AgencyAccounts
                 .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
