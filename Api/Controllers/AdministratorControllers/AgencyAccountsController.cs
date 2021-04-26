@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("agencies/{agencyId}/accounts")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) => Ok(await _accountPaymentService.GetAgencyAccounts(agencyId));
 

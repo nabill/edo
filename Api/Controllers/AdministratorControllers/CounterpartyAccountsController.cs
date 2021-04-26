@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Counterparty Id</param>
         [HttpGet("counterparties/{counterpartyId}/accounts")]
         [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.NotFound)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetAccounts(int counterpartyId) 
             => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
