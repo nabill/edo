@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="counterpartyAccountId">Counterparty account Id.</param>
         /// <param name="activityStatusChangeRequest">Request data for activation.</param>
-        [HttpPut("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/activate")]
+        [HttpPost("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/activate")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
@@ -179,7 +179,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="counterpartyAccountId">Counterparty account Id.</param>
         /// <param name="activityStatusChangeRequest">Request data for deactivation.</param>
-        [HttpPut("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/deactivate")]
+        [HttpPost("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/deactivate")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
