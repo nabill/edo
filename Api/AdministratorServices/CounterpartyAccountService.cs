@@ -266,35 +266,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public async Task<Result> Activate(int counterpartyId, int counterpartyAccountId, string reason)
-        {
-            var account = await _context.CounterpartyAccounts
-                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
-
-            if (account is null)
-                return Result.Failure($"Account Id {counterpartyAccountId} not found in counterparty Id {counterpartyId}");
-
-            account.IsActive = true;
-            _context.CounterpartyAccounts.Update(account);
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        }
+            => await ChangeAccountActivity(counterpartyId, counterpartyAccountId, isActive: true);
 
 
         public async Task<Result> Deactivate(int counterpartyId, int counterpartyAccountId, string reason)
-        {
-            var account = await _context.CounterpartyAccounts
-                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
-
-            if (account is null)
-                return Result.Failure($"Account Id {counterpartyAccountId} not found in counterparty Id {counterpartyId}");
-
-            account.IsActive = false;
-            _context.CounterpartyAccounts.Update(account);
-            await _context.SaveChangesAsync();
-
-            return Result.Success();
-        }
+            => await ChangeAccountActivity(counterpartyId, counterpartyAccountId, isActive: false);
 
 
         public async Task<Result> IncreaseManually(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller)
@@ -337,6 +313,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        private async Task<Result> ChangeAccountActivity(int counterpartyId, int counterpartyAccountId, bool isActive)
+        {
+            var account = await _context.CounterpartyAccounts
+                .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyId && aa.Id == counterpartyAccountId);
+
+            if (account is null)
+                return Result.Failure($"Account Id {counterpartyAccountId} not found in counterparty Id {counterpartyId}");
+
+            account.IsActive = isActive;
+            _context.CounterpartyAccounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
         private async Task<Result<CounterpartyAccount>> GetCounterpartyAccount(int counterpartyAccountId)
         {
             var account = await _context.CounterpartyAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == counterpartyAccountId);
@@ -348,7 +340,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
+
         private bool AreCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
+
 
         private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentCancellationData data) => account.Currency == data.Currency;
 
