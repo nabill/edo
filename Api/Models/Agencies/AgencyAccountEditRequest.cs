@@ -2,10 +2,10 @@
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct AgencyAccountRequest
+    public readonly struct AgencyAccountEditRequest
     {
         [JsonConstructor]
-        public AgencyAccountRequest(bool isActive)
+        public AgencyAccountEditRequest(bool isActive)
         {
             IsActive = isActive;
         }

@@ -36,31 +36,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("agencies/{agencyId}/accounts")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
-        public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) => Ok(await _accountPaymentService.GetAgencyAccounts(agencyId));
+        public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
+            => Ok(await _accountPaymentService.GetAgencyAccounts(agencyId));
 
 
         /// <summary>
-        /// Changes an agency account activity state
+        /// Changes the activity state of the agency account
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <param name="agencyAccountId">Agency account Id</param>
-        /// <param name="agencyAccountRequest">Editable agency account settings</param>
+        /// <param name="agencyAccountEditRequest">Editable agency account settings</param>
         [HttpPut("agencies/{agencyId}/accounts/{agencyAccountId}")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SetAgencyAccountSettings([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
-            [FromBody] AgencyAccountRequest agencyAccountRequest)
-        {
-            var (_, isFailure, error) =
-                await _accountPaymentService.SetAgencyAccountSettings(new AgencyAccountSettings(agencyId, agencyAccountId, agencyAccountRequest.IsActive));
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok();
-        }
+            [FromBody] AgencyAccountEditRequest agencyAccountEditRequest)
+            => OkOrBadRequest(await _accountPaymentService.SetAgencyAccountSettings(
+                new AgencyAccountSettings(agencyId, agencyAccountId, agencyAccountEditRequest.IsActive)));
 
 
         /// <summary>
