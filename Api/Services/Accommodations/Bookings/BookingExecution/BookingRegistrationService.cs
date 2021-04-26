@@ -176,6 +176,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                 booking.AccommodationId = availabilityInfo.AccommodationId;
                 booking.AccommodationName = availabilityInfo.AccommodationName;
+                booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                    new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
             }
 
             void AddAgentInfo()

@@ -1474,6 +1474,11 @@
             Reported accommodations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo.Photo">
+            <summary>
+                Accommodation photo.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FromDate">
             <summary>
                 The time frame start date.
