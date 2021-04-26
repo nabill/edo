@@ -426,13 +426,13 @@
             </summary>
             <param name="counterpartyId">Counterparty Id</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.SetCounterpartyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.SetCounterpartyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountEditRequest)">
             <summary>
-            Changes a counterparty account activity state
+            Changes the activity state of the counterparty account
             </summary>
             <param name="counterpartyId">Counterparty Id</param>
             <param name="counterpartyAccountId">Counterparty account Id</param>
-            <param name="counterpartyAccountRequest">Editable counterparty account settings</param>
+            <param name="counterpartyAccountEditRequest">Editable counterparty account settings</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
             <summary>
@@ -2693,7 +2693,7 @@
                 Indicates if extra cot needed.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountRequest.IsActive">
+        <member name="P:HappyTravel.Edo.Api.Models.Counterparties.CounterpartyAccountEditRequest.IsActive">
             <summary>
             Is the account active
             </summary>
