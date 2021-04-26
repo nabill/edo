@@ -133,6 +133,8 @@ namespace HappyTravel.Edo.Api
                         Array.Empty<string>()
                     }
                 });
+                // Use fully qualified object names
+                options.CustomSchemaIds(x => x.FullName);
             });
             services.AddSwaggerGenNewtonsoftSupport();
             
