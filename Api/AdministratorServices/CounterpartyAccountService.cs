@@ -272,7 +272,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .SingleOrDefaultAsync(aa => aa.CounterpartyId == counterpartyAccountSettings.CounterpartyId && aa.Id == counterpartyAccountSettings.CounterpartyAccountId);
             
             if (account is null)
-                Result.Failure($"Account Id {counterpartyAccountSettings.CounterpartyAccountId} not found in counterparty Id {counterpartyAccountSettings.CounterpartyId}");
+                return Result.Failure($"Account Id {counterpartyAccountSettings.CounterpartyAccountId} not found in counterparty Id {counterpartyAccountSettings.CounterpartyId}");
 
             account.IsActive = counterpartyAccountSettings.IsActive;
             _context.CounterpartyAccounts.Update(account);
