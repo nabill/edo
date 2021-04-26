@@ -156,7 +156,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetAccounts(int counterpartyId) => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
+        public async Task<IActionResult> GetAccounts(int counterpartyId) 
+            => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
 
 
         /// <summary>
@@ -171,14 +172,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SetCounterpartyAccountSettings([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
             [FromBody] CounterpartyAccountEditRequest counterpartyAccountEditRequest)
-        {
-            var (_, isFailure, error) = await _counterpartyAccountService.SetCounterpartyAccountSettings(
-                new CounterpartyAccountSettings(counterpartyId, counterpartyAccountId, counterpartyAccountEditRequest.IsActive));
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok();
-        }
+            => OkOrBadRequest(await _counterpartyAccountService.SetCounterpartyAccountSettings(
+                new CounterpartyAccountSettings(counterpartyId, counterpartyAccountId, counterpartyAccountEditRequest.IsActive)));
 
 
         private readonly IAdministratorContext _administratorContext;
