@@ -211,7 +211,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.SwaggerEndpoint("/swagger/agent/swagger.json", "Happytravel.com Edo API for Agent App");
                     options.SwaggerEndpoint("/swagger/admin/swagger.json", "Happytravel.com Edo API for Admin App");
-                    options.SwaggerEndpoint("/swagger/service/swagger.json", "Happytravel.com Common Edo API");
+                    options.SwaggerEndpoint("/swagger/service/swagger.json", "Happytravel.com Service Edo API");
                     options.RoutePrefix = string.Empty;
                 });
 
