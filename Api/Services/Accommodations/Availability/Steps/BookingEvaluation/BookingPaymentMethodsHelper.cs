@@ -14,8 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             => AllAvailablePaymentMethods
                 .Intersect(GetAprPaymentMethods(availability, settings))
                 .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, date))
-                // TODO: https://github.com/happy-travel/agent-app-project/issues/132 revert when offline payments will be supported
-                //.Intersect(GetContractKindPaymentMethods(contractKind))
+                .Intersect(GetContractKindPaymentMethods(contractKind))
                 .ToList();
 
 
