@@ -106,13 +106,21 @@
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetAgencyAccountSettings(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.ActivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-            Changes an agency account activity state
+            Activates specified agency account.
             </summary>
-            <param name="agencyId">Agency Id</param>
-            <param name="agencyAccountId">Agency account Id</param>
-            <param name="agencyAccountRequest">Editable agency account settings</param>
+            <param name="agencyId">Agency Id.</param>
+            <param name="agencyAccountId">Agency account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for activation.</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.DeactivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+            Deactivates specified agency account.
+            </summary>
+            <param name="agencyId">Agency Id.</param>
+            <param name="agencyAccountId">Agency account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for deactivation.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.IncreaseMoneyManuallyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
@@ -413,9 +421,25 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.GetAccounts(System.Int32)">
             <summary>
-            Gets a list of counterparty accounts
+            Gets counterparty accounts list
             </summary>
-            <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+            <param name="counterpartyId">Counterparty Id</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.ActivateCounterpartyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+            Activates specified counterparty account.
+            </summary>
+            <param name="counterpartyId">Counterparty Id.</param>
+            <param name="counterpartyAccountId">Counterparty account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for activation.</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.DeactivateCounterpartyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+            Deactivates specified counterparty account.
+            </summary>
+            <param name="counterpartyId">Counterparty Id.</param>
+            <param name="counterpartyAccountId">Counterparty account Id.</param>
+            <param name="activityStatusChangeRequest">Request data for deactivation.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
             <summary>
@@ -1772,26 +1796,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Balance">
             <summary>
             Balance
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountRequest.IsActive">
-            <summary>
-            Is the account active
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyId">
-            <summary>
-            Agency Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.AgencyAccountId">
-            <summary>
-            Agency account Id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountSettings.IsActive">
-            <summary>
-            Is the account active
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">

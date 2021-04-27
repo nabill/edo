@@ -6,11 +6,11 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -21,12 +21,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AgencyAccountsController : BaseController
     {
-        public AgencyAccountsController(IAccountPaymentService accountPaymentService, IAdministratorContext administratorContext,
-            IAgencyAccountService agencyAccountService)
+        public AgencyAccountsController(IAdministratorContext administratorContext, IAgencyAccountService agencyAccountService)
         {
             _administratorContext = administratorContext;
             _agencyAccountService = agencyAccountService;
-            _accountPaymentService = accountPaymentService;
         }
 
 
@@ -34,33 +32,41 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Gets agency accounts list
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
-        [HttpGet("agencies/{agencyId}/agency-accounts")]
+        [HttpGet("agencies/{agencyId}/accounts")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
-        public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) => Ok(await _accountPaymentService.GetAgencyAccounts(agencyId));
+        public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
+            => Ok(await _agencyAccountService.Get(agencyId));
 
 
         /// <summary>
-        /// Changes an agency account activity state
+        /// Activates specified agency account.
         /// </summary>
-        /// <param name="agencyId">Agency Id</param>
-        /// <param name="agencyAccountId">Agency account Id</param>
-        /// <param name="agencyAccountRequest">Editable agency account settings</param>
-        [HttpPut("agencies/{agencyId}/agency-accounts/{agencyAccountId}")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        /// <param name="agencyId">Agency Id.</param>
+        /// <param name="agencyAccountId">Agency account Id.</param>
+        /// <param name="activityStatusChangeRequest">Request data for activation.</param>
+        [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/activate")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
-        public async Task<IActionResult> SetAgencyAccountSettings([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
-            [FromBody] AgencyAccountRequest agencyAccountRequest)
-        {
-            var (_, isFailure, error) =
-                await _accountPaymentService.SetAgencyAccountSettings(new AgencyAccountSettings(agencyId, agencyAccountId, agencyAccountRequest.IsActive));
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
+        public async Task<IActionResult> ActivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
+            [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
+            => OkOrBadRequest(await _agencyAccountService.Activate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
-            return Ok();
-        }
+
+        /// <summary>
+        /// Deactivates specified agency account.
+        /// </summary>
+        /// <param name="agencyId">Agency Id.</param>
+        /// <param name="agencyAccountId">Agency account Id.</param>
+        /// <param name="activityStatusChangeRequest">Request data for deactivation.</param>
+        [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/deactivate")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> DeactivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
+            [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
+            => OkOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
 
         /// <summary>
@@ -107,6 +113,5 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         private readonly IAgencyAccountService _agencyAccountService;
         private readonly IAdministratorContext _administratorContext;
-        private readonly IAccountPaymentService _accountPaymentService;
     }
 }

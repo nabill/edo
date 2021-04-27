@@ -104,7 +104,9 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new OpenApiInfo {Title = "HappyTravel.com Edo API", Version = "v1.0"});
+                options.SwaggerDoc("agent", new OpenApiInfo {Title = "Happytravel.com Edo API for an agent app", Version = "v1.0"});
+                options.SwaggerDoc("admin", new OpenApiInfo {Title = "Happytravel.com Edo API for an admin app", Version = "v1.0"});
+                options.SwaggerDoc("service", new OpenApiInfo { Title = "Happytravel.com service Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -145,6 +147,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
                     options.Conventions.Add(new AuthorizeControllerModelConvention());
+                    options.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
                     options.Filters.Add(typeof(ModelValidationFilter));
                     
@@ -206,7 +209,9 @@ namespace HappyTravel.Edo.Api
             app.UseSwagger()
                 .UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1.0/swagger.json", "HappyTravel.com Edo API");
+                    options.SwaggerEndpoint("/swagger/agent/swagger.json", "Happytravel.com Edo API for an agent app");
+                    options.SwaggerEndpoint("/swagger/admin/swagger.json", "Happytravel.com Edo API for an admin app");
+                    options.SwaggerEndpoint("/swagger/service/swagger.json", "Happytravel.com service Edo API");
                     options.RoutePrefix = string.Empty;
                 });
 
