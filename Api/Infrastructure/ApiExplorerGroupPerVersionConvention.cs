@@ -13,13 +13,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             switch (controllerPurpose)
             {
                 case "AdministratorControllers":
-                    controller.ApiExplorer.GroupName = "admin-v1.0";
+                    controller.ApiExplorer.GroupName = "admin";
                     return;
                 case "AgentControllers":
-                    controller.ApiExplorer.GroupName = "agent-v1.0";
+                    controller.ApiExplorer.GroupName = "agent";
                     return;
                 case "Controllers":
-                    controller.ApiExplorer.GroupName = "common-v1.0";
+                    controller.ApiExplorer.GroupName = "service";
                     return;
             }
         }

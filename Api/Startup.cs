@@ -104,9 +104,9 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("agent-v1.0", new OpenApiInfo {Title = "HappyTravel.com Edo API for Agent App", Version = "v1.0"});
-                options.SwaggerDoc("admin-v1.0", new OpenApiInfo {Title = "HappyTravel.com Edo API for Admin App", Version = "v1.0"});
-                options.SwaggerDoc("common-v1.0", new OpenApiInfo { Title = "HappyTravel.com Common Edo API", Version = "v1.0" });
+                options.SwaggerDoc("agent", new OpenApiInfo {Title = "Happytravel.com Edo API for Agent App", Version = "v1.0"});
+                options.SwaggerDoc("admin", new OpenApiInfo {Title = "Happytravel.com Edo API for Admin App", Version = "v1.0"});
+                options.SwaggerDoc("service", new OpenApiInfo { Title = "Happytravel.com Service Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
