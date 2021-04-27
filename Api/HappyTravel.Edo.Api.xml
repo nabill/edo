@@ -2189,6 +2189,11 @@
             State of the counterparty
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Data">
             <summary>
             Nested data
