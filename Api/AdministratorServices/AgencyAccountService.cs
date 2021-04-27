@@ -6,9 +6,11 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -20,11 +22,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class AgencyAccountService : IAgencyAccountService
     {
-        public AgencyAccountService(EdoContext context, IEntityLocker locker, IAccountBalanceAuditService auditService)
+        public AgencyAccountService(EdoContext context, IEntityLocker locker, IManagementAuditService managementAuditService, 
+            IAccountBalanceAuditService accountBalanceAuditService)
         {
             _context = context;
             _locker = locker;
-            _auditService = auditService;
+            _managementAuditService = managementAuditService;
+            _accountBalanceAuditService = accountBalanceAuditService;
         }
 
 
@@ -47,11 +51,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public async Task<Result> Activate(int agencyId, int agencyAccountId, string reason)
-            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: true);
+            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: true, reason);
 
 
         public async Task<Result> Deactivate(int agencyId, int agencyAccountId, string reason)
-            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: false);
+            => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: false, reason);
 
 
         public async Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
@@ -73,7 +77,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualIncrease,
+                await _accountBalanceAuditService.Write(AccountEventType.ManualIncrease,
                     account.Id,
                     paymentData.Amount,
                     apiCaller,
@@ -113,7 +117,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualDecrease,
+                await _accountBalanceAuditService.Write(AccountEventType.ManualDecrease,
                     account.Id,
                     paymentData.Amount,
                     apiCaller,
@@ -134,19 +138,44 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private async Task<Result> ChangeAccountActivity(int agencyId, int agencyAccountId, bool isActive)
+        private async Task<Result> ChangeAccountActivity(int agencyId, int agencyAccountId, bool isActive, string reason)
         {
-            var account = await _context.AgencyAccounts
-                .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
+            return await GetAgencyAccount(agencyId, agencyAccountId)
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .BindWithTransaction(_context, account => SaveAccountActivity(account, isActive)
+                    .Bind(() => WriteToAuditLog(agencyId, agencyAccountId, isActive, reason)));
 
-            if (account is null)
-                return Result.Failure($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
 
-            account.IsActive = isActive;
-            _context.AgencyAccounts.Update(account);
-            await _context.SaveChangesAsync();
+            async Task<Result<AgencyAccount>> GetAgencyAccount(int agencyId, int agencyAccountId)
+            {
+                var account = await _context.AgencyAccounts
+                    .SingleOrDefaultAsync(aa => aa.AgencyId == agencyId && aa.Id == agencyAccountId);
 
-            return Result.Success();
+                return (account is not null)
+                    ? account
+                    : Result.Failure<AgencyAccount>($"Account Id {agencyAccountId} not found in agency Id {agencyId}");
+            }
+
+
+            async Task<Result> SaveAccountActivity(AgencyAccount account, bool isActive)
+            {
+                account.IsActive = isActive;
+                _context.AgencyAccounts.Update(account);
+                await _context.SaveChangesAsync();
+
+                return Result.Success();
+            }
+
+
+            async Task<Result> WriteToAuditLog(int agencyId, int agencyAccountId, bool isActive, string reason)
+            {
+                if (isActive)
+                    return await _managementAuditService.Write(ManagementEventType.AgencyAccountActivation, 
+                        new AgencyAccountActivityStatusChangeEventData(agencyId, agencyAccountId, reason));
+                else
+                    return await _managementAuditService.Write(ManagementEventType.AgencyAccountDeactivation, 
+                        new AgencyAccountActivityStatusChangeEventData(agencyId, agencyAccountId, reason));
+            }
         }
 
 
@@ -165,7 +194,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private bool AreCurrenciesMatch(AgencyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
 
-        private readonly IAccountBalanceAuditService _auditService;
+        private readonly IManagementAuditService _managementAuditService; 
+        private readonly IAccountBalanceAuditService _accountBalanceAuditService;
         private readonly IEntityLocker _locker;
         private readonly EdoContext _context;
     }
