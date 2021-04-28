@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             return await GetCachedAvailability(bookingRequest)
-                .Ensure(IsPaymentTypeAllowed, "Payment method is not allowed")
+                .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Map(Register);
 
 
