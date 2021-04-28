@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await GetAgencyAccount(agencyId, agencyAccountId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, account => SaveAccountActivity(account, isActive)
+                .BindWithTransaction(_context, account => SetAccountActivityState(account, isActive)
                     .Bind(() => WriteToAuditLog(agencyId, agencyAccountId, isActive, reason)));
 
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task<Result> SaveAccountActivity(AgencyAccount account, bool isActive)
+            async Task<Result> SetAccountActivityState(AgencyAccount account, bool isActive)
             {
                 account.IsActive = isActive;
                 _context.AgencyAccounts.Update(account);

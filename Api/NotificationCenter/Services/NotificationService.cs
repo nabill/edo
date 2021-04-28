@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
         {
-            await _agentNotificationHub.Clients
+            await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
                 .ReceiveMessage(messageId, message);
         }
