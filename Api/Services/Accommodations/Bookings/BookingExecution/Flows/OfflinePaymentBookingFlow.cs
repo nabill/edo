@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             AgentContext agentContext, string languageCode, string clientIp)
         {
             return GetCachedAvailability(bookingRequest)
-                .Ensure(IsPaymentMethodAllowed, "Payment method is not allowed")
+                .Ensure(IsPaymentTypeAllowed, "Payment method is not allowed")
                 .Ensure(IsDeadlineNotPassed, "Deadline already passed, can not book")
                 .Map(RegisterBooking)
                 .Check(GenerateInvoice)
@@ -57,8 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     bookingRequest.RoomContractSetId);
             
 
-            bool IsPaymentMethodAllowed(BookingAvailabilityInfo availabilityInfo) 
-                => availabilityInfo.AvailablePaymentMethods.Contains(PaymentTypes.Offline);
+            bool IsPaymentTypeAllowed(BookingAvailabilityInfo availabilityInfo) 
+                => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.Offline);
 
 
             async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
