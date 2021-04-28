@@ -62,14 +62,3 @@ Create the name of the service account to use
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
-
-{{/*
-Logging labels
-*/}}
-{{- define "edo.logging" -}}
-{{- if .Values.logging.enabled }}
-logging: true
-{{- else -}}
-logging: false
-{{- end }}
-{{- end -}}

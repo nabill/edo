@@ -1,8 +1,5 @@
 replicaCount: 1
 
-logging:
-  enabled: true
-
 jaeger:
   sidecar: jaeger-dev
   collector_host: dns:///jaeger-dev-collector-headless.observability:14250
