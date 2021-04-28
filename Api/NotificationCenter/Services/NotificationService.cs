@@ -19,11 +19,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         public NotificationService(EdoContext context, 
             IHubContext<AgentNotificationHub, INotificationClient> agentNotificationHub,
             IHubContext<AdminNotificationHub, INotificationClient> adminNotificationHub,
+            MailSenderWithCompanyInfo mailSender,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _agentNotificationHub = agentNotificationHub;
             _adminNotificationHub = adminNotificationHub;
+            _mailSender = mailSender;
             _dateTimeProvider = dateTimeProvider;
         }
         
@@ -107,10 +109,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private Task SendEmail(EmailSettings settings)
+        private async Task SendEmail(EmailSettings settings)
         {
-            // TODO: Sending e-mails will be implemented later in task AA-128
-            return Task.CompletedTask;
+            if (settings.Emails.Count == 1)
+                await _mailSender.Send(settings.TemplateId, settings.Emails[0], new Api.Models.Mailing.DataWithCompanyInfo());
+            else
+                await _mailSender.Send(settings.TemplateId, settings.Emails, new Api.Models.Mailing.DataWithCompanyInfo());
         }
 
 
@@ -133,6 +137,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private readonly EdoContext _context;
         private readonly IHubContext<AgentNotificationHub, INotificationClient> _agentNotificationHub;
         private readonly IHubContext<AdminNotificationHub, INotificationClient> _adminNotificationHub;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
