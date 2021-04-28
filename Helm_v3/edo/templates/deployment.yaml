@@ -15,12 +15,7 @@ spec:
     metadata:
       labels:
         {{- include "edo.selectorLabels" . | nindent 8 }}
-        {{- if .Values.logging.enabled }}
-        logging: true
-        {{- else -}}
-        logging: false
-        {{- end }}
-
+        {{- include "edo.logging" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

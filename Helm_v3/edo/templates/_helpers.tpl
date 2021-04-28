@@ -41,6 +41,7 @@ helm.sh/chart: {{ include "edo.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+
 {{- end -}}
 
 {{/*
@@ -60,4 +61,15 @@ Create the name of the service account to use
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Logging labels
+*/}}
+{{- define "edo.logging" -}}
+{{- if .Values.logging.enabled }}
+logging: true
+{{- else -}}
+logging: false
+{{- end }}
 {{- end -}}
