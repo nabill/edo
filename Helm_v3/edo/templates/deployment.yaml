@@ -16,7 +16,9 @@ spec:
       labels:
         {{- include "edo.selectorLabels" . | nindent 8 }}
         {{- if .Values.logging.enabled }}
-        logging: fluentd
+        logging: true
+        {{- else -}}
+        logging: false
         {{- end }}
 
     spec:

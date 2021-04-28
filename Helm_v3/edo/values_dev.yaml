@@ -1,7 +1,7 @@
 replicaCount: 1
 
 logging:
-  enabled: true
+  enabled: false
 
 jaeger:
   sidecar: jaeger-dev
