@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         IReadOnlyCollection<Currencies> GetCurrencies();
 
-        IReadOnlyCollection<PaymentTypes> GetAvailableAgentPaymentMethods();
+        IReadOnlyCollection<PaymentTypes> GetAvailableAgentPaymentTypes();
     }
 }

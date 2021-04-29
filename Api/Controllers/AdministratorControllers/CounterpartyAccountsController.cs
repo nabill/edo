@@ -148,13 +148,44 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Gets a list of counterparty accounts
+        /// Gets counterparty accounts list
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        /// <param name="counterpartyId">Counterparty Id</param>
         [HttpGet("counterparties/{counterpartyId}/accounts")]
         [ProducesResponseType(typeof(List<CounterpartyAccountInfo>), (int) HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetAccounts(int counterpartyId) => Ok(await _counterpartyAccountService.GetAccounts(counterpartyId));
+        public async Task<IActionResult> GetAccounts(int counterpartyId) 
+            => Ok(await _counterpartyAccountService.Get(counterpartyId));
+
+
+        /// <summary>
+        /// Activates specified counterparty account.
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id.</param>
+        /// <param name="counterpartyAccountId">Counterparty account Id.</param>
+        /// <param name="activityStatusChangeRequest">Request data for activation.</param>
+        [HttpPost("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/activate")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> ActivateCounterpartyAccount([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
+            [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
+            => OkOrBadRequest(await _counterpartyAccountService.Activate(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
+
+
+        /// <summary>
+        /// Deactivates specified counterparty account.
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id.</param>
+        /// <param name="counterpartyAccountId">Counterparty account Id.</param>
+        /// <param name="activityStatusChangeRequest">Request data for deactivation.</param>
+        [HttpPost("counterparties/{counterpartyId}/accounts/{counterpartyAccountId}/deactivate")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> DeactivateCounterpartyAccount([FromRoute] int counterpartyId, [FromRoute] int counterpartyAccountId,
+            [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
+            => OkOrBadRequest(await _counterpartyAccountService.Deactivate(counterpartyId, counterpartyAccountId, activityStatusChangeRequest.Reason));
 
 
         private readonly IAdministratorContext _administratorContext;
