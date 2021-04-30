@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Xunit;
 
@@ -12,97 +13,134 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 {
     public class ProcessPricesTests
     {
-        public ProcessPricesTests()
+        [Fact]
+        public async Task Should_process_total_rate()
         {
-            _priceProcessFunction = price => new ValueTask<MoneyAmount>(new MoneyAmount(price.Amount * 1.07m, price.Currency));
-            
-            // all the rates must be different to avoid false positives
-            var roomDailyRates = GetDailyRates(80, 120); 
-            var roomTotalRate = new Rate(new MoneyAmount(180, default), new MoneyAmount(220, default));
-            var contractSetTotalRate = new Rate(new MoneyAmount(250, default), new MoneyAmount(300, default));
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, contractSetTotalRate: (Gross: 100, Final: 50));
 
-            _roomContractSet = GetRoomContractSet(
-                contractSetTotalRate, 
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
+            
+            Assert.Equal(110, processed.Rate.Gross.Amount);
+            Assert.Equal(60, processed.Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed.Rate.FinalPrice.Currency);
+            Assert.Equal(Currencies.USD, processed.Rate.Gross.Currency);
+        }
+        
+        
+        [Fact]
+        public async Task Should_process_total_rate_for_list()
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, contractSetTotalRate: (Gross: 100, Final: 50));
+            var roomContractSets = new List<RoomContractSet> {roomContractSet};
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd);
+            
+            Assert.Equal(110, processed[0].Rate.Gross.Amount);
+            Assert.Equal(60, processed[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].Rate.FinalPrice.Currency);
+            Assert.Equal(Currencies.USD, processed[0].Rate.Gross.Currency);
+        }
+        
+        
+        [Fact]
+        public async Task Should_process_room_rate()
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomTotalRate: (Gross: 100, Final: 50));
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
+            
+            Assert.Equal(110, processed.RoomContracts[0].Rate.Gross.Amount);
+            Assert.Equal(60, processed.RoomContracts[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed.RoomContracts[0].Rate.Gross.Currency);
+            Assert.Equal(Currencies.USD, processed.RoomContracts[0].Rate.FinalPrice.Currency);
+        }
+        
+        
+        [Fact]
+        public async Task Should_process_room_rate_for_list()
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomTotalRate: (Gross: 100, Final: 50));
+            var roomContractSets = new List<RoomContractSet> {roomContractSet};
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
+            
+            Assert.Equal(110, processed[0].RoomContracts[0].Rate.Gross.Amount);
+            Assert.Equal(60, processed[0].RoomContracts[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].Rate.Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].Rate.FinalPrice.Currency);
+        }
+
+
+        [Fact]
+        public async Task Should_process_daily_room_rates()
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomDailyRate: (Gross: 100, Final: 50));
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
+            
+            Assert.Equal(110, processed.RoomContracts[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(60, processed.RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed.RoomContracts[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed.RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+        }
+        
+        
+        [Fact]
+        public async Task Should_process_daily_room_rates_for_list()
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomDailyRate: (Gross: 100, Final: 50));
+            var roomContractSets = new List<RoomContractSet> {roomContractSet};
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
+            
+            Assert.Equal(110, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(60, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+        }
+        
+        
+        private RoomContractSet CreateRoomContractSet(
+            Currencies currency = Currencies.NotSpecified,
+            (decimal Gross, decimal Final) contractSetTotalRate = default,
+            (decimal Gross, decimal Final) roomDailyRate = default,
+            (decimal Gross, decimal Final) roomTotalRate = default
+        )
+        {
+            return CreateRoomContractSet(
+                new Rate(new MoneyAmount(contractSetTotalRate.Final, currency), new MoneyAmount(contractSetTotalRate.Gross, currency)), 
                 new List<RoomContract>
                 {
-                    GetRoomContract(roomDailyRates, roomTotalRate)
-                });
-            
-            _roomContractSets = new List<RoomContractSet>
-            {
-                _roomContractSet
-            };
+                    CreateRoomContract(
+                        CreateDailyRates(currency, roomDailyRate.Final, roomDailyRate.Gross), 
+                        new Rate(new MoneyAmount(roomTotalRate.Final, currency), new MoneyAmount(roomTotalRate.Gross, currency))
+                        )
+                }); 
         }
         
 
-        [Fact]
-        public async Task Check_process_prices_for_room_contract_set()
-        {
-            var processed = await RoomContractSetPriceProcessor.ProcessPrices(_roomContractSet, _priceProcessFunction);
-            
-            Assert.True(await PriceWasProcessed(_roomContractSet.Rate, processed.Rate));
-            Assert.True(await PriceWasProcessed(_roomContractSet.RoomContracts[0].Rate, processed.RoomContracts[0].Rate));
-            Assert.True(await PriceWasProcessed(_roomContractSet.RoomContracts[0].DailyRoomRates[0], processed.RoomContracts[0].DailyRoomRates[0]));
-        }
-
-        
-        [Fact]
-        public async Task Check_process_prices_for_list_of_room_contract_set()
-        {
-            var processed = await RoomContractSetPriceProcessor.ProcessPrices(_roomContractSets, _priceProcessFunction);
-            
-            Assert.True(await PriceWasProcessed(_roomContractSets[0].Rate, processed[0].Rate));
-            Assert.True(await PriceWasProcessed(_roomContractSets[0].RoomContracts[0].Rate, processed[0].RoomContracts[0].Rate));
-            Assert.True(await PriceWasProcessed(_roomContractSets[0].RoomContracts[0].DailyRoomRates[0], processed[0].RoomContracts[0].DailyRoomRates[0]));
-        }
-
-
-        private async Task<bool> PriceWasProcessed(Rate original, Rate processed)
-        {
-            return await PriceWasProcessed(original.Gross, processed.Gross) 
-                && await PriceWasProcessed(original.FinalPrice, processed.FinalPrice);
-        }
-
-
-        private async Task<bool> PriceWasProcessed(DailyRate original, DailyRate processed)
-        {
-            return await PriceWasProcessed(original.Gross, processed.Gross) 
-                && await PriceWasProcessed(original.FinalPrice, processed.FinalPrice);
-        }
-
-
-        private async Task<bool> PriceWasProcessed(MoneyAmount original, MoneyAmount processed)
-        {
-            var expected = await _priceProcessFunction(original);
-            return expected.Amount == processed.Amount 
-                && expected.Currency == processed.Currency;
-        }
-        
-
-        private RoomContractSet GetRoomContractSet(Rate contractSetTotalRate, List<RoomContract> roomContracts)
+        private RoomContractSet CreateRoomContractSet(Rate contractSetTotalRate, List<RoomContract> roomContracts)
             => new(default, contractSetTotalRate, default, roomContracts, default, default);
         
 
-        private RoomContract GetRoomContract(List<DailyRate> roomDailyRates, Rate roomTotalRate)
+        private RoomContract CreateRoomContract(List<DailyRate> roomDailyRates, Rate roomTotalRate)
             => new(default, default, default, default, 
                 default, default, default, roomDailyRates, roomTotalRate, default);
         
 
-        private List<DailyRate> GetDailyRates(decimal final, decimal gross)
+        private List<DailyRate> CreateDailyRates(Currencies currency, decimal final, decimal gross)
         {
             var fromDate = new DateTime();
             return new List<DailyRate>
             {
                 new(fromDate,
                     fromDate.AddDays(1), // because of validation "toDate" should be bigger by exactly 1 day
-                    new MoneyAmount(final, default),
-                    new MoneyAmount(gross, default)
+                    new MoneyAmount(final, currency),
+                    new MoneyAmount(gross, currency)
                 )
             };
         }
        
-        private readonly PriceProcessFunction _priceProcessFunction;
-        private readonly RoomContractSet _roomContractSet;
-        private readonly List<RoomContractSet> _roomContractSets;
+        private readonly PriceProcessFunction AddTenReturnUsd = price => new ValueTask<MoneyAmount>(new MoneyAmount(price.Amount + 10, Currencies.USD)) ;
     }
 }
