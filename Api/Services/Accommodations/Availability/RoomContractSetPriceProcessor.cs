@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 }
 
                 var totalPriceNet = await priceProcessFunction(room.Rate.FinalPrice);
-                var totalPriceGross = await priceProcessFunction(room.Rate.FinalPrice);
+                var totalPriceGross = await priceProcessFunction(room.Rate.Gross);
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);
 
                 roomContracts.Add(BuildRoomContracts(room, dailyRates, totalRate));

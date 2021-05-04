@@ -138,12 +138,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
 
-                var paymentMethods = GetAvailablePaymentMethods(responseWithDeadline.Data.Value, contractKind);
+                var paymentTypes = GetAvailablePaymentTypes(responseWithDeadline.Data.Value, contractKind);
 
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
                     responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedSupplierPrice, responseWithDeadline.OriginalSupplierPrice);
                 
-                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentMethods, result.htId);
+                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentTypes, result.htId);
             }
 
 
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var isDirectContract = settings.IsDirectContractFlagVisible && availabilityData.Value.RoomContractSet.IsDirectContract;
 
                 return availabilityDetails.Data.ToRoomContractSetAvailability(supplier, isDirectContract,
-                    GetAvailablePaymentMethods(availabilityData.Value, contractKind));
+                    GetAvailablePaymentTypes(availabilityData.Value, contractKind));
             }
 
 
@@ -177,9 +177,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
             
             
-            List<PaymentTypes> GetAvailablePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
+            List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in CounterpartyContractKind contractKind)
-                => BookingPaymentMethodsHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
+                => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
         }
         
         

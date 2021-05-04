@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => notification.Receiver switch 
                         {
                             ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, /*entry.Entity.Id*/1, notification.Message),
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
                             
                             ReceiverTypes.AdminPanel
                                 => SendMessageToAdmin(notification.UserId, entry.Entity.Id, notification.Message),
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
         {
-            await _agentNotificationHub.Clients
+            await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
                 .ReceiveMessage(messageId, message);
         }
