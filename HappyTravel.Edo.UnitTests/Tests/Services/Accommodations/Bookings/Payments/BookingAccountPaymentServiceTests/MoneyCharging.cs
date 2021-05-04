@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
         {
             var accountPaymentServiceMock = new Mock<IAccountPaymentService>();
             var bookingAccountPaymentService = CreateBookingAccountPaymentService(accountPaymentServiceMock.Object);
-            var user = AgentContextFactory.CreateByAgentId(Agent.Id).ToUserInfo();
+            var user = AgentContextFactory.CreateByAgentId(Agent.Id).ToApiCaller();
 
             await bookingAccountPaymentService.Charge(Booking, user);
 

@@ -335,19 +335,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             
             Task WriteAgentLog(MarkupPolicyEventType eventType)
-                => _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value), administrator.ToUserInfo());
+                => _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value), administrator.ToApiCaller());
 
 
             Task WriteAgencyLog(MarkupPolicyEventType eventType) 
-                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value), administrator.ToUserInfo());
+                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value), administrator.ToApiCaller());
 
 
             Task WriteCounterpartyLog(MarkupPolicyEventType eventType) 
-                => _markupPolicyAuditService.Write(eventType, new CounterpartyMarkupPolicyData(policy.Id, policy.CounterpartyId.Value), administrator.ToUserInfo());
+                => _markupPolicyAuditService.Write(eventType, new CounterpartyMarkupPolicyData(policy.Id, policy.CounterpartyId.Value), administrator.ToApiCaller());
 
 
             Task WriteGlobalLog(MarkupPolicyEventType eventType) 
-                => _markupPolicyAuditService.Write(eventType, new GlobalMarkupPolicyData(policy.Id), administrator.ToUserInfo());
+                => _markupPolicyAuditService.Write(eventType, new GlobalMarkupPolicyData(policy.Id), administrator.ToApiCaller());
         }
 
 

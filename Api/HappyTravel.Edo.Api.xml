@@ -1381,7 +1381,7 @@
             </summary>
             <returns>List of currencies.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentMethods">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentTypes">
             <summary>
                 Returns methods available for agent's payments
             </summary>

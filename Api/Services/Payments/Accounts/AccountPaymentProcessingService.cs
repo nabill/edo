@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
-            var user = agent.ToUserInfo();
+            var user = agent.ToApiCaller();
 
             return await Result.Success()
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")

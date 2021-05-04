@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _agencyAccountService.IncreaseManually(agencyAccountId, paymentData,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _agencyAccountService.DecreaseManually(agencyAccountId, paymentData,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             
             Task<Result> Cancel(Booking booking) 
-                => _managementService.Cancel(booking, agent.ToUserInfo(), BookingChangeEvents.Cancel);
+                => _managementService.Cancel(booking, agent.ToApiCaller(), BookingChangeEvents.Cancel);
         }
         
         
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             
             Task<Result> Cancel(Booking booking) 
-                => _managementService.Cancel(booking, agent.ToUserInfo(), BookingChangeEvents.Cancel);
+                => _managementService.Cancel(booking, agent.ToApiCaller(), BookingChangeEvents.Cancel);
         }
 
         
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             
             Task<Result> Refresh(Booking booking) 
-                => _statusRefreshService.RefreshStatus(booking.Id, agent.ToUserInfo());
+                => _statusRefreshService.RefreshStatus(booking.Id, agent.ToApiCaller());
         }
 
 

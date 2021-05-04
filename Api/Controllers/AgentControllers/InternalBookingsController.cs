@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> RefreshBookingStatuses(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
-            return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToUserInfo()));
+            return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToApiCaller()));
         }
         
 

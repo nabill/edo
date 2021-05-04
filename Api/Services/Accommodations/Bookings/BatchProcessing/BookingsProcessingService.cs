@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
             Task<Result<string>> Capture(Booking booking, ApiCaller serviceAcc) 
-                => _creditCardPaymentService.Capture(booking, serviceAccount.ToUserInfo());
+                => _creditCardPaymentService.Capture(booking, serviceAccount.ToApiCaller());
         }
 
 
@@ -132,11 +132,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     }
                 }
                 
-                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToApiCaller());
 
                 if (chargeResult.IsFailure)
                 {
-                    var (_, isCancelFailure, error) = await _supplierBookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(),
+                    var (_, isCancelFailure, error) = await _supplierBookingManagementService.Cancel(booking, serviceAccount.ToApiCaller(),
                         BookingChangeEvents.Charge); 
 
                     if (isCancelFailure)
@@ -218,7 +218,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             Task<Result<string>> ProcessBooking(Booking booking, ApiCaller _)
             {
-                return _supplierBookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), BookingChangeEvents.Cancel)
+                return _supplierBookingManagementService.Cancel(booking, serviceAccount.ToApiCaller(), BookingChangeEvents.Cancel)
                     .Finally(CreateResult);
 
 
@@ -277,7 +277,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     : Result.Success();
 
 
-            Task<BatchOperationResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToUserInfo())));
+            Task<BatchOperationResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToApiCaller())));
 
 
             async Task<BatchOperationResult> Combine(IEnumerable<Task<Result<string>>> results)
