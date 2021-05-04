@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             
             var receiptData = new PaymentReceipt(booking.TotalPrice, 
                 booking.Currency,
-                booking.PaymentMethod,
+                booking.PaymentType,
                 booking.ReferenceCode,
                 invoiceInfo.RegistrationInfo,
                 booking.AccommodationName,

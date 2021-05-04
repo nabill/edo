@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     ReferenceCode = booking.ReferenceCode,
                     InvoiceNumber = invoice.Number,
                     AgencyName = agency.Name,
-                    PaymentMethod = booking.PaymentMethod,
+                    PaymentMethod = booking.PaymentType,
                     AccommodationName = booking.AccommodationName,
                     ConfirmationNumber = booking.SupplierReferenceCode,
                     Rooms = booking.Rooms,

@@ -48,8 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 if (data.IsConfirmed)
                     return Result.Failure<Booking>("Payment already confirmed");
 
-                if (data.booking.PaymentMethod != PaymentTypes.CreditCard)
-                    return Result.Failure<Booking>($"Wrong payment method {data.booking.PaymentMethod}");
+                if (data.booking.PaymentType != PaymentTypes.CreditCard)
+                    return Result.Failure<Booking>($"Wrong payment method {data.booking.PaymentType}");
 
                 return data.booking;
             }

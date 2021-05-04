@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     return Result.Success();
             }
 
-            booking.PaymentMethod = payment.PaymentMethod;
+            booking.PaymentType = payment.PaymentMethod;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (isFailure)
                 return Result.Failure<int>(error);
 
-            if (booking.PaymentMethod != PaymentTypes.VirtualAccount)
+            if (booking.PaymentType != PaymentTypes.VirtualAccount)
                 return Result.Failure<int>("Invalid payment method");
 
             var accountId = await _context.AgencyAccounts
