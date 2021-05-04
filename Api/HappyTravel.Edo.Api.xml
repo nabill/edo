@@ -1381,7 +1381,7 @@
             </summary>
             <returns>List of currencies.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentMethods">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentTypes">
             <summary>
                 Returns methods available for agent's payments
             </summary>
@@ -2176,6 +2176,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.CounterpartyState">
             <summary>
             State of the counterparty
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.DefaultPaymentType">
+            <summary>
+            Default payment type
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Data">

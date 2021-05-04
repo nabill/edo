@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -152,7 +153,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
                     GetActualPermissions(co.State, cr.InAgencyPermissions),
-                    co.State))
+                    co.State,
+                    BookingPaymentTypesHelper.GetDefaultPaymentType(co.ContractKind)))
                 .ToListAsync();
         }
 
