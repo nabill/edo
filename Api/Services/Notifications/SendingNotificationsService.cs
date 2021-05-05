@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -70,6 +71,14 @@ namespace HappyTravel.Edo.Api.Services.Notifications
             return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
                 .Tap(sendingSettings => AddAgentNotification(agent, message, notificationType, sendingSettings));
+        }
+
+
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
+        {
+            return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Tap(sendingSettings => AddAgentNotification(agent, messageData, notificationType, sendingSettings));
         }
 
 
