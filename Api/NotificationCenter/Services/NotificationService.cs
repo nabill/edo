@@ -25,22 +25,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
-        {
-            return await Send(apiCaller, message, notificationType, new List<string> { email }, templateId);
-        }
-
-
-        public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
+        public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType)
         {
             if (apiCaller.Type == ApiCallerTypes.Agent)
             {
                 var agent = await _agentContextService.GetAgent();
 
-                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType, emails, templateId);
+                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(apiCaller.Id, message, notificationType, emails, templateId);
+                return await Send(apiCaller.Id, message, notificationType);
             else
                 return Result.Success();
         }
@@ -67,16 +61,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
-        {
-            return await Send(adminId, message, notificationType, new List<string> { email }, templateId);
-        }
-
-
-        public async Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
+        public async Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType)
         {
             return await _notificationOptionsService.GetNotificationOptions(adminId, ApiCallerTypes.Admin, null, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(adminId, message, notificationType, sendingSettings));
         }
 
@@ -95,16 +83,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "")
-        {
-            return await Send(agent, message, notificationType, new List<string> { email }, templateId);
-        }
-
-
-        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "")
+        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType)
         {
             return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, message, notificationType, sendingSettings));
         }
 

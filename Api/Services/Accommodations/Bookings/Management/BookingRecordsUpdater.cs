@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             };
             await _sendingNotificationsService.Send(apiCaller, 
                 JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new(JsonSerializerDefaults.Web))), 
-                Edo.Notifications.Enums.NotificationTypes.BookingStatusChanged);
+                Notifications.Enums.NotificationTypes.BookingStatusChanged);
 
             await _bookingChangeLogService.Write(booking, status, date, apiCaller, reason);
             

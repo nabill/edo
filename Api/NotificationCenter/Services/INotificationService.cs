@@ -11,18 +11,15 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public interface INotificationService
     {
-        Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "");
-        Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType, List<string> emails, string templateId = "");
+        Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
         Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
 
-        Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "");
-        Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "");
+        Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
         Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
 
-        Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, string email = "", string templateId = "");
-        Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, List<string> emails = null, string templateId = "");
+        Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
     }
