@@ -15,9 +15,9 @@ using Microsoft.Extensions.Options;
 using EnumFormatters = HappyTravel.Formatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.Formatters.MoneyFormatter;
 using DateTimeFormatters = HappyTravel.Formatters.DateTimeFormatters;
-using HappyTravel.Edo.Api.Services.Notifications;
 using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             MailSenderWithCompanyInfo mailSender,
-            ISendingNotificationsService sendingNotificationsService,
+            INotificationService sendingNotificationsService,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
@@ -235,7 +235,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
-        private readonly ISendingNotificationsService _sendingNotificationsService;
+        private readonly INotificationService _sendingNotificationsService;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;
     }

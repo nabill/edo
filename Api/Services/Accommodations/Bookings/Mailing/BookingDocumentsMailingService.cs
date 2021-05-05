@@ -9,8 +9,8 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Notifications.Enums;
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            ISendingNotificationsService sendingNotificationsService, MailSenderWithCompanyInfo mailSender,
+            INotificationService sendingNotificationsService, MailSenderWithCompanyInfo mailSender,
             IOptions<BookingMailingOptions> options)
         {
             _documentsService = documentsService;
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         
         private readonly IBookingDocumentsService _documentsService;
-        private readonly ISendingNotificationsService _sendingNotificationsService;
+        private readonly INotificationService _sendingNotificationsService;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }

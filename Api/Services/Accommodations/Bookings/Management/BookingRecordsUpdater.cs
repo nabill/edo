@@ -10,9 +10,9 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IBookingMoneyReturnService moneyReturnService,
             IBookingDocumentsMailingService documentsMailingService,
             ISupplierOrderService supplierOrderService,
-            ISendingNotificationsService sendingNotificationsService,
+            INotificationService sendingNotificationsService,
             IBookingChangeLogService bookingChangeLogService,
             EdoContext context,
             ILogger<BookingRecordsUpdater> logger)
@@ -250,7 +250,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IBookingMoneyReturnService _moneyReturnService;
         private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly ISendingNotificationsService _sendingNotificationsService;
+        private readonly INotificationService _sendingNotificationsService;
         private readonly EdoContext _context;
         private readonly ILogger<BookingRecordsUpdater> _logger;
         private readonly IBookingChangeLogService _bookingChangeLogService;
