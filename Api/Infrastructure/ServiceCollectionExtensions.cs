@@ -101,7 +101,6 @@ using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using IdentityModel.Client;
 using Prometheus;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -717,8 +716,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IReportService, ReportService>();
-            services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
-            services.AddTransient<INotificationService, NotificationService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
