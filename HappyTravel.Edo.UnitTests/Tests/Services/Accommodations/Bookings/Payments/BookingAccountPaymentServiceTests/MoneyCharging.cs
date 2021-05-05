@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
             var accountPaymentService = CreateAccountPaymentService();
             var invalidPaymentMethodBooking = new Booking
             {
-                PaymentMethod = PaymentTypes.CreditCard
+                PaymentType = PaymentTypes.CreditCard
             };
 
             var (_, isFailure, _) = await accountPaymentService.Charge(invalidPaymentMethodBooking, It.IsAny<ApiCaller>());
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
             {
                 Id = 115,
                 ReferenceCode = "TEST_REF_CODE",
-                PaymentMethod = PaymentTypes.VirtualAccount,
+                PaymentType = PaymentTypes.VirtualAccount,
                 AgentId = 111
             };
     }

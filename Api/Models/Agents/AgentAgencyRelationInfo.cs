@@ -5,7 +5,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct AgentAgencyRelationInfo
     {
-        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions, CounterpartyStates counterpartyState)
+        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions,
+            CounterpartyStates counterpartyState, PaymentTypes defaultPaymentType)
         {
             Id = id;
             Name = name;
@@ -14,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
             CounterpartyState = counterpartyState;
+            DefaultPaymentType = defaultPaymentType;
         }
 
 
@@ -51,5 +53,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// State of the counterparty
         /// </summary>
         public CounterpartyStates CounterpartyState { get; }
+
+        /// <summary>
+        /// Default payment type
+        /// </summary>
+        public PaymentTypes DefaultPaymentType { get; }
     }
 }

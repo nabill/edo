@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             {
                 var bookings = await _context.Bookings
                     .Where(b => b.AgencyId == agencyId
-                        && b.PaymentMethod == PaymentTypes.VirtualAccount
+                        && b.PaymentType == PaymentTypes.VirtualAccount
                         && b.PaymentStatus != BookingPaymentStatuses.Captured
                         && BookingStatusesForSummary.Contains(b.Status)
                         && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) > reportBeginTime 
@@ -218,7 +218,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
                     where ((booking.CheckInDate <= endDate && booking.CheckInDate >= startDate) ||
                         booking.DeadlineDate.HasValue && booking.DeadlineDate >= startDate && booking.DeadlineDate <= endDate)
-                    where booking.PaymentMethod == PaymentTypes.VirtualAccount
+                    where booking.PaymentType == PaymentTypes.VirtualAccount
                     orderby booking.DeadlineDate ?? booking.CheckInDate
                     select new BookingAdministratorSummaryNotificationData.BookingRowData
                     {

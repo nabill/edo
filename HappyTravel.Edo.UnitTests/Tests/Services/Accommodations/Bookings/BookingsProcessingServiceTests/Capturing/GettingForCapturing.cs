@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 DeadlineDate = deadlineDate,
                 CheckInDate = DateTime.MaxValue
             };
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 DeadlineDate = null,
                 CheckInDate = checkInDate
             };
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = paymentMethod,
+                PaymentType = paymentMethod,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
             };
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = paymentStatus,
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
             };
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = statusCode,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
             };

@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             Task Complete(Booking booking)
             {
-                booking.PaymentMethod = PaymentTypes.Offline;
+                booking.PaymentType = PaymentTypes.Offline;
                 return ChangeBookingPaymentStatusToCaptured(booking);
             }
 

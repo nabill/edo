@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             new()
             {
-                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentMethod = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1
+                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1
             }
         };
 

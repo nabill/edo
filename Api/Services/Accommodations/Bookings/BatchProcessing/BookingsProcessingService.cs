@@ -305,7 +305,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) && 
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
-            PaymentMethodsForCancellation.Contains(booking.PaymentMethod);
+            PaymentMethodsForCancellation.Contains(booking.PaymentType);
         
         private static readonly HashSet<BookingStatuses> BookingStatusesForCancellation = new HashSet<BookingStatuses>
         {
@@ -324,12 +324,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
-            PaymentMethodsForCapture.Contains(booking.PaymentMethod) &&
+            PaymentTypesForCapture.Contains(booking.PaymentType) &&
             booking.PaymentStatus == BookingPaymentStatuses.Authorized;
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForChargePredicate = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
-            PaymentMethodsForCharge.Contains(booking.PaymentMethod) &&
+            PaymentTypesForCharge.Contains(booking.PaymentType) &&
             booking.PaymentStatus == BookingPaymentStatuses.NotPaid;
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
@@ -344,12 +344,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.WaitingForResponse
         };
         
-        private static readonly HashSet<PaymentTypes> PaymentMethodsForCapture = new()
+        private static readonly HashSet<PaymentTypes> PaymentTypesForCapture = new()
         {
             PaymentTypes.CreditCard
         };
         
-        private static readonly HashSet<PaymentTypes> PaymentMethodsForCharge = new()
+        private static readonly HashSet<PaymentTypes> PaymentTypesForCharge = new()
         {
             PaymentTypes.VirtualAccount
         };
