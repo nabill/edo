@@ -13,8 +13,10 @@ namespace HappyTravel.Edo.Data.Notifications
         public JsonDocument Message { get; set; }
         public NotificationTypes Type { get; set; }
         public JsonDocument SendingSettings { get; set; }
-        public DateTime Created { get; set; }
         public SendingStatuses SendingStatus { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Received { get; set; }
+        public DateTime? Read { get; set; }
 
 
         public void Dispose()

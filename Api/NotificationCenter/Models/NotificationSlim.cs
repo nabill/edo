@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
         public NotificationTypes Type { get; init; }
         public SendingStatuses SendingStatus { get; init; }
         public DateTime Created { get; init; }
+        public DateTime? Received { get; init; }
+        public DateTime? Read { get; init; }
     }
 }

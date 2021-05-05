@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
         Task AddAgentNotification(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
 
-        Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus);
+        Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime);
 
         Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip);
     }

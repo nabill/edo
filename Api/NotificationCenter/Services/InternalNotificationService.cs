@@ -187,7 +187,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
         
         
-        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus)
+        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime)
         {
             var notification = sendingStatus switch
             {
@@ -205,6 +205,15 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             if (notification is not null)
             {
                 notification.SendingStatus = sendingStatus;
+                switch (sendingStatus)
+                {
+                    case SendingStatuses.Received:
+                        notification.Received = changeTime;
+                        break;
+                    case SendingStatuses.Read:
+                        notification.Read = changeTime;
+                        break;
+                }
                 _context.Notifications.Update(notification);
                 await _context.SaveChangesAsync();
             }
@@ -225,7 +234,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     Message = n.Message,
                     Type = n.Type,
                     SendingStatus = n.SendingStatus,
-                    Created = n.Created
+                    Created = n.Created,
+                    Received = n.Received,
+                    Read = n.Read
                 })
                 .ToListAsync();
         }
