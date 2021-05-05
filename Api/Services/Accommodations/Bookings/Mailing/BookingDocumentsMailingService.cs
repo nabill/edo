@@ -24,12 +24,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            INotificationService notificationsService, MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationsService,
             IOptions<BookingMailingOptions> options)
         {
             _documentsService = documentsService;
             _notificationsService = notificationsService;
-            _mailSender = mailSender;
             _options = options.Value;
         }
         
@@ -55,15 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         LogoUrl = voucher.LogoUrl
                     };
 
-                    // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
-                    // Sending by email via NotificationCenter will be implemented in the task AA-128.
-                    await _notificationsService.Send(agent: agent, 
-                        message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(voucherData, new(JsonSerializerDefaults.Web))), 
+                    return await _notificationsService.Send(agent: agent, 
+                        messageData: voucherData, 
                         notificationType: NotificationTypes.BookingVoucher, 
                         email: email, 
                         templateId: _options.VoucherTemplateId);
-                    // TODO: This line will be removed after implementing the task AA-128.
-                    return await _mailSender.Send(_options.VoucherTemplateId, email, voucherData);
                 });
         }
 
@@ -149,16 +144,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 DeadlineDate = DateTimeFormatters.ToDateString(paymentReceipt.DeadlineDate)
             };
 
-            // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
-            // Sending by email via NotificationCenter will be implemented in the task AA-128.
-            await _notificationsService.Send(apiCaller: apiCaller,
-                        message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(payload, new(JsonSerializerDefaults.Web))),
+            return await _notificationsService.Send(apiCaller: apiCaller,
+                        messageData: payload,
                         notificationType: NotificationTypes.SuccessfulPaymentReceipt,
                         email: email,
                         templateId: _options.BookingReceiptTemplateId);
-
-            // TODO: This line will be removed after implementing the task AA-128.
-            return await _mailSender.Send(_options.BookingReceiptTemplateId, email, payload);
         }
         
         
@@ -168,7 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
-        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }
 }
