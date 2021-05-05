@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await _notificationOptionsService.GetNotificationOptions(adminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
-                .Tap(sendingSettings => AddAdminNotification(adminId, message, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(adminId, message, notificationType, sendingSettings));
         }
 
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
-                .Tap(sendingSettings => AddAgentNotification(agent, message, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, message, notificationType, sendingSettings));
         }
 
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
-                .Tap(sendingSettings => AddAgentNotification(agent, messageData, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
         }
 
 
@@ -94,9 +94,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             return sendingSettings;
         }
-
-
-
 
 
         private readonly IInternalNotificationService _internalNotificationService;

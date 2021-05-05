@@ -12,12 +12,14 @@ using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
+using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public class InternalNotificationService : IInternalNotificationService
     {
-        public InternalNotificationService(EdoContext context, 
+        public InternalNotificationService(EdoContext context,
             IHubContext<AgentNotificationHub, INotificationClient> agentNotificationHub,
             IHubContext<AdminNotificationHub, INotificationClient> adminNotificationHub,
             MailSenderWithCompanyInfo mailSender,
@@ -33,7 +35,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task AddAdminNotification(int adminId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
-            await _internalNotificationService.Add(new Notification
+            var notification = new Notification
             {
                 Receiver = ReceiverTypes.AdminPanel,
                 UserId = adminId,
@@ -41,13 +43,35 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = message,
                 Type = notificationType,
                 SendingSettings = sendingSettings
-            });
+            };
+
+            var notificationId = await Save(notification);
+            
+            await Send(notification, notificationId);
+        }
+
+
+        public async Task AddAdminNotification(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        {
+            var notification = new Notification
+            {
+                Receiver = ReceiverTypes.AdminPanel,
+                UserId = adminId,
+                AgencyId = null,
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(messageData, new(JsonSerializerDefaults.Web))),
+                Type = notificationType,
+                SendingSettings = sendingSettings
+            };
+
+            var notificationId = await Save(notification);
+
+            await Send(notification, notificationId, messageData);
         }
 
 
         public async Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
-            await _internalNotificationService.Add(new Notification
+            var notification = new Notification
             {
                 Receiver = ReceiverTypes.AgentApp,
                 UserId = agent.AgentId,
@@ -55,11 +79,33 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = message,
                 Type = notificationType,
                 SendingSettings = sendingSettings
-            });
+            };
+
+            var notificationId = await Save(notification);
+
+            await Send(notification, notificationId);
         }
 
 
-        public async Task Add(Notifications.Models.Notification notification)
+        public async Task AddAgentNotification(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        {
+            var notification = new Notification
+            {
+                Receiver = ReceiverTypes.AgentApp,
+                UserId = agent.AgentId,
+                AgencyId = agent.AgencyId,
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(messageData, new(JsonSerializerDefaults.Web))),
+                Type = notificationType,
+                SendingSettings = sendingSettings
+            };
+
+            var notificationId = await Save(notification);
+
+            await Send(notification, notificationId, messageData);
+        }
+
+
+        private async Task<int> Save(Notifications.Models.Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
@@ -73,30 +119,66 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             });
             await _context.SaveChangesAsync();
 
+            return entry.Entity.Id;
+        }
+
+
+        private async Task Send(Notifications.Models.Notification notification, int notificationId)
+        {
             var tasks = new List<Task>();
 
             foreach (var (protocol, settings) in notification.SendingSettings)
             {
                 var task = protocol switch
                 {
-                    ProtocolTypes.Email when settings is EmailSettings emailSettings 
-                        => SendEmail(emailSettings),
-                    
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
-                        => notification.Receiver switch 
+                        => notification.Receiver switch
                         {
                             ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
-                            
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Message),
+
                             ReceiverTypes.AdminPanel
-                                => SendMessageToAdmin(notification.UserId, entry.Entity.Id, notification.Message),
+                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Message),
 
                             _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
                         },
-                    
+
                     _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
                 };
-                
+
+                tasks.Add(task);
+            }
+
+            await Task.WhenAll(tasks);
+        }
+
+
+        private async Task Send(Notifications.Models.Notification notification, int notificationId, DataWithCompanyInfo messageData)
+        {
+            var tasks = new List<Task>();
+
+            foreach (var (protocol, settings) in notification.SendingSettings)
+            {
+                var task = protocol switch
+                {
+                    ProtocolTypes.Email when settings is EmailSettings emailSettings
+                        => SendEmail(emailSettings, messageData),
+
+                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
+                        => notification.Receiver switch
+                        {
+                            ReceiverTypes.AgentApp
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Message),
+
+                            ReceiverTypes.AdminPanel
+                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Message),
+
+                            _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
+                        },
+
+                    _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
+                };
+
                 tasks.Add(task);
             }
 
@@ -138,12 +220,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task SendEmail(EmailSettings settings)
+        private async Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
         {
             if (settings.Emails.Count == 1)
-                await _mailSender.Send(settings.TemplateId, settings.Emails[0], new Api.Models.Mailing.DataWithCompanyInfo());
+                await _mailSender.Send(settings.TemplateId, settings.Emails[0], messageData);
             else
-                await _mailSender.Send(settings.TemplateId, settings.Emails, new Api.Models.Mailing.DataWithCompanyInfo());
+                await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
         }
 
 
