@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Receiver = ReceiverTypes.AdminPanel,
                 UserId = adminId,
                 AgencyId = null,
-                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(messageData, new(JsonSerializerDefaults.Web))),
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
                 Type = notificationType,
                 SendingSettings = sendingSettings
             };
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Receiver = ReceiverTypes.AgentApp,
                 UserId = agent.AgentId,
                 AgencyId = agent.AgencyId,
-                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(messageData, new(JsonSerializerDefaults.Web))),
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
                 Type = notificationType,
                 SendingSettings = sendingSettings
             };
