@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupCreated,
                     new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
-                    agent.ToUserInfo());
+                    agent.ToApiCaller());
         }
 
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupDeleted,
                     new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
-                    agent.ToUserInfo());
+                    agent.ToApiCaller());
         }
 
 
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupUpdated,
                     new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
-                    agent.ToUserInfo());
+                    agent.ToApiCaller());
         }
 
 

@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             
 
             async Task<Result> CaptureMoney(Booking booking) 
-                => await Capture(booking, agent.ToUserInfo());
+                => await Capture(booking, agent.ToApiCaller());
             
             
             async Task NotifyPaymentReceived(Booking booking) 

@@ -38,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _context.Detach(entry.Entity);
 
 
-            static BookingChangeInitiators GetInitiatorType(ApiCaller userInfo)
-                => userInfo.Type switch
+            static BookingChangeInitiators GetInitiatorType(ApiCaller apiCaller)
+                => apiCaller.Type switch
                 {
                     ApiCallerTypes.Admin => BookingChangeInitiators.Administrator,
                     ApiCallerTypes.Agent => BookingChangeInitiators.Agent,

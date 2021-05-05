@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             }
 
 
-            Task WriteAuditLog(Booking booking) => _auditService.Write(administratorContext.ToUserInfo(), booking.ReferenceCode);
+            Task WriteAuditLog(Booking booking) => _auditService.Write(administratorContext.ToApiCaller(), booking.ReferenceCode);
             
             Task ChangeBookingPaymentStatusToCaptured(Booking booking)
             {

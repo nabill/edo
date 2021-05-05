@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(),  CancellationDate, paymentService, "reason");
+            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(),  CancellationDate, paymentService, "reason");
     
             Assert.True(isSuccess);
             Assert.Equal(1100m, _account.Balance);
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(), CancellationDate, paymentService, "reason");
+            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
         
             Assert.True(isSuccess);
             Assert.Equal(PaymentStatuses.Refunded, _payment.Status);
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithInvalidAccount();
             
-            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToUserInfo(),  CancellationDate, paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(),  CancellationDate, paymentService, "reason");
         
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToUserInfo(), CancellationDate, paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
         
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);

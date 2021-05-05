@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToUserInfo(), paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
     
             Assert.True(isSuccess);
             Assert.Equal(900m, _account.Balance);
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentServiceMock = CreatePaymentServiceMock();
             
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToUserInfo(), paymentServiceMock.Object);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentServiceMock.Object);
         
             Assert.True(isSuccess);
             paymentServiceMock.Verify(p=>p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
             
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToUserInfo(), paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
     
             Assert.True(isSuccess);
             Assert.True(_mockedEdoContext.Payments.Any());
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             _account.Balance = 25m;
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
     
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToUserInfo(), paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
     
             Assert.True(isSuccess);
             Assert.Equal(-75m, _account.Balance);
@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var startingBalance = _account.Balance = 24m;
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
     
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToUserInfo(), paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
     
             Assert.True(isFailure);
             Assert.Equal(startingBalance, _account.Balance);
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithoutServicePrice();
             
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("REFCODE" + " wrong code", _agent.ToUserInfo(), paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("REFCODE" + " wrong code", _agent.ToApiCaller(), paymentService);
         
             Assert.True(isFailure);
             
@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithoutAgencyAccount();
             
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToUserInfo(), paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentService);
         
             Assert.True(isFailure);
             
