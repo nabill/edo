@@ -19,12 +19,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         public async Task<Result> ReturnMoney(Booking booking, DateTime operationDate, ApiCaller apiCaller)
         {
-            return booking.PaymentMethod switch
+            return booking.PaymentType switch
             {
                 PaymentTypes.VirtualAccount => await ReturnVirtualAccountPayment(),
                 PaymentTypes.CreditCard => await ReturnCreditCardPayment(),
                 PaymentTypes.Offline => Result.Success(),
-                _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentMethod), $"Invalid payment method {booking.PaymentMethod}")
+                _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentType), $"Invalid payment method {booking.PaymentType}")
             };
 
 

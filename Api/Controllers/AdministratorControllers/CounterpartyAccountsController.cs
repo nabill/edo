@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.AddMoney(counterpartyAccountId, paymentData,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.SubtractMoney(counterpartyAccountId,
-                cancellationData, administrator.ToUserInfo());
+                cancellationData, administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.TransferToDefaultAgency(counterpartyAccountId, amount,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.IncreaseManually(counterpartyAccountId, paymentData,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.DecreaseManually(counterpartyAccountId, paymentData,
-                administrator.ToUserInfo());
+                administrator.ToApiCaller());
 
             return isSuccess
                 ? NoContent()

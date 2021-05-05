@@ -44,17 +44,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         public async Task<Result<string>> Charge(Booking booking, ApiCaller apiCaller)
         {
-            return await CheckPaymentMethod()
+            return await CheckPaymentType()
                 .Bind(Charge)
                 .Bind(SendReceipt)
                 .Finally(WriteLog);
 
 
-            Result CheckPaymentMethod()
-                => booking.PaymentMethod == PaymentTypes.VirtualAccount
+            Result CheckPaymentType()
+                => booking.PaymentType == PaymentTypes.VirtualAccount
                     ? Result.Success()
                     : Result.Failure($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
-                        $"Error: Invalid payment method: {booking.PaymentMethod}");
+                        $"Error: Invalid payment method: {booking.PaymentType}");
 
 
             async Task<Result<string>> Charge()

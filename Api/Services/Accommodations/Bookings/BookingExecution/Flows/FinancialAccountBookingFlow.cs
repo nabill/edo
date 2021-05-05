@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Result> ChargeMoney((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, _) = bookingInfo;
-                return await _accountPaymentService.Charge(booking, agentContext.ToUserInfo());
+                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
             }
             
             

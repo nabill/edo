@@ -34,11 +34,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result<string>> Capture(Booking booking, ApiCaller apiCaller)
         {
-            if (booking.PaymentMethod != PaymentTypes.CreditCard)
+            if (booking.PaymentType != PaymentTypes.CreditCard)
             {
                 _logger.LogCaptureMoneyForBookingFailure($"Failed to capture money for a booking with reference code: '{booking.ReferenceCode}'. " +
-                    $"Error: Invalid payment method: {booking.PaymentMethod}");
-                return Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
+                    $"Error: Invalid payment method: {booking.PaymentType}");
+                return Result.Failure<string>($"Invalid payment method: {booking.PaymentType}");
             }
 
             _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             
 
             async Task<Result> CaptureMoney(Booking booking) 
-                => await Capture(booking, agent.ToUserInfo());
+                => await Capture(booking, agent.ToApiCaller());
             
             
             async Task NotifyPaymentReceived(Booking booking) 

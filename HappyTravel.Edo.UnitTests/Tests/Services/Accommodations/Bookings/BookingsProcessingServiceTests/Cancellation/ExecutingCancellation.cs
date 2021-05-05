@@ -78,15 +78,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             new Booking
             {
-                Id = 1, PaymentStatus = BookingPaymentStatuses.NotPaid, ReferenceCode = "NNN-222", Status = BookingStatuses.Confirmed, PaymentMethod = PaymentTypes.CreditCard
+                Id = 1, PaymentStatus = BookingPaymentStatuses.NotPaid, ReferenceCode = "NNN-222", Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard
             },
             new Booking
             {
-                Id = 2, PaymentStatus = BookingPaymentStatuses.Refunded, ReferenceCode = "NNN-223", Status = BookingStatuses.Confirmed, PaymentMethod = PaymentTypes.CreditCard
+                Id = 2, PaymentStatus = BookingPaymentStatuses.Refunded, ReferenceCode = "NNN-223", Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard
             },
             new Booking
             {
-                Id = 3, PaymentStatus = BookingPaymentStatuses.Authorized, ReferenceCode = "NNN-224", Status = BookingStatuses.Confirmed, PaymentMethod = PaymentTypes.CreditCard
+                Id = 3, PaymentStatus = BookingPaymentStatuses.Authorized, ReferenceCode = "NNN-224", Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard
             }
         };
     }

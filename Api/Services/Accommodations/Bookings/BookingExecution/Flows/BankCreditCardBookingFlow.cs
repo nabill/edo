@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             async Task<Result> CaptureMoney(Booking booking) 
-                => await _creditCardPaymentService.Capture(booking, agentContext.ToUserInfo());
+                => await _creditCardPaymentService.Capture(booking, agentContext.ToApiCaller());
             
 
             async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Data.Bookings.Booking booking)

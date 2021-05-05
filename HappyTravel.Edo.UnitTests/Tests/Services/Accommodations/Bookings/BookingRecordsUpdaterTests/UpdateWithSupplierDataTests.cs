@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     Id = 1,
                     PaymentStatus = BookingPaymentStatuses.Authorized,
                     Status = BookingStatuses.Pending,
-                    PaymentMethod = PaymentTypes.CreditCard,
+                    PaymentType = PaymentTypes.CreditCard,
                     AgentId = 1,
                     AgencyId = 1,
                     Rooms = _bookedRooms

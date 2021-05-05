@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     Source = BookingChangeSources.System
                 };
                 return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created, 
-                    agentContext.ToUserInfo(), changeReason);
+                    agentContext.ToApiCaller(), changeReason);
             }
 
 
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 ItineraryNumber = itineraryNumber,
                 ReferenceCode = referenceCode,
                 Status = BookingStatuses.Created,
-                PaymentMethod = paymentMethod,
+                PaymentType = paymentMethod,
                 LanguageCode = languageCode,
                 Supplier = supplier,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,

@@ -63,9 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task AddMasterAgentAgencyRelation((CounterpartyInfo counterparty, Agent agent) counterpartyUserInfo)
+            async Task AddMasterAgentAgencyRelation((CounterpartyInfo counterparty, Agent agent) counterpartyAgentInfo)
             {
-                var (counterparty, agent) = counterpartyUserInfo;
+                var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
