@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
             var (_, isFailure, error) = await _agentInvitationAcceptService
-                .Accept(request.InvitationCode, request.RegistrationInfo.ToUserInvitationData(), identity);
+                .Accept(request.InvitationCode, request.RegistrationInfo.ToUserInvitationData(), identity, email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
