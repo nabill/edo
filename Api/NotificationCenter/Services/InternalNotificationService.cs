@@ -115,6 +115,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = notification.Message,
                 Type = notification.Type,
                 SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
+                SendingStatus = SendingStatuses.Sent,
                 Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();
@@ -184,37 +185,47 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             await Task.WhenAll(tasks);
         }
-
-
-        public async Task MarkAsRead(int notificationId)
+        
+        
+        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus)
         {
-            var notification = await _context.Notifications
-                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
+            var notification = sendingStatus switch
+            {
+                SendingStatuses.Received
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent)),
+
+                SendingStatuses.Read
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
+
+                _ => null
+            };
 
             if (notification is not null)
             {
-                notification.IsRead = true;
+                notification.SendingStatus = sendingStatus;
                 _context.Notifications.Update(notification);
                 await _context.SaveChangesAsync();
             }
         }
 
 
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
+        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip)
         {
             return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId)
+                .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
                 .Take(top)
                 .Skip(skip)
                 .Select(n => new SlimNotification
                 {
-                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
+                    AgencyId = n.AgencyId,
                     Message = n.Message,
                     Type = n.Type,
-                    Created = n.Created,
-                    IsRead = n.IsRead
+                    SendingStatus = n.SendingStatus,
+                    Created = n.Created
                 })
                 .ToListAsync();
         }

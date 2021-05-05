@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -103,6 +104,14 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
         }
+
+
+        public async Task<List<SlimNotification>> GetAgentNotifications(SlimAgentContext agent, int top, int skip)
+            => await _internalNotificationService.GetNotifications(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, top, skip);
+        
+
+        public async Task<List<SlimNotification>> GetAdminNotifications(int adminId, int top, int skip)
+            => await _internalNotificationService.GetNotifications(ReceiverTypes.AdminPanel, adminId, null, top, skip);
 
 
         private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)

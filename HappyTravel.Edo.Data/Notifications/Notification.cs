@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.Notifications
         public NotificationTypes Type { get; set; }
         public JsonDocument SendingSettings { get; set; }
         public DateTime Created { get; set; }
-        public bool IsRead { get; set; }
+        public SendingStatuses SendingStatus { get; set; }
 
 
         public void Dispose()

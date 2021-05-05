@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Notifications.Enums;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -22,5 +23,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
+
+        Task<List<SlimNotification>> GetAgentNotifications(SlimAgentContext agent, int top, int skip);
+        Task<List<SlimNotification>> GetAdminNotifications(int adminId, int top, int skip);
     }
 }
