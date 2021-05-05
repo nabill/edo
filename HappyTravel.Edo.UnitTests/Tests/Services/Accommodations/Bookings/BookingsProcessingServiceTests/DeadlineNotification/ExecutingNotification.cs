@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-222",
                 Status = BookingStatuses.Pending,
-                PaymentMethod = PaymentTypes.VirtualAccount,
+                PaymentType = PaymentTypes.VirtualAccount,
                 CheckInDate = new DateTime(2021, 12, 10),
                 AgentId = AgentId
             },
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-223",
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 11),
                 DeadlineDate = new DateTime(2021, 12, 9),
                 AgentId = AgentId
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-224",
                 Status = BookingStatuses.Confirmed,
-                PaymentMethod = PaymentTypes.CreditCard,
+                PaymentType = PaymentTypes.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 10),
                 DeadlineDate = new DateTime(2021, 11, 9),
                 AgentId = AgentId
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-224",
                 Status = BookingStatuses.Cancelled,
-                PaymentMethod = PaymentTypes.VirtualAccount,
+                PaymentType = PaymentTypes.VirtualAccount,
                 CheckInDate = new DateTime(2021, 12, 20),
                 AgentId = AgentId
             },
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-224",
                 Status = BookingStatuses.Rejected,
-                PaymentMethod = PaymentTypes.VirtualAccount,
+                PaymentType = PaymentTypes.VirtualAccount,
                 CheckInDate = new DateTime(2022, 12, 20),
                 AgentId = AgentId
             }

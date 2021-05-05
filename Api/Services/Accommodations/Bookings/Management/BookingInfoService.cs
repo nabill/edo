@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
                 supplier,
                 agentInformation,
-                booking.PaymentMethod,
+                booking.PaymentType,
                 booking.Tags,
                 isDirectContract);
 

@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public string Residency { get; set; }
         public string ItineraryNumber { get; set; }
         public string MainPassengerName { get; set; }
-        public PaymentTypes PaymentMethod { get; set; }
+        public PaymentTypes PaymentType { get; set; }
         public string LanguageCode { get; set; }
         public Common.Enums.Suppliers Supplier { get; set; }
         

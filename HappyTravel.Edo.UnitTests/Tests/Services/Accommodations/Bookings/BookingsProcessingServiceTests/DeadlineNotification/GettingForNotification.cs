@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     Id = id,
                     PaymentStatus = BookingPaymentStatuses.Authorized,
                     Status = BookingStatuses.Confirmed,
-                    PaymentMethod = PaymentTypes.VirtualAccount,
+                    PaymentType = PaymentTypes.VirtualAccount,
                     DeadlineDate = null,
                     CheckInDate = checkInDate
                 };
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     Id = id,
                     PaymentStatus = BookingPaymentStatuses.Authorized,
                     Status = BookingStatuses.Confirmed,
-                    PaymentMethod = PaymentTypes.VirtualAccount,
+                    PaymentType = PaymentTypes.VirtualAccount,
                     DeadlineDate = deadlineDate,
                     CheckInDate = DateTime.MaxValue
                 };
