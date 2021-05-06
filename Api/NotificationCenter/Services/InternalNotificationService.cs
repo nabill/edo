@@ -239,7 +239,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     Read = n.Read
                 })
                 .ToListAsync();
-        }
+        } 
 
 
         private async Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
