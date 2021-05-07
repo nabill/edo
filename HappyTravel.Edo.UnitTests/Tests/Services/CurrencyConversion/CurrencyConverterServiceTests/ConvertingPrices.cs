@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.CurrencyConverter;
+using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Moq;
 using Xunit;
 
@@ -64,6 +68,57 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
         [Fact(Skip = "Can't test, because of ICurrencyConverterFactory design")]
         public void Conversion_should_returns_success()
         { }
+        
+        
+        [Fact]
+        public async Task Conversion_should_use_rate_to_convert_prices()
+        {
+            var rateService = CreateAedToUsdRateService(aedToUsdRate: (decimal) 0.274);
+            var converterFactory = CreateConverterFactoryWithZeroBuffers();
+            var currencyConverter = new CurrencyConverterService(rateService, converterFactory);
+            var originalPrice = new MoneyAmount
+            {
+                Amount = (decimal) 3761.62,
+                Currency = Currencies.AED
+            };
+
+            var (_, _, resultingPrice, _) = await currencyConverter.ConvertPricesInData(default,
+                originalPrice,
+                (amount, function) => function(amount), 
+                d => d.Currency);
+
+
+            Assert.Equal((decimal) 1030.68, resultingPrice.Amount);
+            Assert.Equal(Currencies.USD, resultingPrice.Currency);
+            
+            
+            static ICurrencyRateService CreateAedToUsdRateService(decimal aedToUsdRate)
+            {
+                var rt = new Mock<ICurrencyRateService>();
+                rt.Setup(cr => cr.Get(Currencies.AED, Currencies.USD))
+                    .ReturnsAsync(() => Result.Success(aedToUsdRate));
+                
+                return rt.Object;
+            }
+
+            
+            static ICurrencyConverterFactory CreateConverterFactoryWithZeroBuffers()
+                => new CurrencyConverterFactory(new List<BufferPair>
+                {
+                    new()
+                    {
+                        BufferValue = decimal.Zero,
+                        SourceCurrency = Currencies.AED,
+                        TargetCurrency = Currencies.USD
+                    },
+                    new()
+                    {
+                        BufferValue = decimal.Zero,
+                        SourceCurrency = Currencies.USD,
+                        TargetCurrency = Currencies.AED
+                    }
+                });
+        }
 
 
         private static Func<object, Currencies?> GetCurrencyFunc => _ => Currencies.EUR;
