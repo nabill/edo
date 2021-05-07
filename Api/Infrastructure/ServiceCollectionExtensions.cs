@@ -359,6 +359,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Columbus"]
                     : supplierOptions["columbus"];
                 
+                options.TravelgateXTest = environment.IsLocal()
+                    ? configuration["Suppliers:TravelgateXTest"]
+                    : supplierOptions["travelgateXTest"];
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
