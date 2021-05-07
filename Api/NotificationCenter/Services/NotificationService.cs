@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
-                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin.AdminId, message, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, message, notificationType, sendingSettings));
         }
 
 
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
-                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin.AdminId, messageData, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, messageData, notificationType, sendingSettings));
         }
 
 

@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -33,12 +34,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task AddAdminNotification(int adminId, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        public async Task AddAdminNotification(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
             {
                 Receiver = ReceiverTypes.AdminPanel,
-                UserId = adminId,
+                UserId = admin.AdminId,
                 AgencyId = null,
                 Message = message,
                 Type = notificationType,
@@ -49,12 +50,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task AddAdminNotification(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        public async Task AddAdminNotification(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
             {
                 Receiver = ReceiverTypes.AdminPanel,
-                UserId = adminId,
+                UserId = admin.AdminId,
                 AgencyId = null,
                 Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
                 Type = notificationType,
