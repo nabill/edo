@@ -45,9 +45,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            var notificationId = await Save(notification);
-            
-            await Send(notification, notificationId);
+            await Send(notification, null);
         }
 
 
@@ -63,9 +61,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            var notificationId = await Save(notification);
-
-            await Send(notification, notificationId, messageData);
+            await Send(notification, messageData);
         }
 
 
@@ -81,9 +77,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            var notificationId = await Save(notification);
-
-            await Send(notification, notificationId);
+            await Send(notification, null);
         }
 
 
@@ -99,8 +93,47 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            var notificationId = await Save(notification);
+            await Send(notification, messageData);
+        }
 
+
+        public async Task MarkAsRead(int notificationId)
+        {
+            var notification = await _context.Notifications
+                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
+
+            if (notification is not null)
+            {
+                notification.IsRead = true;
+                _context.Notifications.Update(notification);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
+        {
+            return await _context.Notifications
+                .Where(n => n.Receiver == receiver && n.UserId == userId)
+                .Take(top)
+                .Skip(skip)
+                .Select(n => new SlimNotification
+                {
+                    Receiver = n.Receiver,
+                    Id = n.Id,
+                    UserId = n.UserId,
+                    Message = n.Message,
+                    Type = n.Type,
+                    Created = n.Created,
+                    IsRead = n.IsRead
+                })
+                .ToListAsync();
+        }
+
+
+        private async Task Send(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
+        {
+            var notificationId = await Save(notification);
             await Send(notification, notificationId, messageData);
         }
 
@@ -124,36 +157,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task Send(Notifications.Models.Notification notification, int notificationId)
-        {
-            var tasks = new List<Task>();
-
-            foreach (var (protocol, settings) in notification.SendingSettings)
-            {
-                var task = protocol switch
-                {
-                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
-                        => notification.Receiver switch
-                        {
-                            ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Message),
-
-                            ReceiverTypes.AdminPanel
-                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Message),
-
-                            _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
-                        },
-
-                    _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
-                };
-
-                tasks.Add(task);
-            }
-
-            await Task.WhenAll(tasks);
-        }
-
-
         private async Task Send(Notifications.Models.Notification notification, int notificationId, DataWithCompanyInfo messageData)
         {
             var tasks = new List<Task>();
@@ -162,7 +165,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             {
                 var task = protocol switch
                 {
-                    ProtocolTypes.Email when settings is EmailSettings emailSettings
+                    ProtocolTypes.Email when settings is EmailSettings emailSettings && messageData is not null
                         => SendEmail(emailSettings, messageData),
 
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
@@ -242,29 +245,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         } 
 
 
-        private async Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
-        {
-            if (settings.Emails.Count == 1)
-                await _mailSender.Send(settings.TemplateId, settings.Emails[0], messageData);
-            else
-                await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
-        }
-
-
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
-        {
-            await _agentNotificationHub.Clients
+            => await _agentNotificationHub.Clients
                 .Group($"{agencyId}-{userId}")
                 .ReceiveMessage(messageId, message);
-        }
 
 
         private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
-        {
-            await _adminNotificationHub.Clients
+            => await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
                 .ReceiveMessage(messageId, message);
-        }
 
 
         private readonly EdoContext _context;
