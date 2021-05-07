@@ -95,40 +95,59 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             await Send(notification, messageData);
         }
-
-
-        public async Task MarkAsRead(int notificationId)
+        
+        
+        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime)
         {
-            var notification = await _context.Notifications
-                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
+            var notification = sendingStatus switch
+            {
+                SendingStatuses.Received
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent)),
+
+                SendingStatuses.Read
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
+
+                _ => null
+            };
 
             if (notification is not null)
             {
-                notification.IsRead = true;
+                notification.SendingStatus = sendingStatus;
+                switch (sendingStatus)
+                {
+                    case SendingStatuses.Received:
+                        notification.Received = changeTime;
+                        break;
+                    case SendingStatuses.Read:
+                        notification.Read = changeTime;
+                        break;
+                }
                 _context.Notifications.Update(notification);
                 await _context.SaveChangesAsync();
             }
         }
 
 
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
-        {
-            return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId)
+        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip)
+            => await _context.Notifications
+                .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
                 .Take(top)
                 .Skip(skip)
                 .Select(n => new SlimNotification
                 {
-                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
+                    AgencyId = n.AgencyId,
                     Message = n.Message,
                     Type = n.Type,
+                    SendingStatus = n.SendingStatus,
                     Created = n.Created,
-                    IsRead = n.IsRead
+                    Received = n.Received,
+                    Read = n.Read
                 })
                 .ToListAsync();
-        }
 
 
         private async Task Send(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
@@ -188,61 +207,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             await Task.WhenAll(tasks);
         }
-        
-        
-        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime)
-        {
-            var notification = sendingStatus switch
-            {
-                SendingStatuses.Received
-                    => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent)),
-
-                SendingStatuses.Read
-                    => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
-
-                _ => null
-            };
-
-            if (notification is not null)
-            {
-                notification.SendingStatus = sendingStatus;
-                switch (sendingStatus)
-                {
-                    case SendingStatuses.Received:
-                        notification.Received = changeTime;
-                        break;
-                    case SendingStatuses.Read:
-                        notification.Read = changeTime;
-                        break;
-                }
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
-            }
-        }
 
 
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip)
-        {
-            return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
-                .Take(top)
-                .Skip(skip)
-                .Select(n => new SlimNotification
-                {
-                    Id = n.Id,
-                    UserId = n.UserId,
-                    AgencyId = n.AgencyId,
-                    Message = n.Message,
-                    Type = n.Type,
-                    SendingStatus = n.SendingStatus,
-                    Created = n.Created,
-                    Received = n.Received,
-                    Read = n.Read
-                })
-                .ToListAsync();
-        } 
+        private async Task<Result> SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
+            => await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
 
 
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
