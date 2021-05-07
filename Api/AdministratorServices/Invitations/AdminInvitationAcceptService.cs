@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         }
 
 
-        public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity)
+        public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity, string email)
         {
             return await GetActiveInvitation()
                 .Ensure(IsIdentityPresent, "User should have identity")
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
 
             async Task<bool> IsEmailUnique(UserInvitation invitation) 
-                => !await _context.Administrators.AnyAsync(a => a.Email == invitation.Email);
+                => !await _context.Administrators.AnyAsync(a => a.Email == email);
 
 
             Task SaveAccepted(UserInvitation invitation) 
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
                 var administrator = new Administrator
                 {
-                    Email = invitationData.UserRegistrationInfo.Email,
+                    Email = email,
                     FirstName = invitationData.UserRegistrationInfo.FirstName,
                     LastName = invitationData.UserRegistrationInfo.LastName,
                     IdentityHash = HashGenerator.ComputeSha256(identity),
