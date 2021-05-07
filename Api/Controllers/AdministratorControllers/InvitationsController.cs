@@ -27,14 +27,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAdminInvitationCreateService adminInvitationCreateService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAdministratorContext administratorContext,
-            IHttpClientFactory httpClientFactory)
+            IIdentityUserInfoService identityUserInfoService)
         {
             _invitationRecordService = invitationRecordService;
             _adminInvitationAcceptService = adminInvitationAcceptService;
             _adminInvitationCreateService = adminInvitationCreateService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _administratorContext = administratorContext;
-            _httpClientFactory = httpClientFactory;
+            _identityUserInfoService = identityUserInfoService;
         }
 
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
-            var email = await GetUserEmail();
+            var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
@@ -104,26 +104,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        private async Task<string> GetUserEmail()
-        {
-            // TODO: Move this logic to separate service
-            using var identityClient = _httpClientFactory.CreateClient(HttpClientNames.Identity);
-
-            var doc = await identityClient.GetDiscoveryDocumentAsync();
-            var token = await _tokenInfoAccessor.GetAccessToken();
-
-            return (await identityClient.GetUserInfoAsync(new UserInfoRequest { Token = token, Address = doc.UserInfoEndpoint }))
-                .Claims
-                .SingleOrDefault(c => c.Type == "email")
-                ?.Value;
-        }
-
-
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAdminInvitationAcceptService _adminInvitationAcceptService;
         private readonly IAdminInvitationCreateService _adminInvitationCreateService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAdministratorContext _administratorContext;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IIdentityUserInfoService _identityUserInfoService;
     }
 }

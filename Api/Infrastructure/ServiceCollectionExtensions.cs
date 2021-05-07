@@ -542,6 +542,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
+            services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
             services.AddTransient<ICreditCardAuditService, CreditCardAuditService>();
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();

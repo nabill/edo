@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
@@ -34,7 +32,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationAcceptService agentInvitationAcceptService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgencyService agencyService,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IIdentityUserInfoService identityUserInfoService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -44,6 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _tokenInfoAccessor = tokenInfoAccessor;
             _agencyService = agencyService;
             _httpClientFactory = httpClientFactory;
+            _identityUserInfoService = identityUserInfoService;
         }
 
 
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
-            var email = await GetUserEmail();
+            var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
@@ -266,21 +266,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private async Task<string> GetUserEmail()
-        {
-            // TODO: Move this logic to separate service
-            using var identityClient = _httpClientFactory.CreateClient(HttpClientNames.Identity);
-
-            var doc = await identityClient.GetDiscoveryDocumentAsync();
-            var token = await _tokenInfoAccessor.GetAccessToken();
-
-            return (await identityClient.GetUserInfoAsync(new UserInfoRequest { Token = token, Address = doc.UserInfoEndpoint }))
-                .Claims
-                .SingleOrDefault(c => c.Type == "email")
-                ?.Value;
-        }
-
-
         private readonly IChildAgencyService _childAgencyService;
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
@@ -288,6 +273,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgencyService _agencyService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgencyManagementService _agencyManagementService;
     }
 }
