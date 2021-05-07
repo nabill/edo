@@ -15,9 +15,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
         Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
 
-        Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType);
-        Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
-        Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
+        Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType);
+        Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);
+        Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
 
         Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId);

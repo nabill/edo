@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(apiCaller.Id, message, notificationType);
+                return await Send(new SlimAdminContext(apiCaller.Id), message, notificationType);
             else
                 return Result.Success();
         }
@@ -55,31 +55,31 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), messageData, notificationType, emails, templateId);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(apiCaller.Id, messageData, notificationType, emails, templateId);
+                return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails, templateId);
             else
                 return Result.Success();
         }
 
 
-        public async Task<Result> Send(int adminId, JsonDocument message, NotificationTypes notificationType)
+        public async Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType)
         {
-            return await _notificationOptionsService.GetNotificationOptions(adminId, ApiCallerTypes.Admin, null, notificationType)
+            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
-                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(adminId, message, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin.AdminId, message, notificationType, sendingSettings));
         }
 
 
-        public async Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
         {
-            return await Send(adminId, messageData, notificationType, new List<string> { email }, templateId);
+            return await Send(admin, messageData, notificationType, new List<string> { email }, templateId);
         }
 
 
-        public async Task<Result> Send(int adminId, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
         {
-            return await _notificationOptionsService.GetNotificationOptions(adminId, ApiCallerTypes.Admin, null, notificationType)
+            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
-                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(adminId, messageData, notificationType, sendingSettings));
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin.AdminId, messageData, notificationType, sendingSettings));
         }
 
 
