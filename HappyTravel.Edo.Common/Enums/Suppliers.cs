@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Common.Enums
         Rakuten = 5,
         [Description("Columbus (Direct Contracts)")]
         Columbus = 6,
-        [Description("TravelgateX(TEST)")]
+        [Description("TravelgateX (TEST)")]
         TravelgateXTest
     }
 }
