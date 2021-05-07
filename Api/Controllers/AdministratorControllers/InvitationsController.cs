@@ -1,13 +1,17 @@
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -22,13 +26,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAdminInvitationAcceptService adminInvitationAcceptService,
             IAdminInvitationCreateService adminInvitationCreateService,
             ITokenInfoAccessor tokenInfoAccessor,
-            IAdministratorContext administratorContext)
+            IAdministratorContext administratorContext,
+            IIdentityUserInfoService identityUserInfoService)
         {
             _invitationRecordService = invitationRecordService;
             _adminInvitationAcceptService = adminInvitationAcceptService;
             _adminInvitationCreateService = adminInvitationCreateService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _administratorContext = administratorContext;
+            _identityUserInfoService = identityUserInfoService;
         }
 
 
@@ -68,7 +74,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
-            var (_, isFailure, error) = await _adminInvitationAcceptService.Accept(invitationCode, default, identity);
+            var email = await _identityUserInfoService.GetUserEmail();
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
+
+            var (_, isFailure, error) = await _adminInvitationAcceptService.Accept(invitationCode, default, identity, email);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -92,12 +102,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok();
         }
-        
-        
+
+
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAdminInvitationAcceptService _adminInvitationAcceptService;
         private readonly IAdminInvitationCreateService _adminInvitationCreateService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAdministratorContext _administratorContext;
+        private readonly IIdentityUserInfoService _identityUserInfoService;
     }
 }
