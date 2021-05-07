@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            await Send(notification, null);
+            await SaveAndSend(notification, null);
         }
 
 
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            await Send(notification, messageData);
+            await SaveAndSend(notification, messageData);
         }
 
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            await Send(notification, null);
+            await SaveAndSend(notification, null);
         }
 
 
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 SendingSettings = sendingSettings
             };
 
-            await Send(notification, messageData);
+            await SaveAndSend(notification, messageData);
         }
         
         
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .ToListAsync();
 
 
-        private async Task Send(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
+        private async Task SaveAndSend(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
         {
             var notificationId = await Save(notification);
             await Send(notification, notificationId, messageData);
