@@ -9,18 +9,14 @@ using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
-using IdentityModel.Client;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -43,7 +39,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentService agentService,
             IAgentStatusManagementService agentStatusManagementService,
             IAgentInvitationRecordListService agentInvitationRecordListService,
-            IAgentInvitationCreateService agentInvitationCreateService)
+            IAgentInvitationCreateService agentInvitationCreateService,
+            IIdentityUserInfoService identityUserInfoService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -58,6 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentStatusManagementService = agentStatusManagementService;
             _agentInvitationRecordListService = agentInvitationRecordListService;
             _agentInvitationCreateService = agentInvitationCreateService;
+            _identityUserInfoService = identityUserInfoService;
         }
 
 
@@ -75,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
-            var email = await GetUserEmail();
+            var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
@@ -103,12 +101,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
-            var email = await GetUserEmail();
+            var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
             var (_, isFailure, error) = await _agentInvitationAcceptService
-                .Accept(request.InvitationCode, request.RegistrationInfo.ToUserInvitationData(), identity);
+                .Accept(request.InvitationCode, request.RegistrationInfo.ToUserInvitationData(), identity, email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -439,21 +437,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 
-        private async Task<string> GetUserEmail()
-        {
-            // TODO: Move this logic to separate service
-            using var identityClient = _httpClientFactory.CreateClient(HttpClientNames.Identity);
-
-            var doc = await identityClient.GetDiscoveryDocumentAsync();
-            var token = await _tokenInfoAccessor.GetAccessToken();
-
-            return (await identityClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint}))
-                .Claims
-                .SingleOrDefault(c => c.Type == "email")
-                ?.Value;
-        }
-
-
         /// <summary>
         ///     Enables a given agent to operate using a given agency
         /// </summary>
@@ -489,5 +472,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentStatusManagementService _agentStatusManagementService;
         private readonly IAgentInvitationRecordListService _agentInvitationRecordListService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
+        private readonly IIdentityUserInfoService _identityUserInfoService;
     }
 }

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Created = now,
                 Modified = now,
                 ConvertedSupplierPrice = convertedSupplierPrice.Amount,
-                ConvertedSupplierCurrency = originalSupplierPrice.Currency,
+                ConvertedSupplierCurrency = convertedSupplierPrice.Currency,
                 OriginalSupplierPrice = originalSupplierPrice.Amount,
                 OriginalSupplierCurrency = originalSupplierPrice.Currency,
                 State = SupplierOrderState.Created,
