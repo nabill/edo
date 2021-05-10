@@ -62,12 +62,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
         [ProducesResponseType(typeof(AgentAccommodationBookingSettingsInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
         {
             var (_, isFailure, settings, error) = await _systemSettingsManagementService.GetAvailabilitySearchSettings(agentId, agencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            if (settings == default)
+                return NoContent();
 
             return Ok(settings.ToAgentAccommodationBookingSettingsInfo());
         }
