@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.ApiClients
         /// <summary>
         /// Suppliers enabled for the client
         /// </summary>
-        public List<Suppliers> EnabledSuppliers { get; init; }
+        public Dictionary<Suppliers, bool> EnabledSuppliers { get; init; }
         
         /// <summary>
         /// Is direct contracts only available for the client

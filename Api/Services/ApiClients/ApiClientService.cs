@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.ApiClients;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
             return new ApiClientInfo
             {
                 CounterpartyName = agent.CounterpartyName,
-                EnabledSuppliers = settings.EnabledConnectors,
+                EnabledSuppliers = settings.EnabledConnectors.ToBoolDictionary(),
                 HasDirectContractsFilter = settings.AdditionalSearchFilters.HasFlag(SearchFilters.DirectContractsOnly)
             };
         }
