@@ -2,6 +2,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
 {
     public readonly struct DiscountInfo
     {
+        public int Id { get; init; }
         public decimal DiscountPercent { get; init; }
         public string Description { get; init; }
         
