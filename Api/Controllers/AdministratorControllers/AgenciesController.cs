@@ -3,14 +3,14 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Api.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -37,8 +37,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns>Agency availability search settings</returns>
         [HttpGet("{agencyId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgencyAccommodationBookingSettings), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgencyAccommodationBookingSettingsInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agencyId)
         {
@@ -46,7 +47,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(settings);
+            if (settings == default)
+                return NoContent();
+
+            return Ok(settings.ToAgencyAccommodationBookingSettingsInfo());
         }
 
 
@@ -60,8 +64,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettings settings, [FromRoute] int agencyId)
-            => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId, settings));
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettingsInfo settings, [FromRoute] int agencyId)
+            => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId,
+                settings.ToAgencyAccommodationBookingSettings()));
 
 
         /// <summary>

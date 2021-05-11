@@ -54,9 +54,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Failure<AgentAccommodationBookingSettings>("Could not find specified agent in given agency");
 
             var existingSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
-            return existingSettings == default
-                ? Result.Failure<AgentAccommodationBookingSettings>("Could not find settings for specified agent in given agency")
-                : existingSettings.AccommodationBookingSettings;
+            
+            return existingSettings?.AccommodationBookingSettings;
         } 
         
         
