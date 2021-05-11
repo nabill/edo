@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public interface IAgentInvitationAcceptService
     {
-        Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity);
+        Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity, string email);
     }
 }

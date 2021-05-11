@@ -357,6 +357,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Columbus"]
                     : supplierOptions["columbus"];
                 
+                options.TravelgateXTest = environment.IsLocal()
+                    ? configuration["Suppliers:TravelgateXTest"]
+                    : supplierOptions["travelgateXTest"];
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
@@ -540,6 +544,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
+            services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
             services.AddTransient<ICreditCardAuditService, CreditCardAuditService>();
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();

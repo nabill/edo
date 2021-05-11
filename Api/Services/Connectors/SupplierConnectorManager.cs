@@ -47,6 +47,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.Columbus,
                     new SupplierConnector(connectorClient, _options.Columbus, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.TravelgateXTest,
+                    new SupplierConnector(connectorClient, _options.TravelgateXTest, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }

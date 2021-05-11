@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -30,7 +31,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgencyManagementService agencyManagementService,
             IAgentInvitationAcceptService agentInvitationAcceptService,
             ITokenInfoAccessor tokenInfoAccessor,
-            IAgencyService agencyService)
+            IAgencyService agencyService,
+            IHttpClientFactory httpClientFactory,
+            IIdentityUserInfoService identityUserInfoService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -39,6 +42,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationAcceptService = agentInvitationAcceptService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agencyService = agencyService;
+            _httpClientFactory = httpClientFactory;
+            _identityUserInfoService = identityUserInfoService;
         }
 
 
@@ -204,10 +209,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
+            var email = await _identityUserInfoService.GetUserEmail();
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
+
             var (_, isFailure, error) = await _agentInvitationAcceptService.Accept(
                 request.InvitationCode,
                 request.ToUserInvitationData(),
-                identity);
+                identity,
+                email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -262,6 +272,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationAcceptService _agentInvitationAcceptService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgencyService _agencyService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgencyManagementService _agencyManagementService;
     }
 }
