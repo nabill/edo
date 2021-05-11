@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
             return new ApiClientInfo
             {
                 CounterpartyName = agent.CounterpartyName,
-                EnabledSuppliers = settings.EnabledConnectors.ToBoolDictionary(),
+                EnabledSuppliers = settings.EnabledConnectors,
                 HasDirectContractsFilter = settings.AdditionalSearchFilters.HasFlag(SearchFilters.DirectContractsOnly)
             };
         }
