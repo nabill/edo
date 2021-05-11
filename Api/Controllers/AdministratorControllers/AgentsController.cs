@@ -1,14 +1,14 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -40,10 +40,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettings settings, [FromRoute] int agentId,
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettingsInfo settings, [FromRoute] int agentId,
             [FromRoute] int agencyId)
         {
-            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
+            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId,
+                settings.ToAgentAccommodationBookingSettings());
+
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -58,8 +60,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgentAccommodationBookingSettings), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgentAccommodationBookingSettingsInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
         {
@@ -67,7 +70,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(settings);
+            if (settings == default)
+                return NoContent();
+
+            return Ok(settings.ToAgentAccommodationBookingSettingsInfo());
         }
 
 
