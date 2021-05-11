@@ -9,5 +9,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId);
 
         Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettings settings);
+
+        Task<Result> DeleteAvailabilitySearchSettings(int agencyId);
     }
 }

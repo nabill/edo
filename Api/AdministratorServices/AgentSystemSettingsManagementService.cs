@@ -54,11 +54,31 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Failure<AgentAccommodationBookingSettings>("Could not find specified agent in given agency");
 
             var existingSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
-            
+
             return existingSettings?.AccommodationBookingSettings;
-        } 
-        
-        
+        }
+
+
+        public async Task<Result> DeleteAvailabilitySearchSettings(int agentId, int agencyId)
+        {
+            var doesRelationExist = await _context.AgentAgencyRelations
+                .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
+
+            if (!doesRelationExist)
+                return Result.Failure<AgentAccommodationBookingSettings>("Could not find specified agent in given agency");
+
+            var existingSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
+
+            if (existingSettings == default)
+                return Result.Failure<AgentAccommodationBookingSettings>("Could not find settings record for specified agent in given agency");
+
+            _context.Remove(existingSettings);
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
         private readonly EdoContext _context;
     }
 }

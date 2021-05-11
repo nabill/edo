@@ -58,16 +58,23 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
             <summary>
-                Gets agent's availability search settings
+                Gets agency's availability search settings
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo,System.Int32)">
             <summary>
-                Updates agent's availability search settings
+                Updates agency's availability search settings
             </summary>
             <param name="settings">Settings</param>
+            <param name="agencyId">Agency Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.DeleteSystemSettings(System.Int32)">
+            <summary>
+                Deletes agency's availability search settings
+            </summary>
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
@@ -188,6 +195,14 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.GetSystemSettings(System.Int32,System.Int32)">
             <summary>
             Gets agent's availability search settings
+            </summary>
+            <param name="agentId">Agent Id</param>
+            <param name="agencyId">Agency Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.DeleteSystemSettings(System.Int32,System.Int32)">
+            <summary>
+            Deletes agent's availability search settings
             </summary>
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Agency Id</param>
