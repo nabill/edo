@@ -5,10 +5,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 _bookingMoneyReturnServiceMock.Object,
                 _documentsMailingServiceMock.Object,
                 _supplierOrderServiceMock.Object,
-                Mock.Of<ISendingNotificationsService>(),
+                Mock.Of<INotificationService>(),
                 Mock.Of<IBookingChangeLogService>(),
                 context.Object, 
                 Mock.Of<ILogger<BookingRecordsUpdater>>());
