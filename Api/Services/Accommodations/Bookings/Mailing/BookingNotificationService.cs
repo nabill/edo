@@ -15,9 +15,9 @@ using Microsoft.Extensions.Options;
 using EnumFormatters = HappyTravel.Formatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.Formatters.MoneyFormatter;
 using DateTimeFormatters = HappyTravel.Formatters.DateTimeFormatters;
-using HappyTravel.Edo.Api.Services.Notifications;
 using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -25,13 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             MailSenderWithCompanyInfo mailSender,
-            ISendingNotificationsService sendingNotificationsService,
+            INotificationService notificationsService,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
             _bookingRecordManager = bookingRecordManager;
             _mailSender = mailSender;
-            _sendingNotificationsService = sendingNotificationsService;
+            _notificationsService = notificationsService;
             _options = options.Value;
             _context = context;
         }
@@ -81,16 +81,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
 
-                    // TODO: We are now sending parameters for mail, but they are not used in NotificationCenter.
-                    // Sending by email via NotificationCenter will be implemented in the task AA-128.
-                    await _sendingNotificationsService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
-                                message: JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(deadlineData, new(JsonSerializerDefaults.Web))),
+                    return await _notificationsService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                                messageData: deadlineData,
                                 notificationType: NotificationTypes.DeadlineApproaching,
                                 email: email,
                                 templateId: _options.DeadlineNotificationTemplateId);
-
-                    // TODO: This line will be removed after implementing the task AA-128.
-                    return await SendEmail(email, _options.DeadlineNotificationTemplateId, deadlineData);
                 });
         }
 
@@ -235,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
-        private readonly ISendingNotificationsService _sendingNotificationsService;
+        private readonly INotificationService _notificationsService;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;
     }
