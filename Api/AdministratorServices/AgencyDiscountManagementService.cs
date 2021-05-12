@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 join markupPolicy in _context.MarkupPolicies on discount.TargetPolicyId equals markupPolicy.Id
                 select new DiscountInfo
                 {
+                    Id = discount.Id,
                     DiscountPercent = discount.DiscountPercent,
                     Description = discount.Description,
                     TargetMarkupId = discount.TargetPolicyId,
