@@ -361,6 +361,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:TravelgateXTest"]
                     : supplierOptions["travelgateXTest"];
                 
+                options.Jumeirah = environment.IsLocal()
+                    ? configuration["Suppliers:Jumeirah"]
+                    : supplierOptions["jumeirah"];
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
