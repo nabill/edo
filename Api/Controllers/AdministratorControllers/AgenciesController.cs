@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets agent's availability search settings
+        ///     Gets agency's availability search settings
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <returns>Agency availability search settings</returns>
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Updates agent's availability search settings
+        ///     Updates agency's availability search settings
         /// </summary>
         /// <param name="settings">Settings</param>
         /// <param name="agencyId">Agency Id</param>
@@ -67,6 +67,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettingsInfo settings, [FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId,
                 settings.ToAgencyAccommodationBookingSettings()));
+
+
+        /// <summary>
+        ///     Deletes agency's availability search settings
+        /// </summary>
+        /// <param name="agencyId">Agency Id</param>
+        /// <returns></returns>
+        [HttpDelete("{agencyId}/system-settings/availability-search")]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> DeleteSystemSettings([FromRoute] int agencyId)
+        {
+            var (_, isFailure, error) = await _systemSettingsManagementService.DeleteAvailabilitySearchSettings(agencyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
 
 
         /// <summary>
