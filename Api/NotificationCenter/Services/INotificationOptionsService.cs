@@ -4,7 +4,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
 
-namespace HappyTravel.Edo.Api.Services.Notifications
+namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public interface INotificationOptionsService
     {

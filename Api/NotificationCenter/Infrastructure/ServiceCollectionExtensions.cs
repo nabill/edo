@@ -8,6 +8,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Infrastructure
         public static IServiceCollection AddNotificationCenter(this IServiceCollection services)
         {
             services.AddSignalR();
+            services.AddTransient<IInternalNotificationService, InternalNotificationService>();
+            services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
             services.AddTransient<INotificationService, NotificationService>();
 
             return services;
