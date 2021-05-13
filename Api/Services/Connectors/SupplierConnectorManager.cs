@@ -51,6 +51,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.TravelgateXTest,
                     new SupplierConnector(connectorClient, _options.TravelgateXTest, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Jumeirah,
+                    new SupplierConnector(connectorClient, _options.Jumeirah, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
