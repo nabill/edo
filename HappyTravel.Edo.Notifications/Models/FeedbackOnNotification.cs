@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Notifications.Models
     {
         public int MessageId { get; init; }
         public SendingStatuses SendingStatus { get; init; }
-        public DateTime TimeChange { get; init; }
+        public DateTime StatusChangeTime { get; init; }
     }
 }

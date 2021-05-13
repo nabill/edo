@@ -98,31 +98,31 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
         
         
-        public async Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime)
+        public async Task ChangeSendingStatus(FeedbackOnNotification feedback)
         {
-            var notification = sendingStatus switch
+            var notification = feedback.SendingStatus switch
             {
                 SendingStatuses.Received
                     => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent)),
+                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent)),
 
                 SendingStatuses.Read
                     => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == notificationId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
+                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
 
                 _ => null
             };
 
             if (notification is not null)
             {
-                notification.SendingStatus = sendingStatus;
-                switch (sendingStatus)
+                notification.SendingStatus = feedback.SendingStatus;
+                switch (feedback.SendingStatus)
                 {
                     case SendingStatuses.Received:
-                        notification.Received = changeTime;
+                        notification.Received = feedback.StatusChangeTime;
                         break;
                     case SendingStatuses.Read:
-                        notification.Read = changeTime;
+                        notification.Read = feedback.StatusChangeTime;
                         break;
                 }
                 _context.Notifications.Update(notification);

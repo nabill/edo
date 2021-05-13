@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
         Task AddAgentNotification(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
 
-        Task ChangeSendingStatus(int notificationId, SendingStatuses sendingStatus, DateTime changeTime);
+        Task ChangeSendingStatus(FeedbackOnNotification feedback);
 
         Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip);
     }
