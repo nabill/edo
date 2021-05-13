@@ -78,6 +78,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        /// Deletes agent's availability search settings
+        /// </summary>
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Agency Id</param>
+        /// <returns></returns>
+        [HttpDelete("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> DeleteSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
+        {
+            var (_, isFailure, error) = await _systemSettingsManagementService.DeleteAvailabilitySearchSettings(agentId, agencyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
         /// Moves agent from one agency to another
         /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Source agency Id</param>
