@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {

@@ -19,7 +19,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

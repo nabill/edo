@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -22,11 +22,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             if (leadingPassengersList.Any())
             {
                 var leadingPassenger = leadingPassengersList.First();
-                return  Formatters.PersonNameFormatters.ToMaskedName(leadingPassenger.FirstName, leadingPassenger.LastName,
+                return PersonNameFormatters.ToMaskedName(leadingPassenger.FirstName, leadingPassenger.LastName,
                     EnumFormatters.FromDescription(leadingPassenger.Title));
             }
 
-            return Formatters.PersonNameFormatters.ToMaskedName("*", string.Empty);
+            return PersonNameFormatters.ToMaskedName("*", string.Empty);
         }
     }
 }
