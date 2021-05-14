@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
