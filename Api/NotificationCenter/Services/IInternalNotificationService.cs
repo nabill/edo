@@ -7,7 +7,6 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Notifications.Models;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
