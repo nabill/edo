@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agent = await _agentContextService.GetAgent();
 
-            return Ok(await _notificationService.Get(new Models.Agents.SlimAgentContext(agent.AgentId, agent.AgencyId), skip, top));
+            return Ok(await _notificationService.Get(new SlimAgentContext(agent.AgentId, agent.AgencyId), skip, top));
         }
 
 
