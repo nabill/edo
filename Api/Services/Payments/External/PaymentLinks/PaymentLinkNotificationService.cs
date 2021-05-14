@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using Microsoft.Extensions.Options;
-using MoneyFormatter = HappyTravel.Formatters.MoneyFormatter;
+using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {

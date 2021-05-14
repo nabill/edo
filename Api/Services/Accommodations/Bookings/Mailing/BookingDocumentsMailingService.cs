@@ -13,7 +13,7 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
