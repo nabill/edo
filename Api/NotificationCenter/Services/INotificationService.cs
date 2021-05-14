@@ -25,6 +25,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId);
 
         Task<List<SlimNotification>> Get(SlimAgentContext agent, int top, int skip);
-        Task<List<SlimNotification>> Get(int adminId, int top, int skip);
+        Task<List<SlimNotification>> Get(SlimAdminContext admin, int top, int skip);
     }
 }
