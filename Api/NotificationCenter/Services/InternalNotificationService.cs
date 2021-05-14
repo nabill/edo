@@ -98,39 +98,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
         
         
-        public async Task ChangeSendingStatus(FeedbackOnNotification feedback)
-        {
-            var notification = feedback.SendingStatus switch
-            {
-                SendingStatuses.Received
-                    => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent)),
-
-                SendingStatuses.Read
-                    => await _context.Notifications
-                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
-
-                _ => null
-            };
-
-            if (notification is not null)
-            {
-                notification.SendingStatus = feedback.SendingStatus;
-                switch (feedback.SendingStatus)
-                {
-                    case SendingStatuses.Received:
-                        notification.Received = feedback.StatusChangeTime;
-                        break;
-                    case SendingStatuses.Read:
-                        notification.Read = feedback.StatusChangeTime;
-                        break;
-                }
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
         public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip)
             => await _context.Notifications
                 .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
