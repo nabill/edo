@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
         }
 
         
-        public async Task SendFeedback(FeedbackOnNotification feedback)
+        public async Task SendFeedback(NotificationFeedback feedback)
         {
             var notification = feedback.SendingStatus switch
             {

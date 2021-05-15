@@ -107,11 +107,11 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
 
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int top, int skip)
-            => await _internalNotificationService.GetNotifications(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, top, skip);
+            => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, top, skip);
         
 
         public async Task<List<SlimNotification>> Get(SlimAdminContext admin, int top, int skip)
-            => await _internalNotificationService.GetNotifications(ReceiverTypes.AdminPanel, admin.AdminId, null, top, skip);
+            => await _internalNotificationService.Get(ReceiverTypes.AdminPanel, admin.AdminId, null, top, skip);
 
 
         private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)

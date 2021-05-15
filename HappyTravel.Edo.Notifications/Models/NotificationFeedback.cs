@@ -3,7 +3,7 @@ using System;
 
 namespace HappyTravel.Edo.Notifications.Models
 {
-    public readonly struct FeedbackOnNotification
+    public readonly struct NotificationFeedback
     {
         public int MessageId { get; init; }
         public SendingStatuses SendingStatus { get; init; }
