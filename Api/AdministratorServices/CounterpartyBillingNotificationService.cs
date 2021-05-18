@@ -10,18 +10,21 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.DataFormatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyBillingNotificationService : ICounterpartyBillingNotificationService
     {
-        public CounterpartyBillingNotificationService(MailSenderWithCompanyInfo mailSender,
+        public CounterpartyBillingNotificationService(INotificationService notificationService,
             Services.Agents.IAgentService agentService,
             ICounterpartyService counterpartyService,
             ILogger<CounterpartyBillingNotificationService> logger,
             IOptions<CounterpartyBillingNotificationServiceOptions> options)
         {
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _agentService = agentService;
             _counterpartyService = counterpartyService;
             _logger = logger;
@@ -31,31 +34,43 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task NotifyAdded(int counterpartyId, PaymentData paymentData)
         {
-            return GetEmail()
+            return GetEmailAndAgent()
                 .Bind(SendNotification)
                 .OnFailure(LogNotificationFailure);
 
 
-            async Task<Result<string>> GetEmail()
+            async Task<Result<(string, SlimAgentContext)>> GetEmailAndAgent()
             {
                 var rootAgency = await _counterpartyService.GetRootAgency(counterpartyId);
 
-                if (!string.IsNullOrWhiteSpace(rootAgency.BillingEmail))
-                    return rootAgency.BillingEmail;
+                var (_, isFailure, agent, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+                if (isFailure)
+                    return Result.Failure<(string, SlimAgentContext)>(error);
 
-                return await _agentService.GetMasterAgent(rootAgency.Id)
-                    .Map(master => master.Email);
+                var slimAgent = new SlimAgentContext(agent.Id, rootAgency.Id);
+
+                var email = string.IsNullOrWhiteSpace(rootAgency.BillingEmail)
+                    ? agent.Email
+                    : rootAgency.BillingEmail;
+
+                return (email, slimAgent);
             }
 
 
-            Task<Result> SendNotification(string email)
+            async Task<Result> SendNotification((string, SlimAgentContext) receiver)
             {
                 var payload = new CounterpartyAccountAddedNotificationData
                 {
                     Amount = MoneyFormatter.ToCurrencyString(paymentData.Amount, paymentData.Currency)
                 };
 
-                return _mailSender.Send(_options.CounterpartyAccountAddedTemplateId, email, payload);
+                var (email, agent) = receiver;
+
+                return await _notificationService.Send(agent: agent,
+                    messageData: payload,
+                    notificationType: NotificationTypes.AccountBalanceReplenished,
+                    email: email,
+                    templateId: _options.CounterpartyAccountAddedTemplateId);
             }
 
 
@@ -63,7 +78,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly Services.Agents.IAgentService _agentService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly ILogger<CounterpartyBillingNotificationService> _logger;
