@@ -18,6 +18,7 @@ using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
 using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -25,13 +26,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             MailSenderWithCompanyInfo mailSender,
-            INotificationService notificationsService,
+            INotificationService notificationService,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
             _bookingRecordManager = bookingRecordManager;
             _mailSender = mailSender;
-            _notificationsService = notificationsService;
+            _notificationService = notificationService;
             _options = options.Value;
             _context = context;
         }
@@ -81,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
 
-                    return await _notificationsService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                    return await _notificationService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
                                 messageData: deadlineData,
                                 notificationType: NotificationTypes.DeadlineApproaching,
                                 email: email,
@@ -131,8 +132,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
 
 
-            Task SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
-                => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
+            async Task SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
+            {
+                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == data.ReferenceCode);
+
+                await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
+                    messageData: data,
+                    notificationType: NotificationTypes.CreditCardPaymentReceived,
+                    email: data.Email,
+                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
+            }
         }
 
 
@@ -230,7 +239,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
-        private readonly INotificationService _notificationsService;
+        private readonly INotificationService _notificationService;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;
     }
