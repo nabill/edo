@@ -15,7 +15,6 @@ using Microsoft.Extensions.Options;
 using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
 using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
-using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -41,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent, NotificationTypes.BookingCancelled);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
+                agent, NotificationTypes.BookingCancelled);
             
             var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -52,7 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent, NotificationTypes.BookingFinalized);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
+                agent, NotificationTypes.BookingFinalized);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -149,7 +150,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, SlimAgentContext agent, NotificationTypes notificationType)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, 
+            SlimAgentContext agent, NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
