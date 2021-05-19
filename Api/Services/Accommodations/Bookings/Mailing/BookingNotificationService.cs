@@ -38,10 +38,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo)
+        public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent, NotificationTypes.BookingCancelled);
             
             var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent, NotificationTypes.BookingFinalized);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
 
-                    return await _notificationService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                    return await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
                                 messageData: deadlineData,
                                 notificationType: NotificationTypes.DeadlineApproaching,
                                 email: email,
@@ -149,43 +149,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
-        {
-            return Validate()
-                .Bind(Send);
-
-
-            Result Validate()
-                => GenericValidator<string>
-                    .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
-
-
-            Task<Result> Send() => _mailSender.Send(templateId, email, data);
-        }
-
-
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate)
-        {
-            var recipients = new List<string> {recipient};
-            return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate);
-        }
-
-
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, SlimAgentContext agent)
-        {
-            var recipients = new List<string> { recipient };
-            return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate, agent);
-        }
-
-
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate, SlimAgentContext agent)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, SlimAgentContext agent, NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
+
             return _notificationService.Send(agent: agent,
                 messageData: notificationData,
-                notificationType: NotificationTypes.BookingFinalized,
-                emails: recipients,
+                notificationType: notificationType,
+                email: recipient,
                 templateId: mailTemplate);
         }
 

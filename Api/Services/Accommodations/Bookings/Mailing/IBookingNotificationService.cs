@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public interface IBookingNotificationService
     {
-        Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo);
+        Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
 
         Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
 
