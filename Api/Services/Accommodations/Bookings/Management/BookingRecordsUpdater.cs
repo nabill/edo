@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
-                => _notificationService.NotifyBookingFinalized(bookingInfo);
+                => _notificationService.NotifyBookingFinalized(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
 
 
             async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)

@@ -49,10 +49,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
         // TODO: hardcoded to be removed with UEDA-20
-        public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo)
+        public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, agent);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -170,67 +170,81 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate);
         }
 
-        
-        private async Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate)
+
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, SlimAgentContext agent)
+        {
+            var recipients = new List<string> { recipient };
+            return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate, agent);
+        }
+
+
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate, SlimAgentContext agent)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
-            //return _mailSender.Send(mailTemplate, recipients, notificationData);
-            return await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
-                    messageData: notificationData,
-                    notificationType: NotificationTypes.BookingFinalized,
-                    email: recipients,
-                    templateId: mailTemplate);
+            return _notificationService.Send(agent: agent,
+                messageData: notificationData,
+                notificationType: NotificationTypes.BookingFinalized,
+                emails: recipients,
+                templateId: mailTemplate);
+        }
 
 
-            static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate)
+        {
+            var details = bookingInfo.BookingDetails;
+            var notificationData = CreateNotificationData(bookingInfo, details);
+            return _mailSender.Send(mailTemplate, recipients, notificationData);
+        }
+
+
+        private static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
+        {
+            return new BookingNotificationData
             {
-                return new BookingNotificationData
+                AgentName = bookingInfo.AgentInformation.AgentName,
+                BookingDetails = new BookingNotificationData.Details
                 {
-                    AgentName = bookingInfo.AgentInformation.AgentName,
-                    BookingDetails = new BookingNotificationData.Details
+                    AccommodationName = details.AccommodationName,
+                    CheckInDate = DateTimeFormatters.ToDateString(details.CheckInDate),
+                    CheckOutDate = DateTimeFormatters.ToDateString(details.CheckOutDate),
+                    DeadlineDate = DateTimeFormatters.ToDateString(details.DeadlineDate),
+                    Location = details.Location,
+                    NumberOfNights = details.NumberOfNights,
+                    NumberOfPassengers = details.NumberOfPassengers,
+                    ReferenceCode = details.ReferenceCode,
+                    RoomDetails = details.RoomDetails.Select(d =>
                     {
-                        AccommodationName = details.AccommodationName,
-                        CheckInDate = DateTimeFormatters.ToDateString(details.CheckInDate),
-                        CheckOutDate = DateTimeFormatters.ToDateString(details.CheckOutDate),
-                        DeadlineDate = DateTimeFormatters.ToDateString(details.DeadlineDate),
-                        Location = details.Location,
-                        NumberOfNights = details.NumberOfNights,
-                        NumberOfPassengers = details.NumberOfPassengers,
-                        ReferenceCode = details.ReferenceCode,
-                        RoomDetails = details.RoomDetails.Select(d =>
-                        {
-                            var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
-                                .Select(p =>
-                                {
-                                    var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
-                                    return new Pax(p.Title, p.LastName, firstName);
-                                })
-                                .ToList();
-
-                            return new BookingNotificationData.BookedRoomDetails
+                        var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
+                            .Select(p =>
                             {
-                                ContractDescription = d.ContractDescription,
-                                MealPlan = d.MealPlan,
-                                Passengers = maskedPassengers,
-                                Price = MoneyFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
-                                Type =EnumFormatters.FromDescription(d.Type),
-                                Remarks = d.Remarks
-                            };
-                        }).ToList(),
-                        Status = EnumFormatters.FromDescription(details.Status),
-                        SupplierReferenceCode = details.AgentReference,
-                        ContactInfo = details.ContactInfo,
-                    },
-                    CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
-                    AgencyName = bookingInfo.AgentInformation.AgencyName,
-                    PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
-                    Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
-                    Supplier = bookingInfo.Supplier is null
-                        ? string.Empty
-                        : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
-                };
-            }
+                                var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
+                                return new Pax(p.Title, p.LastName, firstName);
+                            })
+                            .ToList();
+
+                        return new BookingNotificationData.BookedRoomDetails
+                        {
+                            ContractDescription = d.ContractDescription,
+                            MealPlan = d.MealPlan,
+                            Passengers = maskedPassengers,
+                            Price = MoneyFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
+                            Type = EnumFormatters.FromDescription(d.Type),
+                            Remarks = d.Remarks
+                        };
+                    }).ToList(),
+                    Status = EnumFormatters.FromDescription(details.Status),
+                    SupplierReferenceCode = details.AgentReference,
+                    ContactInfo = details.ContactInfo,
+                },
+                CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
+                AgencyName = bookingInfo.AgentInformation.AgencyName,
+                PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
+                Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
+                Supplier = bookingInfo.Supplier is null
+                    ? string.Empty
+                    : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
+            };
         }
 
 
