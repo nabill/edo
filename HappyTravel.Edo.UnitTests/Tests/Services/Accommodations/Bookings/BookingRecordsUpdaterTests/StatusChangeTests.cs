@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             await service.ChangeStatus(Bookings.First(), BookingStatuses.Confirmed, DateTime.UtcNow, ApiCaller, ChangeReason);
             
-            _notificationServiceMock.Verify(x => x.NotifyBookingFinalized(It.IsAny<AccommodationBookingInfo>()));
+            _notificationServiceMock.Verify(x => x.NotifyBookingFinalized(It.IsAny<AccommodationBookingInfo>(), It.IsAny<SlimAgentContext>()));
             _documentsMailingServiceMock.Verify(x => x.SendInvoice(It.IsAny<Booking>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<SlimAgentContext>()));
         }
 
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             await service.ChangeStatus(Bookings.First(), BookingStatuses.Cancelled, DateTime.UtcNow, ApiCaller, ChangeReason);
             
-            _notificationServiceMock.Verify(x => x.NotifyBookingCancelled(It.IsAny<AccommodationBookingInfo>()));
+            _notificationServiceMock.Verify(x => x.NotifyBookingCancelled(It.IsAny<AccommodationBookingInfo>(), It.IsAny<SlimAgentContext>()));
             _supplierOrderServiceMock.Verify(x => x.Cancel(It.IsAny<string>())); 
             _bookingMoneyReturnServiceMock.Verify(x => x.ReturnMoney(It.IsAny<Booking>(), It.IsAny<DateTime>(), It.IsAny<ApiCaller>()));
         }
