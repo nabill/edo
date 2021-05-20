@@ -10,12 +10,14 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Infrastructure;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
     {
         public AgentInvitationAcceptService(
             EdoContext context,
-            MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationService,
             ILogger<AgentInvitationAcceptService> logger,
             IAdminAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService,
@@ -35,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             IAccountManagementService accountManagementService)
         {
             _context = context;
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _logger = logger;
             _agencyManagementService = agencyManagementService;
             _agentService = agentService;
@@ -126,6 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     values.Permissions = PermissionSets.Default;
                     values.RelationType = AgentAgencyRelationTypes.Regular;
                     values.NotificationTemplateId = _notificationOptions.RegularAgentMailTemplateId;
+                    values.NotificationType = NotificationTypes.RegularCustomerSuccessfulRegistration;
 
                     return values;
                 }
@@ -152,6 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 values.Permissions = PermissionSets.Master;
                 values.RelationType = AgentAgencyRelationTypes.Master;
                 values.NotificationTemplateId = _notificationOptions.ChildAgencyMailTemplateId;
+                values.NotificationType = NotificationTypes.ChildAgencySuccessfulRegistration;
 
                 return values;
             }
@@ -191,14 +195,20 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     ? "a new employee"
                     : registrationInfo.Position;
 
-                var (_, isNotificationFailure, notificationError) = await _mailSender.Send(values.NotificationTemplateId, master.Email,
-                    new RegistrationData
-                    {
-                        AgentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
-                        Position = position,
-                        Title = registrationInfo.Title,
-                        AgencyName = values.AgencyName
-                    });
+                var registrationData = new RegistrationData
+                {
+                    AgentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
+                    Position = position,
+                    Title = registrationInfo.Title,
+                    AgencyName = values.AgencyName
+                };
+
+                var (_, isNotificationFailure, notificationError) 
+                    = await _notificationService.Send(agent: new SlimAgentContext(master.Id, values.Invitation.InviterAgencyId.Value),
+                        messageData: registrationData,
+                        notificationType: values.NotificationType,
+                        email: master.Email,
+                        templateId: values.NotificationTemplateId);
 
                 if (isNotificationFailure)
                     LogNotificationFailed(notificationError);
@@ -224,11 +234,12 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             public InAgencyPermissions Permissions { get; set; }
             public AgentAgencyRelationTypes RelationType { get; set; }
             public string NotificationTemplateId { get; set; }
+            public NotificationTypes NotificationType { get; set; }
         }
 
 
         private readonly EdoContext _context;
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<AgentInvitationAcceptService> _logger;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly Agents.IAgentService _agentService;

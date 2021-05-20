@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Notifications.Enums
         AccountBalanceReplenished = 10,
         // Counterparty
         CustomerInvitation = 11,
-        RegularCustomerSuccsessfulRegistration = 12,
-        AgencyManagement = 13
+        RegularCustomerSuccessfulRegistration = 12,
+        ChildAgencySuccessfulRegistration = 13,
+        AgencyManagement = 14
     }
 }

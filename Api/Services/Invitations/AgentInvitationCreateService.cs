@@ -24,8 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public class AgentInvitationCreateService : IAgentInvitationCreateService
     {
-        public AgentInvitationCreateService(
-            EdoContext context,
+        public AgentInvitationCreateService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ILogger<AgentInvitationCreateService> logger,
             INotificationService notificationService,
