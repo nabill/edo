@@ -105,6 +105,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        {
+            return await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
+        }
+
+
         private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)
         {
             var sendingSettings = new Dictionary<ProtocolTypes, object>();
