@@ -35,7 +35,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             ITokenInfoAccessor tokenInfoAccessor,
             IAgentSettingsManager agentSettingsManager,
             IAgentPermissionManagementService permissionManagementService,
-            IHttpClientFactory httpClientFactory,
             IAgentService agentService,
             IAgentStatusManagementService agentStatusManagementService,
             IAgentInvitationRecordListService agentInvitationRecordListService,
@@ -50,7 +49,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _tokenInfoAccessor = tokenInfoAccessor;
             _agentSettingsManager = agentSettingsManager;
             _permissionManagementService = permissionManagementService;
-            _httpClientFactory = httpClientFactory;
             _agentService = agentService;
             _agentStatusManagementService = agentStatusManagementService;
             _agentInvitationRecordListService = agentInvitationRecordListService;
@@ -120,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Regular agent registration request.</param>
         /// <returns></returns>
-        [HttpPost("agent/invitations/send")]
+        [HttpPost("agent/regular-agents/invitations/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -142,7 +140,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///    Resend agent invitation email
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>
-        [HttpPost("agent/invitations/{invitationCodeHash}/resend")]
+        [HttpPost("agent/regular-agents/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -162,7 +160,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Regular agent registration request.</param>
         /// <returns>Invitation code.</returns>
-        [HttpPost("agent/invitations/generate")]
+        [HttpPost("agent/regular-agents/invitations/generate")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
@@ -183,9 +181,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>
         /// <returns>Invitation code.</returns>
-        [HttpPost("agent/invitations/{invitationCodeHash}/regenerate")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpPost("agent/regular-agents/invitations/{invitationCodeHash}/regenerate")]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> RecreateInvitation(string invitationCodeHash)
         {
@@ -202,7 +200,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Disable invitation.
         /// </summary>
         /// <param name="codeHash">Invitation code hash.</param>
-        [HttpPost("agent/invitations/{codeHash}/disable")]
+        [HttpPost("agent/regular-agents/invitations/{codeHash}/disable")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DisableInvitation(string codeHash)
@@ -219,7 +217,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///    Gets agency not accepted invitations list
         /// </summary>
-        [HttpGet("agency/invitations")]
+        [HttpGet("agency/invitations/not-accepted")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyNotAcceptedInvitations()
@@ -232,15 +230,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///    Gets agent not accepted invitations list
         /// </summary>
-        [HttpGet("agent/invitations")]
+        [HttpGet("agent/invitations/not-accepted")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentNotAcceptedInvitations()
         {
             var agent = await _agentContextService.GetAgent();
             return await _agentInvitationRecordListService.GetAgentNotAcceptedInvitations(agent.AgentId);
         }
-        
-        
+
+
         /// <summary>
         ///    Gets agency accepted invitations list
         /// </summary>
@@ -433,8 +431,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("all-permissions-list")]
         [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() 
-            => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
+        public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 
         /// <summary>
@@ -444,18 +441,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Enable(int agentId) 
+        public async Task<IActionResult> Enable(int agentId)
             => OkOrBadRequest(await _agentStatusManagementService.Enable(agentId, await _agentContextService.GetAgent()));
-        
+
 
         /// <summary>
         ///     Disables a given agent to operate using a given agency
         /// </summary>
         [HttpPost("agency/agents/{agentId}/disable")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Disable(int agentId) 
+        public async Task<IActionResult> Disable(int agentId)
             => OkOrBadRequest(await _agentStatusManagementService.Disable(agentId, await _agentContextService.GetAgent()));
 
 
@@ -466,7 +463,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentRegistrationService _agentRegistrationService;
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IAgentPermissionManagementService _permissionManagementService;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgentStatusManagementService _agentStatusManagementService;
