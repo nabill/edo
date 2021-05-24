@@ -1293,6 +1293,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
+            <summary>
+                Gets the notification history of the current agent
+            </summary>
+            <param name="skip">Skip</param>
+            <param name="top">Top</param>
+            <returns>List of notifications</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
                 Gets supported desktop client versions.
