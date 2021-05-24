@@ -19,7 +19,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
-                => _notificationService.NotifyBookingFinalized(bookingInfo);
+                => _notificationService.NotifyBookingFinalized(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
 
 
             async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)
@@ -179,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 }
 
                 var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _notificationService.NotifyBookingCancelled(bookingInfo);
+                await _notificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
                 
                 return Result.Success();
             }

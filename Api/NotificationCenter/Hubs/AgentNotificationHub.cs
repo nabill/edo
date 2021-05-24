@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
         }
 
         
-        public async Task SendFeedback(FeedbackOnNotification feedback)
+        public async Task SendFeedback(NotificationFeedback feedback)
         {
             var notification = feedback.SendingStatus switch
             {
@@ -60,22 +60,21 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
 
                 _ => null
             };
+            if (notification is null)
+                return;
 
-            if (notification is not null)
+            notification.SendingStatus = feedback.SendingStatus;
+            switch (feedback.SendingStatus)
             {
-                notification.SendingStatus = feedback.SendingStatus;
-                switch (feedback.SendingStatus)
-                {
-                    case SendingStatuses.Received:
-                        notification.Received = feedback.StatusChangeTime;
-                        break;
-                    case SendingStatuses.Read:
-                        notification.Read = feedback.StatusChangeTime;
-                        break;
-                }
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
+                case SendingStatuses.Received:
+                    notification.Received = feedback.StatusChangeTime;
+                    break;
+                case SendingStatuses.Read:
+                    notification.Read = feedback.StatusChangeTime;
+                    break;
             }
+            _context.Notifications.Update(notification);
+            await _context.SaveChangesAsync();
         }
 
 

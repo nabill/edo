@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
         
         
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top)
+        public async Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int top, int skip)
             => await _context.Notifications
                 .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
                 .Skip(skip)
