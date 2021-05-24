@@ -9,7 +9,7 @@ using HappyTravel.Edo.Api.Models.Availabilities.Events;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
