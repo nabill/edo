@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.CreditCardPaymentReceived] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.AccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.CustomerInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.ChildAgencyInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
             [NotificationTypes.RegularCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }

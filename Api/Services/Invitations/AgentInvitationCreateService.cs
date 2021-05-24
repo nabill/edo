@@ -162,8 +162,15 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             if (string.IsNullOrWhiteSpace(templateId))
                 return Result.Failure("Could not find invitation mail template");
 
+            var notificationType = invitationType switch
+            {
+                UserInvitationTypes.Agent => NotificationTypes.CustomerInvitation,
+                UserInvitationTypes.ChildAgency => NotificationTypes.ChildAgencyInvitation,
+                _ => NotificationTypes.None
+            };
+
             return await _notificationService.Send(messageData: messagePayload,
-                notificationType: NotificationTypes.CustomerInvitation,
+                notificationType: notificationType,
                 email: prefilledData.UserRegistrationInfo.Email,
                 templateId: templateId);
 
