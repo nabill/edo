@@ -96,40 +96,26 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             await SaveAndSend(notification, messageData);
         }
-
-
-        public async Task MarkAsRead(int notificationId)
-        {
-            var notification = await _context.Notifications
-                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
-
-            if (notification is not null)
-            {
-                notification.IsRead = true;
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
-        {
-            return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId)
-                .Take(top)
+        
+        
+        public async Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top)
+            => await _context.Notifications
+                .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
                 .Skip(skip)
+                .Take(top)
                 .Select(n => new SlimNotification
                 {
-                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
+                    AgencyId = n.AgencyId,
                     Message = n.Message,
                     Type = n.Type,
+                    SendingStatus = n.SendingStatus,
                     Created = n.Created,
-                    IsRead = n.IsRead
+                    Received = n.Received,
+                    Read = n.Read
                 })
                 .ToListAsync();
-        }
 
 
         private async Task SaveAndSend(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
@@ -149,6 +135,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = notification.Message,
                 Type = notification.Type,
                 SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
+                SendingStatus = SendingStatuses.Sent,
                 Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();
