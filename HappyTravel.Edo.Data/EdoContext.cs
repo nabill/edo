@@ -912,7 +912,7 @@ namespace HappyTravel.Edo.Data
                 b.Property(n => n.SendingSettings).HasColumnType("jsonb");
                 b.HasIndex(n => n.Receiver);
                 b.HasIndex(n => n.UserId);
-                b.HasIndex(n => n.IsRead);
+                b.HasIndex(n => n.SendingStatus);
             });
         }
 

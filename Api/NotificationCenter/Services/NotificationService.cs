@@ -2,7 +2,7 @@
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Notifications.Enums;
@@ -109,6 +109,14 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             return await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
         }
+
+
+        public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
+            => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, skip, top);
+        
+
+        public async Task<List<SlimNotification>> Get(SlimAdminContext admin, int skip, int top)
+            => await _internalNotificationService.Get(ReceiverTypes.AdminPanel, admin.AdminId, null, skip, top);
 
 
         private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)

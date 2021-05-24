@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task<Result> NotifyCreditCardPaymentConfirmed(string referenceCode)
         {
             return await GetData()
-                .Tap(SendNotifyToAdmin)
-                .Tap(SendNotifyToAgent);
+                .Tap(SendNotificationToAdmin)
+                .Tap(SendNotificationToAgent);
 
 
             async Task<Result<CreditCardPaymentConfirmationNotification>> GetData()
@@ -129,12 +129,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             }
 
 
-            Task SendNotifyToAdmin(CreditCardPaymentConfirmationNotification data)
+            Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
                 => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
 
 
-            Task SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
-                => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
+            async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
+            {
+                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == data.ReferenceCode);
+
+                await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
+                    messageData: data,
+                    notificationType: NotificationTypes.CreditCardPaymentReceived,
+                    email: data.Email,
+                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
+            }
         }
 
 
