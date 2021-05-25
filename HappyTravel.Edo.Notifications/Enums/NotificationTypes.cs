@@ -22,11 +22,10 @@ namespace HappyTravel.Edo.Notifications.Enums
         ChildAgencySuccessfulRegistration = 14,
         AgencyManagement = 15,
         // Administrator
-        MasterCustomerInvitation = 16,
-        MasterCustomerSuccessfulRegistration = 17,
-        BookingsAdministratorSummaryNotification = 18,
-        BookingCancelledToReservations = 19,
-        BookingFinalizedToReservations = 20,
-        CreditCardPaymentReceivedAdministrator = 21
+        MasterCustomerSuccessfulRegistration = 16,
+        BookingsAdministratorSummaryNotification = 17,
+        BookingCancelledToReservations = 18,
+        BookingFinalizedToReservations = 19,
+        CreditCardPaymentReceivedAdministrator = 20
     }
 }
