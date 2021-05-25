@@ -60,13 +60,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [InlineData(BookingStatuses.Rejected)]
         [InlineData(BookingStatuses.Invalid)]
         [InlineData(BookingStatuses.Discarded)]
-        public async Task Discarding_should_cancel_from_supplier_and_return_the_money(BookingStatuses status)
+        public async Task Discarding_should_discard_from_supplier_and_return_the_money(BookingStatuses status)
         {
             var service = CreateBookingRecordsUpdaterService();
 
             await service.ChangeStatus(Bookings.First(), status, DateTime.UtcNow, ApiCaller, ChangeReason);
             
-            _supplierOrderServiceMock.Verify(x => x.Cancel(It.IsAny<string>())); 
+            _supplierOrderServiceMock.Verify(x => x.Discard(It.IsAny<string>())); 
             _bookingMoneyReturnServiceMock.Verify(x => x.ReturnMoney(It.IsAny<Booking>(), It.IsAny<DateTime>(), It.IsAny<ApiCaller>()));
         }
 

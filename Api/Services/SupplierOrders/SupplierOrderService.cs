@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
         }
 
 
-        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Suppliers supplier)
+        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Deadline deadline,
+            Suppliers supplier)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -28,10 +31,12 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 ConvertedCurrency = convertedSupplierPrice.Currency,
                 Price = originalSupplierPrice.Amount,
                 Currency = originalSupplierPrice.Currency,
+                RefundableAmount = 0,
                 State = SupplierOrderState.Created,
                 Supplier = supplier,
                 Type = serviceType,
-                ReferenceCode = referenceCode
+                ReferenceCode = referenceCode,
+                Deadline = deadline,
             };
 
             _context.SupplierOrders.Add(supplierOrder);
@@ -49,8 +54,33 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             if (orderToCancel == default)
                 return;
 
+            var applyingPolicy = orderToCancel.Deadline?.Policies
+                .Where(p => p.FromDate >= _dateTimeProvider.UtcNow())
+                .OrderByDescending(p => p.FromDate)
+                .FirstOrDefault();
+
+            if (applyingPolicy is not null)
+            {
+                orderToCancel.RefundableAmount = (decimal) (1 - applyingPolicy.Percentage) * orderToCancel.Price;
+            }
+
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
+            await _context.SaveChangesAsync();
+        }
+        
+        
+        public async Task Discard(string referenceCode)
+        {
+            var discardingOrder = await _context.SupplierOrders
+                .SingleOrDefaultAsync(o => o.ReferenceCode == referenceCode);
+
+            if (discardingOrder == default)
+                return;
+
+            discardingOrder.RefundableAmount = discardingOrder.Price;
+            discardingOrder.State = SupplierOrderState.Discarded;
+            _context.SupplierOrders.Update(discardingOrder);
             await _context.SaveChangesAsync();
         }
 
