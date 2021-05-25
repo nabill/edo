@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public static class DeadlineMerger
     {
-        public static Deadline CalculateMergedDeadline(IReadOnlyCollection<RoomContract> roomContracts)
+        public static Deadline CalculateMergedDeadline(List<RoomContract> roomContracts)
         {
             var contractsWithDeadline = roomContracts
                 .Where(contract => contract.Deadline.Date.HasValue)
