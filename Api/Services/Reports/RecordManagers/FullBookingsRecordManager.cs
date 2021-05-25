@@ -35,10 +35,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     GuestName = booking.MainPassengerName,
                     ArrivalDate = booking.CheckInDate,
                     DepartureDate = booking.CheckOutDate,
-                    OriginalAmount = order.OriginalSupplierPrice,
-                    OriginalCurrency = order.OriginalSupplierCurrency,
-                    ConvertedAmount = order.ConvertedSupplierPrice,
-                    ConvertedCurrency = order.ConvertedSupplierCurrency,
+                    OriginalAmount = order.Price,
+                    OriginalCurrency = order.Currency,
+                    ConvertedAmount = order.ConvertedPrice,
+                    ConvertedCurrency = order.ConvertedCurrency,
                     PaymentStatus = booking.PaymentStatus,
                     Supplier = booking.Supplier
                 };
