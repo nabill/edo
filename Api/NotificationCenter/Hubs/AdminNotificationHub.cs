@@ -1,5 +1,7 @@
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +35,39 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, BuildGroupName(adminId));
             await base.OnConnectedAsync();
+        }
+
+
+        public async Task SendFeedback(NotificationFeedback feedback)
+        {
+            var notification = feedback.SendingStatus switch
+            {
+                SendingStatuses.Received
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent)),
+
+                SendingStatuses.Read
+                    => await _context.Notifications
+                        .SingleOrDefaultAsync(n => n.Id == feedback.MessageId && (n.SendingStatus == SendingStatuses.Sent || n.SendingStatus == SendingStatuses.Received)),
+
+                _ => null
+            };
+
+            if (notification is null)
+                return;
+
+            notification.SendingStatus = feedback.SendingStatus;
+            switch (feedback.SendingStatus)
+            {
+                case SendingStatuses.Received:
+                    notification.Received = feedback.StatusChangeTime;
+                    break;
+                case SendingStatuses.Read:
+                    notification.Read = feedback.StatusChangeTime;
+                    break;
+            }
+            _context.Notifications.Update(notification);
+            await _context.SaveChangesAsync();
         }
 
 

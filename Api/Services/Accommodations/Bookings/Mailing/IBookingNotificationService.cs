@@ -1,14 +1,15 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public interface IBookingNotificationService
     {
-        Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo);
+        Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
 
-        Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo);
+        Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
 
