@@ -294,8 +294,8 @@ namespace HappyTravel.Edo.Data
                 order.HasIndex(o => o.ReferenceCode);
                 order.HasIndex(o => o.Supplier);
                 order.HasIndex(o => o.Type);
-                order.Property(o => o.ConvertedSupplierPrice).IsRequired();
-                order.Property(o => o.OriginalSupplierPrice).IsRequired();
+                order.Property(o => o.ConvertedPrice).IsRequired();
+                order.Property(o => o.Price).IsRequired();
                 order.Property(o => o.State).IsRequired();
                 order.Property(o => o.ReferenceCode).IsRequired();
                 order.Property(o => o.Modified).IsRequired();
@@ -912,7 +912,7 @@ namespace HappyTravel.Edo.Data
                 b.Property(n => n.SendingSettings).HasColumnType("jsonb");
                 b.HasIndex(n => n.Receiver);
                 b.HasIndex(n => n.UserId);
-                b.HasIndex(n => n.IsRead);
+                b.HasIndex(n => n.SendingStatus);
             });
         }
 

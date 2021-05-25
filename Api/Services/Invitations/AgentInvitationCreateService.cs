@@ -10,9 +10,11 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Infrastructure;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,11 +24,10 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public class AgentInvitationCreateService : IAgentInvitationCreateService
     {
-        public AgentInvitationCreateService(
-            EdoContext context,
+        public AgentInvitationCreateService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ILogger<AgentInvitationCreateService> logger,
-            MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationService,
             IOptions<AgentInvitationMailOptions> options,
             IInvitationRecordService invitationRecordService,
             IAdminAgencyManagementService agencyManagementService)
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _options = options.Value;
             _invitationRecordService = invitationRecordService;
             _agencyManagementService = agencyManagementService;
@@ -161,9 +162,17 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             if (string.IsNullOrWhiteSpace(templateId))
                 return Result.Failure("Could not find invitation mail template");
 
-            return await _mailSender.Send(templateId,
-                prefilledData.UserRegistrationInfo.Email,
-                messagePayload);
+            var notificationType = invitationType switch
+            {
+                UserInvitationTypes.Agent => NotificationTypes.CustomerInvitation,
+                UserInvitationTypes.ChildAgency => NotificationTypes.ChildAgencyInvitation,
+                _ => NotificationTypes.None
+            };
+
+            return await _notificationService.Send(messageData: messagePayload,
+                notificationType: notificationType,
+                email: prefilledData.UserRegistrationInfo.Email,
+                templateId: templateId);
 
 
             string GetTemplateId()
@@ -179,7 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AgentInvitationCreateService> _logger;
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly AgentInvitationMailOptions _options;
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAdminAgencyManagementService _agencyManagementService;

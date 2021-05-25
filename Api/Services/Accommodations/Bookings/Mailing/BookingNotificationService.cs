@@ -15,9 +15,9 @@ using Microsoft.Extensions.Options;
 using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
 using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
-using System.Text.Json;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -25,22 +25,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             MailSenderWithCompanyInfo mailSender,
-            INotificationService notificationsService,
+            INotificationService notificationService,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
             _bookingRecordManager = bookingRecordManager;
             _mailSender = mailSender;
-            _notificationsService = notificationsService;
+            _notificationService = notificationService;
             _options = options.Value;
             _context = context;
         }
 
 
-        public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo)
+        public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
+                agent, NotificationTypes.BookingCancelled);
             
             var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -48,10 +49,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
         // TODO: hardcoded to be removed with UEDA-20
-        public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo)
+        public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
+                agent, NotificationTypes.BookingFinalized);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
@@ -81,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
 
-                    return await _notificationsService.Send(agent: new Models.Agents.SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                    return await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
                                 messageData: deadlineData,
                                 notificationType: NotificationTypes.DeadlineApproaching,
                                 email: email,
@@ -93,8 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task<Result> NotifyCreditCardPaymentConfirmed(string referenceCode)
         {
             return await GetData()
-                .Tap(SendNotifyToAdmin)
-                .Tap(SendNotifyToAgent);
+                .Tap(SendNotificationToAdmin)
+                .Tap(SendNotificationToAgent);
 
 
             async Task<Result<CreditCardPaymentConfirmationNotification>> GetData()
@@ -127,12 +129,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             }
 
 
-            Task SendNotifyToAdmin(CreditCardPaymentConfirmationNotification data)
+            Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
                 => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
 
 
-            Task SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
-                => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
+            async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
+            {
+                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == data.ReferenceCode);
+
+                await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
+                    messageData: data,
+                    notificationType: NotificationTypes.CreditCardPaymentReceived,
+                    email: data.Email,
+                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
+            }
         }
 
 
@@ -148,89 +158,81 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, 
+            SlimAgentContext agent, NotificationTypes notificationType)
         {
-            return Validate()
-                .Bind(Send);
+            var details = bookingInfo.BookingDetails;
+            var notificationData = CreateNotificationData(bookingInfo, details);
 
-
-            Result Validate()
-                => GenericValidator<string>
-                    .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
-
-
-            Task<Result> Send() => _mailSender.Send(templateId, email, data);
+            return _notificationService.Send(agent: agent,
+                messageData: notificationData,
+                notificationType: notificationType,
+                email: recipient,
+                templateId: mailTemplate);
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate)
-        {
-            var recipients = new List<string> {recipient};
-            return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate);
-        }
-
-        
         private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
             return _mailSender.Send(mailTemplate, recipients, notificationData);
+        }
 
 
-            static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
+        private static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
+        {
+            return new BookingNotificationData
             {
-                return new BookingNotificationData
+                AgentName = bookingInfo.AgentInformation.AgentName,
+                BookingDetails = new BookingNotificationData.Details
                 {
-                    AgentName = bookingInfo.AgentInformation.AgentName,
-                    BookingDetails = new BookingNotificationData.Details
+                    AccommodationName = details.AccommodationName,
+                    CheckInDate = DateTimeFormatters.ToDateString(details.CheckInDate),
+                    CheckOutDate = DateTimeFormatters.ToDateString(details.CheckOutDate),
+                    DeadlineDate = DateTimeFormatters.ToDateString(details.DeadlineDate),
+                    Location = details.Location,
+                    NumberOfNights = details.NumberOfNights,
+                    NumberOfPassengers = details.NumberOfPassengers,
+                    ReferenceCode = details.ReferenceCode,
+                    RoomDetails = details.RoomDetails.Select(d =>
                     {
-                        AccommodationName = details.AccommodationName,
-                        CheckInDate = DateTimeFormatters.ToDateString(details.CheckInDate),
-                        CheckOutDate = DateTimeFormatters.ToDateString(details.CheckOutDate),
-                        DeadlineDate = DateTimeFormatters.ToDateString(details.DeadlineDate),
-                        Location = details.Location,
-                        NumberOfNights = details.NumberOfNights,
-                        NumberOfPassengers = details.NumberOfPassengers,
-                        ReferenceCode = details.ReferenceCode,
-                        RoomDetails = details.RoomDetails.Select(d =>
-                        {
-                            var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
-                                .Select(p =>
-                                {
-                                    var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
-                                    return new Pax(p.Title, p.LastName, firstName);
-                                })
-                                .ToList();
-
-                            return new BookingNotificationData.BookedRoomDetails
+                        var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
+                            .Select(p =>
                             {
-                                ContractDescription = d.ContractDescription,
-                                MealPlan = d.MealPlan,
-                                Passengers = maskedPassengers,
-                                Price = MoneyFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
-                                Type =EnumFormatters.FromDescription(d.Type),
-                                Remarks = d.Remarks
-                            };
-                        }).ToList(),
-                        Status = EnumFormatters.FromDescription(details.Status),
-                        SupplierReferenceCode = details.AgentReference,
-                        ContactInfo = details.ContactInfo,
-                    },
-                    CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
-                    AgencyName = bookingInfo.AgentInformation.AgencyName,
-                    PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
-                    Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
-                    Supplier = bookingInfo.Supplier is null
-                        ? string.Empty
-                        : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
-                };
-            }
+                                var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
+                                return new Pax(p.Title, p.LastName, firstName);
+                            })
+                            .ToList();
+
+                        return new BookingNotificationData.BookedRoomDetails
+                        {
+                            ContractDescription = d.ContractDescription,
+                            MealPlan = d.MealPlan,
+                            Passengers = maskedPassengers,
+                            Price = MoneyFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
+                            Type = EnumFormatters.FromDescription(d.Type),
+                            Remarks = d.Remarks
+                        };
+                    }).ToList(),
+                    Status = EnumFormatters.FromDescription(details.Status),
+                    SupplierReferenceCode = details.AgentReference,
+                    ContactInfo = details.ContactInfo,
+                },
+                CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
+                AgencyName = bookingInfo.AgentInformation.AgencyName,
+                PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
+                Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
+                Supplier = bookingInfo.Supplier is null
+                    ? string.Empty
+                    : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
+            };
         }
 
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
-        private readonly INotificationService _notificationsService;
+        private readonly INotificationService _notificationService;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;
     }

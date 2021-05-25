@@ -15,14 +15,21 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
 
         private static readonly Dictionary<NotificationTypes, SlimNotificationOptions> _defaultOptions = new()
         {
-            { NotificationTypes.BookingVoucher, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true } },
-            { NotificationTypes.BookingInvoice, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true } },
-            { NotificationTypes.DeadlineApproaching, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false } },
-            { NotificationTypes.SuccessfulPaymentReceipt, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true } },
-            { NotificationTypes.BookingDuePaymentDate, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false } },
-            { NotificationTypes.BookingCancelled, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false } },
-            { NotificationTypes.BookingFinalized, new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false } },
-            { NotificationTypes.BookingStatusChanged, new() { EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false } },
+            [NotificationTypes.BookingVoucher] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true },
+            [NotificationTypes.BookingInvoice] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true },
+            [NotificationTypes.DeadlineApproaching] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.SuccessfulPaymentReceipt] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true },
+            [NotificationTypes.BookingDuePaymentDate] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.BookingCancelled] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.BookingFinalized] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.BookingStatusChanged] = new() { EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.CreditCardPaymentReceived] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.AccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.CustomerInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.ChildAgencyInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.RegularCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }
         };
     }
 }
