@@ -300,6 +300,7 @@ namespace HappyTravel.Edo.Data
                 order.Property(o => o.ReferenceCode).IsRequired();
                 order.Property(o => o.Modified).IsRequired();
                 order.Property(o => o.Created).IsRequired();
+                order.Property(o => o.Deadline).HasColumnType("jsonb");
             });
         }
 

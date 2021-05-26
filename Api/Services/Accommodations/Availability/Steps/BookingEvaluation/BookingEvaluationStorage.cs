@@ -7,6 +7,8 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations;
+using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
 using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -20,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId)
+            Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId, Deadline supplierDeadline)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             var result = SupplierData.Create(supplier, availability);
@@ -53,7 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 availabilityId: roomSetAvailability.AvailabilityId,
                 htId: htId,
                 availablePaymentTypes: availablePaymentTypes,
-                isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract);
+                isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
+                supplierDeadline: supplierDeadline.ToDeadline());
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }
