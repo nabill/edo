@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210525072107_RenameSupplierOrderProperties")]
+    partial class RenameSupplierOrderProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1529,9 +1531,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
 
-                    b.Property<Deadline>("Deadline")
-                        .HasColumnType("jsonb");
-
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
@@ -1541,9 +1540,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ReferenceCode")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<decimal>("RefundableAmount")
-                        .HasColumnType("numeric");
 
                     b.Property<int>("State")
                         .HasColumnType("integer");

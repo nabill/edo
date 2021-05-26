@@ -85,6 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly Dictionary<InAgencyPermissions, List<InAgencyPermissions>> _bundledPermissions = new ()
         {
             [InAgencyPermissions.PermissionManagement] = new () { InAgencyPermissions.ObserveAgents, InAgencyPermissions.AgentStatusManagement },
+            [InAgencyPermissions.AgentStatusManagement] = new () { InAgencyPermissions.ObserveAgents },
             [InAgencyPermissions.MarkupManagement] = new () { InAgencyPermissions.ObserveMarkup },
             [InAgencyPermissions.AgencyToChildTransfer] = new() { InAgencyPermissions.ObserveChildAgencies },
         };

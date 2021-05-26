@@ -136,14 +136,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     return Task.CompletedTask;
 
                 // TODO: Check that this id will not change on all connectors NIJO-823
-                var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
+                var finalRoomContractSet = responseWithDeadline.Data.Value.RoomContractSet;
 
                 var paymentTypes = GetAvailablePaymentTypes(responseWithDeadline.Data.Value, contractKind);
 
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
                     responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedSupplierPrice, responseWithDeadline.OriginalSupplierPrice);
+
+                var deadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.RoomContracts);
                 
-                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, dataWithMarkup, result.Supplier, paymentTypes, result.htId);
+                return _bookingEvaluationStorage.Set(searchId: searchId,
+                    resultId: resultId,
+                    roomContractSetId: finalRoomContractSet.Id, 
+                    availability: dataWithMarkup, 
+                    resultSupplier: result.Supplier,
+                    availablePaymentTypes: paymentTypes, 
+                    htId: result.htId,
+                    supplierDeadline: deadline);
             }
 
 
