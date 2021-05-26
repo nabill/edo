@@ -1,5 +1,6 @@
 using System;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Suppliers
@@ -17,5 +18,7 @@ namespace HappyTravel.Edo.Data.Suppliers
         public string ReferenceCode { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public Deadline Deadline { get; set; }
+        public decimal RefundableAmount { get; set; }
     }
 }
