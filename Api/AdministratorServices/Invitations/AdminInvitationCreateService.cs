@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
                 return await _notificationService.Send(messageData: messagePayload,
                     notificationType: NotificationTypes.AdministratorInvitation,
-                    email: prefilledData.Email,
+                    emails: new() { prefilledData.Email },
                     templateId: _options.AdminInvitationTemplateId);
             }
         }

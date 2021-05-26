@@ -111,6 +111,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        {
+            return await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails, templateId);
+        }
+
+
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
             => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, skip, top);
         
