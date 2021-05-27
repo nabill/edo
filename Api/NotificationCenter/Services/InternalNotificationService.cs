@@ -159,10 +159,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => notification.Receiver switch
                         {
                             ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Message),
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Type, notification.Message),
 
                             ReceiverTypes.AdminPanel
-                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Message),
+                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Type, notification.Message),
 
                             _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
                         },
@@ -181,16 +181,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
 
 
-        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
+        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _agentNotificationHub.Clients
                 .Group($"{agencyId}-{userId}")
-                .ReceiveMessage(messageId, message);
+                .ReceiveMessage(messageId, notificationType, message);
 
 
-        private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
+        private async Task SendMessageToAdmin(int userId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
-                .ReceiveMessage(messageId, message);
+                .ReceiveMessage(messageId, notificationType, message);
 
 
         private readonly EdoContext _context;

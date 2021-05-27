@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Api.NotificationCenter.Hubs;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
@@ -23,13 +24,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
 
             var userId = "1-1";
             var messageId = 1;
+            var notificationType = NotificationTypes.None;
             var message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes("Test message"));
 
             // Act
-            await notificationHub.Object.Clients.User(userId).ReceiveMessage(messageId, message);
+            await notificationHub.Object.Clients.User(userId).ReceiveMessage(messageId, notificationType, message);
 
             // Assert
-            mockClientProxy.Verify(x => x.ReceiveMessage(messageId, message), Times.Once);
+            mockClientProxy.Verify(x => x.ReceiveMessage(messageId, notificationType, message), Times.Once);
         }
 
 
