@@ -206,7 +206,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
-                => _mailSender.Send(_options.BookingAdministratorSummaryTemplateId, _options.CcNotificationAddresses, notificationData);
+                => _notificationService.Send(messageData: notificationData,
+                    notificationType: NotificationTypes.BookingsAdministratorSummaryNotification,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.BookingAdministratorSummaryTemplateId);
         }
 
 

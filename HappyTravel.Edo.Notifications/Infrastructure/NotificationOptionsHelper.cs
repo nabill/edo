@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             // Administrator
             [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
             [NotificationTypes.MasterCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },  // TODO: The WebSocket protocol will be added in the task AA-257
-            [NotificationTypes.BookingsAdministratorSummaryNotification] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.BookingsAdministratorSummaryNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false }, // TODO: The WebSocket protocol will be added in the task AA-257
             [NotificationTypes.BookingCancelledToReservations] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.BookingFinalizedToReservations] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.CreditCardPaymentReceivedAdministrator] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },

@@ -184,13 +184,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _agentNotificationHub.Clients
                 .Group($"{agencyId}-{userId}")
-                .ReceiveMessage(messageId, notificationType, message);
+                .ReceiveMessage(messageId, notificationType.ToString(), message);
 
 
         private async Task SendMessageToAdmin(int userId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
-                .ReceiveMessage(messageId, notificationType, message);
+                .ReceiveMessage(messageId, notificationType.ToString(), message);
 
 
         private readonly EdoContext _context;
