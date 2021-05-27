@@ -1,5 +1,4 @@
 ﻿using HappyTravel.Edo.Api.NotificationCenter.Hubs;
-using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System;
@@ -24,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.NotificationCenter
 
             var userId = "1-1";
             var messageId = 1;
-            var notificationType = NotificationTypes.None;
+            var notificationType = "None";
             var message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes("Test message"));
 
             // Act

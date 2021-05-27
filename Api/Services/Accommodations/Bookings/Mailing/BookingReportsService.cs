@@ -25,7 +25,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingReportsService(IDateTimeProvider dateTimeProvider,
             INotificationService notificationService,
-            MailSenderWithCompanyInfo mailSender,
             IAgentSettingsManager agentSettingsManager,
             IAccountPaymentService accountPaymentService,
             IOptions<BookingMailingOptions> options,
@@ -33,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         {
             _dateTimeProvider = dateTimeProvider;
             _notificationService = notificationService;
-            _mailSender = mailSender;
             _agentSettingsManager = agentSettingsManager;
             _accountPaymentService = accountPaymentService;
             _context = context;
@@ -260,10 +258,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
-            {
-                return _mailSender.Send(_options.BookingAdministratorPaymentsSummaryTemplateId,
-                    _options.CcNotificationAddresses, notificationData);
-            }
+                => _notificationService.Send(messageData: notificationData,
+                    notificationType: NotificationTypes.BookingAdministratorPaymentsSummary,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.BookingAdministratorPaymentsSummaryTemplateId);
         }
 
 
@@ -281,7 +279,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly INotificationService _notificationService;
-        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
