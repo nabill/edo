@@ -39,7 +39,8 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.BookingsAdministratorSummaryNotification] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.BookingCancelledToReservations] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.BookingFinalizedToReservations] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
-            [NotificationTypes.CreditCardPaymentReceivedAdministrator] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }
+            [NotificationTypes.CreditCardPaymentReceivedAdministrator] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.BookingSummaryReportForAgent] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true }   // TODO: Need to clarify
         };
     }
 }

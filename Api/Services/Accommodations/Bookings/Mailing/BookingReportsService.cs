@@ -15,12 +15,16 @@ using HappyTravel.DataFormatters;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public class BookingReportsService : IBookingReportsService
     {
         public BookingReportsService(IDateTimeProvider dateTimeProvider,
+            INotificationService notificationService,
             MailSenderWithCompanyInfo mailSender,
             IAgentSettingsManager agentSettingsManager,
             IAccountPaymentService accountPaymentService,
@@ -28,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             EdoContext context)
         {
             _dateTimeProvider = dateTimeProvider;
+            _notificationService = notificationService;
             _mailSender = mailSender;
             _agentSettingsManager = agentSettingsManager;
             _accountPaymentService = accountPaymentService;
@@ -58,6 +63,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                             && relation.IsActive
                         select new EmailAndSetting
                         {
+                            AgentId = relation.AgentId,
+                            AgencyId = relation.AgencyId,
                             Email = agent.Email,
                             ReportDaysSetting = _agentSettingsManager.GetUserSettings(agent).BookingReportDays
                         }).ToListAsync();
@@ -83,12 +90,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             }
 
 
-            async Task<Result<List<(BookingSummaryNotificationData, string)>>> CreateMailData(
+            async Task<Result<List<(BookingSummaryNotificationData, EmailAndSetting)>>> CreateMailData(
                 (List<EmailAndSetting> emailsAndSettings, List<Booking> bookings) values)
             {
                 var (_, isFailure, balanceInfo, error) = await _accountPaymentService.GetAccountBalance(Currencies.USD, agencyId);
                 if (isFailure)
-                    return Result.Failure<List<(BookingSummaryNotificationData, string)>>(
+                    return Result.Failure<List<(BookingSummaryNotificationData, EmailAndSetting)>>(
                         $"Couldn't retrieve account balance for agency with id {agencyId}. Error: {error}");
 
                 var agencyBalance = balanceInfo.Balance;
@@ -105,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                             ShowAlert = resultingBalance < 0m,
                             ReportDate = DateTimeFormatters.ToDateString(reportBeginTime)
                         },
-                        emailAndSetting.Email);
+                        emailAndSetting);
                 }).Where(t => t.Item1.Bookings.Any()).ToList();
 
 
@@ -125,20 +132,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             }
 
 
-            async Task<Result<string>> SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples)
+            async Task<Result<string>> SendMails(List<(BookingSummaryNotificationData Data, EmailAndSetting emailAndSetting)> dataAndEmailTuples)
             {
                 var builder = new StringBuilder();
                 var hasErrors = false;
 
-                foreach (var (data, email) in dataAndEmailTuples)
+                foreach (var (data, emailAndSetting) in dataAndEmailTuples)
                 {
-                    var (_, isFailure, error) = await _mailSender.Send(_options.BookingSummaryTemplateId, email, data);
+                    var (_, isFailure, error) = await _notificationService.Send(agent: new SlimAgentContext(emailAndSetting.AgentId, emailAndSetting.AgencyId), 
+                        messageData: data,
+                        notificationType: NotificationTypes.BookingSummaryReportForAgent,
+                        email: emailAndSetting.Email,
+                        templateId: _options.BookingSummaryTemplateId);
+
                     if (isFailure)
                         hasErrors = true;
 
                     var message = isFailure
-                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{email}'. Error: {error}"
-                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{email}'";
+                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{emailAndSetting.Email}'. Error: {error}"
+                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{emailAndSetting.Email}'";
 
                     builder.AppendLine(message);
                 }
@@ -265,6 +277,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         private const int MonthlyReportScheduleDay = 1;
 
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly INotificationService _notificationService;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IAccountPaymentService _accountPaymentService;
@@ -274,6 +287,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private class EmailAndSetting
         {
+            public int AgentId { get; set; }
+            public int AgencyId { get; set; }
             public string Email { get; set; }
             public int ReportDaysSetting { get; set; }
         }
