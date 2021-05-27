@@ -130,7 +130,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
             Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
-                => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
+                =>  _notificationService.Send(messageData: data,
+                    notificationType: NotificationTypes.CreditCardPaymentReceivedAdministrator,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
 
 
             async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
@@ -148,13 +151,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline)
         {
-            await _mailSender.Send(_options.BookingManualCorrectionNeededTemplateId, _options.CcNotificationAddresses, new BookingManualCorrectionNeededData
+            var data = new BookingManualCorrectionNeededData
             {
                 ReferenceCode = referenceCode,
                 AgentName = agentName,
                 AgencyName = agencyName,
                 Deadline = deadline
-            });
+            };
+
+            await _notificationService.Send(messageData: data,
+                    notificationType: NotificationTypes.BookingManualCorrectionNeeded,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.BookingManualCorrectionNeededTemplateId);
         }
 
 

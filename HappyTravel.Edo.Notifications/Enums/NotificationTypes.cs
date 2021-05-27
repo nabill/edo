@@ -29,7 +29,8 @@ namespace HappyTravel.Edo.Notifications.Enums
         BookingCancelledToReservations = 20,
         BookingFinalizedToReservations = 21,
         CreditCardPaymentReceivedAdministrator = 22,
+        BookingManualCorrectionNeeded = 23,
         // Other
-        BookingSummaryReportForAgent = 23
+        BookingSummaryReportForAgent = 24
     }
 }
