@@ -188,13 +188,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private Task<Result> ProcessDiscarding(Booking booking, ApiCaller user)
         {
-            return CancelSupplierOrder()
+            return DiscardSupplierOrder()
                 .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
             
             
-            async Task<Result> CancelSupplierOrder()
+            async Task<Result> DiscardSupplierOrder()
             {
-                await _supplierOrderService.Cancel(booking.ReferenceCode);
+                await _supplierOrderService.Discard(booking.ReferenceCode);
                 return Result.Success();
             }
         }
