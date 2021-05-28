@@ -202,14 +202,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var searchFilters = Convert(request.Filters);
 
             var supplierAccommodationCodes = mappings.Select(m => m.SupplierCode).ToList();
-            return new AvailabilityRequest(request.Nationality,
-                request.Residency,
-                request.CheckInDate,
-                request.CheckOutDate,
-                searchFilters | searchSettings.AdditionalSearchFilters,
-                roomDetails,
-                null,
-                request.PropertyType, request.Ratings, supplierAccommodationCodes);
+            
+            return new AvailabilityRequest(nationality: request.Nationality,
+                residency: request.Residency, 
+                checkInDate: request.CheckInDate,
+                checkOutDate: request.CheckOutDate, 
+                filters: searchFilters | searchSettings.AdditionalSearchFilters,
+                rooms: roomDetails, 
+                location: null, 
+                propertyTypes: request.PropertyType,
+                ratings: request.Ratings,
+                accommodationIds: supplierAccommodationCodes);
 
 
             static EdoContracts.General.Enums.SearchFilters Convert(ClientSearchFilters filters)
