@@ -516,7 +516,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
-            services.AddTransient<IGeoCoder, InteriorGeoCoder>();
 
             services.AddSingleton<IVersionService, VersionService>();
 
@@ -672,7 +671,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<WebhookResponseService>();
 
             services.AddNameNormalizationServices();
-            services.AddScoped<ILocationNormalizer, LocationNormalizer>();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
