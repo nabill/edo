@@ -69,15 +69,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 foreach (var booking in bookings)
                 {
                     var state = states.SingleOrDefault(s => s.BookingId == booking.Id);
-                    var (_, isFailure, updatedState, error) = await RefreshStatus(booking, apiCaller, state);
-
+                    var (_, isFailure, error) = await RefreshStatus(booking, apiCaller, state);
+                    
                     if (isFailure)
                     {
                         hasErrors = true;
                         builder.AppendLine(error);
-                        continue;
                     }
-
+                    
+                    var updatedState = GetUpdatedState(booking, state);
                     UpdateState(updatedState);
                 }
 
@@ -126,14 +126,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task<Result<BookingStatusRefreshState>> RefreshStatus(Booking booking, ApiCaller apiCaller, BookingStatusRefreshState state)
+        private async Task<Result>RefreshStatus(Booking booking, ApiCaller apiCaller, BookingStatusRefreshState state)
         {
             return await ValidateBooking()
                 .Bind(CheckIsRefreshStatusNeeded)
-                .Bind(RefreshBookingStatus)
-                .Map(GetUpdatedState);
-            
-            
+                .Bind(RefreshBookingStatus);
+
+
             Result ValidateBooking()
             {
                 if (!BookingStatusesForRefresh.Contains(booking.Status))
@@ -156,22 +155,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             Task<Result> RefreshBookingStatus() 
                 => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
-
-
-            BookingStatusRefreshState GetUpdatedState()
-            {
-                return state == default
-                    ? new BookingStatusRefreshState
-                    {
-                        BookingId = booking.Id,
-                        LastRefreshDate = _dateTimeProvider.UtcNow()
-                    }
-                    : state with
-                    {
-                        LastRefreshDate = _dateTimeProvider.UtcNow(),
-                        RefreshStatusCount = state.RefreshStatusCount + 1
-                    };
-            }
         }
 
 
@@ -188,6 +171,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             BookingStatuses.Confirmed,
             BookingStatuses.PendingCancellation,
         };
+        
+        
+        private BookingStatusRefreshState GetUpdatedState(IEntity booking, BookingStatusRefreshState state)
+        {
+            return state == default
+                ? new BookingStatusRefreshState
+                {
+                    BookingId = booking.Id,
+                    LastRefreshDate = _dateTimeProvider.UtcNow()
+                }
+                : state with
+                {
+                    LastRefreshDate = _dateTimeProvider.UtcNow(),
+                    RefreshStatusCount = state.RefreshStatusCount + 1
+                };
+        }
+        
         
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
         {
