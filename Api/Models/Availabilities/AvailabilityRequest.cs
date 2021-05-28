@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
@@ -14,8 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
             ClientSearchFilters filters, List<RoomOccupationRequest> roomDetails, AccommodationRatings ratings, 
-            PropertyTypes propertyTypes = default,
-            List<string> htIds = null)
+            PropertyTypes propertyTypes = default, List<string> htIds = null)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
