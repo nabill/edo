@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var removeSearchLocationsFunction = "DROP FUNCTION public.search_locations(search_text text, location_type integer, take_limit integer DEFAULT 10);";
+            var removeSearchLocationsFunction = "DROP FUNCTION public.search_locations(search_text text, location_type integer, take_limit integer);";
             migrationBuilder.Sql(removeSearchLocationsFunction);
             
             migrationBuilder.DropTable(
