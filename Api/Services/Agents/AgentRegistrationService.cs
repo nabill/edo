@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 };
 
                 return await _notificationService.Send(messageData: messageData,
-                    notificationType: NotificationTypes.MasterCustomerSuccessfulRegistration,
+                    notificationType: NotificationTypes.MasterAgentSuccessfulRegistration,
                     emails: _notificationOptions.AdministratorsEmails,
                     templateId: _notificationOptions.MasterAgentMailTemplateId);
             }

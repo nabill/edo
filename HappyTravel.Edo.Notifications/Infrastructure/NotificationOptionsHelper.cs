@@ -28,14 +28,14 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.CreditCardPaymentReceived] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.AccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             // Counterparty
-            [NotificationTypes.RegularCustomerInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.AgentInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
             [NotificationTypes.ChildAgencyInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
-            [NotificationTypes.RegularCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.AgentSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             // Administrator
             [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
-            [NotificationTypes.MasterCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },  // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.MasterAgentSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },  // TODO: The WebSocket protocol will be added in the task AA-257
             [NotificationTypes.BookingsAdministratorSummaryNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false }, // TODO: The WebSocket protocol will be added in the task AA-257
             [NotificationTypes.BookingAdministratorPaymentsSummary] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },    // Need clarify
             [NotificationTypes.BookingCancelledToReservations] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },   // TODO: The WebSocket protocol will be added in the task AA-257
