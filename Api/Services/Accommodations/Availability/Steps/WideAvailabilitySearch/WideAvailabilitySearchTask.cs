@@ -209,7 +209,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 checkOutDate: request.CheckOutDate, 
                 filters: searchFilters | searchSettings.AdditionalSearchFilters,
                 rooms: roomDetails, 
-                location: null, 
                 propertyTypes: request.PropertyType,
                 ratings: request.Ratings,
                 accommodationIds: supplierAccommodationCodes);
