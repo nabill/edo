@@ -27,16 +27,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class BookingRecordsUpdater : IBookingRecordsUpdater
     {
-        public BookingRecordsUpdater(IDateTimeProvider dateTimeProvider,
-            IBookingInfoService infoService,
-            IBookingNotificationService bookingNotificationService,
-            IBookingMoneyReturnService moneyReturnService,
-            IBookingDocumentsMailingService documentsMailingService,
-            ISupplierOrderService supplierOrderService,
-            INotificationService notificationService,
-            IBookingChangeLogService bookingChangeLogService,
-            EdoContext context,
-            ILogger<BookingRecordsUpdater> logger)
+        public BookingRecordsUpdater(IDateTimeProvider dateTimeProvider, IBookingInfoService infoService,
+            IBookingNotificationService bookingNotificationService, IBookingMoneyReturnService moneyReturnService,
+            IBookingDocumentsMailingService documentsMailingService, ISupplierOrderService supplierOrderService,
+            INotificationService notificationService, IBookingChangeLogService bookingChangeLogService,
+            EdoContext context, ILogger<BookingRecordsUpdater> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _infoService = infoService;
