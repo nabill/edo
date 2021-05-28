@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace HappyTravel.Edo.Data
 {
@@ -13,16 +14,18 @@ namespace HappyTravel.Edo.Data
             return EntityInfos.GetOrAdd(entityType, (prop, dbContext) =>
                 {
                     var entity = dbContext.Model.FindEntityType(entityType);
+                    var tableName = entity.GetTableName();
                     return new EntityDbMappingInfo()
                     {
-                        Table = entity.GetTableName(),
+                        Table = tableName,
                         Schema = entity.GetSchema() ?? DefaultSchema,
                         PropertyMapping = entity.GetProperties()
-                            .ToDictionary(property => property.Name, property => property.GetColumnName())
+                            .ToDictionary(property => property.Name, property => property.GetColumnName(StoreObjectIdentifier.Table(tableName, DefaultSchema)))
                     };
                 },
                 context);
         }
+        
         
         private const string DefaultSchema = "public";
 
