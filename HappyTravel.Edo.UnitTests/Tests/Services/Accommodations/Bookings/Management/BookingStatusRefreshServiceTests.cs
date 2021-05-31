@@ -21,10 +21,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
 {
     public class BookingStatusRefreshServiceTests
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task Should_update_last_refresh_date_for_working_and_failing_supplier(bool isWorkingSupplier)
+        [Fact]
+        public async Task Should_update_last_refresh_date_for_working_supplier()
         {
             var doubleFlowMock = new Mock<IDoubleFlow>();
             
@@ -38,7 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             doubleFlowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
                 .Callback<string, List<BookingStatusRefreshState>, TimeSpan, CancellationToken>((_, states, _, _) => { capturedStates = states; });
 
-            var supplier = isWorkingSupplier ? CreateWorkingSupplier() : CreateFailingSupplier();
+            var supplier = CreateWorkingSupplier();
 
             var bookingStatusRefreshService = CreateBookingStatusRefreshService(doubleFlowMock.Object, supplier);
             await bookingStatusRefreshService.RefreshStatuses(BookingIds, ApiCaller.InternalServiceAccount);
@@ -47,6 +45,30 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             Assert.Equal(DateTimeNow, capturedStates[0].LastRefreshDate);
         }
         
+        
+        [Fact]
+        public async Task Should_update_last_refresh_date_for_failing_supplier()
+        {
+            var doubleFlowMock = new Mock<IDoubleFlow>();
+            
+            // Using function instead of a member because the mock changes initial data
+            var initialStates = GetInitialStates();
+            var capturedStates = new List<BookingStatusRefreshState>();
+            
+            doubleFlowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), It.IsAny<TimeSpan>(), default))
+                .ReturnsAsync(initialStates);
+            
+            doubleFlowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
+                .Callback<string, List<BookingStatusRefreshState>, TimeSpan, CancellationToken>((_, states, _, _) => { capturedStates = states; });
+
+            var supplier = CreateFailingSupplier();
+
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(doubleFlowMock.Object, supplier);
+            await bookingStatusRefreshService.RefreshStatuses(BookingIds, ApiCaller.InternalServiceAccount);
+
+            Assert.Equal(2, capturedStates[0].RefreshStatusCount);
+            Assert.Equal(DateTimeNow, capturedStates[0].LastRefreshDate);
+        }
 
         private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDoubleFlow doubleFlow, ISupplierBookingManagementService supplierService)
         {
@@ -94,7 +116,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         }
 
 
-        private static readonly DateTime DateTimeLastRefresh = new(2021, 6, 1, 0, 0, 0);
         private static readonly DateTime DateTimeNow = new(2021, 6, 1, 0, 15, 0);
         
         private static readonly List<Booking> Bookings = new()
@@ -119,7 +140,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
                 new()
                 {
                     BookingId = 1,
-                    LastRefreshDate = DateTimeLastRefresh,
+                    LastRefreshDate = new DateTime(2021, 6, 1, 0, 0, 0),
                     RefreshStatusCount = 1
                 }
             };
