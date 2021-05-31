@@ -1,138 +1,140 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
-using HappyTravel.Edo.Data;
-using Microsoft.EntityFrameworkCore;
-using HappyTravel.Edo.Api.NotificationCenter.Hubs;
-using HappyTravel.Edo.Api.NotificationCenter.Models;
-using Microsoft.AspNetCore.SignalR;
+using System.Collections.Generic;
 using System.Text.Json;
-using HappyTravel.Edo.Api.Infrastructure;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
     public class NotificationService : INotificationService
     {
-        public NotificationService(EdoContext context, 
-            IHubContext<AgentNotificationHub, INotificationClient> agentNotificationHub,
-            IHubContext<AdminNotificationHub, INotificationClient> adminNotificationHub,
-            IDateTimeProvider dateTimeProvider)
+        public NotificationService(IInternalNotificationService internalNotificationService,
+            INotificationOptionsService notificationOptionsService,
+            IAgentContextService agentContextService)
         {
-            _context = context;
-            _agentNotificationHub = agentNotificationHub;
-            _adminNotificationHub = adminNotificationHub;
-            _dateTimeProvider = dateTimeProvider;
+            _internalNotificationService = internalNotificationService;
+            _notificationOptionsService = notificationOptionsService;
+            _agentContextService = agentContextService;
         }
+
+
+        public async Task<Result> Send(ApiCaller apiCaller, JsonDocument message, NotificationTypes notificationType)
+        {
+            if (apiCaller.Type == ApiCallerTypes.Agent)
+            {
+                var agent = await _agentContextService.GetAgent();
+
+                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType);
+            }
+            else if (apiCaller.Type == ApiCallerTypes.Admin)
+                return await Send(new SlimAdminContext(apiCaller.Id), message, notificationType);
+            else
+                return Result.Success();
+        }
+
+
+        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        {
+            return await Send(apiCaller, messageData, notificationType, new List<string> { email }, templateId);
+        }
+
+
+        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        {
+            if (apiCaller.Type == ApiCallerTypes.Agent)
+            {
+                var agent = await _agentContextService.GetAgent();
+
+                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), messageData, notificationType, emails, templateId);
+            }
+            else if (apiCaller.Type == ApiCallerTypes.Admin)
+                return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails, templateId);
+            else
+                return Result.Success();
+        }
+
+
+        public async Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType)
+        {
+            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, message, notificationType, sendingSettings));
+        }
+
+
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        {
+            return await Send(admin, messageData, notificationType, new List<string> { email }, templateId);
+        }
+
+
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        {
+            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, messageData, notificationType, sendingSettings));
+        }
+
+
+        public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType)
+        {
+            return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
+                .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, message, notificationType, sendingSettings));
+        }
+
+
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        {
+            return await Send(agent, messageData, notificationType, new List<string> { email }, templateId);
+        }
+
+
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        {
+            return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
+        }
+
+
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
+        {
+            return await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
+        }
+
+
+        public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
+            => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, skip, top);
         
 
-        public async Task Add(Notifications.Models.Notification notification)
+        public async Task<List<SlimNotification>> Get(SlimAdminContext admin, int skip, int top)
+            => await _internalNotificationService.Get(ReceiverTypes.AdminPanel, admin.AdminId, null, skip, top);
+
+
+        private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)
         {
-            var entry = _context.Notifications.Add(new Data.Notifications.Notification
-            {
-                Receiver = notification.Receiver,
-                UserId = notification.UserId,
-                AgencyId = notification.AgencyId,
-                Message = notification.Message,
-                Type = notification.Type,
-                SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
-                Created = _dateTimeProvider.UtcNow()
-            });
-            await _context.SaveChangesAsync();
+            var sendingSettings = new Dictionary<ProtocolTypes, object>();
 
-            var tasks = new List<Task>();
+            if ((notificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
+                sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
-            foreach (var (protocol, settings) in notification.SendingSettings)
-            {
-                var task = protocol switch
-                {
-                    ProtocolTypes.Email when settings is EmailSettings emailSettings 
-                        => SendEmail(emailSettings),
-                    
-                    ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
-                        => notification.Receiver switch 
-                        {
-                            ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, entry.Entity.Id, notification.Message),
-                            
-                            ReceiverTypes.AdminPanel
-                                => SendMessageToAdmin(notification.UserId, entry.Entity.Id, notification.Message),
+            if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+                sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = emails ?? new(0), TemplateId = templateId });
 
-                            _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
-                        },
-                    
-                    _ => throw new ArgumentException($"Unsupported protocol '{protocol}' or incorrect settings type")
-                };
-                
-                tasks.Add(task);
-            }
-
-            await Task.WhenAll(tasks);
+            return sendingSettings;
         }
 
 
-        public async Task MarkAsRead(int notificationId)
-        {
-            var notification = await _context.Notifications
-                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
-
-            if (notification is not null)
-            {
-                notification.IsRead = true;
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
-        {
-            return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId)
-                .Take(top)
-                .Skip(skip)
-                .Select(n => new SlimNotification
-                {
-                    Receiver = n.Receiver,
-                    Id = n.Id,
-                    UserId = n.UserId,
-                    Message = n.Message,
-                    Type = n.Type,
-                    Created = n.Created,
-                    IsRead = n.IsRead
-                })
-                .ToListAsync();
-        }
-
-
-        private Task SendEmail(EmailSettings settings)
-        {
-            // TODO: Sending e-mails will be implemented later in task AA-128
-            return Task.CompletedTask;
-        }
-
-
-        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
-        {
-            await _agentNotificationHub.Clients
-                .Group($"{agencyId}-{userId}")
-                .ReceiveMessage(messageId, message);
-        }
-
-
-        private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
-        {
-            await _adminNotificationHub.Clients
-                .Group($"admin-{userId}")
-                .ReceiveMessage(messageId, message);
-        }
-
-
-        private readonly EdoContext _context;
-        private readonly IHubContext<AgentNotificationHub, INotificationClient> _agentNotificationHub;
-        private readonly IHubContext<AdminNotificationHub, INotificationClient> _adminNotificationHub;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IInternalNotificationService _internalNotificationService;
+        private readonly INotificationOptionsService _notificationOptionsService;
+        private readonly IAgentContextService _agentContextService;
     }
 }

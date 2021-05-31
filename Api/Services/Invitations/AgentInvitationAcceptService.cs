@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -10,12 +9,14 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Infrastructure;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
     {
         public AgentInvitationAcceptService(
             EdoContext context,
-            MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationService,
             ILogger<AgentInvitationAcceptService> logger,
             IAdminAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService,
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             IAccountManagementService accountManagementService)
         {
             _context = context;
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _logger = logger;
             _agencyManagementService = agencyManagementService;
             _agentService = agentService;
@@ -45,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity)
+        public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity, string email)
         {
             return await GetActiveInvitation()
                 .Bind(Validate)
@@ -95,11 +96,11 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             bool IsEmailFilled(AcceptPipeValues values)
-                => !string.IsNullOrWhiteSpace(values.InvitationData.UserRegistrationInfo.Email);
+                => !string.IsNullOrWhiteSpace(email);
 
 
             async Task<bool> IsAgentEmailUnique(AcceptPipeValues values)
-                => !await _context.Agents.AnyAsync(a => a.Email == values.InvitationData.UserRegistrationInfo.Email);
+                => !await _context.Agents.AnyAsync(a => a.Email == email);
 
 
             Task SaveAccepted(AcceptPipeValues _)
@@ -108,8 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<Result<AcceptPipeValues>> CreateAgent(AcceptPipeValues values)
             {
-                var (_, isFailure, agent, error) = await _agentService.Add(values.InvitationData.UserRegistrationInfo, identity,
-                    values.InvitationData.UserRegistrationInfo.Email);
+                var (_, isFailure, agent, error) = await _agentService.Add(values.InvitationData.UserRegistrationInfo, identity, email);
 
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
@@ -127,6 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     values.Permissions = PermissionSets.Default;
                     values.RelationType = AgentAgencyRelationTypes.Regular;
                     values.NotificationTemplateId = _notificationOptions.RegularAgentMailTemplateId;
+                    values.NotificationType = NotificationTypes.RegularCustomerSuccessfulRegistration;
 
                     return values;
                 }
@@ -153,6 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 values.Permissions = PermissionSets.Master;
                 values.RelationType = AgentAgencyRelationTypes.Master;
                 values.NotificationTemplateId = _notificationOptions.ChildAgencyMailTemplateId;
+                values.NotificationType = NotificationTypes.ChildAgencySuccessfulRegistration;
 
                 return values;
             }
@@ -174,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             void LogSuccess(AcceptPipeValues values)
-                => _logger.LogAgentRegistrationSuccess($"Agent {values.InvitationData.UserRegistrationInfo.Email} successfully registered " +
+                => _logger.LogAgentRegistrationSuccess($"Agent {email} successfully registered " +
                     $"and bound to agency ID:'{values.Invitation.InviterAgencyId.Value}'");
 
 
@@ -192,14 +194,20 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     ? "a new employee"
                     : registrationInfo.Position;
 
-                var (_, isNotificationFailure, notificationError) = await _mailSender.Send(values.NotificationTemplateId, master.Email,
-                    new RegistrationData
-                    {
-                        AgentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
-                        Position = position,
-                        Title = registrationInfo.Title,
-                        AgencyName = values.AgencyName
-                    });
+                var registrationData = new RegistrationData
+                {
+                    AgentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
+                    Position = position,
+                    Title = registrationInfo.Title,
+                    AgencyName = values.AgencyName
+                };
+
+                var (_, isNotificationFailure, notificationError) 
+                    = await _notificationService.Send(agent: new SlimAgentContext(master.Id, values.Invitation.InviterAgencyId.Value),
+                        messageData: registrationData,
+                        notificationType: values.NotificationType,
+                        email: master.Email,
+                        templateId: values.NotificationTemplateId);
 
                 if (isNotificationFailure)
                     LogNotificationFailed(notificationError);
@@ -225,11 +233,12 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             public InAgencyPermissions Permissions { get; set; }
             public AgentAgencyRelationTypes RelationType { get; set; }
             public string NotificationTemplateId { get; set; }
+            public NotificationTypes NotificationType { get; set; }
         }
 
 
         private readonly EdoContext _context;
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<AgentInvitationAcceptService> _logger;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly Agents.IAgentService _agentService;

@@ -10,7 +10,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

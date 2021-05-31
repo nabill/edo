@@ -49,8 +49,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             AccommodationBookingSettings settings, DateTime date)
         {
             var deadlineDate = availability.RoomContractSet.Deadline.Date ?? availability.CheckInDate;
-            if (date.AddDays(1) <= deadlineDate.Date)
+
+            if (date < deadlineDate.Date - OfflinePaymentAdditionalDays)
                 return AllAvailablePaymentTypes;
+
+            if (date < deadlineDate.Date)
+                return new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard};
 
             return settings.PassedDeadlineOffersMode switch
             {
@@ -81,6 +85,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             PaymentTypes.CreditCard,
             PaymentTypes.Offline
         };
+
+
+        public static readonly TimeSpan OfflinePaymentAdditionalDays = TimeSpan.FromDays(3);
 
         private static readonly List<PaymentTypes> EmptyPaymentTypesList = new(0);
     }

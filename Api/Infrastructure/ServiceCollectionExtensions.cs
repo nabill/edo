@@ -19,7 +19,6 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
@@ -96,7 +95,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
-using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
@@ -359,6 +357,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Columbus"]
                     : supplierOptions["columbus"];
                 
+                options.TravelgateXTest = environment.IsLocal()
+                    ? configuration["Suppliers:TravelgateXTest"]
+                    : supplierOptions["travelgateXTest"];
+                
+                options.Jumeirah = environment.IsLocal()
+                    ? configuration["Suppliers:Jumeirah"]
+                    : supplierOptions["jumeirah"];
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
@@ -510,7 +516,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
-            services.AddTransient<IGeoCoder, InteriorGeoCoder>();
 
             services.AddSingleton<IVersionService, VersionService>();
 
@@ -542,6 +547,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
+            services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
             services.AddTransient<ICreditCardAuditService, CreditCardAuditService>();
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();
@@ -665,7 +671,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<WebhookResponseService>();
 
             services.AddNameNormalizationServices();
-            services.AddScoped<ILocationNormalizer, LocationNormalizer>();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
@@ -718,8 +723,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IReportService, ReportService>();
-            services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
-            services.AddTransient<ISendingNotificationsService, SendingNotificationsService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();

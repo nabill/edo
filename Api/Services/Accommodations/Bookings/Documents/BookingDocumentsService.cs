@@ -19,7 +19,7 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;

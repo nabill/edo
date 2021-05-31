@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Models.ApiClients;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Common.Enums;
@@ -26,7 +27,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///  Gets api client info for current agent
         /// </summary>
         [HttpGet]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiClientInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Get()
         {

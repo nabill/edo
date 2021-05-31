@@ -58,16 +58,23 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
             <summary>
-                Gets agent's availability search settings
+                Gets agency's availability search settings
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAccommodationBookingSettings,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo,System.Int32)">
             <summary>
-                Updates agent's availability search settings
+                Updates agency's availability search settings
             </summary>
             <param name="settings">Settings</param>
+            <param name="agencyId">Agency Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.DeleteSystemSettings(System.Int32)">
+            <summary>
+                Deletes agency's availability search settings
+            </summary>
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
@@ -176,7 +183,7 @@
             <param name="editDiscountRequest">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
             </summary>
@@ -188,6 +195,14 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.GetSystemSettings(System.Int32,System.Int32)">
             <summary>
             Gets agent's availability search settings
+            </summary>
+            <param name="agentId">Agent Id</param>
+            <param name="agencyId">Agency Id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.DeleteSystemSettings(System.Int32,System.Int32)">
+            <summary>
+            Deletes agent's availability search settings
             </summary>
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Agency Id</param>
@@ -521,39 +536,13 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
-                Creates markup policy.
+                Gets the notification history of the current administrator
             </summary>
-            <param name="policyData">Policy data.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.RemovePolicy(System.Int32)">
-            <summary>
-                Deletes policy.
-            </summary>
-            <param name="id">Id of the policy to delete.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-                Updates policy settings.
-            </summary>
-            <param name="id">Id of the policy.</param>
-            <param name="policySettings">Updated settings.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.GetPolicies(HappyTravel.Edo.Common.Enums.Markup.MarkupPolicyScopeType,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32})">
-            <summary>
-                Gets policies for specified scope.
-            </summary>
-            <returns>Policies.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.GetPolicyTemplates">
-            <summary>
-                Gets policy templates.
-            </summary>
-            <returns>Policy templates.</returns>
+            <param name="skip">Skip</param>
+            <param name="top">Top</param>
+            <returns>List of notifications</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
@@ -1279,38 +1268,19 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetLocationPredictions(System.String,System.String)">
-            <summary>
-                Returns location predictions what a used when searching
-            </summary>
-            <param name="query">The search query text.</param>
-            <param name="sessionId">The search session ID.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetRegions">
             <summary>
                 Returns a list of world regions.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.SetPredictions(System.Collections.Generic.IEnumerable{HappyTravel.Edo.Api.Models.Locations.Location})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
-                Internal. Sets locations, gathered from booking sources, to make predictions.
+                Gets the notification history of the current agent
             </summary>
-            <param name="locations"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetLastModifiedDate">
-            <summary>
-                Internal. Gets date of last modified location. This can be treated as last locations update date.
-            </summary>
-            <returns>Last changed location modified date</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.Normalize">
-            <summary>
-            Starts a locations normalization process
-            </summary>
-            <returns></returns>
+            <param name="skip">Skip</param>
+            <param name="top">Top</param>
+            <returns>List of notifications</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
@@ -2553,11 +2523,6 @@
                 One ore several filters to order a response data.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Location">
-            <summary>
-                Desirable search area.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Nationality">
             <summary>
                 Required. Alpha-2 nationality code for a lead passengers.
@@ -3332,6 +3297,76 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
                 Payfort tokenization url
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.IsMarkupDisabled">
+            <summary>
+            If this is set to true, no markup is applied, even global markup
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.AprMode">
+            <summary>
+            Tells whether the user can see and book accommodations with advanced purchase flag
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.PassedDeadlineOffersMode">
+            <summary>
+            Tells whether the user can see and book accommodations with passed deadline date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.EnabledSuppliers">
+            <summary>
+            When searching, only results from this suppliers will be seen to the user
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.IsSupplierVisible">
+            <summary>
+            The user will see suppliers in search UI if this setting is set to true
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.IsDirectContractFlagVisible">
+            <summary>
+            The user will see the DirectContractFlag if this setting is set to true
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.CustomDeadlineShift">
+            <summary>
+            Amount of days, on which deadline policies dated will be shifted towards past. Must not be a positive number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.IsMarkupDisabled">
+            <summary>
+            If this is set to true, no markup is applied, even global markup
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.AprMode">
+            <summary>
+            Tells whether the user can see and book accommodations with advanced purchase flag
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.PassedDeadlineOffersMode">
+            <summary>
+            Tells whether the user can see and book accommodations with passed deadline date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.EnabledSuppliers">
+            <summary>
+            When searching, only results from this suppliers will be seen to the user
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.IsSupplierVisible">
+            <summary>
+            The user will see suppliers in search UI if this setting is set to true
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.IsDirectContractFlagVisible">
+            <summary>
+            The user will see the DirectContractFlag if this setting is set to true
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.AdditionalSearchFilters">
+            <summary>
+            These filters apply to existing search filters during availability search
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Title">

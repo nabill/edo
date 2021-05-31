@@ -11,7 +11,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

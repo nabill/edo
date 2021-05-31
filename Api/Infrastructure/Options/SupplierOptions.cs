@@ -10,6 +10,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string DirectContracts { get; set; }
         public string Rakuten { get; set; }
         public string Columbus { get; set; }
+        public string TravelgateXTest { get; set; }
+        public string Jumeirah { get; set; }
         public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
     }
 }

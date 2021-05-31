@@ -9,7 +9,6 @@ using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
@@ -798,64 +797,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Location", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<Point>("Coordinates")
-                        .IsRequired()
-                        .HasColumnType("geography (point)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("DefaultCountry")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DefaultLocality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DefaultName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DistanceInMeters")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Locality")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("Source")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Suppliers")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasDefaultValue("[]");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Locations");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>
                 {
                     b.Property<int>("Id")
@@ -1128,17 +1069,23 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
-
                     b.Property<JsonDocument>("Message")
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("Read")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("Received")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Receiver")
                         .HasColumnType("integer");
 
                     b.Property<JsonDocument>("SendingSettings")
                         .HasColumnType("jsonb");
+
+                    b.Property<int>("SendingStatus")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -1148,9 +1095,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsRead");
-
                     b.HasIndex("Receiver");
+
+                    b.HasIndex("SendingStatus");
 
                     b.HasIndex("UserId");
 
@@ -1511,27 +1458,33 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("ConvertedSupplierCurrency")
+                    b.Property<int>("ConvertedCurrency")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("ConvertedSupplierPrice")
+                    b.Property<decimal>("ConvertedPrice")
                         .HasColumnType("numeric");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
+
+                    b.Property<Deadline>("Deadline")
+                        .HasColumnType("jsonb");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("OriginalSupplierCurrency")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("OriginalSupplierPrice")
+                    b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("RefundableAmount")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("State")
                         .HasColumnType("integer");

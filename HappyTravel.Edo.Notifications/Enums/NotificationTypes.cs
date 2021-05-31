@@ -3,6 +3,7 @@ namespace HappyTravel.Edo.Notifications.Enums
     public enum NotificationTypes
     {
         None = 0,
+        // Booking
         BookingVoucher = 1,
         BookingInvoice = 2,
         DeadlineApproaching = 3,
@@ -10,6 +11,15 @@ namespace HappyTravel.Edo.Notifications.Enums
         BookingDuePaymentDate = 5,
         BookingCancelled = 6,
         BookingFinalized = 7,
-        BookingStatusChanged = 8
+        BookingStatusChanged = 8,
+        // Accounts
+        CreditCardPaymentReceived = 9,
+        AccountBalanceReplenished = 10,
+        // Counterparty
+        CustomerInvitation = 11,
+        ChildAgencyInvitation = 12,
+        RegularCustomerSuccessfulRegistration = 13,
+        ChildAgencySuccessfulRegistration = 14,
+        AgencyManagement = 15
     }
 }

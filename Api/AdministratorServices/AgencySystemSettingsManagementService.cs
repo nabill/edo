@@ -24,9 +24,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 
-                return existingSettings == default
-                    ? Result.Failure<AgencyAccommodationBookingSettings>($"Could not find availability search settings for agency with id {agencyId}")
-                    : existingSettings.AccommodationBookingSettings;
+                return existingSettings?.AccommodationBookingSettings;
             }
         }
 
@@ -59,6 +57,26 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 }
 
                 await _context.SaveChangesAsync();
+                return Result.Success();
+            }
+        }
+
+
+        public async Task<Result> DeleteAvailabilitySearchSettings(int agencyId)
+        {
+            return await CheckAgencyExists(agencyId)
+                .Bind(DeleteSettings);
+
+
+            async Task<Result> DeleteSettings()
+            {
+                var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
+                if (existingSettings == default)
+                    return Result.Failure("Could not find settings for specified agency");
+
+                _context.Remove(existingSettings);
+                await _context.SaveChangesAsync();
+
                 return Result.Success();
             }
         }
