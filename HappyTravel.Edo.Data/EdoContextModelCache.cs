@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data
                         Table = tableName,
                         Schema = entity.GetSchema() ?? DefaultSchema,
                         PropertyMapping = entity.GetProperties()
-                            .ToDictionary(property => property.Name, property => property.GetColumnName(StoreObjectIdentifier.Table(tableName, DefaultSchema)))
+                            .ToDictionary(property => property.Name, property => property.GetDefaultColumnName(StoreObjectIdentifier.Table(tableName, DefaultSchema)))
                     };
                 },
                 context);
