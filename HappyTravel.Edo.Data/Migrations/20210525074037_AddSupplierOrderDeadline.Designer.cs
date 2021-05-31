@@ -8,15 +8,18 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210525074037_AddSupplierOrderDeadline")]
+    partial class AddSupplierOrderDeadline
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -795,6 +798,64 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Countries");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Location", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<Point>("Coordinates")
+                        .IsRequired()
+                        .HasColumnType("geography (point)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("DefaultCountry")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultLocality")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DistanceInMeters")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Locality")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Suppliers")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValue("[]");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>

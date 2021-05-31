@@ -61,12 +61,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         public async Task Start(Guid searchId, Models.Availabilities.AvailabilityRequest availabilityRequest, 
-            Location location, List<SupplierCodeMapping> accommodationCodeMappings, Suppliers supplier, 
+            List<SupplierCodeMapping> accommodationCodeMappings, Suppliers supplier, 
             AgentContext agent, string languageCode,
             AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
-            var connectorRequest = CreateRequest(availabilityRequest, location, accommodationCodeMappings, searchSettings);
+            var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
 
             try
             {
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, Location location, List<SupplierCodeMapping> mappings,
+        private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, List<SupplierCodeMapping> mappings,
             AccommodationBookingSettings searchSettings)
         {
             var roomDetails = request.RoomDetails
@@ -201,31 +201,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             var searchFilters = Convert(request.Filters);
 
-            if (request.HtIds is null || !request.HtIds.Any())
-            {
-                // Same request for all suppliers
-                // Remove when will support the new flow only
-                return new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
-                    request.CheckOutDate,
-                    searchFilters | searchSettings.AdditionalSearchFilters,
-                    roomDetails,
-                    new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, 
-                        location.Coordinates, location.Distance,
-                        location.Source, location.Type),
-                    request.PropertyType, request.Ratings, new List<string>(0));
-            }
-            else
-            {
-                var supplierAccommodationCodes = mappings.Select(m => m.SupplierCode).ToList();
-                return new AvailabilityRequest(request.Nationality,
-                    request.Residency,
-                    request.CheckInDate,
-                    request.CheckOutDate,
-                    searchFilters | searchSettings.AdditionalSearchFilters,
-                    roomDetails,
-                    null,
-                    request.PropertyType, request.Ratings, supplierAccommodationCodes);
-            }
+            var supplierAccommodationCodes = mappings.Select(m => m.SupplierCode).ToList();
+            
+            return new AvailabilityRequest(nationality: request.Nationality,
+                residency: request.Residency, 
+                checkInDate: request.CheckInDate,
+                checkOutDate: request.CheckOutDate, 
+                filters: searchFilters | searchSettings.AdditionalSearchFilters,
+                rooms: roomDetails, 
+                propertyTypes: request.PropertyType,
+                ratings: request.Ratings,
+                accommodationIds: supplierAccommodationCodes);
 
 
             static EdoContracts.General.Enums.SearchFilters Convert(ClientSearchFilters filters)

@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Notifications.Infrastructure;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -96,8 +97,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             await SaveAndSend(notification, messageData);
         }
-        
-        
+
+
         public async Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top)
             => await _context.Notifications
                 .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
@@ -108,7 +109,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     Id = n.Id,
                     UserId = n.UserId,
                     AgencyId = n.AgencyId,
-                    Message = n.Message,
+                    Message = n.Message.ToJsonString(),
                     Type = n.Type,
                     SendingStatus = n.SendingStatus,
                     Created = n.Created,
