@@ -41,11 +41,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 })
                 .ToList();
 
-
+            var isFinal = contractsWithDeadline.All(p => p.Deadline.IsFinal);
+            
+            return new Deadline(deadlineDate, policies, new List<string>(), isFinal);
+            
+            
             double CalculatePercent(double amount) 
                 => amount / totalAmount;
-
-            return new Deadline(deadlineDate, policies, new List<string>(), true);
         }
     }
 }
