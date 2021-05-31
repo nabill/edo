@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.Notifications.Enums
         // Other
         BookingSummaryReportForAgent = 24,
         ExternalPaymentLinks = 25,
-        PaymentLinkPaidNotification = 26,
-        LastMonthBookings = 27
+        PaymentLinkPaidNotification = 26
     }
 }
