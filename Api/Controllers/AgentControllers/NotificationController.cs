@@ -3,6 +3,8 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
@@ -46,7 +48,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns>List of notification options</returns>
         [HttpGet("options")]
-        [ProducesResponseType(typeof(List<SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
         [AgentRequired]
         public async Task<IActionResult> GetNotificationOptions()
         {

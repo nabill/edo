@@ -10,6 +10,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -31,24 +32,23 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result<List<SlimNotificationOptions>>> GetNotificationOptions(SlimAgentContext agent)
+        public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAgentContext agent)
         {
-            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
-
             var agentOptions = await _context.NotificationOptions
                 .Where(no => no.AgencyId == agent.AgencyId && no.UserId == agent.AgentId && no.UserType == ApiCallerTypes.Agent)
                 .ToListAsync();
 
-            foreach (var option in agentOptions)
-            {
-                var defaultOption = defaultOptions.GetValueOrDefault(option.Type);
-                if (!defaultOption.IsMandatory)
-                {
-                    defaultOption.EnabledProtocols = option.EnabledProtocols;
-                }
-            }
+            return GetMaterializedOptions(agentOptions);
+        }
 
-            return defaultOptions;
+
+        public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAdminContext admin)
+        {
+            var adminOptions = await _context.NotificationOptions
+                .Where(no => no.AgencyId == null && no.UserId == admin.AdminId && no.UserType == ApiCallerTypes.Admin)
+                .ToListAsync();
+
+            return GetMaterializedOptions(adminOptions);
         }
 
 
@@ -101,6 +101,27 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private Task<NotificationOptions> GetOptions(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType) 
             => _context.NotificationOptions
                 .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
+
+
+        private static Dictionary<NotificationTypes, SlimNotificationOptions> GetMaterializedOptions(List<NotificationOptions> userOptions)
+        {
+            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
+
+            var materializedOptions = new Dictionary<NotificationTypes, SlimNotificationOptions>();
+
+            foreach (var option in defaultOptions)
+            {
+                var userOption = userOptions.SingleOrDefault(no => no.Type == option.Key);
+
+                var newValue = (!option.Value.IsMandatory && (userOption is not null))
+                    ? new SlimNotificationOptions { EnabledProtocols = userOption.EnabledProtocols, IsMandatory = false }
+                    : option.Value;
+
+                materializedOptions.Add(option.Key, newValue);
+            }
+
+            return materializedOptions;
+        }
 
 
         private readonly EdoContext _context;
