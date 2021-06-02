@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -42,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             var payload = new PaymentLinkPaymentConfirmation
             {
-                Date = FormatDate(link.Date),
+                Date = DateTimeFormatters.ToDateString(link.Date),
                 Amount = MoneyFormatter.ToCurrencyString(link.Amount, link.Currency),
                 ReferenceCode = link.ReferenceCode,
                 ServiceDescription = link.ServiceType.ToString(),
@@ -53,9 +54,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 email: link.Email,
                 templateId: _options.PaymentConfirmationMailTemplateId);
         }
-        
-        
-        private static string FormatDate(DateTime date) => date.ToString("dd-MMM-yy");
         
         
         private readonly PaymentLinkOptions _options;
