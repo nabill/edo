@@ -7,6 +7,8 @@ using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Notifications.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
@@ -20,10 +22,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class NotificationController : BaseController
     {
-        public NotificationController(IAdministratorContext administratorContext, INotificationService notificationService)
+        public NotificationController(IAdministratorContext administratorContext, INotificationService notificationService, INotificationOptionsService notificationOptionsService)
         {
             _administratorContext = administratorContext;
             _notificationService = notificationService;
+            _notificationOptionsService = notificationOptionsService;
         }
 
 
@@ -46,7 +49,24 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///     Gets the notification options of the current administrator
+        /// </summary>
+        /// <returns>List of notification options</returns>
+        [HttpGet("options")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetNotificationOptions()
+        {
+            var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(await _notificationOptionsService.Get(new SlimAdminContext(admin.Id)));
+        }
+
+
         private readonly IAdministratorContext _administratorContext;
         private readonly INotificationService _notificationService;
+        private readonly INotificationOptionsService _notificationOptionsService;
     }
 }
