@@ -1294,6 +1294,13 @@
             </summary>
             <returns>List of notification options</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Notifications.Models.SlimNotificationOptions})">
+            <summary>
+                Updates the notification options of the current agent
+            </summary>
+            <param name="notificationOptions">Notification options</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
                 Gets supported desktop client versions.

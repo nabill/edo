@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAgentContext agent);
         Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAdminContext admin);
 
-        Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options);
+        Task<Result> Update(SlimAgentContext agent, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions);
+        Task<Result> Update(SlimAdminContext admin, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions);
     }
 }

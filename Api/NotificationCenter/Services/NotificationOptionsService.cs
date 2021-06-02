@@ -64,12 +64,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             foreach (var option in notificationOptions)
             {
-                await Update(userId, userType, agencyId, option.Key, option.Value);
+                var result = await Update(userId, userType, agencyId, option.Key, option.Value);
+                if (result.IsFailure)
+                    return Result.Failure(result.Error);
             }
+
+            return Result.Success();
         }
 
 
-        public async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
+        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
         {
             return await Validate()
                 .Bind(SaveOptions);
