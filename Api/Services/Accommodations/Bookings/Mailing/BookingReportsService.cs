@@ -133,19 +133,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 foreach (var (data, email) in dataAndEmailTuples)
                 {
                     var (_, isFailure, error) = await _mailSender.Send(_options.BookingSummaryTemplateId, email, data);
+
                     if (isFailure)
+                    {
                         hasErrors = true;
-
-                    var message = isFailure
-                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{email}'. Error: {error}"
-                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{email}'";
-
-                    builder.AppendLine(message);
+                        builder.AppendLine($"Failed to send a booking summary report for agency with id {agencyId} to '{email}'. Error: {error}");
+                    }
                 }
 
                 return hasErrors
                     ? Result.Failure<string>(builder.ToString())
-                    : Result.Success(builder.ToString());
+                    : Result.Success(string.Empty);
             }
         }
 
