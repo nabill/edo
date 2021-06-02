@@ -1,11 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
