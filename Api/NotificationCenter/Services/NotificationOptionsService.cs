@@ -52,6 +52,23 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task<Result> Update(SlimAgentContext agent, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+            => await Update(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationOptions);
+
+
+        public async Task<Result> Update(SlimAdminContext admin, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+            => await Update(admin.AdminId, ApiCallerTypes.Admin, null, notificationOptions);
+
+
+        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        {
+            foreach (var option in notificationOptions)
+            {
+                await Update(userId, userType, agencyId, option.Key, option.Value);
+            }
+        }
+
+
         public async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
         {
             return await Validate()
