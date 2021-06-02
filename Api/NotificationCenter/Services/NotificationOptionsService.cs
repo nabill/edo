@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 if (defaultOptions.IsFailure)
                     return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
-                if (defaultOptions.Value.IsMandatory && options.EnabledProtocols != default)
+                if (defaultOptions.Value.IsMandatory && options.EnabledProtocols != defaultOptions.Value.EnabledProtocols)
                     return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
 
                 return defaultOptions;
@@ -103,6 +103,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         UserId = userId,
                         UserType = userType,
                         AgencyId = agencyId,
+                        Type = notificationType,
                         EnabledProtocols = options.EnabledProtocols,
                         IsMandatory = defaultOptions.IsMandatory
                     });
@@ -110,6 +111,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 else
                 {
                     entity.EnabledProtocols = options.EnabledProtocols;
+                    entity.IsMandatory = defaultOptions.IsMandatory;
                     _context.Update(entity);
                 }
 
