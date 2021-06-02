@@ -1282,6 +1282,12 @@
             <param name="top">Top</param>
             <returns>List of notifications</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotificationOptions">
+            <summary>
+                Gets the notification options of the current agent
+            </summary>
+            <returns>List of notification options</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
                 Gets supported desktop client versions.
