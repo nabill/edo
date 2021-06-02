@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     values.Permissions = PermissionSets.Default;
                     values.RelationType = AgentAgencyRelationTypes.Regular;
                     values.NotificationTemplateId = _notificationOptions.RegularAgentMailTemplateId;
-                    values.NotificationType = NotificationTypes.RegularCustomerSuccessfulRegistration;
+                    values.NotificationType = NotificationTypes.AgentSuccessfulRegistration;
 
                     return values;
                 }
