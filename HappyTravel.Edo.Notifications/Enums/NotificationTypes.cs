@@ -16,10 +16,23 @@ namespace HappyTravel.Edo.Notifications.Enums
         CreditCardPaymentReceived = 9,
         AccountBalanceReplenished = 10,
         // Counterparty
-        CustomerInvitation = 11,
+        AgentInvitation = 11,
         ChildAgencyInvitation = 12,
-        RegularCustomerSuccessfulRegistration = 13,
+        AgentSuccessfulRegistration = 13,
         ChildAgencySuccessfulRegistration = 14,
-        AgencyManagement = 15
+        AgencyManagement = 15,
+        // Administrator
+        AdministratorInvitation = 16,
+        MasterAgentSuccessfulRegistration = 17,
+        BookingsAdministratorSummaryNotification = 18,
+        BookingAdministratorPaymentsSummary = 19,
+        BookingCancelledToReservations = 20,
+        BookingFinalizedToReservations = 21,
+        CreditCardPaymentReceivedAdministrator = 22,
+        BookingManualCorrectionNeeded = 23,
+        // Other
+        BookingSummaryReportForAgent = 24,
+        ExternalPaymentLinks = 25,
+        PaymentLinkPaidNotification = 26
     }
 }

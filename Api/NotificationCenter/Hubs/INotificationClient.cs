@@ -5,6 +5,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
 {
     public interface INotificationClient
     {
-        Task ReceiveMessage(int messageId, JsonDocument message);
+        Task ReceiveMessage(int messageId, string notificationType, JsonDocument message);
     }
 }

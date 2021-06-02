@@ -13,6 +13,8 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.DataFormatters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Notifications.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -22,6 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             ICounterpartyService counterpartyService,
             IAgentService agentService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
+            INotificationService notificationService,
             MailSenderWithCompanyInfo mailSender,
             ILogger<AgentRegistrationService> logger)
         {
@@ -29,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _counterpartyService = counterpartyService;
             _agentService = agentService;
             _notificationOptions = notificationOptions.Value;
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -101,7 +104,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     AgentName = agent
                 };
 
-                return await _mailSender.Send(_notificationOptions.MasterAgentMailTemplateId, _notificationOptions.AdministratorsEmails, messageData);
+                return await _notificationService.Send(messageData: messageData,
+                    notificationType: NotificationTypes.MasterAgentSuccessfulRegistration,
+                    emails: _notificationOptions.AdministratorsEmails,
+                    templateId: _notificationOptions.MasterAgentMailTemplateId);
             }
 
 
@@ -139,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly IAgentService _agentService;
         private readonly ILogger<AgentRegistrationService> _logger;
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
     }
 }
