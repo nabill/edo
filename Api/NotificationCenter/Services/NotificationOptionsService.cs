@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAgentContext agent)
         {
             var agentOptions = await _context.NotificationOptions
-                .Where(no => no.AgencyId == agent.AgencyId && no.UserId == agent.AgentId && no.UserType == ApiCallerTypes.Agent)
+                .Where(o => o.AgencyId == agent.AgencyId && o.UserId == agent.AgentId && o.UserType == ApiCallerTypes.Agent)
                 .ToListAsync();
 
             return GetMaterializedOptions(agentOptions);
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAdminContext admin)
         {
             var adminOptions = await _context.NotificationOptions
-                .Where(no => no.AgencyId == null && no.UserId == admin.AdminId && no.UserType == ApiCallerTypes.Admin)
+                .Where(o => o.AgencyId == null && o.UserId == admin.AdminId && o.UserType == ApiCallerTypes.Admin)
                 .ToListAsync();
 
             return GetMaterializedOptions(adminOptions);
