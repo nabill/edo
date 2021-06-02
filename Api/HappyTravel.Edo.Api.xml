@@ -544,6 +544,12 @@
             <param name="top">Top</param>
             <returns>List of notifications</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotificationOptions">
+            <summary>
+                Gets the notification options of the current administrator
+            </summary>
+            <returns>List of notification options</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
