@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -24,13 +23,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingNotificationService : IBookingNotificationService
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
-            MailSenderWithCompanyInfo mailSender,
             INotificationService notificationService,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
             _bookingRecordManager = bookingRecordManager;
-            _mailSender = mailSender;
             _notificationService = notificationService;
             _options = options.Value;
             _context = context;
@@ -44,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 agent, NotificationTypes.BookingCancelled);
             
             var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate, NotificationTypes.BookingCancelled);
         }
 
 
@@ -56,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 agent, NotificationTypes.BookingFinalized);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate, NotificationTypes.BookingFinalized);
         }
 
 
@@ -130,7 +127,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
             Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
-                => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
+                =>  _notificationService.Send(messageData: data,
+                    notificationType: NotificationTypes.CreditCardPaymentReceivedAdministrator,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
 
 
             async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
@@ -148,13 +148,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline)
         {
-            await _mailSender.Send(_options.BookingManualCorrectionNeededTemplateId, _options.CcNotificationAddresses, new BookingManualCorrectionNeededData
+            var data = new BookingManualCorrectionNeededData
             {
                 ReferenceCode = referenceCode,
                 AgentName = agentName,
                 AgencyName = agencyName,
                 Deadline = deadline
-            });
+            };
+
+            await _notificationService.Send(messageData: data,
+                    notificationType: NotificationTypes.BookingManualCorrectionNeeded,
+                    emails: _options.CcNotificationAddresses,
+                    templateId: _options.BookingManualCorrectionNeededTemplateId);
         }
 
 
@@ -172,11 +177,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate, NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
-            return _mailSender.Send(mailTemplate, recipients, notificationData);
+
+            return _notificationService.Send(messageData: notificationData,
+                notificationType: notificationType,
+                emails: recipients,
+                templateId: mailTemplate);
         }
 
 
@@ -231,7 +240,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
 
         private readonly IBookingRecordManager _bookingRecordManager;
-        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly INotificationService _notificationService;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;

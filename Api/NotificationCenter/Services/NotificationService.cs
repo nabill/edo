@@ -41,9 +41,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
 
         public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-        {
-            return await Send(apiCaller, messageData, notificationType, new List<string> { email }, templateId);
-        }
+            => await Send(apiCaller, messageData, notificationType, new List<string> { email }, templateId);
 
 
         public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
@@ -62,17 +60,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
 
         public async Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType)
-        {
-            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
+            => await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, message, notificationType, sendingSettings));
-        }
 
 
         public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-        {
-            return await Send(admin, messageData, notificationType, new List<string> { email }, templateId);
-        }
+            => await Send(admin, messageData, notificationType, new List<string> { email }, templateId);
 
 
         public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
@@ -84,31 +78,27 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
 
         public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType)
-        {
-            return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+            => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, message, notificationType, sendingSettings));
-        }
 
 
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-        {
-            return await Send(agent, messageData, notificationType, new List<string> { email }, templateId);
-        }
+            => await Send(agent, messageData, notificationType, new List<string> { email }, templateId);
 
 
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
-        {
-            return await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+            => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
-        }
 
 
         public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-        {
-            return await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
-        }
+            => await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
+
+
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+            => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails, templateId);
 
 
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
