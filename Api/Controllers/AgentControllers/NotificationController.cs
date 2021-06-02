@@ -16,10 +16,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class NotificationController : BaseController
     {
-        public NotificationController(IAgentContextService agentContextService, INotificationService notificationService)
+        public NotificationController(IAgentContextService agentContextService, INotificationService notificationService, INotificationOptionsService notificationOptionsService)
         {
             _agentContextService = agentContextService;
             _notificationService = notificationService;
+            _notificationOptionsService = notificationOptionsService;
         }
 
 
@@ -40,7 +41,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        /// <summary>
+        ///     Gets the notification options of the current agent
+        /// </summary>
+        /// <returns>List of notification options</returns>
+        [HttpGet("options")]
+        [ProducesResponseType(typeof(List<SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        [AgentRequired]
+        public async Task<IActionResult> GetNotificationOptions()
+        {
+            var agent = await _agentContextService.GetAgent();
+
+            return Ok(await _notificationOptionsService.Get(new SlimAgentContext(agent.AgentId, agent.AgencyId)));
+        }
+
+
         private readonly IAgentContextService _agentContextService;
         private readonly INotificationService _notificationService;
+        private readonly INotificationOptionsService _notificationOptionsService;
     }
 }

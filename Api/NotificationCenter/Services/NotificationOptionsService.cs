@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Notifications.Models;
 using HappyTravel.Edo.Notifications.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Api.Models.Agents;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -25,6 +28,27 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             return options is null 
                 ? NotificationOptionsHelper.TryGetDefaultOptions(notificationType) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
+        }
+
+
+        public async Task<Result<List<SlimNotificationOptions>>> GetNotificationOptions(SlimAgentContext agent)
+        {
+            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
+
+            var agentOptions = await _context.NotificationOptions
+                .Where(no => no.AgencyId == agent.AgencyId && no.UserId == agent.AgentId && no.UserType == ApiCallerTypes.Agent)
+                .ToListAsync();
+
+            foreach (var option in agentOptions)
+            {
+                var defaultOption = defaultOptions.GetValueOrDefault(option.Type);
+                if (!defaultOption.IsMandatory)
+                {
+                    defaultOption.EnabledProtocols = option.EnabledProtocols;
+                }
+            }
+
+            return defaultOptions;
         }
 
 
