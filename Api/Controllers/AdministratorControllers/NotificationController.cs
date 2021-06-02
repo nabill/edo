@@ -1,11 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
@@ -62,6 +59,24 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(await _notificationOptionsService.Get(new SlimAdminContext(admin.Id)));
+        }
+
+
+        /// <summary>
+        ///     Updates the notification options of the current administrator
+        /// </summary>
+        /// <param name="notificationOptions">Notification options</param>
+        /// <returns></returns>
+        [HttpPut("options")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        {
+            var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAdminContext(admin.Id), notificationOptions));
         }
 
 

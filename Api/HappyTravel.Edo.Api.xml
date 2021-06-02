@@ -550,6 +550,13 @@
             </summary>
             <returns>List of notification options</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Notifications.Models.SlimNotificationOptions})">
+            <summary>
+                Updates the notification options of the current administrator
+            </summary>
+            <param name="notificationOptions">Notification options</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
