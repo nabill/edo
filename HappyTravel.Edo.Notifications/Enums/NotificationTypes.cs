@@ -31,6 +31,8 @@ namespace HappyTravel.Edo.Notifications.Enums
         CreditCardPaymentReceivedAdministrator = 22,
         BookingManualCorrectionNeeded = 23,
         // Other
-        BookingSummaryReportForAgent = 24
+        BookingSummaryReportForAgent = 24,
+        ExternalPaymentLinks = 25,
+        PaymentLinkPaidNotification = 26
     }
 }
