@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
 
         private static readonly Dictionary<NotificationTypes, SlimNotificationOptions> _defaultOptions = new()
         {
+            // Booking
             [NotificationTypes.BookingVoucher] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true },
             [NotificationTypes.BookingInvoice] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true },
             [NotificationTypes.DeadlineApproaching] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
@@ -27,13 +28,28 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.BookingCancelled] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.BookingFinalized] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.BookingStatusChanged] = new() { EnabledProtocols = ProtocolTypes.WebSocket, IsMandatory = false },
+            // Accounts
             [NotificationTypes.CreditCardPaymentReceived] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.AccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
-            [NotificationTypes.CustomerInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            // Counterparty
+            [NotificationTypes.AgentInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
             [NotificationTypes.ChildAgencyInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
-            [NotificationTypes.RegularCustomerSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            [NotificationTypes.AgentSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
-            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }
+            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false },
+            // Administrator
+            [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.MasterAgentSuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },  // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.BookingsAdministratorSummaryNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false }, // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.BookingAdministratorPaymentsSummary] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },    // Need clarify
+            [NotificationTypes.BookingCancelledToReservations] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },   // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.BookingFinalizedToReservations] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },   // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.CreditCardPaymentReceivedAdministrator] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },   // TODO: The WebSocket protocol will be added in the task AA-257
+            [NotificationTypes.BookingManualCorrectionNeeded] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = false },  // Need clarify
+            // Other
+            [NotificationTypes.BookingSummaryReportForAgent] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true }, // Need clarify
+            [NotificationTypes.ExternalPaymentLinks] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true },
+            [NotificationTypes.PaymentLinkPaidNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true }
         };
     }
 }

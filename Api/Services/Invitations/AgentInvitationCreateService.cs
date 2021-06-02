@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             var notificationType = invitationType switch
             {
-                UserInvitationTypes.Agent => NotificationTypes.CustomerInvitation,
+                UserInvitationTypes.Agent => NotificationTypes.AgentInvitation,
                 UserInvitationTypes.ChildAgency => NotificationTypes.ChildAgencyInvitation,
                 _ => NotificationTypes.None
             };
