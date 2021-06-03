@@ -13,9 +13,9 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Management;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
@@ -233,7 +233,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         public async Task<BatchOperationResult> SendBookingSummaryReports()
         {
             var agencyIds = await _context.Agencies
-                .Where(IsAgencyValidForBookingSummaryReportPredicate)
+                .Where(a => a.IsActive)
+                .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive &&
+                    r.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)))
+                .Where(a => _context.AgencyAccounts.Any(acc => acc.AgencyId == a.Id && acc.Currency == Currencies.USD))
                 .Select(agency => agency.Id)
                 .ToListAsync();
 
@@ -242,11 +245,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             foreach (var agencyId in agencyIds)
             {
-                var (_, isFailure, message, error) = await _reportsService.SendBookingReports(agencyId);
+                var (_, isFailure, _, error) = await _reportsService.SendBookingReports(agencyId);
                 if (isFailure)
+                {
                     hasErrors = true;
-
-                builder.AppendLine(isFailure ? error : message);
+                    builder.AppendLine(error);
+                }
             }
 
             return new BatchOperationResult(builder.ToString(), hasErrors);
@@ -335,9 +339,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
             PaymentStatusesForNotification.Contains(booking.PaymentStatus);
-
-        private static readonly Expression<Func<Agency, bool>> IsAgencyValidForBookingSummaryReportPredicate = agency
-            => agency.IsActive;
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new()
         {
