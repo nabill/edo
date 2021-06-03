@@ -546,9 +546,9 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotificationOptions">
             <summary>
-                Gets the notification options of the current administrator
+                Gets the notification settings of the current administrator
             </summary>
-            <returns>List of notification options</returns>
+            <returns>List of notification settings</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>

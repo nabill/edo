@@ -47,11 +47,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets the notification options of the current administrator
+        ///     Gets the notification settings of the current administrator
         /// </summary>
-        /// <returns>List of notification options</returns>
-        [HttpGet("options")]
-        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        /// <returns>List of notification settings</returns>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetNotificationOptions()
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
