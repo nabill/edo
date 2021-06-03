@@ -44,11 +44,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Gets the notification options of the current agent
+        ///     Gets the notification settings of the current agent
         /// </summary>
-        /// <returns>List of notification options</returns>
-        [HttpGet("options")]
-        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        /// <returns>List of notification settings</returns>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
         [AgentRequired]
         public async Task<IActionResult> GetNotificationOptions()
         {
