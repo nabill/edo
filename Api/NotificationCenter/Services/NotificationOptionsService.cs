@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -32,20 +33,20 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAgentContext agent)
+        public async Task<Dictionary<NotificationTypes, NotificationSettings>> Get(SlimAgentContext agent)
         {
             var agentOptions = await _context.NotificationOptions
-                .Where(no => no.AgencyId == agent.AgencyId && no.UserId == agent.AgentId && no.UserType == ApiCallerTypes.Agent)
+                .Where(o => o.AgencyId == agent.AgencyId && o.UserId == agent.AgentId && o.UserType == ApiCallerTypes.Agent)
                 .ToListAsync();
 
             return GetMaterializedOptions(agentOptions);
         }
 
 
-        public async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> Get(SlimAdminContext admin)
+        public async Task<Dictionary<NotificationTypes, NotificationSettings>> Get(SlimAdminContext admin)
         {
             var adminOptions = await _context.NotificationOptions
-                .Where(no => no.AgencyId == null && no.UserId == admin.AdminId && no.UserType == ApiCallerTypes.Admin)
+                .Where(o => o.AgencyId == null && o.UserId == admin.AdminId && o.UserType == ApiCallerTypes.Admin)
                 .ToListAsync();
 
             return GetMaterializedOptions(adminOptions);
@@ -124,24 +125,32 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
 
 
-        private static Dictionary<NotificationTypes, SlimNotificationOptions> GetMaterializedOptions(List<NotificationOptions> userOptions)
+        private static Dictionary<NotificationTypes, NotificationSettings> GetMaterializedOptions(List<NotificationOptions> userOptions)
         {
             var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
 
-            var materializedOptions = new Dictionary<NotificationTypes, SlimNotificationOptions>();
+            var materializedSettings = new Dictionary<NotificationTypes, NotificationSettings>();
 
             foreach (var option in defaultOptions)
             {
                 var userOption = userOptions.SingleOrDefault(no => no.Type == option.Key);
 
-                var newValue = (!option.Value.IsMandatory && (userOption is not null))
-                    ? new SlimNotificationOptions { EnabledProtocols = userOption.EnabledProtocols, IsMandatory = false }
-                    : option.Value;
+                var enabledProtocols = new Dictionary<ProtocolTypes, bool>();
 
-                materializedOptions.Add(option.Key, newValue);
+                if (option.Value.EnabledProtocols.HasFlag(ProtocolTypes.Email))
+                {
+                    enabledProtocols.Add(ProtocolTypes.Email, userOption is null || option.Value.IsMandatory || userOption.EnabledProtocols.HasFlag(ProtocolTypes.Email));
+                }
+
+                if (option.Value.EnabledProtocols.HasFlag(ProtocolTypes.WebSocket))
+                {
+                    enabledProtocols.Add(ProtocolTypes.WebSocket, userOption is null || option.Value.IsMandatory || userOption.EnabledProtocols.HasFlag(ProtocolTypes.WebSocket));
+                }
+
+                materializedSettings.Add(option.Key, new NotificationSettings { EnabledProtocols = enabledProtocols, IsMandatory = option.Value.IsMandatory });
             }
 
-            return materializedOptions;
+            return materializedSettings;
         }
 
 

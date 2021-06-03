@@ -1,11 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
@@ -50,11 +47,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets the notification options of the current administrator
+        ///     Gets the notification settings of the current administrator
         /// </summary>
-        /// <returns>List of notification options</returns>
-        [HttpGet("options")]
-        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        /// <returns>List of notification settings</returns>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetNotificationOptions()
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
