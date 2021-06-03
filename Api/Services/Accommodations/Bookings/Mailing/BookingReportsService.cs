@@ -144,18 +144,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         templateId: _options.BookingSummaryTemplateId);
 
                     if (isFailure)
+                    {
                         hasErrors = true;
-
-                    var message = isFailure
-                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{emailAndSetting.Email}'. Error: {error}"
-                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{emailAndSetting.Email}'";
-
-                    builder.AppendLine(message);
+                        builder.AppendLine($"Failed to send a booking summary report for agency with id {agencyId} to '{emailAndSetting.Email}'. Error: {error}");
+                    }
                 }
 
                 return hasErrors
                     ? Result.Failure<string>(builder.ToString())
-                    : Result.Success(builder.ToString());
+                    : Result.Success(string.Empty);
             }
         }
 
