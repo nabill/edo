@@ -14,6 +14,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using IDateTimeProvider = HappyTravel.Edo.Api.Infrastructure.IDateTimeProvider;

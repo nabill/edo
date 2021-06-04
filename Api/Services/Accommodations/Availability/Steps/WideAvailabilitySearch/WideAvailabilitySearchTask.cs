@@ -17,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

@@ -99,6 +99,7 @@ using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
+using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 

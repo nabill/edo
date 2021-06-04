@@ -11,6 +11,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability

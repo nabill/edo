@@ -3,8 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.MapperContracts.Internal.Mappings.Internals;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -53,10 +54,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                         SupplierCode = supplierCode.Value
                     };
 
-                    if (dictionary.TryGetValue(supplierCode.Key, out var supplierCodeMappings))
+                    var supplier = (Suppliers) supplierCode.Key;
+
+                    if (dictionary.TryGetValue(supplier, out var supplierCodeMappings))
                         supplierCodeMappings.Add(supplierCodeMapping);
                     else
-                        dictionary[supplierCode.Key] = new List<SupplierCodeMapping> {supplierCodeMapping};
+                        dictionary[supplier] = new List<SupplierCodeMapping> {supplierCodeMapping};
                 }
             }
         }

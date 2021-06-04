@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution

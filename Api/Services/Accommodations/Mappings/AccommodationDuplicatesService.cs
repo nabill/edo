@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.AccommodationMappings;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings

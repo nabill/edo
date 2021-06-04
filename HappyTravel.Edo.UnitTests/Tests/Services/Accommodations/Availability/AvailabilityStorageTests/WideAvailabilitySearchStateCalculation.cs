@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.AvailabilityStorageTests
