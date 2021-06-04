@@ -52,6 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns>List of notification settings</returns>
         [HttpGet("settings")]
         [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetNotificationOptions()
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
