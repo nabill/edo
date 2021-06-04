@@ -38,8 +38,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetNotifications([FromQuery] int skip = 0, [FromQuery] int top = 1000)
         {
             var agent = await _agentContextService.GetAgent();
+            var slimAgent = new SlimAgentContext(agent.AgentId, agent.AgencyId);
 
-            return Ok(await _notificationService.Get(new SlimAgentContext(agent.AgentId, agent.AgencyId), skip, top));
+            return Ok(await _notificationService.Get(slimAgent, skip, top));
         }
 
 
@@ -53,8 +54,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetNotificationOptions()
         {
             var agent = await _agentContextService.GetAgent();
+            var slimAgent = new SlimAgentContext(agent.AgentId, agent.AgencyId);
 
-            return Ok(await _notificationOptionsService.Get(new SlimAgentContext(agent.AgentId, agent.AgencyId)));
+            return Ok(await _notificationOptionsService.Get(slimAgent));
         }
 
 
