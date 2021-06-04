@@ -53,15 +53,15 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Update(SlimAgentContext agent, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        public async Task<Result> Update(SlimAgentContext agent, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
             => await Update(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationOptions);
 
 
-        public async Task<Result> Update(SlimAdminContext admin, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        public async Task<Result> Update(SlimAdminContext admin, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
             => await Update(admin.AdminId, ApiCallerTypes.Admin, null, notificationOptions);
 
 
-        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
         {
             foreach (var option in notificationOptions)
             {
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
+        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, NotificationSettings notificationSettings)
         {
             return await Validate()
                 .Bind(SaveOptions);
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 if (defaultOptions.IsFailure)
                     return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
-                if (defaultOptions.Value.IsMandatory && options.EnabledProtocols != default)
+                if (defaultOptions.Value.IsMandatory && defaultOptions.Value.EnabledProtocols != GetEnabledProtocols(notificationSettings))
                     return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
 
                 return defaultOptions;
@@ -104,18 +104,34 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         UserId = userId,
                         UserType = userType,
                         AgencyId = agencyId,
-                        EnabledProtocols = options.EnabledProtocols,
+                        Type = notificationType,
+                        EnabledProtocols = GetEnabledProtocols(notificationSettings),
                         IsMandatory = defaultOptions.IsMandatory
                     });
                 }
                 else
                 {
-                    entity.EnabledProtocols = options.EnabledProtocols;
+                    entity.EnabledProtocols = GetEnabledProtocols(notificationSettings);
+                    entity.IsMandatory = defaultOptions.IsMandatory;
                     _context.Update(entity);
                 }
 
                 await _context.SaveChangesAsync();
                 return Result.Success();
+            }
+
+
+            ProtocolTypes GetEnabledProtocols(NotificationSettings options)
+            {
+                ProtocolTypes protocols = 0;
+
+                foreach (var (protocol, isEnabled) in options.EnabledProtocols)
+                {
+                    if (isEnabled)
+                        protocols |= protocol;
+                }
+
+                return protocols;
             }
         }
 
