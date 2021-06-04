@@ -44,11 +44,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Gets the notification options of the current agent
+        ///     Gets the notification settings of the current agent
         /// </summary>
-        /// <returns>List of notification options</returns>
-        [HttpGet("options")]
-        [ProducesResponseType(typeof(Dictionary<NotificationTypes, SlimNotificationOptions>), (int)HttpStatusCode.OK)]
+        /// <returns>List of notification settings</returns>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
         [AgentRequired]
         public async Task<IActionResult> GetNotificationOptions()
         {
@@ -59,19 +59,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Updates the notification options of the current agent
+        ///     Updates the notification settings of the current agent
         /// </summary>
-        /// <param name="notificationOptions">Notification options</param>
+        /// <param name="notificationSettings">Notification settings</param>
         /// <returns></returns>
-        [HttpPut("options")]
+        [HttpPut("settings")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AgentRequired]
-        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, NotificationSettings> notificationSettings)
         {
             var agent = await _agentContextService.GetAgent();
 
-            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAgentContext(agent.AgentId, agent.AgencyId), notificationOptions));
+            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAgentContext(agent.AgentId, agent.AgencyId), notificationSettings));
         }
 
 
