@@ -27,24 +27,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class BookingRecordsUpdater : IBookingRecordsUpdater
     {
-        public BookingRecordsUpdater(IDateTimeProvider dateTimeProvider,
-            IBookingInfoService infoService,
-            IBookingNotificationService notificationService,
-            IBookingMoneyReturnService moneyReturnService,
-            IBookingDocumentsMailingService documentsMailingService,
-            ISupplierOrderService supplierOrderService,
-            INotificationService sendingNotificationsService,
-            IBookingChangeLogService bookingChangeLogService,
-            EdoContext context,
-            ILogger<BookingRecordsUpdater> logger)
+        public BookingRecordsUpdater(IDateTimeProvider dateTimeProvider, IBookingInfoService infoService,
+            IBookingNotificationService bookingNotificationService, IBookingMoneyReturnService moneyReturnService,
+            IBookingDocumentsMailingService documentsMailingService, ISupplierOrderService supplierOrderService,
+            INotificationService notificationService, IBookingChangeLogService bookingChangeLogService,
+            EdoContext context, ILogger<BookingRecordsUpdater> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _infoService = infoService;
-            _notificationService = notificationService;
+            _bookingNotificationService = bookingNotificationService;
             _moneyReturnService = moneyReturnService;
             _documentsMailingService = documentsMailingService;
             _supplierOrderService = supplierOrderService;
-            _sendingNotificationsService = sendingNotificationsService;
+            _notificationsService = notificationService;
             _context = context;
             _logger = logger;
             _bookingChangeLogService = bookingChangeLogService;
@@ -69,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 CheckInDate = booking.CheckInDate,
                 CheckOutDate = booking.CheckOutDate
             };
-            await _sendingNotificationsService.Send(apiCaller, 
+            await _notificationsService.Send(apiCaller, 
                 JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new(JsonSerializerDefaults.Web))), 
                 Notifications.Enums.NotificationTypes.BookingStatusChanged);
 
@@ -140,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
-                => _notificationService.NotifyBookingFinalized(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+                => _bookingNotificationService.NotifyBookingFinalized(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
 
 
             async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)
@@ -179,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 }
 
                 var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _notificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+                await _bookingNotificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
                 
                 return Result.Success();
             }
@@ -188,13 +183,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private Task<Result> ProcessDiscarding(Booking booking, ApiCaller user)
         {
-            return CancelSupplierOrder()
+            return DiscardSupplierOrder()
                 .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
             
             
-            async Task<Result> CancelSupplierOrder()
+            async Task<Result> DiscardSupplierOrder()
             {
-                await _supplierOrderService.Cancel(booking.ReferenceCode);
+                await _supplierOrderService.Discard(booking.ReferenceCode);
                 return Result.Success();
             }
         }
@@ -213,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             if (additionalInfo is null)
                 return Result.Failure($"Cannot get additional info for booking id '{booking.Id}'");
             
-            await _notificationService.NotifyBookingManualCorrectionNeeded(
+            await _bookingNotificationService.NotifyBookingManualCorrectionNeeded(
                 booking.ReferenceCode,
                 additionalInfo.AgentName,
                 additionalInfo.AgencyName,
@@ -246,11 +241,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _infoService;
-        private readonly IBookingNotificationService _notificationService;
+        private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingMoneyReturnService _moneyReturnService;
         private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly INotificationService _sendingNotificationsService;
+        private readonly INotificationService _notificationsService;
         private readonly EdoContext _context;
         private readonly ILogger<BookingRecordsUpdater> _logger;
         private readonly IBookingChangeLogService _bookingChangeLogService;

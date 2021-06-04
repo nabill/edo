@@ -10,9 +10,11 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Infrastructure;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,19 +24,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 {
     public class AdminInvitationCreateService : IAdminInvitationCreateService
     {
-        public AdminInvitationCreateService(
-            EdoContext context,
+        public AdminInvitationCreateService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ILogger<AdminInvitationCreateService> logger,
-            MailSenderWithCompanyInfo mailSender,
+            INotificationService notificationService,
             IOptions<AdminInvitationMailOptions> options,
-            IInvitationRecordService invitationRecordService
-            )
+            IInvitationRecordService invitationRecordService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _mailSender = mailSender;
+            _notificationService = notificationService;
             _options = options.Value;
             _invitationRecordService = invitationRecordService;
         }
@@ -104,9 +104,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                     FrontendBaseUrl = _options.FrontendBaseUrl
                 };
 
-                return await _mailSender.Send(_options.AdminInvitationTemplateId,
-                    prefilledData.Email,
-                    messagePayload);
+                return await _notificationService.Send(messageData: messagePayload,
+                    notificationType: NotificationTypes.AdministratorInvitation,
+                    emails: new() { prefilledData.Email },
+                    templateId: _options.AdminInvitationTemplateId);
             }
         }
 
@@ -135,7 +136,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AdminInvitationCreateService> _logger;
-        private readonly MailSenderWithCompanyInfo _mailSender;
+        private readonly INotificationService _notificationService;
         private readonly AdminInvitationMailOptions _options;
         private readonly IInvitationRecordService _invitationRecordService;
     }

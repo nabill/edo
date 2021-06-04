@@ -20,8 +20,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     public class BookingStatusRefreshService : IBookingStatusRefreshService
     {
         public BookingStatusRefreshService(
-            IDoubleFlow flow, 
-            IDateTimeProvider dateTimeProvider, 
+            IDoubleFlow flow,
+            IDateTimeProvider dateTimeProvider,
             ISupplierBookingManagementService supplierBookingManagement,
             EdoContext context,
             IOptions<BookingOptions> bookingOptions)
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public async Task<Result> RefreshStatus(int bookingId, ApiCaller apiCaller)
         {
-            var (_, _, batchOperationResult) = await RefreshStatuses(new List<int> { bookingId }, apiCaller);
+            var (_, _, batchOperationResult) = await RefreshStatuses(new List<int> {bookingId}, apiCaller);
 
             return batchOperationResult.HasErrors
                 ? Result.Failure(batchOperationResult.Message)
@@ -53,8 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             return await ValidateCount()
                 .Bind(ProcessBookings);
-            
-            
+
+
             Result ValidateCount()
                 => bookings.Count != bookingIds.Count
                     ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
@@ -65,19 +65,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 var builder = new StringBuilder();
                 var hasErrors = false;
-                
+
                 foreach (var booking in bookings)
                 {
                     var state = states.SingleOrDefault(s => s.BookingId == booking.Id);
-                    var (_, isFailure, updatedState, error) = await RefreshStatus(booking, apiCaller, state);
+                    var (_, isFailure, error) = await RefreshStatus(booking, apiCaller, state);
 
                     if (isFailure)
                     {
                         hasErrors = true;
                         builder.AppendLine(error);
-                        continue;
                     }
 
+                    var updatedState = GetUpdatedState(booking, state);
                     UpdateState(updatedState);
                 }
 
@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 else
                     states.Add(state);
             }
-            
-            
+
+
             Task SaveStates()
             {
                 states.RemoveAll(s => _dateTimeProvider.UtcNow() - s.LastRefreshDate > Expiration);
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 .ToList();
 
             return await _context.Bookings
-                .Where(b => 
+                .Where(b =>
                     !excludedIds.Contains(b.Id) &&
                     b.CheckInDate > now &&
                     BookingStatusesForRefresh.Contains(b.Status) &&
@@ -126,19 +126,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task<Result<BookingStatusRefreshState>> RefreshStatus(Booking booking, ApiCaller apiCaller, BookingStatusRefreshState state)
+        private async Task<Result> RefreshStatus(Booking booking, ApiCaller apiCaller, BookingStatusRefreshState state)
         {
             return await ValidateBooking()
                 .Bind(CheckIsRefreshStatusNeeded)
-                .Bind(RefreshBookingStatus)
-                .Map(GetUpdatedState);
-            
-            
+                .Bind(RefreshBookingStatus);
+
+
             Result ValidateBooking()
             {
                 if (!BookingStatusesForRefresh.Contains(booking.Status))
-                    return Result.Failure<BookingStatusRefreshState>($"Cannot refresh booking status for booking {booking.ReferenceCode} with status {booking.Status}");
-                
+                    return Result.Failure<BookingStatusRefreshState>(
+                        $"Cannot refresh booking status for booking {booking.ReferenceCode} with status {booking.Status}");
+
                 return Result.Success();
             }
 
@@ -147,48 +147,71 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 if (state == default)
                     return Result.Success();
-                
+
                 return RefreshCondition(state, _dateTimeProvider.UtcNow())
                     ? Result.Success()
                     : Result.Failure($"Booking {booking.ReferenceCode} status is recently updated");
             }
 
 
-            Task<Result> RefreshBookingStatus() 
-                => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
-
-
-            BookingStatusRefreshState GetUpdatedState()
-            {
-                return state == default
-                    ? new BookingStatusRefreshState
-                    {
-                        BookingId = booking.Id,
-                        LastRefreshDate = _dateTimeProvider.UtcNow()
-                    }
-                    : state with
-                    {
-                        LastRefreshDate = _dateTimeProvider.UtcNow(),
-                        RefreshStatusCount = state.RefreshStatusCount + 1
-                    };
-            }
+            Task<Result> RefreshBookingStatus() => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
         }
 
 
         private async Task<List<BookingStatusRefreshState>> GetStates()
         {
-            return await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration) 
+            return await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration)
                 ?? new List<BookingStatusRefreshState>();
         }
 
+
         private static readonly HashSet<BookingStatuses> BookingStatusesForRefresh = new()
         {
-            BookingStatuses.Pending, 
+            BookingStatuses.Pending,
             BookingStatuses.WaitingForResponse,
             BookingStatuses.Confirmed,
             BookingStatuses.PendingCancellation,
         };
-        
+
+
+        private BookingStatusRefreshState GetUpdatedState(Booking booking, BookingStatusRefreshState state)
+        {
+            return state == default
+                ? new BookingStatusRefreshState
+                {
+                    BookingId = booking.Id,
+                    LastRefreshDate = _dateTimeProvider.UtcNow(),
+                    DeadlineDate = booking.DeadlineDate
+                }
+                : state with
+                {
+                    LastRefreshDate = _dateTimeProvider.UtcNow(),
+                    RefreshStatusCount = state.RefreshStatusCount + 1
+                };
+        }
+
+
+        private bool RefreshCondition(BookingStatusRefreshState state, DateTime date)
+        {
+            var delay = GetDelay(state);
+            return state.LastRefreshDate.Add(delay) < date;
+        }
+
+
+        private TimeSpan GetDelay(BookingStatusRefreshState state)
+        {
+            if (DelayStrategies.ContainsKey(state.RefreshStatusCount))
+                return DelayStrategies[state.RefreshStatusCount];
+
+            if (!state.DeadlineDate.HasValue)
+                return DefaultDelayStrategyShort;
+
+            return state.DeadlineDate.Value.Subtract(_dateTimeProvider.UtcNow()).Hours <= LongDelayThresholdHours
+                ? DefaultDelayStrategyShort
+                : DefaultDelayStrategyLong;
+        }
+
+
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
         {
             {0, TimeSpan.FromSeconds(30)},
@@ -200,19 +223,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {6, TimeSpan.FromSeconds(600)},
             {7, TimeSpan.FromSeconds(600)}
         };
-        
-        private static readonly TimeSpan DefaultDelayStrategy = TimeSpan.FromHours(1);
+
+        private static readonly TimeSpan DefaultDelayStrategyShort = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan DefaultDelayStrategyLong = TimeSpan.FromMinutes(30);
+        private const int LongDelayThresholdHours = 48;
 
         private const string Key = "booking-status-refresh-states";
 
         private static readonly TimeSpan Expiration = TimeSpan.FromDays(3);
-
-        private static readonly Func<BookingStatusRefreshState, DateTime, bool> RefreshCondition = (state, date) =>
-        {
-            var delay = DelayStrategies.TryGetValue(state.RefreshStatusCount, out var d) ? d : DefaultDelayStrategy;
-            return state.LastRefreshDate.Add(delay) < date;
-        };
-
 
         private readonly IDoubleFlow _flow;
         private readonly IDateTimeProvider _dateTimeProvider;

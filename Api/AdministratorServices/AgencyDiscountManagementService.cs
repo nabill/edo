@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             var query = from discount in _context.Discounts
                 join markupPolicy in _context.MarkupPolicies on discount.TargetPolicyId equals markupPolicy.Id
+                where discount.TargetAgencyId == agencyId
                 select new DiscountInfo
                 {
                     Id = discount.Id,

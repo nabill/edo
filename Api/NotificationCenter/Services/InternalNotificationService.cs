@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Notifications.Infrastructure;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -98,38 +99,24 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task MarkAsRead(int notificationId)
-        {
-            var notification = await _context.Notifications
-                .SingleOrDefaultAsync(n => n.Id == notificationId && !n.IsRead);
-
-            if (notification is not null)
-            {
-                notification.IsRead = true;
-                _context.Notifications.Update(notification);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-        public async Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip)
-        {
-            return await _context.Notifications
-                .Where(n => n.Receiver == receiver && n.UserId == userId)
-                .Take(top)
+        public async Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top)
+            => await _context.Notifications
+                .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)
                 .Skip(skip)
+                .Take(top)
                 .Select(n => new SlimNotification
                 {
-                    Receiver = n.Receiver,
                     Id = n.Id,
                     UserId = n.UserId,
-                    Message = n.Message,
+                    AgencyId = n.AgencyId,
+                    Message = n.Message.ToJsonString(),
                     Type = n.Type,
+                    SendingStatus = n.SendingStatus,
                     Created = n.Created,
-                    IsRead = n.IsRead
+                    Received = n.Received,
+                    Read = n.Read
                 })
                 .ToListAsync();
-        }
 
 
         private async Task SaveAndSend(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
@@ -149,6 +136,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 Message = notification.Message,
                 Type = notification.Type,
                 SendingSettings = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(notification.SendingSettings, new(JsonSerializerDefaults.Web))),
+                SendingStatus = SendingStatuses.Sent,
                 Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();
@@ -172,10 +160,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         => notification.Receiver switch
                         {
                             ReceiverTypes.AgentApp
-                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Message),
+                                => SendMessageToAgent(notification.UserId, notification.AgencyId, notificationId, notification.Type, notification.Message),
 
                             ReceiverTypes.AdminPanel
-                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Message),
+                                => SendMessageToAdmin(notification.UserId, notificationId, notification.Type, notification.Message),
 
                             _ => throw new ArgumentException($"Unsupported receiver '{notification.Receiver}' for notification")
                         },
@@ -194,16 +182,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
 
 
-        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, JsonDocument message)
+        private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _agentNotificationHub.Clients
                 .Group($"{agencyId}-{userId}")
-                .ReceiveMessage(messageId, message);
+                .ReceiveMessage(messageId, notificationType.ToString(), message);
 
 
-        private async Task SendMessageToAdmin(int userId, int messageId, JsonDocument message)
+        private async Task SendMessageToAdmin(int userId, int messageId, NotificationTypes notificationType, JsonDocument message)
             => await _adminNotificationHub.Clients
                 .Group($"admin-{userId}")
-                .ReceiveMessage(messageId, message);
+                .ReceiveMessage(messageId, notificationType.ToString(), message);
 
 
         private readonly EdoContext _context;

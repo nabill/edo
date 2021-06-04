@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
@@ -14,13 +12,11 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
             ClientSearchFilters filters, List<RoomOccupationRequest> roomDetails, AccommodationRatings ratings, 
-            SearchLocation location = default, PropertyTypes propertyTypes = default,
-            List<string> htIds = null)
+            PropertyTypes propertyTypes = default, List<string> htIds = null)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Filters = filters;
-            Location = location;
             Nationality = nationality;
             PropertyType = propertyTypes;
             Ratings = ratings;
@@ -47,10 +43,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// </summary>
         public ClientSearchFilters Filters { get; }
 
-        /// <summary>
-        ///     Desirable search area.
-        /// </summary>
-        public SearchLocation Location { get; }
 
         /// <summary>
         ///     Required. Alpha-2 nationality code for a lead passengers.
@@ -83,6 +75,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// <summary>
         /// Prediction's HtIds
         /// </summary>
+        [Required]
         public List<string> HtIds { get; }
     }
 }

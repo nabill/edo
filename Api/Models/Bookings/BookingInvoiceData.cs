@@ -10,13 +10,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct BookingInvoiceData
     {
         [JsonConstructor]
-        public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
+        public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, string supplierReferenceCode,
             List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate,
             BookingPaymentStatuses paymentStatus, DateTime? deadlineDate)
         {
             BuyerDetails = buyerDetails;
             PayDueDate = payDueDate;
             ReferenceCode = referenceCode;
+            SupplierReferenceCode = supplierReferenceCode;
             InvoiceItems = invoiceItems;
             TotalPrice = totalPrice;
             SellerDetails = sellerDetails;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BuyerInfo BuyerDetails { get; }
         public DateTime PayDueDate { get; }
         public string ReferenceCode { get; }
+        public string SupplierReferenceCode { get; }
         public List<InvoiceItemInfo> InvoiceItems { get; }
         public MoneyAmount TotalPrice { get; }
         public SellerInfo SellerDetails { get; }

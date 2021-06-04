@@ -536,6 +536,14 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
+            <summary>
+                Gets the notification history of the current administrator
+            </summary>
+            <param name="skip">Skip</param>
+            <param name="top">Top</param>
+            <returns>List of notifications</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
@@ -1260,38 +1268,19 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetLocationPredictions(System.String,System.String)">
-            <summary>
-                Returns location predictions what a used when searching
-            </summary>
-            <param name="query">The search query text.</param>
-            <param name="sessionId">The search session ID.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetRegions">
             <summary>
                 Returns a list of world regions.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.SetPredictions(System.Collections.Generic.IEnumerable{HappyTravel.Edo.Api.Models.Locations.Location})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
-                Internal. Sets locations, gathered from booking sources, to make predictions.
+                Gets the notification history of the current agent
             </summary>
-            <param name="locations"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetLastModifiedDate">
-            <summary>
-                Internal. Gets date of last modified location. This can be treated as last locations update date.
-            </summary>
-            <returns>Last changed location modified date</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.Normalize">
-            <summary>
-            Starts a locations normalization process
-            </summary>
-            <returns></returns>
+            <param name="skip">Skip</param>
+            <param name="top">Top</param>
+            <returns>List of notifications</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
@@ -2532,11 +2521,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Filters">
             <summary>
                 One ore several filters to order a response data.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Location">
-            <summary>
-                Desirable search area.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Nationality">

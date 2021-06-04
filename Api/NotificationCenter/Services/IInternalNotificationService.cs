@@ -17,8 +17,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
         Task AddAgentNotification(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
 
-        Task MarkAsRead(int notificationId);
-
-        Task<List<SlimNotification>> GetNotifications(ReceiverTypes receiver, int userId, int top, int skip);
+        Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top);
     }
 }
