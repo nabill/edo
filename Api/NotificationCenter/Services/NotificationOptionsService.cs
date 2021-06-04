@@ -144,7 +144,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private static Dictionary<NotificationTypes, NotificationSettings> GetMaterializedOptions(List<NotificationOptions> userOptions)
         {
             var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
-
             var materializedSettings = new Dictionary<NotificationTypes, NotificationSettings>();
 
             foreach (var option in defaultOptions)
@@ -152,12 +151,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 var userOption = userOptions.SingleOrDefault(no => no.Type == option.Key);
 
                 var enabledProtocols = new Dictionary<ProtocolTypes, bool>();
-
                 if (option.Value.EnabledProtocols.HasFlag(ProtocolTypes.Email))
                 {
                     enabledProtocols.Add(ProtocolTypes.Email, userOption is null || option.Value.IsMandatory || userOption.EnabledProtocols.HasFlag(ProtocolTypes.Email));
                 }
-
                 if (option.Value.EnabledProtocols.HasFlag(ProtocolTypes.WebSocket))
                 {
                     enabledProtocols.Add(ProtocolTypes.WebSocket, userOption is null || option.Value.IsMandatory || userOption.EnabledProtocols.HasFlag(ProtocolTypes.WebSocket));
