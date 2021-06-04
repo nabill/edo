@@ -63,20 +63,20 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Updates the notification options of the current administrator
+        ///     Updates the notification settings of the current administrator
         /// </summary>
-        /// <param name="notificationOptions">Notification options</param>
+        /// <param name="notificationSettings">Notification settings</param>
         /// <returns></returns>
-        [HttpPut("options")]
+        [HttpPut("settings")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, SlimNotificationOptions> notificationOptions)
+        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, NotificationSettings> notificationSettings)
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAdminContext(admin.Id), notificationOptions));
+            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAdminContext(admin.Id), notificationSettings));
         }
 
 

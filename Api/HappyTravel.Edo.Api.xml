@@ -550,11 +550,11 @@
             </summary>
             <returns>List of notification settings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Notifications.Models.SlimNotificationOptions})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Api.NotificationCenter.Models.NotificationSettings})">
             <summary>
-                Updates the notification options of the current administrator
+                Updates the notification settings of the current administrator
             </summary>
-            <param name="notificationOptions">Notification options</param>
+            <param name="notificationSettings">Notification settings</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
