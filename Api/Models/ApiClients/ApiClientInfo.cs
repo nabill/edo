@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.ApiClients
 {

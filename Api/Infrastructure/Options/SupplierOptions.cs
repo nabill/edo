@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
@@ -12,6 +13,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Columbus { get; set; }
         public string TravelgateXTest { get; set; }
         public string Jumeirah { get; set; }
-        public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
+        public List<Suppliers> EnabledSuppliers { get; set; }
     }
 }

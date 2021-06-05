@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -60,14 +61,14 @@ namespace HappyTravel.Edo.Api.Extensions
             };
         
 
-        public static Dictionary<Common.Enums.Suppliers, bool> ToBoolDictionary(this List<Common.Enums.Suppliers> suppliers)
+        public static Dictionary<Suppliers, bool> ToBoolDictionary(this List<Suppliers> suppliers)
         {
             if (suppliers == null)
                 return null;
 
-            var suppliersMap = new Dictionary<Common.Enums.Suppliers, bool>();
+            var suppliersMap = new Dictionary<Suppliers, bool>();
 
-            foreach (var possibleSupplier in Enum.GetValues<Common.Enums.Suppliers>().Except(SuppliersToHide))
+            foreach (var possibleSupplier in Enum.GetValues<Suppliers>().Except(SuppliersToHide))
                 suppliersMap[possibleSupplier] = false;
 
             foreach (var actualSupplier in suppliers)
@@ -77,13 +78,13 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
-        private static List<Common.Enums.Suppliers> ToEnumList(this Dictionary<Common.Enums.Suppliers, bool> suppliersMap)
+        private static List<Suppliers> ToEnumList(this Dictionary<Suppliers, bool> suppliersMap)
             => suppliersMap?
                 .Where(p => p.Value)
                 .Select(p => p.Key)
                 .ToList();
 
 
-        private static readonly List<Common.Enums.Suppliers> SuppliersToHide = new List<Common.Enums.Suppliers>() {Common.Enums.Suppliers.Unknown};
+        private static readonly List<Suppliers> SuppliersToHide = new List<Suppliers>() {Suppliers.Unknown};
     }
 }

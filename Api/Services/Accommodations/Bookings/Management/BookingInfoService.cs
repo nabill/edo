@@ -10,6 +10,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
