@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Notifications.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
