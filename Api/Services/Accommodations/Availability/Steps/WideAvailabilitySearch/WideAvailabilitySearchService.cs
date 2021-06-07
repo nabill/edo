@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;

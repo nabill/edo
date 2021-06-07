@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {

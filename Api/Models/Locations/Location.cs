@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Geography;
+using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Locations

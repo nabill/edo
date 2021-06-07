@@ -4,6 +4,7 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
