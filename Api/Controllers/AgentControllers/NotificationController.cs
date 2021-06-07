@@ -60,6 +60,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        /// <summary>
+        ///     Updates the notification settings of the current agent
+        /// </summary>
+        /// <param name="notificationSettings">Notification settings</param>
+        /// <returns></returns>
+        [HttpPut("settings")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AgentRequired]
+        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, NotificationSettings> notificationSettings)
+        {
+            var agent = await _agentContextService.GetAgent();
+
+            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAgentContext(agent.AgentId, agent.AgencyId), notificationSettings));
+        }
+
+
         private readonly IAgentContextService _agentContextService;
         private readonly INotificationService _notificationService;
         private readonly INotificationOptionsService _notificationOptionsService;
