@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -51,9 +52,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentPermissionManagem
         {
             var (_, isFailure, _, error) = await _agentPermissionManagementService
                 .SetInAgencyPermissions(2, InAgencyPermissions.AgentInvitation.ToList(), AgentContextRegular);
-
+            
             Assert.True(isFailure);
-            Assert.Equal("Cannot revoke last permission management rights", error);
+            Assert.Equal("Cannot revoke last permission or status management rights", error);
         }
         
 
@@ -64,14 +65,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentPermissionManagem
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.AgentInvitation
+                InAgencyPermissions = InAgencyPermissions.AgentInvitation,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement | InAgencyPermissions.AgentStatusManagement,
+                IsActive = true
             }
         };
 
