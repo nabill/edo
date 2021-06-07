@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -53,48 +54,93 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, SlimNotificationOptions options)
+        public async Task<Result> Update(SlimAgentContext agent, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
+            => await Update(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationOptions);
+
+
+        public async Task<Result> Update(SlimAdminContext admin, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
+            => await Update(admin.AdminId, ApiCallerTypes.Admin, null, notificationOptions);
+
+
+        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
         {
-            return await Validate()
-                .Bind(SaveOptions);
+            return await Result.Success()
+                .BindWithTransaction(_context, () => UpdateAll()
+                    .Tap(() => SaveAll()));
 
 
-            Result<SlimNotificationOptions> Validate()
+            async Task<Result> UpdateAll()
             {
-                var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(notificationType);
-                if (defaultOptions.IsFailure)
-                    return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
+                foreach (var option in notificationOptions)
+                {
+                    var result = await Validate(option)
+                        .Bind(defaultOptions => Update(option, defaultOptions));
 
-                if (defaultOptions.Value.IsMandatory && options.EnabledProtocols != default)
-                    return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
+                    if (result.IsFailure)
+                        return Result.Failure(result.Error);
+                }
 
-                return defaultOptions;
+                return Result.Success();
+
+
+                Result<SlimNotificationOptions> Validate(KeyValuePair<NotificationTypes, NotificationSettings> option)
+                {
+                    var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(option.Key);
+                    if (defaultOptions.IsFailure)
+                        return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
+
+                    if (defaultOptions.Value.IsMandatory && defaultOptions.Value.EnabledProtocols != GetEnabledProtocols(option.Value))
+                        return Result.Failure<SlimNotificationOptions>($"Notification type '{option.Key}' is mandatory");
+
+                    return defaultOptions;
+                }
+
+
+                async Task<Result> Update(KeyValuePair<NotificationTypes, NotificationSettings> option, SlimNotificationOptions defaultOptions)
+                {
+                    var entity = await GetOptions(userId, userType, agencyId, option.Key);
+
+                    if (entity is null)
+                    {
+                        _context.NotificationOptions.Add(new NotificationOptions
+                        {
+                            UserId = userId,
+                            UserType = userType,
+                            AgencyId = agencyId,
+                            Type = option.Key,
+                            EnabledProtocols = GetEnabledProtocols(option.Value),
+                            IsMandatory = defaultOptions.IsMandatory
+                        });
+                    }
+                    else
+                    {
+                        entity.EnabledProtocols = GetEnabledProtocols(option.Value);
+                        entity.IsMandatory = defaultOptions.IsMandatory;
+                        _context.Update(entity);
+                    }
+
+                    return Result.Success();
+                }
+
+
+                ProtocolTypes GetEnabledProtocols(NotificationSettings options)
+                {
+                    ProtocolTypes protocols = 0;
+
+                    foreach (var (protocol, isEnabled) in options.EnabledProtocols)
+                    {
+                        if (isEnabled)
+                            protocols |= protocol;
+                    }
+
+                    return protocols;
+                }
             }
 
 
-            async Task<Result> SaveOptions(SlimNotificationOptions defaultOptions)
+            async Task SaveAll()
             {
-                var entity = await GetOptions(userId, userType, agencyId, notificationType);
-
-                if (entity is null)
-                {
-                    _context.NotificationOptions.Add(new NotificationOptions
-                    {
-                        UserId = userId,
-                        UserType = userType,
-                        AgencyId = agencyId,
-                        EnabledProtocols = options.EnabledProtocols,
-                        IsMandatory = defaultOptions.IsMandatory
-                    });
-                }
-                else
-                {
-                    entity.EnabledProtocols = options.EnabledProtocols;
-                    _context.Update(entity);
-                }
-
                 await _context.SaveChangesAsync();
-                return Result.Success();
             }
         }
 
