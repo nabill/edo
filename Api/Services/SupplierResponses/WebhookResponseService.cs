@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.SupplierResponses
 {

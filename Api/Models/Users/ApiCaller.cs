@@ -1,4 +1,5 @@
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Users
 {
