@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -63,75 +64,88 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, Dictionary<NotificationTypes, NotificationSettings> notificationOptions)
         {
-            foreach (var option in notificationOptions)
+            return await Result.Success()
+                .BindWithTransaction(_context, () => UpdateAll()
+                    .Tap(() => SaveAll()));
+
+
+            async Task<Result> UpdateAll()
             {
-                var result = await Update(userId, userType, agencyId, option.Key, option.Value);
-                if (result.IsFailure)
-                    return Result.Failure(result.Error);
-            }
-
-            return Result.Success();
-        }
-
-
-        private async Task<Result> Update(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, NotificationSettings notificationSettings)
-        {
-            return await Validate()
-                .Bind(SaveOptions);
-
-
-            Result<SlimNotificationOptions> Validate()
-            {
-                var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(notificationType);
-                if (defaultOptions.IsFailure)
-                    return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
-
-                if (defaultOptions.Value.IsMandatory && defaultOptions.Value.EnabledProtocols != GetEnabledProtocols(notificationSettings))
-                    return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
-
-                return defaultOptions;
-            }
-
-
-            async Task<Result> SaveOptions(SlimNotificationOptions defaultOptions)
-            {
-                var entity = await GetOptions(userId, userType, agencyId, notificationType);
-
-                if (entity is null)
+                foreach (var option in notificationOptions)
                 {
-                    _context.NotificationOptions.Add(new NotificationOptions
-                    {
-                        UserId = userId,
-                        UserType = userType,
-                        AgencyId = agencyId,
-                        Type = notificationType,
-                        EnabledProtocols = GetEnabledProtocols(notificationSettings),
-                        IsMandatory = defaultOptions.IsMandatory
-                    });
-                }
-                else
-                {
-                    entity.EnabledProtocols = GetEnabledProtocols(notificationSettings);
-                    entity.IsMandatory = defaultOptions.IsMandatory;
-                    _context.Update(entity);
+                    var result = await UpdateOption(userId, userType, agencyId, option.Key, option.Value);
+                    if (result.IsFailure)
+                        return Result.Failure(result.Error);
                 }
 
-                await _context.SaveChangesAsync();
                 return Result.Success();
             }
 
 
-            ProtocolTypes GetEnabledProtocols(NotificationSettings options)
+            async Task SaveAll()
             {
-                ProtocolTypes protocols = 0;
+                await _context.SaveChangesAsync();
+            }
 
-                foreach (var (protocol, isEnabled) in options.EnabledProtocols)
+
+            async Task<Result> UpdateOption(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType, NotificationSettings notificationSettings)
+            {
+                return await Validate()
+                    .Bind(SaveOptions);
+
+
+                Result<SlimNotificationOptions> Validate()
                 {
-                    if (isEnabled)
-                        protocols |= protocol;
+                    var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(notificationType);
+                    if (defaultOptions.IsFailure)
+                        return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
+
+                    if (defaultOptions.Value.IsMandatory && defaultOptions.Value.EnabledProtocols != GetEnabledProtocols(notificationSettings))
+                        return Result.Failure<SlimNotificationOptions>($"Notification type '{notificationType}' is mandatory");
+
+                    return defaultOptions;
                 }
 
-                return protocols;
+
+                async Task<Result> SaveOptions(SlimNotificationOptions defaultOptions)
+                {
+                    var entity = await GetOptions(userId, userType, agencyId, notificationType);
+
+                    if (entity is null)
+                    {
+                        _context.NotificationOptions.Add(new NotificationOptions
+                        {
+                            UserId = userId,
+                            UserType = userType,
+                            AgencyId = agencyId,
+                            Type = notificationType,
+                            EnabledProtocols = GetEnabledProtocols(notificationSettings),
+                            IsMandatory = defaultOptions.IsMandatory
+                        });
+                    }
+                    else
+                    {
+                        entity.EnabledProtocols = GetEnabledProtocols(notificationSettings);
+                        entity.IsMandatory = defaultOptions.IsMandatory;
+                        _context.Update(entity);
+                    }
+
+                    return Result.Success();
+                }
+
+
+                ProtocolTypes GetEnabledProtocols(NotificationSettings options)
+                {
+                    ProtocolTypes protocols = 0;
+
+                    foreach (var (protocol, isEnabled) in options.EnabledProtocols)
+                    {
+                        if (isEnabled)
+                            protocols |= protocol;
+                    }
+
+                    return protocols;
+                }
             }
         }
 
