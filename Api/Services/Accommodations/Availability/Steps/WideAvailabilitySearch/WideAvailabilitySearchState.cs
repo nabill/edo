@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch

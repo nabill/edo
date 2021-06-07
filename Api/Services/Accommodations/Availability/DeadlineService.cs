@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability

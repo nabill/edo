@@ -6,6 +6,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.SupplierOrders

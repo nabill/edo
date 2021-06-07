@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.MapperContracts.Internal.Mappings.Internals;
+using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities.Mapping
 {

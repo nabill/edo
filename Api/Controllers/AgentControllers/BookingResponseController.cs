@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Http;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
