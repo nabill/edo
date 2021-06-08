@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.MapperContracts.Internal.Mappings;
+using HappyTravel.MapperContracts.Public.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -53,6 +54,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 _logger.LogMapperClientException(ex);
                 return ProblemDetailsBuilder.Fail<List<LocationMapping>>(ex.Message);
             }
+        }
+        
+        
+        public async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode)
+        {
+            if (htIds.Any())
+            {
+                var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+                try
+                {
+                    var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
+                    using var response = await client.GetAsync($"api/1.0/accommodations?{htIdQuery}");
+                    await using var stream = await response.Content.ReadAsStreamAsync();
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    };
+
+                    if (response.IsSuccessStatusCode)
+                        return await JsonSerializer.DeserializeAsync<List<SlimAccommodation>>(stream, options);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogMapperClientException(ex);
+                }
+            }
+
+            return new List<SlimAccommodation>();
         }
 
 
