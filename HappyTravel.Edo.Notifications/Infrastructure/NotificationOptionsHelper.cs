@@ -13,6 +13,10 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
                 : Result.Failure<SlimNotificationOptions>($"Cannot find options for type '{type}'");
 
 
+        public static Dictionary<NotificationTypes, SlimNotificationOptions> GetDefaultOptions()
+            => _defaultOptions;
+
+
         private static readonly Dictionary<NotificationTypes, SlimNotificationOptions> _defaultOptions = new()
         {
             // Booking

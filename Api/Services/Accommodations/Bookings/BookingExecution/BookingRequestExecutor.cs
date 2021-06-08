@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         // We do not know whether booking was registered on supplier
                         return GetStubDetails(booking);
 
-                    return (BookingFailureCodes) failureCode switch
+                    return failureCode switch
                     {
                         // We are sure that booking was not done
                         BookingFailureCodes.ConnectorValidationFailed => Result.Failure<Booking>(message),
