@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             var options = await GetOptions(userId, userType, agencyId, notificationType);
 
             return options is null 
-                ? NotificationOptionsHelper.TryGetDefaultOptions(notificationType) 
+                ? NotificationOptionsHelper.TryGetDefaultOptions(notificationType, userType) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .Where(o => o.AgencyId == agent.AgencyId && o.UserId == agent.AgentId && o.UserType == ApiCallerTypes.Agent)
                 .ToListAsync();
 
-            return GetMaterializedOptions(agentOptions);
+            return GetMaterializedOptions(agentOptions, ReceiverTypes.AgentApp);
         }
 
 
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .Where(o => o.AgencyId == null && o.UserId == admin.AdminId && o.UserType == ApiCallerTypes.Admin)
                 .ToListAsync();
 
-            return GetMaterializedOptions(adminOptions);
+            return GetMaterializedOptions(adminOptions, ReceiverTypes.AdminPanel);
         }
 
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
                 Result<SlimNotificationOptions> Validate(KeyValuePair<NotificationTypes, NotificationSettings> option)
                 {
-                    var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(option.Key);
+                    var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(option.Key, userType);
                     if (defaultOptions.IsFailure)
                         return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
@@ -150,9 +150,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
 
 
-        private static Dictionary<NotificationTypes, NotificationSettings> GetMaterializedOptions(List<NotificationOptions> userOptions)
+        private static Dictionary<NotificationTypes, NotificationSettings> GetMaterializedOptions(List<NotificationOptions> userOptions, ReceiverTypes receiver)
         {
-            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions();
+            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions(receiver);
             var materializedSettings = new Dictionary<NotificationTypes, NotificationSettings>();
 
             foreach (var option in defaultOptions)
