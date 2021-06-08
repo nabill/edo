@@ -64,8 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
                 try
                 {
-                    var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
-                    using var response = await client.GetAsync($"api/1.0/accommodations?{htIdQuery}");
+                    var htIdQuery = string.Join("&", htIds.Select(h => $"accommodationHtIds={h}"));
+                    using var response = await client.GetAsync($"api/1.0/accommodations-list?{htIdQuery}");
                     await using var stream = await response.Content.ReadAsStreamAsync();
                     var options = new JsonSerializerOptions
                     {
