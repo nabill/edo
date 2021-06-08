@@ -35,11 +35,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
                 using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}");
                 await using var stream = await response.Content.ReadAsStreamAsync();
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                };
 
                 if (response.IsSuccessStatusCode)
-                    return await JsonSerializer.DeserializeAsync<List<LocationMapping>>(stream);
+                    return await JsonSerializer.DeserializeAsync<List<LocationMapping>>(stream, options);
 
-                var error = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream) ??
+                var error = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, options) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
