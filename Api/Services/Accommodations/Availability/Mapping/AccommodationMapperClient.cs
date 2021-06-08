@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -22,7 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         {
             _clientFactory = clientFactory;
             _logger = logger;
-            _serializer = new JsonSerializer();
         }
         
         
@@ -36,20 +34,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             {
                 var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
                 using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}");
-
                 await using var stream = await response.Content.ReadAsStreamAsync();
-                using var streamReader = new StreamReader(stream);
-                using var jsonTextReader = new JsonTextReader(streamReader);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
-                        ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                if (response.IsSuccessStatusCode)
+                    return await JsonSerializer.DeserializeAsync<List<LocationMapping>>(stream);
 
-                    return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
-                }
+                var error = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream) ??
+                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
-                return _serializer.Deserialize<List<LocationMapping>>(jsonTextReader);
+                return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
             }
             catch (Exception ex)
             {
@@ -57,10 +50,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 return ProblemDetailsBuilder.Fail<List<LocationMapping>>(ex.Message);
             }
         }
-        
-        
+
+
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;
-        private readonly JsonSerializer _serializer;
     }
 }
