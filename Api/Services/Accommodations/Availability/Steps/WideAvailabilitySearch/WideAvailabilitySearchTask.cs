@@ -124,6 +124,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var duplicates = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
 
                 var htIdMapping = accommodationCodeMappings.ToDictionary(m => m.SupplierCode, m => m.HtId);
+                var htIds = htIdMapping.Where(x => supplierAccommodationIds.Any(y => y.Id == x.Key))
+                    .Select(x => x.Value)
+                    .ToList();
+                var accommodations = new List<SlimAccommodation>(); // TODO: get list of accommodation from mapper
 
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 return details
@@ -149,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
-                            accommodationAvailability.Accommodation,
+                            accommodations.Single(a => a.HtId == htId),
                             roomContractSets,
                             duplicateReportId,
                             minPrice,
