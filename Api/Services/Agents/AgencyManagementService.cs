@@ -2,23 +2,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgencyManagementService : IAgencyManagementService
     {
-        public AgencyManagementService(EdoContext context, IAgentService agentService, INotificationService notificationService, IDateTimeProvider dateTimeProvider)
+        public AgencyManagementService(EdoContext context, IAgentService agentService, INotificationService notificationService, 
+            IOptions<AgencyManagementMailOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _agentService = agentService;
             _notificationService = notificationService;
+            _mailOptions = mailOptions.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -47,7 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Task.FromResult(Result.Success());
 
             return ChangeAgencyActivityStatus()
-                .Tap(ChangeAgencyAccountsActivityStatus);
+                .Tap(ChangeAgencyAccountsActivityStatus)
+                .Bind(SendNotificationToMaster);
 
 
             async Task<Result> ChangeAgencyActivityStatus()
@@ -79,21 +85,21 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (_, isFailure, master, error) = await _agentService.GetMasterAgent(agency.Id);
                 if (isFailure)
-                {
-                    LogNotificationFailed(error);
                     return Result.Failure(error);
-                }
+
+                var messageData = new AgencyActivityChangedData
+                {
+                    AgentName = $"{master.FirstName} {master.LastName}",
+                    AgencyName = agency.Name,
+                    Status = status
+                };
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
-                        messageData: new(),
-                        notificationType: NotificationTypes.AgencyManagement,
-                        email: master.Email,
-                        templateId: "");
+                    messageData: messageData,
+                    notificationType: NotificationTypes.AgencyManagement,
+                    email: master.Email,
+                    templateId: _mailOptions.AgencyActivityChangedTemplateId);
             }
-
-
-            void LogNotificationFailed(string error)
-                => _logger.LogAgentRegistrationNotificationFailure(error);
         }
 
 
@@ -108,6 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly IAgentService _agentService;
         private readonly INotificationService _notificationService;
+        private readonly AgencyManagementMailOptions _mailOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
