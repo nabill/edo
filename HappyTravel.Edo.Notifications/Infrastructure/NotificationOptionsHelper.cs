@@ -14,11 +14,11 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             var receiver = GetReceiver(userType);
             var options = _defaultOptions.TryGetValue(type, out var value)
                 ? value
-                : Result.Failure<SlimNotificationOptions>($"Cannot find options for type '{type}'");
+                : Result.Failure<SlimNotificationOptions>($"Cannot find options for the type '{type}'");
 
             return options.Value.EnabledReceivers.HasFlag(receiver)
                 ? options
-                : Result.Failure<SlimNotificationOptions>($"Cannot find options for type '{type}' and receiver '{receiver}'");
+                : Result.Failure<SlimNotificationOptions>($"Cannot find options for the type '{type}' and the receiver '{receiver}'");
 
 
             static ReceiverTypes GetReceiver(ApiCallerTypes userType)
