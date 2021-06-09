@@ -36,11 +36,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="payerAccountId">Id of the payer agency account</param>
         /// <param name="recipientAccountId">Id of the recepient agency account</param>
         /// <param name="amount">Amount of money to transfer</param>
-        [HttpPost("{payerAccountId}/transfer")]
+        [HttpPost("{payerAccountId}/transfer/{recipientAccountId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyToChildTransfer)]
-        public async Task<IActionResult> TransferToChildAgency(int payerAccountId, [FromQuery] int recipientAccountId, [FromBody] MoneyAmount amount)
+        public async Task<IActionResult> TransferToChildAgency(int payerAccountId, int recipientAccountId, [FromBody] MoneyAmount amount)
         {
             var (isSuccess, _, error) =
                 await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, await _agentContextService.GetAgent());
@@ -58,7 +58,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<AgencyAccountInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.ObserveBalance)]
-        public async Task<IActionResult> GetAccounts() => Ok(await _accountPaymentService.GetAgencyAccounts(await _agentContextService.GetAgent()));
+        public async Task<IActionResult> GetAccounts() 
+            => Ok(await _accountPaymentService.GetAgencyAccounts(await _agentContextService.GetAgent()));
 
 
         /// <summary>

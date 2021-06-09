@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/accommodations/bookings/{bookingId}/supporting-documentations")]
+    [Route("api/{v:apiVersion}/accommodations/bookings/{bookingId}/supporting-documents")]
     [Produces("application/json")]
     public class BookingSupportingDocumentsController : BaseController
     {

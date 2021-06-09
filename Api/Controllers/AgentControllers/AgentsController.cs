@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Regular agent registration request.</param>
         /// <returns></returns>
-        [HttpPost("agent/regular-agents/invitations/send")]
+        [HttpPost("agent/invitations/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///    Resend agent invitation email
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>
-        [HttpPost("agent/regular-agents/invitations/{invitationCodeHash}/resend")]
+        [HttpPost("agent/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Regular agent registration request.</param>
         /// <returns>Invitation code.</returns>
-        [HttpPost("agent/regular-agents/invitations/generate")]
+        [HttpPost("agent/invitations/generate")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>
         /// <returns>Invitation code.</returns>
-        [HttpPost("agent/regular-agents/invitations/{invitationCodeHash}/regenerate")]
+        [HttpPost("agent/invitations/{invitationCodeHash}/regenerate")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
@@ -200,7 +200,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Disable invitation.
         /// </summary>
         /// <param name="codeHash">Invitation code hash.</param>
-        [HttpPost("agent/regular-agents/invitations/{codeHash}/disable")]
+        [HttpPost("agent/invitations/{codeHash}/disable")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DisableInvitation(string codeHash)
@@ -431,7 +431,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("all-permissions-list")]
         [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
+        public IActionResult GetAllPermissionsList() 
+            => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 
         /// <summary>

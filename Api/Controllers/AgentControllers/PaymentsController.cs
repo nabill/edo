@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost("accommodations/bookings/cards/new")]
+        [HttpPost("accommodations/bookings/pay-by-new-card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost("accommodations/bookings/cards/saved")]
+        [HttpPost("accommodations/bookings/pay-by-saved-card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]

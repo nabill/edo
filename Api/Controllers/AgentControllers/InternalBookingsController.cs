@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets bookings for cancellation
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("can-be-cancelled")]
+        [HttpGet("for-cancel")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("can-be-captured")]
+        [HttpGet("to-capture")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for charge</returns>
-        [HttpGet("can-be-charged")]
+        [HttpGet("to-charge")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpGet("can-be-notified/deadline-approach")]
+        [HttpGet("to-notify/deadline-approach")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]

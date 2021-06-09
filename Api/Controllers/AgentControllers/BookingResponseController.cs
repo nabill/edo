@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AllowAnonymous]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [HttpPost("accommodations/bookings/responses/netstorming")]
+        [HttpPost("bookings/accommodations/responses/netstorming")]
         public async Task<IActionResult> HandleNetstormingBookingResponse()
         {
             var (_, isXmlRequestFailure, xmlRequestData, xmlRequestError) = await RequestHelper.GetAsBytes(HttpContext.Request.Body);
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AllowAnonymous]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [HttpPost("accommodations/bookings/responses/etg")]
+        [HttpPost("bookings/accommodations/responses/etg")]
         public async Task<IActionResult> HandleEtgBookingResponse()
         {
             var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.Etg);
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AllowAnonymous]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [HttpPost("accommodations/bookings/responses/direct-contracts")]
+        [HttpPost("bookings/accommodations/responses/direct-contracts")]
         public async Task<IActionResult> HandleDirectContractsBookingResponse()
         {
             var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.DirectContracts);
