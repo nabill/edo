@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets bookings for cancellation
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("for-cancel")]
+        [HttpGet("to-cancel")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
