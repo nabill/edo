@@ -47,7 +47,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>List of payment methods.</returns>
         [HttpGet("methods")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentTypes>), (int) HttpStatusCode.OK)]
-        public IActionResult GetPaymentTypes() => Ok(_paymentSettingsService.GetAvailableAgentPaymentTypes());
+        public IActionResult GetPaymentTypes() 
+            => Ok(_paymentSettingsService.GetAvailableAgentPaymentTypes());
 
 
         /// <summary>
