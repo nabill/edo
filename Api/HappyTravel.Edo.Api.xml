@@ -544,6 +544,19 @@
             <param name="top">Top</param>
             <returns>List of notifications</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotificationOptions">
+            <summary>
+                Gets the notification settings of the current administrator
+            </summary>
+            <returns>List of notification settings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Api.NotificationCenter.Models.NotificationSettings})">
+            <summary>
+                Updates the notification settings of the current administrator
+            </summary>
+            <param name="notificationSettings">Notification settings</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
@@ -1287,6 +1300,19 @@
             <param name="skip">Skip</param>
             <param name="top">Top</param>
             <returns>List of notifications</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotificationOptions">
+            <summary>
+                Gets the notification settings of the current agent
+            </summary>
+            <returns>List of notification settings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.SetNotificationOptions(System.Collections.Generic.Dictionary{HappyTravel.Edo.Notifications.Enums.NotificationTypes,HappyTravel.Edo.Api.NotificationCenter.Models.NotificationSettings})">
+            <summary>
+                Updates the notification settings of the current agent
+            </summary>
+            <param name="notificationSettings">Notification settings</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>

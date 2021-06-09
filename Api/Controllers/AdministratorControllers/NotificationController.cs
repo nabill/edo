@@ -1,12 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
@@ -20,10 +18,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class NotificationController : BaseController
     {
-        public NotificationController(IAdministratorContext administratorContext, INotificationService notificationService)
+        public NotificationController(IAdministratorContext administratorContext, INotificationService notificationService, INotificationOptionsService notificationOptionsService)
         {
             _administratorContext = administratorContext;
             _notificationService = notificationService;
+            _notificationOptionsService = notificationOptionsService;
         }
 
 
@@ -46,7 +45,43 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///     Gets the notification settings of the current administrator
+        /// </summary>
+        /// <returns>List of notification settings</returns>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(Dictionary<NotificationTypes, NotificationSettings>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetNotificationOptions()
+        {
+            var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(await _notificationOptionsService.Get(new SlimAdminContext(admin.Id)));
+        }
+
+
+        /// <summary>
+        ///     Updates the notification settings of the current administrator
+        /// </summary>
+        /// <param name="notificationSettings">Notification settings</param>
+        /// <returns></returns>
+        [HttpPut("settings")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SetNotificationOptions([FromBody] Dictionary<NotificationTypes, NotificationSettings> notificationSettings)
+        {
+            var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContentOrBadRequest(await _notificationOptionsService.Update(new SlimAdminContext(admin.Id), notificationSettings));
+        }
+
+
         private readonly IAdministratorContext _administratorContext;
         private readonly INotificationService _notificationService;
+        private readonly INotificationOptionsService _notificationOptionsService;
     }
 }
