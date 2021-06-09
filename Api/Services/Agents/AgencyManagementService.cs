@@ -4,17 +4,21 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgencyManagementService : IAgencyManagementService
     {
-        public AgencyManagementService(EdoContext context, IDateTimeProvider dateTimeProvider)
+        public AgencyManagementService(EdoContext context, IAgentService agentService, INotificationService notificationService, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _agentService = agentService;
+            _notificationService = notificationService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -69,6 +73,27 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 _context.UpdateRange(agencyAccounts);
                 await _context.SaveChangesAsync();
             }
+
+
+            async Task<Result> SendNotificationToMaster()
+            {
+                var (_, isFailure, master, error) = await _agentService.GetMasterAgent(agency.Id);
+                if (isFailure)
+                {
+                    LogNotificationFailed(error);
+                    return Result.Failure(error);
+                }
+
+                return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
+                        messageData: new(),
+                        notificationType: NotificationTypes.AgencyManagement,
+                        email: master.Email,
+                        templateId: "");
+            }
+
+
+            void LogNotificationFailed(string error)
+                => _logger.LogAgentRegistrationNotificationFailure(error);
         }
 
 
@@ -81,6 +106,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly EdoContext _context;
+        private readonly IAgentService _agentService;
+        private readonly INotificationService _notificationService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
