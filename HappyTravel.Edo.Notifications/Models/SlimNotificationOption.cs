@@ -6,5 +6,6 @@ namespace HappyTravel.Edo.Notifications.Models
     {
         public ProtocolTypes EnabledProtocols { get; init; }
         public bool IsMandatory { get; init; }
+        public ReceiverTypes EnabledReceivers { get; init; }
     }
 }
