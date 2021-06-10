@@ -46,12 +46,19 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
+            var notificationServiceMock = new Mock<INotificationService>();
+            notificationServiceMock.Setup(n => n.Send);
+
+            var options = new CounterpartyManagementMailOptions(); 
+            var mockOptions = new Mock<IOptions<CounterpartyManagementMailOptions>>();
+            mockOptions.Setup(o => o.Value).Returns(options);
+
             return new(context,
                 Mock.Of<Api.Services.Agents.IAgentService>(), 
                 Mock.Of<ICounterpartyService>(),
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
-                Mock.Of<IOptions<CounterpartyManagementMailOptions>>(),
+                mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
 
