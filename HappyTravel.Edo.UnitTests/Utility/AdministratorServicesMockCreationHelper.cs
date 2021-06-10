@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -14,6 +17,7 @@ using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace HappyTravel.Edo.UnitTests.Utility
@@ -44,8 +48,12 @@ namespace HappyTravel.Edo.UnitTests.Utility
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
             return new(context,
-                Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>());
+                Mock.Of<Api.Services.Agents.IAgentService>(), 
+                Mock.Of<ICounterpartyService>(),
+                Mock.Of<IManagementAuditService>(), 
+                Mock.Of<INotificationService>(),
+                Mock.Of<IOptions<CounterpartyManagementMailOptions>>(),
+                Mock.Of<IDateTimeProvider>());
         }
 
 

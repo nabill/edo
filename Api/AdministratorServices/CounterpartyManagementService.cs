@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -16,18 +15,28 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.Services.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context,
-            IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+        public CounterpartyManagementService(EdoContext context, Services.Agents.IAgentService agentService, ICounterpartyService counterpartyService,  
+             IManagementAuditService managementAuditService, INotificationService notificationService, 
+             IOptions<CounterpartyManagementMailOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
+            _agentService = agentService;
+            _counterpartyService = counterpartyService;
             _managementAuditService = managementAuditService;
+            _notificationService = notificationService;
+            _mailOptions = mailOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -153,7 +162,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Task.FromResult(Result.Success());
 
             return ChangeCounterpartyActivityStatus()
-                .Tap(ChangeCounterpartyAccountsActivityStatus);
+                .Tap(ChangeCounterpartyAccountsActivityStatus)
+                .Bind(SendNotificationToMaster);
 
 
             async Task<Result> ChangeCounterpartyActivityStatus()
@@ -178,6 +188,29 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 _context.UpdateRange(counterpartyAccounts);
                 await _context.SaveChangesAsync();
+            }
+
+
+            async Task<Result> SendNotificationToMaster()
+            {
+                var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
+
+                var (_, isFailure, master, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+                if (isFailure)
+                    return Result.Failure(error);
+
+                var messageData = new CounterpartyActivityChangedData
+                {
+                    AgentName = $"{master.FirstName} {master.LastName}",
+                    CounterpartyName = counterparty.Name,
+                    Status = status
+                };
+
+                return await _notificationService.Send(agent: new SlimAgentContext(master.Id, rootAgency.Id),
+                    messageData: messageData,
+                    notificationType: NotificationTypes.AgencyActivityChanged,
+                    email: master.Email,
+                    templateId: _mailOptions.CounterpartyActivityChangedTemplateId);
             }
         }
 
@@ -206,8 +239,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
         
-        private readonly IManagementAuditService _managementAuditService;
-        private readonly IDateTimeProvider _dateTimeProvider;
+
         private readonly EdoContext _context;
+        private readonly Services.Agents.IAgentService _agentService;
+        private readonly ICounterpartyService _counterpartyService;
+        private readonly IManagementAuditService _managementAuditService;
+        private readonly INotificationService _notificationService;
+        private readonly CounterpartyManagementMailOptions _mailOptions;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

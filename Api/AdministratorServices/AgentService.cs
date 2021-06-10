@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using IdentityModel;
 using Microsoft.EntityFrameworkCore;
 using System;

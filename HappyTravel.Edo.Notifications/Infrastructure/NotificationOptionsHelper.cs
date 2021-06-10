@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
-            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
+            [NotificationTypes.AgencyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
             // Administrator
             [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
@@ -93,6 +93,8 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.ExternalPaymentLinks] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true,
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.PaymentLinkPaidNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
+                EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
                 EnabledReceivers = ReceiverTypes.AgentApp }
         };
     }

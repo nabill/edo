@@ -274,11 +274,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
+
+            var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
+            services.Configure<CounterpartyManagementMailOptions>(options =>
+            {
+                options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
+            });
             #endregion
 
             #region tag processing options
 
-var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
+            var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
             services.Configure<TagProcessingOptions>(options =>
             {
                 options.ReferenceCodePrefix = tagProcessingOptions["referenceCodePrefix"];

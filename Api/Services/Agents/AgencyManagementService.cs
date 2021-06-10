@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
                     messageData: messageData,
-                    notificationType: NotificationTypes.AgencyManagement,
+                    notificationType: NotificationTypes.AgencyActivityChanged,
                     email: master.Email,
                     templateId: _mailOptions.AgencyActivityChangedTemplateId);
             }
