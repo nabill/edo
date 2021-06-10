@@ -88,10 +88,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     return Task.FromResult(Result.Success());
                 });
 
-            return new CounterpartyVerificationService(accountManagementServiceMock.Object,
-                Mock.Of<IDateTimeProvider>(),
-                context,
-                Mock.Of<IManagementAuditService>());
+            return new CounterpartyVerificationService(context, 
+                accountManagementServiceMock.Object,
+                Mock.Of<Api.Services.Agents.IAgentService>(),
+                Mock.Of<ICounterpartyService>(),
+                Mock.Of<IManagementAuditService>(), 
+                Mock.Of<INotificationService>(),
+                Mock.Of<IOptions<CounterpartyManagementMailOptions>>(),
+                Mock.Of<IDateTimeProvider>());
         }
 
 

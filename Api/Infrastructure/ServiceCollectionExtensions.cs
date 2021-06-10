@@ -276,9 +276,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
+            var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
             services.Configure<CounterpartyManagementMailOptions>(options =>
             {
                 options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
+                options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
             });
             #endregion
 

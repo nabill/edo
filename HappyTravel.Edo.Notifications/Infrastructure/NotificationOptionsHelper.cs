@@ -95,6 +95,8 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.PaymentLinkPaidNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.CounterpartyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
+                EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyVerificationChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true,
                 EnabledReceivers = ReceiverTypes.AgentApp }
         };
     }

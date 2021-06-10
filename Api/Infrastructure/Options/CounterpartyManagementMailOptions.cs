@@ -3,5 +3,6 @@
     public class CounterpartyManagementMailOptions
     {
         public string CounterpartyActivityChangedTemplateId { get; set; }
+        public string CounterpartyVerificationChangedTemplateId { get; set; }
     }
 }

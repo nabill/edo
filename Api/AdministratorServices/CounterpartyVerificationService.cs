@@ -4,28 +4,38 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyVerificationService : ICounterpartyVerificationService
     {
-        public CounterpartyVerificationService(IAccountManagementService accountManagementService,
-            IDateTimeProvider dateTimeProvider,
-            EdoContext context,
-            IManagementAuditService managementAuditService)
+        public CounterpartyVerificationService(EdoContext context, IAccountManagementService accountManagementService, Services.Agents.IAgentService agentService,
+            ICounterpartyService counterpartyService, IManagementAuditService managementAuditService, INotificationService notificationService,
+            IOptions<CounterpartyManagementMailOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
-            _accountManagementService = accountManagementService;
-            _dateTimeProvider = dateTimeProvider;
             _context = context;
+            _accountManagementService = accountManagementService;
+            _agentService = agentService;
+            _counterpartyService = counterpartyService;
             _managementAuditService = managementAuditService;
+            _notificationService = notificationService;
+            _mailOptions = mailOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -112,7 +122,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task SetVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
+        private async Task SetVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
@@ -126,8 +136,33 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             counterparty.Verified = now;
             counterparty.Updated = now;
             _context.Update(counterparty);
+            await _context.SaveChangesAsync();
 
-            return _context.SaveChangesAsync();
+            await SendNotificationToMaster();
+
+
+            async Task<Result> SendNotificationToMaster()
+            {
+                var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
+
+                var (_, isFailure, master, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+                if (isFailure)
+                    return Result.Failure(error);
+
+                var messageData = new CounterpartyVerificationChangedData
+                {
+                    AgentName = $"{master.FirstName} {master.LastName}",
+                    CounterpartyName = counterparty.Name,
+                    State = state,
+                    VerificationReason = reason
+                };
+
+                return await _notificationService.Send(agent: new SlimAgentContext(master.Id, rootAgency.Id),
+                    messageData: messageData,
+                    notificationType: NotificationTypes.CounterpartyVerificationChanged,
+                    email: master.Email,
+                    templateId: _mailOptions.CounterpartyVerificationChangedTemplateId);
+            }
         }
 
 
@@ -149,9 +184,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private readonly IAccountManagementService _accountManagementService;
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAccountManagementService _accountManagementService;
+        private readonly Services.Agents.IAgentService _agentService;
+        private readonly ICounterpartyService _counterpartyService;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly INotificationService _notificationService;
+        private readonly CounterpartyManagementMailOptions _mailOptions;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
