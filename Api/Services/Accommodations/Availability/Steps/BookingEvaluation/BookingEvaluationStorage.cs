@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.SuppliersCatalog;
 using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
 using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 

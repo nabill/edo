@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return await Result.Success()
                 .Bind(GetRelation)
-                .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
+                .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission or status management rights")
                 .Map(AddBundledPermissions)
                 .Map(UpdatePermissions);
 
@@ -41,13 +41,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
-                if (permissionsList.Contains(InAgencyPermissions.PermissionManagement))
+                if (permissionsList.Contains(InAgencyPermissions.PermissionManagement) && permissionsList.Contains(InAgencyPermissions.AgentStatusManagement))
                     return true;
 
-                return (await _context.AgentAgencyRelations
-                        .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
-                        .ToListAsync())
-                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement));
+                return await _context.AgentAgencyRelations
+                    .AnyAsync(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId && r.IsActive &&
+                        r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement) &&
+                        r.InAgencyPermissions.HasFlag(InAgencyPermissions.AgentStatusManagement));
             }
 
 
