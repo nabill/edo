@@ -278,7 +278,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             #region tag processing options
 
-var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
+            var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
             services.Configure<TagProcessingOptions>(options =>
             {
                 options.ReferenceCodePrefix = tagProcessingOptions["referenceCodePrefix"];
