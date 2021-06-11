@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
