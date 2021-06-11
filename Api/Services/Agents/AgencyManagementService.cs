@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public class AgencyManagementService : IAgencyManagementService
     {
         public AgencyManagementService(EdoContext context, IAgentService agentService, INotificationService notificationService, 
-            IOptions<AgencyManagementMailOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+            IOptions<AgencyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _agentService = agentService;
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly IAgentService _agentService;
         private readonly INotificationService _notificationService;
-        private readonly AgencyManagementMailOptions _mailOptions;
+        private readonly AgencyManagementMailingOptions _mailOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

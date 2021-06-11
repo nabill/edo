@@ -270,7 +270,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var agencyActivityChangedId = mailSettings[configuration["Edo:Email:AgencyActivityChangedTemplateId"]];
-            services.Configure<AgencyManagementMailOptions>(options =>
+            services.Configure<AgencyManagementMailingOptions>(options =>
             {
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
