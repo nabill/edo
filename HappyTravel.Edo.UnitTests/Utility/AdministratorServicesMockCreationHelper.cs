@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
@@ -13,6 +16,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -46,18 +50,48 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
+            var counterpartyServiceMock = new Mock<CounterpartyService>();
+            counterpartyServiceMock.Setup(c => c.GetRootAgency(1))
+                .Returns((int counterpartyId) => 
+                { 
+                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 1)); 
+                });
+            counterpartyServiceMock.Setup(c => c.GetRootAgency(2))
+                .Returns((int counterpartyId) =>
+                {
+                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 3));
+                });
+            counterpartyServiceMock.Setup(c => c.GetRootAgency(14))
+                .Returns((int counterpartyId) =>
+                {
+                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 14));
+                });
+            counterpartyServiceMock.Setup(c => c.GetRootAgency(15))
+                .Returns((int counterpartyId) =>
+                {
+                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 15));
+                });
+
+            var agentServiceMock = new Mock<Api.Services.Agents.IAgentService>();
+            agentServiceMock.Setup(a => a.GetMasterAgent(It.IsAny<int>()))
+                .Returns((int agencyId) => 
+                { 
+                    return Task.FromResult(Result.Success(_agents.FirstOrDefault(a => a.Id == 1))); 
+                });
+
             var notificationServiceMock = new Mock<INotificationService>();
-            notificationServiceMock.Setup(n => n.Send);
+            notificationServiceMock.Setup(n => n.Send(It.IsAny<SlimAgentContext>(), It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), "test@test.org", "testTemplateId"))
+                .Returns(() => Task.FromResult(Result.Success()));
 
             var options = new CounterpartyManagementMailOptions(); 
             var mockOptions = new Mock<IOptions<CounterpartyManagementMailOptions>>();
             mockOptions.Setup(o => o.Value).Returns(options);
 
             return new(context,
-                Mock.Of<Api.Services.Agents.IAgentService>(), 
-                Mock.Of<ICounterpartyService>(),
-                Mock.Of<IManagementAuditService>(), 
-                Mock.Of<INotificationService>(),
+                agentServiceMock.Object,
+                counterpartyServiceMock.Object,
+                Mock.Of<IManagementAuditService>(),
+                notificationServiceMock.Object,
                 mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
