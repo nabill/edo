@@ -269,11 +269,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingReceiptTemplateId = receiptTemplateId;
             });
 
-            
+            var agencyActivityChangedId = mailSettings[configuration["Edo:Email:AgencyActivityChangedTemplateId"]];
+            services.Configure<AgencyManagementMailingOptions>(options =>
+            {
+                options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
+            });
             #endregion
-            
+
             #region tag processing options
-            
+
             var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
             services.Configure<TagProcessingOptions>(options =>
             {
