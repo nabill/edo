@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
@@ -24,21 +24,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(ISupplierConnectorManager supplierConnectorManager,
-            IWideAvailabilityStorage wideAvailabilityStorage,
+        public RoomSelectionService(IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService)
+            AvailabilityAnalyticsService analyticsService,
+            IAccommodationMapperClient mapperClient)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
-            _supplierConnectorManager = supplierConnectorManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
+            _mapperClient = mapperClient;
         }
 
 
@@ -70,10 +70,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
             _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, searchId, resultId, agent);
-            
-            return await _supplierConnectorManager
-                .Get(selectedResult.Supplier)
-                .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
+
+            var accommodation = await _mapperClient.GetAccommodation(selectedResult.Result.Accommodation.HtId, languageCode);
+            return accommodation.IsFailure
+                ? accommodation.Error
+                : accommodation.Value.ToEdoContract();
         }
 
 
@@ -188,7 +189,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
-        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
+        private readonly IAccommodationMapperClient _mapperClient;
     }
 }
