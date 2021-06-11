@@ -83,8 +83,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
             notificationServiceMock.Setup(n => n.Send(It.IsAny<SlimAgentContext>(), It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), "test@test.org", "testTemplateId"))
                 .Returns(() => Task.FromResult(Result.Success()));
 
-            var options = new CounterpartyManagementMailOptions(); 
-            var mockOptions = new Mock<IOptions<CounterpartyManagementMailOptions>>();
+            var options = new CounterpartyManagementMailingOptions(); 
+            var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
             mockOptions.Setup(o => o.Value).Returns(options);
 
             return new(context,
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Mock.Of<ICounterpartyService>(),
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
-                Mock.Of<IOptions<CounterpartyManagementMailOptions>>(),
+                Mock.Of<IOptions<CounterpartyManagementMailingOptions>>(),
                 Mock.Of<IDateTimeProvider>());
         }
 

@@ -277,7 +277,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
             var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
-            services.Configure<CounterpartyManagementMailOptions>(options =>
+            services.Configure<CounterpartyManagementMailingOptions>(options =>
             {
                 options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
                 options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;

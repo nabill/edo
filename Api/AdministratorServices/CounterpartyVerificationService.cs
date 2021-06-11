@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public CounterpartyVerificationService(EdoContext context, IAccountManagementService accountManagementService, Services.Agents.IAgentService agentService,
             ICounterpartyService counterpartyService, IManagementAuditService managementAuditService, INotificationService notificationService,
-            IOptions<CounterpartyManagementMailOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+            IOptions<CounterpartyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _accountManagementService = accountManagementService;
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly ICounterpartyService _counterpartyService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
-        private readonly CounterpartyManagementMailOptions _mailOptions;
+        private readonly CounterpartyManagementMailingOptions _mailOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
