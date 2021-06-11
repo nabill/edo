@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Extensions
 {
     public static class SlimAccommodationExtensions
     {
-        public static SlimAccommodation ToEdoContract(this MapperContracts.Public.Accommodations.SlimAccommodation accommodation, string id) 
-            => new (id: id,
+        public static SlimAccommodation ToEdoContract(this MapperContracts.Public.Accommodations.SlimAccommodation accommodation) 
+            => new (id: accommodation.HtId,
                 location: accommodation.Location.Map(),
                 name: accommodation.Name,
                 photo: new ImageInfo(accommodation.Photo.SourceUrl, accommodation.Photo.Caption),

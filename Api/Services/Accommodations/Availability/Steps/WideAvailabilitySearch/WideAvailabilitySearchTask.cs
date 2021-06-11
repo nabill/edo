@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
-                            mapperAccommodation.ToEdoContract(accommodationAvailability.Accommodation.Id),
+                            mapperAccommodation.ToEdoContract(),
                             roomContractSets,
                             duplicateReportId,
                             minPrice,
