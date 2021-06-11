@@ -95,16 +95,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             try
             {
                 using var response = await client.GetAsync($"api/1.0/accommodations/{htId}");
-                await using var stream = await response.Content.ReadAsStreamAsync();
                 var options = new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+                    Converters = { new JsonStringEnumConverter() }
                 };
 
                 if (response.IsSuccessStatusCode)
-                    return await JsonSerializer.DeserializeAsync<Accommodation>(stream, options);
+                    return await response.Content.ReadFromJsonAsync<Accommodation>(options);
                 
-                var error = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream, options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(options) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<Accommodation, ProblemDetails>(error);
