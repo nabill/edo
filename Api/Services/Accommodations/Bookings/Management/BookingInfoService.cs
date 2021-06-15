@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.Supplier, booking.HtId, languageCode);
+            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.HtId, languageCode);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
 
