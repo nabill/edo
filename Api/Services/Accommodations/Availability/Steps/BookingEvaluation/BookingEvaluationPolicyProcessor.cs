@@ -11,12 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return null;
 
             var availability = roomContractSetAvailability.Value;
-            return new RoomContractSetAvailability(availability.AvailabilityId,
-                availability.CheckInDate,
-                availability.CheckOutDate,
-                availability.NumberOfNights,
-                availability.Accommodation,
-                RoomContractSetPolicyProcessor.Process(availability.RoomContractSet, availability.CheckInDate,
+            return new RoomContractSetAvailability(availabilityId: availability.AvailabilityId,
+                accommodationId: availability.AccommodationId,
+                checkInDate: availability.CheckInDate,
+                checkOutDate: availability.CheckOutDate,
+                numberOfNights: availability.NumberOfNights,
+                roomContractSet: RoomContractSetPolicyProcessor.Process(availability.RoomContractSet, availability.CheckInDate,
                     settings));
         }
     }

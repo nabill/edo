@@ -15,12 +15,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return SetRoomContractSets(accommodationAvailability, processedRoomContractSets);
 
 
-            static AccommodationAvailability SetRoomContractSets(in AccommodationAvailability availability, List<RoomContractSet> roomContractSets) => new AccommodationAvailability(availability.AvailabilityId,
-                availability.CheckInDate,
-                availability.CheckOutDate,
-                availability.NumberOfNights,
-                availability.Accommodation,
-                roomContractSets);
+            static AccommodationAvailability SetRoomContractSets(in AccommodationAvailability availability, List<RoomContractSet> roomContractSets)
+                => new AccommodationAvailability(availabilityId: availability.AvailabilityId,
+                    accommodationId: availability.AccommodationId,
+                    checkInDate: availability.CheckInDate,
+                    checkOutDate: availability.CheckOutDate,
+                    numberOfNights: availability.NumberOfNights,
+                    roomContractSets: roomContractSets);
         }
     }
 }

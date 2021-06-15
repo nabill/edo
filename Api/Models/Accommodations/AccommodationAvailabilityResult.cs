@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations

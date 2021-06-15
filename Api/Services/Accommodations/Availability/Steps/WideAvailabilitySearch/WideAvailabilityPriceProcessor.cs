@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var supplierRoomContractSets = supplierResponse.RoomContractSets;
             var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor.ProcessPrices(supplierRoomContractSets, function);
-            var convertedAccommodationAvailability = new SlimAccommodationAvailability(supplierResponse.Accommodation,
+            var convertedAccommodationAvailability = new SlimAccommodationAvailability(supplierResponse.AccommodationId,
                 roomContractSetsWithMarkup,
                 supplierResponse.AvailabilityId);
             
