@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<Accommodation, ProblemDetails>> Get(Suppliers source, string htId, string languageCode)
+        public Task<Result<Accommodation, ProblemDetails>> Get(string htId, string languageCode)
         {
             return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, htId),
                 async () =>
