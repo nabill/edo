@@ -1,10 +1,12 @@
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct SlimAccommodation
     {
+        [JsonConstructor]
         public SlimAccommodation(string id, in SlimLocationInfo location, string name, in ImageInfo photo, AccommodationRatings rating,
             PropertyTypes propertyType, string htId = null, string hotelChain = null)
         {
