@@ -20,19 +20,16 @@ using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Api.Services.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context, Services.Agents.IAgentService agentService, ICounterpartyService counterpartyService,  
-             IManagementAuditService managementAuditService, INotificationService notificationService, 
-             IOptions<CounterpartyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+        public CounterpartyManagementService(EdoContext context, IManagementAuditService managementAuditService, 
+            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailOptions, 
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _agentService = agentService;
-            _counterpartyService = counterpartyService;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
             _mailOptions = mailOptions.Value;
@@ -103,6 +100,24 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 where a.CounterpartyId == counterpartyId
                 select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
             .ToListAsync();
+
+
+        public async Task<Result<MasterAgentContext>> GetRootAgencyMasterAgent(int counterpartyId)
+        {
+            var rootAgency = await _context.Agencies
+                .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
+            
+            var master = await(from agent in _context.Agents
+                join relation in _context.AgentAgencyRelations on agent.Id equals relation.AgentId
+                where relation.AgencyId == rootAgency.Id && relation.Type == AgentAgencyRelationTypes.Master
+                select new MasterAgentContext { AgentId = agent.Id, FirstName = agent.FirstName, LastName = agent.LastName, Email = agent.Email, 
+                    AgencyId = relation.AgencyId})
+                .FirstOrDefaultAsync();
+
+            return (master is null)
+                ? Result.Failure<MasterAgentContext>($"Master agent in root agency {rootAgency.Name} does not exist")
+                : master;
+        }
 
 
         public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId)
@@ -193,9 +208,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SendNotificationToMaster()
             {
-                var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
-
-                var (_, isFailure, master, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+                var (_, isFailure, master, error) = await GetRootAgencyMasterAgent(counterparty.Id);
                 if (isFailure)
                     return Result.Failure(error);
 
@@ -206,7 +219,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Status = status
                 };
 
-                return await _notificationService.Send(agent: new SlimAgentContext(master.Id, rootAgency.Id),
+                return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),
                     messageData: messageData,
                     notificationType: NotificationTypes.CounterpartyActivityChanged,
                     email: master.Email,
@@ -241,8 +254,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         
 
         private readonly EdoContext _context;
-        private readonly Services.Agents.IAgentService _agentService;
-        private readonly ICounterpartyService _counterpartyService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
         private readonly CounterpartyManagementMailingOptions _mailOptions;

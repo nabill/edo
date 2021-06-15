@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -24,14 +23,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyVerificationService : ICounterpartyVerificationService
     {
-        public CounterpartyVerificationService(EdoContext context, IAccountManagementService accountManagementService, Services.Agents.IAgentService agentService,
-            ICounterpartyService counterpartyService, IManagementAuditService managementAuditService, INotificationService notificationService,
-            IOptions<CounterpartyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+        public CounterpartyVerificationService(EdoContext context, IAccountManagementService accountManagementService,
+            ICounterpartyManagementService counterpartyManagementService, IManagementAuditService managementAuditService, 
+            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _accountManagementService = accountManagementService;
-            _agentService = agentService;
-            _counterpartyService = counterpartyService;
+            _counterpartyManagementService = counterpartyManagementService;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
             _mailOptions = mailOptions.Value;
@@ -143,9 +141,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SendNotificationToMaster()
             {
-                var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
-
-                var (_, isFailure, master, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+                var (_, isFailure, master, error) = await _counterpartyManagementService.GetRootAgencyMasterAgent(counterparty.Id);
                 if (isFailure)
                     return Result.Failure(error);
 
@@ -157,7 +153,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     VerificationReason = reason
                 };
 
-                return await _notificationService.Send(agent: new SlimAgentContext(master.Id, rootAgency.Id),
+                return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),
                     messageData: messageData,
                     notificationType: NotificationTypes.CounterpartyVerificationChanged,
                     email: master.Email,
@@ -186,8 +182,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
-        private readonly Services.Agents.IAgentService _agentService;
-        private readonly ICounterpartyService _counterpartyService;
+        private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
         private readonly CounterpartyManagementMailingOptions _mailOptions;

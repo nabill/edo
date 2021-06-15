@@ -50,48 +50,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
-            var counterpartyServiceMock = new Mock<CounterpartyService>();
-            counterpartyServiceMock.Setup(c => c.GetRootAgency(1))
-                .Returns((int counterpartyId) => 
-                { 
-                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 1)); 
-                });
-            counterpartyServiceMock.Setup(c => c.GetRootAgency(2))
-                .Returns((int counterpartyId) =>
-                {
-                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 3));
-                });
-            counterpartyServiceMock.Setup(c => c.GetRootAgency(14))
-                .Returns((int counterpartyId) =>
-                {
-                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 14));
-                });
-            counterpartyServiceMock.Setup(c => c.GetRootAgency(15))
-                .Returns((int counterpartyId) =>
-                {
-                    return Task.FromResult(_agencies.SingleOrDefault(a => a.Id == 15));
-                });
-
-            var agentServiceMock = new Mock<Api.Services.Agents.IAgentService>();
-            agentServiceMock.Setup(a => a.GetMasterAgent(It.IsAny<int>()))
-                .Returns((int agencyId) => 
-                { 
-                    return Task.FromResult(Result.Success(_agents.FirstOrDefault(a => a.Id == 1))); 
-                });
-
-            var notificationServiceMock = new Mock<INotificationService>();
-            notificationServiceMock.Setup(n => n.Send(It.IsAny<SlimAgentContext>(), It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), "test@test.org", "testTemplateId"))
-                .Returns(() => Task.FromResult(Result.Success()));
-
             var options = new CounterpartyManagementMailingOptions(); 
             var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
             mockOptions.Setup(o => o.Value).Returns(options);
 
             return new(context,
-                agentServiceMock.Object,
-                counterpartyServiceMock.Object,
                 Mock.Of<IManagementAuditService>(),
-                notificationServiceMock.Object,
+                Mock.Of<INotificationService>(),
                 mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
@@ -129,13 +94,18 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     return Task.FromResult(Result.Success());
                 });
 
+            var counterpartyManagementServiceMock = GetCounterpartyManagementService(context);
+
+            var options = new CounterpartyManagementMailingOptions();
+            var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
+            mockOptions.Setup(o => o.Value).Returns(options);
+
             return new CounterpartyVerificationService(context, 
                 accountManagementServiceMock.Object,
-                Mock.Of<Api.Services.Agents.IAgentService>(),
-                Mock.Of<ICounterpartyService>(),
+                counterpartyManagementServiceMock,
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
-                Mock.Of<IOptions<CounterpartyManagementMailingOptions>>(),
+                mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
 
@@ -246,6 +216,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "Example1",
                 Email = "agentexample1@mail.com",
             },
+            new Agent
+            {
+                Id = 20,
+                FirstName = "Agent20FirstName",
+                LastName = "Agent20LastName",
+                Email = "agent20@mail.com"
+            }
         };
 
         private readonly IEnumerable<Counterparty> _counterparties = new[]
@@ -349,6 +326,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CountryCode = "AF",
                 IsActive = true
             },
+            new Agency
+            {
+                Id = 20,
+                CounterpartyId = 3,
+                Name = "RootAgencyForCounterparty3",
+                CountryCode = "AF",
+                IsActive = true
+            }
         };
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
@@ -407,6 +392,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Type = AgentAgencyRelationTypes.Master,
                 IsActive = true
             },
+            new AgentAgencyRelation
+            {
+                AgencyId = 20,
+                AgentId = 20,
+                Type = AgentAgencyRelationTypes.Master,
+                IsActive = true
+            }
         };
 
         private readonly IEnumerable<Data.Locations.Country> _countries = new[]
