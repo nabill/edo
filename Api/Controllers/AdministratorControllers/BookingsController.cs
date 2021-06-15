@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("accommodations/bookings/fill-empty-htids")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> FillEmptyHtIds()
         {
             await _fixHtIdService.FillEmptyHtIds();
