@@ -50,8 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         public async Task<Result<BookingVoucherData>> GenerateVoucher(Booking booking, string languageCode)
         {
-            var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.Supplier, 
-                booking.AccommodationId, languageCode);
+            var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.HtId, languageCode);
                 
             if (isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);

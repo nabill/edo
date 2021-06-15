@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,13 +36,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             Guid resultId,
             Suppliers supplier,
-            string accommodationId, string availabilityId,
+            SlimAccommodation accommodation, 
+            string availabilityId,
             AccommodationBookingSettings settings,
-            string htId,
             AgentContext agent,
             string languageCode)
         {
             return await ExecuteRequest()
+                .Bind(ReplaceAccommodationData)
                 .Bind(ConvertCurrencies)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
@@ -50,7 +52,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
-                => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, accommodationId, languageCode);
+                => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, accommodation.Id, languageCode);
+
+            
+            Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
+            {
+                return new AccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, 
+                    checkInDate: availabilityDetails.CheckInDate,
+                    checkOutDate: availabilityDetails.CheckOutDate,
+                    numberOfNights: availabilityDetails.NumberOfNights,
+                    accommodation: accommodation,
+                    roomContractSets: availabilityDetails.RoomContractSets);
+            }
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
@@ -75,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var result = new SingleAccommodationAvailability(availabilityData.AvailabilityId,
                     availabilityData.CheckInDate,
                     availabilityData.RoomContractSets,
-                    htId);
+                    accommodation.HtId);
                 
                 return _roomSelectionStorage.SaveResult(searchId, resultId, result, details.Source);
             }
