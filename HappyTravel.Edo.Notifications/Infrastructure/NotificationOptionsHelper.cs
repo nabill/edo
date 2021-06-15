@@ -68,7 +68,8 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
-            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }, // TODO: Will be used in the task AA-303
+            [NotificationTypes.AgencyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
+                EnabledReceivers = ReceiverTypes.AgentApp },
             // Administrator
             [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
                 EnabledReceivers = ReceiverTypes.AdminPanel },

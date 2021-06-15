@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         ChildAgencyInvitation = 12,
         AgentSuccessfulRegistration = 13,
         ChildAgencySuccessfulRegistration = 14,
-        AgencyManagement = 15,
+        AgencyActivityChanged = 15,
         // Administrator
         AdministratorInvitation = 16,
         MasterAgentSuccessfulRegistration = 17,
