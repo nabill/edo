@@ -1459,6 +1459,86 @@
                 Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Id">
+            <summary>
+                The accommodation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Name">
+            <summary>
+                The accommodation name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Category">
+            <summary>
+                The accommodation category.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Contacts">
+            <summary>
+                Contact info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Location">
+            <summary>
+                Location info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Photos">
+            <summary>
+                Accommodation pictures and their descriptions.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Rating">
+            <summary>
+                The accommodation rating.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Schedule">
+            <summary>
+                The schedule of accommodation services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.TextualDescriptions">
+            <summary>
+                Textual descriptions of an accommodation and its zones.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Type">
+            <summary>
+                The type of a property.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.UniqueCodes">
+            <summary>
+                Unique codes in external accommodation mapping services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.HotelChain">
+            <summary>
+                Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.HtId">
+            <summary>
+                The Happytravel.com unique accommodation correlation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.AccommodationAmenities">
+            <summary>
+                The dictionary of amenities available in an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.AdditionalInfo">
+            <summary>
+                The dictionary of all other accommodation stats.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Modified">
+            <summary>
+                The Modification date of accommodation data
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Id">
             <summary>
             Report id
@@ -1482,6 +1562,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo.Photo">
             <summary>
                 Accommodation photo.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ContactInfo.Emails">
+            <summary>
+                The accommodation email.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ContactInfo.Faxes">
+            <summary>
+                The accommodation fax number.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ContactInfo.Phones">
+            <summary>
+                The accommodation phone.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ContactInfo.WebSites">
+            <summary>
+                The accommodation web site.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FromDate">
@@ -1517,6 +1617,66 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Type">
             <summary>
                 The price type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.Address">
+            <summary>
+                The location address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.Coordinates">
+            <summary>
+                Location coordinates.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.CountryCode">
+            <summary>
+                The country code in the ISO 3166-1 Alpha-2 format.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.CountryHtId">
+            <summary>
+            Happy Travel country Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.Country">
+            <summary>
+                The location country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.IsHistoricalBuilding">
+            <summary>
+                Indicates if a location a historical place.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.LocalityHtId">
+            <summary>
+            Happy Travel localityId
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.Locality">
+            <summary>
+                The locality name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.LocalityZoneHtId">
+            <summary>
+            Happy Travel locality zone Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.LocalityZone">
+            <summary>
+                The locality zone name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.LocationDescriptionCode">
+            <summary>
+                The description of a location.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.LocationInfo.PointsOfInterests">
+            <summary>
+                The list of transportation facility or POI.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Currency">
@@ -1705,6 +1865,46 @@
             List of available payment methods
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Id">
+            <summary>
+                The accommodation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
+            <summary>
+                The accommodation location description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Name">
+            <summary>
+                The accommodation name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Photo">
+            <summary>
+                The front photo of an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Rating">
+            <summary>
+                The rating of an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.PropertyType">
+            <summary>
+                The type of an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.HtId">
+            <summary>
+                The Happytravel.com correlation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.HotelChain">
+            <summary>
+                The name of a hotel chain which an accommodation belongs.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Id">
             <summary>
             Report id
@@ -1728,6 +1928,36 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Accommodations">
             <summary>
             Reported accommodation ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.Address">
+            <summary>
+                The location address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.Country">
+            <summary>
+                The location country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.CountryCode">
+            <summary>
+                The country code in the ISO 3166-1 Alpha-2 format.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.Coordinates">
+            <summary>
+                Location coordinates.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.Locality">
+            <summary>
+                The locality name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.LocalityZone">
+            <summary>
+                The locality zone name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SupplierData`1.Source">

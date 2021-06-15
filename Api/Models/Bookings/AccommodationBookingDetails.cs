@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
+using AccommodationInfo = HappyTravel.Edo.Data.Bookings.AccommodationInfo;
 using CancellationPolicy = HappyTravel.Edo.Data.Bookings.CancellationPolicy;
 
 namespace HappyTravel.Edo.Api.Models.Bookings

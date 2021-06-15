@@ -63,16 +63,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string accommodationId, string languageCode)
-        {
-            return ExecuteWithLogging(() =>
-            {
-                return _connectorClient.Get<Accommodation>(
-                    new Uri($"{_baseUrl}accommodations/{accommodationId}", UriKind.Absolute), languageCode);
-            });
-        }
-
-
         public Task<Result<Booking, ProblemDetails>> Book(BookingRequest request, string languageCode)
         {
             return ExecuteWithLogging(() =>

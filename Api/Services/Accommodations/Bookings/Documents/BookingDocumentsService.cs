@@ -2,13 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agencies;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
@@ -17,9 +13,8 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -71,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             (
                 $"{agent.FirstName} {agent.LastName}",
                 booking.Id,
-                GetAccommodationInfo(in accommodationDetails),
+                GetAccommodationInfo(accommodationDetails),
                 (booking.CheckOutDate - booking.CheckInDate).Days,
                 booking.CheckInDate,
                 booking.CheckOutDate,
