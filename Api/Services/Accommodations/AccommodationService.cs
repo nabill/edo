@@ -16,11 +16,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     public class AccommodationService : IAccommodationService
     {
         public AccommodationService(IDoubleFlow flow,
-            ISupplierConnectorManager supplierConnectorManager,
             IAccommodationMapperClient mapperClient)
         {
             _flow = flow;
-            _supplierConnectorManager = supplierConnectorManager;
             _mapperClient = mapperClient;
         }
 
@@ -40,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         private readonly IDoubleFlow _flow;
-        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationMapperClient _mapperClient;
     }
 }
