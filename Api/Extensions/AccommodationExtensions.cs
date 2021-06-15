@@ -1,8 +1,8 @@
-using System;
 using System.Linq;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using ContactInfo = HappyTravel.Edo.Api.Models.Accommodations.ContactInfo;
+using LocationInfo = HappyTravel.Edo.Api.Models.Accommodations.LocationInfo;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -27,30 +27,26 @@ namespace HappyTravel.Edo.Api.Extensions
                     coordinates: accommodation.Location.Coordinates,
                     localityZone: accommodation.Location.LocalityZone,
                     address: accommodation.Location.Address,
-                    locationDescriptionCode: accommodation.Location.LocationDescriptionCode.Map<LocationDescriptionCodes, MapperContracts.Public.Accommodations.Enums.LocationDescriptionCodes>(), 
+                    locationDescriptionCode: accommodation.Location.LocationDescriptionCode, 
                     pointsOfInterests: accommodation.Location.PointsOfInterests.Select(p => new PoiInfo(name: p.Name,
                         distance: p.Distance,
                         time: p.Time,
-                        type: p.Type.Map<PoiTypes, MapperContracts.Public.Accommodations.Enums.PoiTypes>())).ToList(),
+                        type: p.Type)).ToList(),
                     isHistoricalBuilding: accommodation.Location.IsHistoricalBuilding),
                 photos: accommodation.Photos.Select(p => new ImageInfo(p.SourceUrl, p.Caption)).ToList(),
-                rating: accommodation.Rating.Map<AccommodationRatings, MapperContracts.Public.Accommodations.Enums.AccommodationRatings>(),
+                rating: accommodation.Rating,
                 schedule: new ScheduleInfo(checkInTime: accommodation.Schedule.CheckInTime,
                     portersStartTime: accommodation.Schedule.PortersStartTime,
                     portersEndTime: accommodation.Schedule.PortersEndTime,
                     checkOutTime: accommodation.Schedule.CheckOutTime,
                     roomServiceStartTime: accommodation.Schedule.RoomServiceStartTime,
                     roomServiceEndTime: accommodation.Schedule.RoomServiceEndTime),
-                textualDescriptions: accommodation.TextualDescriptions.Select(t => new TextualDescription(t.Type.Map<TextualDescriptionTypes, MapperContracts.Public.Accommodations.Enums.TextualDescriptionTypes>(), t.Description)).ToList(),
-                type: accommodation.Type.Map<PropertyTypes, MapperContracts.Public.Accommodations.Enums.PropertyTypes>(),
+                textualDescriptions: accommodation.TextualDescriptions,
+                type: accommodation.Type,
                 htId: accommodation.HtId,
                 uniqueCodes: new UniqueAccommodationCodes(accommodation.UniqueCodes?.GiataId, accommodation.UniqueCodes?.SynxisId),
                 hotelChain: accommodation.HotelChain,
                 modified: accommodation.Modified
             );
-        
-        
-        private static T1 Map<T1, T2>(this T2 value) where T1 : struct, Enum where T2 : struct, Enum
-            => Enum.Parse<T1>(value.ToString());
     }
 }

@@ -5,10 +5,8 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
-using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
