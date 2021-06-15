@@ -1,9 +1,11 @@
 using HappyTravel.Geography;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct SlimLocationInfo
     {
+        [JsonConstructor]
         public SlimLocationInfo(string address, string country, string countryCode, string locality, string localityZone, in GeoPoint coordinates)
         {
             Address = address;

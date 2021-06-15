@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct ContactInfo
     {
+        [JsonConstructor]
         public ContactInfo(List<string> emails, List<string> phones, List<string> webSites, List<string> faxes)
         {
             Emails = emails ?? new List<string>(0);
