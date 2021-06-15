@@ -26,13 +26,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
         public CounterpartyManagementService(EdoContext context, IManagementAuditService managementAuditService, 
-            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailOptions, 
+            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailingOptions, 
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
-            _mailOptions = mailOptions.Value;
+            _mailingOptions = mailingOptions.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -223,7 +223,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     messageData: messageData,
                     notificationType: NotificationTypes.CounterpartyActivityChanged,
                     email: master.Email,
-                    templateId: _mailOptions.CounterpartyActivityChangedTemplateId);
+                    templateId: _mailingOptions.CounterpartyActivityChangedTemplateId);
             }
         }
 
@@ -256,7 +256,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
-        private readonly CounterpartyManagementMailingOptions _mailOptions;
+        private readonly CounterpartyManagementMailingOptions _mailingOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

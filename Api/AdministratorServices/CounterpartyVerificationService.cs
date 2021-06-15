@@ -25,14 +25,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public CounterpartyVerificationService(EdoContext context, IAccountManagementService accountManagementService,
             ICounterpartyManagementService counterpartyManagementService, IManagementAuditService managementAuditService, 
-            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailingOptions, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _counterpartyManagementService = counterpartyManagementService;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
-            _mailOptions = mailOptions.Value;
+            _mailingOptions = mailingOptions.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     messageData: messageData,
                     notificationType: NotificationTypes.CounterpartyVerificationChanged,
                     email: master.Email,
-                    templateId: _mailOptions.CounterpartyVerificationChangedTemplateId);
+                    templateId: _mailingOptions.CounterpartyVerificationChangedTemplateId);
             }
         }
 
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
-        private readonly CounterpartyManagementMailingOptions _mailOptions;
+        private readonly CounterpartyManagementMailingOptions _mailingOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
