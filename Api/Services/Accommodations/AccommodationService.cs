@@ -25,12 +25,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<Accommodation, ProblemDetails>> Get(Suppliers source, string accommodationId, string languageCode)
+        public Task<Result<Accommodation, ProblemDetails>> Get(Suppliers source, string htId, string languageCode)
         {
-            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, accommodationId),
+            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, htId),
                 async () =>
                 {
-                    var (_, isFailure, accommodation, error) = await _mapperClient.GetAccommodation(accommodationId, languageCode);
+                    var (_, isFailure, accommodation, error) = await _mapperClient.GetAccommodation(htId, languageCode);
                     return isFailure
                         ? ProblemDetailsBuilder.Fail<Accommodation>(error.Detail)
                         : accommodation.ToEdoContract();
