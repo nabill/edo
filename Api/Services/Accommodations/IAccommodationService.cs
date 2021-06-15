@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations

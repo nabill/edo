@@ -58,10 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
             {
                 return new AccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, 
+                    accommodationId: accommodation.Id,
                     checkInDate: availabilityDetails.CheckInDate,
                     checkOutDate: availabilityDetails.CheckOutDate,
                     numberOfNights: availabilityDetails.NumberOfNights,
-                    accommodation: accommodation,
                     roomContractSets: availabilityDetails.RoomContractSets);
             }
 
