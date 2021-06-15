@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAccommodationService
     {
-        Task<Result<Accommodation, ProblemDetails>> Get(Suppliers source, string accommodationId, string languageCode);
+        Task<Result<Accommodation, ProblemDetails>> Get(string htId, string languageCode);
     }
 }

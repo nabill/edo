@@ -16,21 +16,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     public class AccommodationService : IAccommodationService
     {
         public AccommodationService(IDoubleFlow flow,
-            ISupplierConnectorManager supplierConnectorManager,
             IAccommodationMapperClient mapperClient)
         {
             _flow = flow;
-            _supplierConnectorManager = supplierConnectorManager;
             _mapperClient = mapperClient;
         }
 
 
-        public Task<Result<Accommodation, ProblemDetails>> Get(Suppliers source, string accommodationId, string languageCode)
+        public Task<Result<Accommodation, ProblemDetails>> Get(string htId, string languageCode)
         {
-            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, accommodationId),
+            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, htId),
                 async () =>
                 {
-                    var (_, isFailure, accommodation, error) = await _mapperClient.GetAccommodation(accommodationId, languageCode);
+                    var (_, isFailure, accommodation, error) = await _mapperClient.GetAccommodation(htId, languageCode);
                     return isFailure
                         ? ProblemDetailsBuilder.Fail<Accommodation>(error.Detail)
                         : accommodation.ToEdoContract();
@@ -40,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         private readonly IDoubleFlow _flow;
-        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationMapperClient _mapperClient;
     }
 }
