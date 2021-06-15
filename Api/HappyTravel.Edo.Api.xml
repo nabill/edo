@@ -304,6 +304,12 @@
             <param name="confirmationRequest">Confirmation request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.FillEmptyHtIds">
+            <summary>
+                Fills empty htId in bookings
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.

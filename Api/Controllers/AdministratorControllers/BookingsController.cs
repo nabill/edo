@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Bookings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
@@ -25,12 +26,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public BookingsController(IAdministratorContext administratorContext,
             IBookingService bookingService,
             IAdministratorBookingManagementService bookingManagementService,
-            IBookingInfoService bookingInfoService)
+            IBookingInfoService bookingInfoService,
+            IFixHtIdService fixHtIdService)
         {
             _administratorContext = administratorContext;
             _bookingService = bookingService;
             _bookingManagementService = bookingManagementService;
             _bookingInfoService = bookingInfoService;
+            _fixHtIdService = fixHtIdService;
         }
 
 
@@ -235,11 +238,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
+        
+        
+        /// <summary>
+        ///     Fills empty htId in bookings
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/fill-empty-htids")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> FillEmptyHtIds()
+        {
+            await _fixHtIdService.FillEmptyHtIds();
+            return NoContent();
+        }
 
 
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
         private readonly IAdministratorBookingManagementService _bookingManagementService;
         private readonly IBookingInfoService _bookingInfoService;
+        private readonly IFixHtIdService _fixHtIdService;
     }
 }
