@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -12,8 +14,8 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace HappyTravel.Edo.UnitTests.Utility
@@ -43,9 +45,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
+            var options = new CounterpartyManagementMailingOptions(); 
+            var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
+            mockOptions.Setup(o => o.Value).Returns(options);
+
             return new(context,
-                Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>());
+                Mock.Of<IManagementAuditService>(),
+                Mock.Of<INotificationService>(),
+                mockOptions.Object,
+                Mock.Of<IDateTimeProvider>());
         }
 
 
@@ -81,10 +89,19 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     return Task.FromResult(Result.Success());
                 });
 
-            return new CounterpartyVerificationService(accountManagementServiceMock.Object,
-                Mock.Of<IDateTimeProvider>(),
-                context,
-                Mock.Of<IManagementAuditService>());
+            var counterpartyManagementServiceMock = GetCounterpartyManagementService(context);
+
+            var options = new CounterpartyManagementMailingOptions();
+            var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
+            mockOptions.Setup(o => o.Value).Returns(options);
+
+            return new CounterpartyVerificationService(context, 
+                accountManagementServiceMock.Object,
+                counterpartyManagementServiceMock,
+                Mock.Of<IManagementAuditService>(), 
+                Mock.Of<INotificationService>(),
+                mockOptions.Object,
+                Mock.Of<IDateTimeProvider>());
         }
 
 
@@ -194,6 +211,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "Example1",
                 Email = "agentexample1@mail.com",
             },
+            new Agent
+            {
+                Id = 20,
+                FirstName = "Agent20FirstName",
+                LastName = "Agent20LastName",
+                Email = "agent20@mail.com"
+            }
         };
 
         private readonly IEnumerable<Counterparty> _counterparties = new[]
@@ -297,6 +321,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CountryCode = "AF",
                 IsActive = true
             },
+            new Agency
+            {
+                Id = 20,
+                CounterpartyId = 3,
+                Name = "RootAgencyForCounterparty3",
+                CountryCode = "AF",
+                IsActive = true
+            }
         };
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
@@ -355,6 +387,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Type = AgentAgencyRelationTypes.Master,
                 IsActive = true
             },
+            new AgentAgencyRelation
+            {
+                AgencyId = 20,
+                AgentId = 20,
+                Type = AgentAgencyRelationTypes.Master,
+                IsActive = true
+            }
         };
 
         private readonly IEnumerable<Data.Locations.Country> _countries = new[]
