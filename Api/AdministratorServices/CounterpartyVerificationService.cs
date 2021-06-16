@@ -145,9 +145,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (isFailure)
                     return Result.Failure(error);
 
-                var messageData = new CounterpartyVerificationChangedData
+                var messageData = new CounterpartyVerificationStateChangedData
                 {
-                    AgentName = $"{master.FirstName} {master.LastName}",
+                    AgentName = master.FullName,
                     CounterpartyName = counterparty.Name,
                     State = state,
                     VerificationReason = reason

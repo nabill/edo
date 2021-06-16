@@ -7,5 +7,7 @@
         public string LastName { get; init; }
         public string Email { get; init; }
         public int AgencyId { get; init; }
+
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

@@ -2,10 +2,10 @@
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
-    public class AgencyActivityChangedData : DataWithCompanyInfo
+    public class CounterpartyIsActiveStatusChangedData : DataWithCompanyInfo
     {
         public string AgentName { get; set; }
-        public string AgencyName { get; set; }
+        public string CounterpartyName { get; set; }
         public ActivityStatus Status { get; set; }
     }
 }

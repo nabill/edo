@@ -212,9 +212,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (isFailure)
                     return Result.Failure(error);
 
-                var messageData = new CounterpartyActivityChangedData
+                var messageData = new CounterpartyIsActiveStatusChangedData
                 {
-                    AgentName = $"{master.FirstName} {master.LastName}",
+                    AgentName = master.FullName,
                     CounterpartyName = counterparty.Name,
                     Status = status
                 };
