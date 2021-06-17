@@ -123,7 +123,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId)
         {
             return GetCounterparty(counterpartyId)
-                .Bind(UpdateCounterparty);
+                .BindWithTransaction(_context, c => UpdateCounterparty(c)
+                    .Check(WriteAuditLog));
 
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
@@ -140,6 +141,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return await Get(counterpartyId);
             }
+
+
+            Task<Result> WriteAuditLog(CounterpartyInfo _)
+                => _managementAuditService.Write(ManagementEventType.CounterpartyEdit, new CounterpartyEditEventData(counterpartyId, changedCounterpartyInfo));
         }
 
 
