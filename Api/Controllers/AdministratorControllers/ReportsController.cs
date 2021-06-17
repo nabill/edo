@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("full-bookings-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AllowAnonymous]
+        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
         public async Task<IActionResult> GetFullBookingReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.GetFullBookingsReport(from, end);
