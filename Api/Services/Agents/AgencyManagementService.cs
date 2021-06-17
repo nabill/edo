@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (isFailure)
                     return Result.Failure(error);
 
-                var messageData = new AgencyActivityChangedData
+                var messageData = new AgencyIsActiveStatusChangedData
                 {
                     AgentName = $"{master.FirstName} {master.LastName}",
                     AgencyName = agency.Name,
