@@ -26,5 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public List<BookedRoom> Rooms { get; init; }
         public Suppliers Supplier { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
+        public List<CancellationPolicy> CancellationPolicies { get; init; }
+        public DateTime? CancellationDate { get; init; }
     }
 }

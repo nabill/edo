@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
@@ -19,6 +20,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                let cancellationDate = _context.BookingStatusHistory
+                    .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
+                    .Select(c => c.CreatedAt)
+                    .FirstOrDefault()
                 where
                     booking.CheckOutDate >= fromDate &&
                     booking.CheckOutDate < endDate
@@ -40,7 +45,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     ConvertedAmount = order.ConvertedPrice,
                     ConvertedCurrency = order.ConvertedCurrency,
                     PaymentStatus = booking.PaymentStatus,
-                    Supplier = booking.Supplier
+                    Supplier = booking.Supplier,
+                    CancellationPolicies = booking.CancellationPolicies,
+                    CancellationDate = cancellationDate
                 };
         }
         
