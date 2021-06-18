@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int[]>(
-                name: "Roles",
+                name: "AgentRoleIds",
                 table: "AgentAgencyRelations",
                 type: "integer[]",
                 nullable: true);
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Roles",
+                name: "AgentRoleIds",
                 table: "AgentAgencyRelations");
         }
     }

@@ -15,7 +15,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210618130801_AddAgentRoles")]
+    [Migration("20210618134157_AddAgentRoles")]
     partial class AddAgentRoles
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -251,14 +251,14 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int[]>("AgentRoleIds")
+                        .HasColumnType("integer[]");
+
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
-
-                    b.Property<int[]>("Roles")
-                        .HasColumnType("integer[]");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");

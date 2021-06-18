@@ -249,14 +249,14 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int[]>("AgentRoleIds")
+                        .HasColumnType("integer[]");
+
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
-
-                    b.Property<int[]>("Roles")
-                        .HasColumnType("integer[]");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
