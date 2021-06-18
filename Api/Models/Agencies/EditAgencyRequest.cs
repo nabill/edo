@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct EditAgencyRequest
     {
         [JsonConstructor]
-        public EditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website)
+        public EditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Phone = phone;
             PostalCode = postalCode;
             Website = website;
+            VatNumber = vatNumber;
         }
 
         /// <summary>
@@ -44,5 +45,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// E-mail for billing operations
         /// </summary>
         public string BillingEmail { get; }
+
+        /// <summary>
+        ///     Vat number of an agency
+        /// </summary>
+        public string VatNumber { get; }
     }
 }

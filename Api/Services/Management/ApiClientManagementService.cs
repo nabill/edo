@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Controllers.AdministratorControllers;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -11,16 +13,19 @@ namespace HappyTravel.Edo.Api.Services.Management
 {
     public class ApiClientManagementService : IApiClientManagementService
     {
-        public ApiClientManagementService(EdoContext context)
+        public ApiClientManagementService(EdoContext context,
+            IManagementAuditService managementAuditService)
         {
             _context = context;
+            _managementAuditService = managementAuditService;
         }
 
 
         public Task<Result> Set(int agencyId, int agentId, ApiClientData clientData)
         {
             return Validate()
-                .Bind(SetClient);
+                .BindWithTransaction(_context, () => SetClient()
+                    .Bind(WriteAuditLog));
             
             
             async Task<Result> Validate()
@@ -63,13 +68,19 @@ namespace HappyTravel.Edo.Api.Services.Management
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
+
+
+            Task<Result> WriteAuditLog()
+                => _managementAuditService.Write(ManagementEventType.AgentApiClientCreateOrEdit, new AgentApiClientEventData(agentId, agencyId));
         }
 
 
         public async Task<Result> Delete(int agencyId, int agentId)
         {
             return await GetClient()
-                .Tap(Remove);
+                .BindWithTransaction(_context, c => Result.Success(c)
+                    .Tap(Remove)
+                    .Bind(WriteAuditLog));
 
             async Task<Result<ApiClient>>  GetClient()
             {
@@ -85,9 +96,14 @@ namespace HappyTravel.Edo.Api.Services.Management
                 _context.Remove(client);
                 return _context.SaveChangesAsync();
             }
+
+
+            Task<Result> WriteAuditLog(ApiClient _)
+                => _managementAuditService.Write(ManagementEventType.AgentApiClientDelete, new AgentApiClientEventData(agentId, agencyId));
         }
         
         
         private readonly EdoContext _context;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }

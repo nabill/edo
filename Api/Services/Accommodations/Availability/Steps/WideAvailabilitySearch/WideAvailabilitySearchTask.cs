@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var supplierAccommodationIds = details.Results
-                    .Select(r => new SupplierAccommodationId(supplier, r.Accommodation.Id))
+                    .Select(r => new SupplierAccommodationId(supplier, r.AccommodationId))
                     .Distinct()
                     .ToList();
 
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     {
                         var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Rate.FinalPrice.Amount);
                         var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount);
-                        var accommodationId = new SupplierAccommodationId(supplier, accommodationAvailability.Accommodation.Id);
+                        var accommodationId = new SupplierAccommodationId(supplier, accommodationAvailability.AccommodationId);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
@@ -153,13 +153,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                                 _dateTimeProvider))
                             .ToList();
 
-                        htIdMapping.TryGetValue(accommodationAvailability.Accommodation.Id, out var htId);
+                        htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
                         var mapperAccommodation = accommodations.Single(a => a.HtId == htId);
 
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
-                            mapperAccommodation.ToEdoContract(accommodationAvailability.Accommodation.Id),
+                            mapperAccommodation.ToEdoContract(accommodationAvailability.AccommodationId),
                             roomContractSets,
                             duplicateReportId,
                             minPrice,

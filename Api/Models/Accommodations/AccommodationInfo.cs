@@ -1,6 +1,5 @@
-﻿using HappyTravel.EdoContracts.Accommodations.Internals;
+﻿using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Newtonsoft.Json;
-using System;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {

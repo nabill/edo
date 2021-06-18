@@ -232,8 +232,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
             var roomContractSetWithApr = new RoomContractSet(default, default, deadline, default,
                 default, default, isAdvancePurchaseRate: isApr);
 
-            return new RoomContractSetAvailability(default, checkInDate ?? default,
-                default, default, default, roomContractSetWithApr);
+            return new RoomContractSetAvailability(availabilityId: default,
+                accommodationId: default,
+                checkInDate: checkInDate ?? default,
+                checkOutDate: default,
+                numberOfNights: default, 
+                roomContractSetWithApr);
         }
     }
 }

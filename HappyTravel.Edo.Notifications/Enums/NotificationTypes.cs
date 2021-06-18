@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         ChildAgencyInvitation = 12,
         AgentSuccessfulRegistration = 13,
         ChildAgencySuccessfulRegistration = 14,
-        AgencyManagement = 15,
+        AgencyActivityChanged = 15,
         // Administrator
         AdministratorInvitation = 16,
         MasterAgentSuccessfulRegistration = 17,
@@ -33,6 +33,8 @@ namespace HappyTravel.Edo.Notifications.Enums
         // Other
         BookingSummaryReportForAgent = 24,
         ExternalPaymentLinks = 25,
-        PaymentLinkPaidNotification = 26
+        PaymentLinkPaidNotification = 26,
+        CounterpartyActivityChanged = 27,
+        CounterpartyVerificationChanged = 28
     }
 }

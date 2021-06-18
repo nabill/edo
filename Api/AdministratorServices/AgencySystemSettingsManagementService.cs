@@ -1,5 +1,11 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.Models.Settings;
+using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -8,9 +14,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class AgencySystemSettingsManagementService : IAgencySystemSettingsManagementService
     {
-        public AgencySystemSettingsManagementService(EdoContext context)
+        public AgencySystemSettingsManagementService(EdoContext context,
+            IManagementAuditService managementAuditService)
         {
             _context = context;
+            _managementAuditService = managementAuditService;
         }
 
 
@@ -29,10 +37,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettings settings)
+        public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettingsInfo settings)
         {
             return await CheckAgencyExists(agencyId)
-                .Bind(SetSettings);
+                .BindWithTransaction(_context, () => SetSettings()
+                    .Bind(WriteToAuditLog));
 
 
             async Task<Result> SetSettings()
@@ -46,26 +55,32 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     var newSettings = new AgencySystemSettings
                     {
                         AgencyId = agencyId,
-                        AccommodationBookingSettings = settings
+                        AccommodationBookingSettings = settings.ToAgencyAccommodationBookingSettings()
                     };
                     _context.AgencySystemSettings.Add(newSettings);
                 }
                 else
                 {
-                    existingSettings.AccommodationBookingSettings = settings;
+                    existingSettings.AccommodationBookingSettings = settings.ToAgencyAccommodationBookingSettings();
                     _context.Update(existingSettings);
                 }
 
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
+
+
+            Task<Result> WriteToAuditLog()
+                => _managementAuditService.Write(ManagementEventType.AgencySystemSettingsCreateOrEdit,
+                    new AgencySystemSettingsCreateOrEditEventData(agencyId, settings));
         }
 
 
         public async Task<Result> DeleteAvailabilitySearchSettings(int agencyId)
         {
             return await CheckAgencyExists(agencyId)
-                .Bind(DeleteSettings);
+                .BindWithTransaction(_context, () => DeleteSettings()
+                    .Bind(WriteToAuditLog));
 
 
             async Task<Result> DeleteSettings()
@@ -79,6 +94,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return Result.Success();
             }
+
+
+            Task<Result> WriteToAuditLog()
+                => _managementAuditService.Write(ManagementEventType.AgencySystemSettingsDelete,
+                    new AgencySystemSettingsDeleteEventData(agencyId));
         }
 
 
@@ -93,5 +113,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly EdoContext _context;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }

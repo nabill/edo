@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -16,18 +15,25 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Notifications.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context,
-            IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+        public CounterpartyManagementService(EdoContext context, IManagementAuditService managementAuditService, 
+            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailingOptions, 
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
+            _notificationService = notificationService;
+            _mailingOptions = mailingOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -96,10 +102,29 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             .ToListAsync();
 
 
+        public async Task<Result<MasterAgentContext>> GetRootAgencyMasterAgent(int counterpartyId)
+        {
+            var rootAgency = await _context.Agencies
+                .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
+            
+            var master = await(from agent in _context.Agents
+                join relation in _context.AgentAgencyRelations on agent.Id equals relation.AgentId
+                where relation.AgencyId == rootAgency.Id && relation.Type == AgentAgencyRelationTypes.Master
+                select new MasterAgentContext { AgentId = agent.Id, FirstName = agent.FirstName, LastName = agent.LastName, Email = agent.Email, 
+                    AgencyId = relation.AgencyId})
+                .FirstOrDefaultAsync();
+
+            return (master is null)
+                ? Result.Failure<MasterAgentContext>($"Master agent in root agency {rootAgency.Name} does not exist")
+                : master;
+        }
+
+
         public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId)
         {
             return GetCounterparty(counterpartyId)
-                .Bind(UpdateCounterparty);
+                .BindWithTransaction(_context, c => UpdateCounterparty(c)
+                    .Check(WriteAuditLog));
 
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
@@ -116,6 +141,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return await Get(counterpartyId);
             }
+
+
+            Task<Result> WriteAuditLog(CounterpartyInfo _)
+                => _managementAuditService.Write(ManagementEventType.CounterpartyEdit, new CounterpartyEditEventData(counterpartyId, changedCounterpartyInfo));
         }
 
 
@@ -153,7 +182,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Task.FromResult(Result.Success());
 
             return ChangeCounterpartyActivityStatus()
-                .Tap(ChangeCounterpartyAccountsActivityStatus);
+                .Tap(ChangeCounterpartyAccountsActivityStatus)
+                .Bind(SendNotificationToMaster);
 
 
             async Task<Result> ChangeCounterpartyActivityStatus()
@@ -178,6 +208,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 _context.UpdateRange(counterpartyAccounts);
                 await _context.SaveChangesAsync();
+            }
+
+
+            async Task<Result> SendNotificationToMaster()
+            {
+                var (_, isFailure, master, error) = await GetRootAgencyMasterAgent(counterparty.Id);
+                if (isFailure)
+                    return Result.Failure(error);
+
+                var messageData = new CounterpartyIsActiveStatusChangedData
+                {
+                    AgentName = master.FullName,
+                    CounterpartyName = counterparty.Name,
+                    Status = status
+                };
+
+                return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),
+                    messageData: messageData,
+                    notificationType: NotificationTypes.CounterpartyActivityChanged,
+                    email: master.Email,
+                    templateId: _mailingOptions.CounterpartyActivityChangedTemplateId);
             }
         }
 
@@ -206,8 +257,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
         
-        private readonly IManagementAuditService _managementAuditService;
-        private readonly IDateTimeProvider _dateTimeProvider;
+
         private readonly EdoContext _context;
+        private readonly IManagementAuditService _managementAuditService;
+        private readonly INotificationService _notificationService;
+        private readonly CounterpartyManagementMailingOptions _mailingOptions;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

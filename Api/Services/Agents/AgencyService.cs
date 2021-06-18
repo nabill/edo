@@ -71,6 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.PostalCode = editAgencyRequest.PostalCode;
                 agencyRecord.Website = editAgencyRequest.Website;
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
+                agencyRecord.VatNumber = editAgencyRequest.VatNumber;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 
