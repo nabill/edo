@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(AddMoneyToCounterparty)
                         .Map(WriteAuditLog)))
-                .Tap(SendMailNotification);
+                .Tap(SendNotification);
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            Task SendMailNotification(CounterpartyAccount account)
+            Task SendNotification(CounterpartyAccount account)
                 => _counterpartyBillingNotificationService.NotifyAdded(account.CounterpartyId, paymentData);
         }
 
