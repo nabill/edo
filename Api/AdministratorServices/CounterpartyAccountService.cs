@@ -93,15 +93,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SubtractMoney(int counterpartyAccountId, PaymentCancellationData data, ApiCaller apiCaller)
+        public async Task<Result> SubtractMoney(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(SubtractMoney)
                         .Map(WriteAuditLog)));
+
+            bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(data.Reason);
 
             bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
 
