@@ -5,8 +5,7 @@ namespace HappyTravel.Edo.Data.Agents
     public class AgentAgencyRelation
     {
         public int AgentId { get; set; }
-        public Role Role { get; set; }
-        public int RoleId { get; set; }
+        public int[] Roles { get; set; }
         public InAgencyPermissions InAgencyPermissions { get; set; }
         public int AgencyId { get; set; }
         public AgentAgencyRelationTypes Type { get; set; }

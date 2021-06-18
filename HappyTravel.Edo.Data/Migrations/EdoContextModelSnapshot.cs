@@ -255,15 +255,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                    b.Property<int[]>("Roles")
+                        .HasColumnType("integer[]");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("AgentId", "AgencyId");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("AgentAgencyRelations");
                 });
@@ -363,24 +361,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Counterparties");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Permissions")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
@@ -1527,17 +1507,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentAgencyRelation", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Agents.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
                 });
 #pragma warning restore 612, 618
         }
