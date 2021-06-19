@@ -2155,6 +2155,11 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.VatNumber">
+            <summary>
+                Vat number of an agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
             <summary>
             Account id
