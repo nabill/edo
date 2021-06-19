@@ -16,5 +16,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> Add(int agencyId, CreateDiscountRequest discountInfo);
 
         Task<Result> Update(int agencyId, int discountId, EditDiscountRequest editDiscountRequest);
+
+        Task<Result> Delete(int agencyId, int discountId);
     }
 }

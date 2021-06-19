@@ -141,6 +141,37 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public async Task<Result> Delete(int agencyId, int discountId)
+        {
+            return await Get(agencyId, discountId)
+                .BindWithTransaction(_context, discount => Result.Success(discount)
+                    .Tap(Delete)
+                    .Check(WriteAuditLog));
+
+
+            async Task Delete(Discount discount)
+            {
+                _context.Remove(discount);
+                await _context.SaveChangesAsync();
+            }
+
+
+            Task<Result> WriteAuditLog(Discount discount)
+                => _managementAuditService.Write(ManagementEventType.DiscountDelete, new DiscountDeleteEventData(agencyId, GetDiscountInfo(discount)));
+
+
+            static DiscountInfo GetDiscountInfo(Discount discount)
+                => new DiscountInfo
+                {
+                    Id = discount.Id,
+                    IsActive = discount.IsActive,
+                    Description = discount.Description,
+                    DiscountPercent = discount.DiscountPercent,
+                    TargetMarkupId = discount.TargetPolicyId
+                };
+        }
+
+
         private async Task<Result<Discount>> Get(int agencyId, int discountId)
             => await _context.Discounts.SingleOrDefaultAsync(d => d.Id == discountId && d.TargetAgencyId == agencyId) ??
                 Result.Failure<Discount>($"Could not find discount with id {discountId}");
