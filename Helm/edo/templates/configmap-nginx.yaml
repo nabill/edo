@@ -18,6 +18,10 @@ data:
     http {
         include       /etc/nginx/mime.types;
         default_type  application/octet-stream;
+        limit_req_zone $binary_remote_addr zone=backend:10m rate=50r/s;
+        limit_req_zone $binary_remote_addr zone=health:10m rate=1r/s;
+        limit_req_log_level info;
+        limit_req_status 429;
 
         map $upstream_response_time $temprt {
           default $upstream_response_time;
@@ -30,7 +34,7 @@ data:
         }
 
         log_format json escape=json '{ "server_protocol": "$server_protocol", '
-            '"proxy": "nginx-edo-api", '
+            '"proxy": "nginx-{{ .Chart.Name }}", '
             '"upstream_connect_time":"$upstream_connect_time", '
             '"@timestamp": "$time_iso8601", '
             '"response_time": $temprt, '
@@ -55,6 +59,11 @@ data:
 
         real_ip_header X-Forwarded-For;
         set_real_ip_from 0.0.0.0/0;
+        proxy_set_header Host               $host;
+        proxy_set_header X-Real-IP          $remote_addr;
+        proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+        proxy_set_header Refrerer           $http_referer;
+        proxy_set_header User-Agent         $http_user_agent;
 
         access_log /dev/stdout json;
         error_log  /dev/stderr warn;
@@ -69,22 +78,36 @@ data:
         send_timeout 5;
         client_max_body_size  10m;
 
-        upstream edo {
+        upstream {{ .Chart.Name }} {
             server localhost:80;
         }
 
         server {
             listen       8080;
             server_name  localhost;
-
             location / {
-               proxy_pass http://{{ .Chart.Name }};
+                limit_req zone=backend burst=20 nodelay;
+                proxy_pass http://{{ .Chart.Name }};
+            }
+
+            location = /metrics {
+                limit_req zone=health;
+                allow 157.90.123.59; # Prometheus
+                deny  all;
+                proxy_pass http://{{ .Chart.Name }}/metrics;
             }
 
             location = /health {
                 add_header Content-Type text/plain;
+                limit_req zone=health;
+                stub_status on;
+                allow 127.0.0.1;
+                allow 10.0.0.0/8;
+                allow 192.168.0.0/16;
+                allow 172.16.0.0/12;
+                allow 157.90.123.59; # Prometheus
+                deny  all;
                 access_log off;
-                return 200 "healthy\n";
             }
         }
     }
