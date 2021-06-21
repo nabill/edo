@@ -33,47 +33,85 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task NotifyAdded(int counterpartyId, PaymentData paymentData)
         {
-            return GetEmailAndAgent()
-                .Bind(SendNotification)
+            return GetEmailAndAgent(counterpartyId)
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
                 .OnFailure(LogNotificationFailure);
 
 
-            async Task<Result<(string, SlimAgentContext)>> GetEmailAndAgent()
-            {
-                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyId);
-
-                var (_, isFailure, agent, error) = await _agentService.GetMasterAgent(rootAgency.Id);
-                if (isFailure)
-                    return Result.Failure<(string, SlimAgentContext)>(error);
-
-                var slimAgent = new SlimAgentContext(agent.Id, rootAgency.Id);
-
-                var email = string.IsNullOrWhiteSpace(rootAgency.BillingEmail)
-                    ? agent.Email
-                    : rootAgency.BillingEmail;
-
-                return (email, slimAgent);
-            }
+            void LogNotificationFailure(string error) => _logger.LogCounterpartyAccountAddedNotificationFailure(error);
+        }
 
 
-            async Task<Result> SendNotification((string, SlimAgentContext) receiver)
-            {
-                var payload = new CounterpartyAccountAddedNotificationData
-                {
-                    Amount = MoneyFormatter.ToCurrencyString(paymentData.Amount, paymentData.Currency)
-                };
-
-                var (email, agent) = receiver;
-
-                return await _notificationService.Send(agent: agent,
-                    messageData: payload,
-                    notificationType: NotificationTypes.AccountBalanceReplenished,
-                    email: email,
-                    templateId: _options.CounterpartyAccountAddedTemplateId);
-            }
+        public Task NotifySubtracted(int counterpartyId, PaymentData paymentData)
+        {
+            return GetEmailAndAgent(counterpartyId)
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .OnFailure(LogNotificationFailure);
 
 
             void LogNotificationFailure(string error) => _logger.LogCounterpartyAccountAddedNotificationFailure(error);
+        }
+
+
+        public Task NotifyIncreasedManually(int counterpartyId, PaymentData paymentData)
+        {
+            return GetEmailAndAgent(counterpartyId)
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .OnFailure(LogNotificationFailure);
+
+
+            void LogNotificationFailure(string error) => _logger.LogCounterpartyAccountAddedNotificationFailure(error);
+        }
+
+
+        public Task NotifyDecreasedManually(int counterpartyId, PaymentData paymentData)
+        {
+            return GetEmailAndAgent(counterpartyId)
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .OnFailure(LogNotificationFailure);
+
+
+            void LogNotificationFailure(string error) => _logger.LogCounterpartyAccountAddedNotificationFailure(error);
+        }
+
+
+        private async Task<Result<(string, SlimAgentContext)>> GetEmailAndAgent(int counterpartyId)
+        {
+            var rootAgency = await _counterpartyService.GetRootAgency(counterpartyId);
+
+            var (_, isFailure, agent, error) = await _agentService.GetMasterAgent(rootAgency.Id);
+            if (isFailure)
+                return Result.Failure<(string, SlimAgentContext)>(error);
+
+            var slimAgent = new SlimAgentContext(agent.Id, rootAgency.Id);
+
+            var email = string.IsNullOrWhiteSpace(rootAgency.BillingEmail)
+                ? agent.Email
+                : rootAgency.BillingEmail;
+
+            return (email, slimAgent);
+        }
+
+
+        private async Task<Result> SendNotification((string, SlimAgentContext) receiver, PaymentData paymentData, NotificationTypes notificationType)
+        {
+            var payload = new CounterpartyAccountAddedNotificationData
+            {
+                Amount = MoneyFormatter.ToCurrencyString(paymentData.Amount, paymentData.Currency)
+            };
+            var (email, agent) = receiver;
+            string templateId = notificationType switch
+            {
+                NotificationTypes.AccountBalanceReplenished => _options.CounterpartyAccountAddedTemplateId,
+
+                _ => throw new System.NotImplementedException()
+            };
+
+            return await _notificationService.Send(agent: agent,
+                messageData: payload,
+                notificationType: notificationType,
+                email: email,
+                templateId: templateId);
         }
 
 

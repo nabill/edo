@@ -88,7 +88,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(SubtractMoney)
-                        .Map(WriteAuditLog)));
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> SubtractMoney(CounterpartyAccount account)
@@ -102,6 +103,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
                 => await WriteLog(account, data, AccountEventType.CounterpartySubtract, apiCaller);
+
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifySubtracted(account.CounterpartyId, data);
         }
 
 
@@ -195,7 +200,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(Decrease)
-                        .Map(WriteAuditLog)));
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> Decrease(CounterpartyAccount account)
@@ -209,8 +215,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
                 => await WriteLog(account, data, AccountEventType.ManualDecrease, apiCaller);
-        }
 
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyDecreasedManually(account.CounterpartyId, data);
+        }
 
 
         public async Task<List<CounterpartyAccountInfo>> Get(int counterpartyId)
@@ -248,7 +257,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(Increase)
-                        .Map(WriteAuditLog)));
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> Increase(CounterpartyAccount account)
@@ -262,6 +272,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
                 => await WriteLog(account, data, AccountEventType.ManualIncrease, apiCaller);
+
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyIncreasedManually(account.CounterpartyId, data);
+
         }
 
 
