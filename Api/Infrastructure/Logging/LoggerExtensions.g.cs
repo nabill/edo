@@ -266,11 +266,22 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             ChildAgencyRegistrationNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1703, "ChildAgencyRegistrationNotificationFailure"),
                 $"ERROR | InvitationService: {{message}}");
-            
+
+            CounterpartyAccountSubtractedNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1704, "CounterpartyAccountSubtractedNotificationFailure"),
+                $"ERROR | CounterpartyBillingNotificationService: {{message}}");
+
+            CounterpartyAccountIncreasedManuallyNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1705, "CounterpartyAccountIncreasedManuallyNotificationFailure"),
+                $"ERROR | CounterpartyBillingNotificationService: {{message}}");
+
+            CounterpartyAccountDecreasedManuallyNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1706, "CounterpartyAccountDecreasedManuallyNotificationFailure"),
+                $"ERROR | CounterpartyBillingNotificationService: {{message}}");
         }
-    
-                
-         public static void LogGeoCoderException(this ILogger logger, Exception exception)
+
+
+        public static void LogGeoCoderException(this ILogger logger, Exception exception)
             => GeoCoderExceptionOccured(logger, exception);
                 
          public static void LogInvitationCreated(this ILogger logger, string message)
@@ -458,15 +469,24 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, string message)
             => CounterpartyAccountAddedNotificationFailureOccured(logger, message, null);
-                
-         public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string message)
+
+        public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string message)
             => AgentRegistrationNotificationFailureOccured(logger, message, null);
                 
          public static void LogChildAgencyRegistrationNotificationFailure(this ILogger logger, string message)
             => ChildAgencyRegistrationNotificationFailureOccured(logger, message, null);
-    
-    
-        
+
+        public static void LogCounterpartyAccountSubtractedNotificationFailure(this ILogger logger, string message)
+            => CounterpartyAccountSubtractedNotificationFailureOccured(logger, message, null);
+
+        public static void LogCounterpartyAccountIncreasedManuallyNotificationFailure(this ILogger logger, string message)
+           => CounterpartyAccountIncreasedManuallyNotificationFailureOccured(logger, message, null);
+
+        public static void LogCounterpartyAccountDecreasedManuallyNotificationFailure(this ILogger logger, string message)
+           => CounterpartyAccountDecreasedManuallyNotificationFailureOccured(logger, message, null);
+
+
+
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> InvitationCreatedOccured;
@@ -592,9 +612,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> MapperClientExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> CounterpartyAccountAddedNotificationFailureOccured;
-        
+
         private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> ChildAgencyRegistrationNotificationFailureOccured;
+
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountSubtractedNotificationFailureOccured;
+
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountIncreasedManuallyNotificationFailureOccured;
+
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountDecreasedManuallyNotificationFailureOccured;
     }
 }
