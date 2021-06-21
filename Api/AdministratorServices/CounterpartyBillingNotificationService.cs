@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task NotifyAdded(int counterpartyId, PaymentData paymentData)
         {
             return GetEmailAndAgent(counterpartyId)
-                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.CounterpartyAccountBalanceReplenished))
                 .OnFailure(LogNotificationFailure);
 
 
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task NotifySubtracted(int counterpartyId, PaymentData paymentData)
         {
             return GetEmailAndAgent(counterpartyId)
-                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.CounterpartyAccountBalanceSubtracted))
                 .OnFailure(LogNotificationFailure);
 
 
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task NotifyIncreasedManually(int counterpartyId, PaymentData paymentData)
         {
             return GetEmailAndAgent(counterpartyId)
-                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.CounterpartyAccountBalanceIncreasedManually))
                 .OnFailure(LogNotificationFailure);
 
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task NotifyDecreasedManually(int counterpartyId, PaymentData paymentData)
         {
             return GetEmailAndAgent(counterpartyId)
-                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.AccountBalanceReplenished))
+                .Bind(receiver => SendNotification(receiver, paymentData, NotificationTypes.CounterpartyAccountBalanceDecreasedManually))
                 .OnFailure(LogNotificationFailure);
 
 
@@ -102,9 +102,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var (email, agent) = receiver;
             string templateId = notificationType switch
             {
-                NotificationTypes.AccountBalanceReplenished => _options.CounterpartyAccountAddedTemplateId,
-
-                _ => throw new System.NotImplementedException()
+                NotificationTypes.CounterpartyAccountBalanceReplenished => _options.CounterpartyAccountAddedTemplateId,
+                NotificationTypes.CounterpartyAccountBalanceSubtracted => _options.CounterpartyAccountSubtractedTemplateId,
+                NotificationTypes.CounterpartyAccountBalanceIncreasedManually => _options.CounterpartyAccountIncreasedManuallyTemplateId,
+                NotificationTypes.CounterpartyAccountBalanceDecreasedManually => _options.CounterpartyAccountDecreasedManuallyTemplateId,
+                _ => throw new NotImplementedException()
             };
 
             return await _notificationService.Send(agent: agent,

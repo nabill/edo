@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
             var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
-            
+
 
             var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
@@ -281,6 +281,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
                 options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
+            });
+
+            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
+            var counterpartyAccountSubtractedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountSubtractedTemplateId"]];
+            var counterpartyAccountIncreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountIncreasedManuallyTemplateId"]];
+            var counterpartyAccountDecreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountDecreasedManuallyTemplateId"]];
+            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
+            { 
+                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId;
+                options.CounterpartyAccountSubtractedTemplateId = counterpartyAccountSubtractedTemplateId;
+                options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
+                options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
             });
             #endregion
 
@@ -512,11 +524,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
-            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
-
-            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
-                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId);
-
             return services;
         }
 
@@ -744,7 +751,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<SupplierWiseRecordProjection>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
-            services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
