@@ -71,17 +71,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.CounterpartyAdd,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
-
-                return account;
-            }
+                => await WriteLog(account, data, AccountEventType.CounterpartyAdd, apiCaller);
 
 
             Task SendNotification(CounterpartyAccount account)
@@ -111,17 +101,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(null, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.CounterpartySubtract,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
-
-                return account;
-            }
+                => await WriteLog(account, data, AccountEventType.CounterpartySubtract, apiCaller);
         }
 
 
@@ -228,18 +208,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualDecrease,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
-
-                return account;
-            }
+                => await WriteLog(account, data, AccountEventType.ManualDecrease, apiCaller);
         }
+
 
 
         public async Task<List<CounterpartyAccountInfo>> Get(int counterpartyId)
@@ -290,17 +261,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualIncrease,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
-
-                return account;
-            }
+                => await WriteLog(account, data, AccountEventType.ManualIncrease, apiCaller);
         }
 
 
@@ -364,6 +325,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private static bool IsAmountPositive(CounterpartyAccount account, PaymentData data) => data.Amount.IsGreaterThan(decimal.Zero);
+
+
+        private async Task<CounterpartyAccount> WriteLog(CounterpartyAccount account, PaymentData data, AccountEventType eventType, ApiCaller apiCaller)
+        {
+            var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
+            await _accountBalanceAuditService.Write(eventType,
+                account.Id,
+                data.Amount,
+                apiCaller,
+                eventData,
+                null);
+
+            return account;
+        }
 
 
         private readonly IManagementAuditService _managementAuditService;
