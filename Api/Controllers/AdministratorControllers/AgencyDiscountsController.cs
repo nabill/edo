@@ -118,6 +118,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///     Deletes discount settings.
+        /// </summary>
+        /// <param name="agencyId">Agency id</param>
+        /// <param name="discountId">Id of the discount.</param>
+        /// <returns></returns>
+        [HttpDelete("{discountId:int}")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId)
+        {
+            var (_, isFailure, error) = await _discountManagementService.Delete(agencyId, discountId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
         private readonly IAgencyDiscountManagementService _discountManagementService;
     }
 }
