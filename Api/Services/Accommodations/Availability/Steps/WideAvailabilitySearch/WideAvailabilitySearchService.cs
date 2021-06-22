@@ -55,10 +55,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(error);
 
-            
-            
-            _logger.LogInformation("Some message for agent {AgentEmail}", agent.Email);
-
             _analyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
