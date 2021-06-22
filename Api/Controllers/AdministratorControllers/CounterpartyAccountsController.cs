@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
-        public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
+        public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData cancellationData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             var (isSuccess, _, error) = await _counterpartyAccountService.SubtractMoney(counterpartyAccountId,

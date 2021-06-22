@@ -77,6 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> Remove(int policyId)
         {
             var (_, isFailure, markupPolicy, error) = await GetPolicy()
+                .Ensure(HasNoDiscounts, "Markup policy has bound discounts")
                 .Map(DeletePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
 
@@ -85,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return await UpdateDisplayedMarkupFormula(markupPolicy);
 
+
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
                 var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
@@ -92,6 +94,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     ? Result.Failure<MarkupPolicy>("Could not find policy")
                     : Result.Success(policy);
             }
+
+
+            async Task<bool> HasNoDiscounts(MarkupPolicy policy)
+                => !await _context.Discounts.AnyAsync(d => d.TargetPolicyId == policy.Id);
 
 
             async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)

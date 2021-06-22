@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             // Accounts
             [NotificationTypes.CreditCardPaymentReceived] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
-            [NotificationTypes.AccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
+            [NotificationTypes.CounterpartyAccountBalanceReplenished] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
             // Counterparty
             [NotificationTypes.AgentInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
@@ -68,7 +68,8 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.ChildAgencySuccessfulRegistration] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false, 
                 EnabledReceivers = ReceiverTypes.AgentApp },
-            [NotificationTypes.AgencyManagement] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = false }, // TODO: Will be used in the task AA-303
+            [NotificationTypes.AgencyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket, IsMandatory = true, 
+                EnabledReceivers = ReceiverTypes.AgentApp },
             // Administrator
             [NotificationTypes.AdministratorInvitation] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
                 EnabledReceivers = ReceiverTypes.AdminPanel },
@@ -92,7 +93,17 @@ namespace HappyTravel.Edo.Notifications.Infrastructure
             [NotificationTypes.ExternalPaymentLinks] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true,
                 EnabledReceivers = ReceiverTypes.AgentApp },
             [NotificationTypes.PaymentLinkPaidNotification] = new() { EnabledProtocols = ProtocolTypes.Email, IsMandatory = true, 
-                EnabledReceivers = ReceiverTypes.AgentApp }
+                EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyActivityChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket,
+                IsMandatory = true, EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyVerificationChanged] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket,
+                IsMandatory = true, EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyAccountBalanceSubtracted] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket,
+                IsMandatory = false, EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyAccountBalanceIncreasedManually] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket,
+                IsMandatory = false, EnabledReceivers = ReceiverTypes.AgentApp },
+            [NotificationTypes.CounterpartyAccountBalanceDecreasedManually] = new() { EnabledProtocols = ProtocolTypes.Email | ProtocolTypes.WebSocket,
+                IsMandatory = false, EnabledReceivers = ReceiverTypes.AgentApp }
         };
     }
 }

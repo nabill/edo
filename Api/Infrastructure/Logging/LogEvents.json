@@ -63,5 +63,8 @@
     {"id": 1601, "name": "MapperClientException", "level": "Error", "source": "AccommodationMapperClient", "isException": true},
     {"id": 1701, "name": "CounterpartyAccountAddedNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false},
     {"id": 1702, "name": "AgentRegistrationNotificationFailure", "level": "Error", "source": "InvitationService", "isException": false},
-    {"id": 1703, "name": "ChildAgencyRegistrationNotificationFailure", "level": "Error", "source": "InvitationService", "isException": false}
+    {"id": 1703, "name": "ChildAgencyRegistrationNotificationFailure", "level": "Error", "source": "InvitationService", "isException": false},
+    {"id": 1704, "name": "CounterpartyAccountSubtractedNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false},
+    {"id": 1705, "name": "CounterpartyAccountIncreasedManuallyNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false},
+    {"id": 1706, "name": "CounterpartyAccountDecreasedManuallyNotificationFailure", "level": "Error", "source": "CounterpartyBillingNotificationService", "isException": false}
 ]

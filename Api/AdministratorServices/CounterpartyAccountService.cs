@@ -48,26 +48,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> AddMoney(int counterpartyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+        public async Task<Result> AddMoney(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
+                .Ensure(a => IsReasonProvided(a, data), "Payment reason cannot be empty")
+                .Ensure(a => IsAmountPositive(a, data), "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
-                    .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(AddMoneyToCounterparty)
                         .Map(WriteAuditLog)))
-                .Tap(SendMailNotification);
-
-            bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
-
-            bool IsAmountPositive(CounterpartyAccount account) => paymentData.Amount.IsGreaterThan(decimal.Zero);
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> AddMoneyToCounterparty(CounterpartyAccount account)
             {
-                account.Balance += paymentData.Amount;
+                account.Balance += data.Amount;
                 _context.Update(account);
                 await _context.SaveChangesAsync();
                 return account;
@@ -75,35 +71,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.CounterpartyAdd,
-                    account.Id,
-                    paymentData.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
-
-                return account;
-            }
+                => await WriteLog(account, data, AccountEventType.CounterpartyAdd, apiCaller);
 
 
-            Task SendMailNotification(CounterpartyAccount account)
-                => _counterpartyBillingNotificationService.NotifyAdded(account.CounterpartyId, paymentData);
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyAdded(account.CounterpartyId, data);
         }
 
 
-        public async Task<Result> SubtractMoney(int counterpartyAccountId, PaymentCancellationData data, ApiCaller apiCaller)
+        public async Task<Result> SubtractMoney(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
-                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
+                .Ensure(a => IsReasonProvided(a, data), "Payment reason cannot be empty")
+                .Ensure(a => IsAmountPositive(a, data), "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(SubtractMoney)
-                        .Map(WriteAuditLog)));
-
-            bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> SubtractMoney(CounterpartyAccount account)
@@ -116,17 +102,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(null, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.CounterpartySubtract,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
+                => await WriteLog(account, data, AccountEventType.CounterpartySubtract, apiCaller);
 
-                return account;
-            }
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifySubtracted(account.CounterpartyId, data);
         }
 
 
@@ -215,16 +195,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
-                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
+                .Ensure(a => IsReasonProvided(a, data), "Payment reason cannot be empty")
+                .Ensure(a => IsAmountPositive(a, data), "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(Decrease)
-                        .Map(WriteAuditLog)));
-
-            bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(data.Reason);
-
-            bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> Decrease(CounterpartyAccount account)
@@ -237,17 +214,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualDecrease,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
+                => await WriteLog(account, data, AccountEventType.ManualDecrease, apiCaller);
 
-                return account;
-            }
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyDecreasedManually(account.CounterpartyId, data);
         }
 
 
@@ -281,16 +252,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
-                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsReasonProvided(a, data), "Payment reason cannot be empty")
+                .Ensure(a => IsAmountPositive(a, data), "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
-                    .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(Increase)
-                        .Map(WriteAuditLog)));
-
-            bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(data.Reason);
-
-            bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
+                        .Map(WriteAuditLog)))
+                .Tap(SendNotification);
 
 
             async Task<CounterpartyAccount> Increase(CounterpartyAccount account)
@@ -303,17 +271,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
-            {
-                var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualIncrease,
-                    account.Id,
-                    data.Amount,
-                    apiCaller,
-                    eventData,
-                    null);
+                => await WriteLog(account, data, AccountEventType.ManualIncrease, apiCaller);
 
-                return account;
-            }
+
+            Task SendNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyIncreasedManually(account.CounterpartyId, data);
+
         }
 
 
@@ -367,13 +330,30 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+        private static bool AreCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
 
-        private bool AreCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
+        private static bool AreCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
 
 
-        private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentCancellationData data) => account.Currency == data.Currency;
+        private static bool IsReasonProvided(CounterpartyAccount account, PaymentData data) => !string.IsNullOrEmpty(data.Reason);
+
+
+        private static bool IsAmountPositive(CounterpartyAccount account, PaymentData data) => data.Amount.IsGreaterThan(decimal.Zero);
+
+
+        private async Task<CounterpartyAccount> WriteLog(CounterpartyAccount account, PaymentData data, AccountEventType eventType, ApiCaller apiCaller)
+        {
+            var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
+            await _accountBalanceAuditService.Write(eventType,
+                account.Id,
+                data.Amount,
+                apiCaller,
+                eventData,
+                null);
+
+            return account;
+        }
 
 
         private readonly IManagementAuditService _managementAuditService;

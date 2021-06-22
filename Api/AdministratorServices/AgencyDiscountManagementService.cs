@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -13,9 +17,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class AgencyDiscountManagementService : IAgencyDiscountManagementService
     {
-        public AgencyDiscountManagementService(EdoContext context)
+        public AgencyDiscountManagementService(EdoContext context,
+            IManagementAuditService managementAuditService)
         {
             _context = context;
+            _managementAuditService = managementAuditService;
         }
 
 
@@ -38,12 +44,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Start(int agencyId, int discountId) 
-            => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = true));
+        public Task<Result> Start(int agencyId, int discountId)
+            => ChangeActivityState(agencyId, discountId, true);
 
 
-        public async Task<Result> Stop(int agencyId, int discountId) 
-            => await Get(agencyId, discountId).Map(d => Update(d, discount => discount.IsActive = false));
+        public Task<Result> Stop(int agencyId, int discountId)
+            => ChangeActivityState(agencyId, discountId, false);
 
 
         public Task<Result> Add(int agencyId, CreateDiscountRequest createDiscountRequest)
@@ -51,7 +57,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return ValidatePercent(createDiscountRequest.DiscountPercent)
                 .Bind(ValidateTargetMarkup)
                 .Bind(ValidateAgency)
-                .Tap(UpdateDiscount);
+                .BindWithTransaction(_context, () => Result.Success()
+                    .Tap(UpdateDiscount)
+                    .Bind(WriteAuditLog));
 
 
             async Task<Result> ValidateTargetMarkup()
@@ -87,6 +95,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 });
                 return _context.SaveChangesAsync();
             }
+
+
+            Task<Result> WriteAuditLog()
+                => _managementAuditService.Write(ManagementEventType.DiscountCreate, new DiscountCreateEventData(agencyId, createDiscountRequest));
         }
 
 
@@ -94,11 +106,69 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await Get(agencyId, discountId)
                 .Check(_ => ValidatePercent(editDiscountRequest.DiscountPercent))
-                .Map(d => Update(d, discount =>
+                .BindWithTransaction(_context, discount => Result.Success(discount)
+                    .Tap(Update)
+                    .Bind(WriteAuditLog));
+
+
+            Task Update(Discount discount)
+                => this.Update(discount, d =>
                 {
-                    discount.DiscountPercent = editDiscountRequest.DiscountPercent;
-                    discount.Description = editDiscountRequest.Description;
-                }));
+                    d.DiscountPercent = editDiscountRequest.DiscountPercent;
+                    d.Description = editDiscountRequest.Description;
+                });
+
+
+            Task<Result> WriteAuditLog(Discount _)
+                => _managementAuditService.Write(ManagementEventType.DiscountEdit, new DiscountEditEventData(agencyId, editDiscountRequest));
+        }
+
+
+        public async Task<Result> ChangeActivityState(int agencyId, int discountId, bool newActivityState)
+        {
+            return await Get(agencyId, discountId)
+                .BindWithTransaction(_context, discount => Result.Success(discount)
+                    .Tap(Update)
+                    .Check(WriteAuditLog));
+
+
+            Task Update(Discount discount)
+                => this.Update(discount, d => d.IsActive = newActivityState);
+
+
+            Task<Result> WriteAuditLog(Discount _)
+                => _managementAuditService.Write(ManagementEventType.DiscountEdit, new DiscountActivityStateEventData(agencyId, newActivityState));
+        }
+
+
+        public async Task<Result> Delete(int agencyId, int discountId)
+        {
+            return await Get(agencyId, discountId)
+                .BindWithTransaction(_context, discount => Result.Success(discount)
+                    .Tap(Delete)
+                    .Check(WriteAuditLog));
+
+
+            async Task Delete(Discount discount)
+            {
+                _context.Remove(discount);
+                await _context.SaveChangesAsync();
+            }
+
+
+            Task<Result> WriteAuditLog(Discount discount)
+                => _managementAuditService.Write(ManagementEventType.DiscountDelete, new DiscountDeleteEventData(agencyId, GetDiscountInfo(discount)));
+
+
+            static DiscountInfo GetDiscountInfo(Discount discount)
+                => new DiscountInfo
+                {
+                    Id = discount.Id,
+                    IsActive = discount.IsActive,
+                    Description = discount.Description,
+                    DiscountPercent = discount.DiscountPercent,
+                    TargetMarkupId = discount.TargetPolicyId
+                };
         }
 
 
@@ -124,5 +194,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private const decimal MaxDiscountPercent = 5;
         
         private readonly EdoContext _context;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }

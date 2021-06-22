@@ -249,6 +249,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
+                    b.Property<int[]>("AgentRoleIds")
+                        .HasColumnType("integer[]");
+
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
@@ -261,6 +264,24 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "AgencyId");
 
                     b.ToTable("AgentAgencyRelations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Permissions")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AgentRoles");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentSystemSettings", b =>
