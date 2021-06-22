@@ -386,6 +386,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:TravelgateXTest"]
                     : supplierOptions["travelgateXTest"];
                 
+                options.Darina = environment.IsLocal()
+                    ? configuration["Suppliers:Darina"]
+                    : supplierOptions["darina"];
+                
                 options.Jumeirah = environment.IsLocal()
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
