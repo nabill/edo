@@ -43,8 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettingsInfo settings, [FromRoute] int agentId,
             [FromRoute] int agencyId)
         {
-            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId,
-                settings.ToAgentAccommodationBookingSettings());
+            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {

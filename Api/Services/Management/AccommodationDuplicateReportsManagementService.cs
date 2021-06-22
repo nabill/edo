@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,24 +42,26 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public async Task<Result<AccommodationDuplicateReportInfo>> Get(int reportId, string languageCode)
         {
-            var report = await _context.AccommodationDuplicateReports.SingleOrDefaultAsync(r => r.Id == reportId);
-            if (report == default)
-                return Result.Failure<AccommodationDuplicateReportInfo>("Could not find a report");
-
-            var accommodations = new List<SupplierData<Accommodation>>(report.Accommodations.Count);
-            foreach (var supplierAccommodationId in report.Accommodations)
-            {
-                var (_, isFailure, accommodationDetails, result) = await _supplierConnectorManager
-                    .Get(supplierAccommodationId.Supplier)
-                    .GetAccommodation(supplierAccommodationId.Id, languageCode);
-                
-                if (isFailure)
-                    return Result.Failure<AccommodationDuplicateReportInfo>($"Could not find accommodation: {result.Detail}");
-                
-                accommodations.Add(SupplierData.Create(supplierAccommodationId.Supplier, accommodationDetails));
-            }
-            
-            return new AccommodationDuplicateReportInfo(report.Id, report.Created, report.ApprovalState, accommodations);
+            // TODO: Fix the issue https://github.com/happy-travel/agent-app-project/issues/319
+            throw new NotImplementedException();
+            // var report = await _context.AccommodationDuplicateReports.SingleOrDefaultAsync(r => r.Id == reportId);
+            // if (report == default)
+            //     return Result.Failure<AccommodationDuplicateReportInfo>("Could not find a report");
+            //
+            // var accommodations = new List<SupplierData<Accommodation>>(report.Accommodations.Count);
+            // foreach (var supplierAccommodationId in report.Accommodations)
+            // {
+            //     var (_, isFailure, accommodationDetails, result) = await _supplierConnectorManager
+            //         .Get(supplierAccommodationId.Supplier)
+            //         .GetAccommodation(supplierAccommodationId.Id, languageCode);
+            //     
+            //     if (isFailure)
+            //         return Result.Failure<AccommodationDuplicateReportInfo>($"Could not find accommodation: {result.Detail}");
+            //     
+            //     accommodations.Add(SupplierData.Create(supplierAccommodationId.Supplier, accommodationDetails));
+            // }
+            //
+            // return new AccommodationDuplicateReportInfo(report.Id, report.Created, report.ApprovalState, accommodations);
         }
 
 

@@ -10,8 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var results = availability.Results
                 .Select(r =>
                 {
-                    return new SlimAccommodationAvailability(
-                        r.Accommodation, 
+                    return new SlimAccommodationAvailability(r.AccommodationId, 
                         RoomContractSetPolicyProcessor.Process(r.RoomContractSets, availability.CheckInDate, settings),
                         r.AvailabilityId);
                 })
