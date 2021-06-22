@@ -18,6 +18,7 @@ namespace HappyTravel.Edo.Common.Enums
         AgencySystemSettingsDelete = 130,
         DiscountCreate = 140,
         DiscountEdit = 150,
+        DiscountDelete = 151,
         AgentSystemSettingsCreateOrEdit = 160,
         AgentSystemSettingsDelete = 170,
         AgentApiClientCreateOrEdit = 180,

@@ -183,6 +183,14 @@
             <param name="editDiscountRequest">Updated settings.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.UpdateDiscount(System.Int32,System.Int32)">
+            <summary>
+                Deletes discount settings.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="discountId">Id of the discount.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
