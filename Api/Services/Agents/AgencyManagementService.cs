@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -91,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 {
                     AgentName = $"{master.FirstName} {master.LastName}",
                     AgencyName = agency.Name,
-                    Status = status
+                    Status = EnumFormatters.FromDescription<ActivityStatus>(status)
                 };
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
