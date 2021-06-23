@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
-  annotations:
-    sidecar.jaegertracing.io/inject: {{ .Values.jaeger.sidecar }}
+  # annotations:
+  #   sidecar.jaegertracing.io/inject: {{ .Values.jaeger.sidecar }}
   labels:
     {{- include "edo.labels" . | nindent 4 }}
 spec:
