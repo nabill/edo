@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -69,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
                 try
                 {
-                    var requestContent = new StringContent(JsonConvert.SerializeObject(htIds));
+                    var requestContent = new StringContent(JsonConvert.SerializeObject(htIds), Encoding.UTF8, "application/json");
                     using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
                     var options = new JsonSerializerOptions
                     {
