@@ -1,6 +1,6 @@
 using System;
 
-namespace HappyTravel.Edo.Api.Models.Management.Enums
+namespace HappyTravel.Edo.Common.Enums.Administrators
 {
     [Flags]
     public enum AdministratorPermissions

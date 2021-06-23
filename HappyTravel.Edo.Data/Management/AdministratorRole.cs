@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Edo.Data.Management
+﻿using HappyTravel.Edo.Common.Enums.Administrators;
+
+namespace HappyTravel.Edo.Data.Management
 {
     public class AdministratorRole
     {
