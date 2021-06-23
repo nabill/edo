@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         [Fact]
         public async Task Should_succeed_if_agent_has_permission()
         {
-            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AgentAffiliated, InAgencyPermissions.ObservePaymentHistory);
+            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AffiliatedAgent, InAgencyPermissions.ObservePaymentHistory);
+            
             Assert.True(isSuccess);
         }
         
@@ -36,7 +37,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         [Fact]
         public async Task Should_fail_if_agent_doesnt_have_permission()
         {
-            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AgentAffiliated, InAgencyPermissions.AccommodationAvailabilitySearch);
+            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AffiliatedAgent, InAgencyPermissions.AccommodationAvailabilitySearch);
+            
             Assert.False(isSuccess);
         }
 
@@ -44,7 +46,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         [Fact]
         public async Task Should_fail_if_agent_isnt_affiliated()
         {
-            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AgentNotAffiliated, InAgencyPermissions.AccommodationBooking);
+            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(NotAffiliatedAgent, InAgencyPermissions.AccommodationBooking);
+            
             Assert.False(isSuccess);
         }
 
@@ -71,8 +74,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
             }
         };
 
-        private static readonly AgentContext AgentAffiliated = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
-        private static readonly AgentContext AgentNotAffiliated = AgentContextFactory.CreateWithCounterpartyAndAgency(100, 100, 100);
+        private static readonly AgentContext AffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
+        private static readonly AgentContext NotAffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(100, 100, 100);
         private readonly IPermissionChecker _permissionChecker;
     }
 }
