@@ -20,6 +20,7 @@ using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -221,7 +222,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     AgentName = master.FullName,
                     CounterpartyName = counterparty.Name,
-                    Status = status
+                    Status = EnumFormatters.FromDescription<ActivityStatus>(status)
                 };
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),
