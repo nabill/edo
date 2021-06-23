@@ -132,6 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var htIds = htIdMapping.Where(x => supplierAccommodationIds.Any(y => y.Id == x.Key))
                     .Select(x => x.Value)
                     .ToList();
+                
                 var accommodations = await _mapperClient.GetAccommodations(htIds, languageCode);
 
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;

@@ -15,6 +15,7 @@ using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -68,8 +69,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
                 try
                 {
-                    var htIdQuery = string.Join("&", htIds.Select(h => $"accommodationHtIds={h}"));
-                    using var response = await client.GetAsync($"api/1.0/accommodations-list?{htIdQuery}");
+                    var requestContent = new StringContent(JsonConvert.SerializeObject(htIds));
+                    using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true,
