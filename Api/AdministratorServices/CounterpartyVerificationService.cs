@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
@@ -149,7 +150,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     AgentName = master.FullName,
                     CounterpartyName = counterparty.Name,
-                    State = state,
+                    State = EnumFormatters.FromDescription<CounterpartyStates>(state),
                     VerificationReason = reason
                 };
 
