@@ -80,7 +80,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     };
 
                     if (response.IsSuccessStatusCode)
-                        return await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(options);
+                    {
+                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(options);
+                        if (results is null)
+                        {
+                            _logger.LogError("Request for {HtIds} returned null", htIds);
+                            return new List<SlimAccommodation>();
+                        }
+                            
+                        else if (results.Count != htIds.Count)
+                        {
+                            _logger.LogWarning("Returned {ActualCount} accommodations while expected {ExpectedCount}", results.Count, htIds.Count);
+                        }
+
+                        return results;
+                    }
+                    else
+                    {
+                        _logger.LogError("Request to mapper failed: {Message}:{StatusCode}", await response.Content.ReadAsStringAsync(), response.StatusCode);
+                    }
+                        
                 }
                 catch (Exception ex)
                 {
