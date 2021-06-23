@@ -154,7 +154,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             .ToList();
 
                         htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
-                        var mapperAccommodation = accommodations.Single(a => a.HtId == htId);
+                        var mapperAccommodation = accommodations.SingleOrDefault(a => a.HtId == htId);
+                        if (mapperAccommodation.Equals(default))
+                        {
+                            _logger.LogWarning("Could not find mapped accommodation for HtId '{HtId}'", htId);
+                            return default;
+                        }
 
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
@@ -168,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             connectorRequest.CheckOutDate,
                             htId);
                     })
-                    .Where(a => a.RoomContractSets.Any())
+                    .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();
             }
 
