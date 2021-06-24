@@ -1,4 +1,4 @@
-using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters

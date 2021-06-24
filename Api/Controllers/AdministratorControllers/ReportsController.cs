@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Reports;
-using Microsoft.AspNetCore.Authorization;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -31,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/supplier-wise")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.GetSupplierWiseReport(from, end);
@@ -51,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("direct-connectivity-report/agency-wise")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetAgencyWiseDirectConnectivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.GetAgencyWiseReport(from, end);
@@ -71,7 +70,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agencies-productivity-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetAgenciesProductivityReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.AgenciesProductivityReport(from, end);
@@ -91,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("full-bookings-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.ReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetFullBookingReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.GetFullBookingsReport(from, end);

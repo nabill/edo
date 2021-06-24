@@ -153,6 +153,7 @@ steps:
       from_secret: VAULT_PROD_TOKEN
     HTDC_VAULT_ENDPOINT:
       from_secret: VAULT_PROD_ENDPOINT
+    CONSUL_HTTP_ADDR:
       from_secret: CONSUL_PROD_HTTP_ADDR
     CONSUL_HTTP_TOKEN:
       from_secret: CONSUL_PROD_HTTP_TOKEN
