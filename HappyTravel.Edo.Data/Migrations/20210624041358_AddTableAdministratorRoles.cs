@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {"Accounts manager", 4 | 8 | 16 | 32 | 64 | 128 | 512 | 8192 | 32768},
                 {"Booking manager", 1024 | 2048 | 16384},
                 {"Auditor", 16384 | 32768 | 65536},
+                {"Accommodation duplicates corrector", 1024 }
             });
 
             migrationBuilder.Sql("UPDATE \"Administrators\" " +
