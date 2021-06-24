@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<NotificationOptions> NotificationOptions { get; set; }
         
         public DbSet<Discount> Discounts { get; set; }
-        public DbSet<AgentRole> AgentRoles { get; set; }
+        public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
 
 
