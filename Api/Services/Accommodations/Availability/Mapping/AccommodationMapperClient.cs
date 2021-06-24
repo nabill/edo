@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -68,8 +70,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
                 try
                 {
-                    var htIdQuery = string.Join("&", htIds.Select(h => $"accommodationHtIds={h}"));
-                    using var response = await client.GetAsync($"api/1.0/accommodations-list?{htIdQuery}");
+                    var requestContent = new StringContent(JsonConvert.SerializeObject(htIds), Encoding.UTF8, "application/json");
+                    using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true,
@@ -78,7 +80,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     };
 
                     if (response.IsSuccessStatusCode)
-                        return await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(options);
+                    {
+                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(options);
+                        if (results is null)
+                        {
+                            _logger.LogError("Request for {HtIds} returned null", htIds);
+                            return new List<SlimAccommodation>();
+                        }
+                            
+                        else if (results.Count != htIds.Count)
+                        {
+                            _logger.LogWarning("Returned {ActualCount} accommodations while expected {ExpectedCount}", results.Count, htIds.Count);
+                        }
+
+                        return results;
+                    }
+                    else
+                    {
+                        _logger.LogError("Request to mapper failed: {Message}:{StatusCode}", await response.Content.ReadAsStringAsync(), response.StatusCode);
+                    }
+                        
                 }
                 catch (Exception ex)
                 {
