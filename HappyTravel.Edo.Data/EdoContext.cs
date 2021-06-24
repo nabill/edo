@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
@@ -19,10 +18,8 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
-using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 using BookingRequest = HappyTravel.Edo.Data.Bookings.BookingRequest;
 
 namespace HappyTravel.Edo.Data
@@ -98,6 +95,7 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<AgentRole> AgentRoles { get; set; }
+        public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
