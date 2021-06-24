@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 "OR \"InAgencyPermissions\" & 16384 > 0 OR \"InAgencyPermissions\" & 65536 > 0;");
 
             migrationBuilder.Sql("UPDATE \"AgentAgencyRelations\" " +
-                "SET \"AgentRoleIds\" = \"AgentRoleIds\" || 2 " +
+                "SET \"AgentRoleIds\" = \"AgentRoleIds\" || 1 " +
                 "WHERE \"InAgencyPermissions\" & 1 > 0 OR \"InAgencyPermissions\" & 8 > 0 OR \"InAgencyPermissions\" & 2048 > 0 " +
                 "OR \"InAgencyPermissions\" & 8192 > 0 OR \"InAgencyPermissions\" & 32768 > 0 OR \"InAgencyPermissions\" & 131072 > 0;");
         }
