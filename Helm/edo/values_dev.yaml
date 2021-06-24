@@ -65,7 +65,16 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - edo
+      topologyKey: "kubernetes.io/hostname"
 
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
