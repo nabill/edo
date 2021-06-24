@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -111,6 +111,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId, [FromBody] EditDiscountRequest editDiscountRequest)
         {
             var (_, isFailure, error) = await _discountManagementService.Update(agencyId, discountId, editDiscountRequest);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Deletes discount settings.
+        /// </summary>
+        /// <param name="agencyId">Agency id</param>
+        /// <param name="discountId">Id of the discount.</param>
+        /// <returns></returns>
+        [HttpDelete("{discountId:int}")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> UpdateDiscount(int agencyId, int discountId)
+        {
+            var (_, isFailure, error) = await _discountManagementService.Delete(agencyId, discountId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

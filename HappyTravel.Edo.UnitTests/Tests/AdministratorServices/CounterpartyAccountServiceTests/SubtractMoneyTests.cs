@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             SetupInitialData();
 
             var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
-                1, new PaymentCancellationData(1, Currencies.EUR), _apiCaller);
+                1, new PaymentData(1, Currencies.EUR, "test"), _apiCaller);
             
             Assert.True(isFailure);
         }
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             SetupInitialData();
 
             var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
-                1, new PaymentCancellationData(-1, Currencies.USD), _apiCaller);
+                1, new PaymentData(-1, Currencies.USD, "test"), _apiCaller);
             
             Assert.True(isFailure);
         }
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
 
             var (isSuccess, _, error) = await _counterpartyAccountService.SubtractMoney(
-                1, new PaymentCancellationData(1, Currencies.USD), _apiCaller);
+                1, new PaymentData(1, Currencies.USD, "test"), _apiCaller);
 
             Assert.True(isSuccess);
             Assert.Equal(999, affectedAccount.Balance);

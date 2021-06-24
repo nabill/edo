@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         BookingStatusChanged = 8,
         // Accounts
         CreditCardPaymentReceived = 9,
-        AccountBalanceReplenished = 10,
+        CounterpartyAccountBalanceReplenished = 10,
         // Counterparty
         AgentInvitation = 11,
         ChildAgencyInvitation = 12,
@@ -35,6 +35,9 @@ namespace HappyTravel.Edo.Notifications.Enums
         ExternalPaymentLinks = 25,
         PaymentLinkPaidNotification = 26,
         CounterpartyActivityChanged = 27,
-        CounterpartyVerificationChanged = 28
+        CounterpartyVerificationChanged = 28,
+        CounterpartyAccountBalanceSubtracted = 29,
+        CounterpartyAccountBalanceIncreasedManually = 30,
+        CounterpartyAccountBalanceDecreasedManually = 31
     }
 }
