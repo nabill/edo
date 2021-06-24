@@ -46,9 +46,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         [Fact]
         public async Task Should_fail_if_agent_isnt_affiliated()
         {
-            var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(NotAffiliatedAgent, InAgencyPermissions.AccommodationBooking);
+            var (_, isFailure, error) = await _permissionChecker.CheckInAgencyPermission(NotAffiliatedAgent, InAgencyPermissions.AccommodationBooking);
             
-            Assert.False(isSuccess);
+            Assert.True(isFailure);
+            Assert.Equal(error, "The agent isn't affiliated with the agency");
         }
 
         
