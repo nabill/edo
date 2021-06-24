@@ -65,7 +65,16 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - edo
+      topologyKey: "kubernetes.io/hostname"
 
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
@@ -74,3 +83,4 @@ env:
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
   HTDC_REDIS_HOST: "redis-edo"
+  CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"
