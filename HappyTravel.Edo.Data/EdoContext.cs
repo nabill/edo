@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<AgentRole> AgentRoles { get; set; }
-        public DbSet<AdministratorRole> AdministratorRoles { get; set; }
+        public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
