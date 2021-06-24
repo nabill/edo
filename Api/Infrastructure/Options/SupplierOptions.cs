@@ -12,6 +12,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Rakuten { get; set; }
         public string Columbus { get; set; }
         public string TravelgateXTest { get; set; }
+        public string Darina { get; set; }
         public string Jumeirah { get; set; }
         public List<Suppliers> EnabledSuppliers { get; set; }
     }
