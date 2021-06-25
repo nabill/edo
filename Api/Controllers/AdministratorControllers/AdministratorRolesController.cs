@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(List<AdministratorRoleInfo>), StatusCodes.Status200OK)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> GetAll()
             => Ok(await _administratorRolesManagementService.GetAllRoles());
 
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> Add([FromBody] AdministratorRoleInfo roleInfo)
             => OkOrBadRequest(await _administratorRolesManagementService.Add(roleInfo));
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{roleId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> Edit([FromBody] AdministratorRoleInfo roleInfo, [FromRoute] int roleId)
             => OkOrBadRequest(await _administratorRolesManagementService.Edit(roleId, roleInfo));
 
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpDelete("{roleId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> Delete([FromRoute] int roleId)
             => OkOrBadRequest(await _administratorRolesManagementService.Delete(roleId));
 
