@@ -96,6 +96,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Discount> Discounts { get; set; }
         public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
+        public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -249,6 +250,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
+            BuildDefaultNotificationOptions(builder);
         }
 
 
@@ -886,6 +888,18 @@ namespace HappyTravel.Edo.Data
                 b.HasIndex(d => d.TargetAgencyId);
                 b.HasIndex(d => d.TargetPolicyId);
                 b.HasIndex(d => d.IsActive);
+            });
+        }
+
+
+        private void BuildDefaultNotificationOptions(ModelBuilder builder)
+        {
+            builder.Entity<DefaultNotificationOptions>(e =>
+            {
+                e.HasKey(o => o.Type);
+                e.Property(o => o.EnabledProtocols).IsRequired();
+                e.Property(o => o.IsMandatory).IsRequired();
+                e.Property(o => o.EnabledReceivers).IsRequired();
             });
         }
 
