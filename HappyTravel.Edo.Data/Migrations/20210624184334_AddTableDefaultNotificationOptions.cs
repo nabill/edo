@@ -24,37 +24,37 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.InsertData("DefaultNotificationOptions", new string[] { "Type", "EnabledProtocols", "IsMandatory", "EnabledReceivers" }, 
                 new object[,]
                 {
-                    { NotificationTypes.BookingVoucher, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.BookingInvoice, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp },
-                    { NotificationTypes.DeadlineApproaching, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.SuccessfulPaymentReceipt, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp },
-                    { NotificationTypes.BookingDuePaymentDate, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.None },
-                    { NotificationTypes.BookingCancelled, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp },
-                    { NotificationTypes.BookingFinalized, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp },
-                    { NotificationTypes.BookingStatusChanged, ProtocolTypes.WebSocket, false, ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp },
-                    { NotificationTypes.CreditCardPaymentReceived, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyAccountBalanceReplenished, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.AgentInvitation, ProtocolTypes.Email, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.ChildAgencyInvitation, ProtocolTypes.Email, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.AgentSuccessfulRegistration, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.ChildAgencySuccessfulRegistration, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.AgencyActivityChanged, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.AdministratorInvitation, ProtocolTypes.Email, true, ReceiverTypes.AdminPanel },
-                    { NotificationTypes.MasterAgentSuccessfulRegistration, ProtocolTypes.Email, true, ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
-                    { NotificationTypes.BookingsAdministratorSummaryNotification, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
-                    { NotificationTypes.BookingAdministratorPaymentsSummary, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel },    // TODO: Need clarify
-                    { NotificationTypes.BookingCancelledToReservations, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
-                    { NotificationTypes.BookingFinalizedToReservations, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel },   // TODO: The WebSocket protocol will be added in the task AA-257
-                    { NotificationTypes.CreditCardPaymentReceivedAdministrator, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel },   // TODO: The WebSocket protocol will be added in the task AA-257
-                    { NotificationTypes.BookingManualCorrectionNeeded, ProtocolTypes.Email, false, ReceiverTypes.AdminPanel }, // TODO: Need clarify
-                    { NotificationTypes.BookingSummaryReportForAgent, ProtocolTypes.Email, true, ReceiverTypes.AgentApp }, // TODO: Need clarify
-                    { NotificationTypes.ExternalPaymentLinks, ProtocolTypes.Email, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.PaymentLinkPaidNotification, ProtocolTypes.Email, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyActivityChanged, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyVerificationChanged, ProtocolTypes.Email | ProtocolTypes.WebSocket, true, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyAccountBalanceSubtracted, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyAccountBalanceIncreasedManually, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp },
-                    { NotificationTypes.CounterpartyAccountBalanceDecreasedManually, ProtocolTypes.Email | ProtocolTypes.WebSocket, false, ReceiverTypes.AgentApp }
+                    { (int)NotificationTypes.BookingVoucher, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.BookingInvoice, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)(ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp) },
+                    { (int)NotificationTypes.DeadlineApproaching, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.SuccessfulPaymentReceipt, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)(ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp) },
+                    { (int)NotificationTypes.BookingDuePaymentDate, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.None },
+                    { (int)NotificationTypes.BookingCancelled, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)(ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp) },
+                    { (int)NotificationTypes.BookingFinalized, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)(ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp) },
+                    { (int)NotificationTypes.BookingStatusChanged, (int)ProtocolTypes.WebSocket, false, (int)(ReceiverTypes.AdminPanel | ReceiverTypes.AgentApp) },
+                    { (int)NotificationTypes.CreditCardPaymentReceived, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyAccountBalanceReplenished, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.AgentInvitation, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.ChildAgencyInvitation, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.AgentSuccessfulRegistration, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.ChildAgencySuccessfulRegistration, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.AgencyActivityChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.AdministratorInvitation, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AdminPanel },
+                    { (int)NotificationTypes.MasterAgentSuccessfulRegistration, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
+                    { (int)NotificationTypes.BookingsAdministratorSummaryNotification, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
+                    { (int)NotificationTypes.BookingAdministratorPaymentsSummary, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel },    // TODO: Need clarify
+                    { (int)NotificationTypes.BookingCancelledToReservations, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel }, // TODO: The WebSocket protocol will be added in the task AA-257
+                    { (int)NotificationTypes.BookingFinalizedToReservations, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel },   // TODO: The WebSocket protocol will be added in the task AA-257
+                    { (int)NotificationTypes.CreditCardPaymentReceivedAdministrator, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel },   // TODO: The WebSocket protocol will be added in the task AA-257
+                    { (int)NotificationTypes.BookingManualCorrectionNeeded, (int)ProtocolTypes.Email, false, (int)ReceiverTypes.AdminPanel }, // TODO: Need clarify
+                    { (int)NotificationTypes.BookingSummaryReportForAgent, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp }, // TODO: Need clarify
+                    { (int)NotificationTypes.ExternalPaymentLinks, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.PaymentLinkPaidNotification, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyActivityChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyVerificationChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyAccountBalanceSubtracted, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyAccountBalanceIncreasedManually, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.CounterpartyAccountBalanceDecreasedManually, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp }
                 });
         }
 
