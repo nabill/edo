@@ -1,6 +1,5 @@
 ﻿using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Data.Management;
-using System.Linq;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -19,9 +18,7 @@ namespace HappyTravel.Edo.Api.Extensions
             => new()
             {
                 Name = administratorRoleInfo.Name,
-                Permissions = administratorRoleInfo.Permissions.Any()
-                    ? administratorRoleInfo.Permissions.Aggregate((p1, p2) => p1 | p2)
-                    : default
+                Permissions = administratorRoleInfo.Permissions.ToFlags()
             };
     }
 }
