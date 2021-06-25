@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("UPDATE \"AdministratorRules\" " +
+            migrationBuilder.Sql("UPDATE \"AdministratorRoles\" " +
                 "SET \"Permissions\" = \"Permissions\" | 131072 " +
                 "WHERE \"Id\" = 1;");
         }

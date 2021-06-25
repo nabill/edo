@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<List<AdministratorRoleInfo>> GetAllRoles()
+        public Task<List<AdministratorRoleInfo>> GetAll()
             => _context.AdministratorRoles
                 .Select(r => r.ToAdministratorRoleInfo())
                 .ToListAsync();

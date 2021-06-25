@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IAdministratorRolesManagementService
     {
-        Task<List<AdministratorRoleInfo>> GetAllRoles();
+        Task<List<AdministratorRoleInfo>> GetAll();
 
         Task<Result> Add(AdministratorRoleInfo roleInfo);
 
