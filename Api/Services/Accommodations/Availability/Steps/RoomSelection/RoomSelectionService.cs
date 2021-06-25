@@ -17,6 +17,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry;
 using IDateTimeProvider = HappyTravel.Edo.Api.Infrastructure.IDateTimeProvider;
 using RoomContractSet = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet;
 
@@ -65,6 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
+            Baggage.Current.SetBaggage("SearchId", searchId.ToString());
             var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
@@ -80,6 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
+            Baggage.Current.SetBaggage("SearchId", searchId.ToString());
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
