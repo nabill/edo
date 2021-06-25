@@ -16,7 +16,6 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
@@ -49,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            Baggage.Current.SetBaggage("SearchId", searchId.ToString());
+            Baggage.SetSearchId(searchId);
             var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
             if (isFailure)
