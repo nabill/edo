@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 Id = administratorRole.Id,
                 Name = administratorRole.Name,
-                Permissions = administratorRole.Permissions
+                Permissions = administratorRole.Permissions.ToList()
             };
 
 
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Extensions
             => new()
             {
                 Name = administratorRoleInfo.Name,
-                Permissions = administratorRoleInfo.Permissions
+                Permissions = administratorRoleInfo.Permissions.ToFlags()
             };
     }
 }

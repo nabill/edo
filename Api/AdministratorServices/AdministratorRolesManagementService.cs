@@ -37,8 +37,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<bool> IsUnique()
                 => !await _context.AdministratorRoles
-                    .AnyAsync(r => r.Name.Equals(roleInfo.Name, StringComparison.InvariantCultureIgnoreCase) 
-                        || r.Permissions == roleInfo.Permissions);
+                    .AnyAsync(r => r.Name.ToLower() == roleInfo.Name.ToLower() || r.Permissions == roleInfo.Permissions.ToFlags());
 
 
             Task Add()
@@ -59,14 +58,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<bool> IsUnique()
                 => !await _context.AdministratorRoles
-                    .AnyAsync(r => (r.Name.Equals(roleInfo.Name, StringComparison.InvariantCultureIgnoreCase) 
-                        || r.Permissions == roleInfo.Permissions) && r.Id != roleId);
+                    .AnyAsync(r => (r.Name.ToLower() == roleInfo.Name.ToLower() || r.Permissions == roleInfo.Permissions.ToFlags()) 
+                        && r.Id != roleId);
 
 
             Task Edit(AdministratorRole role)
             {
                 role.Name = roleInfo.Name;
-                role.Permissions = roleInfo.Permissions;
+                role.Permissions = roleInfo.Permissions.ToFlags();
 
                 _context.Update(role);
                 return _context.SaveChangesAsync();
@@ -103,7 +102,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => GenericValidator<AdministratorRoleInfo>.Validate(v =>
                 {
                     v.RuleFor(r => r.Name).NotEmpty();
-                    v.RuleFor(r => r.Permissions).NotEqual(default(AdministratorPermissions));
+                    v.RuleFor(r => r.Permissions).NotEmpty();
                 },
                 roleInfo);
 

@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Common.Enums.Administrators;
+using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models
 {
@@ -8,6 +9,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
 
         public string Name { get; init; }
 
-        public AdministratorPermissions Permissions { get; init; }
+        public List<AdministratorPermissions> Permissions { get; init; }
     }
 }
