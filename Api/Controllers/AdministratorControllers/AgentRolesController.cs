@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
