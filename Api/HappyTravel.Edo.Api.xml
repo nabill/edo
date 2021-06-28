@@ -215,6 +215,30 @@
             <param name="discountId">Id of the discount.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.GetAll">
+            <summary>
+                Gets all pssible agent roles
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AgentRoleInfo)">
+            <summary>
+                Adds a new agent role
+            </summary>
+            <param name="roleInfo">A new role info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Edit(HappyTravel.Edo.Api.AdministratorServices.Models.AgentRoleInfo,System.Int32)">
+            <summary>
+                Edits an existing role
+            </summary>
+            <param name="roleInfo">New info for the role</param>
+            <param name="roleId"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Delete(System.Int32)">
+            <summary>
+                Deletes a role
+            </summary>
+            <param name="roleId">Id of the role to delete</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
