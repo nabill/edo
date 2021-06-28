@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public class AgentRoleService : IAgentRolesService
+    public class AgentRolesService : IAgentRolesService
     {
-        public AgentRoleService(EdoContext context)
+        public AgentRolesService(EdoContext context)
         {
             _context = context;
         }
