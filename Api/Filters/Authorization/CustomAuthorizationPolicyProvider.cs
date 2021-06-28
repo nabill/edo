@@ -5,10 +5,10 @@ using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.Api.Filters.Authorization
 {

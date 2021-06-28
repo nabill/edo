@@ -50,6 +50,30 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
+            <summary>
+                Gets all possible administrator roles
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo)">
+            <summary>
+                Adds a new administrator role
+            </summary>
+            <param name="roleInfo">A new role info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Edit(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo,System.Int32)">
+            <summary>
+                Edits an existing administrator role
+            </summary>
+            <param name="roleInfo">New info for the role</param>
+            <param name="roleId"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Delete(System.Int32)">
+            <summary>
+                Deletes an administrator role
+            </summary>
+            <param name="roleId">Id of the role to delete</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetCurrent">
             <summary>
                 Gets current administrator information
@@ -182,6 +206,38 @@
             <param name="discountId">Id of the discount.</param>
             <param name="editDiscountRequest">Updated settings.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.UpdateDiscount(System.Int32,System.Int32)">
+            <summary>
+                Deletes discount settings.
+            </summary>
+            <param name="agencyId">Agency id</param>
+            <param name="discountId">Id of the discount.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.GetAll">
+            <summary>
+                Gets all pssible agent roles
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AgentRoleInfo)">
+            <summary>
+                Adds a new agent role
+            </summary>
+            <param name="roleInfo">A new role info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Edit(HappyTravel.Edo.Api.AdministratorServices.Models.AgentRoleInfo,System.Int32)">
+            <summary>
+                Edits an existing role
+            </summary>
+            <param name="roleInfo">New info for the role</param>
+            <param name="roleId"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.Delete(System.Int32)">
+            <summary>
+                Deletes a role
+            </summary>
+            <param name="roleId">Id of the role to delete</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo,System.Int32,System.Int32)">
             <summary>
@@ -412,7 +468,7 @@
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.SubtractCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.SubtractCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Subtracts money from a counterparty account due to payment cancellation
             </summary>
@@ -2153,6 +2209,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.BillingEmail">
             <summary>
             E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.VatNumber">
+            <summary>
+                Vat number of an agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">

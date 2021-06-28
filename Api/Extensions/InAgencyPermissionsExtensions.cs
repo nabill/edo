@@ -15,6 +15,14 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
+        public static InAgencyPermissions ToFlags(this List<InAgencyPermissions> permissions)
+        {
+            return permissions.Any()
+                ? permissions.Aggregate((p1, p2) => p1 | p2)
+                : default;
+        }
+
+
         private static readonly List<InAgencyPermissions> InAgencyPermissionValues = Enum.GetValues(typeof(InAgencyPermissions))
             .Cast<InAgencyPermissions>()
             .ToList();

@@ -841,6 +841,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int[]>("AdministratorRoleIds")
+                        .HasColumnType("integer[]");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -871,6 +874,24 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("IdentityHash");
 
                     b.ToTable("Administrators");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Management.AdministratorRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Permissions")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AdministratorRoles");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
@@ -1075,6 +1096,25 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ReferenceCode", "PolicyId");
 
                     b.ToTable("MaterializationBonusLogs");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Notifications.DefaultNotificationOptions", b =>
+                {
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnabledProtocols")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnabledReceivers")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Type");
+
+                    b.ToTable("DefaultNotificationOptions");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Notifications.Notification", b =>

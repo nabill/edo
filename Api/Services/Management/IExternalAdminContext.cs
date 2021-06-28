@@ -1,4 +1,4 @@
-using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.Api.Services.Management
 {
