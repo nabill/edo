@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -19,9 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<IEnumerable<AgentRoleInfo>> GetAll()
         {
             var agentRoles = await _context.AgentRoles.ToListAsync();
-            return agentRoles.Select(x => x.ToAgentRoleInfo());
+            return agentRoles.Select(ToAgentRoleInfo);
         }
+        
+        
+        private static AgentRoleInfo ToAgentRoleInfo(AgentRole agentRole)
+            => new (agentRole.Id, agentRole.Name, agentRole.Permissions.ToList());
 
+        
         private readonly EdoContext _context;
     }
 }
