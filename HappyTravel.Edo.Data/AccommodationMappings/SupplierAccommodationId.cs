@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data.AccommodationMappings
@@ -14,7 +13,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
             
             
         [JsonConstructor]
-        public SupplierAccommodationId(Common.Enums.Suppliers supplier, string id)
+        public SupplierAccommodationId(SuppliersCatalog.Suppliers supplier, string id)
         {
             Supplier = supplier;
             Id = id;
@@ -36,7 +35,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public static SupplierAccommodationId FromString(string accommodationId)
         {
             var idParts = accommodationId.Split(StringDelimiter);
-            return new SupplierAccommodationId(Enum.Parse<Common.Enums.Suppliers>(idParts[0]), idParts[1]);
+            return new SupplierAccommodationId(Enum.Parse<SuppliersCatalog.Suppliers>(idParts[0]), idParts[1]);
         }
 
 
@@ -51,7 +50,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         /// Supplier code
         /// </summary>
         [Required]
-        public Common.Enums.Suppliers Supplier { get; set; }
+        public SuppliersCatalog.Suppliers Supplier { get; set; }
 
 
         private const string StringDelimiter = "::";

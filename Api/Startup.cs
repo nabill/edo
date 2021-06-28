@@ -202,10 +202,6 @@ namespace HappyTravel.Edo.Api
             var logger = loggerFactory.CreateLogger<Startup>();
             app.UseProblemDetailsExceptionHandler(env, logger);
 
-            app.UseHttpContextLogging(
-                options => options.IgnoredPaths = new HashSet<string> {"/health", "/locations"}
-            );
-
             app.UseSwagger()
                 .UseSwaggerUI(options =>
                 {

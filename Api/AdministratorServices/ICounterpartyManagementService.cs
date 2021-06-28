@@ -18,6 +18,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<List<AgencyInfo>> GetAllCounterpartyAgencies(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
+        Task<Result<MasterAgentContext>> GetRootAgencyMasterAgent(int counterpartyId);
+
         Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest counterparty, int counterpartyId);
 
         Task<Result> DeactivateCounterparty(int counterpartyId, string reason);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
@@ -19,10 +18,8 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
-using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 using BookingRequest = HappyTravel.Edo.Data.Bookings.BookingRequest;
 
 namespace HappyTravel.Edo.Data
@@ -39,7 +36,6 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
-        public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
         
@@ -98,6 +94,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<NotificationOptions> NotificationOptions { get; set; }
         
         public DbSet<Discount> Discounts { get; set; }
+        public virtual DbSet<AgentRole> AgentRoles { get; set; }
+        public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
+        public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -193,21 +192,6 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        public IQueryable<Location> SearchLocations(string query, int take)
-        {
-            var sb = new StringBuilder();
-            foreach (int locationType in Enum.GetValues(typeof(LocationTypes)))
-            {
-                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION ALL SELECT * FROM search_locations({0},");
-
-                sb.Append(locationType);
-                sb.Append(", {1}) ");
-            }
-
-            return Locations.FromSqlRaw(sb.ToString(), query, take);
-        }
-
-
         public virtual void Detach(object entity)
         {
             Entry(entity).State = EntityState.Detached;
@@ -223,7 +207,6 @@ namespace HappyTravel.Edo.Data
                 .StartsAt(1)
                 .IncrementsBy(1);
 
-            BuildLocation(builder);
             BuildCountry(builder);
             BuildRegion(builder);
             BuildAgent(builder);
@@ -267,6 +250,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
+            BuildDefaultNotificationOptions(builder);
         }
 
 
@@ -294,12 +278,13 @@ namespace HappyTravel.Edo.Data
                 order.HasIndex(o => o.ReferenceCode);
                 order.HasIndex(o => o.Supplier);
                 order.HasIndex(o => o.Type);
-                order.Property(o => o.ConvertedSupplierPrice).IsRequired();
-                order.Property(o => o.OriginalSupplierPrice).IsRequired();
+                order.Property(o => o.ConvertedPrice).IsRequired();
+                order.Property(o => o.Price).IsRequired();
                 order.Property(o => o.State).IsRequired();
                 order.Property(o => o.ReferenceCode).IsRequired();
                 order.Property(o => o.Modified).IsRequired();
                 order.Property(o => o.Created).IsRequired();
+                order.Property(o => o.Deadline).HasColumnType("jsonb");
             });
         }
 
@@ -362,36 +347,6 @@ namespace HappyTravel.Edo.Data
                 entityLock.Property(l => l.Token).IsRequired();
                 entityLock.Property(l => l.LockerInfo).IsRequired();
                 entityLock.ToTable(nameof(EntityLock));
-            });
-        }
-
-
-        private void BuildLocation(ModelBuilder builder)
-        {
-            builder.Entity<Location>(loc =>
-            {
-                loc.HasKey(l => l.Id);
-                loc.Property(l => l.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
-                loc.Property(l => l.Coordinates).HasColumnType("geography (point)").IsRequired();
-                loc.Property(l => l.Name).HasColumnType("jsonb").IsRequired();
-                loc.Property(l => l.Locality).HasColumnType("jsonb").IsRequired();
-                loc.Property(l => l.Country).HasColumnType("jsonb").IsRequired();
-                loc.Property(l => l.DistanceInMeters).IsRequired();
-                loc.Property(l => l.Source).IsRequired();
-                loc.Property(l => l.Type).IsRequired();
-                loc.Property(l => l.Suppliers)
-                    .HasColumnType("jsonb")
-                    .HasDefaultValue(new List<Common.Enums.Suppliers>())
-                    .HasConversion(c => JsonConvert.SerializeObject(c),
-                        c => JsonConvert.DeserializeObject<List<Common.Enums.Suppliers>>(c))
-                    .IsRequired();
-                loc.Property(l => l.Modified).IsRequired();
-                loc.Property(l => l.DefaultName)
-                    .IsRequired();
-                loc.Property(l => l.DefaultLocality)
-                    .IsRequired();
-                loc.Property(l => l.DefaultCountry)
-                    .IsRequired();
             });
         }
 
@@ -912,7 +867,7 @@ namespace HappyTravel.Edo.Data
                 b.Property(n => n.SendingSettings).HasColumnType("jsonb");
                 b.HasIndex(n => n.Receiver);
                 b.HasIndex(n => n.UserId);
-                b.HasIndex(n => n.IsRead);
+                b.HasIndex(n => n.SendingStatus);
             });
         }
 
@@ -933,6 +888,18 @@ namespace HappyTravel.Edo.Data
                 b.HasIndex(d => d.TargetAgencyId);
                 b.HasIndex(d => d.TargetPolicyId);
                 b.HasIndex(d => d.IsActive);
+            });
+        }
+
+
+        private void BuildDefaultNotificationOptions(ModelBuilder builder)
+        {
+            builder.Entity<DefaultNotificationOptions>(e =>
+            {
+                e.HasKey(o => o.Type);
+                e.Property(o => o.EnabledProtocols).IsRequired();
+                e.Property(o => o.IsMandatory).IsRequired();
+                e.Property(o => o.EnabledReceivers).IsRequired();
             });
         }
 

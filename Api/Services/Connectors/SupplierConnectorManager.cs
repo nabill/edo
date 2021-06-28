@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -51,6 +52,14 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.TravelgateXTest,
                     new SupplierConnector(connectorClient, _options.TravelgateXTest, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Darina,
+                    new SupplierConnector(connectorClient, _options.Darina, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Jumeirah,
+                    new SupplierConnector(connectorClient, _options.Jumeirah, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }

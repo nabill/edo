@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 using Xunit;
 using Moq;

@@ -19,7 +19,6 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
@@ -96,11 +95,11 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
-using HappyTravel.Edo.Api.Services.Notifications;
 using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
+using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 
@@ -197,7 +196,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
             var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
-            
+
 
             var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
@@ -270,11 +269,35 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingReceiptTemplateId = receiptTemplateId;
             });
 
-            
+            var agencyActivityChangedId = mailSettings[configuration["Edo:Email:AgencyActivityChangedTemplateId"]];
+            services.Configure<AgencyManagementMailingOptions>(options =>
+            {
+                options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
+            });
+
+            var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
+            var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
+            services.Configure<CounterpartyManagementMailingOptions>(options =>
+            {
+                options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
+                options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
+            });
+
+            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
+            var counterpartyAccountSubtractedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountSubtractedTemplateId"]];
+            var counterpartyAccountIncreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountIncreasedManuallyTemplateId"]];
+            var counterpartyAccountDecreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountDecreasedManuallyTemplateId"]];
+            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
+            { 
+                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId;
+                options.CounterpartyAccountSubtractedTemplateId = counterpartyAccountSubtractedTemplateId;
+                options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
+                options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
+            });
             #endregion
-            
+
             #region tag processing options
-            
+
             var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
             services.Configure<TagProcessingOptions>(options =>
             {
@@ -362,6 +385,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.TravelgateXTest = environment.IsLocal()
                     ? configuration["Suppliers:TravelgateXTest"]
                     : supplierOptions["travelgateXTest"];
+                
+                options.Darina = environment.IsLocal()
+                    ? configuration["Suppliers:Darina"]
+                    : supplierOptions["darina"];
+                
+                options.Jumeirah = environment.IsLocal()
+                    ? configuration["Suppliers:Jumeirah"]
+                    : supplierOptions["jumeirah"];
                 
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
@@ -497,11 +528,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
-            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
-
-            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
-                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId);
-
             return services;
         }
 
@@ -514,7 +540,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
-            services.AddTransient<IGeoCoder, InteriorGeoCoder>();
 
             services.AddSingleton<IVersionService, VersionService>();
 
@@ -552,6 +577,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
+            services.AddTransient<IAdministratorRolesManagementService, AdministratorRolesManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
@@ -670,7 +696,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<WebhookResponseService>();
 
             services.AddNameNormalizationServices();
-            services.AddScoped<ILocationNormalizer, LocationNormalizer>();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
@@ -723,8 +748,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IReportService, ReportService>();
-            services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
-            services.AddTransient<ISendingNotificationsService, SendingNotificationsService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
@@ -733,6 +756,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<SupplierWiseRecordProjection>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
+            services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -22,60 +21,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
-            ILocationService locationService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             AvailabilityAnalyticsService analyticsService,
             IAvailabilitySearchAreaService searchAreaService,
+            IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
-            _locationService = locationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
             _searchAreaService = searchAreaService;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
    
         public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
+            if (!request.HtIds.Any())
+                return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
+            
+            if (request.CheckInDate.Date < _dateTimeProvider.UtcToday())
+                return Result.Failure<Guid>("Check in date must not be in the past");
+            
             var searchId = Guid.NewGuid();
+            
+            Baggage.SetSearchId(searchId);
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
 
-            List<Location> locations;
-            Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
-            // Old flow
-            if (request.HtIds is null || !request.HtIds.Any())
-            {
-                var locationResult = await _locationService.Get(request.Location, languageCode);
-                if (locationResult.IsFailure)
-                    return Result.Failure<Guid>(locationResult.Error.Detail);
-            
-                locations = new List<Location>() {locationResult.Value};
-            }
-            // New flow
-            else
-            {
-                var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
-                if (isFailure)
-                    return Result.Failure<Guid>(error);
+            var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
+            if (isFailure)
+                return Result.Failure<Guid>(error);
 
-                locations = searchArea.Locations;
-                accommodationCodes = searchArea.AccommodationCodes;
-            }
-
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, locations, agent, languageCode);
+            _analyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-
-            // TODO: This is used in old flow only, remove when switching to new flow
-            var location = locations.First();
-            
-            await StartSearch(searchId, request, searchSettings, location, accommodationCodes, agent, languageCode);
+            await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
                 
             return searchId;
         }
@@ -91,6 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
+            Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             var supplierSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
@@ -140,17 +126,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings,
-            Location location, Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
+        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
-                // If new flow
-                accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings);
-
-                supplierCodeMappings ??= new List<SupplierCodeMapping>(0);
-                
-                if (NoRequestDataForSupplier(supplierCodeMappings , supplier))
+                if (!accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
                 {
                     await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
                     continue;
@@ -161,10 +141,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            bool NoRequestDataForSupplier(IEnumerable<SupplierCodeMapping> codes, Suppliers supplier)
-                => !codes.Any() && !location.Equals(default) && !location.Suppliers.Contains(supplier);
-            
-            
             void StartSearchTask(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
             {
                 Task.Run(async () =>
@@ -173,19 +149,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     
                     await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Start(searchId, request, location, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
+                        .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
                 });
             }
         }
         
         
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly ILocationService _locationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

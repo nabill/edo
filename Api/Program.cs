@@ -1,4 +1,6 @@
-﻿using HappyTravel.Edo.Api.Infrastructure.Environments;
+﻿using System;
+using HappyTravel.ConsulKeyValueClient.ConfigurationProvider.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.StdOutLogger.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +33,9 @@ namespace HappyTravel.Edo.Api
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                         .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     config.AddEnvironmentVariables();
+                    config.AddConsulKeyValueClient(Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
+                        "edo",
+                        Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"));
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
@@ -44,7 +49,7 @@ namespace HappyTravel.Edo.Api
                     {
                         logging.AddStdOutLogger(setup =>
                         {
-                            setup.IncludeScopes = false;
+                            setup.IncludeScopes = true;
                             setup.RequestIdHeader = Constants.DefaultRequestIdHeader;
                             setup.UseUtcTimestamp = true;
                         });

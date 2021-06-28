@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings

@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> AddMoney(int counterpartyAccountId, PaymentData paymentData, ApiCaller apiCaller);
 
-        Task<Result> SubtractMoney(int counterpartyAccountId, PaymentCancellationData data, ApiCaller apiCaller);
+        Task<Result> SubtractMoney(int counterpartyAccountId, PaymentData data, ApiCaller apiCaller);
 
         Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, ApiCaller apiCaller);
 

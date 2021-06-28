@@ -33,12 +33,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             var value = source.Value;
             var roomContractSet = await RoomContractSetPriceProcessor.ProcessPrices(value.RoomContractSet, processFunction);
-            return new RoomContractSetAvailability(value.AvailabilityId,
-                value.CheckInDate,
-                value.CheckOutDate,
-                value.NumberOfNights,
-                value.Accommodation,
-                roomContractSet);
+            return new RoomContractSetAvailability(availabilityId: value.AvailabilityId,
+                accommodationId: value.AccommodationId,
+                checkInDate: value.CheckInDate,
+                checkOutDate: value.CheckOutDate,
+                numberOfNights: value.NumberOfNights,
+                roomContractSet: roomContractSet);
         }
 
 

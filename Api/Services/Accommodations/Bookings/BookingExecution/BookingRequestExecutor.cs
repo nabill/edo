@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     if (!error.Extensions.TryGetBookingFailureCode(out var failureCode))
                         // We do not know whether booking was registered on supplier
                         return GetStubDetails(booking);
-                    
+
                     return failureCode switch
                     {
                         // We are sure that booking was not done

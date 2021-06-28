@@ -55,8 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return GenericValidator<EditAgencyRequest>.Validate(v =>
                 {
                     v.RuleFor(c => c.Address).NotEmpty();
-                    v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
-                    v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
+                    v.RuleFor(c => c.Phone).NotEmpty();
+                    v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
                 }, editAgencyRequest);
             }
 
@@ -71,6 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.PostalCode = editAgencyRequest.PostalCode;
                 agencyRecord.Website = editAgencyRequest.Website;
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
+                agencyRecord.VatNumber = editAgencyRequest.VatNumber;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
-using HappyTravel.Formatters;
+using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
@@ -29,7 +29,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 AmountExclVat = Math.Round(amountExcludedVatFunc(projection.OriginalAmount), 2),
                 VatAmount = Math.Round(vatAmountFunc(projection.OriginalAmount), 2),
                 Supplier = EnumFormatters.FromDescription(projection.Supplier),
-                PaymentStatus = EnumFormatters.FromDescription(projection.PaymentStatus)  
+                PaymentStatus = EnumFormatters.FromDescription(projection.PaymentStatus),
+                CancellationPenaltyPercent = projection.CancellationDate is null
+                    ? 0
+                    : projection.CancellationPolicies
+                        .OrderBy(p => p.FromDate)
+                        .Where(p => p.FromDate > projection.CancellationDate)
+                        .Select(p => p.Percentage)
+                        .FirstOrDefault()
             };
     }
 }

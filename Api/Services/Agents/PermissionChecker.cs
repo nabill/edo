@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -34,19 +35,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             if (Equals(storedPermissions, default))
                 return Result.Failure("The agent isn't affiliated with the agency");
+            
+            var hasPermission = storedPermissions.Any(p => p.HasFlag(permission));
 
-            return !storedPermissions.HasFlag(permission)
-                ? Result.Failure($"Agent does not have the '{permission}' permission")
-                : Result.Success();
+            return hasPermission
+                ? Result.Success()
+                : Result.Failure($"Agent does not have the '{permission}' permission");
 
 
-            Task<InAgencyPermissions> GetPermissions(int agentId, int agencyId)
+            async Task<List<InAgencyPermissions>> GetPermissions(int agentId, int agencyId)
             {
-                return _context.AgentAgencyRelations
+                var roleIds = await _context.AgentAgencyRelations
                     .Where(r => r.AgentId == agentId)
                     .Where(r => r.AgencyId == agencyId)
-                    .Select(r => r.InAgencyPermissions)
+                    .Select(r => r.AgentRoleIds)
                     .SingleOrDefaultAsync();
+
+                if (roleIds == default)
+                    return default;
+                    
+                var permissions = await _context.AgentRoles
+                    .Where(r => roleIds.Contains(r.Id))
+                    .Select(r => r.Permissions)
+                    .ToListAsync();
+                
+                return permissions;
             }
         }
 

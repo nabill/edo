@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {

@@ -7,6 +7,9 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.SuppliersCatalog;
+using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
 using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -20,22 +23,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId)
+            Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline supplierDeadline)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             var result = SupplierData.Create(supplier, availability);
             var roomSetAvailability = availability.Data;
             
-            var location = roomSetAvailability.Accommodation.Location;
+            var location = accommodation.Location;
             var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
                 roomSetAvailability.RoomContractSet.IsDirectContract);
             
             var dataWithMarkup = result.Data;
             
             var bookingAvailabilityInfo = new BookingAvailabilityInfo(
-                accommodationId: roomSetAvailability.Accommodation.Id,
-                accommodationName: roomSetAvailability.Accommodation.Name,
-                accommodationInfo: new AccommodationInfo(roomSetAvailability.Accommodation.Photo),
+                accommodationId: roomSetAvailability.AccommodationId,
+                accommodationName: accommodation.Name,
+                accommodationInfo: new AccommodationInfo(accommodation.Photo),
                 roomContractSet: roomContractSet,
                 zoneName: location.LocalityZone,
                 localityName: location.Locality,
@@ -53,7 +56,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 availabilityId: roomSetAvailability.AvailabilityId,
                 htId: htId,
                 availablePaymentTypes: availablePaymentTypes,
-                isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract);
+                isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
+                supplierDeadline: supplierDeadline.ToDeadline());
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }

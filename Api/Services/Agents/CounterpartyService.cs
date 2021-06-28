@@ -28,10 +28,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<CounterpartyInfo>> Add(CounterpartyCreateRequest request)
         {
             var registrationAgencyInfo = request.RootAgencyInfo.ToRegistrationAgencyInfo(request.CounterpartyInfo.Name);
-            return await AgencyValidator.Validate(registrationAgencyInfo)
+            return await Validate()
                 .Map(CreateCounterparty)
                 .Tap(CreateRootAgency)
                 .Bind(c => GetCounterpartyInfo(c.Id));
+
+
+            Result Validate()
+            {
+                var result = AgencyValidator.Validate(registrationAgencyInfo);
+                return result.IsSuccess 
+                    ? CounterpartyValidator.Validate(request.CounterpartyInfo) 
+                    : result;
+            }
 
 
             async Task<Counterparty> CreateCounterparty()

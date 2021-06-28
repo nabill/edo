@@ -1,5 +1,8 @@
-﻿namespace HappyTravel.Edo.Notifications.Enums
+﻿using System;
+
+namespace HappyTravel.Edo.Notifications.Enums
 {
+    [Flags]
     public enum ReceiverTypes
     {
         None = 0,
