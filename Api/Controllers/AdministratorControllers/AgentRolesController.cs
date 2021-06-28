@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +15,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AgentRolesController : BaseController
     {
-        public AgentRolesController(IAgentRolesService agentRolesService)
+        public AgentRolesController(IAgentRolesManagementService agentRolesManagementService)
         {
-            _agentRolesService = agentRolesService;
+            _agentRolesManagementService = agentRolesManagementService;
         }
 
 
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AgentRoleInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetAll()
-            => Ok(await _agentRolesService.GetAllRoles());
+            => Ok(await _agentRolesManagementService.GetAll());
 
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Add([FromBody] AgentRoleInfo roleInfo)
-            => OkOrBadRequest(await _agentRolesService.Add(roleInfo));
+            => OkOrBadRequest(await _agentRolesManagementService.Add(roleInfo));
 
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Edit([FromBody] AgentRoleInfo roleInfo, [FromRoute] int roleId)
-            => OkOrBadRequest(await _agentRolesService.Edit(roleId, roleInfo));
+            => OkOrBadRequest(await _agentRolesManagementService.Edit(roleId, roleInfo));
 
 
         /// <summary>
@@ -66,9 +65,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Delete([FromRoute] int roleId)
-            => OkOrBadRequest(await _agentRolesService.Delete(roleId));
+            => OkOrBadRequest(await _agentRolesManagementService.Delete(roleId));
 
 
-        private readonly IAgentRolesService _agentRolesService;
+        private readonly IAgentRolesManagementService _agentRolesManagementService;
     }
 }

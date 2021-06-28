@@ -5,9 +5,9 @@ using HappyTravel.Edo.Api.AdministratorServices.Models;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public interface IAgentRolesService
+    public interface IAgentRolesManagementService
     {
-        Task<List<AgentRoleInfo>> GetAllRoles();
+        Task<List<AgentRoleInfo>> GetAll();
 
         Task<Result> Add(AgentRoleInfo roleInfo);
 

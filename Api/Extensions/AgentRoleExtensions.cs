@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 Id = agentRole.Id,
                 Name = agentRole.Name,
-                Permissions = agentRole.Permissions
+                Permissions = agentRole.Permissions.ToList()
             };
 
 
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Extensions
             => new AgentRole
             {
                 Name = agentRoleInfo.Name,
-                Permissions = agentRoleInfo.Permissions
+                Permissions = agentRoleInfo.Permissions.ToFlags()
             };
     }
 }

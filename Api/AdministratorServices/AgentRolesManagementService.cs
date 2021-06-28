@@ -13,16 +13,18 @@ using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public class AgentRolesService : IAgentRolesService
+    public class AgentRolesManagementService : IAgentRolesManagementService
     {
-        public AgentRolesService(EdoContext context)
+        public AgentRolesManagementService(EdoContext context)
         {
             _context = context;
         }
 
 
-        public Task<List<AgentRoleInfo>> GetAllRoles()
-            => _context.AgentRoles.Select(r => r.ToAgentRoleInfo()).ToListAsync();
+        public Task<List<AgentRoleInfo>> GetAll()
+            => _context.AgentRoles
+                .Select(r => r.ToAgentRoleInfo())
+                .ToListAsync();
 
 
         public Task<Result> Add(AgentRoleInfo roleInfo)
@@ -33,8 +35,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
             async Task<bool> IsUnique()
-                => !await _context.AgentRoles.AnyAsync(r => r.Name.Equals(roleInfo.Name, StringComparison.InvariantCultureIgnoreCase) ||
-                    r.Permissions == roleInfo.Permissions);
+                => !await _context.AgentRoles
+                    .AnyAsync(r => r.Name.ToLower() == roleInfo.Name.ToLower() || r.Permissions == roleInfo.Permissions.ToFlags());
 
 
             Task Add()
@@ -51,17 +53,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(IsUnique, "A role with the same name or permission set already exists")
                 .Bind(() => Get(roleId))
                 .Tap(Edit);
-                
+
 
             async Task<bool> IsUnique()
-                => !await _context.AgentRoles.AnyAsync(r => (r.Name.Equals(roleInfo.Name, StringComparison.InvariantCultureIgnoreCase) ||
-                    r.Permissions == roleInfo.Permissions) && r.Id != roleId);
+                => !await _context.AgentRoles
+                    .AnyAsync(r => (r.Name.ToLower() == roleInfo.Name.ToLower() || r.Permissions == roleInfo.Permissions.ToFlags())
+                        && r.Id != roleId);
 
 
             Task Edit(AgentRole role)
             {
                 role.Name = roleInfo.Name;
-                role.Permissions = roleInfo.Permissions;
+                role.Permissions = roleInfo.Permissions.ToFlags();
 
                 _context.Update(role);
                 return _context.SaveChangesAsync();
@@ -72,7 +75,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> Delete(int roleId)
         {
             return await Get(roleId)
-                .Ensure(IsUnused, "This role is in use and connot be deleted")
+                .Ensure(IsUnused, "This role is in use and cannot be deleted")
                 .Tap(Delete);
 
 
@@ -88,18 +91,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        private async Task<Result<AgentRole>> Get(int roleId)
+            => await _context.AgentRoles
+                    .SingleOrDefaultAsync(r => r.Id == roleId)
+                        ?? Result.Failure<AgentRole>("A role with specified Id does not exist");
+
+
         private Result Validate(AgentRoleInfo roleInfo)
             => GenericValidator<AgentRoleInfo>.Validate(v =>
                 {
                     v.RuleFor(r => r.Name).NotEmpty();
-                    v.RuleFor(r => r.Permissions.ToList()).NotEmpty();
+                    v.RuleFor(r => r.Permissions).NotEmpty();
                 },
                 roleInfo);
-
-
-        private async Task<Result<AgentRole>> Get(int roleId)
-            => await _context.AgentRoles.SingleOrDefaultAsync(r => r.Id == roleId)
-                ?? Result.Failure<AgentRole>("A role with specified Id does not exist");
 
 
         private readonly EdoContext _context;

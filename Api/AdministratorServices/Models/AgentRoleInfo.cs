@@ -1,4 +1,5 @@
-﻿using HappyTravel.Edo.Common.Enums;
+﻿using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models
 {
@@ -8,6 +9,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
 
         public string Name { get; init; }
 
-        public InAgencyPermissions Permissions { get; init; }
+        public List<InAgencyPermissions> Permissions { get; init; }
     }
 }
