@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         }
         
         
-        [Fact]
+        // TODO: unskip when milestone https://github.com/happy-travel/agent-app-project/milestone/27 will be finished
+        [Fact(Skip = "Temporarily switched to old flow")]
         public async Task Should_succeed_if_agent_has_permission()
         {
             var (isSuccess, _, _) = await _permissionChecker.CheckInAgencyPermission(AffiliatedAgent, InAgencyPermissions.ObservePaymentHistory);
@@ -43,7 +44,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
         }
 
 
-        [Fact]
+        // TODO: unskip when milestone https://github.com/happy-travel/agent-app-project/milestone/27 will be finished
+        [Fact(Skip = "Temporarily switched to old flow")]
         public async Task Should_fail_if_agent_isnt_affiliated()
         {
             var (_, isFailure, error) = await _permissionChecker.CheckInAgencyPermission(NotAffiliatedAgent, InAgencyPermissions.AccommodationBooking);
