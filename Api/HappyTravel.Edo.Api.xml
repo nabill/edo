@@ -50,6 +50,30 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
+            <summary>
+                Gets all possible administrator roles
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo)">
+            <summary>
+                Adds a new administrator role
+            </summary>
+            <param name="roleInfo">A new role info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Edit(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo,System.Int32)">
+            <summary>
+                Edits an existing administrator role
+            </summary>
+            <param name="roleInfo">New info for the role</param>
+            <param name="roleId"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Delete(System.Int32)">
+            <summary>
+                Deletes an administrator role
+            </summary>
+            <param name="roleId">Id of the role to delete</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetCurrent">
             <summary>
                 Gets current administrator information

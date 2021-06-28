@@ -6,8 +6,8 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 
