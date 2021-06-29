@@ -856,6 +856,12 @@
             <param name="filter">Filter for date range</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentRolesController.GetAll">
+            <summary>
+               Returns all agent roles
+            </summary>
+            <returns>Agent roles</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>
                 Registers master agent with related counterparty

@@ -1,5 +1,4 @@
-﻿using System;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -23,7 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task<List<AgentRoleInfo>> GetAll()
             => _context.AgentRoles
-                .Select(r => r.ToAgentRoleInfo())
+                .Select(r => ToAgentRoleInfo(r))
                 .ToListAsync();
 
 
@@ -41,7 +40,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Add()
             {
-                _context.AgentRoles.Add(roleInfo.ToAgentRole());
+                _context.AgentRoles.Add(ToAgentRole(roleInfo));
                 return _context.SaveChangesAsync();
             }
         }
@@ -104,6 +103,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.Permissions).NotEmpty();
                 },
                 roleInfo);
+        
+        
+        private static AgentRoleInfo ToAgentRoleInfo(AgentRole agentRole)
+            => new ()
+            {
+                Id = agentRole.Id,
+                Name = agentRole.Name,
+                Permissions = agentRole.Permissions.ToList()
+            };
+
+
+        private static AgentRole ToAgentRole(AgentRoleInfo agentRoleInfo)
+            => new ()
+            {
+                Name = agentRoleInfo.Name,
+                Permissions = agentRoleInfo.Permissions.ToFlags()
+            };
 
 
         private readonly EdoContext _context;
