@@ -3698,6 +3698,36 @@
             These filters apply to existing search filters during availability search
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.Title">
+            <summary>
+                Title, Mr, Mrs etc.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.Position">
+            <summary>
+                Position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.Email">
+            <summary>
+                Email
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.AdminInvitationInfo.AdministratorRoleIds">
+            <summary>
+                Administrator role IDs
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Title">
             <summary>
                 Title, Mr, Mrs etc.
