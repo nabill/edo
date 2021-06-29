@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<AgencyAccount> AgencyAccounts { get; set; }
 
-        public DbSet<Administrator> Administrators { get; set; }
+        public virtual DbSet<Administrator> Administrators { get; set; }
 
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<CreditCard> CreditCards { get; set; }
