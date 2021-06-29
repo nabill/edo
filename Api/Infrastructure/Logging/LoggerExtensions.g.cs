@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1130, "LocationNormalized"),
                 "Location normalized");
             
-            MultiProviderAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Debug,
+            MultiProviderAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Information,
                 new EventId(1140, "MultiProviderAvailabilitySearchStarted"),
                 "Starting availability search with id '{SearchId}'");
             
