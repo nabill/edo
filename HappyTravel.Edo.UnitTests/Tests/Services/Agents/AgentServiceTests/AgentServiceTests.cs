@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList(), true);
+                1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList(), new List<string>(), true);
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, AgentContext);
 

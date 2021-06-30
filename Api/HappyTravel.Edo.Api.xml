@@ -955,6 +955,11 @@
                 Updates permissions agent permissions
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{System.String})">
+            <summary>
+                Updates agent roles
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">
             <summary>
                 Sets user frontend application settings.
@@ -2585,6 +2590,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyPermissions">
             <summary>
                 Permissions of the agent.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoles">
+            <summary>
+                Roles of the agent.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.IsActive">

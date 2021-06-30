@@ -40,7 +40,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentStatusManagementService agentStatusManagementService,
             IAgentInvitationRecordListService agentInvitationRecordListService,
             IAgentInvitationCreateService agentInvitationCreateService,
-            IIdentityUserInfoService identityUserInfoService)
+            IIdentityUserInfoService identityUserInfoService,
+            IAgentRolesAssignmentService rolesAssignmentService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -56,6 +57,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationRecordListService = agentInvitationRecordListService;
             _agentInvitationCreateService = agentInvitationCreateService;
             _identityUserInfoService = identityUserInfoService;
+            _rolesAssignmentService = rolesAssignmentService;
         }
 
 
@@ -364,6 +366,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///     Updates agent roles
+        /// </summary>
+        [HttpPut("agency/agents/{agentId}/roles")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
+        public async Task<IActionResult> UpdatePermissionsInAgency(int agentId, [FromBody] List<string> newRoles)
+        {
+            var (_, isFailure, error) = await _rolesAssignmentService
+                .SetInAgencyRoles(agentId, newRoles, await _agentContextService.GetAgent());
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            await _agentContextInternal.RefreshAgentContext();
+
+            return Ok();
+        }
+
+
+        /// <summary>
         ///     Sets user frontend application settings.
         /// </summary>
         /// <param name="settings">Settings in dynamic JSON-format</param>
@@ -473,5 +497,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationRecordListService _agentInvitationRecordListService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
         private readonly IIdentityUserInfoService _identityUserInfoService;
+        private readonly IAgentRolesAssignmentService _rolesAssignmentService;
     }
 }

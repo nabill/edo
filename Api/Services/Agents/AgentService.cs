@@ -118,6 +118,17 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agentId, AgentContext agentContext)
         {
+            var relation = await _context.AgentAgencyRelations
+                .SingleOrDefaultAsync(r => r.AgencyId == agentContext.AgencyId && r.AgentId == agentId);
+
+            if (relation is null)
+                return Result.Failure<AgentInfoInAgency>("Agent not found in specified agency");
+
+            var roleIds = await _context.AgentRoles
+                .Where(r => relation.AgentRoleIds.Contains(r.Id))
+                .Select(r => r.Name)
+                .ToListAsync();
+
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
                     join agent in _context.Agents
@@ -127,12 +138,25 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     join counterparty in _context.Counterparties
                         on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agentContext.AgencyId && cr.AgentId == agentId
-                    select (AgentInfoInAgency?) new AgentInfoInAgency(agent.Id, agent.FirstName, agent.LastName, agent.Email, agent.Title, agent.Position, counterparty.Id, counterparty.Name,
-                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList(), cr.IsActive))
+                    select (AgentInfoInAgency?) new AgentInfoInAgency(
+                        agent.Id,
+                        agent.FirstName,
+                        agent.LastName,
+                        agent.Email,
+                        agent.Title,
+                        agent.Position,
+                        counterparty.Id,
+                        counterparty.Name,
+                        cr.AgencyId,
+                        agency.Name,
+                        cr.Type == AgentAgencyRelationTypes.Master,
+                        cr.InAgencyPermissions.ToList(),
+                        roleIds,
+                        cr.IsActive))
                 .SingleOrDefaultAsync();
 
-            if (foundAgent == null)
-                return Result.Failure<AgentInfoInAgency>("Agent not found in specified agency");
+            if (foundAgent is null)
+                return Result.Failure<AgentInfoInAgency>("Could not find agency or counterparty information");
 
             return foundAgent.Value;
         }
