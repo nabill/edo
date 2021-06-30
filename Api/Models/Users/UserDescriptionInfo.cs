@@ -7,14 +7,14 @@ namespace HappyTravel.Edo.Api.Models.Users
     {
         [JsonConstructor]
         public UserDescriptionInfo(string title, string firstName, string lastName,
-            string position, string email, int[] roleIds)
+            string position, string email, int[] roleIds = null)
         {
             Title = title;
             FirstName = firstName;
             LastName = lastName;
             Position = position;
             Email = email;
-            RoleIds = roleIds;
+            RoleIds = roleIds ?? System.Array.Empty<int>();
         }
 
 
