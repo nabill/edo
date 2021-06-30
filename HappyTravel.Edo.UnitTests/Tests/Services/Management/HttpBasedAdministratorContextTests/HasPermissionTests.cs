@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Management.HttpBasedAdministr
         public async Task Should_pass_if_admin_has_permission()
         {
             var hasPermission = await _administratorContext.HasPermission(AdministratorPermissions.AccountReplenish);
+            
             Assert.True(hasPermission);
         }
 
@@ -40,6 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Management.HttpBasedAdministr
         public async Task Should_fail_if_admin_doesnt_have_permission()
         {
             var hasPermission = await _administratorContext.HasPermission(AdministratorPermissions.BookingManagement);
+            
             Assert.False(hasPermission);
         }
         
