@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentRolesAssignmentService
     {
-        Task<Result> SetInAgencyRoles(int agentId, List<string> roleNamesList, AgentContext agent);
+        Task<Result> SetInAgencyRoles(int agentId, List<int> roleIdsList, AgentContext agent);
     }
 }

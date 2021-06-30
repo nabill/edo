@@ -17,10 +17,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> SetInAgencyRoles(int agentId, List<string> roleNamesList, AgentContext agent)
+        public async Task<Result> SetInAgencyRoles(int agentId, List<int> roleIdsList, AgentContext agent)
         {
+            List<AgentRole> allRoles = null;
+
             return await GetRelation()
+                .Tap(GetAllRoles)
                 .Check(EnsureAdministratorRoleNotLost)
+                .Ensure(AllProvidedRolesExist, "Some of specified roles do not exist")
                 .Tap(UpdateRoles);
 
 
@@ -36,34 +40,37 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
+            async Task GetAllRoles(AgentAgencyRelation _)
+                => allRoles = await _context.AgentRoles.ToListAsync();
+
+
             async Task<Result> EnsureAdministratorRoleNotLost(AgentAgencyRelation relation)
             {
-                if (roleNamesList.Any(r => r.ToLower() == AgencyAdministratorRoleName.ToLower()))
-                    return Result.Success();
+                var preservedRoleIds = allRoles.Where(r => r.IsPreservedInAgency).Select(r => r.Id).ToList();
 
-                var adminRole = await _context.AgentRoles.SingleOrDefaultAsync(r => r.Name.ToLower() == AgencyAdministratorRoleName.ToLower());
-                if (adminRole == default)
-                    return Result.Failure("Could not find the administrator role");
+                if (preservedRoleIds.All(roleIdsList.Contains))
+                    return Result.Success();
 
                 return await _context.AgentAgencyRelations
                     .AnyAsync(r => r.AgencyId == relation.AgencyId &&
                         r.AgentId != relation.AgentId &&
                         r.IsActive &&
-                        r.AgentRoleIds.Contains(adminRole.Id))
+                        preservedRoleIds.All(rr => r.AgentRoleIds.Contains(rr)))
                     ? Result.Success()
-                    : Result.Failure("Cannot revoke last administrator role");
+                    : Result.Failure("Cannot revoke last set of preserved roles");
+            }
+
+
+            bool AllProvidedRolesExist(AgentAgencyRelation _)
+            {
+                var allRolesIds = allRoles.Select(r => r.Id);
+                return roleIdsList.All(allRolesIds.Contains);
             }
 
 
             async Task UpdateRoles(AgentAgencyRelation relation)
             {
-                var roleLowerNamesList = roleNamesList.Select(r => r.ToLower());
-                var roleIds = await _context.AgentRoles
-                    .Where(r => roleLowerNamesList.Contains(r.Name.ToLower()))
-                    .Select(r => r.Id)
-                    .ToArrayAsync();
-
-                relation.AgentRoleIds = roleIds;
+                relation.AgentRoleIds = roleIdsList.ToArray();
 
                 _context.AgentAgencyRelations.Update(relation);
                 await _context.SaveChangesAsync();
@@ -72,7 +79,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly EdoContext _context;
-        
-        private const string AgencyAdministratorRoleName = "Agency administrator";
     }
 }
