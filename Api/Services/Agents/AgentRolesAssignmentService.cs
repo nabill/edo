@@ -46,6 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result> EnsureAdministratorRoleNotLost(AgentAgencyRelation relation)
             {
+                // at least one agent with full set of preserved permissions must remain
                 var preservedRoleIds = allRoles.Where(r => r.IsPreservedInAgency).Select(r => r.Id).ToList();
 
                 if (preservedRoleIds.All(roleIdsList.Contains))
