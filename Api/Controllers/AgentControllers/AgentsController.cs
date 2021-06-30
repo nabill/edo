@@ -373,7 +373,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int agentId, [FromBody] List<int> newRoles)
+        public async Task<IActionResult> SetRolesInAgency(int agentId, [FromBody] List<int> newRoles)
         {
             var (_, isFailure, error) = await _rolesAssignmentService
                 .SetInAgencyRoles(agentId, newRoles, await _agentContextService.GetAgent());
