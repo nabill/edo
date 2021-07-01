@@ -127,6 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             // TODO: use counterparty information from headers to get counterparty id
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
+            var inAgencyPermissions = await GetInAgencyPermissionsByIdentityHash(identityHash);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
@@ -142,13 +143,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         counterparty.Name,
                         agency.Id,
                         agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        agentAgencyRelation.InAgencyPermissions))
+                        inAgencyPermissions))
                 .SingleOrDefaultAsync();
         }
         
         
         private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
         {
+            var inAgencyPermissions = await GetInAgencyPermissionsByApiClientCredentials(name, passwordHash);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from apiClient in _context.ApiClients.Where(a=> a.Name == name && a.PasswordHash == passwordHash)
@@ -165,8 +167,45 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         counterparty.Name,
                         agency.Id,
                         agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        agentAgencyRelation.InAgencyPermissions))
+                        inAgencyPermissions))
                 .SingleOrDefaultAsync();
+        }
+
+
+        private async ValueTask<InAgencyPermissions> GetInAgencyPermissionsByIdentityHash(string identityHash)
+        {
+            var agentRoleIds = await (from agent in _context.Agents
+                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                    where agent.IdentityHash == identityHash
+                    select agentAgencyRelation.AgentRoleIds)
+                .SingleOrDefaultAsync();
+            
+            return await GetAggregateInAgencyPermissions(agentRoleIds);
+        }
+
+
+        private async ValueTask<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
+        {
+            var agentRoleIds = await (from agent in _context.Agents
+                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                    from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
+                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                    where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
+                    select agentAgencyRelation.AgentRoleIds)
+                .SingleOrDefaultAsync();
+
+            return await GetAggregateInAgencyPermissions(agentRoleIds);
+        }
+
+
+        private async ValueTask<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
+        {
+            var permissionList = await (from agentRole in _context.AgentRoles
+                    where agentRoleIds.Contains(agentRole.Id)
+                    select agentRole.Permissions)
+                .ToListAsync();
+
+            return permissionList.Aggregate((a, b) => a & b);
         }
 
 
