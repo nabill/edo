@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -73,6 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
             var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
+            using var _ = Counters.WideAccommodationAvailabilitySearchTaskDuration.WithLabels(supplier.ToString()).NewTimer();
 
             try
             {
@@ -100,7 +103,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 string languageCode)
             {
                 var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier);
-                var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
+                var getAvailabilityTask = Task.Run(() =>
+                {
+                    using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("wide_availability_request", supplier.ToString()).NewTimer();
+                    return supplierConnector.GetAvailability(request, languageCode);
+                });
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
                 return getAvailabilityTask.Result;
