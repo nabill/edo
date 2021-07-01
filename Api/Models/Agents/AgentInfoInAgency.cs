@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         public AgentInfoInAgency(int agentId, string firstName, string lastName, string email,
             string title, string position, int counterpartyId, string counterpartyName, int agencyId, string agencyName,
-            bool isMaster, List<InAgencyPermissions> inAgencyPermissions, bool isActive)
+            bool isMaster, List<InAgencyPermissions> inAgencyPermissions, int[] inAgencyRoleIds, bool isActive)
         {
             AgentId = agentId;
             FirstName = firstName;
@@ -24,6 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             AgencyName = agencyName;
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
+            InAgencyRoleIds = inAgencyRoleIds;
             IsActive = isActive;
         }
 
@@ -87,6 +88,11 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Permissions of the agent.
         /// </summary>
         public List<InAgencyPermissions> InAgencyPermissions { get; }
+
+        /// <summary>
+        ///     Roles of the agent.
+        /// </summary>
+        public int[] InAgencyRoleIds { get; }
 
         /// <summary>
         /// Activity state
