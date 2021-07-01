@@ -106,10 +106,15 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             bool AllProvidedRolesExist(AcceptPipeValues values)
             {
+                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
+                
+                // TODO remove when front will send role ids
+                if (providedRoleIds.Length == 0)
+                    return true;
+                
                 var allRoleIds = _context.AgentRoles
                     .Select(x => x.Id)
                     .ToList();
-                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
                 return providedRoleIds.All(roleId => allRoleIds.Contains(roleId));
             }
 

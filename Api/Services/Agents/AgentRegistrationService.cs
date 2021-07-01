@@ -58,6 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             
             bool AllProvidedRolesExist()
             {
+                // TODO remove when front will send role ids
+                if (agentData.RoleIds.Length == 0)
+                    return true;
+                
                 var allRoleIds = _context.AgentRoles
                     .Select(x => x.Id)
                     .ToList();
