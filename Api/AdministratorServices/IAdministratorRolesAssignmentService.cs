@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IAdministratorRolesAssignmentService
     {
-        Task<Result> SetAdministratorRoles(int administratorId, List<int> roleIdsList, Administrator assigner);
+        Task<Result> SetAdministratorRoles(int administratorId, List<int> roleIds, Administrator initiator);
     }
 }

@@ -22,12 +22,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAdministratorRoles(int administratorId, List<int> roleIdsList, Administrator assigner)
+        public async Task<Result> SetAdministratorRoles(int administratorId, List<int> roleIds, Administrator initiator)
         {
             return await GetAdministrator()
                 .Ensure(AllProvidedRolesExist, "Some of specified roles do not exist")
                 .BindWithTransaction(_context, a => Result.Success(a)
-                    .Tap(UpdateRoles)
+                    .Tap(SetRoles)
                     .Bind(WriteAuditLog));
 
 
@@ -45,13 +45,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<bool> AllProvidedRolesExist(Administrator _)
             {
                 var allRolesIds = await _context.AdministratorRoles.Select(r => r.Id).ToListAsync();
-                return roleIdsList.All(allRolesIds.Contains);
+                return roleIds.All(allRolesIds.Contains);
             }
 
 
-            async Task UpdateRoles(Administrator assignee)
+            async Task SetRoles(Administrator assignee)
             {
-                assignee.AdministratorRoleIds = roleIdsList.ToArray();
+                assignee.AdministratorRoleIds = roleIds.ToArray();
 
                 _context.Administrators.Update(assignee);
                 await _context.SaveChangesAsync();
@@ -60,10 +60,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<Result> WriteAuditLog(Administrator assignee)
                 => _managementAuditService.Write(ManagementEventType.AdministratorRolesAssignment,
-                    new AgentRoleAssignmentEventData(
-                        assignerAdministratorId: assigner.Id,
+                    new AdministratorRoleAssignmentEventData(
+                        initiatorAdministratorId: initiator.Id,
                         assigneeAdministratorId: assignee.Id,
-                        newRoles: roleIdsList));
+                        newRoleIds: roleIds));
         }
 
 
