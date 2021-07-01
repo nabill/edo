@@ -127,11 +127,24 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     join counterparty in _context.Counterparties
                         on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agentContext.AgencyId && cr.AgentId == agentId
-                    select (AgentInfoInAgency?) new AgentInfoInAgency(agent.Id, agent.FirstName, agent.LastName, agent.Email, agent.Title, agent.Position, counterparty.Id, counterparty.Name,
-                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList(), cr.IsActive))
+                    select (AgentInfoInAgency?) new AgentInfoInAgency(
+                        agent.Id,
+                        agent.FirstName,
+                        agent.LastName,
+                        agent.Email,
+                        agent.Title,
+                        agent.Position,
+                        counterparty.Id,
+                        counterparty.Name,
+                        cr.AgencyId,
+                        agency.Name,
+                        cr.Type == AgentAgencyRelationTypes.Master,
+                        cr.InAgencyPermissions.ToList(),
+                        cr.AgentRoleIds,
+                        cr.IsActive))
                 .SingleOrDefaultAsync();
 
-            if (foundAgent == null)
+            if (foundAgent is null)
                 return Result.Failure<AgentInfoInAgency>("Agent not found in specified agency");
 
             return foundAgent.Value;
