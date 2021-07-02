@@ -11,9 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
-using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionService : IRoomSelectionService
     {
         public RoomSelectionService(IWideAvailabilityStorage wideAvailabilityStorage,
-            IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
@@ -35,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
-            _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
@@ -45,21 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId, AgentContext agent)
         {
-            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
-            if (isFailure)
-                return Result.Failure<AvailabilitySearchTaskState>(error);
-            
-            var supplierAccommodationIds = new List<SupplierAccommodationId>
-            {
-                new (selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
-            };
-            
-            var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
-            var suppliers = otherSuppliersAccommodations
-                .Select(a => a.Key.Supplier)
-                .ToList();
-
-            var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
+            var settings = await _accommodationBookingSettingsService.Get(agent);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, settings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
@@ -137,11 +120,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 }
 
                 // If there is no duplicate, we'll execute request to a single supplier only
-                if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
+                if (string.IsNullOrWhiteSpace(selectedResult.Result.HtId))
                     return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
 
                 return results
-                    .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
+                    .Where(r => r.Result.HtId == selectedResult.Result.HtId)
                     .ToList();
             }
 
@@ -189,7 +172,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
