@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             SearchId = searchId;
             ResultId = resultId;
             RoomContractSetId = roomContractSetId;
-            MainPassengerName = mainPassengerName;
+            MainPassengerName = mainPassengerName.Trim();
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
