@@ -25,5 +25,6 @@ namespace HappyTravel.Edo.Common.Enums
         AgentApiClientDelete = 190,
         CounterpartyEdit = 200,
         AdministratorRolesAssignment = 210,
+        AdministratorChangeActivityState = 220,
     }
 }
