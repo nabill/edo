@@ -24,32 +24,6 @@
             Billing email of counterparty or email of master agent.
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Get">
-            <summary>
-            Gets specified counterparty.
-            </summary>
-            <returns>List of all duplicate reports</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Get(System.Int32)">
-            <summary>
-            Gets specified counterparty.
-            </summary>
-            <returns>List of all duplicate reports</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Approve(System.Int32)">
-            <summary>
-            Approves duplicate report by given id.
-            </summary>
-            <param name="reportId"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Disapprove(System.Int32)">
-            <summary>
-            Approves duplicate report by given id.
-            </summary>
-            <param name="reportId"></param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
             <summary>
                 Gets all possible administrator roles
@@ -80,9 +54,24 @@
             </summary>
             <returns>Current administrator information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetAll">
+            <summary>
+                Gets all administrators information
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.SetRoles(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
                 Assigns new set of roles to an administrator
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.Activate(System.Int32)">
+            <summary>
+                Activates an administrator
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.Deactivate(System.Int32)">
+            <summary>
+                Deactivates an administrator
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
@@ -655,13 +644,6 @@
                 Returns full bookings report
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
-            <summary>
-            Adds an accommodation duplicate report.
-            </summary>
-            <param name="request">Duplicate accommodation info</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
@@ -960,7 +942,7 @@
                 Updates permissions agent permissions
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.SetRolesInAgency(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
                 Updates agent roles
             </summary>
@@ -2057,11 +2039,6 @@
             Maximal room contract set price
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.HasDuplicate">
-            <summary>
-            Indicates that accommodation of this availability has duplicates in other connectors.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.CheckInDate">
             <summary>
             Check in date
@@ -2597,7 +2574,7 @@
                 Permissions of the agent.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoles">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoleIds">
             <summary>
                 Roles of the agent.
             </summary>
@@ -3136,6 +3113,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.Position">
             <summary>
             Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.IsActive">
+            <summary>
+            Flag of administrator activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
@@ -3738,6 +3725,11 @@
                 Email
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.RoleIds">
+            <summary>
+                Role ids assigned to user
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">
             <summary>
             Search id
@@ -3778,7 +3770,7 @@
             Error message. Filled only for failed tasks
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.DuplicateReportsIds">
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.HtIds">
             <summary>
             Duplicate reports ids
             </summary>
