@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId, AgentContext agent)
+        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, string htId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             var results = await _wideAvailabilityStorage.GetStates(searchId, settings.EnabledConnectors);
@@ -47,14 +47,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
-            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
+            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, htId, agent);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
-            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, searchId, resultId, agent);
+            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, searchId, htId, agent);
 
             var accommodation = await _mapperClient.GetAccommodation(selectedResult.Result.Accommodation.HtId, languageCode);
             return accommodation.IsFailure
@@ -63,12 +63,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
-            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
+            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, htId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
 
@@ -99,16 +99,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId, resultId, source, result.Accommodation, result.AvailabilityId, searchSettings, agent, languageCode);
+                    .GetSupplierAvailability(searchId, htId, source, result.Accommodation, result.AvailabilityId, searchSettings, agent, languageCode);
             }
             
 
-            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
+            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, string htId, AgentContext agent)
             {
                 var results = await GetWideAvailabilityResults(searchId, agent);
                 
                 var selectedResult = results
-                    .SingleOrDefault(r => r.Result.Id == resultId);
+                    .SingleOrDefault(r => r.Result.HtId == htId);
 
                 if (selectedResult.Equals(default))
                     return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("Could not find selected availability");
@@ -159,10 +159,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<Result<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
+        private async Task<Result<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, string htId, AgentContext agent)
         {
             var result = (await GetWideAvailabilityResults(searchId, agent))
-                .SingleOrDefault(r => r.Result.Id == resultId);
+                .SingleOrDefault(r => r.Result.HtId == htId);
 
             return result.Equals(default)
                 ? Result.Failure<(Suppliers, AccommodationAvailabilityResult)>("Could not find selected availability")

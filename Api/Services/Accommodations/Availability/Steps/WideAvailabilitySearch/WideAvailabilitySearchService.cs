@@ -97,8 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                                 : rs.WithFalseDirectContractsFlag())
                             .ToList();
                         
-                        return new WideAvailabilityResult(availability.Id,
-                            availability.Accommodation,
+                        return new WideAvailabilityResult(availability.Accommodation,
                             roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,

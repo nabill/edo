@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public void LogAccommodationAvailabilityRequested(in AccommodationAvailabilityResult selectedResult, Guid searchId, Guid resultId, in AgentContext agent)
+        public void LogAccommodationAvailabilityRequested(in AccommodationAvailabilityResult selectedResult, Guid searchId, string htId, in AgentContext agent)
         {
             var accommodation = selectedResult.Accommodation;
             var @event = new AccommodationAvailabilityRequestEvent(id: accommodation.Id,
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 country: accommodation.Location.Country,
                 locality: accommodation.Location.Locality,
                 searchId: searchId,
-                resultId: resultId);
+                htId: htId);
             
             _analytics.LogEvent(@event, "accommodation-availability-requested", agent, accommodation.Location.Coordinates);
         }
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 (booking.CheckOutDate - booking.CheckInDate).Days,
                 booking.Rooms.Count,
                 bookingRequest.SearchId,
-                bookingRequest.ResultId,
+                bookingRequest.HtId,
                 bookingRequest.RoomContractSetId,
                 booking.TotalPrice);
             
