@@ -54,9 +54,24 @@
             </summary>
             <returns>Current administrator information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetAll">
+            <summary>
+                Gets all administrators information
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.SetRoles(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
                 Assigns new set of roles to an administrator
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.Activate(System.Int32)">
+            <summary>
+                Activates an administrator
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.Deactivate(System.Int32)">
+            <summary>
+                Deactivates an administrator
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
@@ -3098,6 +3113,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.Position">
             <summary>
             Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.IsActive">
+            <summary>
+            Flag of administrator activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
