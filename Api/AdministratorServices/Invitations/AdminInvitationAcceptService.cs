@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                 .Ensure(IsEmailUnique, "Administrator with same mail is already registered")
+                .Ensure(AllProvidedRolesExist, "Provided role doesn't exist")
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Tap(SaveAccepted)
                     .Bind(CreateAdmin)
@@ -57,6 +59,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 => !await _context.Administrators.AnyAsync(a => a.Email == email);
 
 
+            bool AllProvidedRolesExist(UserInvitation invitation)
+            {
+                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
+
+                // TODO remove when front will send role ids
+                if (providedRoleIds.Length == 0)
+                    return true;
+
+                var allRoleIds = _context.AdministratorRoles
+                    .Select(x => x.Id)
+                    .ToList();
+
+                return providedRoleIds.All(roleId => allRoleIds.Contains(roleId));
+            }
+
+
             Task SaveAccepted(UserInvitation invitation) 
                 => _invitationRecordService.SetAccepted(invitationCode);
 
@@ -73,6 +91,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                     LastName = invitationData.UserRegistrationInfo.LastName,
                     IdentityHash = HashGenerator.ComputeSha256(identity),
                     Position = invitationData.UserRegistrationInfo.Position,
+                    AdministratorRoleIds = invitationData.UserRegistrationInfo.RoleIds,
                     Created = now,
                     Updated = now
                 };
