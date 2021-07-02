@@ -133,7 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     {
                         var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Rate.FinalPrice.Amount);
                         var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount);
-                        var resultId = Guid.NewGuid();
 
                         var roomContractSets = accommodationAvailability.RoomContractSets
                             .Select(rs => rs.ToRoomContractSet(supplier, rs.IsDirectContract))
@@ -149,8 +148,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             return default;
                         }
 
-                        return new AccommodationAvailabilityResult(resultId,
-                            timestamp,
+                        return new AccommodationAvailabilityResult(timestamp,
                             details.AvailabilityId,
                             mapperAccommodation.ToEdoContract(accommodationAvailability.AccommodationId),
                             roomContractSets,
