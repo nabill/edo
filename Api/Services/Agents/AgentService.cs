@@ -118,6 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agentId, AgentContext agentContext)
         {
+            var roles = await _context.AgentRoles.ToListAsync();
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
                     join agent in _context.Agents
@@ -139,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         cr.AgencyId,
                         agency.Name,
                         cr.Type == AgentAgencyRelationTypes.Master,
-                        agentContext.InAgencyPermissions.ToList(),
+                        GetInAgencyPermissions(cr.AgentRoleIds, roles).ToList(),
                         cr.AgentRoleIds,
                         cr.IsActive))
                 .SingleOrDefaultAsync();
