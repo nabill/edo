@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             
             var identityHash = HashGenerator.ComputeSha256(identity);
             var administrator = await _context.Administrators
-                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
+                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash && c.IsActive);
 
             if (administrator != default)
                 return Result.Success(administrator);

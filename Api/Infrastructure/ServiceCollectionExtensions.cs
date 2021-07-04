@@ -24,7 +24,6 @@ using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
-using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
@@ -579,6 +578,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
             services.AddTransient<IAdministratorRolesManagementService, AdministratorRolesManagementService>();
+            services.AddTransient<IAdministratorManagementService, AdministratorManagementService>();
             services.AddTransient<IAgentRolesManagementService, AgentRolesManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
             services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
@@ -715,9 +715,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
             services.AddTransient<IPaymentLinkNotificationService, PaymentLinkNotificationService>();
 
-            services.AddTransient<IAccommodationDuplicatesService, AccommodationDuplicatesService>();
-            services.AddTransient<IAccommodationDuplicateReportsManagementService, AccommodationDuplicateReportsManagementService>();
-
             services.AddTransient<AdministratorServices.IAgentService, AdministratorServices.AgentService>();
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
             services.AddTransient<IAgencySystemSettingsService, AgencySystemSettingsService>();
@@ -751,6 +748,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IReportService, ReportService>();
+
+            services.AddTransient<IAdministratorRolesAssignmentService, AdministratorRolesAssignmentService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
