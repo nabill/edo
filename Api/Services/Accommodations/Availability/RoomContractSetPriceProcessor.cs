@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Extensions;
+using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -25,28 +27,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public static async Task<RoomContractSet> ProcessPrices(RoomContractSet sourceRoomContractSet, PriceProcessFunction priceProcessFunction)
         {
             var roomContracts = new List<RoomContract>(sourceRoomContractSet.RoomContracts.Count);
+            var roomContractSetGross = await priceProcessFunction(sourceRoomContractSet.Rate.Gross);
+            var roomContractSetNetTotal = await priceProcessFunction(sourceRoomContractSet.Rate.FinalPrice);
+            var roomContractSetRate = new Rate(roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Rate.Discounts,
+                sourceRoomContractSet.Rate.Type, sourceRoomContractSet.Rate.Description);
+            var priceDifference = sourceRoomContractSet.Rate.FinalPrice.Amount / roomContractSetNetTotal.Amount;
+            
             foreach (var room in sourceRoomContractSet.RoomContracts)
             {
                 var dailyRates = new List<DailyRate>(room.DailyRoomRates.Count);
                 foreach (var dailyRate in room.DailyRoomRates)
                 {
-                    var roomGross = await priceProcessFunction(dailyRate.Gross);
-                    var roomFinalPrice = await priceProcessFunction(dailyRate.FinalPrice);
+                    var roomGross = ApplyDifference(dailyRate.Gross, priceDifference);
+                    var roomFinalPrice = ApplyDifference(dailyRate.FinalPrice, priceDifference);
 
                     dailyRates.Add(BuildDailyPrice(dailyRate, roomFinalPrice, roomGross));
                 }
-
-                var totalPriceNet = await priceProcessFunction(room.Rate.FinalPrice);
-                var totalPriceGross = await priceProcessFunction(room.Rate.Gross);
+                
+                var totalPriceNet = ApplyDifference(room.Rate.FinalPrice, priceDifference);
+                var totalPriceGross = ApplyDifference(room.Rate.Gross, priceDifference);
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);
 
                 roomContracts.Add(BuildRoomContracts(room, dailyRates, totalRate));
             }
-
-            var roomContractSetGross = await priceProcessFunction(sourceRoomContractSet.Rate.Gross);
-            var roomContractSetNetTotal = await priceProcessFunction(sourceRoomContractSet.Rate.FinalPrice);
-            var roomContractSetRate = new Rate(roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Rate.Discounts,
-                sourceRoomContractSet.Rate.Type, sourceRoomContractSet.Rate.Description);
 
             return BuildRoomContractSet(sourceRoomContractSet, roomContractSetRate, roomContracts);
 
@@ -80,6 +83,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     roomContractSet.Tags,
                     isDirectContract: roomContractSet.IsDirectContract,
                     isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate);
+            
+            
+            static MoneyAmount ApplyDifference(MoneyAmount amount, decimal difference)
+                => MoneyRounder.Ceil((amount.Amount / difference).ToMoneyAmount(amount.Currency));
         }
     }
 }
