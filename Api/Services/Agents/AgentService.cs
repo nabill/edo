@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return roles
                 .Where(x => roleIds.Contains(x.Id))
                 .Select(x => x.Permissions)
-                .Aggregate((a, b) => a & b);
+                .Aggregate((a, b) => a | b);
         }
         
         
