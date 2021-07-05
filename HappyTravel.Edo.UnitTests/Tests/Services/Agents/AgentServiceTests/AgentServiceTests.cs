@@ -55,9 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, 
-                InAgencyPermissions.AccommodationBooking.ToList(), // will be taken from role
-                new int[] { 0 }, true);
+                1, "agencyName", true, new int[] {0}, true);
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, AgentContext);
 
@@ -74,7 +72,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             Assert.Equal(expectedAgent.AgencyId, actualAgent.AgencyId);
             Assert.Equal(expectedAgent.AgencyName, actualAgent.AgencyName);
             Assert.Equal(expectedAgent.IsMaster, actualAgent.IsMaster);
-            Assert.Equal(expectedAgent.InAgencyPermissions, actualAgent.InAgencyPermissions);
+            Assert.Equal(expectedAgent.InAgencyRoleIds, actualAgent.InAgencyRoleIds);
         }
 
         [Fact]
@@ -184,9 +182,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkup,
                 IsActive = true,
-                AgentRoleIds = new[] { 0 }
+                AgentRoleIds = new []{0}
             },
             new AgentAgencyRelation
             {
