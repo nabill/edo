@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.DataFormatters;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
+using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -41,11 +42,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public void LogAccommodationAvailabilityRequested(in AccommodationAvailabilityResult selectedResult, Guid searchId, string htId, in AgentContext agent)
+        public void LogAccommodationAvailabilityRequested(in Accommodation accommodation, Guid searchId, string htId, in AgentContext agent)
         {
-            var accommodation = selectedResult.Accommodation;
-            var @event = new AccommodationAvailabilityRequestEvent(id: accommodation.Id,
-                name: accommodation.Name,
+            var @event = new AccommodationAvailabilityRequestEvent(name: accommodation.Name,
                 rating: EnumFormatters.FromDescription(accommodation.Rating),
                 country: accommodation.Location.Country,
                 locality: accommodation.Location.Locality,

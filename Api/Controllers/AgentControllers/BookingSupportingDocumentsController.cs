@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/accommodations/supporting-documentation")]
+    [Route("api/{v:apiVersion}/accommodations/bookings/{bookingId}/supporting-documents")]
     [Produces("application/json")]
     public class BookingSupportingDocumentsController : BaseController
     {
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/voucher/send")]
+        [HttpPost("voucher/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/invoice/send")]
+        [HttpPost("invoice/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Voucher data,</returns>
-        [HttpGet("{bookingId}/voucher")]
+        [HttpGet("voucher")]
         [ProducesResponseType(typeof(BookingVoucherData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Invoice data.</returns>
-        [HttpGet("{bookingId}/invoice")]
+        [HttpGet("invoice")]
         [ProducesResponseType(typeof((DocumentRegistrationInfo, BookingInvoiceData)), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]

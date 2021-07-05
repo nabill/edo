@@ -724,6 +724,12 @@
                 Gets agency accounts list
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.GetAccountBalance(HappyTravel.Money.Enums.Currencies)">
+            <summary>
+              Returns account balance for currency
+            </summary>
+            <returns>Account balance</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetBanner(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
                 Uploads an image for banner
@@ -1459,12 +1465,6 @@
             <summary>
                 Processes payment callback
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetAccountBalance(HappyTravel.Money.Enums.Currencies)">
-            <summary>
-                Returns account balance for currency
-            </summary>
-            <returns>Account balance</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgentHistory">
             <summary>
