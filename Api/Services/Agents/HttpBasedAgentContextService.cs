@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
         
         
-        private async Task<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
+        private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
         {
             // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByApiClientCredentials(name, passwordHash);
@@ -186,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
+        private async Task<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
@@ -200,7 +200,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
+        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
         {
             var permissionList = await (from agentRole in _context.AgentRoles
                     where agentRoleIds.Contains(agentRole.Id)
