@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             static decimal GetRatio(decimal x, decimal y)
             {
                 if (x == 0 || y == 0)
-                    throw new NotSupportedException($"Cannot get ration between {x} and {y}");
+                    throw new NotSupportedException($"Cannot get ratio between {x} and {y}");
                 
                 return x / y;
             }
