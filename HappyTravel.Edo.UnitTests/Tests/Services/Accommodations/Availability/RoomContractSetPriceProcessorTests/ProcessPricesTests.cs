@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_total_rate()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, contractSetTotalRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50));
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
             
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_total_rate_for_list()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, contractSetTotalRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50));
             var roomContractSets = new List<RoomContractSet> {roomContractSet};
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd);
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_room_rate()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomTotalRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50), roomTotalRate: (Gross: 100, Final: 50));
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
             
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_room_rate_for_list()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomTotalRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50), roomTotalRate: (Gross: 100, Final: 50));
             var roomContractSets = new List<RoomContractSet> {roomContractSet};
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_daily_room_rates()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomDailyRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50), roomDailyRate: (Gross: 100, Final: 50));
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
             
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         [Fact]
         public async Task Should_process_daily_room_rates_for_list()
         {
-            var roomContractSet = CreateRoomContractSet(Currencies.NotSpecified, roomDailyRate: (Gross: 100, Final: 50));
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: 100, Final: 50), roomDailyRate: (Gross: 100, Final: 50));
             var roomContractSets = new List<RoomContractSet> {roomContractSet};
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         
         
         private RoomContractSet CreateRoomContractSet(
-            Currencies currency = Currencies.NotSpecified,
+            Currencies currency = Currencies.USD,
             (decimal Gross, decimal Final) contractSetTotalRate = default,
             (decimal Gross, decimal Final) roomDailyRate = default,
             (decimal Gross, decimal Final) roomTotalRate = default

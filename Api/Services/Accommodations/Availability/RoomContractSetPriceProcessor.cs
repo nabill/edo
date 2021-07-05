@@ -31,21 +31,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var roomContractSetNetTotal = await priceProcessFunction(sourceRoomContractSet.Rate.FinalPrice);
             var roomContractSetRate = new Rate(roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Rate.Discounts,
                 sourceRoomContractSet.Rate.Type, sourceRoomContractSet.Rate.Description);
-            var priceDifference = sourceRoomContractSet.Rate.FinalPrice.Amount / roomContractSetNetTotal.Amount;
+            var netRatio = GetRatio(sourceRoomContractSet.Rate.FinalPrice.Amount, roomContractSetNetTotal.Amount);
+            var grossRatio = GetRatio(sourceRoomContractSet.Rate.Gross.Amount, roomContractSetGross.Amount);
             
             foreach (var room in sourceRoomContractSet.RoomContracts)
             {
                 var dailyRates = new List<DailyRate>(room.DailyRoomRates.Count);
                 foreach (var dailyRate in room.DailyRoomRates)
                 {
-                    var roomGross = ApplyDifference(dailyRate.Gross, priceDifference);
-                    var roomFinalPrice = ApplyDifference(dailyRate.FinalPrice, priceDifference);
+                    var roomGross = ApplyDifference(dailyRate.Gross, grossRatio);
+                    var roomFinalPrice = ApplyDifference(dailyRate.FinalPrice, netRatio);
 
                     dailyRates.Add(BuildDailyPrice(dailyRate, roomFinalPrice, roomGross));
                 }
                 
-                var totalPriceNet = ApplyDifference(room.Rate.FinalPrice, priceDifference);
-                var totalPriceGross = ApplyDifference(room.Rate.Gross, priceDifference);
+                var totalPriceNet = ApplyDifference(room.Rate.FinalPrice, netRatio);
+                var totalPriceGross = ApplyDifference(room.Rate.Gross, grossRatio);
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);
 
                 roomContracts.Add(BuildRoomContracts(room, dailyRates, totalRate));
@@ -83,10 +84,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     roomContractSet.Tags,
                     isDirectContract: roomContractSet.IsDirectContract,
                     isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate);
+
+
+            static decimal GetRatio(decimal x, decimal y) 
+                => (x == 0 ? 1 : x) / y;
             
             
-            static MoneyAmount ApplyDifference(MoneyAmount amount, decimal difference)
-                => MoneyRounder.Ceil((amount.Amount / difference).ToMoneyAmount(amount.Currency));
+            static MoneyAmount ApplyDifference(MoneyAmount amount, decimal ratio)
+                => MoneyRounder.Ceil((amount.Amount / ratio).ToMoneyAmount(amount.Currency));
         }
     }
 }
