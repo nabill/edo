@@ -4,10 +4,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
 {
     public readonly struct AccommodationAvailabilityRequestEvent
     {
-        public AccommodationAvailabilityRequestEvent(string id, string name, string rating,
+        public AccommodationAvailabilityRequestEvent(string name, string rating,
             string country, string locality, Guid searchId, string htId)
         {
-            Id = id;
             Name = name;
             Rating = rating;
             Country = country;
@@ -16,7 +15,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
             HtId = htId;
         }
 
-        public string Id { get; }
         public string Rating { get; }
         public string Country { get; }
         public string Locality { get; }
