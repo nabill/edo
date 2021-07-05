@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Data.Agents
         public int Id { get; set; }
         public string Name { get; set; }
         public InAgencyPermissions Permissions { get; set; }
+        public bool IsPreservedInAgency { get; set; }
     }
 }

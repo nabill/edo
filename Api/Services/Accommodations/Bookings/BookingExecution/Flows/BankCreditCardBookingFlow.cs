@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
-                => await _evaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId);
+                => await _evaluationStorage.Get(bookingRequest.SearchId, bookingRequest.HtId, bookingRequest.RoomContractSetId);
 
                 
             bool IsPaymentTypeAllowed(BookingAvailabilityInfo availabilityInfo) 
