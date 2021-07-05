@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
@@ -86,10 +87,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate);
 
 
-            static decimal GetRatio(decimal x, decimal y) 
-                => (x == 0 ? 1 : x) / y;
-            
-            
+            static decimal GetRatio(decimal x, decimal y)
+            {
+                if (x == 0 || y == 0)
+                    throw new NotSupportedException();
+                
+                return x / y;
+            }
+
+
             static MoneyAmount ApplyRatio(MoneyAmount amount, decimal ratio)
                 => MoneyRounder.Ceil((amount.Amount / ratio).ToMoneyAmount(amount.Currency));
         }
