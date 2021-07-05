@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="htId">Selected result HtId from the first step</param>
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
-        [HttpGet("searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}")]
+        [HttpGet("searches/{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
         [ProducesResponseType(typeof(RoomContractSetAvailability?), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]

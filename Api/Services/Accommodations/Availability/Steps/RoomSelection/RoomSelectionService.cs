@@ -119,10 +119,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
-                // If there is no duplicate, we'll execute request to a single supplier only
-                if (string.IsNullOrWhiteSpace(selectedResult.Result.HtId))
-                    return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
-
                 return results
                     .Where(r => r.Result.HtId == selectedResult.Result.HtId)
                     .ToList();
