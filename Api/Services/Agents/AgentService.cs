@@ -118,6 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agentId, AgentContext agentContext)
         {
+            var roles = await _context.AgentRoles.ToListAsync();
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
                     join agent in _context.Agents
@@ -139,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         cr.AgencyId,
                         agency.Name,
                         cr.Type == AgentAgencyRelationTypes.Master,
-                        cr.InAgencyPermissions.ToList(),
+                        GetInAgencyPermissions(cr.AgentRoleIds, roles).ToList(),
                         cr.AgentRoleIds,
                         cr.IsActive))
                 .SingleOrDefaultAsync();
@@ -151,9 +152,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<List<AgentAgencyRelationInfo>> GetAgentRelations(AgentContext agent)
+        public async Task<List<AgentAgencyRelationInfo>> GetAgentRelations(AgentContext agent)
         {
-            return (from cr in _context.AgentAgencyRelations
+            var roles = await _context.AgentRoles.ToListAsync();
+            return await (from cr in _context.AgentAgencyRelations
                 join ag in _context.Agencies
                     on cr.AgencyId equals ag.Id
                 join co in _context.Counterparties
@@ -165,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
-                    GetActualPermissions(co.State, cr.InAgencyPermissions),
+                    GetActualPermissions(co.State, cr.AgentRoleIds, roles), 
                     co.State,
                     BookingPaymentTypesHelper.GetDefaultPaymentType(co.ContractKind)))
                 .ToListAsync();
@@ -191,6 +193,22 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 default:
                     throw new ArgumentException($"Invalid counterparty state {counterpartyState}");
             }
+        }
+
+
+        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, int[] roleIds, List<AgentRole> roles)
+        {
+            var permissions = GetInAgencyPermissions(roleIds, roles);
+            return GetActualPermissions(counterpartyState, permissions);
+        }
+
+
+        private static InAgencyPermissions GetInAgencyPermissions(int[] roleIds, List<AgentRole> roles)
+        {
+            return roles
+                .Where(x => roleIds.Contains(x.Id))
+                .Select(x => x.Permissions)
+                .Aggregate((a, b) => a & b);
         }
         
         
