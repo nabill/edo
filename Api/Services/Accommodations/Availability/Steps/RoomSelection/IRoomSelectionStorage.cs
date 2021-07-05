@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public interface IRoomSelectionStorage
     {
-        Task SaveResult(Guid searchId, Guid resultId, SingleAccommodationAvailability details, Suppliers supplier);
+        Task SaveResult(Guid searchId, string htId, SingleAccommodationAvailability details, Suppliers supplier);
 
-        Task<List<(Suppliers Supplier, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<Suppliers> suppliers);
+        Task<List<(Suppliers Supplier, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, string htId, List<Suppliers> suppliers);
     }
 }

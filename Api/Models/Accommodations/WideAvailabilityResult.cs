@@ -8,10 +8,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public WideAvailabilityResult(Guid id, SlimAccommodation accommodation, List<RoomContractSet> roomContractSets, decimal minPrice,
+        public WideAvailabilityResult(SlimAccommodation accommodation, List<RoomContractSet> roomContractSets, decimal minPrice,
             decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, Suppliers? supplier, string htId)
         {
-            Id = id;
             Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
@@ -24,12 +23,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.CheckInDate,
+            : this(result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.CheckInDate,
                 result.CheckOutDate, result.Supplier, result.HtId)
         { }
         
-        public Guid Id { get; }
-
         /// <summary>
         /// Accommodation data
         /// </summary>
