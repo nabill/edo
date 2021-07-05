@@ -73,52 +73,53 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var ceiledRoomContractSet = await ProcessPrices(roomContractSet, price 
                 => new ValueTask<MoneyAmount>(MoneyRounder.Ceil(price)));
             
-            var currency = roomContractSet.Rate.Currency;
-            var priceChangeStep = 1 / currency.GetDecimalDigitsCount();
+            var finalPrice = ceiledRoomContractSet.Rate.FinalPrice;
+            var roomFinalRates = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.FinalPrice).ToList();
+            var (alignedFinalPrice, alignedRoomFinalPrices) = AlignAggregateValues(finalPrice, roomFinalRates);
 
-            var finalRate = ceiledRoomContractSet.Rate.FinalPrice.Amount;
-            var roomFinalRates = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.FinalPrice.Amount).ToList();
-            var (alignedFinalPrice, alignedRoomFinalPrices) = AlignAggregateValues(finalRate, roomFinalRates, priceChangeStep);
-
-            var grossRate = ceiledRoomContractSet.Rate.Gross.Amount;
-            var grossRateValues = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.Gross.Amount).ToList();
-            var (alignedGrossPrice, alignedRoomGrossRates) = AlignAggregateValues(grossRate, grossRateValues, priceChangeStep);
+            var gross = ceiledRoomContractSet.Rate.Gross;
+            var roomGrossRateRates = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.Gross).ToList();
+            var (alignedGrossPrice, alignedRoomGrossRates) = AlignAggregateValues(gross, roomGrossRateRates);
 
             var roomContracts = new List<RoomContract>(roomContractSet.RoomContracts.Count);
             for (var i = 0; i < ceiledRoomContractSet.RoomContracts.Count; i++)
             {
                 var room = ceiledRoomContractSet.RoomContracts[i];
-                var totalPriceNet = new MoneyAmount(alignedRoomFinalPrices[i], room.Rate.Currency);
-                var totalPriceGross = new MoneyAmount(alignedRoomGrossRates[i], room.Rate.Currency);
+                var totalPriceNet = alignedRoomFinalPrices[i];
+                var totalPriceGross = alignedRoomGrossRates[i];
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);
                 
                 roomContracts.Add(BuildRoomContracts(room, room.DailyRoomRates, totalRate));
             }
 
-            var roomContractSetRate = new Rate(new MoneyAmount(alignedFinalPrice, currency),
-                new MoneyAmount(alignedGrossPrice, currency));
+            var roomContractSetRate = new Rate(alignedFinalPrice, alignedGrossPrice);
 
             return BuildRoomContractSet(roomContractSet, roomContractSetRate, roomContracts);
 
 
-            static (decimal Aggregated, List<decimal> Parts) AlignAggregateValues(decimal aggregated, List<decimal> parts, decimal changeStep)
+            static (MoneyAmount Aggregated, List<MoneyAmount> Parts) AlignAggregateValues(MoneyAmount aggregated, List<MoneyAmount> parts)
             {
-                var partsSum = parts.Sum();
+                var partsSum = new MoneyAmount(parts.Sum(p => p.Amount), aggregated.Currency);
                 return aggregated switch
                 {
                     _ when aggregated == partsSum => (aggregated, parts),
                     _ when aggregated < partsSum => (partsSum, parts),
-                    _ when aggregated > partsSum => Align(aggregated, parts, changeStep),
+                    _ when aggregated > partsSum => Align(aggregated, parts),
                     _ => throw new ArgumentOutOfRangeException(nameof(aggregated), aggregated, null)
                 };
 
 
-                static (decimal Aggregated, List<decimal> Parts) Align(decimal aggregated, List<decimal> parts, decimal changeStep)
+                static (MoneyAmount Aggregated, List<MoneyAmount> Parts) Align(MoneyAmount aggregated, List<MoneyAmount> parts)
                 {
-                    while (parts.Sum() < aggregated)
-                        parts = parts.Select(p => p + changeStep).ToList();
+                    var changeStep = 1 / aggregated.Currency.GetDecimalDigitsCount();
+                    while (parts.Sum(p => p.Amount) < aggregated.Amount)
+                    {
+                        parts = parts
+                            .Select(p => new MoneyAmount(p.Amount + changeStep, p.Currency))
+                            .ToList();
+                    }
 
-                    return (parts.Sum(), parts);
+                    return (new MoneyAmount(parts.Sum(p=>p.Amount), aggregated.Currency), parts);
                 }
             }
         }
