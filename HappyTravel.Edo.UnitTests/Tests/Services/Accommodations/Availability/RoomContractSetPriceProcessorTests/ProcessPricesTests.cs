@@ -99,6 +99,27 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
             Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
         }
         
+        [InlineData(100, 50, 1d)]
+        [InlineData(200, 100, 1.5d)]
+        [InlineData(300, 200, 2.5d)]
+        [Theory]
+        public async Task Should_be_change_rates_proportionally(decimal gross, decimal net, decimal ratio)
+        {
+            var roomContractSet = CreateRoomContractSet(Currencies.USD, contractSetTotalRate: (Gross: gross, Final: net), roomDailyRate: (Gross: gross, Final: net), roomTotalRate:  (Gross: gross, Final: net));
+            var roomContractSets = new List<RoomContractSet> {roomContractSet};
+
+            ValueTask<MoneyAmount> PriceProcessFunction(MoneyAmount price) => new ValueTask<MoneyAmount>(new MoneyAmount(price.Amount * ratio, Currencies.USD));
+
+            var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, PriceProcessFunction); 
+            
+            Assert.Equal(gross * ratio, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(net * ratio, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(gross * ratio, processed[0].RoomContracts[0].Rate.Gross.Amount);
+            Assert.Equal(net * ratio, processed[0].RoomContracts[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+        }
+        
         
         private RoomContractSet CreateRoomContractSet(
             Currencies currency = Currencies.USD,
