@@ -1,7 +1,13 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Administrators;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +19,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AdministratorsController : BaseController
     {
-        public AdministratorsController(IAdministratorContext administratorContext)
+        public AdministratorsController(IAdministratorContext administratorContext,
+            IAdministratorRolesAssignmentService administratorRolesAssignmentService,
+            IAdministratorManagementService administratorManagementService)
         {
             _administratorContext = administratorContext;
+            _administratorRolesAssignmentService = administratorRolesAssignmentService;
+            _administratorManagementService = administratorManagementService;
         }
-        
+
+
         /// <summary>
         ///     Gets current administrator information
         /// </summary>
@@ -28,15 +39,79 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> GetCurrent()
         {
             var (_, isFailure, administrator, _) = await _administratorContext.GetCurrent();
-            
+
             return isFailure
                 ? NoContent()
-                : Ok(new AdministratorInfo(administrator.Id,
-                    administrator.FirstName,
-                    administrator.LastName,
-                    administrator.Position));
+                : Ok(administrator.ToAdministratorInfo());
         }
-        
+
+
+        /// <summary>
+        ///     Gets all administrators information
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(List<AdministratorInfo>), StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        public async Task<IActionResult> GetAll()
+            => Ok(await _administratorManagementService.GetAll());
+
+
+        /// <summary>
+        ///     Assigns new set of roles to an administrator
+        /// </summary>
+        [HttpPut("{administratorId:int}/roles")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        public async Task<IActionResult> SetRoles([FromRoute] int administratorId, [FromBody] List<int> roleIds)
+        {
+            var (_, isGetAdminFailure, administrator, getAdminError) = await _administratorContext.GetCurrent();
+
+            if (isGetAdminFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(getAdminError));
+
+            return OkOrBadRequest(await _administratorRolesAssignmentService.SetAdministratorRoles(administratorId, roleIds, administrator));
+        }
+
+
+        /// <summary>
+        ///     Activates an administrator
+        /// </summary>
+        [HttpPost("{administratorId:int}/activate")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        public async Task<IActionResult> Activate([FromRoute] int administratorId)
+        {
+            var (_, isGetAdminFailure, administrator, getAdminError) = await _administratorContext.GetCurrent();
+
+            if (isGetAdminFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(getAdminError));
+
+            return OkOrBadRequest(await _administratorManagementService.Activate(administratorId, administrator));
+        }
+
+
+        /// <summary>
+        ///     Deactivates an administrator
+        /// </summary>
+        [HttpPost("{administratorId:int}/deactivate")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        public async Task<IActionResult> Deactivate([FromRoute] int administratorId)
+        {
+            var (_, isGetAdminFailure, administrator, getAdminError) = await _administratorContext.GetCurrent();
+
+            if (isGetAdminFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(getAdminError));
+
+            return OkOrBadRequest(await _administratorManagementService.Deactivate(administratorId, administrator));
+        }
+
+
         private readonly IAdministratorContext _administratorContext;
+        private readonly IAdministratorRolesAssignmentService _administratorRolesAssignmentService;
+        private readonly IAdministratorManagementService _administratorManagementService;
     }
 }

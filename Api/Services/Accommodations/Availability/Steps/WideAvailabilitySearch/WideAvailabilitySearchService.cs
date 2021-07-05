@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
-using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,35 +18,36 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
-        public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IWideAvailabilityStorage availabilityStorage,
-            IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService,
-            IAvailabilitySearchAreaService searchAreaService,
-            ILogger<WideAvailabilitySearchService> logger)
+        public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, AvailabilityAnalyticsService analyticsService,
+            IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, ILogger<WideAvailabilitySearchService> logger)
         {
-            _duplicatesService = duplicatesService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
             _searchAreaService = searchAreaService;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
    
         public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
+            if (!request.HtIds.Any())
+                return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
+            
+            if (request.CheckInDate.Date < _dateTimeProvider.UtcToday())
+                return Result.Failure<Guid>("Check in date must not be in the past");
+            
             var searchId = Guid.NewGuid();
-            _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
+            
+            Baggage.SetSearchId(searchId);
+            _logger.LogMultiProviderAvailabilitySearchStarted(searchId);
 
             var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
             if (isFailure)
                 return Result.Failure<Guid>(error);
-
-            if (!request.HtIds.Any())
-                return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
 
             _analyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
@@ -59,18 +58,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
+
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
+            Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var accommodationDuplicates = await _duplicatesService.Get(agent);
             var supplierSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
             
             return CombineAvailabilities(supplierSearchResults);
@@ -92,20 +91,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Select(r =>
                     {
                         var (supplier, availability) = r;
-                        var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
-                        var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
                         var roomContractSets = availability.RoomContractSets
                             .Select(rs => searchSettings.IsDirectContractFlagVisible
                                 ? rs
                                 : rs.WithFalseDirectContractsFlag())
                             .ToList();
                         
-                        return new WideAvailabilityResult(availability.Id,
-                            availability.Accommodation,
+                        return new WideAvailabilityResult(availability.Accommodation,
                             roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
-                            hasDuplicatesForCurrentAgent,
                             availability.CheckInDate,
                             availability.CheckOutDate,
                             searchSettings.IsSupplierVisible
@@ -147,12 +142,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

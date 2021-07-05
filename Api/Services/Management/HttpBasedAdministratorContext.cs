@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             
             var identityHash = HashGenerator.ComputeSha256(identity);
             var administrator = await _context.Administrators
-                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
+                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash && c.IsActive);
 
             if (administrator != default)
                 return Result.Success(administrator);

@@ -46,18 +46,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
-            Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
+            Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
+            Baggage.SetSearchId(searchId);
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
+            var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
 
             var connectorEvaluationResult = await EvaluateOnConnector(result);
             if (connectorEvaluationResult.IsFailure)
             {
-                _logger.LogBookingEvaluationFailure($"EvaluateOnConnector returned status code: {connectorEvaluationResult.Error.Status}, " +
-                    $"error: {connectorEvaluationResult.Error.Detail}");
+                _logger.LogBookingEvaluationFailure(connectorEvaluationResult.Error.Status, connectorEvaluationResult.Error.Detail);
                 return (RoomContractSetAvailability?)null;
             }
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var accommodationResult = await _accommodationService.Get(result.htId, languageCode);
             if (accommodationResult.IsFailure)
             {
-                _logger.LogBookingEvaluationFailure($"Error getting accommodation for HtId '{result.htId}': error: {accommodationResult.Error}");
+                _logger.LogGetAccommodationByHtIdFailed(result.htId, accommodationResult.Error.Detail);
                 return (RoomContractSetAvailability?)null;
             }
 
@@ -84,9 +84,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Check(CheckAgainstSettings);
 
 
-            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
-                var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
+                var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
@@ -159,7 +159,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var deadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.RoomContracts);
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
-                    resultId: resultId,
                     roomContractSetId: finalRoomContractSet.Id, 
                     availability: dataWithMarkup, 
                     resultSupplier: result.Supplier,

@@ -12,5 +12,7 @@ namespace HappyTravel.Edo.Data.Management
         public string IdentityHash { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
+        public int[] AdministratorRoleIds { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -28,9 +29,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent,
+        public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
+            Baggage.SetSearchId(searchId);
             var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
@@ -41,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedResult = await _roomSelectionStorage.GetResult(searchId, resultId, enabledSuppliers);
+                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSuppliers);
                 var selectedRoomSet = selectedResult
                     .SelectMany(r =>
                     {
@@ -64,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierKey, a)))
-                    .SingleOrDefault(r => r.a.Id == resultId);
+                    .SingleOrDefault(r => r.a.HtId == htId);
                 
                 var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
 

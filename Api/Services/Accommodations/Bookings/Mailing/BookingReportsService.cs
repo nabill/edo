@@ -52,13 +52,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             async Task<Result<List<EmailAndSetting>>> GetEmailsAndSettings()
             {
+                var rolesWithPermission = await _context.AgentRoles
+                    .Where(x => x.Permissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary))
+                    .Select(x => x.Id)
+                    .ToListAsync();
+                
                 var emailsAndSettings = await
                     (from relation in _context.AgentAgencyRelations
                         join agent in _context.Agents
                             on relation.AgentId equals agent.Id
                         where relation.AgencyId == agencyId
-                            && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)
                             && relation.IsActive
+                            && relation.AgentRoleIds.Any(rolesWithPermission.Contains)
                         select new EmailAndSetting
                         {
                             AgentId = relation.AgentId,

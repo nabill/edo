@@ -5,7 +5,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Notifications;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Notifications.Models;
-using HappyTravel.Edo.Notifications.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             var options = await GetOptions(userId, userType, agencyId, notificationType);
 
             return options is null 
-                ? NotificationOptionsHelper.TryGetDefaultOptions(notificationType, userType) 
+                ? await TryGetDefaultOptions(notificationType, userType) 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory};
         }
 
@@ -40,7 +39,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .Where(o => o.AgencyId == agent.AgencyId && o.UserId == agent.AgentId && o.UserType == ApiCallerTypes.Agent)
                 .ToListAsync();
 
-            return GetMaterializedOptions(agentOptions, ReceiverTypes.AgentApp);
+            return await GetMaterializedOptions(agentOptions, ReceiverTypes.AgentApp);
         }
 
 
@@ -50,7 +49,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .Where(o => o.AgencyId == null && o.UserId == admin.AdminId && o.UserType == ApiCallerTypes.Admin)
                 .ToListAsync();
 
-            return GetMaterializedOptions(adminOptions, ReceiverTypes.AdminPanel);
+            return await GetMaterializedOptions (adminOptions, ReceiverTypes.AdminPanel);
         }
 
 
@@ -83,9 +82,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return Result.Success();
 
 
-                Result<SlimNotificationOptions> Validate(KeyValuePair<NotificationTypes, NotificationSettings> option)
+                async Task<Result<SlimNotificationOptions>> Validate(KeyValuePair<NotificationTypes, NotificationSettings> option)
                 {
-                    var defaultOptions = NotificationOptionsHelper.TryGetDefaultOptions(option.Key, userType);
+                    var defaultOptions = await TryGetDefaultOptions(option.Key, userType);
                     if (defaultOptions.IsFailure)
                         return Result.Failure<SlimNotificationOptions>(defaultOptions.Error);
 
@@ -150,9 +149,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
 
 
-        private static Dictionary<NotificationTypes, NotificationSettings> GetMaterializedOptions(List<NotificationOptions> userOptions, ReceiverTypes receiver)
+        private async Task<Dictionary<NotificationTypes, NotificationSettings>> GetMaterializedOptions(List<NotificationOptions> userOptions, ReceiverTypes receiver)
         {
-            var defaultOptions = NotificationOptionsHelper.GetDefaultOptions(receiver);
+            var defaultOptions = await GetDefaultOptions(receiver);
             var materializedSettings = new Dictionary<NotificationTypes, NotificationSettings>();
 
             foreach (var option in defaultOptions)
@@ -174,6 +173,35 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             return materializedSettings;
         }
+
+
+        private async Task<Result<SlimNotificationOptions>> TryGetDefaultOptions(NotificationTypes type, ApiCallerTypes userType)
+        {
+            var receiver = GetReceiver(userType);
+            var options = await _context.DefaultNotificationOptions.SingleOrDefaultAsync(o => o.Type == type);
+
+            if (options is null)
+                return Result.Failure<SlimNotificationOptions>($"Cannot find notification options for the type '{type}'");
+
+            return options.EnabledReceivers.HasFlag(receiver)
+                ? new SlimNotificationOptions(options.EnabledProtocols, options.IsMandatory, options.EnabledReceivers)
+                : Result.Failure<SlimNotificationOptions>($"Cannot find notification options for the type '{type}' and the receiver '{receiver}'");
+
+
+            static ReceiverTypes GetReceiver(ApiCallerTypes userType)
+                => userType switch
+                {
+                    ApiCallerTypes.Admin => ReceiverTypes.AdminPanel,
+                    ApiCallerTypes.Agent => ReceiverTypes.AgentApp,
+                    _ => throw new System.NotImplementedException()
+                };
+        }
+
+
+        private async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> GetDefaultOptions(ReceiverTypes receiver)
+            => await _context.DefaultNotificationOptions
+                .Where(o => o.EnabledReceivers.HasFlag(receiver))
+                .ToDictionaryAsync(o => o.Type, o => new SlimNotificationOptions(o.EnabledProtocols, o.IsMandatory, o.EnabledReceivers));
 
 
         private readonly EdoContext _context;

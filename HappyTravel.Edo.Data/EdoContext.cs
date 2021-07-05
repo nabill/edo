@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
@@ -19,10 +17,8 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
-using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 using BookingRequest = HappyTravel.Edo.Data.Bookings.BookingRequest;
 
 namespace HappyTravel.Edo.Data
@@ -80,10 +76,6 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Receipt> Receipts { get; set; }
         
-        public virtual DbSet<AccommodationDuplicate> AccommodationDuplicates { get; set; }
-        
-        public virtual DbSet<AccommodationDuplicateReport> AccommodationDuplicateReports { get; set; }
-        
         public virtual DbSet<AgentSystemSettings> AgentSystemSettings { get; set; }
         
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
@@ -97,7 +89,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<NotificationOptions> NotificationOptions { get; set; }
         
         public DbSet<Discount> Discounts { get; set; }
-        public DbSet<AgentRole> AgentRoles { get; set; }
+        public virtual DbSet<AgentRole> AgentRoles { get; set; }
+        public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
+        public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -239,8 +233,6 @@ namespace HappyTravel.Edo.Data
             BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
             BuildReceipts(builder);
-            BuildAccommodationDuplicates(builder);
-            BuildAccommodationDuplicateReports(builder);
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
             BuildUploadedImages(builder);
@@ -251,6 +243,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingStatusHistory(builder);
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
+            BuildDefaultNotificationOptions(builder);
         }
 
 
@@ -388,6 +381,7 @@ namespace HappyTravel.Edo.Data
                 adm.Property(a => a.Position).IsRequired();
                 adm.Property(a => a.Email).IsRequired();
                 adm.HasIndex(a => a.IdentityHash);
+                adm.Property(a => a.IsActive).HasDefaultValue(true);
             });
         }
 
@@ -731,33 +725,6 @@ namespace HappyTravel.Edo.Data
         }
         
         
-        private void BuildAccommodationDuplicates(ModelBuilder builder)
-        {
-            builder.Entity<AccommodationDuplicate>(duplicate =>
-            {
-                duplicate.HasKey(r => r.Id);
-                duplicate.HasIndex(r=>r.AccommodationId1);
-                duplicate.HasIndex(r=>r.AccommodationId2);
-                duplicate.HasIndex(r => r.ReporterAgencyId);
-                duplicate.HasIndex(r => r.ReporterAgentId);
-            });
-        }
-        
-        
-        private void BuildAccommodationDuplicateReports(ModelBuilder builder)
-        {
-            builder.Entity<AccommodationDuplicateReport>(duplicate =>
-            {
-                duplicate.HasKey(r => r.Id);
-                duplicate.HasIndex(r => r.ReporterAgencyId);
-                duplicate.HasIndex(r => r.ReporterAgentId);
-                
-                duplicate.HasIndex(r => r.ReporterAgentId);
-                duplicate.Property(r => r.Accommodations).HasColumnType("jsonb");
-            });
-        }
-        
-        
         private void BuildAgentSystemSettings(ModelBuilder builder)
         {
             builder.Entity<AgentSystemSettings>(settings =>
@@ -888,6 +855,18 @@ namespace HappyTravel.Edo.Data
                 b.HasIndex(d => d.TargetAgencyId);
                 b.HasIndex(d => d.TargetPolicyId);
                 b.HasIndex(d => d.IsActive);
+            });
+        }
+
+
+        private void BuildDefaultNotificationOptions(ModelBuilder builder)
+        {
+            builder.Entity<DefaultNotificationOptions>(e =>
+            {
+                e.HasKey(o => o.Type);
+                e.Property(o => o.EnabledProtocols).IsRequired();
+                e.Property(o => o.IsMandatory).IsRequired();
+                e.Property(o => o.EnabledReceivers).IsRequired();
             });
         }
 

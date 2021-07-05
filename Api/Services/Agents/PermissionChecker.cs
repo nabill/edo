@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -27,17 +28,23 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agent.AgencyId.ToString(),
                 agent.AgentId.ToString());
             
-            var storedPermissions = await _flow.GetOrSetAsync(
-                key: key, 
+            var storedPermissions = await _flow.GetOrSetAsync(key: key, 
                 getValueFunction: async () => await GetPermissions(agent.AgentId, agent.AgencyId), 
                 AgentPermissionsCacheLifeTime);
 
             if (Equals(storedPermissions, default))
                 return Result.Failure("The agent isn't affiliated with the agency");
-
+            
             return !storedPermissions.HasFlag(permission)
                 ? Result.Failure($"Agent does not have the '{permission}' permission")
                 : Result.Success();
+            
+            // TODO: Uncomment when milestone https://github.com/happy-travel/agent-app-project/milestone/27 will be finished
+            // var hasPermission = storedPermissions.Any(p => p.HasFlag(permission));
+            //
+            // return hasPermission
+            //     ? Result.Success()
+            //     : Result.Failure($"Agent does not have the '{permission}' permission");
 
 
             Task<InAgencyPermissions> GetPermissions(int agentId, int agencyId)
@@ -48,6 +55,28 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .Select(r => r.InAgencyPermissions)
                     .SingleOrDefaultAsync();
             }
+
+            
+            // TODO: Uncomment when milestone https://github.com/happy-travel/agent-app-project/milestone/27 will be finished
+            // TODO: Get permissions in a single request
+            // async Task<List<InAgencyPermissions>> GetPermissions(int agentId, int agencyId)
+            // {
+            //     var roleIds = await _context.AgentAgencyRelations
+            //         .Where(r => r.AgentId == agentId)
+            //         .Where(r => r.AgencyId == agencyId)
+            //         .Select(r => r.AgentRoleIds)
+            //         .SingleOrDefaultAsync();
+            //
+            //     if (roleIds == default)
+            //         return default;
+            //         
+            //     var permissions = await _context.AgentRoles
+            //         .Where(r => roleIds.Contains(r.Id))
+            //         .Select(r => r.Permissions)
+            //         .ToListAsync();
+            //     
+            //     return permissions;
+            // }
         }
 
 

@@ -95,6 +95,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             catch (Exception ex)
             {
                 ex.Data.Add("requested url", requestFactory().RequestUri);
+                ex.Data.Add("response body", await requestFactory().Content?.ReadAsStringAsync(cancellationToken));
                 _logger.LogConnectorClientException(ex);
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
@@ -159,7 +160,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             async Task WaitAndRefreshToken(DelegateResult<HttpResponseMessage> result, Context context)
             {
                 const int delayNextRequestMilliseconds = 150;
-                _logger.LogUnauthorizedConnectorResponse($"Unauthorized response was returned from '{result.Result.RequestMessage.RequestUri}'. Refreshing token...");
+                _logger.LogUnauthorizedConnectorResponse(result.Result?.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
                 await Task.Delay(TimeSpan.FromMilliseconds(delayNextRequestMilliseconds), cancellationToken);
                 await _securityTokenManager.Refresh();
             }
