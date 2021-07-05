@@ -27,26 +27,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public static async Task<RoomContractSet> ProcessPrices(RoomContractSet sourceRoomContractSet, PriceProcessFunction priceProcessFunction)
         {
             var roomContracts = new List<RoomContract>(sourceRoomContractSet.RoomContracts.Count);
-            var roomContractSetGross = await priceProcessFunction(sourceRoomContractSet.Rate.Gross);
             var roomContractSetNetTotal = await priceProcessFunction(sourceRoomContractSet.Rate.FinalPrice);
+            var ratio = GetRatio(sourceRoomContractSet.Rate.FinalPrice.Amount, roomContractSetNetTotal.Amount);
+            var roomContractSetGross = ApplyRatio(sourceRoomContractSet.Rate.Gross, ratio);
             var roomContractSetRate = new Rate(roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Rate.Discounts,
                 sourceRoomContractSet.Rate.Type, sourceRoomContractSet.Rate.Description);
-            var netRatio = GetRatio(sourceRoomContractSet.Rate.FinalPrice.Amount, roomContractSetNetTotal.Amount);
-            var grossRatio = GetRatio(sourceRoomContractSet.Rate.Gross.Amount, roomContractSetGross.Amount);
+            
             
             foreach (var room in sourceRoomContractSet.RoomContracts)
             {
                 var dailyRates = new List<DailyRate>(room.DailyRoomRates.Count);
                 foreach (var dailyRate in room.DailyRoomRates)
                 {
-                    var roomGross = ApplyDifference(dailyRate.Gross, grossRatio);
-                    var roomFinalPrice = ApplyDifference(dailyRate.FinalPrice, netRatio);
+                    var roomGross = ApplyRatio(dailyRate.Gross, ratio);
+                    var roomFinalPrice = ApplyRatio(dailyRate.FinalPrice, ratio);
 
                     dailyRates.Add(BuildDailyPrice(dailyRate, roomFinalPrice, roomGross));
                 }
                 
-                var totalPriceNet = ApplyDifference(room.Rate.FinalPrice, netRatio);
-                var totalPriceGross = ApplyDifference(room.Rate.Gross, grossRatio);
+                var totalPriceNet = ApplyRatio(room.Rate.FinalPrice, ratio);
+                var totalPriceGross = ApplyRatio(room.Rate.Gross, ratio);
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);
 
                 roomContracts.Add(BuildRoomContracts(room, dailyRates, totalRate));
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 => (x == 0 ? 1 : x) / y;
             
             
-            static MoneyAmount ApplyDifference(MoneyAmount amount, decimal ratio)
+            static MoneyAmount ApplyRatio(MoneyAmount amount, decimal ratio)
                 => MoneyRounder.Ceil((amount.Amount / ratio).ToMoneyAmount(amount.Currency));
         }
     }
