@@ -88,10 +88,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
                 
-                // TODO agentData.RoleIds *might* be always empty and this check might be unnecessary
-                var roleIds = agentData.RoleIds;
-                if (roleIds.Length == 0)
-                    roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
+                // assign all roles to master agent
+                var roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
                 
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
