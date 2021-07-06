@@ -201,9 +201,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(IEnumerable<int> agentRoleIds)
+        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
         {
-            if (Equals(agentRoleIds, default))
+            if (agentRoleIds.Length == 0)
                 return 0;
             
             var permissionList = await (from agentRole in _context.AgentRoles
