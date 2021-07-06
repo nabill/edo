@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -200,14 +201,17 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
+        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(IEnumerable<int> agentRoleIds)
         {
+            if (Equals(agentRoleIds, default))
+                return 0;
+            
             var permissionList = await (from agentRole in _context.AgentRoles
                     where agentRoleIds.Contains(agentRole.Id)
                     select agentRole.Permissions)
                 .ToListAsync();
 
-            return permissionList.Aggregate((a, b) => a & b);
+            return permissionList.Aggregate((a, b) => a | b);
         }
 
 
