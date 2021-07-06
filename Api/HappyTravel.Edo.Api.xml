@@ -2569,11 +2569,6 @@
                 Agent position in counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyPermissions">
-            <summary>
-                Permissions of the agent.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoleIds">
             <summary>
                 Roles of the agent.
