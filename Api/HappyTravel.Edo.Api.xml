@@ -1492,6 +1492,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.HotelControllers.HotelConfirmationController.Update(HappyTravel.Edo.Api.Models.Hotels.HotelConfirmation)">
+            <summary>
+                Updates booking status and hotel confirmation code
+            </summary>
+            <param name="hotelConfirmation">Settings</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">
             <summary>
             Returns a current build version of the system.

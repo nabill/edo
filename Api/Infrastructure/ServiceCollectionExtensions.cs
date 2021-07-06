@@ -102,6 +102,7 @@ using HappyTravel.Edo.Api.Services.SupplierResponses;
 using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
+using HappyTravel.Edo.Api.Services.Hotel;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -759,6 +760,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
+
+            services.AddTransient<IHotelConfirmationService, HotelConfirmationService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
