@@ -24,7 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         public async Task<Result> CompleteOffline(int bookingId, Administrator administratorContext)
         {
-            // TODO: Add admin actions audit log NIJO-659
             return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
                 .Tap(Complete)
