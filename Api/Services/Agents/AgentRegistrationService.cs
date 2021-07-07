@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -86,11 +87,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
+                
+                // assign all roles to master agent
+                var roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
+                
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
                     PermissionSets.Master,
                     rootAgency.Id,
-                    agentData.RoleIds);
+                    roleIds);
             }
 
 
