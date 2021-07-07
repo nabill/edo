@@ -55,6 +55,11 @@ namespace HappyTravel.Edo.Api
                         })
                         .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
                 })
+                .ConfigureAppConfiguration(builder =>
+                {
+                    builder.Sources.Clear();
+                    builder.AddConfiguration(configuration);
+                })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
                     logging.ClearProviders()
