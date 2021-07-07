@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api
 
                     var env = hostingContext.HostingEnvironment;
 
-                    if (false)
+                    if (env.IsLocal())
                         logging.AddConsole();
                     else
                     {
