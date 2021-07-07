@@ -11,7 +11,7 @@ using Constants = HappyTravel.StdOutLogger.Infrastructure.Constants;
 
 namespace HappyTravel.Edo.Api
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -19,34 +19,22 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .AddConsulKeyValueClient(
-                    Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
-                    "edo",
-                    Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"))
-                .Build();
-
-            return Host.CreateDefaultBuilder(args)
+        private static IHostBuilder CreateHostBuilder(string[] args) => 
+            Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()
                         .UseKestrel()
                         .UseSentry(options =>
                         {
-                            options.Dsn = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", configuration);
-                            options.Environment = environmentName;
+                            options.Dsn = Environment.GetEnvironmentVariable("HTDC_EDO_SENTRY_ENDPOINT");
+                            options.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                             options.IncludeActivityData = true;
                             options.BeforeSend = sentryEvent =>
                             {
                                 foreach (var (key, value) in OpenTelemetry.Baggage.Current)
                                     sentryEvent.SetTag(key, value);
-                                
+                                    
                                 sentryEvent.SetTag("TraceId", Activity.Current?.TraceId.ToString() ?? string.Empty);
                                 sentryEvent.SetTag("SpanId", Activity.Current?.SpanId.ToString() ?? string.Empty);
 
@@ -55,10 +43,16 @@ namespace HappyTravel.Edo.Api
                         })
                         .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
                 })
-                .ConfigureAppConfiguration(builder =>
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    builder.Sources.Clear();
-                    builder.AddConfiguration(configuration);
+                    var environment = hostingContext.HostingEnvironment;
+
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                    config.AddConsulKeyValueClient(Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
+                        "edo",
+                        Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"));
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
@@ -80,6 +74,5 @@ namespace HappyTravel.Edo.Api
                         logging.AddSentry();
                     }
                 });
-        }
     }
 }
