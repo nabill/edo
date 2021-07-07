@@ -204,6 +204,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private static InAgencyPermissions GetInAgencyPermissions(int[] roleIds, List<AgentRole> roles)
         {
+            if (roleIds.Length == 0)
+                return 0;
+            
             return roles
                 .Where(x => roleIds.Contains(x.Id))
                 .Select(x => x.Permissions)
