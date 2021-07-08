@@ -36,8 +36,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 },
                 TimeSpan.FromDays(1));
         }
-
-
+        
+        
         private readonly IDoubleFlow _flow;
         private readonly IAccommodationMapperClient _mapperClient;
     }

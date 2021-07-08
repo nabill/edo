@@ -1926,11 +1926,6 @@
             List of available payment methods
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Id">
-            <summary>
-                The accommodation ID.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
