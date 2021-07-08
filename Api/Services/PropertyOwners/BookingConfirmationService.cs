@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             Task SaveHistory()
             {
-                _context.HotelConfirmationHistory.Add(new HotelConfirmationHistoryEntry
+                _context.BookingConfirmationHistory.Add(new BookingConfirmationHistoryEntry
                 {
                     ReferenceCode = bookingConfirmation.ReferenceCode,
                     ConfirmationCode = bookingConfirmation.ConfirmationCode,

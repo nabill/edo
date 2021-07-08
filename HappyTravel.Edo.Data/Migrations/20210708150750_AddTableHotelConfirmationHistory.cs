@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: true);
 
             migrationBuilder.CreateTable(
-                name: "HotelConfirmationHistory",
+                name: "BookingConfirmationHistory",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -28,24 +28,24 @@ namespace HappyTravel.Edo.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HotelConfirmationHistory", x => x.Id);
+                    table.PrimaryKey("PK_BookingConfirmationHistory", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_HotelConfirmationHistory_CreatedAt",
-                table: "HotelConfirmationHistory",
+                name: "IX_BookingConfirmationHistory_CreatedAt",
+                table: "BookingConfirmationHistory",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HotelConfirmationHistory_ReferenceCode",
-                table: "HotelConfirmationHistory",
+                name: "IX_BookingConfirmationHistory_ReferenceCode",
+                table: "BookingConfirmationHistory",
                 column: "ReferenceCode");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "HotelConfirmationHistory");
+                name: "BookingConfirmationHistory");
 
             migrationBuilder.DropColumn(
                 name: "ConfirmationCode",

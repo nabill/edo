@@ -3,7 +3,7 @@ using System;
 
 namespace HappyTravel.Edo.Data.Bookings
 {
-    public class HotelConfirmationHistoryEntry
+    public class BookingConfirmationHistoryEntry
     {
         public int Id { get; set; }
         public string ReferenceCode { get; set; }

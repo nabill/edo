@@ -519,6 +519,39 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("BookingAuditLog");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.BookingConfirmationHistoryEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("ConfirmationCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Initiator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ReferenceCode");
+
+                    b.ToTable("BookingConfirmationHistory");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.BookingRequest", b =>
                 {
                     b.Property<string>("ReferenceCode")
@@ -599,39 +632,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("BookingId");
 
                     b.ToTable("CreditCardPaymentConfirmations");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.HotelConfirmationHistoryEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("ConfirmationCode")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Initiator")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReferenceCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("ReferenceCode");
-
-                    b.ToTable("HotelConfirmationHistory");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Documents.Invoice", b =>
