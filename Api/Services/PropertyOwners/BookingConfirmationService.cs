@@ -67,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     apiCaller: Models.Users.ApiCaller.InternalServiceAccount, 
                     reason: new BookingChangeReason 
                     {
-                        Source = BookingChangeSources.Hotel,
-                        Event = BookingChangeEvents.HotelConfirmation,
+                        Source = BookingChangeSources.PropertyOwner,
+                        Event = BookingChangeEvents.BookingConfirmation,
                         Reason = $"Status changed by property owner employee {bookingConfirmation.Initiator}"
                     });
             }

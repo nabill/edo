@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Common.Enums
         Administrator = 1,
         Supplier = 3,
         System = 4,
-        Hotel = 5
+        PropertyOwner = 5
     }
 }
