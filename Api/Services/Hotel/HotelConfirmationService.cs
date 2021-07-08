@@ -1,22 +1,22 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Hotel
 {
     public class HotelConfirmationService : IHotelConfirmationService
     {
-        public HotelConfirmationService(EdoContext context)
+        public HotelConfirmationService(EdoContext context, IBookingRecordsUpdater recordsUpdater)
         {
             _context = context;
+            _recordsUpdater = recordsUpdater;
         }
 
 
@@ -46,8 +46,13 @@ namespace HappyTravel.Edo.Api.Services.Hotel
             async Task<Result> UpdateBooking(Booking booking)
             {
                 if (hotelConfirmation.ReferenceCode != string.Empty)
+                {
                     booking.ReferenceCode = hotelConfirmation.ReferenceCode;
-                booking.Status = hotelConfirmation.Status switch
+                    _context.Bookings.Update(booking);
+                    await _context.SaveChangesAsync();
+                }
+
+                var newStatus = hotelConfirmation.Status switch
                 {
                     HotelConfirmationStatuses.OnRequest => BookingStatuses.Pending,
                     HotelConfirmationStatuses.Amended => BookingStatuses.ManualCorrectionNeeded,
@@ -55,10 +60,17 @@ namespace HappyTravel.Edo.Api.Services.Hotel
                     HotelConfirmationStatuses.Cancelled => BookingStatuses.Cancelled,
                     _ => throw new NotImplementedException()
                 };
-                _context.Bookings.Update(booking);
-                await _context.SaveChangesAsync();
 
-                return Result.Success();
+                return await _recordsUpdater.ChangeStatus(booking: booking, 
+                    status: newStatus,
+                    date: hotelConfirmation.CreatedAt, 
+                    apiCaller: Models.Users.ApiCaller.InternalServiceAccount, 
+                    reason: new BookingChangeReason 
+                    {
+                        Source = BookingChangeSources.Hotel,
+                        Event = BookingChangeEvents.HotelConfirmation,
+                        Reason = $"Status changed by hotel employee {hotelConfirmation.Initiator}"
+                    });
             }
 
 
@@ -85,5 +97,6 @@ namespace HappyTravel.Edo.Api.Services.Hotel
 
 
         private readonly EdoContext _context;
+        private readonly IBookingRecordsUpdater _recordsUpdater;
     }
 }
