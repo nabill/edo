@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api
             {
                 options.SwaggerDoc("agent", new OpenApiInfo { Title = "Happytravel.com Edo API for an agent app", Version = "v1.0" });
                 options.SwaggerDoc("admin", new OpenApiInfo { Title = "Happytravel.com Edo API for an admin app", Version = "v1.0" });
-                options.SwaggerDoc("hotel", new OpenApiInfo { Title = "Happytravel.com Edo API for hotels", Version = "v1.0" });
+                options.SwaggerDoc("property-owner", new OpenApiInfo { Title = "Happytravel.com Edo API for hotels", Version = "v1.0" });
                 options.SwaggerDoc("service", new OpenApiInfo { Title = "Happytravel.com service Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.SwaggerEndpoint("/swagger/agent/swagger.json", "Happytravel.com Edo API for an agent app");
                     options.SwaggerEndpoint("/swagger/admin/swagger.json", "Happytravel.com Edo API for an admin app");
-                    options.SwaggerEndpoint("/swagger/hotel/swagger.json", "Happytravel.com Edo API for hotels");
+                    options.SwaggerEndpoint("/swagger/property-owner/swagger.json", "Happytravel.com Edo API for property owners");
                     options.SwaggerEndpoint("/swagger/service/swagger.json", "Happytravel.com service Edo API");
                     options.RoutePrefix = string.Empty;
                 });
