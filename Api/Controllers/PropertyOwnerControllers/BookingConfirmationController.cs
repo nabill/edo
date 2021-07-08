@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// <summary>
         ///     Updates booking status and hotel confirmation code
         /// </summary>
-        /// <param name="hotelConfirmation">Settings</param>
+        /// <param name="bookingConfirmation">Settings</param>
         /// <returns></returns>
         [HttpPut]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Update([FromBody] BookingConfirmation hotelConfirmation)
-            => NoContentOrBadRequest(await _bookingConfirmationService.Update(hotelConfirmation));
+        public async Task<IActionResult> Update([FromBody] BookingConfirmation bookingConfirmation)
+            => NoContentOrBadRequest(await _bookingConfirmationService.Update(bookingConfirmation));
 
 
         private readonly IBookingConfirmationService _bookingConfirmationService;

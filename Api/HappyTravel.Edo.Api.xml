@@ -1488,7 +1488,7 @@
             <summary>
                 Updates booking status and hotel confirmation code
             </summary>
-            <param name="hotelConfirmation">Settings</param>
+            <param name="bookingConfirmation">Settings</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">
