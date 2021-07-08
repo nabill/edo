@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             Task SendStatusToPms()
             {
-                // TODO: Sending the hotel's changed booking status to PMS (Columbus) will be implemented in task AA-4xx
+                // TODO: Sending the hotel's changed booking status to PMS (Columbus) will be implemented in task AA-415
                 return Task.CompletedTask;
             }
 
