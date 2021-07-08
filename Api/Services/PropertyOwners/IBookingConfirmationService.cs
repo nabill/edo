@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.PropertyOwners;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.PropertyOwners

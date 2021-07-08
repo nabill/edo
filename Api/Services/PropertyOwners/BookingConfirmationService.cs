@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.PropertyOwners;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     {
                         Source = BookingChangeSources.Hotel,
                         Event = BookingChangeEvents.HotelConfirmation,
-                        Reason = $"Status changed by hotel employee {bookingConfirmation.Initiator}"
+                        Reason = $"Status changed by property owner employee {bookingConfirmation.Initiator}"
                     });
             }
 

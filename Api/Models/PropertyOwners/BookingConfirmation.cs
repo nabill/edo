@@ -1,7 +1,7 @@
 ﻿using HappyTravel.Edo.Common.Enums;
 using System;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.PropertyOwners
 {
     public readonly struct BookingConfirmation
     {

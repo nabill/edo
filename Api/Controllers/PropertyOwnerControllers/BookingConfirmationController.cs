@@ -1,10 +1,10 @@
-﻿using HappyTravel.Edo.Api.Models.Hotels;
+﻿using HappyTravel.Edo.Api.Models.PropertyOwners;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace HappyTravel.Edo.Api.Controllers.HotelControllers
+namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
