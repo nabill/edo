@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
     public interface IBookingConfirmationService
     {
-        Task<Result> Update(BookingConfirmation hotelConfirmation);
+        Task<Result> Update(BookingConfirmation bookingConfirmation);
     }
 }

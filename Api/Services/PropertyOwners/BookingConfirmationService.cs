@@ -20,10 +20,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
-        public async Task<Result> Update(BookingConfirmation hotelConfirmation)
+        public async Task<Result> Update(BookingConfirmation bookingConfirmation)
         {
             return await GetBooking()
-                .Ensure(IsDirectContract, $"Booking with reference code '{hotelConfirmation.ReferenceCode}' is not a direct contract")
+                .Ensure(IsDirectContract, $"Booking with the reference code '{bookingConfirmation.ReferenceCode}' is not a direct contract")
                 .BindWithTransaction(_context, booking => UpdateBooking(booking)
                     .Tap(SendStatusToPms)
                     .Tap(SaveHistory));
@@ -31,10 +31,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             async Task<Result<Booking>> GetBooking()
             {
-                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == hotelConfirmation.ReferenceCode);
+                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == bookingConfirmation.ReferenceCode);
 
                 return booking is null
-                    ? Result.Failure<Booking>($"Booking with reference code '{hotelConfirmation.ReferenceCode}' not found")
+                    ? Result.Failure<Booking>($"Booking with the reference code '{bookingConfirmation.ReferenceCode}' is not found")
                     : booking;
             }
 
@@ -45,14 +45,14 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             async Task<Result> UpdateBooking(Booking booking)
             {
-                if (hotelConfirmation.ConfirmationCode != string.Empty)
+                if (bookingConfirmation.ConfirmationCode != string.Empty)
                 {
-                    booking.ConfirmationCode = hotelConfirmation.ConfirmationCode;
+                    booking.ConfirmationCode = bookingConfirmation.ConfirmationCode;
                     _context.Bookings.Update(booking);
                     await _context.SaveChangesAsync();
                 }
 
-                var newStatus = hotelConfirmation.Status switch
+                var newStatus = bookingConfirmation.Status switch
                 {
                     BookingConfirmationStatuses.OnRequest => BookingStatuses.Pending,
                     BookingConfirmationStatuses.Amended => BookingStatuses.ManualCorrectionNeeded,
@@ -63,13 +63,13 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
                 return await _recordsUpdater.ChangeStatus(booking: booking, 
                     status: newStatus,
-                    date: hotelConfirmation.CreatedAt, 
+                    date: bookingConfirmation.CreatedAt, 
                     apiCaller: Models.Users.ApiCaller.InternalServiceAccount, 
                     reason: new BookingChangeReason 
                     {
                         Source = BookingChangeSources.Hotel,
                         Event = BookingChangeEvents.HotelConfirmation,
-                        Reason = $"Status changed by hotel employee {hotelConfirmation.Initiator}"
+                        Reason = $"Status changed by hotel employee {bookingConfirmation.Initiator}"
                     });
             }
 
@@ -85,11 +85,11 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             {
                 _context.HotelConfirmationHistory.Add(new HotelConfirmationHistoryEntry
                 {
-                    ReferenceCode = hotelConfirmation.ReferenceCode,
-                    ConfirmationCode = hotelConfirmation.ConfirmationCode,
-                    Status = hotelConfirmation.Status,
-                    Initiator = hotelConfirmation.Initiator,
-                    CreatedAt = hotelConfirmation.CreatedAt
+                    ReferenceCode = bookingConfirmation.ReferenceCode,
+                    ConfirmationCode = bookingConfirmation.ConfirmationCode,
+                    Status = bookingConfirmation.Status,
+                    Initiator = bookingConfirmation.Initiator,
+                    CreatedAt = bookingConfirmation.CreatedAt
                 });
 
                 return _context.SaveChangesAsync();
