@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
-namespace HappyTravel.Edo.Api.Services.Hotel
+namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
-    public class HotelConfirmationService : IHotelConfirmationService
+    public class BookingConfirmationService : IBookingConfirmationService
     {
-        public HotelConfirmationService(EdoContext context, IBookingRecordsUpdater recordsUpdater)
+        public BookingConfirmationService(EdoContext context, IBookingRecordsUpdater recordsUpdater)
         {
             _context = context;
             _recordsUpdater = recordsUpdater;
         }
 
 
-        public async Task<Result> Update(HotelConfirmation hotelConfirmation)
+        public async Task<Result> Update(BookingConfirmation hotelConfirmation)
         {
             return await GetBooking()
                 .Ensure(IsDirectContract, $"Booking with reference code '{hotelConfirmation.ReferenceCode}' is not a direct contract")
@@ -54,10 +54,10 @@ namespace HappyTravel.Edo.Api.Services.Hotel
 
                 var newStatus = hotelConfirmation.Status switch
                 {
-                    HotelConfirmationStatuses.OnRequest => BookingStatuses.Pending,
-                    HotelConfirmationStatuses.Amended => BookingStatuses.ManualCorrectionNeeded,
-                    HotelConfirmationStatuses.Confirmed => BookingStatuses.Confirmed,
-                    HotelConfirmationStatuses.Cancelled => BookingStatuses.Cancelled,
+                    BookingConfirmationStatuses.OnRequest => BookingStatuses.Pending,
+                    BookingConfirmationStatuses.Amended => BookingStatuses.ManualCorrectionNeeded,
+                    BookingConfirmationStatuses.Confirmed => BookingStatuses.Confirmed,
+                    BookingConfirmationStatuses.Cancelled => BookingStatuses.Cancelled,
                     _ => throw new NotImplementedException()
                 };
 

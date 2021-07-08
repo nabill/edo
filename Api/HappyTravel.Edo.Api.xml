@@ -1484,7 +1484,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.HotelControllers.HotelConfirmationController.Update(HappyTravel.Edo.Api.Models.Hotels.HotelConfirmation)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.HotelControllers.BookingConfirmationController.Update(HappyTravel.Edo.Api.Models.Hotels.BookingConfirmation)">
             <summary>
                 Updates booking status and hotel confirmation code
             </summary>

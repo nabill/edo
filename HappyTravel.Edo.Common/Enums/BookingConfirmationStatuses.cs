@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Common.Enums
 {
-    public enum HotelConfirmationStatuses
+    public enum BookingConfirmationStatuses
     {
         OnRequest = 1,
         Amended = 2,

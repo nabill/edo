@@ -1,5 +1,5 @@
 ﻿using HappyTravel.Edo.Api.Models.Hotels;
-using HappyTravel.Edo.Api.Services.Hotel;
+using HappyTravel.Edo.Api.Services.PropertyOwners;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,9 +10,9 @@ namespace HappyTravel.Edo.Api.Controllers.HotelControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/hotel/confirmation")]
     [Produces("application/json")]
-    public class HotelConfirmationController : BaseController
+    public class BookingConfirmationController : BaseController
     {
-        public HotelConfirmationController(IHotelConfirmationService hotelConfirmationService)
+        public BookingConfirmationController(IBookingConfirmationService hotelConfirmationService)
         {
             _hotelConfirmationService = hotelConfirmationService;
         }
@@ -26,10 +26,10 @@ namespace HappyTravel.Edo.Api.Controllers.HotelControllers
         [HttpPut]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Update([FromBody] HotelConfirmation hotelConfirmation)
+        public async Task<IActionResult> Update([FromBody] BookingConfirmation hotelConfirmation)
             => NoContentOrBadRequest(await _hotelConfirmationService.Update(hotelConfirmation));
 
 
-        private readonly IHotelConfirmationService _hotelConfirmationService;
+        private readonly IBookingConfirmationService _hotelConfirmationService;
     }
 }
