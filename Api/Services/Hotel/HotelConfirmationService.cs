@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Hotel
             return await GetBooking()
                 .Ensure(IsDirectContract, $"Booking with reference code '{hotelConfirmation.ReferenceCode}' is not a direct contract")
                 .BindWithTransaction(_context, booking => UpdateBooking(booking)
-                    .Tap(SendStatusToPMS)
+                    .Tap(SendStatusToPms)
                     .Tap(SaveHistory));
 
 
@@ -62,9 +62,9 @@ namespace HappyTravel.Edo.Api.Services.Hotel
             }
 
 
-            Task SendStatusToPMS()
+            Task SendStatusToPms()
             {
-                // TODO: Sending the hotel's changed booking status to PMS (Columbus) will be implemented in task AA-4
+                // TODO: Sending the hotel's changed booking status to PMS (Columbus) will be implemented in task AA-4xx
                 return Task.CompletedTask;
             }
 
