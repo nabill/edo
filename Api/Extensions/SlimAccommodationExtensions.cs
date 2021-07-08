@@ -1,5 +1,7 @@
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Geography;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using GeoPoint = HappyTravel.Geography.GeoPoint;
 using SlimLocationInfo = HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo;
 
 namespace HappyTravel.Edo.Api.Extensions
@@ -23,6 +25,6 @@ namespace HappyTravel.Edo.Api.Extensions
                 countryCode: locationInfo.CountryCode,
                 locality: locationInfo.Locality,
                 localityZone: locationInfo.LocalityZone,
-                coordinates: locationInfo.Coordinates);
+                coordinates: new GeoPoint(locationInfo.Coordinates.Longitude, locationInfo.Coordinates.Latitude));
     }
 }
