@@ -878,6 +878,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<HotelConfirmationHistoryEntry>(e =>
             {
                 e.HasKey(hche => hche.Id);
+                e.Property(hche => hche.ReferenceCode).IsRequired();
                 e.HasIndex(hche => hche.ReferenceCode);
                 e.Property(hche => hche.Status).IsRequired();
                 e.Property(hche => hche.Initiator).IsRequired();

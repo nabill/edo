@@ -8,13 +8,20 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "ConfirmationCode",
+                table: "Bookings",
+                type: "text",
+                nullable: true);
+
             migrationBuilder.CreateTable(
                 name: "HotelConfirmationHistory",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ReferenceCode = table.Column<string>(type: "text", nullable: true),
+                    ReferenceCode = table.Column<string>(type: "text", nullable: false),
+                    ConfirmationCode = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Initiator = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
@@ -39,6 +46,10 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "HotelConfirmationHistory");
+
+            migrationBuilder.DropColumn(
+                name: "ConfirmationCode",
+                table: "Bookings");
         }
     }
 }
