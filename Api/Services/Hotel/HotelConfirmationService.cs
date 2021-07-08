@@ -45,9 +45,9 @@ namespace HappyTravel.Edo.Api.Services.Hotel
 
             async Task<Result> UpdateBooking(Booking booking)
             {
-                if (hotelConfirmation.ReferenceCode != string.Empty)
+                if (hotelConfirmation.ConfirmationCode != string.Empty)
                 {
-                    booking.ReferenceCode = hotelConfirmation.ReferenceCode;
+                    booking.ConfirmationCode = hotelConfirmation.ConfirmationCode;
                     _context.Bookings.Update(booking);
                     await _context.SaveChangesAsync();
                 }
@@ -86,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Hotel
                 _context.HotelConfirmationHistory.Add(new HotelConfirmationHistoryEntry
                 {
                     ReferenceCode = hotelConfirmation.ReferenceCode,
+                    ConfirmationCode = hotelConfirmation.ConfirmationCode,
                     Status = hotelConfirmation.Status,
                     Initiator = hotelConfirmation.Initiator,
                     CreatedAt = hotelConfirmation.CreatedAt
