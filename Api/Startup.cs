@@ -14,7 +14,6 @@ using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Data;
 using HappyTravel.ErrorHandling.Extensions;
-using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
