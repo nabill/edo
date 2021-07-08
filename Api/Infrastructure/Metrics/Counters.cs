@@ -21,6 +21,25 @@ namespace HappyTravel.Edo.Api.Infrastructure.Metrics
                 LabelNames = new[] {"method", "endpoint"},
             });
         
+        
+        public static readonly Histogram WideAccommodationAvailabilitySearchTaskDuration = Prometheus.Metrics.CreateHistogram(
+            ApplicationPrefix + "wide_accommodation_availability_search_task_duration",
+            "Wide accommodation availability search task duration",
+            new HistogramConfiguration
+            {
+                LabelNames = new[] {"supplier"}
+            });
+        
+        
+        public static readonly Histogram SupplierSearchResponseTimeDuration = Prometheus.Metrics.CreateHistogram(
+            ApplicationPrefix + "supplier_search_response_time_duration",
+            "Supplier search response time duration",
+            new HistogramConfiguration
+            {
+                LabelNames = new[] {"step", "supplier"}
+            });
+        
+        
         private const string ApplicationPrefix = "edo_";
     }
 }

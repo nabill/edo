@@ -14,6 +14,8 @@ using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Data;
 using HappyTravel.ErrorHandling.Extensions;
+using HappyTravel.StdOutLogger.Extensions;
+using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
@@ -78,7 +80,17 @@ namespace HappyTravel.Edo.Api
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
-                .AddTracing(HostingEnvironment, Configuration)
+                .AddTracing(Configuration, options =>
+                {
+                    options.ServiceName = $"{HostingEnvironment.ApplicationName}-{HostingEnvironment.EnvironmentName}";
+                    options.JaegerHost = HostingEnvironment.IsLocal()
+                        ? Configuration.GetValue<string>("Jaeger:AgentHost")
+                        : Configuration.GetValue<string>(Configuration.GetValue<string>("Jaeger:AgentHost"));
+                    options.JaegerPort = HostingEnvironment.IsLocal()
+                        ? Configuration.GetValue<int>("Jaeger:AgentPort")
+                        : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
+                    options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
+                })
                 .AddUserEventLogging(Configuration, vaultClient);
 
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)

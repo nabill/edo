@@ -1,9 +1,7 @@
-﻿using System;
-using HappyTravel.Edo.Api.Models.Agencies;
+﻿using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -11,7 +9,7 @@ namespace HappyTravel.Edo.Api.Extensions
     {
         public static UserInvitationData ToUserInvitationData(this UserDescriptionInfo info, string email = null)
         {
-            var newInfo = new UserDescriptionInfo(info.Title, info.FirstName, info.LastName, info.Position, email ?? info.Email);
+            var newInfo = new UserDescriptionInfo(info.Title, info.FirstName, info.LastName, info.Position, email ?? info.Email, info.RoleIds);
             return new UserInvitationData(newInfo, default);
         }
 

@@ -232,10 +232,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         public async Task<BatchOperationResult> SendBookingSummaryReports()
         {
+            var rolesWithPermission = await _context.AgentRoles
+                .Where(r => r.Permissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary))
+                .Select(x => x.Id)
+                .ToListAsync();
+            
             var agencyIds = await _context.Agencies
                 .Where(a => a.IsActive)
-                .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive &&
-                    r.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)))
+                .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive 
+                    && r.AgentRoleIds.Any(rolesWithPermission.Contains)))
                 .Where(a => _context.AgencyAccounts.Any(acc => acc.AgencyId == a.Id && acc.Currency == Currencies.USD))
                 .Select(agency => agency.Id)
                 .ToListAsync();

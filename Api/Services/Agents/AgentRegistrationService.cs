@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -42,6 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
+                .Ensure(AllProvidedRolesExist, "Provided roles doesn't exist")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
                     .Bind(CreateAgent)
@@ -50,7 +53,21 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Bind(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
+
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
+            
+            bool AllProvidedRolesExist()
+            {
+                // TODO remove when front will send role ids
+                if (agentData.RoleIds.Length == 0)
+                    return true;
+                
+                var allRoleIds = _context.AgentRoles
+                    .Select(x => x.Id)
+                    .ToList();
+                return agentData.RoleIds.All(roleId => allRoleIds.Contains(roleId));
+            }
             
 
             Task<Result<CounterpartyInfo>> CreateCounterparty() 
@@ -70,10 +87,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
+                
+                // assign all roles to master agent
+                var roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
+                
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
                     PermissionSets.Master,
-                    rootAgency.Id);
+                    rootAgency.Id,
+                    roleIds);
             }
 
 
@@ -126,7 +148,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task AddAgentAgencyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId)
+        private Task AddAgentAgencyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId, int[] agentRoleIds)
         {
             _context.AgentAgencyRelations.Add(new AgentAgencyRelation
             {
@@ -134,7 +156,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 Type = relationType,
                 InAgencyPermissions = permissions,
                 AgencyId = agencyId,
-                IsActive = true
+                IsActive = true,
+                AgentRoleIds = agentRoleIds
             });
 
             return _context.SaveChangesAsync();

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
@@ -66,10 +66,14 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
 
+                var originalInvitationData = _invitationRecordService.GetInvitationData(invitation);
+                
                 return new AcceptPipeValues
                 {
                     Invitation = invitation,
-                    InvitationData = filledData.Equals(default) ? _invitationRecordService.GetInvitationData(invitation) : filledData
+                    InvitationData = filledData.Equals(default) ? originalInvitationData : filledData,
+                    // We cannot trust RoleIds in invitation data filled by the invited user, so we take RoleIds from the original invitation instead
+                    RoleIds = originalInvitationData.UserRegistrationInfo.RoleIds ?? new int[0]
                 };
             }
 
@@ -80,7 +84,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                     .Ensure(IsAgencyIdFilled, "Could not find inviter's agency id")
                     .Ensure(IsEmailFilled, "Agent email required")
-                    .Ensure(IsAgentEmailUnique, "Agent with this email already exists");
+                    .Ensure(IsAgentEmailUnique, "Agent with this email already exists")
+                    .Ensure(AllProvidedRolesExist, "Provided role doesn't exist");
 
 
             bool IsIdentityPresent(AcceptPipeValues _)
@@ -101,6 +106,21 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<bool> IsAgentEmailUnique(AcceptPipeValues values)
                 => !await _context.Agents.AnyAsync(a => a.Email == email);
+
+
+            bool AllProvidedRolesExist(AcceptPipeValues values)
+            {
+                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
+                
+                // TODO remove when front will send role ids
+                if (providedRoleIds.Length == 0)
+                    return true;
+                
+                var allRoleIds = _context.AgentRoles
+                    .Select(x => x.Id)
+                    .ToList();
+                return providedRoleIds.All(roleId => allRoleIds.Contains(roleId));
+            }
 
 
             Task SaveAccepted(AcceptPipeValues _)
@@ -152,6 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 values.AgencyName = childAgency.Name;
                 values.AgencyId = childAgency.Id.Value;
                 values.Permissions = PermissionSets.Master;
+                values.RoleIds = await _context.AgentRoles.Select(r => r.Id).ToArrayAsync();
                 values.RelationType = AgentAgencyRelationTypes.Master;
                 values.NotificationTemplateId = _notificationOptions.ChildAgencyMailTemplateId;
                 values.NotificationType = NotificationTypes.ChildAgencySuccessfulRegistration;
@@ -167,6 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     AgentId = values.Agent.Id,
                     Type = values.RelationType,
                     InAgencyPermissions = values.Permissions,
+                    AgentRoleIds = values.RoleIds,
                     AgencyId = values.AgencyId,
                     IsActive = true
                 });
@@ -230,6 +252,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             public int AgencyId { get; set; }
             public string AgencyName { get; set; }
             public InAgencyPermissions Permissions { get; set; }
+            public int[] RoleIds { get; set; }
             public AgentAgencyRelationTypes RelationType { get; set; }
             public string NotificationTemplateId { get; set; }
             public NotificationTypes NotificationType { get; set; }

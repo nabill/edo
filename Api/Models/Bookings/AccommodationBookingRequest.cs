@@ -12,10 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
-            Guid searchId,
-            Guid resultId,
-            Guid roomContractSetId,
-            string mainPassengerName,
+            Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
             bool rejectIfUnavailable = true)
         {
             ItineraryNumber = itineraryNumber;
@@ -23,9 +20,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             SearchId = searchId;
-            ResultId = resultId;
+            HtId = htId;
             RoomContractSetId = roomContractSetId;
-            MainPassengerName = mainPassengerName;
+            MainPassengerName = mainPassengerName.Trim();
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -52,7 +49,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string Residency { get; }
 
         public Guid SearchId { get; }
-        public Guid ResultId { get; }
+        public string HtId { get; }
 
         /// <summary>
         ///     Room details from an availability response.

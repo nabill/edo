@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
     public readonly struct AccommodationBookingEvent
     {
         public AccommodationBookingEvent(string accommodationId, string accommodationName, string country, string locality, int adultCount,
-            int childrenCount, int numberOfNights, int roomCount, Guid searchId, Guid resultId, Guid roomContractSetId, decimal priceInUsd)
+            int childrenCount, int numberOfNights, int roomCount, Guid searchId, string htId, Guid roomContractSetId, decimal priceInUsd)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -16,7 +16,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
             NumberOfNights = numberOfNights;
             RoomCount = roomCount;
             SearchId = searchId;
-            ResultId = resultId;
             RoomContractSetId = roomContractSetId;
             PriceInUsd = priceInUsd;
         }
@@ -31,7 +30,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
         public int NumberOfNights { get; }
         public int RoomCount { get; }
         public Guid SearchId { get; }
-        public Guid ResultId { get; }
         public Guid RoomContractSetId { get; }
         public decimal PriceInUsd { get; }
     }

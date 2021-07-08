@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
@@ -27,84 +26,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.HasSequence("itn_seq");
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.AccommodationMappings.AccommodationDuplicate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<string>("AccommodationId1")
-                        .HasColumnType("text");
-
-                    b.Property<string>("AccommodationId2")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ParentReportId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReporterAgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReporterAgentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccommodationId1");
-
-                    b.HasIndex("AccommodationId2");
-
-                    b.HasIndex("ReporterAgencyId");
-
-                    b.HasIndex("ReporterAgentId");
-
-                    b.ToTable("AccommodationDuplicates");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.AccommodationMappings.AccommodationDuplicateReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<List<SupplierAccommodationId>>("Accommodations")
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("ApprovalState")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("EditorAdministratorId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("ReporterAgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReporterAgentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReporterAgencyId");
-
-                    b.HasIndex("ReporterAgentId");
-
-                    b.ToTable("AccommodationDuplicateReports");
-                });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agency", b =>
                 {
@@ -272,6 +193,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
+
+                    b.Property<bool>("IsPreservedInAgency")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -857,6 +781,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("IdentityHash")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LastName")
                         .IsRequired()

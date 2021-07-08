@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -10,6 +11,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Prometheus;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
@@ -34,13 +36,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability(Guid searchId,
-            Guid resultId,
-            Suppliers supplier,
-            SlimAccommodation accommodation, 
-            string availabilityId,
-            AccommodationBookingSettings settings,
-            AgentContext agent,
-            string languageCode)
+            string htId, Suppliers supplier, SlimAccommodation accommodation, string availabilityId, AccommodationBookingSettings settings,
+            AgentContext agent, string languageCode)
         {
             return await ExecuteRequest()
                 .Bind(ReplaceAccommodationData)
@@ -52,9 +49,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
-                => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, accommodation.Id, languageCode);
+            {
+                using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("room_selection_request", supplier.ToString()).NewTimer();
+                return _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, accommodation.Id, languageCode);
+            }
 
-            
+
             Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
             {
                 return new AccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, 
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     availabilityData.RoomContractSets,
                     accommodation.HtId);
                 
-                return _roomSelectionStorage.SaveResult(searchId, resultId, result, details.Source);
+                return _roomSelectionStorage.SaveResult(searchId, htId, result, details.Source);
             }
         }
         
