@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IEnumerable<WideAvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
-            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
+            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent(), LanguageCode);
         }
 
 
