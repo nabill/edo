@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
-using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 
@@ -30,11 +29,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var roomContracts = new List<RoomContract>(sourceRoomContractSet.RoomContracts.Count);
             var sourceTotalPrice = sourceRoomContractSet.Rate.FinalPrice;
+            if (sourceTotalPrice.Amount == 0)
+                throw new NotSupportedException("Room contract set price cannot be 0");
+            
             var processedTotalPrice = await priceProcessFunction(sourceRoomContractSet.Rate.FinalPrice);
             
             var roomContractSetGross = ChangeProportionally(sourceRoomContractSet.Rate.Gross);
-            var roomContractSetRate = new Rate(processedTotalPrice, roomContractSetGross, sourceRoomContractSet.Rate.Discounts,
-                sourceRoomContractSet.Rate.Type, sourceRoomContractSet.Rate.Description);
+            var roomContractSetRate = new Rate(finalPrice: processedTotalPrice, 
+                gross: roomContractSetGross,
+                discounts: sourceRoomContractSet.Rate.Discounts,
+                type: sourceRoomContractSet.Rate.Type,
+                description: sourceRoomContractSet.Rate.Description);
             
             foreach (var room in sourceRoomContractSet.RoomContracts)
             {
@@ -59,12 +64,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             MoneyAmount ChangeProportionally(MoneyAmount price)
             {
-                if (price.Amount == 0)
-                    throw new NotSupportedException($"Cannot get ratio for {price.Amount}");
-                
                 var totalPricePercent = price.Amount / sourceTotalPrice.Amount;
                 return new MoneyAmount(processedTotalPrice.Amount * totalPricePercent, processedTotalPrice.Currency);
             }
+        }
+        
+        
+        public static async ValueTask<List<RoomContractSet>> AlignPrices(List<RoomContractSet> sourceRoomContractSets)
+        {
+            var roomContractSets = new List<RoomContractSet>(sourceRoomContractSets.Count);
+            foreach (var roomContractSet in sourceRoomContractSets)
+            {
+                var roomContractSetWithMarkup = await AlignPrices(roomContractSet);
+                roomContractSets.Add(roomContractSetWithMarkup);
+            }
+
+            return roomContractSets;
         }
 
 
@@ -75,11 +90,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             
             var finalPrice = ceiledRoomContractSet.Rate.FinalPrice;
             var roomFinalRates = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.FinalPrice).ToList();
-            var (alignedFinalPrice, alignedRoomFinalPrices) = AlignAggregateValues(finalPrice, roomFinalRates);
+            var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregateValues(finalPrice, roomFinalRates);
 
             var gross = ceiledRoomContractSet.Rate.Gross;
             var roomGrossRateRates = ceiledRoomContractSet.RoomContracts.Select(r => r.Rate.Gross).ToList();
-            var (alignedGrossPrice, alignedRoomGrossRates) = AlignAggregateValues(gross, roomGrossRateRates);
+            var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregateValues(gross, roomGrossRateRates);
 
             var roomContracts = new List<RoomContract>(roomContractSet.RoomContracts.Count);
             for (var i = 0; i < ceiledRoomContractSet.RoomContracts.Count; i++)
@@ -95,38 +110,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var roomContractSetRate = new Rate(alignedFinalPrice, alignedGrossPrice);
 
             return BuildRoomContractSet(roomContractSet, roomContractSetRate, roomContracts);
-
-
-            static (MoneyAmount Aggregated, List<MoneyAmount> Parts) AlignAggregateValues(MoneyAmount aggregated, List<MoneyAmount> parts)
-            {
-                var partsSum = new MoneyAmount(parts.Sum(p => p.Amount), aggregated.Currency);
-                return aggregated switch
-                {
-                    _ when aggregated == partsSum => (aggregated, parts),
-                    _ when aggregated < partsSum => (partsSum, parts),
-                    _ when aggregated > partsSum => Align(aggregated, parts),
-                    _ => throw new ArgumentOutOfRangeException(nameof(aggregated), aggregated, null)
-                };
-
-
-                static (MoneyAmount Aggregated, List<MoneyAmount> Parts) Align(MoneyAmount aggregated, List<MoneyAmount> parts)
-                {
-                    var changeStep = 1 / aggregated.Currency.GetDecimalDigitsCount();
-                    while (parts.Sum(p => p.Amount) < aggregated.Amount)
-                    {
-                        parts = parts
-                            .Select(p => new MoneyAmount(p.Amount + changeStep, p.Currency))
-                            .ToList();
-                    }
-
-                    return (new MoneyAmount(parts.Sum(p=>p.Amount), aggregated.Currency), parts);
-                }
-            }
         }
         
         
-        private static DailyRate BuildDailyPrice(in DailyRate dailyRate, MoneyAmount roomNetTotal, MoneyAmount roomGross)
-            => new DailyRate(dailyRate.FromDate, dailyRate.ToDate, roomNetTotal, roomGross, dailyRate.Type, dailyRate.Description);
+        private static DailyRate BuildDailyPrice(in DailyRate dailyRate, MoneyAmount roomFinalPrice, MoneyAmount roomGross)
+            => new DailyRate(dailyRate.FromDate, dailyRate.ToDate, roomFinalPrice, roomGross, dailyRate.Type, dailyRate.Description);
         
         
         static RoomContract BuildRoomContracts(in RoomContract room, List<DailyRate> roomPrices, Rate totalPrice)
