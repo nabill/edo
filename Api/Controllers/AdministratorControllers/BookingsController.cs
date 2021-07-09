@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
         /// <returns>List of booking confirmation change events</returns>
-        [HttpGet("bookings/{referenceCode}/confirmation-history")]
+        [HttpGet("accommodations/bookings/reference-code/{referenceCode}/confirmation-history")]
         [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
