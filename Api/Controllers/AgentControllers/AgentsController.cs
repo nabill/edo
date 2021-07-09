@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.RegistrationInfo.ToUserInvitationData(request.Email),
+            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
                 UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -169,7 +169,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CreateInvitation([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(),
                 UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -455,8 +455,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("all-permissions-list")]
         [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() 
-            => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
+        public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 
         /// <summary>
