@@ -20,27 +20,30 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
+        public async Task<Result<SlimBookingConfirmation>> Get(string referenceCode)
+        {
+            return await GetBooking(referenceCode)
+                .Ensure(IsDirectContract, $"Booking with the reference code '{referenceCode}' is not a direct contract")
+                .Map(ConvertToSlimBookingConfirmation);
+
+
+            static SlimBookingConfirmation ConvertToSlimBookingConfirmation(Booking booking)
+                => new()
+                {
+                    ReferenceCode = booking.ReferenceCode,
+                    ConfirmationCode = booking.ConfirmationCode,
+                    Status = 0//booking.Status
+                };
+        }
+
+
         public async Task<Result> Update(BookingConfirmation bookingConfirmation)
         {
-            return await GetBooking()
+            return await GetBooking(bookingConfirmation.ReferenceCode)
                 .Ensure(IsDirectContract, $"Booking with the reference code '{bookingConfirmation.ReferenceCode}' is not a direct contract")
                 .BindWithTransaction(_context, booking => UpdateBooking(booking)
                     .Tap(SendStatusToPms)
                     .Tap(SaveHistory));
-
-
-            async Task<Result<Booking>> GetBooking()
-            {
-                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == bookingConfirmation.ReferenceCode);
-
-                return booking is null
-                    ? Result.Failure<Booking>($"Booking with the reference code '{bookingConfirmation.ReferenceCode}' is not found")
-                    : booking;
-            }
-
-
-            bool IsDirectContract(Booking booking)
-                => booking.IsDirectContract;
 
 
             async Task<Result> UpdateBooking(Booking booking)
@@ -95,6 +98,20 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 return _context.SaveChangesAsync();
             }
         }
+
+
+        private async Task<Result<Booking>> GetBooking(string referenceCode)
+        {
+            var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == referenceCode);
+
+            return booking is null
+                ? Result.Failure<Booking>($"Booking with the reference code '{referenceCode}' is not found")
+                : booking;
+        }
+
+
+        private bool IsDirectContract(Booking booking)
+            => booking.IsDirectContract;
 
 
         private readonly EdoContext _context;
