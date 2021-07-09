@@ -1484,11 +1484,12 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
             <summary>
                 Updates booking status and hotel confirmation code
             </summary>
-            <param name="bookingConfirmation">Settings</param>
+            <param name="referenceCode">Booking reference code</param>
+            <param name="bookingConfirmation">Booking confirmation data</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">

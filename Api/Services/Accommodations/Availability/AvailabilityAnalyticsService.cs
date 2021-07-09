@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.DataFormatters;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -75,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 bookingRequest.RoomContractSetId,
                 booking.TotalPrice);
             
-            _analytics.LogEvent(@event, "booking-request-sent", agent, booking.Location.Coordinates);
+            _analytics.LogEvent(@event, "booking-request-sent", agent, new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
         }
         
         

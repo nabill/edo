@@ -86,6 +86,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
+        public async Task ChangePropertyOwnerConfirmationCode(Booking booking, string confirmationCode)
+        {
+            if (booking.PropertyOwnerConfirmationCode == confirmationCode)
+                return;
+
+            booking.PropertyOwnerConfirmationCode = confirmationCode;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Detach(booking);
+        }
+
+
         public async Task UpdateWithSupplierData(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
             List<SlimRoomOccupation> updatedRooms)
         {

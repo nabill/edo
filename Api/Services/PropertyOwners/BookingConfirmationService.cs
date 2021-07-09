@@ -13,18 +13,21 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
     public class BookingConfirmationService : IBookingConfirmationService
     {
-        public BookingConfirmationService(EdoContext context, IBookingRecordsUpdater recordsUpdater)
+        public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, IBookingRecordsUpdater recordsUpdater)
         {
             _context = context;
+            _bookingRecordManager = bookingRecordManager;
             _recordsUpdater = recordsUpdater;
         }
 
 
-        public async Task<Result<SlimBookingConfirmation>> Get(string referenceCode)
+        public async Task<Result> Update(string referenceCode, BookingConfirmation bookingConfirmation)
         {
-            return await GetBooking(referenceCode)
+            return await GetBooking()
                 .Ensure(IsDirectContract, $"Booking with the reference code '{referenceCode}' is not a direct contract")
-                .Map(ConvertToSlimBookingConfirmation);
+                .BindWithTransaction(_context, booking => UpdateBooking(booking)
+                    .Tap(SendStatusToPms)
+                    .Tap(SaveHistory));
 
 
             static SlimBookingConfirmation ConvertToSlimBookingConfirmation(Booking booking)
@@ -49,11 +52,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             async Task<Result> UpdateBooking(Booking booking)
             {
                 if (bookingConfirmation.ConfirmationCode != string.Empty)
-                {
-                    booking.ConfirmationCode = bookingConfirmation.ConfirmationCode;
-                    _context.Bookings.Update(booking);
-                    await _context.SaveChangesAsync();
-                }
+                    await _recordsUpdater.ChangePropertyOwnerConfirmationCode(booking: booking,
+                        confirmationCode: bookingConfirmation.ConfirmationCode);
 
                 var newStatus = bookingConfirmation.Status switch
                 {
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             {
                 _context.BookingConfirmationHistory.Add(new BookingConfirmationHistoryEntry
                 {
-                    ReferenceCode = bookingConfirmation.ReferenceCode,
+                    ReferenceCode = referenceCode,
                     ConfirmationCode = bookingConfirmation.ConfirmationCode,
                     Status = bookingConfirmation.Status,
                     Initiator = bookingConfirmation.Initiator,
@@ -115,6 +115,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
 
         private readonly EdoContext _context;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingRecordsUpdater _recordsUpdater;
     }
 }
