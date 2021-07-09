@@ -188,7 +188,8 @@ steps:
       - GITHUB_TOKEN
       - VAULT_TOKEN
       - BUILD_VERSION
-      - CONSUL_HTTP_TOKEN 
+      - CONSUL_HTTP_TOKEN
+
 - name: Deploy to production
   image: pelotech/drone-helm3:0.14.2
   settings:
