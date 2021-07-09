@@ -1,6 +1,5 @@
 using HappyTravel.Edo.Notifications.Enums;
 using System;
-using System.Text.Json;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Models
 {
