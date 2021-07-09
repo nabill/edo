@@ -89,7 +89,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     ReferenceCode = referenceCode,
                     ConfirmationCode = bookingConfirmation.ConfirmationCode,
                     Status = bookingConfirmation.Status,
-                    Comment = bookingConfirmation.Comment,
                     Initiator = bookingConfirmation.Initiator,
                     CreatedAt = bookingConfirmation.CreatedAt
                 });
