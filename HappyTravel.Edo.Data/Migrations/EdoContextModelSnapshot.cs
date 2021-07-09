@@ -526,6 +526,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConfirmationCode")
                         .HasColumnType("text");
 

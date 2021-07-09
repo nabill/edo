@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210709100423_AddTableHotelConfirmationHistory")]
+    [Migration("20210709114307_AddTableHotelConfirmationHistory")]
     partial class AddTableHotelConfirmationHistory
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -527,6 +527,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConfirmationCode")
                         .HasColumnType("text");
