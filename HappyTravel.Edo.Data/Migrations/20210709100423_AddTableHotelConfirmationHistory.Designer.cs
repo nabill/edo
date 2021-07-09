@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210708150750_AddTableHotelConfirmationHistory")]
+    [Migration("20210709100423_AddTableHotelConfirmationHistory")]
     partial class AddTableHotelConfirmationHistory
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -400,9 +400,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("ConfirmationCode")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -448,6 +445,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("PaymentType")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PropertyOwnerConfirmationCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()

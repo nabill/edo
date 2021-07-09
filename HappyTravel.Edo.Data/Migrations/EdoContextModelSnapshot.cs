@@ -398,9 +398,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("ConfirmationCode")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -446,6 +443,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("PaymentType")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PropertyOwnerConfirmationCode")
+                        .HasColumnType("text");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()

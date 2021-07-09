@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "ConfirmationCode",
+                name: "PropertyOwnerConfirmationCode",
                 table: "Bookings",
                 type: "text",
                 nullable: true);
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "BookingConfirmationHistory");
 
             migrationBuilder.DropColumn(
-                name: "ConfirmationCode",
+                name: "PropertyOwnerConfirmationCode",
                 table: "Bookings");
         }
     }
