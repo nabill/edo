@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.Api.Models.PropertyOwners
     {
         public string ConfirmationCode { get; init; }
         public BookingConfirmationStatuses Status { get; init; }
+        public string Comment { get; init; }
         public string Initiator { get; init; }
         public DateTime CreatedAt { get; init; }
     }
