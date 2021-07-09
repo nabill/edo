@@ -22,22 +22,13 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         ///     Gets an actual booking status and confirmation code
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>
-        /// <returns>Agency availability search settings</returns>
+        /// <returns>Booking status and property owner confirmation code</returns>
         [HttpGet("{referenceCode}")]
-        [ProducesResponseType(typeof(AgencyAccommodationBookingSettingsInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(SlimBookingConfirmation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Get([FromRoute] string referenceCode)
         {
-            var (_, isFailure, settings, error) = await _bookingConfirmationService.Get(referenceCode);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            if (settings == default)
-                return NoContent();
-
-            return Ok(settings.ToAgencyAccommodationBookingSettingsInfo());
+            return OkOrBadRequest(await _bookingConfirmationService.Get(referenceCode));
         }
 
 

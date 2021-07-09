@@ -1484,6 +1484,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Get(System.String)">
+            <summary>
+                Gets an actual booking status and confirmation code
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <returns>Booking status and property owner confirmation code</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
             <summary>
                 Updates booking status and hotel confirmation code

@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Models.PropertyOwners
     {
         public string ReferenceCode { get; init; }
         public string ConfirmationCode { get; init; }
-        public BookingConfirmationStatuses Status { get; init; }
+        public BookingStatuses Status { get; init; }
     }
 }
