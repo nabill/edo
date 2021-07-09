@@ -15,7 +15,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
-            List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created)
+            List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
+            string propertyOwnerConfirmationCode)
         {
             ReferenceCode = referenceCode;
             AgentReference = agentReference;
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CancellationPolicies = cancellationPolicies;
             Created = created;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
+            PropertyOwnerConfirmationCode = propertyOwnerConfirmationCode;
         }
         
 
@@ -65,5 +67,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public List<CancellationPolicy> CancellationPolicies { get; }
         public DateTime Created { get; }
         public List<BookedRoom> RoomDetails { get; }
+        public string PropertyOwnerConfirmationCode { get; }
     }
 }
