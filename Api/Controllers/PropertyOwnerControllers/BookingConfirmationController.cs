@@ -1,6 +1,9 @@
 ﻿using HappyTravel.Edo.Api.Models.PropertyOwners;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
+using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -12,9 +15,10 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
     [Produces("application/json")]
     public class BookingConfirmationController : BaseController
     {
-        public BookingConfirmationController(IBookingConfirmationService bookingConfirmationService)
+        public BookingConfirmationController(IBookingConfirmationService bookingConfirmationService, IBookingInfoService bookingInfoService)
         {
             _bookingConfirmationService = bookingConfirmationService;
+            _bookingInfoService = bookingInfoService;
         }
 
 
@@ -33,6 +37,20 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
 
 
         /// <summary>
+        ///     Gets booking confirmation changes history
+        /// </summary>
+        /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+        /// <returns>List of booking confirmation change events</returns>
+        [HttpGet("{referenceCode}/confirmation-history")]
+        [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
+        {
+            return OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
+        }
+
+
+        /// <summary>
         ///     Updates booking status and hotel confirmation code
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>
@@ -46,5 +64,6 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
 
 
         private readonly IBookingConfirmationService _bookingConfirmationService;
+        private readonly IBookingInfoService _bookingInfoService;
     }
 }

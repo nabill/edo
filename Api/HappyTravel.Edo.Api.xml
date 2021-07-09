@@ -309,6 +309,13 @@
             <param name="referenceCode">Booking reference code</param>
             <returns>Booking Info</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Discards accommodation booking by admin.
@@ -1497,6 +1504,13 @@
             </summary>
             <param name="referenceCode">Booking reference code</param>
             <returns>Booking status and property owner confirmation code</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
             <summary>
