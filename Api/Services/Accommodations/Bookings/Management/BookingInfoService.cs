@@ -161,6 +161,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
+        public async Task<Result<List<BookingConfirmationHistoryEntry>>> GetBookingConfirmationHistory(string referenceCode)
+        {
+            var history = await _context.BookingConfirmationHistory
+                .Where(bch => bch.ReferenceCode == referenceCode)
+                .OrderBy(bch => bch.Id)
+                .ToListAsync();
+
+            return history ?? new(0);
+        }
+
+
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.HtId, languageCode);

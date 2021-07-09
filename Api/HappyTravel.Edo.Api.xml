@@ -1171,6 +1171,13 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
                 Sends booking voucher to an email.

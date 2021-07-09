@@ -342,8 +342,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets booking confirmation changes history
         /// </summary>
         /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
-        /// <returns>List of booking status change events</returns>
-        [HttpGet("{bookingId}/status-history")]
+        /// <returns>List of booking confirmation change events</returns>
+        [HttpGet("refcode/{referenceCode}/confirmation-history")]
         [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
         {
-            return OkOrBadRequest(await _bookingInfoService.GetConfirmationHistory(referenceCode));
+            return OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
         }
 
 
