@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>
         /// <returns>Booking status and property owner confirmation code</returns>
-        [HttpGet("{referenceCode}")]
+        [HttpGet("reference-code/{referenceCode}")]
         [ProducesResponseType(typeof(SlimBookingConfirmation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromRoute] string referenceCode)
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// </summary>
         /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
         /// <returns>List of booking confirmation change events</returns>
-        [HttpGet("{referenceCode}/confirmation-history")]
+        [HttpGet("reference-code/{referenceCode}/confirmation-history")]
         [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// <param name="referenceCode">Booking reference code</param>
         /// <param name="bookingConfirmation">Booking confirmation data</param>
         /// <returns></returns>
-        [HttpPut("{referenceCode}")]
+        [HttpPut("reference-code/{referenceCode}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Update([FromRoute] string referenceCode, [FromBody] BookingConfirmation bookingConfirmation)
