@@ -74,9 +74,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         public async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(Func<HttpRequestMessage> requestFactory, string languageCode,
             CancellationToken cancellationToken)
         {
+            HttpResponseMessage response = null;
+
             try
             {
-                using var response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
+                response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
 
                 await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
                 using var streamReader = new StreamReader(stream);
@@ -95,9 +97,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             catch (Exception ex)
             {
                 ex.Data.Add("requested url", requestFactory().RequestUri);
-                ex.Data.Add("response body", await requestFactory().Content?.ReadAsStringAsync(cancellationToken));
+                ex.Data.Add("response body", await response?.Content.ReadAsStringAsync(cancellationToken));
                 _logger.LogConnectorClientException(ex);
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
+            }
+            finally
+            {
+                response?.Dispose();
             }
         }
 

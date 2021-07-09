@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability(Guid searchId,
-            string htId, Suppliers supplier, SlimAccommodation accommodation, string availabilityId, AccommodationBookingSettings settings,
+            string htId, Suppliers supplier, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
             AgentContext agent, string languageCode)
         {
             return await ExecuteRequest()
@@ -51,14 +51,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
             {
                 using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("room_selection_request", supplier.ToString()).NewTimer();
-                return _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, accommodation.Id, languageCode);
+                return _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
             }
 
 
             Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
             {
                 return new AccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, 
-                    accommodationId: accommodation.Id,
+                    accommodationId: supplierAccommodationCode,
                     checkInDate: availabilityDetails.CheckInDate,
                     checkOutDate: availabilityDetails.CheckOutDate,
                     numberOfNights: availabilityDetails.NumberOfNights,
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var result = new SingleAccommodationAvailability(availabilityData.AvailabilityId,
                     availabilityData.CheckInDate,
                     availabilityData.RoomContractSets,
-                    accommodation.HtId);
+                    htId);
                 
                 return _roomSelectionStorage.SaveResult(searchId, htId, result, details.Source);
             }

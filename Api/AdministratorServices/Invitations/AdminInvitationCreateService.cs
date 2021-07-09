@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -42,6 +43,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
         public Task<Result<string>> Create(UserInvitationData prefilledData, int inviterUserId)
         {
+            if (prefilledData.RoleIds is null || !prefilledData.RoleIds.Any())
+                return Task.FromResult(Result.Failure<string>("Invitation should have role ids"));
+            
             var invitationCode = GenerateRandomCode();
             var now = _dateTimeProvider.UtcNow();
             var registrationInfo = prefilledData.UserRegistrationInfo;
