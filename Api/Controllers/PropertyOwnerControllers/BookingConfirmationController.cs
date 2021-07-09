@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/property-owner/confirmation")]
+    [Route("api/{v:apiVersion}/property-owner/confirmations")]
     [Produces("application/json")]
     public class BookingConfirmationController : BaseController
     {
@@ -21,13 +21,14 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// <summary>
         ///     Updates booking status and hotel confirmation code
         /// </summary>
-        /// <param name="bookingConfirmation">Settings</param>
+        /// <param name="referenceCode">Booking reference code</param>
+        /// <param name="bookingConfirmation">Booking confirmation data</param>
         /// <returns></returns>
-        [HttpPut]
+        [HttpPut("{referenceCode}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Update([FromBody] BookingConfirmation bookingConfirmation)
-            => NoContentOrBadRequest(await _bookingConfirmationService.Update(bookingConfirmation));
+        public async Task<IActionResult> Update([FromRoute] string referenceCode, [FromBody] BookingConfirmation bookingConfirmation)
+            => NoContentOrBadRequest(await _bookingConfirmationService.Update(referenceCode, bookingConfirmation));
 
 
         private readonly IBookingConfirmationService _bookingConfirmationService;

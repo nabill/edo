@@ -51,6 +51,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public List<string> Tags { get; set; }
         public bool IsDirectContract { get; set; }
         public List<CancellationPolicy> CancellationPolicies { get; set; }
-        public string ConfirmationCode { get; set; }
+        public string PropertyOwnerConfirmationCode { get; set; }
     }
 }
