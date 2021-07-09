@@ -168,7 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 .OrderBy(bch => bch.Id)
                 .ToListAsync();
 
-            return history ?? bookingConfirmationHistoryEmpty;
+            return history ?? emptyBookingConfirmationHistory;
         }
 
 
@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             BookingStatuses.Created,
             BookingStatuses.Invalid
         };
-        private static readonly List<BookingConfirmationHistoryEntry> bookingConfirmationHistoryEmpty = new(0);
+        private static readonly List<BookingConfirmationHistoryEntry> emptyBookingConfirmationHistory = new(0);
 
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
