@@ -101,6 +101,7 @@ using HappyTravel.Edo.Api.Services.SupplierResponses;
 using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
+using HappyTravel.Edo.Api.Services.PropertyOwners;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -644,6 +645,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ISupplierConnectorManager, SupplierConnectorManager>();
             services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IWideAvailabilityPriceProcessor, WideAvailabilityPriceProcessor>();
+            services.AddTransient<IWideAvailabilityAccommodationsStorage, WideAvailabilityAccommodationsStorage>();
             
             services.AddTransient<IRoomSelectionService, RoomSelectionService>();
             services.AddTransient<IRoomSelectionPriceProcessor, RoomSelectionPriceProcessor>();
@@ -760,6 +762,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
+            services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
+
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
             {
@@ -777,42 +781,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 }
             });
             
-            return services;
-        }
-
-
-        public static IServiceCollection AddTracing(this IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
-        {
-            string agentHost;
-            int agentPort;
-            if (environment.IsLocal())
-            {
-                agentHost = configuration["Jaeger:AgentHost"];
-                agentPort = int.Parse(configuration["Jaeger:AgentPort"]);
-            }
-            else
-            {
-                agentHost = EnvironmentVariableHelper.Get("Jaeger:AgentHost", configuration);
-                agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
-            }
-
-            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
-            var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
-
-            services.AddOpenTelemetryTracing(builder =>
-            {
-                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRedisInstrumentation(connection)
-                    .AddJaegerExporter(options =>
-                    {
-                        options.AgentHost = agentHost;
-                        options.AgentPort = agentPort;
-                    })
-                    .SetSampler(new AlwaysOnSampler());
-            });
-
             return services;
         }
 

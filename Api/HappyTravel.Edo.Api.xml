@@ -1484,6 +1484,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
+            <summary>
+                Updates booking status and hotel confirmation code
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <param name="bookingConfirmation">Booking confirmation data</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">
             <summary>
             Returns a current build version of the system.
@@ -1917,11 +1925,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailablePaymentMethods">
             <summary>
             List of available payment methods
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Id">
-            <summary>
-                The accommodation ID.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
@@ -2567,11 +2570,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.Position">
             <summary>
                 Agent position in counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyPermissions">
-            <summary>
-                Permissions of the agent.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoleIds">

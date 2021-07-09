@@ -221,8 +221,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             static SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
             {
                 var location = accommodation.Location;
-                return new SlimAccommodation(id: accommodation.Id,
-                    location: new SlimLocationInfo(address: location.Address,
+                return new SlimAccommodation(location: new SlimLocationInfo(address: location.Address,
                         country: location.Country,
                         countryCode: location.CountryCode,
                         locality: location.Locality,

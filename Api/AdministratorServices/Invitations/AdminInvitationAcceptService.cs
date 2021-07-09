@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                 .Ensure(IsEmailUnique, "Administrator with same mail is already registered")
+                .Ensure(AreRolesProvided, "Invitation should have roles provided")
                 .Ensure(AllProvidedRolesExist, "Provided role doesn't exist")
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Tap(SaveAccepted)
@@ -59,14 +60,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 => !await _context.Administrators.AnyAsync(a => a.Email == email);
 
 
+            bool AreRolesProvided(UserInvitation invitation)
+            {
+                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
+                return providedRoleIds is not null && providedRoleIds.Any();
+            }
+
+
             bool AllProvidedRolesExist(UserInvitation invitation)
             {
                 var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
-
-                // TODO remove when front will send role ids
-                if (providedRoleIds.Length == 0)
-                    return true;
-
+                
                 var allRoleIds = _context.AdministratorRoles
                     .Select(x => x.Id)
                     .ToList();

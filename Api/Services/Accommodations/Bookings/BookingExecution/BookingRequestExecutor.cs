@@ -101,7 +101,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 }
 
 
-                // TODO: Remove room information and contract description from booking NIJO-915
                 static EdoContracts.Accommodations.Booking GetStubDetails(Data.Bookings.Booking booking)
                     => new EdoContracts.Accommodations.Booking(booking.ReferenceCode,
                         // Will be set in the refresh step
