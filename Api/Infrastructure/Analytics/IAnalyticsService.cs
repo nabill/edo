@@ -1,5 +1,5 @@
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Geography;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Analytics
 {

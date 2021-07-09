@@ -3,7 +3,7 @@ using System.Globalization;
 using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Geography;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 

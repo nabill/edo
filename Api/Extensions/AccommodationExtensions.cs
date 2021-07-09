@@ -1,7 +1,9 @@
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Geography;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using ContactInfo = HappyTravel.Edo.Api.Models.Accommodations.ContactInfo;
+using GeoPoint = HappyTravel.Geography.GeoPoint;
 using LocationInfo = HappyTravel.Edo.Api.Models.Accommodations.LocationInfo;
 
 namespace HappyTravel.Edo.Api.Extensions
@@ -24,7 +26,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     locality: accommodation.Location.Locality,
                     country: accommodation.Location.Country,
                     localityZoneHtId: accommodation.Location.LocalityZoneHtId,
-                    coordinates: accommodation.Location.Coordinates,
+                    coordinates: new GeoPoint(accommodation.Location.Coordinates.Longitude,accommodation.Location.Coordinates.Latitude),
                     localityZone: accommodation.Location.LocalityZone,
                     address: accommodation.Location.Address,
                     locationDescriptionCode: accommodation.Location.LocationDescriptionCode, 
