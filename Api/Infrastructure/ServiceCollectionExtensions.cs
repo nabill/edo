@@ -528,6 +528,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
+            var urlGenerationOptions = vaultClient.Get(configuration["UrlGeneration:Options"]);
+
+
             return services;
         }
 

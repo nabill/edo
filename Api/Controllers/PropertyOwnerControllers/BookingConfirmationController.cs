@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.Data.Bookings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
@@ -13,25 +14,31 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/property-owner/confirmations")]
     [Produces("application/json")]
+    [Authorize]
     public class BookingConfirmationController : BaseController
     {
-        public BookingConfirmationController(IBookingConfirmationService bookingConfirmationService, IBookingInfoService bookingInfoService)
+        public BookingConfirmationController(IBookingConfirmationService bookingConfirmationService, IBookingInfoService bookingInfoService, 
+            IUrlGenerationService urlGenerationService)
         {
             _bookingConfirmationService = bookingConfirmationService;
             _bookingInfoService = bookingInfoService;
+            _urlGenerationService = urlGenerationService;
         }
 
 
         /// <summary>
         ///     Gets an actual booking status and confirmation code
         /// </summary>
-        /// <param name="referenceCode">Booking reference code</param>
+        /// <param name="encriptedReferenceCode">Booking reference code</param>
         /// <returns>Booking status and property owner confirmation code</returns>
-        [HttpGet("{referenceCode}")]
+        [HttpGet("{encriptedReferenceCode}")]
         [ProducesResponseType(typeof(SlimBookingConfirmation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Get([FromRoute] string referenceCode)
+        [AllowAnonymous]
+        public async Task<IActionResult> Get([FromRoute] string encriptedReferenceCode)
         {
+            var referenceCode = _urlGenerationService.Decrypt(encriptedReferenceCode);
+
             return OkOrBadRequest(await _bookingConfirmationService.Get(referenceCode));
         }
 
@@ -39,13 +46,16 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// <summary>
         ///     Gets booking confirmation changes history
         /// </summary>
-        /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+        /// <param name="encriptedReferenceCode">Booking reference code for retrieving confirmation change history</param>
         /// <returns>List of booking confirmation change events</returns>
-        [HttpGet("{referenceCode}/confirmation-history")]
+        [HttpGet("{encriptedReferenceCode}/confirmation-history")]
         [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string encriptedReferenceCode)
         {
+            var referenceCode = _urlGenerationService.Decrypt(encriptedReferenceCode);
+
             return OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
         }
 
@@ -53,17 +63,23 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         /// <summary>
         ///     Updates booking status and hotel confirmation code
         /// </summary>
-        /// <param name="referenceCode">Booking reference code</param>
+        /// <param name="encriptedReferenceCode">Booking reference code</param>
         /// <param name="bookingConfirmation">Booking confirmation data</param>
         /// <returns></returns>
-        [HttpPut("{referenceCode}")]
+        [HttpPut("{encriptedReferenceCode}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Update([FromRoute] string referenceCode, [FromBody] BookingConfirmation bookingConfirmation)
-            => NoContentOrBadRequest(await _bookingConfirmationService.Update(referenceCode, bookingConfirmation));
+        [AllowAnonymous]
+        public async Task<IActionResult> Update([FromRoute] string encriptedReferenceCode, [FromBody] BookingConfirmation bookingConfirmation)
+        {
+            var referenceCode = _urlGenerationService.Decrypt(encriptedReferenceCode);
+
+            return NoContentOrBadRequest(await _bookingConfirmationService.Update(referenceCode, bookingConfirmation));
+        }
 
 
         private readonly IBookingConfirmationService _bookingConfirmationService;
         private readonly IBookingInfoService _bookingInfoService;
+        private readonly IUrlGenerationService _urlGenerationService;
     }
 }
