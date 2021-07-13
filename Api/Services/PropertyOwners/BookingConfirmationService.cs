@@ -21,21 +21,30 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
+        public async Task<Result<SlimBookingConfirmation>> Get(string referenceCode)
+        {
+            return await GetBooking(referenceCode)
+                .Ensure(IsDirectContract, $"Booking with the reference code '{referenceCode}' is not a direct contract")
+                .Map(ConvertToSlimBookingConfirmation);
+
+
+            static SlimBookingConfirmation ConvertToSlimBookingConfirmation(Booking booking)
+                => new()
+                {
+                    ReferenceCode = booking.ReferenceCode,
+                    ConfirmationCode = booking.PropertyOwnerConfirmationCode,
+                    Status = booking.Status
+                };
+        }
+
+
         public async Task<Result> Update(string referenceCode, BookingConfirmation bookingConfirmation)
         {
-            return await GetBooking()
+            return await GetBooking(referenceCode)
                 .Ensure(IsDirectContract, $"Booking with the reference code '{referenceCode}' is not a direct contract")
                 .BindWithTransaction(_context, booking => UpdateBooking(booking)
                     .Tap(SendStatusToPms)
                     .Tap(SaveHistory));
-
-
-            async Task<Result<Booking>> GetBooking()
-                => await _bookingRecordManager.Get(referenceCode);
-
-
-            bool IsDirectContract(Booking booking)
-                => booking.IsDirectContract;
 
 
             async Task<Result> UpdateBooking(Booking booking)
@@ -88,6 +97,14 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 return _context.SaveChangesAsync();
             }
         }
+
+
+        private async Task<Result<Booking>> GetBooking(string referenceCode)
+            => await _bookingRecordManager.Get(referenceCode);
+ 
+
+        private bool IsDirectContract(Booking booking)
+            => booking.IsDirectContract;
 
 
         private readonly EdoContext _context;
