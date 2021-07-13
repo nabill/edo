@@ -22,7 +22,11 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
-        public string Decrypt(string encryptedString)
+        public string ReadReferenceCode(string encryptedReferenceCode)
+            => Decrypt(encryptedReferenceCode);
+
+
+        private string Decrypt(string encryptedString)
         {
             var encriptedBytes = Convert.FromBase64String(encryptedString);
 
@@ -91,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             // Declare the string used to hold
             // the decrypted text.
-            string plaintext = null;
+            string plainText = null;
 
             // Create an AesCryptoServiceProvider object
             // with the specified key and IV.
@@ -113,13 +117,13 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
                             // Read the decrypted bytes from the decrypting stream
                             // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd();
+                            plainText = srDecrypt.ReadToEnd();
                         }
                     }
                 }
             }
 
-            return plaintext;
+            return plainText;
         }
 
 

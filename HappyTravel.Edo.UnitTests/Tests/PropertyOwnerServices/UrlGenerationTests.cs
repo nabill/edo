@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.PropertyOwnerServices
             var url = urlGenerationService.Generate(referenceCode);
 
             var stringToDecrypt = url.Substring(urlGenerationOptions.Value.ConfirmationPageUrl.Length + 1);
-            var decryptedString = urlGenerationService.Decrypt(stringToDecrypt);
+            var decryptedString = urlGenerationService.ReadReferenceCode(stringToDecrypt);
 
             Assert.Equal(referenceCode, decryptedString);
 

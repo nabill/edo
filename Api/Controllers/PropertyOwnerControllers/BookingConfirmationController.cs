@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         [AllowAnonymous]
         public async Task<IActionResult> Get([FromRoute] string encryptedReferenceCode)
         {
-            var referenceCode = _urlGenerationService.Decrypt(encryptedReferenceCode);
+            var referenceCode = _urlGenerationService.ReadReferenceCode(encryptedReferenceCode);
 
             return OkOrBadRequest(await _bookingConfirmationService.Get(referenceCode));
         }
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         [AllowAnonymous]
         public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string encryptedReferenceCode)
         {
-            var referenceCode = _urlGenerationService.Decrypt(encryptedReferenceCode);
+            var referenceCode = _urlGenerationService.ReadReferenceCode(encryptedReferenceCode);
 
             return OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
         }
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
         [AllowAnonymous]
         public async Task<IActionResult> Update([FromRoute] string encryptedReferenceCode, [FromBody] BookingConfirmation bookingConfirmation)
         {
-            var referenceCode = _urlGenerationService.Decrypt(encryptedReferenceCode);
+            var referenceCode = _urlGenerationService.ReadReferenceCode(encryptedReferenceCode);
 
             return NoContentOrBadRequest(await _bookingConfirmationService.Update(referenceCode, bookingConfirmation));
         }
