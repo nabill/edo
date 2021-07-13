@@ -53,9 +53,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             // with the specified key and IV.
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
-                aesAlg.GenerateKey();   // For test only
-                aesAlg.GenerateIV();    // For test only
-
                 aesAlg.Key = Key;
                 aesAlg.IV = IV;
 
