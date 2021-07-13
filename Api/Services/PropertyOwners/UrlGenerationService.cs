@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HappyTravel.Edo.Api.Infrastructure.Options;
+using Microsoft.Extensions.Options;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -6,11 +8,17 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
     public class UrlGenerationService : IUrlGenerationService
     {
+        public UrlGenerationService(IOptions<UrlGenerationOptions> urlGenerationOptions)
+        {
+            _urlGenerationOptions = urlGenerationOptions.Value;
+        }
+
+
         public string Generate(string referenceCode)
         {
             var variablePartOfUrl = Encrypt(referenceCode);
 
-            return $"{constantPartOfUrl}/{variablePartOfUrl}";
+            return $"{_urlGenerationOptions.ConfirmationPageUrl}/{variablePartOfUrl}";
         }
 
 
@@ -18,13 +26,13 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         {
             var encriptedBytes = Convert.FromBase64String(encryptedString);
 
-            return DecryptStringFromBytes_Aes(encriptedBytes, Key, IV);
+            return DecryptStringFromBytes_Aes(encriptedBytes, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
         }
 
 
-        private static string Encrypt(string stringToEncrypt)
+        private string Encrypt(string stringToEncrypt)
         {
-            var encriptedBytes = EncryptStringToBytes_Aes(stringToEncrypt, Key, IV);
+            var encriptedBytes = EncryptStringToBytes_Aes(stringToEncrypt, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
 
             return Convert.ToBase64String(encriptedBytes);
         }
@@ -118,9 +126,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
-        private static readonly byte[] Key = new byte[32] { 121, 90, 35, 45, 22, 214, 45, 89, 56, 176, 25, 11, 250, 177, 237, 251, 
-            155, 47, 115, 23, 157, 166, 101, 135, 83, 126, 222, 7, 26, 231, 219, 252 };
-        private static readonly byte[] IV = new byte[16] { 26, 131, 30, 106, 233, 60, 139, 254, 4, 227, 5, 32, 11, 132, 253, 115 };
-        private readonly string constantPartOfUrl = "happytravel.com/confirmation-page";
+        private readonly UrlGenerationOptions _urlGenerationOptions;
+        //private static readonly byte[] Key = new byte[32] { 121, 90, 35, 45, 22, 214, 45, 89, 56, 176, 25, 11, 250, 177, 237, 251, 
+        //    155, 47, 115, 23, 157, 166, 101, 135, 83, 126, 222, 7, 26, 231, 219, 252 };
+        //private static readonly byte[] IV = new byte[16] { 26, 131, 30, 106, 233, 60, 139, 254, 4, 227, 5, 32, 11, 132, 253, 115 };
+        //private readonly string constantPartOfUrl = "dev.happytravel.com/confirmation-page";
     }
 }
