@@ -66,11 +66,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
 using Newtonsoft.Json;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Polly;
 using Polly.Extensions.Http;
-using StackExchange.Redis;
 using Amazon;
 using Amazon.S3;
 using Elasticsearch.Net;
@@ -108,10 +105,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, IVaultClient vaultClient)
+            IWebHostEnvironment environment, string apiName, string authorityUrl)
         {
-            var (apiName, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
-
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
@@ -127,9 +122,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
-            IVaultClient vaultClient)
+            IVaultClient vaultClient, string authorityUrl)
         {
-            var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
 
             services.Configure<ConnectorTokenRequestOptions>(options =>
@@ -808,23 +802,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
                 return client;
             });
-        }
-
-
-        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
-            IVaultClient vaultClient)
-        {
-            var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
-
-            var apiName = configuration["Authority:ApiName"];
-            var authorityUrl = configuration["Authority:Endpoint"];
-            if (environment.IsDevelopment() || environment.IsLocal())
-                return (apiName, authorityUrl);
-
-            apiName = authorityOptions["apiName"];
-            authorityUrl = authorityOptions["authorityUrl"];
-
-            return (apiName, authorityUrl);
         }
 
 
