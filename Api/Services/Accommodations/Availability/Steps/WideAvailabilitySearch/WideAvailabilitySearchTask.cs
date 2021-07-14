@@ -88,11 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 string languageCode)
             {
                 var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier);
-                var getAvailabilityTask = Task.Run(() =>
-                {
-                    using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("wide_availability_request", supplier.ToString()).NewTimer();
-                    return supplierConnector.GetAvailability(request, languageCode);
-                });
+                var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
                 return getAvailabilityTask.Result;

@@ -29,15 +29,34 @@ namespace HappyTravel.Edo.Api.Infrastructure.Metrics
             {
                 LabelNames = new[] {"supplier"}
             });
+
+
+        public static readonly Counter SupplierRequestCounter = Prometheus.Metrics.CreateCounter(
+            ApplicationPrefix + "supplier_request_counter",
+            "Supplier request counter",
+            new CounterConfiguration
+            {
+                LabelNames = new [] {"step", "supplier", "errorDetails", "errorCode"}
+            });
         
         
-        public static readonly Histogram SupplierSearchResponseTimeDuration = Prometheus.Metrics.CreateHistogram(
-            ApplicationPrefix + "supplier_search_response_time_duration",
-            "Supplier search response time duration",
+        public static readonly Histogram SupplierRequestHistogram = Prometheus.Metrics.CreateHistogram(
+            ApplicationPrefix + "supplier_request_histogram",
+            "Supplier request histogram",
             new HistogramConfiguration
             {
                 LabelNames = new[] {"step", "supplier"}
             });
+
+
+        public const string WideAvailabilitySearch = "wide-availability-search";
+        public const string RoomSelection = "room-selection";
+        public const string Evaluation = "evaluation";
+        public const string Booking = "booking";
+        public const string Cancellation = "cancellation";
+        public const string GettingDeadline = "getting-deadline";
+        public const string GettingInformation = "getting-information";
+        public const string ProcessAsyncResponse = "process-async-response";
         
         
         private const string ApplicationPrefix = "edo_";
