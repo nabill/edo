@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api
             {
                 options.SwaggerDoc("agent", new OpenApiInfo { Title = "Happytravel.com Edo API for an agent app", Version = "v1.0" });
                 options.SwaggerDoc("admin", new OpenApiInfo { Title = "Happytravel.com Edo API for an admin app", Version = "v1.0" });
-                options.SwaggerDoc("property-owner", new OpenApiInfo { Title = "Happytravel.com Edo API for hotels", Version = "v1.0" });
+                options.SwaggerDoc("property-owner", new OpenApiInfo { Title = "Happytravel.com Edo API for property owners", Version = "v1.0" });
                 options.SwaggerDoc("service", new OpenApiInfo { Title = "Happytravel.com service Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
