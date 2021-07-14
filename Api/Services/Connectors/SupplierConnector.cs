@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         public Task<Result<Deadline, ProblemDetails>> GetDeadline(string availabilityId, Guid roomContractSetId, string languageCode)
         {
-            return ExecuteWithLogging(Counters.GettingDeadline, () =>
+            return ExecuteWithLogging(Counters.BookingDeadline, () =>
             {
                 var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline", UriKind.Absolute);
                 return _connectorClient.Get<Deadline>(uri, languageCode);
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         public Task<Result<Booking, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode)
         {
-            return ExecuteWithLogging(Counters.GettingInformation, () =>
+            return ExecuteWithLogging(Counters.BookingInformation, () =>
             {
                 return _connectorClient.Get<Booking>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         public Task<Result<Booking, ProblemDetails>> ProcessAsyncResponse(Stream stream)
         {
-            return ExecuteWithLogging(Counters.ProcessAsyncResponse, () =>
+            return ExecuteWithLogging(Counters.BookingAsyncResponse, () =>
             {
                 return _connectorClient.Post<Booking>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
             });
