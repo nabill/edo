@@ -398,7 +398,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Paximum"]
                     : supplierOptions["paximum"];
                 
-                options.Paximum = environment.IsLocal()
+                options.Yalago = environment.IsLocal()
                     ? configuration["Suppliers:Yalago"]
                     : supplierOptions["yalago"];
                 
