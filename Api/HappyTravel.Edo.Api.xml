@@ -125,6 +125,12 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgency(System.Int32)">
+            <summary>
+             Gets specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
