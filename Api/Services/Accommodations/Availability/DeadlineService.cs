@@ -64,18 +64,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
+                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierKey, a)))
-                    .SingleOrDefault(r => r.a.HtId == htId);
+                    .Where(r => r.a.HtId == htId)
+                    .ToList();
                 
-                var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
+                foreach (var (SupplierKey, a) in selectedResults)
+                {
+                    var selectedRoom = a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
 
-                if (selectedRoom is null || selectedRoom.Value.Equals(default))
-                    return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
+                    if (!(selectedRoom is null || selectedRoom.Value.Equals(default)))
+                        return await MakeSupplierRequest(SupplierKey, selectedRoom.Value.Id, a.AvailabilityId)
+                            .Bind(d => ProcessDeadline(d, a.CheckInDate, agent))
+                            .Map(d => d.ToDeadline());
+                }
 
-                return await MakeSupplierRequest(selectedResult.SupplierKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId)
-                    .Bind(d => ProcessDeadline(d, selectedResult.a.CheckInDate, agent))
-                    .Map(d => d.ToDeadline());
+                return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
             }
 
 
