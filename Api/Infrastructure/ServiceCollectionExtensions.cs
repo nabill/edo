@@ -386,15 +386,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Jumeirah = environment.IsLocal()
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
-
+                
                 options.Paximum = environment.IsLocal()
                     ? configuration["Suppliers:Paximum"]
                     : supplierOptions["paximum"];
-                
+
                 options.Yalago = environment.IsLocal()
                     ? configuration["Suppliers:Yalago"]
                     : supplierOptions["yalago"];
-                
+
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
@@ -533,8 +533,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.Configure<UrlGenerationOptions>(options =>
             {
                 options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
-                options.AesKey = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesKey"]);
-                options.AesIV = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesIV"]);
+                options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
+                options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
 
             return services;
