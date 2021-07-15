@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
-using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -30,14 +28,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         }
 
 
-        public async Task<Result> Accept(string invitationCode, UserInvitationData filledData, string identity, string email)
+        public async Task<Result> Accept(string invitationCode, string identity, string email)
         {
             return await GetActiveInvitation()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                 .Ensure(IsEmailUnique, "Administrator with same mail is already registered")
-                .Ensure(AreRolesProvided, "Invitation should have roles provided")
-                .Ensure(AllProvidedRolesExist, "Provided role doesn't exist")
                 .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Tap(SaveAccepted)
                     .Bind(CreateAdmin)
@@ -56,37 +52,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 => invitation.InvitationType == UserInvitationTypes.Administrator;
 
 
-            async Task<bool> IsEmailUnique(UserInvitation invitation) 
+            async Task<bool> IsEmailUnique(UserInvitation _) 
                 => !await _context.Administrators.AnyAsync(a => a.Email == email);
 
 
-            bool AreRolesProvided(UserInvitation invitation)
-            {
-                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
-                return providedRoleIds is not null && providedRoleIds.Any();
-            }
-
-
-            bool AllProvidedRolesExist(UserInvitation invitation)
-            {
-                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
-                
-                var allRoleIds = _context.AdministratorRoles
-                    .Select(x => x.Id)
-                    .ToList();
-
-                return providedRoleIds.All(roleId => allRoleIds.Contains(roleId));
-            }
-
-
-            Task SaveAccepted(UserInvitation invitation) 
+            Task SaveAccepted(UserInvitation _) 
                 => _invitationRecordService.SetAccepted(invitationCode);
 
 
             async Task<Result<Administrator>> CreateAdmin(UserInvitation invitation)
             {
                 var now = _dateTimeProvider.UtcNow();
-                var invitationData = GetData(invitation);
+                var invitationData = _invitationRecordService.GetInvitationData(invitation);
 
                 var administrator = new Administrator
                 {
@@ -95,7 +72,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                     LastName = invitationData.UserRegistrationInfo.LastName,
                     IdentityHash = HashGenerator.ComputeSha256(identity),
                     Position = invitationData.UserRegistrationInfo.Position,
-                    AdministratorRoleIds = invitationData.UserRegistrationInfo.RoleIds,
+                    AdministratorRoleIds = invitationData.RoleIds,
                     Created = now,
                     Updated = now
                 };
@@ -110,10 +87,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
             Task WriteAuditLog(Administrator administrator)
                 => _managementAuditService.Write(ManagementEventType.AdministratorRegistration,
                     new AdministrationRegistrationEvent(administrator.Email, administrator.Id, invitationCode));
-
-
-            UserInvitationData GetData(UserInvitation invitation)
-                => filledData.Equals(default) ? _invitationRecordService.GetInvitationData(invitation) : filledData;
         }
 
 
