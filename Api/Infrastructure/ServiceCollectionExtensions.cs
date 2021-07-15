@@ -98,6 +98,8 @@ using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -386,14 +388,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Jumeirah = environment.IsLocal()
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
-
-                options.Paximum = environment.IsLocal()
-                    ? configuration["Suppliers:Paximum"]
-                    : supplierOptions["paximum"];
-                
-                options.Yalago = environment.IsLocal()
-                    ? configuration["Suppliers:Yalago"]
-                    : supplierOptions["yalago"];
                 
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
@@ -533,8 +527,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.Configure<UrlGenerationOptions>(options =>
             {
                 options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
-                options.AesKey = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesKey"]);
-                options.AesIV = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesIV"]);
+
+                var aesKeyInt = System.Text.Json.JsonSerializer.Deserialize<int[]>(urlGenerationOptions["aesKey"]);
+                var aesKey = new byte[32];
+                for (int i = 0; i < 32; i++)
+                    aesKey[i] = (byte)aesKeyInt[i];
+                options.AesKey = aesKey;
+
+                var aesIVInt = System.Text.Json.JsonSerializer.Deserialize<int[]>(urlGenerationOptions["aesIV"]);
+                var aesIV = new byte[16];
+                for (int i = 0; i < 16; i++)
+                    aesIV[i] = (byte)aesIVInt[i];
+                options.AesIV = aesIV;
             });
 
             return services;
