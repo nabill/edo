@@ -125,6 +125,12 @@
             <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgency(System.Int32)">
+            <summary>
+             Gets specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
@@ -1502,21 +1508,21 @@
             <summary>
                 Gets an actual booking status and confirmation code
             </summary>
-            <param name="referenceCode">Booking reference code</param>
+            <param name="encryptedReferenceCode">Booking reference code</param>
             <returns>Booking status and property owner confirmation code</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.GetBookingConfirmationCodeHistory(System.String)">
             <summary>
                 Gets booking confirmation changes history
             </summary>
-            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <param name="encryptedReferenceCode">Booking reference code for retrieving confirmation change history</param>
             <returns>List of booking confirmation change events</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
             <summary>
                 Updates booking status and hotel confirmation code
             </summary>
-            <param name="referenceCode">Booking reference code</param>
+            <param name="encryptedReferenceCode">Booking reference code</param>
             <param name="bookingConfirmation">Booking confirmation data</param>
             <returns></returns>
         </member>
