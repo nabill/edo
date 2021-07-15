@@ -63,14 +63,10 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
 using Newtonsoft.Json;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Polly;
 using Polly.Extensions.Http;
-using StackExchange.Redis;
 using Amazon;
 using Amazon.S3;
 using Elasticsearch.Net;
@@ -101,16 +97,15 @@ using HappyTravel.Edo.Api.Services.SupplierResponses;
 using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
+using HappyTravel.Edo.Api.Services.PropertyOwners;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, IVaultClient vaultClient)
+            IWebHostEnvironment environment, string apiName, string authorityUrl)
         {
-            var (apiName, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
-
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
@@ -126,9 +121,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
-            IVaultClient vaultClient)
+            IVaultClient vaultClient, string authorityUrl)
         {
-            var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
 
             services.Configure<ConnectorTokenRequestOptions>(options =>
@@ -393,6 +387,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
                 
+                options.Paximum = environment.IsLocal()
+                    ? configuration["Suppliers:Paximum"]
+                    : supplierOptions["paximum"];
+
+                options.Yalago = environment.IsLocal()
+                    ? configuration["Suppliers:Yalago"]
+                    : supplierOptions["yalago"];
+
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
@@ -527,6 +529,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
+            var urlGenerationOptions = vaultClient.Get(configuration["UrlGeneration:Options"]).GetAwaiter().GetResult();
+            services.Configure<UrlGenerationOptions>(options =>
+            {
+                options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
+                options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
+                options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
+            });
+
             return services;
         }
 
@@ -644,6 +654,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ISupplierConnectorManager, SupplierConnectorManager>();
             services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IWideAvailabilityPriceProcessor, WideAvailabilityPriceProcessor>();
+            services.AddTransient<IWideAvailabilityAccommodationsStorage, WideAvailabilityAccommodationsStorage>();
             
             services.AddTransient<IRoomSelectionService, RoomSelectionService>();
             services.AddTransient<IRoomSelectionPriceProcessor, RoomSelectionPriceProcessor>();
@@ -760,6 +771,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
+            services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
+            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
+
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
             {
@@ -781,42 +795,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddTracing(this IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
-        {
-            string agentHost;
-            int agentPort;
-            if (environment.IsLocal())
-            {
-                agentHost = configuration["Jaeger:AgentHost"];
-                agentPort = int.Parse(configuration["Jaeger:AgentPort"]);
-            }
-            else
-            {
-                agentHost = EnvironmentVariableHelper.Get("Jaeger:AgentHost", configuration);
-                agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
-            }
-
-            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
-            var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
-
-            services.AddOpenTelemetryTracing(builder =>
-            {
-                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRedisInstrumentation(connection)
-                    .AddJaegerExporter(options =>
-                    {
-                        options.AgentHost = agentHost;
-                        options.AgentPort = agentPort;
-                    })
-                    .SetSampler(new AlwaysOnSampler());
-            });
-
-            return services;
-        }
-
-
         public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration,
             VaultClient.VaultClient vaultClient)
         {
@@ -831,23 +809,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
                 return client;
             });
-        }
-
-
-        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
-            IVaultClient vaultClient)
-        {
-            var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
-
-            var apiName = configuration["Authority:ApiName"];
-            var authorityUrl = configuration["Authority:Endpoint"];
-            if (environment.IsDevelopment() || environment.IsLocal())
-                return (apiName, authorityUrl);
-
-            apiName = authorityOptions["apiName"];
-            authorityUrl = authorityOptions["authorityUrl"];
-
-            return (apiName, authorityUrl);
         }
 
 

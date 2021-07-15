@@ -1,14 +1,15 @@
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Geography;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using GeoPoint = HappyTravel.Geography.GeoPoint;
 using SlimLocationInfo = HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
     public static class SlimAccommodationExtensions
     {
-        public static SlimAccommodation ToEdoContract(this MapperContracts.Public.Accommodations.SlimAccommodation accommodation, string id) 
-            => new SlimAccommodation(id: id,
-                location: accommodation.Location.Map(),
+        public static SlimAccommodation ToEdoContract(this MapperContracts.Public.Accommodations.SlimAccommodation accommodation) 
+            => new SlimAccommodation(location: accommodation.Location.Map(),
                 name: accommodation.Name,
                 photo: new ImageInfo(accommodation.Photo.SourceUrl, accommodation.Photo.Caption),
                 rating: accommodation.Rating,
@@ -23,6 +24,6 @@ namespace HappyTravel.Edo.Api.Extensions
                 countryCode: locationInfo.CountryCode,
                 locality: locationInfo.Locality,
                 localityZone: locationInfo.LocalityZone,
-                coordinates: locationInfo.Coordinates);
+                coordinates: new GeoPoint(locationInfo.Coordinates.Longitude, locationInfo.Coordinates.Latitude));
     }
 }

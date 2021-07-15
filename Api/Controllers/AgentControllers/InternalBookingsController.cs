@@ -1,22 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -44,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets bookings for cancellation
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("cancel")]
+        [HttpGet("to-cancel")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -72,11 +67,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("capture/{date}")]
+        [HttpGet("to-capture")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCapture(DateTime? date)
+        public async Task<IActionResult> GetBookingsForCapture([FromQuery]DateTime? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -106,11 +101,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for charge</returns>
-        [HttpGet("charge/{date}")]
+        [HttpGet("to-charge")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCharge(DateTime? date)
+        public async Task<IActionResult> GetBookingsForCharge([FromQuery]DateTime? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -140,11 +135,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpGet("notify/deadline-approach/{date}")]
+        [HttpGet("to-notify/deadline-approach")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify(DateTime? date)
+        public async Task<IActionResult> GetBookingsToNotify([FromQuery]DateTime? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -158,7 +153,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify/deadline-approach")]
+        [HttpPost("notifications/deadline-approach/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -214,11 +209,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get applied markups for materialization
         /// </summary>
-        [HttpGet("markup-bonuses/{date}")]
+        [HttpGet("markup-bonuses")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetAppliedMarkupsForMaterialization(DateTime? date)
+        public async Task<IActionResult> GetAppliedMarkupsForMaterialization([FromQuery]DateTime? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));

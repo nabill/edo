@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Common.Enums
         Cancel = 7,
         Refresh = 8,
         SupplierWebHook = 9,
-        Create = 10
+        Create = 10,
+        BookingConfirmation = 11
     }
 }

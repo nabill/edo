@@ -15,9 +15,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 using Deadline = HappyTravel.Edo.Data.Bookings.Deadline;
@@ -92,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IEnumerable<WideAvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
-            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
+            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent(), LanguageCode);
         }
 
 

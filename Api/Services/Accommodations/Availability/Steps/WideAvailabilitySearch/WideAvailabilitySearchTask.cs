@@ -78,7 +78,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             catch (Exception ex)
             {
-                // TODO: Add sentry error notification
                 _logger.LogProviderAvailabilitySearchException(ex);
                 var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
@@ -89,11 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 string languageCode)
             {
                 var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier);
-                var getAvailabilityTask = Task.Run(() =>
-                {
-                    using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("wide_availability_request", supplier.ToString()).NewTimer();
-                    return supplierConnector.GetAvailability(request, languageCode);
-                });
+                var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
                 return getAvailabilityTask.Result;
@@ -112,20 +107,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 => WideAvailabilityPolicyProcessor.Process(response, searchSettings.CancellationPolicyProcessSettings);
 
 
-            async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)
+            List<AccommodationAvailabilityResult> Convert(EdoContracts.Accommodations.Availability details)
             {
-                var supplierAccommodationIds = details.Results
-                    .Select(r => new SupplierAccommodationId(supplier, r.AccommodationId))
-                    .Distinct()
-                    .ToList();
-
-                var htIdMapping = accommodationCodeMappings.ToDictionary(m => m.SupplierCode, m => m.HtId);
-                var htIds = htIdMapping.Where(x => supplierAccommodationIds.Any(y => y.Id == x.Key))
-                    .Select(x => x.Value)
-                    .ToList();
+                var htIdMapping = accommodationCodeMappings
+                    .ToDictionary(m => m.SupplierCode, m => m.HtId);
                 
-                var accommodations = await _mapperClient.GetAccommodations(htIds, languageCode);
-
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 return details
                     .Results
@@ -141,22 +127,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             .ToList();
 
                         htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
-                        var mapperAccommodation = accommodations.SingleOrDefault(a => a.HtId == htId);
-                        if (mapperAccommodation.Equals(default))
-                        {
-                            _logger.LogWarning("Could not find mapped accommodation for HtId '{HtId}'", htId);
-                            return default;
-                        }
-
+                        
                         return new AccommodationAvailabilityResult(timestamp,
                             details.AvailabilityId,
-                            mapperAccommodation.ToEdoContract(accommodationAvailability.AccommodationId),
                             roomContractSets,
                             minPrice,
                             maxPrice,
                             connectorRequest.CheckInDate,
                             connectorRequest.CheckOutDate,
-                            htId);
+                            htId,
+                            accommodationAvailability.AccommodationId);
                     })
                     .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();

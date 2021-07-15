@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -66,10 +65,13 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
 
+                var originalInvitationData = _invitationRecordService.GetInvitationData(invitation);
+                
                 return new AcceptPipeValues
                 {
                     Invitation = invitation,
-                    InvitationData = filledData.Equals(default) ? _invitationRecordService.GetInvitationData(invitation) : filledData
+                    InvitationData = filledData.Equals(default) ? originalInvitationData : filledData,
+                    AgentRoleIds = originalInvitationData.RoleIds
                 };
             }
 
@@ -80,8 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     .Ensure(IsInvitationTypeCorrect, "Incorrect invitation type")
                     .Ensure(IsAgencyIdFilled, "Could not find inviter's agency id")
                     .Ensure(IsEmailFilled, "Agent email required")
-                    .Ensure(IsAgentEmailUnique, "Agent with this email already exists")
-                    .Ensure(AllProvidedRolesExist, "Provided role doesn't exist");
+                    .Ensure(IsAgentEmailUnique, "Agent with this email already exists");
 
 
             bool IsIdentityPresent(AcceptPipeValues _)
@@ -89,35 +90,19 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
 
             bool IsInvitationTypeCorrect(AcceptPipeValues values) 
-                => values.Invitation.InvitationType == UserInvitationTypes.Agent || values.Invitation.InvitationType == UserInvitationTypes.ChildAgency;
+                => values.Invitation.InvitationType is UserInvitationTypes.Agent or UserInvitationTypes.ChildAgency;
 
 
             bool IsAgencyIdFilled(AcceptPipeValues values)
                 => values.Invitation.InviterAgencyId.HasValue;
 
 
-            bool IsEmailFilled(AcceptPipeValues values)
+            bool IsEmailFilled(AcceptPipeValues _)
                 => !string.IsNullOrWhiteSpace(email);
 
 
-            async Task<bool> IsAgentEmailUnique(AcceptPipeValues values)
+            async Task<bool> IsAgentEmailUnique(AcceptPipeValues _)
                 => !await _context.Agents.AnyAsync(a => a.Email == email);
-
-
-            bool AllProvidedRolesExist(AcceptPipeValues values)
-            {
-                var providedRoleIds = filledData.UserRegistrationInfo.RoleIds;
-                
-                // TODO remove when front will send role ids
-                if (providedRoleIds.Length == 0)
-                    return true;
-                
-                var allRoleIds = _context.AgentRoles
-                    .Select(x => x.Id)
-                    .ToList();
-                return providedRoleIds.All(roleId => allRoleIds.Contains(roleId));
-            }
-
 
             Task SaveAccepted(AcceptPipeValues _)
                 => _invitationRecordService.SetAccepted(invitationCode);
@@ -140,7 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (values.Invitation.InvitationType == UserInvitationTypes.Agent)
                 {
                     values.AgencyId = values.Invitation.InviterAgencyId.Value;
-                    values.Permissions = PermissionSets.Default;
                     values.RelationType = AgentAgencyRelationTypes.Regular;
                     values.NotificationTemplateId = _notificationOptions.RegularAgentMailTemplateId;
                     values.NotificationType = NotificationTypes.AgentSuccessfulRegistration;
@@ -167,7 +151,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
                 values.AgencyName = childAgency.Name;
                 values.AgencyId = childAgency.Id.Value;
-                values.Permissions = PermissionSets.Master;
                 values.RelationType = AgentAgencyRelationTypes.Master;
                 values.NotificationTemplateId = _notificationOptions.ChildAgencyMailTemplateId;
                 values.NotificationType = NotificationTypes.ChildAgencySuccessfulRegistration;
@@ -182,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 {
                     AgentId = values.Agent.Id,
                     Type = values.RelationType,
-                    InAgencyPermissions = values.Permissions,
+                    AgentRoleIds = values.AgentRoleIds,
                     AgencyId = values.AgencyId,
                     IsActive = true
                 });
@@ -245,7 +228,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             public Agent Agent { get; set; }
             public int AgencyId { get; set; }
             public string AgencyName { get; set; }
-            public InAgencyPermissions Permissions { get; set; }
+            public int[] AgentRoleIds { get; set; }
             public AgentAgencyRelationTypes RelationType { get; set; }
             public string NotificationTemplateId { get; set; }
             public NotificationTypes NotificationType { get; set; }

@@ -92,6 +92,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
+        public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -244,6 +245,7 @@ namespace HappyTravel.Edo.Data
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
             BuildDefaultNotificationOptions(builder);
+            BuildBookingConfirmationHistory(builder);
         }
 
 
@@ -867,6 +869,21 @@ namespace HappyTravel.Edo.Data
                 e.Property(o => o.EnabledProtocols).IsRequired();
                 e.Property(o => o.IsMandatory).IsRequired();
                 e.Property(o => o.EnabledReceivers).IsRequired();
+            });
+        }
+
+
+        private void BuildBookingConfirmationHistory(ModelBuilder builder)
+        {
+            builder.Entity<BookingConfirmationHistoryEntry>(e =>
+            {
+                e.HasKey(hche => hche.Id);
+                e.Property(hche => hche.ReferenceCode).IsRequired();
+                e.HasIndex(hche => hche.ReferenceCode);
+                e.Property(hche => hche.Status).IsRequired();
+                e.Property(hche => hche.Initiator).IsRequired();
+                e.HasIndex(hche => hche.CreatedAt);
+                e.ToTable("BookingConfirmationHistory");
             });
         }
 

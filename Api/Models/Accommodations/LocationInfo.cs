@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using HappyTravel.Geography;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Newtonsoft.Json;
+using GeoPoint = HappyTravel.Geography.GeoPoint;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {

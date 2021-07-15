@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -43,7 +44,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
-                .Ensure(AllProvidedRolesExist, "Provided roles doesn't exist")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
                     .Bind(CreateAgent)
@@ -55,19 +55,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
-            
-            bool AllProvidedRolesExist()
-            {
-                // TODO remove when front will send role ids
-                if (agentData.RoleIds.Length == 0)
-                    return true;
-                
-                var allRoleIds = _context.AgentRoles
-                    .Select(x => x.Id)
-                    .ToList();
-                return agentData.RoleIds.All(roleId => allRoleIds.Contains(roleId));
-            }
-            
 
             Task<Result<CounterpartyInfo>> CreateCounterparty() 
                 => _counterpartyService.Add(counterpartyData);
@@ -86,11 +73,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
+                
+                // assign all roles to master agent
+                var roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
+                
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
                     PermissionSets.Master,
                     rootAgency.Id,
-                    agentData.RoleIds);
+                    roleIds);
             }
 
 
