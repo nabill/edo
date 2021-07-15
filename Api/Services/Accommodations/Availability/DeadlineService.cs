@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 {
                     var selectedRoom = a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
 
-                    if (!(selectedRoom is null || selectedRoom.Value.Equals(default)))
+                    if (selectedRoom is not null && !selectedRoom.Value.Equals(default))
                         return await MakeSupplierRequest(SupplierKey, selectedRoom.Value.Id, a.AvailabilityId)
                             .Bind(d => ProcessDeadline(d, a.CheckInDate, agent))
                             .Map(d => d.ToDeadline());
