@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(string step, Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {
-            using var timer = Counters.SupplierRequestHistogram.WithLabels(step).NewTimer();
+            using var timer = Counters.SupplierRequestHistogram.WithLabels(step, _supplier.ToString()).NewTimer();
             var result = await funcToExecute();
             timer.Dispose();
             
