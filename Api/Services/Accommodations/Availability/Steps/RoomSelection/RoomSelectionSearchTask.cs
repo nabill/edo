@@ -48,11 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
-            {
-                using var timer = Counters.SupplierSearchResponseTimeDuration.WithLabels("room_selection_request", supplier.ToString()).NewTimer();
-                return _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
-            }
+            Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest() 
+                => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
 
             Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
