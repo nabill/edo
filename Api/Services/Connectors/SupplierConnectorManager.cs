@@ -60,6 +60,14 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.Jumeirah,
                     new SupplierConnector(Suppliers.Jumeirah, connectorClient, _options.Jumeirah, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Paximum,
+                    new SupplierConnector(Suppliers.Paximum, connectorClient, _options.Paximum, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Yalago,
+                    new SupplierConnector(Suppliers.Yalago, connectorClient, _options.Yalago, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
