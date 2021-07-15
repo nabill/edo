@@ -7,14 +7,13 @@ namespace HappyTravel.Edo.Api.Models.Users
     {
         [JsonConstructor]
         public UserDescriptionInfo(string title, string firstName, string lastName,
-            string position, string email, int[] roleIds = null)
+            string position, string email)
         {
             Title = title;
             FirstName = firstName;
             LastName = lastName;
             Position = position;
             Email = email;
-            RoleIds = roleIds ?? System.Array.Empty<int>();
         }
 
 
@@ -45,12 +44,6 @@ namespace HappyTravel.Edo.Api.Models.Users
         ///     Email
         /// </summary>
         public string Email { get; }
-        
-        /// <summary>
-        ///     Role ids assigned to user
-        /// </summary>
-        public int[] RoleIds { get; }
-
 
         public override int GetHashCode()
             => (Title, FirstName, LastName, Position, Email).GetHashCode();
