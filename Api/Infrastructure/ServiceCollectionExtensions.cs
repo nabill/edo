@@ -533,18 +533,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.Configure<UrlGenerationOptions>(options =>
             {
                 options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
-
-                var aesKeyInt = System.Text.Json.JsonSerializer.Deserialize<int[]>(urlGenerationOptions["aesKey"]);
-                var aesKey = new byte[32];
-                for (int i = 0; i < 32; i++)
-                    aesKey[i] = (byte)aesKeyInt[i];
-                options.AesKey = aesKey;
-
-                var aesIVInt = System.Text.Json.JsonSerializer.Deserialize<int[]>(urlGenerationOptions["aesIV"]);
-                var aesIV = new byte[16];
-                for (int i = 0; i < 16; i++)
-                    aesIV[i] = (byte)aesIVInt[i];
-                options.AesIV = aesIV;
+                options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
+                options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
 
             return services;
