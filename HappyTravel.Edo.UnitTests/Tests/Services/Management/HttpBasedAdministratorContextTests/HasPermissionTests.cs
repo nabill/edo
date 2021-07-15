@@ -52,7 +52,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Management.HttpBasedAdministr
             {
                 Id = 0, 
                 AdministratorRoleIds = new []{0},
-                IdentityHash = HashGenerator.ComputeSha256("hash")
+                IdentityHash = HashGenerator.ComputeSha256("hash"),
+                IsActive = true
             }
         };
 
