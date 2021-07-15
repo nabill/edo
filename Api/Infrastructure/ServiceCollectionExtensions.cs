@@ -536,6 +536,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
+            var urlGenerationOptions = vaultClient.Get(configuration["UrlGeneration:Options"]).GetAwaiter().GetResult();
+            services.Configure<UrlGenerationOptions>(options =>
+            {
+                options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
+                options.AesKey = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesKey"]);
+                options.AesIV = System.Text.Json.JsonSerializer.Deserialize<byte[]>(urlGenerationOptions["aesIV"]);
+            });
+
             return services;
         }
 
@@ -771,6 +779,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
+            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

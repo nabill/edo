@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
