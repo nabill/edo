@@ -14,6 +14,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string TravelgateXTest { get; set; }
         public string Darina { get; set; }
         public string Jumeirah { get; set; }
+        public string Paximum { get; set; }
+        public string Yalago { get; set; }
         public List<Suppliers> EnabledSuppliers { get; set; }
     }
 }

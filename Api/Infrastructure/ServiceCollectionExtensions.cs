@@ -387,6 +387,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Jumeirah = environment.IsLocal()
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
+
+                options.Paximum = environment.IsLocal()
+                    ? configuration["Suppliers:Paximum"]
+                    : supplierOptions["paximum"];
+                
+                options.Yalago = environment.IsLocal()
+                    ? configuration["Suppliers:Yalago"]
+                    : supplierOptions["yalago"];
                 
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
