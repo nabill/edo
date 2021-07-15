@@ -98,8 +98,6 @@ using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -389,6 +387,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Jumeirah"]
                     : supplierOptions["jumeirah"];
                 
+                options.Paximum = environment.IsLocal()
+                    ? configuration["Suppliers:Paximum"]
+                    : supplierOptions["paximum"];
+
+                options.Yalago = environment.IsLocal()
+                    ? configuration["Suppliers:Yalago"]
+                    : supplierOptions["yalago"];
+
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
