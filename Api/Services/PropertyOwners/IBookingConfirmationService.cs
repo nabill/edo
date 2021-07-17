@@ -6,7 +6,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
     public interface IBookingConfirmationService
     {
-        Task<Result> Update(string referenceCode, BookingConfirmation bookingConfirmation);
         Task<Result<SlimBookingConfirmation>> Get(string referenceCode);
+        Task<Result> Update(string referenceCode, BookingConfirmation bookingConfirmation);
+        Task SendConfirmationEmail();
     }
 }

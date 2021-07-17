@@ -1,10 +1,15 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.PropertyOwners;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
@@ -12,11 +17,16 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
     public class BookingConfirmationService : IBookingConfirmationService
     {
-        public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, IBookingRecordsUpdater recordsUpdater)
+        public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
+            IBookingRecordsUpdater recordsUpdater, IUrlGenerationService urlGenerationService, INotificationService notificationService,
+            IOptions<PropertyOwnerMailingOptions> options)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
             _recordsUpdater = recordsUpdater;
+            _urlGenerationService = urlGenerationService;
+            _notificationService = notificationService;
+            _options = options.Value;
         }
 
 
@@ -98,6 +108,24 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         }
 
 
+        public async Task<Result> SendConfirmationEmail(Booking booking)
+        {
+            var url = _urlGenerationService.Generate(booking.ReferenceCode);
+
+            var bookingConfirmationData = new BookingConfirmationData
+            { 
+                
+            };
+
+            var email = "";
+
+            return await _notificationService.Send(messageData: bookingConfirmationData,
+                    notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
+                    email: email,
+                    templateId: _options.BookingConfirmationTemplateId);
+        }
+
+
         private async Task<Result<Booking>> GetBooking(string referenceCode)
             => await _bookingRecordManager.Get(referenceCode);
  
@@ -109,5 +137,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingRecordsUpdater _recordsUpdater;
+        private readonly IUrlGenerationService _urlGenerationService;
+        private readonly INotificationService _notificationService;
+        private readonly PropertyOwnerMailingOptions _options;
     }
 }
