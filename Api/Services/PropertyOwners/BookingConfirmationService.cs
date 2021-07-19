@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -115,6 +116,15 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             var bookingConfirmationData = new BookingConfirmationData
             { 
                 ReferenceCode = booking.ReferenceCode,
+                AccommodationName = booking.AccommodationName,
+                MainPassengerName = booking.MainPassengerName,
+                RoomType = "",
+                CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                PromoCodeAndRate = "",
+                MealPlan = "",
+                NumberOfPassengers = 0,
+                Bedding = "",
                 BookingConfirmationPageUrl = url
             };
 
