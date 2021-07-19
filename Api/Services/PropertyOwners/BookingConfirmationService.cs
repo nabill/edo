@@ -114,7 +114,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             var bookingConfirmationData = new BookingConfirmationData
             { 
-                
+                ReferenceCode = booking.ReferenceCode,
+                BookingConfirmationPageUrl = url
             };
 
             var email = "";
