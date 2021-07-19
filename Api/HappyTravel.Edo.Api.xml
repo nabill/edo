@@ -2811,9 +2811,9 @@
                 Regular agent personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RoleIds">
             <summary>
-                E-mail for invitation.
+                Role ids assigned to user
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RoleIds">
