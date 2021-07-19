@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public class BookedRoomDetails
         {
             public string Type { get; set; }
-            public string MainPassengerName { get; set; }
+            public string MainPassengers { get; set; }
             public string PromoCode { get; set; }
             public string Price { get; set; }
             public string MealPlan { get; set; }

@@ -13,6 +13,7 @@ using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.PropertyOwners
@@ -117,15 +118,20 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             var roomDetails = new List<BookingConfirmationData.BookedRoomDetails>();
             foreach (var room in booking.Rooms)
             {
+                var passengers = room.Passengers
+                    .Where(p => p.IsLeader)
+                    .Select(p => $"{p.Title} {p.LastName} {p.FirstName}")
+                    .ToList();
+
                 roomDetails.Add(new BookingConfirmationData.BookedRoomDetails 
                 {
-                    MainPassengerName = booking.MainPassengerName,
-                    Type = "",
-                    PromoCode = "",
-                    Price = "",
+                    MainPassengers = String.Join(", ", passengers),
+                    Type = EnumFormatters.FromDescription(room.Type),
+                    PromoCode = "", // TODO: Need clarify this
+                    Price = MoneyFormatter.ToCurrencyString(room.Price.Amount, room.Price.Currency),
                     MealPlan = room.MealPlan,
-                    NumberOfPassengers = "",
-                    ContractDescription = "",
+                    NumberOfPassengers = "",    // TODO: Need method to calculate count adults and children.
+                    ContractDescription = room.ContractDescription,
                 });
             }
 

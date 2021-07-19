@@ -2816,11 +2816,6 @@
                 Role ids assigned to user
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RoleIds">
-            <summary>
-                Role ids assigned to user
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
             <summary>
             Agent id
