@@ -117,23 +117,25 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             var roomDetails = new List<BookingConfirmationData.BookedRoomDetails>();
             foreach (var room in booking.Rooms)
             {
-
+                roomDetails.Add(new BookingConfirmationData.BookedRoomDetails 
+                {
+                    MainPassengerName = booking.MainPassengerName,
+                    Type = "",
+                    PromoCode = "",
+                    Price = "",
+                    MealPlan = room.MealPlan,
+                    NumberOfPassengers = "",
+                    ContractDescription = "",
+                });
             }
 
             var bookingConfirmationData = new BookingConfirmationData
             { 
                 ReferenceCode = booking.ReferenceCode,
                 AccommodationName = booking.AccommodationName,
-                MainPassengerName = booking.MainPassengerName,
-                RoomType = "",
                 CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                 CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                RoomDetails = new List<BookingConfirmationData.BookedRoomDetails>(),
-
-                PromoCodeAndRate = "",
-                MealPlan = booking.Rooms[0].MealPlan,
-                NumberOfPassengers = booking.Rooms[0].Passengers.Count,
-                Bedding = "",
+                RoomDetails = roomDetails,
                 BookingConfirmationPageUrl = url
             };
 
