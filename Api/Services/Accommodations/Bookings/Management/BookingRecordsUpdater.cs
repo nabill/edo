@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 BookingId = booking.Id,
                 ReferenceCode = booking.ReferenceCode,
-                Status = status,
+                Status = EnumFormatters.FromDescription(status),
                 ChangeTime = _dateTimeProvider.UtcNow(),
                 AccommodationName = booking.AccommodationName,
                 AccommodationPhoto = booking.AccommodationInfo?.Photo,
