@@ -12,6 +12,7 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.PropertyOwners
@@ -113,6 +114,12 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         {
             var url = _urlGenerationService.Generate(booking.ReferenceCode);
 
+            var roomDetails = new List<BookingConfirmationData.BookedRoomDetails>();
+            foreach (var room in booking.Rooms)
+            {
+
+            }
+
             var bookingConfirmationData = new BookingConfirmationData
             { 
                 ReferenceCode = booking.ReferenceCode,
@@ -121,9 +128,11 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 RoomType = "",
                 CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                 CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                RoomDetails = new List<BookingConfirmationData.BookedRoomDetails>(),
+
                 PromoCodeAndRate = "",
-                MealPlan = "",
-                NumberOfPassengers = 0,
+                MealPlan = booking.Rooms[0].MealPlan,
+                NumberOfPassengers = booking.Rooms[0].Passengers.Count,
                 Bedding = "",
                 BookingConfirmationPageUrl = url
             };
