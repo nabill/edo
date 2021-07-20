@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Extensions
             => new (request.RegistrationInfo, request.ChildAgencyRegistrationInfo, default);
 
 
-        public static UserInvitationData ToUserInvitationData(this CreateChildAgencyInvitationRequest request)
+        public static UserInvitationData ToUserInvitationData(this CreateChildAgencyInvitationRequest request, int[] roleIds)
             => new (request.UserRegistrationInfo,
                 new RegistrationAgencyInfo(
                     request.ChildAgencyRegistrationInfo.Name,
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     request.ChildAgencyRegistrationInfo.PostalCode,
                     request.ChildAgencyRegistrationInfo.Website,
                     request.ChildAgencyRegistrationInfo.VatNumber), 
-                default);
+                roleIds);
 
         
         public static UserInvitationData ToUserInvitationData(this SendAgentInvitationRequest request)
