@@ -14,5 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate);
         
         public Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate);
+        
+        public Task<Result<Stream>> PendingSupplierReferenceReport(DateTime fromDate, DateTime endDate);
     }
 }

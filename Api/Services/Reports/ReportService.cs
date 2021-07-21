@@ -84,6 +84,21 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
+        public Task<Result<Stream>> PendingSupplierReferenceReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate);
+
+
+            IQueryable<PendingSupplierReference> GetRecords() 
+                => GetRecords<PendingSupplierReference>(from, end);
+        }
+
+
         private Result Validate(DateTime fromDate, DateTime endDate)
         {
             if (fromDate == default || endDate == default)
