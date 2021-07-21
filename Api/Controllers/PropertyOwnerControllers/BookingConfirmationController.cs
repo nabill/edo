@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
     public class BookingConfirmationController : BaseController
     {
         public BookingConfirmationController(IBookingConfirmationService bookingConfirmationService, IBookingInfoService bookingInfoService, 
-            IUrlGenerationService urlGenerationService)
+            IPropertyOwnerConfirmationUrlGenerator urlGenerationService)
         {
             _bookingConfirmationService = bookingConfirmationService;
             _bookingInfoService = bookingInfoService;
@@ -80,6 +80,6 @@ namespace HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers
 
         private readonly IBookingConfirmationService _bookingConfirmationService;
         private readonly IBookingInfoService _bookingInfoService;
-        private readonly IUrlGenerationService _urlGenerationService;
+        private readonly IPropertyOwnerConfirmationUrlGenerator _urlGenerationService;
     }
 }

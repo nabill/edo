@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
     public class BookingConfirmationService : IBookingConfirmationService
     {
         public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
-            IBookingRecordsUpdater recordsUpdater, IUrlGenerationService urlGenerationService, INotificationService notificationService,
+            IBookingRecordsUpdater recordsUpdater, IPropertyOwnerConfirmationUrlGenerator urlGenerationService, INotificationService notificationService,
             IOptions<PropertyOwnerMailingOptions> options)
         {
             _context = context;
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingRecordsUpdater _recordsUpdater;
-        private readonly IUrlGenerationService _urlGenerationService;
+        private readonly IPropertyOwnerConfirmationUrlGenerator _urlGenerationService;
         private readonly INotificationService _notificationService;
         private readonly PropertyOwnerMailingOptions _options;
     }

@@ -778,7 +778,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
-            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
+            services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
