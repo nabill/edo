@@ -67,10 +67,14 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            Task<bool> AllProvidedRolesExist() 
-                => _context.AgentRoles.AllAsync(x => prefilledData.RoleIds.Contains(x.Id));
+            async Task<bool> AllProvidedRolesExist()
+            {
+                var allRoleIds = await _context.AgentRoles.Select(r => r.Id).ToListAsync();
 
-            
+                return prefilledData.RoleIds.All(x => allRoleIds.Contains(x));
+            }
+
+
             async Task<Result<UserInvitation>> SaveInvitation()
             {
                 var newInvitation = new UserInvitation
