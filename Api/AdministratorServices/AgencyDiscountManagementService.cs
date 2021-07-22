@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> DiscountDoesntExceedMarkups(Discount discount)
             {
                 var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == discount.TargetPolicyId);
-                var markupFunction = _templateService.CreateFunction(markupPolicy.Id, markupPolicy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
                 
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.TargetPolicyId == markupPolicy.Id)
