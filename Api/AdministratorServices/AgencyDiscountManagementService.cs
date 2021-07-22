@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return ValidatePercent(createDiscountRequest.DiscountPercent)
                 .Bind(ValidateTargetMarkup)
                 .Bind(ValidateAgency)
-                .Bind(ValidateDiscountSize)
+                .Bind(DiscountsDontExceedMarkups)
                 .BindWithTransaction(_context, () => Result.Success()
                     .Tap(UpdateDiscount)
                     .Bind(WriteAuditLog));
@@ -89,10 +89,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     : Result.Failure($"Could not find an agency with id {agencyId}");
 
 
-            async Task<Result> ValidateDiscountSize()
+            async Task<Result> DiscountsDontExceedMarkups()
             {
                 var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == createDiscountRequest.TargetMarkupId);
-                var markupFunction = _templateService.CreateFunction(markupPolicy.Id, markupPolicy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
                 
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.TargetPolicyId == markupPolicy.Id)
