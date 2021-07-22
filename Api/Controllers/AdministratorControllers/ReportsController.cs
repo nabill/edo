@@ -104,6 +104,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        public async Task<IActionResult> GetPendingSupplierReferenceReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.PendingSupplierReferenceReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"full-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
+
+
         private readonly IReportService _reportService;
     }
 }
