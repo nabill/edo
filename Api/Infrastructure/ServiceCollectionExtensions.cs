@@ -287,6 +287,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
                 options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
             });
+
+            var bookingConfirmationTemplateId = mailSettings[configuration["Edo:Email:BookingConfirmationTemplateId"]];
+            var emailToSendCopy = mailSettings[configuration["emailToSendCopy"]];
+            services.Configure<PropertyOwnerMailingOptions>(options => 
+            {
+                options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
+                options.EmailToSendCopy = emailToSendCopy;
+            });
             #endregion
 
             #region tag processing options
@@ -772,7 +780,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
-            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
+            services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
