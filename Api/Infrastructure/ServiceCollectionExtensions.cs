@@ -289,7 +289,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var bookingConfirmationTemplateId = mailSettings[configuration["Edo:Email:BookingConfirmationTemplateId"]];
-            var emailToSendCopy = mailSettings[configuration["emailToSendCopy"]];
+            var emailToSendCopy = mailSettings[configuration["Edo:Email:EmailToSendCopy"]];
             services.Configure<PropertyOwnerMailingOptions>(options => 
             {
                 options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
