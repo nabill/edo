@@ -20,8 +20,11 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     booking.SupplierReferenceCode == null
                 select new PendingSupplierReference
                 {
+                    Created = booking.Created,
                     ReferenceCode = booking.ReferenceCode,
-                    Date = booking.Created
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    Passengers = booking.Rooms
                 };
         }
         
