@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
             return await _notificationService.Send(messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { _options.EmailToSendCopy },  //TODO: Need add hotel email form mapper
+                    emails: new List<string> { _options.EmailToSendCopy },  //TODO: Need add hotel email from mapper
                     templateId: _options.BookingConfirmationTemplateId);
         }
 
