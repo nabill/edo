@@ -3,5 +3,6 @@
     public class PropertyOwnerMailingOptions
     {
         public string BookingConfirmationTemplateId { get; set; }
+        public string EmailToSendCopy { get; set; }
     }
 }
