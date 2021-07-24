@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
@@ -12,12 +15,12 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
             _context = context;
         }
         
-        public IQueryable<SupplierWiseRecordProjection> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<SupplierWiseRecordProjection>> Get(DateTime fromDate, DateTime endDate)
         {
-            return from booking in _context.Bookings
+            return await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
-                where 
+                where
                     booking.IsDirectContract &&
                     booking.Created >= fromDate &&
                     booking.Created < endDate
@@ -36,7 +39,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     ConvertedAmount = order.ConvertedPrice,
                     ConvertedCurrency = order.ConvertedCurrency,
                     Supplier = booking.Supplier
-                };
+                })
+                .ToListAsync();
         }
         
         

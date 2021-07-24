@@ -773,9 +773,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<FullBookingsReportProjection, FullBookingsReportRow>, FullBookingsReportProjectionConverter>();
+            services.AddTransient<IConverter<SalesBookingsReportProjection, SalesBookingsReportRow>, SalesBookingsReportProjectionConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordProjection>, AgencyWiseRecordManager>();
             services.AddTransient<IRecordManager<SupplierWiseRecordProjection>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
+            services.AddTransient<IRecordManager<SalesBookingsReportProjection>, SalesBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 

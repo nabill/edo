@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -32,9 +33,9 @@ namespace HappyTravel.Edo.Api.Services.Reports
             return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate<SupplierWiseRecordProjection, SupplierWiseReportRow>);
-            
-            
-            IQueryable<SupplierWiseRecordProjection> GetRecords()
+
+
+            Task<IEnumerable<SupplierWiseRecordProjection>> GetRecords()
                 => GetRecords<SupplierWiseRecordProjection>(from, end);
         }
 
@@ -49,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                 .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
             
             
-            IQueryable<AgencyWiseRecordProjection> GetRecords()
+            Task<IEnumerable<AgencyWiseRecordProjection>> GetRecords()
                 => GetRecords<AgencyWiseRecordProjection>(from, end);
         }
 
@@ -58,14 +59,29 @@ namespace HappyTravel.Edo.Api.Services.Reports
         {
             var from = fromDate.Date;
             var end = endDate.Date.AddDays(1).AddTicks(-1);
-            
+
             return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate<FullBookingsReportProjection, FullBookingsReportRow>);
-            
-            
-            IQueryable<FullBookingsReportProjection> GetRecords()
+
+
+            Task<IEnumerable<FullBookingsReportProjection>> GetRecords()
                 => GetRecords<FullBookingsReportProjection>(from, end);
+        }
+
+
+        public async Task<Result<Stream>> GetSalesBookingsReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+            return await Validate(from, end)
+                .Map(GetRecords)
+                .Bind(Generate<SalesBookingsReportProjection, SalesBookingsReportRow>);
+
+
+            Task<IEnumerable<SalesBookingsReportProjection>> GetRecords()
+                => GetRecords<SalesBookingsReportProjection>(from, end);
         }
 
 
@@ -77,9 +93,9 @@ namespace HappyTravel.Edo.Api.Services.Reports
             return await Validate(from, end)
                 .Map(GetRecords)
                 .Bind(Generate);
-            
-            
-            IQueryable<AgencyProductivity> GetRecords()
+
+
+            Task<IEnumerable<AgencyProductivity>> GetRecords()
                 => GetRecords<AgencyProductivity>(from, end);
         }
 
@@ -96,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
         
         
-        private IQueryable<TProjection> GetRecords<TProjection>(DateTime fromDate, DateTime endDate) 
+        private Task<IEnumerable<TProjection>> GetRecords<TProjection>(DateTime fromDate, DateTime endDate) 
             => _serviceProvider.GetRequiredService<IRecordManager<TProjection>>().Get(fromDate, endDate);
 
 
