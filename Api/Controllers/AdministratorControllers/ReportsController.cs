@@ -119,10 +119,29 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"full-bookings-report-{from:g}-{end:g}.csv"
+                FileDownloadName = $"pending-supplier-reference-report-{from:g}-{end:g}.csv"
             };
         }
 
+        
+        /// <summary>
+        ///     Returns confirmed bookings report
+        /// </summary>
+        [HttpGet("confirmed-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetConfirmedBookingsReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.ConfirmedBookingsReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"confirmed-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
 
         private readonly IReportService _reportService;
     }
