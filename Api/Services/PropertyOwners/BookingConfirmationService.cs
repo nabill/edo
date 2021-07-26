@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 var childrenStr = string.Empty;
                 foreach (var passenger in passengers)
                 {
-                    if (passenger.Age > MinimumAdultAge)
+                    if (passenger.Age >= MinimumAdultAge)
                         adult++;
                     else
                     {
