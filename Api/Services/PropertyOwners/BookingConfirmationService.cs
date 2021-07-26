@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     PromoCode = "", // TODO: Need clarify this
                     Price = MoneyFormatter.ToCurrencyString(room.Price.Amount, room.Price.Currency),
                     MealPlan = room.MealPlan,
-                    NumberOfPassengers = "",    // TODO: Need method to calculate count adults and children.
+                    NumberOfPassengers = CalculateNumberOfPassengers(),
                     ContractDescription = room.ContractDescription,
                 });
             }
@@ -151,6 +151,12 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
                     emails: new List<string> { _options.EmailToSendCopy },  //TODO: Need add hotel email from mapper
                     templateId: _options.BookingConfirmationTemplateId);
+
+
+            string CalculateNumberOfPassengers()    // TODO: Need method to calculate count adults and children.
+            {
+                return "";
+            }
         }
 
 

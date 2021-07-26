@@ -54,6 +54,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
                 return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails, templateId);
+            else if (apiCaller.Type == ApiCallerTypes.PropertyOwner)
+                return await _notificationOptionsService.GetNotificationOptions(0, apiCaller.Type, null, notificationType)
+                    .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                    .Tap(sendingSettings => _internalNotificationService.AddPropertyOwnerNotification(messageData, notificationType, sendingSettings));
             else
                 return Result.Success();
         }
