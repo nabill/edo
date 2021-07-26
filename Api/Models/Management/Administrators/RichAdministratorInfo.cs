@@ -3,9 +3,9 @@ using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.Api.Models.Management.Administrators
 {
-    public readonly struct AdministratorInfoWithPermissions
+    public readonly struct RichAdministratorInfo
     {
-        public AdministratorInfoWithPermissions(int id, string firstName, string lastName, string position, int[] administratorRoleIds,
+        public RichAdministratorInfo(int id, string firstName, string lastName, string position, int[] administratorRoleIds,
             bool isActive, List<AdministratorPermissions> permissions)
         {
             Id = id;

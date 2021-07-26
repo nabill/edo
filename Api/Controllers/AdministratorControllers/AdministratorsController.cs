@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Administrators;
@@ -21,11 +20,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public AdministratorsController(IAdministratorContext administratorContext,
             IAdministratorRolesAssignmentService administratorRolesAssignmentService,
-            IAdministratorManagementService administratorManagementService)
+            IAdministratorManagementService administratorManagementService,
+            IAdministratorService administratorService)
         {
             _administratorContext = administratorContext;
             _administratorRolesAssignmentService = administratorRolesAssignmentService;
             _administratorManagementService = administratorManagementService;
+            _administratorService = administratorService;
         }
 
 
@@ -34,11 +35,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>Current administrator information.</returns>
         [HttpGet("current")]
-        [ProducesResponseType(typeof(AdministratorInfoWithPermissions), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RichAdministratorInfo), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetCurrent()
         {
-            var (_, isFailure, administrator, _) = await _administratorContext.GetCurrentWithPermissions();
+            var (_, isFailure, administrator, _) = await _administratorService.GetCurrentWithPermissions();
 
             return isFailure
                 ? NoContent()
@@ -113,5 +114,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAdministratorContext _administratorContext;
         private readonly IAdministratorRolesAssignmentService _administratorRolesAssignmentService;
         private readonly IAdministratorManagementService _administratorManagementService;
+        private readonly IAdministratorService _administratorService;
     }
 }
