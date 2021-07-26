@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                         childrenStr = (string.IsNullOrEmpty(childrenStr) ? string.Empty : $"{childrenStr}, ") + $"{passenger.Age} years";
                     }
                 }
-                var result = $"{adult} adult";
+                var result = $"{adult} adult(s)";
                 if (children == 1)
                     result += $", {childrenStr} child";
                 else if (children > 1)
