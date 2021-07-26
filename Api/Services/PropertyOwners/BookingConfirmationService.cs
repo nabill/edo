@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     PromoCode = "", // TODO: Need clarify this
                     Price = MoneyFormatter.ToCurrencyString(room.Price.Amount, room.Price.Currency),
                     MealPlan = room.MealPlan,
-                    NumberOfPassengers = CalculateNumberOfPassengers(),
+                    NumberOfPassengers = CalculateNumberOfPassengers(room.Passengers),
                     ContractDescription = room.ContractDescription,
                 });
             }
@@ -151,15 +151,38 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             if (isFailure)
                 return Result.Failure(error.Detail);
 
+            if (emails.Count == 0)
+                return Result.Failure("Missing email address to send email to property owner");
+
             return await _notificationService.Send(messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { emails[0], _options.EmailToSendCopy },   // TODO: After Notification Center refactoring EmailToSendCopy will be moved to the copy.
+                    emails: new List<string> { emails[0], _options.ReservationsOfficeBackupEmail },   
+                    // TODO: After Notification Center refactoring ReservationsOfficeBackupEmail will be moved to the copy.
                     templateId: _options.BookingConfirmationTemplateId);
 
 
-            string CalculateNumberOfPassengers()    // TODO: Need method to calculate count adults and children.
+            static string CalculateNumberOfPassengers(List<Passenger> passengers)
             {
-                return "";
+                var adult = 0;
+                var children = 0;
+                var childrenStr = string.Empty;
+                foreach (var passenger in passengers)
+                {
+                    if (passenger.Age > 18)
+                        adult++;
+                    else
+                    {
+                        children++;
+                        childrenStr = (string.IsNullOrEmpty(childrenStr) ? "" : $"{childrenStr}, ") + $"{passenger.Age} years";
+                    }
+                }
+                var result = $"{adult} Adult";
+                if (children == 1)
+                    result += $", {childrenStr} Child";
+                else if (children > 1)
+                    result += $", {childrenStr} Children";
+                
+                return result;
             }
         }
 
