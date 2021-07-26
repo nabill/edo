@@ -102,9 +102,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
             async Task<bool> AllProvidedRolesExist()
             {
-                var allroleIds = await _context.AdministratorRoles.Select(r => r.Id).ToListAsync();
-
-                return prefilledData.RoleIds.All(allroleIds.Contains);
+                var allRoles = await _context.AdministratorRoles.Select(x => x.Id).ToListAsync();
+                return prefilledData.RoleIds.All(allRoles.Contains);
             }
             
             
