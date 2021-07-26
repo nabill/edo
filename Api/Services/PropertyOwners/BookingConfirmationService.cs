@@ -171,19 +171,19 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 var childrenStr = string.Empty;
                 foreach (var passenger in passengers)
                 {
-                    if (passenger.Age > 18)
+                    if (passenger.Age > MinimumAdultAge)
                         adult++;
                     else
                     {
                         children++;
-                        childrenStr = (string.IsNullOrEmpty(childrenStr) ? string.Empty : $"{childrenStr}, ") + $"{passenger.Age} years";
+                        childrenStr += $", {passenger.Age} years";
                     }
                 }
                 var result = $"{adult} adult(s)";
                 if (children == 1)
-                    result += $", {childrenStr} child";
+                    result += $"{childrenStr} child";
                 else if (children > 1)
-                    result += $", {childrenStr} children";
+                    result += $"{childrenStr} children";
                 
                 return result;
             }
@@ -197,6 +197,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private bool IsDirectContract(Booking booking)
             => booking.IsDirectContract;
 
+
+        private const int MinimumAdultAge = 18;
 
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
