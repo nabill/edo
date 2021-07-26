@@ -3172,6 +3172,41 @@
             Flag of administrator activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.Id">
+            <summary>
+            Id of administrator
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.Position">
+            <summary>
+            Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.Permissions">
+            <summary>
+            All permissions, granted by the roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfoWithPermissions.IsActive">
+            <summary>
+            Flag of administrator activity state
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
             <summary>
                 Verify reason.

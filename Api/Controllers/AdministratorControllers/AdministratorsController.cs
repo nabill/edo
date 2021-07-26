@@ -34,15 +34,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>Current administrator information.</returns>
         [HttpGet("current")]
-        [ProducesResponseType(typeof(AdministratorInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AdministratorInfoWithPermissions), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetCurrent()
         {
-            var (_, isFailure, administrator, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, administrator, _) = await _administratorContext.GetCurrentWithPermissions();
 
             return isFailure
                 ? NoContent()
-                : Ok(administrator.ToAdministratorInfo());
+                : Ok(administrator);
         }
 
 

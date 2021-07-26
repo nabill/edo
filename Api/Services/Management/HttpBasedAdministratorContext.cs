@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Management.Administrators;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
@@ -23,13 +26,10 @@ namespace HappyTravel.Edo.Api.Services.Management
             var (_, isFailure, administrator, _) = await GetCurrent();
             if (isFailure)
                 return false;
-            
-            var availablePermissions = await _context.AdministratorRoles
-                .Where(x => administrator.AdministratorRoleIds.Contains(x.Id))
-                .Select(x => x.Permissions)
-                .ToListAsync();
 
-            var hasPermission = availablePermissions.Any(x => x.HasFlag(permission));
+            var availablePermissions = await GetAvailablePermissions(administrator);
+
+            var hasPermission = availablePermissions.HasFlag(permission);
 
             return hasPermission;
         }
@@ -49,6 +49,36 @@ namespace HappyTravel.Edo.Api.Services.Management
                 return Result.Success(administrator);
 
             return Result.Failure<Administrator>("Could not get administrator");
+        }
+
+
+        public Task<Result<AdministratorInfoWithPermissions>> GetCurrentWithPermissions()
+        {
+            return GetCurrent()
+                .Map(AddPremissionsInfo);
+
+
+            async Task<AdministratorInfoWithPermissions> AddPremissionsInfo(Administrator administrator)
+                => new AdministratorInfoWithPermissions(
+                    id: administrator.Id,
+                    firstName: administrator.FirstName,
+                    lastName: administrator.LastName,
+                    position: administrator.Position,
+                    administratorRoleIds: administrator.AdministratorRoleIds,
+                    isActive: administrator.IsActive,
+                    permissions: (await GetAvailablePermissions(administrator)).ToList()
+                );
+        }
+
+
+        private async Task<AdministratorPermissions> GetAvailablePermissions(Administrator administrator)
+        {
+            var rolesPermissions = await _context.AdministratorRoles
+                .Where(x => administrator.AdministratorRoleIds.Contains(x.Id))
+                .Select(x => x.Permissions)
+                .ToListAsync();
+
+            return rolesPermissions.SelectMany(r => r.ToList()).Aggregate((a, b) => a | b);
         }
 
 
