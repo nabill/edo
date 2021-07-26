@@ -179,7 +179,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                         childrenStr += $", {passenger.Age} years";
                     }
                 }
-                var result = $"{adult} adult(s)";
+
+                var result = (adult == 1) ? $"{adult} adult" : $"{adult} adults";
                 if (children == 1)
                     result += $"{childrenStr} child";
                 else if (children > 1)
