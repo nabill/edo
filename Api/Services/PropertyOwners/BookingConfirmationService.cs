@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     PromoCode = "", // TODO: Need clarify this
                     Price = MoneyFormatter.ToCurrencyString(room.Price.Amount, room.Price.Currency),
                     MealPlan = room.MealPlan,
-                    NumberOfPassengers = CalculateNumberOfPassengers(room.Passengers),
+                    NumberOfPassengers = BuildPassengersString(room.Passengers),
                     ContractDescription = room.ContractDescription,
                 });
             }
@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     templateId: _options.BookingConfirmationTemplateId);
 
 
-            static string CalculateNumberOfPassengers(List<Passenger> passengers)
+            static string BuildPassengersString(List<Passenger> passengers)
             {
                 var adult = 0;
                 var children = 0;
