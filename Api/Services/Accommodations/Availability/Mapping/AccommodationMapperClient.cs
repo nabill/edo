@@ -169,6 +169,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
+        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId)
+        {
+            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+            try
+            {
+                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}/email-addresses");
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+                    Converters = { new JsonStringEnumConverter() }
+                };
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<List<string>>(options);
+
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(options) ??
+                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+
+                return Result.Failure<List<string>, ProblemDetails>(error);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperClientException(ex);
+                return ProblemDetailsBuilder.Fail<List<string>>(ex.Message);
+            }
+        }
+
+
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;
     }

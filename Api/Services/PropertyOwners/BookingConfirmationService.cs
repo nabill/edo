@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.PropertyOwners;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
     {
         public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
             IBookingRecordsUpdater recordsUpdater, IPropertyOwnerConfirmationUrlGenerator urlGenerationService, INotificationService notificationService,
-            IOptions<PropertyOwnerMailingOptions> options)
+            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             _urlGenerationService = urlGenerationService;
             _notificationService = notificationService;
             _options = options.Value;
+            _client = client;
         }
 
 
@@ -145,11 +147,13 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 BookingConfirmationPageUrl = url
             };
 
-            var email = ""; // TODO: Need hotel email from mapper
+            var (_, isFailure, emails, error) = await _client.GetAccommodationEmails(booking.HtId);
+            if (isFailure)
+                return Result.Failure(error.Detail);
 
             return await _notificationService.Send(messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { _options.EmailToSendCopy },  //TODO: Need add hotel email from mapper
+                    emails: new List<string> { emails[0], _options.EmailToSendCopy },   // TODO: After Notification Center refactoring EmailToSendCopy will be moved to the copy.
                     templateId: _options.BookingConfirmationTemplateId);
 
 
@@ -174,5 +178,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private readonly IPropertyOwnerConfirmationUrlGenerator _urlGenerationService;
         private readonly INotificationService _notificationService;
         private readonly PropertyOwnerMailingOptions _options;
+        private readonly IAccommodationMapperClient _client;
     }
 }
