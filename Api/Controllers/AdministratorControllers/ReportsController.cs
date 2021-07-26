@@ -104,6 +104,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///     Returns pending supplier reference report
+        /// </summary>
+        [HttpGet("pending-supplier-reference-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetPendingSupplierReferenceReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.PendingSupplierReferenceReport(from, end);

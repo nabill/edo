@@ -91,11 +91,11 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
             return Result.Success()
                 .Map(GetRecords)
-                .Bind(Generate);
+                .Bind(Generate<PendingSupplierReferenceProjection, PendingSupplierReferenceRow>);
 
 
-            IQueryable<PendingSupplierReference> GetRecords() 
-                => GetRecords<PendingSupplierReference>(from, end);
+            IQueryable<PendingSupplierReferenceProjection> GetRecords() 
+                => GetRecords<PendingSupplierReferenceProjection>(from, end);
         }
 
 
