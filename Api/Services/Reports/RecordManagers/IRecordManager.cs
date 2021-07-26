@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public interface IRecordManager<TProjection>
+    public interface IRecordManager<TData>
     {
-        Task<IEnumerable<TProjection>> Get(DateTime fromDate, DateTime endDate);
+        Task<IEnumerable<TData>> Get(DateTime fromDate, DateTime endDate);
     }
 }

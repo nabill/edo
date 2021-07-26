@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class SalesBookingsRecordManager : IRecordManager<SalesBookingsReportProjection>
+    public class SalesBookingsRecordManager : IRecordManager<SalesBookingsReportData>
     {
         public SalesBookingsRecordManager(EdoContext context,
             IDateTimeProvider dateTimeProvider)
@@ -20,9 +20,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
         
         
-        public async Task<IEnumerable<SalesBookingsReportProjection>> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<SalesBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
-            var projection = await (from booking in _context.Bookings
+            var data = await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate)
                     &&
                     (order.ConvertedPrice > 0m || booking.TotalPrice > 0m)
-                select new SalesBookingsReportProjection
+                select new SalesBookingsReportData
                 {
                     Created = booking.Created,
                     ReferenceCode = booking.ReferenceCode,
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 .ToListAsync();
 
             var now = _dateTimeProvider.UtcNow();
-            return projection.Where(p =>
+            return data.Where(p =>
                 {
                     var nonRefundableDate = GetNonRefundableDate(p);
                     return nonRefundableDate > now &&
@@ -86,12 +86,12 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
 
 
-        private DateTime GetNonRefundableDate(SalesBookingsReportProjection projection)
+        private DateTime GetNonRefundableDate(SalesBookingsReportData data)
         {
-            var lastPolicy = projection.CancellationPolicies
+            var lastPolicy = data.CancellationPolicies
                 .OrderBy(p => p.FromDate)
                 .FirstOrDefault(p => p.Percentage >= 100d);
-            return lastPolicy?.FromDate ?? projection.CheckInDate;
+            return lastPolicy?.FromDate ?? data.CheckInDate;
         }
         
         

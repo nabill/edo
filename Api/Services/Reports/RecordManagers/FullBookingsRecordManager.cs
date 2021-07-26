@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class FullBookingsRecordManager : IRecordManager<FullBookingsReportProjection>
+    public class FullBookingsRecordManager : IRecordManager<FullBookingsReportData>
     {
         public FullBookingsRecordManager(EdoContext context)
         {
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
         
         
-        public async Task<IEnumerable<FullBookingsReportProjection>> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<FullBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
             return await (from booking in _context.Bookings
                     join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     where
                         booking.CheckOutDate >= fromDate &&
                         booking.CheckOutDate < endDate
-                    select new FullBookingsReportProjection
+                    select new FullBookingsReportData
                     {
                         Created = booking.Created,
                         ReferenceCode = booking.ReferenceCode,
