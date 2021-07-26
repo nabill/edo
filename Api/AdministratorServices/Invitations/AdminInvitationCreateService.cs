@@ -99,9 +99,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 .Bind(CreateInvitation)
                 .Check(SendInvitationMail);
 
-            
-            Task<bool> AllProvidedRolesExist() 
-                => _context.AdministratorRoles.AllAsync(x => prefilledData.RoleIds.Contains(x.Id));
+
+            async Task<bool> AllProvidedRolesExist()
+            {
+                var allRoles = await _context.AdministratorRoles.Select(x => x.Id).ToListAsync();
+                var allExist = prefilledData.RoleIds.All(x => allRoles.Contains(x));
+                return allExist;
+            }
             
             
             Task<Result<string>> CreateInvitation()
