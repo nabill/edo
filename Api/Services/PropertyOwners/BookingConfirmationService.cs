@@ -173,14 +173,14 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     else
                     {
                         children++;
-                        childrenStr = (string.IsNullOrEmpty(childrenStr) ? "" : $"{childrenStr}, ") + $"{passenger.Age} years";
+                        childrenStr = (string.IsNullOrEmpty(childrenStr) ? string.Empty : $"{childrenStr}, ") + $"{passenger.Age} years";
                     }
                 }
-                var result = $"{adult} Adult";
+                var result = $"{adult} adult";
                 if (children == 1)
-                    result += $", {childrenStr} Child";
+                    result += $", {childrenStr} child";
                 else if (children > 1)
-                    result += $", {childrenStr} Children";
+                    result += $", {childrenStr} children";
                 
                 return result;
             }
