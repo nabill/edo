@@ -175,6 +175,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 var adult = 0;
                 var children = 0;
                 var childrenStr = string.Empty;
+
                 foreach (var passenger in passengers)
                 {
                     if (passenger.Age >= MinimumAdultAge)
@@ -187,9 +188,11 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                             childrenStr += "s";
                     }
                 }
+
                 var result = (adult == 1) 
                     ? $"{adult} adult" 
                     : $"{adult} adults";
+
                 if (children == 1)
                     result += $"{childrenStr} child";
                 else if (children > 1)

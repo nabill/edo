@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails, templateId);
             else if (apiCaller.Type == ApiCallerTypes.PropertyOwner)
             {
-                return await _notificationOptionsService.GetNotificationOptions(0, apiCaller.Type, null, notificationType)
+                return await _notificationOptionsService.GetNotificationOptions(NoUserId, apiCaller.Type, NoAgencyId, notificationType)
                     .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
                     .Tap(sendingSettings => _internalNotificationService.AddPropertyOwnerNotification(messageData, notificationType, sendingSettings));
             }
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
 
         public async Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType)
-            => await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
+            => await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, NoAgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, message, notificationType, sendingSettings));
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
         {
-            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, null, notificationType)
+            return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, NoAgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, messageData, notificationType, sendingSettings));
         }
@@ -128,6 +128,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             return sendingSettings;
         }
 
+
+        private const int NoUserId = 0;
+        private readonly int? NoAgencyId = null;
 
         private readonly IInternalNotificationService _internalNotificationService;
         private readonly INotificationOptionsService _notificationOptionsService;
