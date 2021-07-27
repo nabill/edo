@@ -1,15 +1,18 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.PropertyOwners;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -22,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
     {
         public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
             IBookingRecordsUpdater recordsUpdater, IPropertyOwnerConfirmationUrlGenerator urlGenerationService, INotificationService notificationService,
-            IOptions<PropertyOwnerMailingOptions> options)
+            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client, ILogger<BookingConfirmationService> logger)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -30,6 +33,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             _urlGenerationService = urlGenerationService;
             _notificationService = notificationService;
             _options = options.Value;
+            _client = client;
+            _logger = logger;
         }
 
 
@@ -130,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     PromoCode = "", // TODO: Need clarify this
                     Price = MoneyFormatter.ToCurrencyString(room.Price.Amount, room.Price.Currency),
                     MealPlan = room.MealPlan,
-                    NumberOfPassengers = "",    // TODO: Need method to calculate count adults and children.
+                    NumberOfPassengers = BuildPassengersString(room.Passengers),
                     ContractDescription = room.ContractDescription,
                 });
             }
@@ -145,12 +150,56 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 BookingConfirmationPageUrl = url
             };
 
-            var email = ""; // TODO: Need hotel email from mapper
+            var (_, isFailure, emails, error) = await _client.GetAccommodationEmails(booking.HtId);
+            if (isFailure)
+                return Result.Failure(error.Detail);
+
+            if (emails.Count == 0)
+            {
+                _logger.LogSendConfirmationEmailFailure(booking.ReferenceCode);
+                return Result.Failure("Missing email address to send email to property owner");
+            }
 
             return await _notificationService.Send(messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { _options.EmailToSendCopy },  //TODO: Need add hotel email from mapper
+                    emails: new List<string> { emails[0], _options.ReservationsOfficeBackupEmail },   
+                    // We only use the first email because: 1) Hotel email from Columbus will be returned first;
+                    // 2) In the current implementation of the mapper, we do not know which provider returns the second email address to us,
+                    // so we cannot use it.
+                    // TODO: After Notification Center refactoring ReservationsOfficeBackupEmail will be moved to the copy.
                     templateId: _options.BookingConfirmationTemplateId);
+
+
+            static string BuildPassengersString(List<Passenger> passengers)
+            {
+                var adult = 0;
+                var children = 0;
+                var childrenStr = string.Empty;
+
+                foreach (var passenger in passengers)
+                {
+                    if (passenger.Age >= MinimumAdultAge)
+                        adult++;
+                    else
+                    {
+                        children++;
+                        childrenStr += $", {passenger.Age} year";
+                        if (passenger.Age > 1)
+                            childrenStr += "s";
+                    }
+                }
+
+                var result = (adult == 1) 
+                    ? $"{adult} adult" 
+                    : $"{adult} adults";
+
+                if (children == 1)
+                    result += $"{childrenStr} child";
+                else if (children > 1)
+                    result += $"{childrenStr} children";
+                
+                return result;
+            }
         }
 
 
@@ -162,11 +211,15 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             => booking.IsDirectContract;
 
 
+        private const int MinimumAdultAge = 18;
+
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingRecordsUpdater _recordsUpdater;
         private readonly IPropertyOwnerConfirmationUrlGenerator _urlGenerationService;
         private readonly INotificationService _notificationService;
         private readonly PropertyOwnerMailingOptions _options;
+        private readonly IAccommodationMapperClient _client;
+        private readonly ILogger<BookingConfirmationService> _logger;
     }
 }

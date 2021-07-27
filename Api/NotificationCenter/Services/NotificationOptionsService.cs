@@ -193,6 +193,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 {
                     ApiCallerTypes.Admin => ReceiverTypes.AdminPanel,
                     ApiCallerTypes.Agent => ReceiverTypes.AgentApp,
+                    ApiCallerTypes.PropertyOwner => ReceiverTypes.PropertyOwner,
                     _ => throw new System.NotImplementedException()
                 };
         }
