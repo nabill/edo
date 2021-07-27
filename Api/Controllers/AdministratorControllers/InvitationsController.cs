@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
 
-            var (_, isFailure, error) = await _adminInvitationCreateService.Send(request.ToUserInvitationData(), admin.Id);
+            var (_, isFailure, _, error) = await _adminInvitationCreateService.Send(request.ToUserInvitationData(), admin.Id);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
