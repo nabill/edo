@@ -4,7 +4,7 @@ using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Models.Reports
 {
-    public readonly struct PendingSupplierReferenceProjection
+    public readonly struct ConfirmedBookingsData
     {
         public DateTime Created { get; init; }
         public string AccommodationName { get; init; }

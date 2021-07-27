@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class PendingSupplierReferenceRecordManager : IRecordManager<PendingSupplierReferenceProjection>
+    public class PendingSupplierReferenceRecordManager : IRecordManager<PendingSupplierReferenceData>
     {
         public PendingSupplierReferenceRecordManager(EdoContext context)
         {
@@ -14,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
 
 
-        public IQueryable<PendingSupplierReferenceProjection> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<PendingSupplierReferenceData>> Get(DateTime fromDate, DateTime endDate)
         {
             return from booking in _context.Bookings
                 orderby booking.CheckInDate
@@ -22,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     (booking.Status == BookingStatuses.Pending || booking.Status == BookingStatuses.ManualCorrectionNeeded) &&
                     booking.CheckOutDate >= fromDate &&
                     booking.CheckOutDate < endDate
-                select new PendingSupplierReferenceProjection
+                select new PendingSupplierReferenceData
                 {
                     Created = booking.Created,
                     AccommodationName = booking.AccommodationName,

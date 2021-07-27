@@ -98,7 +98,6 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        private Result Validate(DateTime fromDate, DateTime toDate)
         public Task<Result<Stream>> PendingSupplierReferenceReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
@@ -106,11 +105,11 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
             return Result.Success()
                 .Map(GetRecords)
-                .Bind(Generate<PendingSupplierReferenceProjection, PendingSupplierReferenceRow>);
+                .Bind(Generate<PendingSupplierReferenceData, PendingSupplierReferenceRow>);
 
 
-            IQueryable<PendingSupplierReferenceProjection> GetRecords() 
-                => GetRecords<PendingSupplierReferenceProjection>(from, end);
+            Task<IEnumerable<PendingSupplierReferenceData>> GetRecords() 
+                => GetRecords<PendingSupplierReferenceData>(from, end);
         }
 
         
@@ -121,14 +120,14 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
             return Result.Success()
                 .Map(GetRecords)
-                .Bind(Generate<ConfirmedBookingsProjection, ConfirmedBookingsRow>);
+                .Bind(Generate<ConfirmedBookingsData, ConfirmedBookingsRow>);
 
 
-            IQueryable<ConfirmedBookingsProjection> GetRecords() 
-                => GetRecords<ConfirmedBookingsProjection>(from, end);
+            Task<IEnumerable<ConfirmedBookingsData>> GetRecords() 
+                => GetRecords<ConfirmedBookingsData>(from, end);
         }
 
-        private Result Validate(DateTime fromDate, DateTime endDate)
+        private Result Validate(DateTime fromDate, DateTime toDate)
         {
             if (fromDate == default || toDate == default)
                 return Result.Failure("Range dates required");

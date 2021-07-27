@@ -7,18 +7,18 @@ using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
-    public class ConfirmedBookingsConverter : IConverter<ConfirmedBookingsProjection, ConfirmedBookingsRow>
+    public class ConfirmedBookingsConverter : IConverter<ConfirmedBookingsData, ConfirmedBookingsRow>
     {
-        public ConfirmedBookingsRow Convert(ConfirmedBookingsProjection projection, Func<decimal, decimal> vatAmountFunc,
+        public ConfirmedBookingsRow Convert(ConfirmedBookingsData data, Func<decimal, decimal> vatAmountFunc,
             Func<decimal, decimal> amountExcludedVatFunc)
             => new()
             {
-                Created = projection.Created,
-                AccommodationName = projection.AccommodationName,
-                ReferenceCode = projection.ReferenceCode,
-                CheckInDate = projection.CheckInDate,
-                CheckOutDate = projection.CheckOutDate,
-                NumberOfPassengers = projection.Rooms.Sum(room => room.Passengers.Count)
+                Created = data.Created,
+                AccommodationName = data.AccommodationName,
+                ReferenceCode = data.ReferenceCode,
+                CheckInDate = data.CheckInDate,
+                CheckOutDate = data.CheckOutDate,
+                NumberOfPassengers = data.Rooms.Sum(room => room.Passengers.Count)
             };
     }
 }
