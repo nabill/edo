@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
@@ -13,12 +16,12 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
         
         
-        public IQueryable<AgencyProductivity> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<AgencyProductivity>> Get(DateTime fromDate, DateTime endDate)
         {
             var bookingsQuery = _context.Bookings
                 .Where(b => b.Created >= fromDate && b.Created < endDate);
-                
-            return from agency in _context.Agencies
+
+            return await (from agency in _context.Agencies
                 join bookings in bookingsQuery on agency.Id equals bookings.AgencyId into joined
                 from booking in joined.DefaultIfEmpty()
                 group booking by new
@@ -41,7 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     CountryName = grouped.Key.Country,
                     LocalityName = grouped.Key.Locality,
                     AccommodationName = grouped.Key.AccommodationName
-                };
+                })
+                .ToListAsync();
         }
 
 

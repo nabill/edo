@@ -11,13 +11,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         public static MoneyAmount Calculate(Booking booking, DateTime forDate)
         {
             var penaltyAmount = booking.Rooms
-                .Sum(room => room.Price.Amount * (decimal) GetPenaltyPercent(room.DeadlineDetails, room.IsAdvancePurchaseRate, forDate));
+                .Sum(room => room.Price.Amount * (decimal) GetPenaltyFraction(room.DeadlineDetails, room.IsAdvancePurchaseRate, forDate));
 
             penaltyAmount = MoneyRounder.Ceil(penaltyAmount, booking.Currency);
             
             return new MoneyAmount(penaltyAmount, booking.Currency);
 
-            static double GetPenaltyPercent(Deadline deadline, bool isAdvancePurchaseRate, DateTime forDate)
+            static double GetPenaltyFraction(Deadline deadline, bool isAdvancePurchaseRate, DateTime forDate)
             {
                 if (isAdvancePurchaseRate)
                     return Whole;
