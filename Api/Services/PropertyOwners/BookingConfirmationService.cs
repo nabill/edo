@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.PropertyOwners;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -23,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
     {
         public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
             IBookingRecordsUpdater recordsUpdater, IPropertyOwnerConfirmationUrlGenerator urlGenerationService, INotificationService notificationService,
-            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client)
+            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client, ILogger<BookingConfirmationService> logger)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -32,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             _notificationService = notificationService;
             _options = options.Value;
             _client = client;
+            _logger = logger;
         }
 
 
@@ -152,7 +155,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 return Result.Failure(error.Detail);
 
             if (emails.Count == 0)
+            {
+                _logger.LogSendConfirmationEmailFailure(booking.ReferenceCode);
                 return Result.Failure("Missing email address to send email to property owner");
+            }
 
             return await _notificationService.Send(messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
@@ -176,11 +182,14 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     else
                     {
                         children++;
-                        childrenStr += $", {passenger.Age} years";
+                        childrenStr += $", {passenger.Age} year";
+                        if (passenger.Age > 1)
+                            childrenStr += "s";
                     }
                 }
-
-                var result = (adult == 1) ? $"{adult} adult" : $"{adult} adults";
+                var result = (adult == 1) 
+                    ? $"{adult} adult" 
+                    : $"{adult} adults";
                 if (children == 1)
                     result += $"{childrenStr} child";
                 else if (children > 1)
@@ -208,5 +217,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private readonly INotificationService _notificationService;
         private readonly PropertyOwnerMailingOptions _options;
         private readonly IAccommodationMapperClient _client;
+        private readonly ILogger<BookingConfirmationService> _logger;
     }
 }
