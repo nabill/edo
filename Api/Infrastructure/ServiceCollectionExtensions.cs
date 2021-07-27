@@ -402,6 +402,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Yalago = environment.IsLocal()
                     ? configuration["Suppliers:Yalago"]
                     : supplierOptions["yalago"];
+                
+                options.HotelBeds = environment.IsLocal()
+                    ? configuration["Suppliers:HotelBeds"]
+                    : supplierOptions["hotelBeds"];
 
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]

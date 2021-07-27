@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Jumeirah { get; set; }
         public string Paximum { get; set; }
         public string Yalago { get; set; }
+        public string HotelBeds { get; set; }
         public List<Suppliers> EnabledSuppliers { get; set; }
     }
 }
