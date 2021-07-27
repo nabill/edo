@@ -143,6 +143,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
+        /// <summary>
+        ///     Returns sales bookings report
+        /// </summary>
+        [HttpGet("sales-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetSalesBookingReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetSalesBookingsReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"sales-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
+
+
         private readonly IReportService _reportService;
     }
 }

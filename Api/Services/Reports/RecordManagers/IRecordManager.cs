@@ -1,10 +1,11 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public interface IRecordManager<out TProjection>
+    public interface IRecordManager<TData>
     {
-        IQueryable<TProjection> Get(DateTime fromDate, DateTime endDate);
+        Task<IEnumerable<TData>> Get(DateTime fromDate, DateTime endDate);
     }
 }

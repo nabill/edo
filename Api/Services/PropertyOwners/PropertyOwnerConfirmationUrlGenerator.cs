@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 
 namespace HappyTravel.Edo.Api.Services.PropertyOwners
 {
-    public class UrlGenerationService : IUrlGenerationService
+    public class PropertyOwnerConfirmationUrlGenerator : IPropertyOwnerConfirmationUrlGenerator
     {
-        public UrlGenerationService(IOptions<UrlGenerationOptions> urlGenerationOptions)
+        public PropertyOwnerConfirmationUrlGenerator(IOptions<UrlGenerationOptions> urlGenerationOptions)
         {
             _urlGenerationOptions = urlGenerationOptions.Value;
         }

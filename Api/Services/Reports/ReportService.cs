@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
@@ -27,63 +26,79 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1).AddTicks(-1);
             
-            return await Validate(from, end)
+            return await Validate(from, to)
                 .Map(GetRecords)
-                .Bind(Generate<SupplierWiseRecordProjection, SupplierWiseReportRow>);
-            
-            
-            IQueryable<SupplierWiseRecordProjection> GetRecords()
-                => GetRecords<SupplierWiseRecordProjection>(from, end);
+                .Bind(Generate<SupplierWiseRecordData, SupplierWiseReportRow>);
+
+
+            Task<IEnumerable<SupplierWiseRecordData>> GetRecords()
+                => GetRecords<SupplierWiseRecordData>(from, to);
         }
 
 
         public async Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1).AddTicks(-1);
             
-            return await Validate(from, end)
+            return await Validate(from, to)
                 .Map(GetRecords)
-                .Bind(Generate<AgencyWiseRecordProjection, AgencyWiseReportRow>);
+                .Bind(Generate<AgencyWiseRecordData, AgencyWiseReportRow>);
             
             
-            IQueryable<AgencyWiseRecordProjection> GetRecords()
-                => GetRecords<AgencyWiseRecordProjection>(from, end);
+            Task<IEnumerable<AgencyWiseRecordData>> GetRecords()
+                => GetRecords<AgencyWiseRecordData>(from, to);
         }
 
 
         public async Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
-            
-            return await Validate(from, end)
+            var to = endDate.Date.AddDays(1).AddTicks(-1);
+
+            return await Validate(from, to)
                 .Map(GetRecords)
-                .Bind(Generate<FullBookingsReportProjection, FullBookingsReportRow>);
-            
-            
-            IQueryable<FullBookingsReportProjection> GetRecords()
-                => GetRecords<FullBookingsReportProjection>(from, end);
+                .Bind(Generate<FullBookingsReportData, FullBookingsReportRow>);
+
+
+            Task<IEnumerable<FullBookingsReportData>> GetRecords()
+                => GetRecords<FullBookingsReportData>(from, to);
+        }
+
+
+        public async Task<Result<Stream>> GetSalesBookingsReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var to = endDate.Date.AddDays(1).AddTicks(-1);
+
+            return await Validate(from, to)
+                .Map(GetRecords)
+                .Bind(Generate<SalesBookingsReportData, SalesBookingsReportRow>);
+
+
+            Task<IEnumerable<SalesBookingsReportData>> GetRecords()
+                => GetRecords<SalesBookingsReportData>(from, to);
         }
 
 
         public async Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1).AddTicks(-1);
             
-            return await Validate(from, end)
+            return await Validate(from, to)
                 .Map(GetRecords)
                 .Bind(Generate);
-            
-            
-            IQueryable<AgencyProductivity> GetRecords()
-                => GetRecords<AgencyProductivity>(from, end);
+
+
+            Task<IEnumerable<AgencyProductivity>> GetRecords()
+                => GetRecords<AgencyProductivity>(from, to);
         }
 
 
+        private Result Validate(DateTime fromDate, DateTime toDate)
         public Task<Result<Stream>> PendingSupplierReferenceReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
@@ -115,24 +130,24 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
         private Result Validate(DateTime fromDate, DateTime endDate)
         {
-            if (fromDate == default || endDate == default)
+            if (fromDate == default || toDate == default)
                 return Result.Failure("Range dates required");
             
-            if ((fromDate - endDate).TotalDays > MaxDaysInReport)
+            if ((fromDate - toDate).TotalDays > MaxDaysInReport)
                 return Result.Failure<Stream>($"The interval for generating a report should not exceed {MaxDaysInReport} days");
 
             return Result.Success();
         }
         
         
-        private IQueryable<TProjection> GetRecords<TProjection>(DateTime fromDate, DateTime endDate) 
-            => _serviceProvider.GetRequiredService<IRecordManager<TProjection>>().Get(fromDate, endDate);
+        private Task<IEnumerable<TData>> GetRecords<TData>(DateTime fromDate, DateTime toDate) 
+            => _serviceProvider.GetRequiredService<IRecordManager<TData>>().Get(fromDate, toDate);
 
 
-        private async Task<Result<Stream>> Generate<TProjection, TRow>(IEnumerable<TProjection> records)
+        private async Task<Result<Stream>> Generate<TData, TRow>(IEnumerable<TData> records)
         {
             var stream = await Initialize<TRow>();
-            var converter = _serviceProvider.GetRequiredService<IConverter<TProjection, TRow>>();
+            var converter = _serviceProvider.GetRequiredService<IConverter<TData, TRow>>();
 
             foreach (var record in records)
             {

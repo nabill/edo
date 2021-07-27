@@ -287,6 +287,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
                 options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
             });
+
+            var bookingConfirmationTemplateId = mailSettings[configuration["Edo:Email:BookingConfirmationTemplateId"]];
+            var emailToSendCopy = mailSettings[configuration["Edo:Email:EmailToSendCopy"]];
+            services.Configure<PropertyOwnerMailingOptions>(options => 
+            {
+                options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
+                options.EmailToSendCopy = emailToSendCopy;
+            });
             #endregion
 
             #region tag processing options
@@ -762,6 +770,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAdministratorRolesAssignmentService, AdministratorRolesAssignmentService>();
 
+            services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
+            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
+            services.AddTransient<IConverter<SalesBookingsReportData, SalesBookingsReportRow>, SalesBookingsReportDataConverter>();
+            services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
+            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
+            services.AddTransient<IRecordManager<SalesBookingsReportData>, SalesBookingsRecordManager>();
             services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
             services.AddTransient<IConverter<FullBookingsReportProjection, FullBookingsReportRow>, FullBookingsReportProjectionConverter>();
@@ -776,7 +792,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
-            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
+            services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
