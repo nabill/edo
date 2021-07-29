@@ -126,7 +126,21 @@ namespace HappyTravel.Edo.Api.Services.Reports
             Task<IEnumerable<ConfirmedBookingsData>> GetRecords() 
                 => GetRecords<ConfirmedBookingsData>(from, end);
         }
+        
 
+        public Task<Result<Stream>> GetHotelWiseReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate<HotelWiseData, HotelWiseRow>);
+
+
+            Task<IEnumerable<HotelWiseData>> GetRecords() 
+                => GetRecords<HotelWiseData>(from, end);
+        }
         private Result Validate(DateTime fromDate, DateTime toDate)
         {
             if (fromDate == default || toDate == default)

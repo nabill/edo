@@ -162,6 +162,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
+        
+        /// <summary>
+        ///     Returns hotel wise report 
+        /// </summary>
+        [HttpGet("hotel-wise-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetHotelWiseReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetHotelWiseReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"hotel-wise-report-{from:g}-{end:g}.csv"
+            };
+        }
 
         private readonly IReportService _reportService;
     }

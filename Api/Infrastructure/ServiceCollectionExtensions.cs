@@ -774,6 +774,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
             services.AddTransient<IConverter<SalesBookingsReportData, SalesBookingsReportRow>, SalesBookingsReportDataConverter>();
+            services.AddTransient<IConverter<HotelWiseData, HotelWiseRow>, HotelWiseReportDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
             services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
@@ -789,6 +790,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<PendingSupplierReferenceData>, PendingSupplierReferenceRecordManager>();
             services.AddTransient<IRecordManager<ConfirmedBookingsData>, ConfirmedBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
+            services.AddTransient<IRecordManager<HotelWiseData>, HotelWiseRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
