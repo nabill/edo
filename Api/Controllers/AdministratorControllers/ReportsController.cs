@@ -182,6 +182,47 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
+        
+        /// <summary>
+        ///     Returns cancellation deadline report 
+        /// </summary>
+        [HttpGet("cancellation-deadline-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetCancellationDeadlineReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetCancellationDeadlineReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"cancellation-deadline-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        /// <summary>
+        ///     Returns third party suppliers report 
+        /// </summary>
+        [HttpGet("third-party-suppliers-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetThirdPartySuppliersReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetThirdPartySuppliersReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"third-party-suppliers-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
         private readonly IReportService _reportService;
     }
 }

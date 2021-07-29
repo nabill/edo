@@ -791,6 +791,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<ConfirmedBookingsData>, ConfirmedBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IRecordManager<HotelWiseData>, HotelWiseRecordManager>();
+            services.AddTransient<IRecordManager<CancellationDeadlineData>, CancellationDeadlineReportManager>();
+            services.AddTransient<IRecordManager<ThirdPartySupplierData>, ThirdPartySuppliersReportManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
