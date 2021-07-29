@@ -30,7 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationAcceptService agentInvitationAcceptService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgencyService agencyService,
-            IIdentityUserInfoService identityUserInfoService)
+            IIdentityUserInfoService identityUserInfoService, 
+            IAgentRolesService agentRolesService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -40,6 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _tokenInfoAccessor = tokenInfoAccessor;
             _agencyService = agencyService;
             _identityUserInfoService = identityUserInfoService;
+            _agentRolesService = agentRolesService;
         }
 
 
@@ -120,7 +122,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteChildAgency([FromBody] CreateChildAgencyInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
+            var roleIds = await _agentRolesService.GetAllRoleIds();
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(roleIds),
                 UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -162,7 +165,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GenerateChildAgencyInvite([FromBody] CreateChildAgencyInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(),
+            var roleIds = await _agentRolesService.GetAllRoleIds();
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(roleIds),
                 UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -270,5 +274,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgencyService _agencyService;
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAgentRolesService _agentRolesService;
     }
 }
