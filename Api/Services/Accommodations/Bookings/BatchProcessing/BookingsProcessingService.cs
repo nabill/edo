@@ -240,7 +240,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             var agencyIds = await _context.Agencies
                 .Where(a => a.IsActive)
                 .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive 
-                    && r.AgentRoleIds.Any(rolesWithPermission.Contains)))
+                    && r.AgentRoleIds.Any(rr => rolesWithPermission.Contains(rr))))
                 .Where(a => _context.AgencyAccounts.Any(acc => acc.AgencyId == a.Id && acc.Currency == Currencies.USD))
                 .Select(agency => agency.Id)
                 .ToListAsync();
