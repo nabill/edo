@@ -131,6 +131,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1073, "BookingEvaluationFailure"),
                 "EvaluateOnConnector returned status code: {Status}, error: {Error}");
             
+            BookingEvaluationCancellationPoliciesFailure = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1074, "BookingEvaluationCancellationPoliciesFailure"),
+                "EvaluateOnConnector returned cancellation policies with 0 penalty");
+            
             ExternalAdministratorAuthorizationSuccess = LoggerMessage.Define(LogLevel.Debug,
                 new EventId(1100, "ExternalAdministratorAuthorizationSuccess"),
                 "Successfully authorized external administrator");
@@ -294,235 +298,238 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             GetAccommodationByHtIdFailed = LoggerMessage.Define<string, string>(LogLevel.Error,
                 new EventId(1709, "GetAccommodationByHtIdFailed"),
                 "Error getting accommodation for HtId '{HtId}': error: {Error}");
-
+            
             SendConfirmationEmailFailure = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId(1800, "SendConfirmationEmailFailure"), 
+                new EventId(1800, "SendConfirmationEmailFailure"),
                 "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}");
-
+            
         }
-
-
-        public static void LogGeoCoderException(this ILogger logger, Exception exception = null)
+    
+                
+         public static void LogGeoCoderException(this ILogger logger, Exception exception = null)
             => GeoCoderException(logger, exception);
                 
-        public static void LogInvitationCreated(this ILogger logger, HappyTravel.Edo.Common.Enums.UserInvitationTypes InvitationType, string Email, Exception exception = null)
+         public static void LogInvitationCreated(this ILogger logger, HappyTravel.Edo.Common.Enums.UserInvitationTypes InvitationType, string Email, Exception exception = null)
             => InvitationCreated(logger, InvitationType, Email, exception);
                 
-        public static void LogAgentRegistrationFailed(this ILogger logger, string Error, Exception exception = null)
+         public static void LogAgentRegistrationFailed(this ILogger logger, string Error, Exception exception = null)
             => AgentRegistrationFailed(logger, Error, exception);
                 
-        public static void LogAgentRegistrationSuccess(this ILogger logger, string Email, Exception exception = null)
+         public static void LogAgentRegistrationSuccess(this ILogger logger, string Email, Exception exception = null)
             => AgentRegistrationSuccess(logger, Email, exception);
                 
-        public static void LogPayfortClientException(this ILogger logger, Exception exception = null)
+         public static void LogPayfortClientException(this ILogger logger, Exception exception = null)
             => PayfortClientException(logger, exception);
                 
-        public static void LogAgencyAccountCreationSuccess(this ILogger logger, int AgencyId, int AccountId, Exception exception = null)
+         public static void LogAgencyAccountCreationSuccess(this ILogger logger, int AgencyId, int AccountId, Exception exception = null)
             => AgencyAccountCreationSuccess(logger, AgencyId, AccountId, exception);
                 
-        public static void LogAgencyAccountCreationFailed(this ILogger logger, int AgencyId, string Error, Exception exception = null)
+         public static void LogAgencyAccountCreationFailed(this ILogger logger, int AgencyId, string Error, Exception exception = null)
             => AgencyAccountCreationFailed(logger, AgencyId, Error, exception);
                 
-        public static void LogEntityLockFailed(this ILogger logger, string EntityType, string EntityId, Exception exception = null)
+         public static void LogEntityLockFailed(this ILogger logger, string EntityType, string EntityId, Exception exception = null)
             => EntityLockFailed(logger, EntityType, EntityId, exception);
                 
-        public static void LogPayfortError(this ILogger logger, string Content, Exception exception = null)
+         public static void LogPayfortError(this ILogger logger, string Content, Exception exception = null)
             => PayfortError(logger, Content, exception);
                 
-        public static void LogExternalPaymentLinkSendSuccess(this ILogger logger, string Email, Exception exception = null)
+         public static void LogExternalPaymentLinkSendSuccess(this ILogger logger, string Email, Exception exception = null)
             => ExternalPaymentLinkSendSuccess(logger, Email, exception);
                 
-        public static void LogExternalPaymentLinkSendFailed(this ILogger logger, string Email, string Error, Exception exception = null)
+         public static void LogExternalPaymentLinkSendFailed(this ILogger logger, string Email, string Error, Exception exception = null)
             => ExternalPaymentLinkSendFailed(logger, Email, Error, exception);
                 
-        public static void LogUnableGetBookingDetailsFromNetstormingXml(this ILogger logger, string Xml, Exception exception = null)
+         public static void LogUnableGetBookingDetailsFromNetstormingXml(this ILogger logger, string Xml, Exception exception = null)
             => UnableGetBookingDetailsFromNetstormingXml(logger, Xml, exception);
                 
-        public static void LogUnableToAcceptNetstormingRequest(this ILogger logger, Exception exception = null)
+         public static void LogUnableToAcceptNetstormingRequest(this ILogger logger, Exception exception = null)
             => UnableToAcceptNetstormingRequest(logger, exception);
                 
-        public static void LogBookingFinalizationFailure(this ILogger logger, string ReferenceCode, string Message, Exception exception = null)
+         public static void LogBookingFinalizationFailure(this ILogger logger, string ReferenceCode, string Message, Exception exception = null)
             => BookingFinalizationFailure(logger, ReferenceCode, Message, exception);
                 
-        public static void LogBookingFinalizationPaymentFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogBookingFinalizationPaymentFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingFinalizationPaymentFailure(logger, ReferenceCode, exception);
                 
-        public static void LogBookingFinalizationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogBookingFinalizationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingFinalizationSuccess(logger, ReferenceCode, exception);
                 
-        public static void LogBookingFinalizationException(this ILogger logger, Exception exception = null)
+         public static void LogBookingFinalizationException(this ILogger logger, Exception exception = null)
             => BookingFinalizationException(logger, exception);
                 
-        public static void LogBookingResponseProcessFailure(this ILogger logger, string Error, Exception exception = null)
+         public static void LogBookingResponseProcessFailure(this ILogger logger, string Error, Exception exception = null)
             => BookingResponseProcessFailure(logger, Error, exception);
                 
-        public static void LogBookingResponseProcessSuccess(this ILogger logger, string ReferenceCode, string Message, Exception exception = null)
+         public static void LogBookingResponseProcessSuccess(this ILogger logger, string ReferenceCode, string Message, Exception exception = null)
             => BookingResponseProcessSuccess(logger, ReferenceCode, Message, exception);
                 
-        public static void LogBookingResponseProcessStarted(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.BookingStatuses Status, Exception exception = null)
+         public static void LogBookingResponseProcessStarted(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.BookingStatuses Status, Exception exception = null)
             => BookingResponseProcessStarted(logger, ReferenceCode, Status, exception);
                 
-        public static void LogBookingCancelFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+         public static void LogBookingCancelFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
             => BookingCancelFailure(logger, ReferenceCode, Error, exception);
                 
-        public static void LogBookingCancelSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogBookingCancelSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingCancelSuccess(logger, ReferenceCode, exception);
                 
-        public static void LogBookingAlreadyCancelled(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogBookingAlreadyCancelled(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingAlreadyCancelled(logger, ReferenceCode, exception);
                 
-        public static void LogBookingRegistrationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogBookingRegistrationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingRegistrationSuccess(logger, ReferenceCode, exception);
                 
-        public static void LogBookingRegistrationFailure(this ILogger logger, System.Guid AvailabilityId, string ItineraryNumber, string MainPassengerName, string Error, Exception exception = null)
+         public static void LogBookingRegistrationFailure(this ILogger logger, System.Guid AvailabilityId, string ItineraryNumber, string MainPassengerName, string Error, Exception exception = null)
             => BookingRegistrationFailure(logger, AvailabilityId, ItineraryNumber, MainPassengerName, Error, exception);
                 
-        public static void LogBookingByAccountSuccess(this ILogger logger, Exception exception = null)
+         public static void LogBookingByAccountSuccess(this ILogger logger, Exception exception = null)
             => BookingByAccountSuccess(logger, exception);
                 
-        public static void LogBookingByAccountFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+         public static void LogBookingByAccountFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
             => BookingByAccountFailure(logger, ReferenceCode, Error, exception);
                 
-        public static void LogBookingRefreshStatusSuccess(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.BookingStatuses OldStatus, HappyTravel.EdoContracts.Accommodations.Enums.BookingStatusCodes Status, Exception exception = null)
+         public static void LogBookingRefreshStatusSuccess(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.BookingStatuses OldStatus, HappyTravel.EdoContracts.Accommodations.Enums.BookingStatusCodes Status, Exception exception = null)
             => BookingRefreshStatusSuccess(logger, ReferenceCode, OldStatus, Status, exception);
                 
-        public static void LogBookingRefreshStatusFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+         public static void LogBookingRefreshStatusFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
             => BookingRefreshStatusFailure(logger, ReferenceCode, Error, exception);
                 
-        public static void LogBookingConfirmationFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+         public static void LogBookingConfirmationFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
             => BookingConfirmationFailure(logger, ReferenceCode, Error, exception);
                 
-        public static void LogBookingEvaluationFailure(this ILogger logger, System.Nullable<int> Status, string Error, Exception exception = null)
+         public static void LogBookingEvaluationFailure(this ILogger logger, System.Nullable<int> Status, string Error, Exception exception = null)
             => BookingEvaluationFailure(logger, Status, Error, exception);
                 
-        public static void LogExternalAdministratorAuthorizationSuccess(this ILogger logger, Exception exception = null)
+         public static void LogBookingEvaluationCancellationPoliciesFailure(this ILogger logger, Exception exception = null)
+            => BookingEvaluationCancellationPoliciesFailure(logger, exception);
+                
+         public static void LogExternalAdministratorAuthorizationSuccess(this ILogger logger, Exception exception = null)
             => ExternalAdministratorAuthorizationSuccess(logger, exception);
                 
-        public static void LogAdministratorAuthorizationFailure(this ILogger logger, Exception exception = null)
+         public static void LogAdministratorAuthorizationFailure(this ILogger logger, Exception exception = null)
             => AdministratorAuthorizationFailure(logger, exception);
                 
-        public static void LogInternalAdministratorAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
+         public static void LogInternalAdministratorAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
             => InternalAdministratorAuthorizationSuccess(logger, Email, exception);
                 
-        public static void LogAgentAuthorizationSuccess(this ILogger logger, string Email, string Permissions, Exception exception = null)
+         public static void LogAgentAuthorizationSuccess(this ILogger logger, string Email, string Permissions, Exception exception = null)
             => AgentAuthorizationSuccess(logger, Email, Permissions, exception);
                 
-        public static void LogAgentAuthorizationFailure(this ILogger logger, string Error, Exception exception = null)
+         public static void LogAgentAuthorizationFailure(this ILogger logger, string Error, Exception exception = null)
             => AgentAuthorizationFailure(logger, Error, exception);
                 
-        public static void LogCounterpartyAccountCreationFailure(this ILogger logger, int Id, string Error, Exception exception = null)
+         public static void LogCounterpartyAccountCreationFailure(this ILogger logger, int Id, string Error, Exception exception = null)
             => CounterpartyAccountCreationFailure(logger, Id, Error, exception);
                 
-        public static void LogCounterpartyAccountCreationSuccess(this ILogger logger, int CounterpartyId, int AccountId, Exception exception = null)
+         public static void LogCounterpartyAccountCreationSuccess(this ILogger logger, int CounterpartyId, int AccountId, Exception exception = null)
             => CounterpartyAccountCreationSuccess(logger, CounterpartyId, AccountId, exception);
                 
-        public static void LogServiceAccountAuthorizationSuccess(this ILogger logger, string ClientId, Exception exception = null)
+         public static void LogServiceAccountAuthorizationSuccess(this ILogger logger, string ClientId, Exception exception = null)
             => ServiceAccountAuthorizationSuccess(logger, ClientId, exception);
                 
-        public static void LogServiceAccountAuthorizationFailure(this ILogger logger, string Error, Exception exception = null)
+         public static void LogServiceAccountAuthorizationFailure(this ILogger logger, string Error, Exception exception = null)
             => ServiceAccountAuthorizationFailure(logger, Error, exception);
                 
-        public static void LogLocationNormalized(this ILogger logger, Exception exception = null)
+         public static void LogLocationNormalized(this ILogger logger, Exception exception = null)
             => LocationNormalized(logger, exception);
                 
-        public static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
+         public static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
             => MultiProviderAvailabilitySearchStarted(logger, SearchId, exception);
                 
-        public static void LogProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
+         public static void LogProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
             => ProviderAvailabilitySearchStarted(logger, SearchId, Supplier, exception);
                 
-        public static void LogProviderAvailabilitySearchSuccess(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, int ResultCount, Exception exception = null)
+         public static void LogProviderAvailabilitySearchSuccess(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, int ResultCount, Exception exception = null)
             => ProviderAvailabilitySearchSuccess(logger, SearchId, Supplier, ResultCount, exception);
                 
-        public static void LogProviderAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
+         public static void LogProviderAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
             => ProviderAvailabilitySearchFailure(logger, SearchId, Supplier, TaskState, Error, exception);
                 
-        public static void LogProviderAvailabilitySearchException(this ILogger logger, Exception exception = null)
+         public static void LogProviderAvailabilitySearchException(this ILogger logger, Exception exception = null)
             => ProviderAvailabilitySearchException(logger, exception);
                 
-        public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
+         public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
             => CounterpartyStateAuthorizationSuccess(logger, Email, exception);
                 
-        public static void LogCounterpartyStateAuthorizationFailure(this ILogger logger, string Email, HappyTravel.Edo.Common.Enums.CounterpartyStates State, Exception exception = null)
+         public static void LogCounterpartyStateAuthorizationFailure(this ILogger logger, string Email, HappyTravel.Edo.Common.Enums.CounterpartyStates State, Exception exception = null)
             => CounterpartyStateAuthorizationFailure(logger, Email, State, exception);
                 
-        public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, Exception exception = null)
+         public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, Exception exception = null)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, exception);
                 
-        public static void LogConnectorClientException(this ILogger logger, Exception exception = null)
+         public static void LogConnectorClientException(this ILogger logger, Exception exception = null)
             => ConnectorClientException(logger, exception);
                 
-        public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, System.Nullable<int> Status, Exception exception = null)
+         public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, System.Nullable<int> Status, Exception exception = null)
             => SupplierConnectorRequestError(logger, Url, Error, Status, exception);
                 
-        public static void LogSupplierConnectorRequestDuration(this ILogger logger, string Url, long ElapsedMilliseconds, Exception exception = null)
+         public static void LogSupplierConnectorRequestDuration(this ILogger logger, string Url, long ElapsedMilliseconds, Exception exception = null)
             => SupplierConnectorRequestDuration(logger, Url, ElapsedMilliseconds, exception);
                 
-        public static void LogGetTokenForConnectorError(this ILogger logger, string Error, string Token, System.DateTime ExpiryDate, Exception exception = null)
+         public static void LogGetTokenForConnectorError(this ILogger logger, string Error, string Token, System.DateTime ExpiryDate, Exception exception = null)
             => GetTokenForConnectorError(logger, Error, Token, ExpiryDate, exception);
                 
-        public static void LogUnauthorizedConnectorResponse(this ILogger logger, string RequestUri, Exception exception = null)
+         public static void LogUnauthorizedConnectorResponse(this ILogger logger, string RequestUri, Exception exception = null)
             => UnauthorizedConnectorResponse(logger, RequestUri, exception);
                 
-        public static void LogCaptureMoneyForBookingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogCaptureMoneyForBookingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => CaptureMoneyForBookingSuccess(logger, ReferenceCode, exception);
                 
-        public static void LogCaptureMoneyForBookingFailure(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.PaymentTypes PaymentType, Exception exception = null)
+         public static void LogCaptureMoneyForBookingFailure(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.PaymentTypes PaymentType, Exception exception = null)
             => CaptureMoneyForBookingFailure(logger, ReferenceCode, PaymentType, exception);
                 
-        public static void LogChargeMoneyForBookingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+         public static void LogChargeMoneyForBookingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => ChargeMoneyForBookingSuccess(logger, ReferenceCode, exception);
                 
-        public static void LogChargeMoneyForBookingFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+         public static void LogChargeMoneyForBookingFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
             => ChargeMoneyForBookingFailure(logger, ReferenceCode, Error, exception);
                 
-        public static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, HappyTravel.Edo.Common.Enums.BookingPaymentStatuses OldPaymentStatus, HappyTravel.Edo.Common.Enums.PaymentStatuses PaymentStatus, string PaymentReferenceCode, string BookingReferenceCode, Exception exception = null)
+         public static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, HappyTravel.Edo.Common.Enums.BookingPaymentStatuses OldPaymentStatus, HappyTravel.Edo.Common.Enums.PaymentStatuses PaymentStatus, string PaymentReferenceCode, string BookingReferenceCode, Exception exception = null)
             => ProcessPaymentChangesForBookingSuccess(logger, OldPaymentStatus, PaymentStatus, PaymentReferenceCode, BookingReferenceCode, exception);
                 
-        public static void LogProcessPaymentChangesForBookingSkip(this ILogger logger, HappyTravel.Edo.Common.Enums.PaymentStatuses PaymentStatus, string PaymentReferenceCode, string BookingReferenceCode, Exception exception = null)
+         public static void LogProcessPaymentChangesForBookingSkip(this ILogger logger, HappyTravel.Edo.Common.Enums.PaymentStatuses PaymentStatus, string PaymentReferenceCode, string BookingReferenceCode, Exception exception = null)
             => ProcessPaymentChangesForBookingSkip(logger, PaymentStatus, PaymentReferenceCode, BookingReferenceCode, exception);
                 
-        public static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, HappyTravel.Edo.Common.Enums.PaymentStatuses Status, string ReferenceCode, Exception exception = null)
+         public static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, HappyTravel.Edo.Common.Enums.PaymentStatuses Status, string ReferenceCode, Exception exception = null)
             => ProcessPaymentChangesForBookingFailure(logger, Status, ReferenceCode, exception);
                 
-        public static void LogElasticAnalyticsEventSendError(this ILogger logger, Exception exception = null)
+         public static void LogElasticAnalyticsEventSendError(this ILogger logger, Exception exception = null)
             => ElasticAnalyticsEventSendError(logger, exception);
                 
-        public static void LogMapperClientException(this ILogger logger, Exception exception = null)
+         public static void LogMapperClientException(this ILogger logger, Exception exception = null)
             => MapperClientException(logger, exception);
                 
-        public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
+         public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
-        public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string Error, Exception exception = null)
+         public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string Error, Exception exception = null)
             => AgentRegistrationNotificationFailure(logger, Error, exception);
                 
-        public static void LogChildAgencyRegistrationNotificationFailure(this ILogger logger, Exception exception = null)
+         public static void LogChildAgencyRegistrationNotificationFailure(this ILogger logger, Exception exception = null)
             => ChildAgencyRegistrationNotificationFailure(logger, exception);
                 
-        public static void LogCounterpartyAccountSubtractedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
+         public static void LogCounterpartyAccountSubtractedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountSubtractedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
-        public static void LogCounterpartyAccountIncreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
+         public static void LogCounterpartyAccountIncreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountIncreasedManuallyNotificationFailure(logger, CounterpartyId, Error, exception);
                 
-        public static void LogCounterpartyAccountDecreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
+         public static void LogCounterpartyAccountDecreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountDecreasedManuallyNotificationFailure(logger, CounterpartyId, Error, exception);
                 
-        public static void LogExternalPaymentLinkGenerationSuccess(this ILogger logger, string Email, Exception exception = null)
+         public static void LogExternalPaymentLinkGenerationSuccess(this ILogger logger, string Email, Exception exception = null)
             => ExternalPaymentLinkGenerationSuccess(logger, Email, exception);
                 
-        public static void LogExternalPaymentLinkGenerationFailed(this ILogger logger, string Email, string Error, Exception exception = null)
+         public static void LogExternalPaymentLinkGenerationFailed(this ILogger logger, string Email, string Error, Exception exception = null)
             => ExternalPaymentLinkGenerationFailed(logger, Email, Error, exception);
                 
-        public static void LogGetAccommodationByHtIdFailed(this ILogger logger, string HtId, string Error, Exception exception = null)
+         public static void LogGetAccommodationByHtIdFailed(this ILogger logger, string HtId, string Error, Exception exception = null)
             => GetAccommodationByHtIdFailed(logger, HtId, Error, exception);
-
-        public static void LogSendConfirmationEmailFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
+                
+         public static void LogSendConfirmationEmailFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
             => SendConfirmationEmailFailure(logger, ReferenceCode, exception);
-
-
-
+    
+    
+        
         private static readonly Action<ILogger, Exception> GeoCoderException;
         
         private static readonly Action<ILogger, HappyTravel.Edo.Common.Enums.UserInvitationTypes, string, Exception> InvitationCreated;
@@ -584,6 +591,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, string, Exception> BookingConfirmationFailure;
         
         private static readonly Action<ILogger, System.Nullable<int>, string, Exception> BookingEvaluationFailure;
+        
+        private static readonly Action<ILogger, Exception> BookingEvaluationCancellationPoliciesFailure;
         
         private static readonly Action<ILogger, Exception> ExternalAdministratorAuthorizationSuccess;
         
@@ -666,7 +675,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, string, Exception> ExternalPaymentLinkGenerationFailed;
         
         private static readonly Action<ILogger, string, string, Exception> GetAccommodationByHtIdFailed;
-
+        
         private static readonly Action<ILogger, string, Exception> SendConfirmationEmailFailure;
     }
 }

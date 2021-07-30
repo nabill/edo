@@ -202,17 +202,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             Result<Unit, ProblemDetails> CheckCancellationPolicies(RoomContractSetAvailability? availability)
             {
+                // We need to perform such a check because there were cases, when cancellation policies with 0% penalty came from connectors, which is incorrect
+
                 if (availability is null)
                     return Unit.Instance;
 
                 var availabilityValue = availability.Value;
                 var deadline = availabilityValue.RoomContractSet.Deadline;
 
-                var invalid = deadline is null || deadline.Policies.Any(p => p.Percentage == 0d);
+                var isInvalid = deadline is null || deadline.Policies.Any(p => p.Percentage == 0d);
 
-                return invalid
-                    ? ProblemDetailsBuilder.Fail<Unit>("Error in cancellation policies data")
-                    : Unit.Instance;
+                if (isInvalid)
+                {
+                    _logger.LogBookingEvaluationCancellationPoliciesFailure();
+                    return ProblemDetailsBuilder.Fail<Unit>("Error in cancellation policies data");
+                }
+
+                return Unit.Instance;
             }
 
 
