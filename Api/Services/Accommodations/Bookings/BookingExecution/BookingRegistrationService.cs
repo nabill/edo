@@ -49,8 +49,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Map(Create)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder)
-                .Check(SendEmailToPropertyOwner);
+                .Tap(CreateSupplierOrder);
+            //.Check(SendEmailToPropertyOwner); //TODO: Sending emails to property owners will be uncommented after readiness
+            // on the front of the booking confirmation page
 
             return booking;
 
