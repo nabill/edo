@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
@@ -23,7 +25,11 @@ namespace HappyTravel.Edo.Api.Services.Management
             if (isFailure)
                 return false;
 
-            return await HasGlobalPermission(administrator, permission);
+            var availablePermissions = await GetAvailablePermissions(administrator);
+
+            var hasPermission = availablePermissions.HasFlag(permission);
+
+            return hasPermission;
         }
 
 
@@ -44,8 +50,15 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        // TODO: add employee roles
-        private Task<bool> HasGlobalPermission(Administrator administrator, AdministratorPermissions permission) => Task.FromResult(true);
+        private async Task<AdministratorPermissions> GetAvailablePermissions(Administrator administrator)
+        {
+            var rolesPermissions = await _context.AdministratorRoles
+                .Where(x => administrator.AdministratorRoleIds.Contains(x.Id))
+                .Select(x => x.Permissions)
+                .ToListAsync();
+
+            return rolesPermissions.SelectMany(r => r.ToList()).Aggregate((a, b) => a | b);
+        }
 
 
         private readonly EdoContext _context;

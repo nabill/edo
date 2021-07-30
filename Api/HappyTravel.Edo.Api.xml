@@ -24,6 +24,16 @@
             Billing email of counterparty or email of master agent.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.SendAdminInvitationRequest.RegistrationInfo">
+            <summary>
+               Registration information
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.SendAdminInvitationRequest.RoleIds">
+            <summary>
+                Roles for admin
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
             <summary>
                 Gets all possible administrator roles
@@ -124,6 +134,12 @@
             <param name="agencyId">Id of the agency.</param>
             <param name="request">Request data for activation.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgency(System.Int32)">
+            <summary>
+             Gets specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
@@ -308,6 +324,13 @@
             </summary>
             <param name="referenceCode">Booking reference code</param>
             <returns>Booking Info</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
@@ -572,11 +595,11 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.InviteAdministrator(HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.InviteAdministrator(HappyTravel.Edo.Api.AdministratorServices.Models.SendAdminInvitationRequest)">
             <summary>
                 Send invitation to administrator.
             </summary>
-            <param name="invitationInfo">Administrator invitation info.</param>
+            <param name="request">Administrator invitation request</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.InvitationsController.RegisterAdministrator(System.String)">
@@ -642,6 +665,11 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns full bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns sales bookings report
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
@@ -1171,6 +1199,13 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
                 Sends booking voucher to an email.
@@ -1484,11 +1519,25 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Get(System.String)">
+            <summary>
+                Gets an actual booking status and confirmation code
+            </summary>
+            <param name="encryptedReferenceCode">Booking reference code</param>
+            <returns>Booking status and property owner confirmation code</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.GetBookingConfirmationCodeHistory(System.String)">
+            <summary>
+                Gets booking confirmation changes history
+            </summary>
+            <param name="encryptedReferenceCode">Booking reference code for retrieving confirmation change history</param>
+            <returns>List of booking confirmation change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PropertyOwnerControllers.BookingConfirmationController.Update(System.String,HappyTravel.Edo.Api.Models.PropertyOwners.BookingConfirmation)">
             <summary>
                 Updates booking status and hotel confirmation code
             </summary>
-            <param name="referenceCode">Booking reference code</param>
+            <param name="encryptedReferenceCode">Booking reference code</param>
             <param name="bookingConfirmation">Booking confirmation data</param>
             <returns></returns>
         </member>
@@ -2767,9 +2816,9 @@
                 Regular agent personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RoleIds">
             <summary>
-                E-mail for invitation.
+                Role ids assigned to user
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
@@ -3043,6 +3092,11 @@
             Prefilled child agency registration info. Used only for child agency invitations.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.UserInvitationData.RoleIds">
+            <summary>
+            Role Ids assigned to the user
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
             <summary>
                 Country Alpha-2 code.
@@ -3119,6 +3173,41 @@
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.IsActive">
+            <summary>
+            Flag of administrator activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Id">
+            <summary>
+            Id of administrator
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Position">
+            <summary>
+            Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Permissions">
+            <summary>
+            All permissions, granted by the roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.IsActive">
             <summary>
             Flag of administrator activity state
             </summary>
@@ -3721,11 +3810,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Email">
             <summary>
                 Email
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.RoleIds">
-            <summary>
-                Role ids assigned to user
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">

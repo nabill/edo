@@ -99,6 +99,22 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task AddPropertyOwnerNotification(DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        {
+            var notification = new Notification
+            {
+                Receiver = ReceiverTypes.PropertyOwner,
+                UserId = 0,
+                AgencyId = null,
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
+                Type = notificationType,
+                SendingSettings = sendingSettings
+            };
+
+            await SaveAndSend(notification, messageData);
+        }
+
+
         public async Task<List<SlimNotification>> Get(ReceiverTypes receiver, int userId, int? agencyId, int skip, int top)
             => await _context.Notifications
                 .Where(n => n.Receiver == receiver && n.UserId == userId && n.AgencyId == agencyId)

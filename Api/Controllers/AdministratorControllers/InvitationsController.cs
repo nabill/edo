@@ -2,10 +2,11 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Mvc;
@@ -37,17 +38,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Send invitation to administrator.
         /// </summary>
-        /// <param name="invitationInfo">Administrator invitation info.</param>
+        /// <param name="request">Administrator invitation request</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorInvitation)]
-        public async Task<IActionResult> InviteAdministrator([FromBody] UserDescriptionInfo invitationInfo)
+        public async Task<IActionResult> InviteAdministrator([FromBody] SendAdminInvitationRequest request)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
 
-            var (_, isFailure, error) = await _adminInvitationCreateService.Send(invitationInfo, admin.Id);
+            var (_, isFailure, _, error) = await _adminInvitationCreateService.Send(request.ToUserInvitationData(), admin.Id);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -74,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
-            var (_, isFailure, error) = await _adminInvitationAcceptService.Accept(invitationCode, default, identity, email);
+            var (_, isFailure, error) = await _adminInvitationAcceptService.Accept(invitationCode, identity, email);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
