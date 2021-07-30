@@ -5,6 +5,8 @@ using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Money.Enums;
+using HappyTravel.Money.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
@@ -63,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             {
                 // Bookings are always in USD, ConvertedAmount too
                 var multiplier = data.ConvertedAmount / data.TotalPrice;
-                return amount * multiplier;
+                return MoneyRounder.Ceil(amount * multiplier, Currencies.USD);
             }
 
             return amount;
