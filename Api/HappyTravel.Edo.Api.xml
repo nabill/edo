@@ -473,7 +473,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
-                Gets balance for a counterparty account
+                Gets balance for a counterparty accounts
             </summary>
             <param name="counterpartyId">Id of the counterparty</param>
             <param name="currency">Currency</param>
@@ -3375,6 +3375,11 @@
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo">
             <summary>
                 Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.AccountId">
+            <summary>
+                Account ID
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">
