@@ -3377,6 +3377,11 @@
                 Account balance info
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.AccountId">
+            <summary>
+                Account ID
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">
             <summary>
                 Balance
