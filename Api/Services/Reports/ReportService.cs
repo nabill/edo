@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var to = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1);
             
             return await Validate(from, to)
                 .Map(GetRecords)
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var to = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1);
             
             return await Validate(from, to)
                 .Map(GetRecords)
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var to = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1);
 
             return await Validate(from, to)
                 .Map(GetRecords)
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> GetSalesBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var to = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1);
 
             return await Validate(from, to)
                 .Map(GetRecords)
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public async Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var to = endDate.Date.AddDays(1).AddTicks(-1);
+            var to = endDate.Date.AddDays(1);
             
             return await Validate(from, to)
                 .Map(GetRecords)
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> PendingSupplierReferenceReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var end = endDate.Date.AddDays(1);
 
             return Result.Success()
                 .Map(GetRecords)
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> ConfirmedBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var end = endDate.Date.AddDays(1);
 
             return Result.Success()
                 .Map(GetRecords)
@@ -128,10 +128,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
         
 
-        public Task<Result<Stream>> GetHotelWiseReport(DateTime fromDate, DateTime endDate)
+        public Task<Result<Stream>> GetHotelWiseBookingReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var end = endDate.Date.AddDays(1);
 
             return Result.Success()
                 .Map(GetRecords)
@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> GetCancellationDeadlineReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var end = endDate.Date.AddDays(1);
 
             return Result.Success()
                 .Map(GetRecords)
@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> GetThirdPartySuppliersReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
-            var end = endDate.Date.AddDays(1).AddTicks(-1);
+            var end = endDate.Date.AddDays(1);
 
             return Result.Success()
                 .Map(GetRecords)
@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
 
             foreach (var record in records)
             {
-                var row = converter.Convert(record, VatAmount, AmountExcludedVat);
+                var row = converter.Convert(record);
                 await Write(row);
             }
             
@@ -241,15 +241,6 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        private static decimal VatAmount(decimal totalAmount) 
-            => totalAmount * Vat / (100 + Vat);
-
-
-        private static decimal AmountExcludedVat(decimal totalAmount) 
-            => totalAmount / (1m + Vat / 100m);
-
-
-        private const int Vat = 5;
         private const int MaxDaysInReport = 62;
         private CsvWriter _csvWriter;
         private StreamWriter _streamWriter;

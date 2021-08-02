@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
             return await (from booking in _context.Bookings
                     orderby booking.DeadlineDate
                     where 
-                        booking.CheckInDate >= fromDate && booking.CheckOutDate < endDate
+                        fromDate <= booking.CheckInDate && booking.CheckOutDate < endDate
                     select new CancellationDeadlineData
                     {
                         Created = booking.Created,

@@ -164,15 +164,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         
         /// <summary>
-        ///     Returns hotel wise report 
+        ///     Returns hotel wise booking report 
         /// </summary>
-        [HttpGet("hotel-wise-report")]
+        [HttpGet("hotel-wise-booking-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetHotelWiseReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _reportService.GetHotelWiseReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetHotelWiseBookingReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

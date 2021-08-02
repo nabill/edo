@@ -4,9 +4,9 @@ using HappyTravel.Edo.Api.Models.Reports;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
-    public class HotelWiseReportDataConverter : IConverter<HotelWiseData, HotelWiseRow>
+    public class HotelWiseBookingReportDataConverter : IConverter<HotelWiseData, HotelWiseRow>
     {
-        public HotelWiseRow Convert(HotelWiseData data, Func<decimal, decimal> vatAmountFunc, Func<decimal, decimal> amountExcludedVatFunc)
+        public HotelWiseRow Convert(HotelWiseData data)
             => new()
             {
                 Created = data.Created,

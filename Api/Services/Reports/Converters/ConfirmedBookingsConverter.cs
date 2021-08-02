@@ -9,8 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class ConfirmedBookingsConverter : IConverter<ConfirmedBookingsData, ConfirmedBookingsRow>
     {
-        public ConfirmedBookingsRow Convert(ConfirmedBookingsData data, Func<decimal, decimal> vatAmountFunc,
-            Func<decimal, decimal> amountExcludedVatFunc)
+        public ConfirmedBookingsRow Convert(ConfirmedBookingsData data)
             => new()
             {
                 Created = data.Created,

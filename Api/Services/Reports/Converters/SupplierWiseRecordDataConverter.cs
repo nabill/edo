@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Services.Reports.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public  class SupplierWiseRecordDataConverter : IConverter<SupplierWiseRecordData, SupplierWiseReportRow>
     {
-        public SupplierWiseReportRow Convert(SupplierWiseRecordData data, Func<decimal, decimal> vatAmountFunc, Func<decimal, decimal> amountExcludedVatFunc) 
+        public SupplierWiseReportRow Convert(SupplierWiseRecordData data) 
             => new()
             {
                 ReferenceCode = data.ReferenceCode,
@@ -20,8 +21,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ArrivalDate = DateTimeFormatters.ToDateString(data.ArrivalDate),
                 DepartureDate = DateTimeFormatters.ToDateString(data.DepartureDate),
                 LenghtOfStay = (data.DepartureDate - data.ArrivalDate).TotalDays,
-                AmountExclVat = Math.Round(amountExcludedVatFunc(data.OriginalAmount), 2),
-                VatAmount = Math.Round(vatAmountFunc(data.OriginalAmount), 2),
+                AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
+                VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
                 OriginalAmount = data.OriginalAmount,
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,

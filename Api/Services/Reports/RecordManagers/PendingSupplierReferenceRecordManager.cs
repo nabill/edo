@@ -21,7 +21,11 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
             return from booking in _context.Bookings
                 orderby booking.CheckInDate
                 where
-                    (booking.Status == BookingStatuses.Pending || booking.Status == BookingStatuses.ManualCorrectionNeeded) &&
+                    (booking.Status == BookingStatuses.Pending || 
+                        booking.Status == BookingStatuses.ManualCorrectionNeeded ||
+                        booking.Status == BookingStatuses.WaitingForResponse ||
+                        booking.Status == BookingStatuses.PendingCancellation
+                        ) &&
                     booking.CheckOutDate >= fromDate &&
                     booking.CheckOutDate < endDate
                 select new PendingSupplierReferenceData

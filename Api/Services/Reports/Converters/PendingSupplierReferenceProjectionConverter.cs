@@ -9,8 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class PendingSupplierReferenceProjectionConverter : IConverter<PendingSupplierReferenceData, PendingSupplierReferenceRow>
     {
-        public PendingSupplierReferenceRow Convert(PendingSupplierReferenceData data, Func<decimal, decimal> vatAmountFunc,
-            Func<decimal, decimal> amountExcludedVatFunc)
+        public PendingSupplierReferenceRow Convert(PendingSupplierReferenceData data)
             => new()
             {
                 Created = data.Created,
