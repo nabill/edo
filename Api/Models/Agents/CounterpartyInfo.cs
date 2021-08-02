@@ -8,13 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct CounterpartyInfo
     {
         [JsonConstructor]
-        public CounterpartyInfo(int id, string name, string address, string billingEmail, string city, string countryCode, string countryName, 
+        public CounterpartyInfo(int id, string name, string legalAddress, string address, string billingEmail, string city, string countryCode, string countryName, 
             string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes preferredPaymentMethod,
             bool isContractUploaded, CounterpartyStates verificationState, DateTime? verificationDate, bool isActive,
             string markupFormula = null)
         {
             Id = id;
             Name = name;
+            LegalAddress = legalAddress;
             Address = address;
             BillingEmail = billingEmail;
             City = city;
@@ -43,6 +44,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Counterparty name.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        ///     Agency address.
+        /// </summary>
+        [Required]
+        public string LegalAddress { get; }
 
         /// <summary>
         ///     Counterparty address.

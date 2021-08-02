@@ -5,10 +5,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public readonly struct CounterpartySlimInfo
+    public readonly struct SlimCounterpartyInfo
     {
         [JsonConstructor]
-        public CounterpartySlimInfo(int id, string name, string legalAddress, PaymentTypes preferredPaymentMethod,
+        public SlimCounterpartyInfo(int id, string name, string legalAddress, PaymentTypes preferredPaymentMethod,
             bool isContractUploaded, CounterpartyStates verificationState, DateTime? verificationDate, bool isActive,
             string markupFormula = null)
         {

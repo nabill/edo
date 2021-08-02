@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<List<CounterpartySlimInfo>> Get()
+        public async Task<List<SlimCounterpartyInfo>> Get()
         {
             var counterparties = await (from cp in _context.Counterparties
                 join formula in _context.DisplayMarkupFormulas on new
@@ -248,7 +248,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
-        private static CounterpartySlimInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
+        private static SlimCounterpartyInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.LegalAddress,

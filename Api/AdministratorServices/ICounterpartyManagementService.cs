@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
-        Task<List<CounterpartySlimInfo>> Get();
+        Task<List<SlimCounterpartyInfo>> Get();
 
         Task<List<CounterpartyPrediction>> GetCounterpartiesPredictions(string query);
 
