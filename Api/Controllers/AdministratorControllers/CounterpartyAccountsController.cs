@@ -36,10 +36,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="currency">Currency</param>
         [HttpGet("counterparties/{counterpartyId}/accounts/{currency}/balance")]
         [ProducesResponseType(typeof(List<CounterpartyBalanceInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetCounterpartyBalance(int counterpartyId, Currencies currency)
-            => OkOrBadRequest(await _counterpartyAccountService.GetBalance(counterpartyId, currency));
+            => Ok(await _counterpartyAccountService.GetBalance(counterpartyId, currency));
 
 
         /// <summary>

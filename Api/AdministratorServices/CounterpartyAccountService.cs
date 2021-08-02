@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<List<CounterpartyBalanceInfo>>> GetBalance(int counterpartyId, Currencies currency)
+        public async Task<List<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency)
         {
             var accountsInfo = await _context.CounterpartyAccounts
                 .Where(a => a.IsActive && a.Currency == currency && a.CounterpartyId == counterpartyId)
