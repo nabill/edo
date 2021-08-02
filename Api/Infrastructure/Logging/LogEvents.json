@@ -30,6 +30,7 @@
     {"id": 1071, "name": "BookingRefreshStatusFailure", "level": "Error", "template": "Failed to refresh status for a booking with reference code: '{ReferenceCode}' while getting info from a supplier. Error: {Error}", "argumentTypes": ["string", "string"]},
     {"id": 1072, "name": "BookingConfirmationFailure", "level": "Critical", "template": "Booking '{ReferenceCode} confirmation failed: '{Error}", "argumentTypes": ["string", "string"]},
     {"id": 1073, "name": "BookingEvaluationFailure", "level": "Critical", "template": "EvaluateOnConnector returned status code: {Status}, error: {Error}", "argumentTypes": ["System.Nullable<int>", "string"]},
+    {"id": 1074, "name": "BookingEvaluationCancellationPoliciesFailure", "level": "Error", "template": "EvaluateOnConnector returned cancellation policies with 0 penalty"},
     {"id": 1100, "name": "ExternalAdministratorAuthorizationSuccess", "level": "Debug", "template": "Successfully authorized external administrator"},
     {"id": 1101, "name": "AdministratorAuthorizationFailure", "level": "Warning", "template": "Administrator authorization failed"},
     {"id": 1103, "name": "InternalAdministratorAuthorizationSuccess", "level": "Debug", "template": "Successfully authorized administrator '{Email}'", "argumentTypes": ["string"]},
