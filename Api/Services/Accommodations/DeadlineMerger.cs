@@ -31,8 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 {
                     var amount = contractsWithDeadline.Sum(contract 
                         => contract.Deadline.Policies
-                            .Where(p => p.FromDate <= date)
-                            .OrderByDescending(p => p.FromDate)
+                            .Where(p => p.FromDate.Date <= date)
+                            .OrderByDescending(p => p.FromDate.Date)
                             .Select(p => p.Percentage * Convert.ToDouble(contract.Rate.FinalPrice.Amount))
                             .FirstOrDefault()
                     );
