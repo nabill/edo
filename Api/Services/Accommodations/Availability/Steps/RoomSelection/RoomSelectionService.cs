@@ -125,7 +125,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                         var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
 
                         return rs.ToRoomContractSet(supplier, isDirectContractFlag);
-                    });
+                    })
+                    .OrderBy(rs => rs.Rate.FinalPrice.Amount);
             }
 
 
