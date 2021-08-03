@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
                 address: "New address",
                 billingEmail: "new_test@test.org",
                 city: "new city",
-                countryCode: "RU",
+                countryCode: "AF",
                 fax: "+7 111 2222222",
                 phone: "+7 111 3333333",
                 postalCode: "345100",

@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 select cp.ToCounterpartyInfo(c.Names, languageCode, null))
                     .SingleOrDefaultAsync();
 
-            if (counterpartyInfo.Equals(default))
+            if (counterpartyInfo.Id == 0)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
             return counterpartyInfo;
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
 
-            return Result.Success(counterparty);
+            return counterparty;
         }
 
 
