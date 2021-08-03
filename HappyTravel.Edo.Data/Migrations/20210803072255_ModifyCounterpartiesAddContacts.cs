@@ -63,6 +63,13 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "Counterparties",
                 type: "text",
                 nullable: true);
+
+            migrationBuilder.Sql("UPDATE \"Counterparties\" " +
+                "SET \"Address\" = \"Agencies.Address\", \"BillingEmail\" = \"Agencies.BillingEmail\", \"City\" = \"Agencies.City\", " +
+                    "\"CountryCode\" = \"Agencies.CountryCode\", \"Fax\" = \"Agencies.Fax\", \"Phone\" = \"Agencies.Phone\", " +
+                    "\"PostalCode\" = \"Agencies.PostalCode\", \"Website\" = \"Agencies.Website\", \"VatNumber\" = \"Agencies.VatNumber\" " +
+                "FROM \"Agencies\" " +
+                "WHERE \"Agencies.CounterpartyId\" = \"Counterparties.Id\" AND \"Agencies.ParentId\" = NULL;");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
