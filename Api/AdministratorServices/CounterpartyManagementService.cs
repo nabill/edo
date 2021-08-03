@@ -141,6 +141,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
 
+                if (counterpartyToUpdate.State == CounterpartyStates.PendingVerification || counterpartyToUpdate.State == CounterpartyStates.ReadOnly)
+                {
+                    counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
+                    counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
+                    counterpartyToUpdate.City = changedCounterpartyInfo.City;
+                    counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
+                    counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                    counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
+                    counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                    counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
+                    counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
+                }
+
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 

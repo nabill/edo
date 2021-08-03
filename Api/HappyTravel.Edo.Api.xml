@@ -2706,14 +2706,54 @@
                 Counterparty name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredPaymentMethod">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Address">
             <summary>
-                Preferable way to do payments.
+                Counterparty address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Website">
+            <summary>
+                Counterparty site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.BillingEmail">
+            <summary>
+            E-mail for billing operations
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Id">
