@@ -106,6 +106,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                         if (searchSettings.AprMode == AprMode.Hide)
                             roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
+                        
+                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                            roomContractSets = roomContractSets.Where(rcs => !(rcs.Deadline.Date.HasValue && rcs.Deadline.Date <= _dateTimeProvider.UtcNow())).ToList();
 
                         var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
                         
