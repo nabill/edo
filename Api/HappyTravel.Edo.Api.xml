@@ -3817,6 +3817,21 @@
                 Email
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregateValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
+             <summary>
+             Aligns full price with its containing parts
+             </summary>
+             <param name="aggregated">Full price</param>
+             <param name="parts">The parts of full price which sum must be equal to the full price</param>
+             <returns>Full price and its parts</returns>
+             <example>
+             Aggregated price - 100 USD
+             Parts - 50 USD + 49 USD
+            
+             Result will contain 100 USD as full price (aggregated) and 50 USD + 50 USD as parts.
+             </example>
+             <exception cref="T:System.NotSupportedException">When aggregated price and its parts differ too much. This may be a sign of an error in client code</exception>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">
             <summary>
             Search id

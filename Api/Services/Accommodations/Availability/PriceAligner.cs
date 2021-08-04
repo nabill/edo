@@ -8,12 +8,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class PriceAligner
     {
+        /// <summary>
+        /// Aligns full price with its containing parts
+        /// </summary>
+        /// <param name="aggregated">Full price</param>
+        /// <param name="parts">The parts of full price which sum must be equal to the full price</param>
+        /// <returns>Full price and its parts</returns>
+        /// <example>
+        /// Aggregated price - 100 USD
+        /// Parts - 50 USD + 49 USD
+        ///
+        /// Result will contain 100 USD as full price (aggregated) and 50 USD + 50 USD as parts.
+        /// </example>
+        /// <exception cref="NotSupportedException">When aggregated price and its parts differ too much. This may be a sign of an error in client code</exception>
         public static (MoneyAmount Aggregated, List<MoneyAmount> Parts) AlignAggregateValues(MoneyAmount aggregated, List<MoneyAmount> parts)
         {
+            if (parts.Any(p=>p.Currency != aggregated.Currency))
+                throw new NotSupportedException($"Aggregated value and parts value currency mismatch");
+            
             var partsSum = new MoneyAmount(parts.Sum(p => p.Amount), aggregated.Currency);
             if (Math.Abs(aggregated.Amount - partsSum.Amount) > MaxSupportedAggregatePriceDifferenceThreshold)
-                throw new NotSupportedException(
-                    $"Aggregated value {aggregated.Amount} differs from aggregate sum {partsSum.Amount} for mor than allowed threshold {MaxSupportedAggregatePriceDifferenceThreshold}");
+                throw new NotSupportedException($"Aggregated value {aggregated.Amount} differs from aggregate sum {partsSum.Amount} for mor than allowed threshold {MaxSupportedAggregatePriceDifferenceThreshold}");
 
             return aggregated switch
             {
@@ -26,7 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             static (MoneyAmount Aggregated, List<MoneyAmount> Parts) Align(MoneyAmount aggregated, List<MoneyAmount> parts)
             {
-                var changeStep = 1 / aggregated.Currency.GetDecimalDigitsCount();
+                var decimalDigitsCount = aggregated.Currency.GetDecimalDigitsCount();
+                var changeStep = (decimal) Math.Pow(0.1 ,decimalDigitsCount);
                 while (parts.Sum(p => p.Amount) < aggregated.Amount)
                 {
                     parts = parts
