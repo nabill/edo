@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct AccommodationAvailabilityResult
+    public record AccommodationAvailabilityResult
     {
         [JsonConstructor]
         public AccommodationAvailabilityResult(long timestamp, string availabilityId, List<RoomContractSet> roomContractSets,
@@ -21,32 +21,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             SupplierAccommodationCode = supplierAccommodationCode;
         }
         
-        public long Timestamp { get; }
-        public string AvailabilityId { get; }
-        public List<RoomContractSet> RoomContractSets { get; }
-        public decimal MinPrice { get; }
-        public decimal MaxPrice { get; }
-        public DateTime CheckInDate { get; }
-        public DateTime CheckOutDate { get; }
-        public string HtId { get; }
-        public string SupplierAccommodationCode { get; }
-
-
-        public bool Equals(AccommodationAvailabilityResult other)
-        {
-            return Timestamp == other.Timestamp && AvailabilityId == other.AvailabilityId &&
-                Equals(RoomContractSets, other.RoomContractSets) &&
-                MinPrice == other.MinPrice && MaxPrice == other.MaxPrice &&
-                HtId == other.HtId;
-        }
-
-
-        public override bool Equals(object obj) 
-            => obj is AccommodationAvailabilityResult other && Equals(other);
-
-        
-        public override int GetHashCode() 
-            => HashCode.Combine(Timestamp, AvailabilityId, RoomContractSets, MinPrice, MaxPrice);
+        public long Timestamp { get; init; }
+        public string AvailabilityId { get; init; }
+        public List<RoomContractSet> RoomContractSets { get; init; }
+        public decimal MinPrice { get; init; }
+        public decimal MaxPrice { get; init; }
+        public DateTime CheckInDate { get; init; }
+        public DateTime CheckOutDate { get; init; }
+        public string HtId { get; init; }
+        public string SupplierAccommodationCode { get; init; }
 
     }
 }
