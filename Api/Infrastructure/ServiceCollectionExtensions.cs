@@ -287,6 +287,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
                 options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
             });
+
+            var bookingConfirmationTemplateId = mailSettings[configuration["Edo:Email:BookingConfirmationTemplateId"]];
+            var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
+            services.Configure<PropertyOwnerMailingOptions>(options => 
+            {
+                options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
+                options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
+            });
             #endregion
 
             #region tag processing options
@@ -587,6 +595,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
+            services.AddTransient<IAdministratorService, AdministratorService>();
             services.AddTransient<IAdministratorRolesManagementService, AdministratorRolesManagementService>();
             services.AddTransient<IAdministratorManagementService, AdministratorManagementService>();
             services.AddTransient<IAgentRolesManagementService, AgentRolesManagementService>();
@@ -762,17 +771,19 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAdministratorRolesAssignmentService, AdministratorRolesAssignmentService>();
 
-            services.AddTransient<IConverter<AgencyWiseRecordProjection, AgencyWiseReportRow>, AgencyWiseRecordProjectionConverter>();
-            services.AddTransient<IConverter<SupplierWiseRecordProjection, SupplierWiseReportRow>, SupplierWiseRecordProjectionConverter>();
-            services.AddTransient<IConverter<FullBookingsReportProjection, FullBookingsReportRow>, FullBookingsReportProjectionConverter>();
-            services.AddTransient<IRecordManager<AgencyWiseRecordProjection>, AgencyWiseRecordManager>();
-            services.AddTransient<IRecordManager<SupplierWiseRecordProjection>, SupplierWiseRecordsManager>();
-            services.AddTransient<IRecordManager<FullBookingsReportProjection>, FullBookingsRecordManager>();
+            services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
+            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
+            services.AddTransient<IConverter<SalesBookingsReportData, SalesBookingsReportRow>, SalesBookingsReportDataConverter>();
+            services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
+            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
+            services.AddTransient<IRecordManager<SalesBookingsReportData>, SalesBookingsRecordManager>();
             services.AddTransient<IRecordManager<AgencyProductivity>, AgenciesProductivityRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
-            services.AddTransient<IUrlGenerationService, UrlGenerationService>();
+            services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

@@ -7,12 +7,18 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// </summary>
     public class CounterpartyBalanceInfo
     {
-        public CounterpartyBalanceInfo(decimal balance, Currencies currency)
+        public CounterpartyBalanceInfo(int accountId, decimal balance, Currencies currency)
         {
+            AccountId = accountId;
             Balance = balance;
             Currency = currency;
         }
 
+
+        /// <summary>
+        ///     Account ID
+        /// </summary>
+        public int AccountId { get; }
 
         /// <summary>
         ///     Balance

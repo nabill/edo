@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.PropertyOwnerServices
         {
             var referenceCode = "DEV-HTL-AE-0001B4-01";
             var urlGenerationOptions = GetValidOptions();
-            var urlGenerationService = new UrlGenerationService(urlGenerationOptions);
+            var urlGenerationService = new PropertyOwnerConfirmationUrlGenerator(urlGenerationOptions);
             var url = urlGenerationService.Generate(referenceCode);
 
             var stringToDecrypt = url.Substring(urlGenerationOptions.Value.ConfirmationPageUrl.Length + 1);

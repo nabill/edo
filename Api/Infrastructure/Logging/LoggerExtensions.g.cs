@@ -131,6 +131,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1073, "BookingEvaluationFailure"),
                 "EvaluateOnConnector returned status code: {Status}, error: {Error}");
             
+            BookingEvaluationCancellationPoliciesFailure = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1074, "BookingEvaluationCancellationPoliciesFailure"),
+                "EvaluateOnConnector returned cancellation policies with 0 penalty");
+            
             ExternalAdministratorAuthorizationSuccess = LoggerMessage.Define(LogLevel.Debug,
                 new EventId(1100, "ExternalAdministratorAuthorizationSuccess"),
                 "Successfully authorized external administrator");
@@ -295,6 +299,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1709, "GetAccommodationByHtIdFailed"),
                 "Error getting accommodation for HtId '{HtId}': error: {Error}");
             
+            SendConfirmationEmailFailure = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1800, "SendConfirmationEmailFailure"),
+                "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}");
+            
         }
     
                 
@@ -390,6 +398,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogBookingEvaluationFailure(this ILogger logger, System.Nullable<int> Status, string Error, Exception exception = null)
             => BookingEvaluationFailure(logger, Status, Error, exception);
+                
+         public static void LogBookingEvaluationCancellationPoliciesFailure(this ILogger logger, Exception exception = null)
+            => BookingEvaluationCancellationPoliciesFailure(logger, exception);
                 
          public static void LogExternalAdministratorAuthorizationSuccess(this ILogger logger, Exception exception = null)
             => ExternalAdministratorAuthorizationSuccess(logger, exception);
@@ -513,6 +524,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogGetAccommodationByHtIdFailed(this ILogger logger, string HtId, string Error, Exception exception = null)
             => GetAccommodationByHtIdFailed(logger, HtId, Error, exception);
+                
+         public static void LogSendConfirmationEmailFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => SendConfirmationEmailFailure(logger, ReferenceCode, exception);
     
     
         
@@ -577,6 +591,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, string, Exception> BookingConfirmationFailure;
         
         private static readonly Action<ILogger, System.Nullable<int>, string, Exception> BookingEvaluationFailure;
+        
+        private static readonly Action<ILogger, Exception> BookingEvaluationCancellationPoliciesFailure;
         
         private static readonly Action<ILogger, Exception> ExternalAdministratorAuthorizationSuccess;
         
@@ -659,5 +675,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, string, Exception> ExternalPaymentLinkGenerationFailed;
         
         private static readonly Action<ILogger, string, string, Exception> GetAccommodationByHtIdFailed;
+        
+        private static readonly Action<ILogger, string, Exception> SendConfirmationEmailFailure;
     }
 }

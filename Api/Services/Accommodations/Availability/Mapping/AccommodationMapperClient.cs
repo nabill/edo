@@ -27,6 +27,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         {
             _clientFactory = clientFactory;
             _logger = logger;
+            _options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+                Converters = { new JsonStringEnumConverter() }
+            };
         }
         
         
@@ -40,17 +46,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             {
                 var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
                 using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}");
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                    Converters = { new JsonStringEnumConverter() }
-                };
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(options);
+                    return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(_options);
 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
@@ -72,16 +72,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 {
                     var requestContent = new StringContent(JsonConvert.SerializeObject(htIds), Encoding.UTF8, "application/json");
                     using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                        Converters = { new JsonStringEnumConverter() }
-                    };
 
                     if (response.IsSuccessStatusCode)
                     {
-                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(options);
+                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(_options);
                         if (results is null)
                         {
                             _logger.LogError("Request for {HtIds} returned null", htIds);
@@ -117,17 +111,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             try
             {
                 using var response = await client.GetAsync($"api/1.0/accommodations/{htId}");
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                    Converters = { new JsonStringEnumConverter() }
-                };
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(options);
+                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options);
                 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<Accommodation, ProblemDetails>(error);
@@ -146,17 +134,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             try
             {
                 using var response = await client.GetAsync($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}");
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                    Converters = { new JsonStringEnumConverter() }
-                };
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(options);
+                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options);
                 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<Accommodation, ProblemDetails>(error);
@@ -169,7 +151,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
+        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId)
+        {
+            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+            try
+            {
+                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}/email-addresses");
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<List<string>>(_options);
+
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
+                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+
+                return Result.Failure<List<string>, ProblemDetails>(error);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperClientException(ex);
+                return ProblemDetailsBuilder.Fail<List<string>>(ex.Message);
+            }
+        }
+
+
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;
+        private readonly JsonSerializerOptions _options;
     }
 }

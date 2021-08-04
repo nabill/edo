@@ -14,5 +14,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode);
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode);
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode);
+        Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId);
     }
 }

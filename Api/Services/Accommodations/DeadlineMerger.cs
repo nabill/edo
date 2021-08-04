@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .FirstOrDefault();
 
             var policies = contractsWithDeadline
-                .SelectMany(c => c.Deadline.Policies.Select(p => p.FromDate.Date))
+                .SelectMany(c => c.Deadline.Policies.Select(p => p.FromDate))
                 .Distinct()
                 .OrderBy(d => d)
                 .Select(date =>
