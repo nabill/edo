@@ -55,7 +55,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// </summary>
         public CounterpartyStates VerificationState { get; }
 
-
         /// <summary>
         /// Displayed markup formula
         /// </summary>
