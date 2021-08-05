@@ -64,12 +64,12 @@ namespace HappyTravel.Edo.Data.Migrations
                 type: "text",
                 nullable: true);
 
-            migrationBuilder.Sql("UPDATE \"Counterparties\" " +
-                "SET \"Address\" = \"Agencies.Address\", \"BillingEmail\" = \"Agencies.BillingEmail\", \"City\" = \"Agencies.City\", " +
-                    "\"CountryCode\" = \"Agencies.CountryCode\", \"Fax\" = \"Agencies.Fax\", \"Phone\" = \"Agencies.Phone\", " +
-                    "\"PostalCode\" = \"Agencies.PostalCode\", \"Website\" = \"Agencies.Website\", \"VatNumber\" = \"Agencies.VatNumber\" " +
-                "FROM \"Agencies\" " +
-                "WHERE \"Agencies.CounterpartyId\" = \"Counterparties.Id\" AND \"Agencies.ParentId\" = NULL;");
+            migrationBuilder.Sql("UPDATE \"Counterparties\" c " +
+                "SET \"Address\" = a.\"Address\", \"BillingEmail\" = a.\"BillingEmail\", \"City\" = a.\"City\", " +
+                    "\"CountryCode\" = a.\"CountryCode\", \"Fax\" = a.\"Fax\", \"Phone\" = a.\"Phone\", " +
+                    "\"PostalCode\" = a.\"PostalCode\", \"Website\" = a.\"Website\", \"VatNumber\" = a.\"VatNumber\" " +
+                "FROM \"Agencies\" a " +
+                "WHERE a.\"CounterpartyId\" = c.\"Id\" AND a.\"ParentId\" = NULL;");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
