@@ -53,6 +53,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 if (selectedRoomSet.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
+                
+                if (selectedRoomSet.RoomContractSetId.Equals(default))
+                    return ProblemDetailsBuilder.Fail<Deadline>("Could not find RoomContractSetId for selected room set");
 
                 var checkInDate = selectedResult.Select(s => s.Result.CheckInDate).FirstOrDefault();
                 return await MakeSupplierRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
@@ -72,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 {
                     var selectedRoom = a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
 
-                    if (selectedRoom is not null)
+                    if (selectedRoom is not null && !selectedRoom.Id.Equals(default))
                         return await MakeSupplierRequest(SupplierKey, selectedRoom.Id, a.AvailabilityId)
                             .Bind(d => ProcessDeadline(d, a.CheckInDate, agent))
                             .Map(d => d.ToDeadline());
