@@ -72,6 +72,6 @@
     {"id": 1707, "name": "ExternalPaymentLinkGenerationSuccess", "level": "Information", "template": "Successfully generated payment link for {Email}", "argumentTypes": ["string"]},
     {"id": 1708, "name": "ExternalPaymentLinkGenerationFailed", "level": "Error", "template": "Error generating payment link for {Email}: {Error}", "argumentTypes": ["string", "string"]},
     {"id": 1709, "name": "GetAccommodationByHtIdFailed", "level": "Error", "template": "Error getting accommodation for HtId '{HtId}': error: {Error}", "argumentTypes": [ "string", "string" ]},
-    {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]
-  }
+    {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]},
+    {"id": 1801, "name": "ConnectorClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from connector. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]}
 ]
