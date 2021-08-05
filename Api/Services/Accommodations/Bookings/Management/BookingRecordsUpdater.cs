@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 BookingId = booking.Id,
                 ReferenceCode = booking.ReferenceCode,
-                Status = status,
+                Status = EnumFormatters.FromDescription(status),
                 ChangeTime = _dateTimeProvider.UtcNow(),
                 AccommodationName = booking.AccommodationName,
                 AccommodationPhoto = booking.AccommodationInfo?.Photo,
@@ -83,6 +83,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 BookingStatuses.Pending => Result.Success(),
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Invalid status value")
             };
+        }
+
+
+        public async Task ChangePropertyOwnerConfirmationCode(Booking booking, string confirmationCode)
+        {
+            if (booking.PropertyOwnerConfirmationCode == confirmationCode)
+                return;
+
+            booking.PropertyOwnerConfirmationCode = confirmationCode;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Detach(booking);
         }
 
 
@@ -147,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             void WriteFailureLog(string error) 
-                => _logger.LogBookingConfirmationFailure($"Booking '{booking.ReferenceCode} confirmation failed: '{error}");
+                => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
         }
         
         

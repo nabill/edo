@@ -45,7 +45,6 @@ namespace HappyTravel.Edo.Api.Models.Users
         /// </summary>
         public string Email { get; }
 
-
         public override int GetHashCode()
             => (Title, FirstName, LastName, Position, Email).GetHashCode();
 

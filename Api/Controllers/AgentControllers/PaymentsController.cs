@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -24,11 +22,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IAccountPaymentService accountPaymentService,
-            IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
+        public PaymentsController(IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
             IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
         {
-            _accountPaymentService = accountPaymentService;
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
@@ -59,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost("bookings/card/new")]
+        [HttpPost("accommodations/bookings/cards/new/pay")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -78,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost("bookings/card/saved")]
+        [HttpPost("accommodations/bookings/cards/saved/pay")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
@@ -93,7 +89,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-
         /// <summary>
         ///     Processes payment callback
         /// </summary>
@@ -106,24 +101,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             => OkOrBadRequest(await _creditCardPaymentProcessingService.ProcessPaymentResponse(value, _bookingPaymentCallbackService));
 
 
-        /// <summary>
-        ///     Returns account balance for currency
-        /// </summary>
-        /// <returns>Account balance</returns>
-        [HttpGet("accounts/balance/{currency}")]
-        [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [InAgencyPermissions(InAgencyPermissions.ObserveBalance)]
-        public async Task<IActionResult> GetAccountBalance(Currencies currency)
-        {
-            return OkOrBadRequest(await _accountPaymentService.GetAccountBalance(currency, await _agentContextService.GetAgent()));
-        }
-
-
         private readonly IAgentContextService _agentContextService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
-        private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentSettingsService _paymentSettingsService;
     }

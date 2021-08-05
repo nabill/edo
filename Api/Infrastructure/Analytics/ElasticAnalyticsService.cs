@@ -3,7 +3,7 @@ using System.Globalization;
 using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Geography;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -44,13 +44,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
                 {
                     if (task.IsFaulted)
                     {
-                        _logger.LogElasticAnalyticsEventSendError($"Error executing task: {task.Exception?.Message}");
+                        _logger.LogElasticAnalyticsEventSendError(task.Exception);
                         return;
                     }
 
                     var response = task.Result;
                     if (!response.Success)
-                        _logger.LogElasticAnalyticsEventSendError($"Request error: {response.OriginalException.Message}");
+                        _logger.LogElasticAnalyticsEventSendError(response.OriginalException);
                 });
         }
 

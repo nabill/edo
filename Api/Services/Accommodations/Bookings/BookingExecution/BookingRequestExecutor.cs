@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                     var message = error.Detail;
                     // If result is failed this does not mean that booking failed. All known cases are listed below
-                    _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{booking.ReferenceCode}' has been failed with a message: {message}");
+                    _logger.LogBookingFinalizationFailure(booking.ReferenceCode, message);
 
                     if (!error.Extensions.TryGetBookingFailureCode(out var failureCode))
                         // We do not know whether booking was registered on supplier
@@ -101,7 +101,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 }
 
 
-                // TODO: Remove room information and contract description from booking NIJO-915
                 static EdoContracts.Accommodations.Booking GetStubDetails(Data.Bookings.Booking booking)
                     => new EdoContracts.Accommodations.Booking(booking.ReferenceCode,
                         // Will be set in the refresh step

@@ -37,14 +37,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency)
+        public async Task<List<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency)
         {
-            var accountInfo = await _context.CounterpartyAccounts
-                .FirstOrDefaultAsync(a => a.IsActive && a.Currency == currency && a.CounterpartyId == counterpartyId);
+            var accountsInfo = await _context.CounterpartyAccounts
+                .Where(a => a.IsActive && a.Currency == currency && a.CounterpartyId == counterpartyId)
+                .Select(a => new CounterpartyBalanceInfo(a.Id, a.Balance, a.Currency))
+                .ToListAsync();
 
-            return accountInfo == null
-                ? Result.Failure<CounterpartyBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
-                : Result.Success(new CounterpartyBalanceInfo(accountInfo.Balance, accountInfo.Currency));
+            return accountsInfo;
         }
 
 
@@ -234,7 +234,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     {
                         Amount = c.Balance,
                         Currency = c.Currency
-                    }
+                    },
+                    IsActive = c.IsActive
                 })
                 .ToListAsync();
         }

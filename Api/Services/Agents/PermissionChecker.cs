@@ -28,8 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agent.AgencyId.ToString(),
                 agent.AgentId.ToString());
             
-            var storedPermissions = await _flow.GetOrSetAsync(
-                key: key, 
+            var storedPermissions = await _flow.GetOrSetAsync(key: key, 
                 getValueFunction: async () => await GetPermissions(agent.AgentId, agent.AgencyId), 
                 AgentPermissionsCacheLifeTime);
 
@@ -37,12 +36,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Failure("The agent isn't affiliated with the agency");
             
             var hasPermission = storedPermissions.Any(p => p.HasFlag(permission));
-
+            
             return hasPermission
                 ? Result.Success()
                 : Result.Failure($"Agent does not have the '{permission}' permission");
 
 
+            // TODO: Get permissions in a single request
             async Task<List<InAgencyPermissions>> GetPermissions(int agentId, int agencyId)
             {
                 var roleIds = await _context.AgentAgencyRelations
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .Where(r => r.AgencyId == agencyId)
                     .Select(r => r.AgentRoleIds)
                     .SingleOrDefaultAsync();
-
+            
                 if (roleIds == default)
                     return default;
                     
