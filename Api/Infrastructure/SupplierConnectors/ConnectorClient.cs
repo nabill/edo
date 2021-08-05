@@ -94,6 +94,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                     }
                     catch (JsonReaderException)
                     {
+                        streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
+                        var responseBody = await streamReader.ReadToEndAsync();
+                        _logger.LogConnectorClientUnexpectedResponse(response.StatusCode, requestFactory().RequestUri, responseBody);
                         error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
                     }
 
