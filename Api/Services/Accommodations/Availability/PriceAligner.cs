@@ -43,6 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 var decimalDigitsCount = aggregated.Currency.GetDecimalDigitsCount();
                 var changeStep = (decimal) Math.Pow(0.1 ,decimalDigitsCount);
+                
+                // When aggregated value is larger than sum of its parts, we increase each part amount until their sum will reach the aggregated amount.
+                // All parts amounts increased at once to preserve their price difference, which is especially important for cases when same service is repeated in one order.
                 while (parts.Sum(p => p.Amount) < aggregated.Amount)
                 {
                     parts = parts

@@ -76,5 +76,26 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
             
             Assert.Equal(expectedAggregated, aligned.Aggregated.Amount);
         }
+        
+        
+        [Theory]
+        [InlineData(149.5, 49.9)] // Increase full price to match parts
+        [InlineData(1360.15, 453.37)] // Increase parts to match parts
+        public void Should_preserve_same_part_prices_as_same(decimal aggregated, decimal partAmount)
+        {
+            var aggregatedAmount = new MoneyAmount(aggregated, Currencies.USD);
+            var partAmountsWithSamePrice = new List<MoneyAmount>
+            {
+                new (partAmount, Currencies.USD),
+                new (partAmount, Currencies.USD),
+                new (partAmount, Currencies.USD)
+            };
+
+            var aligned = PriceAligner.AlignAggregateValues(aggregatedAmount, partAmountsWithSamePrice);
+            var alignedParts = aligned.Parts;
+
+            Assert.Equal(alignedParts[0], alignedParts[1]);
+            Assert.Equal(alignedParts[1], alignedParts[2]);
+        }
     }
 }
