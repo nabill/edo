@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1072, "BookingConfirmationFailure"),
                 "Booking '{ReferenceCode} confirmation failed: '{Error}");
             
-            BookingEvaluationFailure = LoggerMessage.Define<System.Nullable<int>, string>(LogLevel.Critical,
+            BookingEvaluationFailure = LoggerMessage.Define<System.Nullable<int>, string>(LogLevel.Warning,
                 new EventId(1073, "BookingEvaluationFailure"),
                 "EvaluateOnConnector returned status code: {Status}, error: {Error}");
             
