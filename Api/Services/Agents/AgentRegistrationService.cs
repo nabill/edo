@@ -56,20 +56,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
 
-            Task<Result<CounterpartyInfo>> CreateCounterparty() 
+            Task<Result<SlimCounterpartyInfo>> CreateCounterparty() 
                 => _counterpartyService.Add(counterpartyData);
 
 
-            async Task<Result<(CounterpartyInfo, Agent)>> CreateAgent(CounterpartyInfo counterparty)
+            async Task<Result<(SlimCounterpartyInfo, Agent)>> CreateAgent(SlimCounterpartyInfo counterparty)
             {
                 var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email);
                 return isFailure
-                    ? Result.Failure<(CounterpartyInfo, Agent)>(error)
+                    ? Result.Failure<(SlimCounterpartyInfo, Agent)>(error)
                     : Result.Success((counterparty1: counterparty, agent));
             }
 
 
-            async Task AddMasterAgentAgencyRelation((CounterpartyInfo counterparty, Agent agent) counterpartyAgentInfo)
+            async Task AddMasterAgentAgencyRelation((SlimCounterpartyInfo counterparty, Agent agent) counterpartyAgentInfo)
             {
                 var (counterparty, agent) = counterpartyAgentInfo;
                 var rootAgency = await _counterpartyService.GetRootAgency(counterparty.Id);
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<Result> SendRegistrationMailToAdmins(CounterpartyInfo counterpartyInfo)
+            async Task<Result> SendRegistrationMailToAdmins(SlimCounterpartyInfo counterpartyInfo)
             {
                 var agent = $"{agentData.Title} {agentData.FirstName} {agentData.LastName}";
                 if (!string.IsNullOrWhiteSpace(agentData.Position))
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            Result<CounterpartyInfo> LogSuccess((CounterpartyInfo, Agent) registrationData)
+            Result<SlimCounterpartyInfo> LogSuccess((SlimCounterpartyInfo, Agent) registrationData)
             {
                 var (counterparty, agent) = registrationData;
                 _logger.LogAgentRegistrationSuccess(agent.Email);
