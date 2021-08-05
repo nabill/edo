@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Data.Agents;
@@ -74,21 +75,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
                 }));
         }
 
+
         [Fact]
         public async Task Existing_currency_balance_should_be_shown()
         {
-            var (isSuccess, _, balanceInfo) = await _counterpartyAccountService.GetBalance(1, Currencies.USD);
+            var balanceInfo = await _counterpartyAccountService.GetBalance(1, Currencies.USD);
             
-            Assert.True(isSuccess);
-            Assert.Equal(1000, balanceInfo.Balance);
+            Assert.Equal(1000, balanceInfo[0].Balance);
         }
 
+
         [Fact]
-        public async Task Not_existing_currency_balance_show_should_fail()
+        public async Task Not_existing_currency_balance_show_should_empty_list()
         {
-            var (_, isFailure) = await _counterpartyAccountService.GetBalance(1, Currencies.EUR);
+            var balanceInfo = await _counterpartyAccountService.GetBalance(1, Currencies.EUR);
             
-            Assert.True(isFailure);
+            Assert.True(balanceInfo.Count == 0);
         }
 
 

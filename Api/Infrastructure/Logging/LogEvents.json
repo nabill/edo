@@ -30,6 +30,7 @@
     {"id": 1071, "name": "BookingRefreshStatusFailure", "level": "Error", "template": "Failed to refresh status for a booking with reference code: '{ReferenceCode}' while getting info from a supplier. Error: {Error}", "argumentTypes": ["string", "string"]},
     {"id": 1072, "name": "BookingConfirmationFailure", "level": "Critical", "template": "Booking '{ReferenceCode} confirmation failed: '{Error}", "argumentTypes": ["string", "string"]},
     {"id": 1073, "name": "BookingEvaluationFailure", "level": "Critical", "template": "EvaluateOnConnector returned status code: {Status}, error: {Error}", "argumentTypes": ["System.Nullable<int>", "string"]},
+    {"id": 1074, "name": "BookingEvaluationCancellationPoliciesFailure", "level": "Error", "template": "EvaluateOnConnector returned cancellation policies with 0 penalty"},
     {"id": 1100, "name": "ExternalAdministratorAuthorizationSuccess", "level": "Debug", "template": "Successfully authorized external administrator"},
     {"id": 1101, "name": "AdministratorAuthorizationFailure", "level": "Warning", "template": "Administrator authorization failed"},
     {"id": 1103, "name": "InternalAdministratorAuthorizationSuccess", "level": "Debug", "template": "Successfully authorized administrator '{Email}'", "argumentTypes": ["string"]},
@@ -71,6 +72,7 @@
     {"id": 1707, "name": "ExternalPaymentLinkGenerationSuccess", "level": "Information", "template": "Successfully generated payment link for {Email}", "argumentTypes": ["string"]},
     {"id": 1708, "name": "ExternalPaymentLinkGenerationFailed", "level": "Error", "template": "Error generating payment link for {Email}: {Error}", "argumentTypes": ["string", "string"]},
     {"id": 1709, "name": "GetAccommodationByHtIdFailed", "level": "Error", "template": "Error getting accommodation for HtId '{HtId}': error: {Error}", "argumentTypes": [ "string", "string" ]},
-    {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]
-  }
+    {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]},
+    {"id": 1801, "name": "ConnectorClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from connector. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
+    {"id": 1802, "name": "MapperClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]}
 ]

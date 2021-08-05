@@ -473,7 +473,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
-                Gets balance for a counterparty account
+                Gets balance for a counterparty accounts
             </summary>
             <param name="counterpartyId">Id of the counterparty</param>
             <param name="currency">Currency</param>
@@ -3177,6 +3177,41 @@
             Flag of administrator activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Id">
+            <summary>
+            Id of administrator
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Position">
+            <summary>
+            Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Permissions">
+            <summary>
+            All permissions, granted by the roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.IsActive">
+            <summary>
+            Flag of administrator activity state
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
             <summary>
                 Verify reason.
@@ -3340,6 +3375,11 @@
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo">
             <summary>
                 Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.AccountId">
+            <summary>
+                Account ID
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">
@@ -3776,6 +3816,21 @@
             <summary>
                 Email
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregateValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
+             <summary>
+             Aligns full price with its containing parts
+             </summary>
+             <param name="aggregated">Full price</param>
+             <param name="parts">The parts of full price which sum must be equal to the full price</param>
+             <returns>Full price and its parts</returns>
+             <example>
+             Aggregated price - 100 USD
+             Parts - 50 USD + 49 USD
+            
+             Result will contain 100 USD as full price (aggregated) and 50 USD + 50 USD as parts.
+             </example>
+             <exception cref="T:System.NotSupportedException">When aggregated price and its parts differ too much. This may be a sign of an error in client code</exception>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">
             <summary>

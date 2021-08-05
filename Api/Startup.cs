@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api
             services.AddSwaggerGenNewtonsoftSupport();
             
             services.AddOData();
-            services.AddNotificationCenter();
+            services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             
             services.AddMvcCore(options =>
                 {
