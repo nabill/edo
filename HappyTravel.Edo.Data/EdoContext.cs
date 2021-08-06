@@ -469,11 +469,13 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
                 counterparty.Property(c => c.LegalAddress).IsRequired();
+                counterparty.Property(c => c.Address).IsRequired();
+                counterparty.Property(c => c.City).IsRequired();
+                counterparty.Property(c => c.CountryCode).IsRequired();
+                counterparty.Property(c => c.Phone).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
                 counterparty.Property(c => c.State).IsRequired();
-                counterparty.Property(c => c.IsActive)
-                    .IsRequired()
-                    .HasDefaultValue(true);
+                counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 

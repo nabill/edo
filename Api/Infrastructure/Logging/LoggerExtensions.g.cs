@@ -303,6 +303,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1800, "SendConfirmationEmailFailure"),
                 "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}");
             
+            ConnectorClientUnexpectedResponse = LoggerMessage.Define<System.Net.HttpStatusCode, System.Uri, string>(LogLevel.Error,
+                new EventId(1801, "ConnectorClientUnexpectedResponse"),
+                "Unexpected response received from connector. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
+            
+            MapperClientUnexpectedResponse = LoggerMessage.Define<System.Net.HttpStatusCode, System.Uri, string>(LogLevel.Error,
+                new EventId(1802, "MapperClientUnexpectedResponse"),
+                "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
+            
         }
     
                 
@@ -527,6 +535,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogSendConfirmationEmailFailure(this ILogger logger, string ReferenceCode, Exception exception = null)
             => SendConfirmationEmailFailure(logger, ReferenceCode, exception);
+                
+         public static void LogConnectorClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
+            => ConnectorClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
+                
+         public static void LogMapperClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
+            => MapperClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
     
     
         
@@ -677,5 +691,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, string, Exception> GetAccommodationByHtIdFailed;
         
         private static readonly Action<ILogger, string, Exception> SendConfirmationEmailFailure;
+        
+        private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> ConnectorClientUnexpectedResponse;
+        
+        private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperClientUnexpectedResponse;
     }
 }

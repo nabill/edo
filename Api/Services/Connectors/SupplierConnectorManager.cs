@@ -68,6 +68,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.Yalago,
                     new SupplierConnector(Suppliers.Yalago, connectorClient, _options.Yalago, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.HotelBeds,
+                    new SupplierConnector(Suppliers.HotelBeds, connectorClient, _options.HotelBeds, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
