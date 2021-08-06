@@ -187,8 +187,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result<Discount>> DiscountDoesntExceedMarkups(Discount discount)
             {
-                // we need additional check for activated discounts
-                // as they can exceed markups
+                // We need additional check for activated discounts
+                // They can exceed markups
                 if (!newActivityState)
                     return Result.Success(discount);
 
