@@ -81,7 +81,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplyMarkups)
                 .Tap(SaveToCache)
                 .Map(ToDetails)
-                .Check(CheckAgainstSettings);
+                .Check(CheckAgainstSettings)
+                .Check(CheckCancellationPolicies);
 
 
             async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
@@ -197,8 +198,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ? Unit.Instance
                     : ProblemDetailsBuilder.Fail<Unit>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
             }
-            
-            
+
+
+            Result<Unit, ProblemDetails> CheckCancellationPolicies(RoomContractSetAvailability? availability)
+            {
+                // We need to perform such a check because there were cases, when cancellation policies with 0% penalty came from connectors, which is incorrect
+
+                if (availability is null)
+                    return Unit.Instance;
+
+                var availabilityValue = availability.Value;
+                var deadline = availabilityValue.RoomContractSet.Deadline;
+
+                var isInvalid = deadline is null || deadline.Policies.Any(p => p.Percentage == 0d);
+
+                if (isInvalid)
+                {
+                    _logger.LogBookingEvaluationCancellationPoliciesFailure();
+                    return ProblemDetailsBuilder.Fail<Unit>("Error in cancellation policies data");
+                }
+
+                return Unit.Instance;
+            }
+
+
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in CounterpartyContractKind contractKind)
                 => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());

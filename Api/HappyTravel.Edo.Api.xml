@@ -473,7 +473,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyAccountsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
-                Gets balance for a counterparty account
+                Gets balance for a counterparty accounts
             </summary>
             <param name="counterpartyId">Id of the counterparty</param>
             <param name="currency">Currency</param>
@@ -665,6 +665,11 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns full bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns sales bookings report
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
@@ -3172,6 +3177,41 @@
             Flag of administrator activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Id">
+            <summary>
+            Id of administrator
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Position">
+            <summary>
+            Position
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.AdministratorRoleIds">
+            <summary>
+            Ids of administrator roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.Permissions">
+            <summary>
+            All permissions, granted by the roles
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.IsActive">
+            <summary>
+            Flag of administrator activity state
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
             <summary>
                 Verify reason.
@@ -3335,6 +3375,11 @@
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo">
             <summary>
                 Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.AccountId">
+            <summary>
+                Account ID
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">

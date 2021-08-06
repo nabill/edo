@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.Notifications.Enums
     {
         None = 0,
         AdminPanel = 1,
-        AgentApp = 2
+        AgentApp = 2,
+        PropertyOwner = 4
     }
 }
