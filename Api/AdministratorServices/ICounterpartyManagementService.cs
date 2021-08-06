@@ -10,9 +10,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface ICounterpartyManagementService
     {
-        Task<Result<CounterpartyInfo>> Get(int counterpartyId);
+        Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
-        Task<List<CounterpartyInfo>> Get();
+        Task<List<SlimCounterpartyInfo>> Get();
 
         Task<List<CounterpartyPrediction>> GetCounterpartiesPredictions(string query);
 
