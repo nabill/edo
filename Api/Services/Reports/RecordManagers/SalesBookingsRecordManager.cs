@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     ServiceDeadline = booking.DeadlineDate,
-                    SupplierDeadline = supplier.Deadline?.Date
+                    SupplierDeadline = supplier.Deadline.Date
                 })
                 .ToListAsync();
 
