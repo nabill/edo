@@ -16,7 +16,6 @@ using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -49,9 +48,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
                 if (response.IsSuccessStatusCode)
                     return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(_options);
+                
+                ProblemDetails error;
 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
-                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                try
+                {
+                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options);
+                }
+                catch (JsonException)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
+                    error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                }
 
                 return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
             }
@@ -70,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
                 try
                 {
-                    var requestContent = new StringContent(JsonConvert.SerializeObject(htIds), Encoding.UTF8, "application/json");
+                    var requestContent = new StringContent(JsonSerializer.Serialize(htIds), Encoding.UTF8, "application/json");
                     using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
 
                     if (response.IsSuccessStatusCode)

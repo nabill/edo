@@ -65,12 +65,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             try
             {
-                _logger.LogProviderAvailabilitySearchStarted(searchId, supplier);
+                _logger.LogSupplierAvailabilitySearchStarted(searchId, supplier);
 
                 await GetAvailability(connectorRequest, languageCode)
                     .Bind(ConvertCurrencies)
                     .Map(ProcessPolicies)
                     .Map(ApplyMarkups)
+                    .Map(AlignPrices)
                     .Map(Convert)
                     .Tap(SaveResult)
                     .Tap(NotifyClient)
@@ -78,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             catch (Exception ex)
             {
-                _logger.LogProviderAvailabilitySearchException(ex);
+                _logger.LogSupplierAvailabilitySearchException(ex);
                 var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
@@ -101,6 +102,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response) 
                 => _priceProcessor.ApplyMarkups(response, agent);
+            
+            
+            async Task<EdoContracts.Accommodations.Availability> AlignPrices(EdoContracts.Accommodations.Availability response) 
+                => await _priceProcessor.AlignPrices(response);
 
 
             EdoContracts.Accommodations.Availability ProcessPolicies(EdoContracts.Accommodations.Availability response) 
@@ -159,11 +164,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
-                    _logger.LogProviderAvailabilitySearchSuccess(searchId, supplier, state.ResultCount);
+                    _logger.LogSupplierAvailabilitySearchSuccess(searchId, supplier, state.ResultCount);
                 }
                 else
                 {
-                    _logger.LogProviderAvailabilitySearchFailure(searchId, supplier, state.TaskState, state.Error);
+                    _logger.LogSupplierAvailabilitySearchFailure(searchId, supplier, state.TaskState, state.Error);
                 }
 
                 return _storage.SaveState(searchId, state, supplier);

@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var searchId = Guid.NewGuid();
             
             Baggage.SetSearchId(searchId);
-            _logger.LogMultiProviderAvailabilitySearchStarted(searchId);
+            _logger.LogMultiSupplierAvailabilitySearchStarted(searchId);
 
             var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
             if (isFailure)
@@ -102,6 +103,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var roomContractSets = availability.RoomContractSets
                             .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible, isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
                             .ToList();
+
+                        if (searchSettings.AprMode == AprMode.Hide)
+                            roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
+                        
+                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()).ToList();
 
                         var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
                         

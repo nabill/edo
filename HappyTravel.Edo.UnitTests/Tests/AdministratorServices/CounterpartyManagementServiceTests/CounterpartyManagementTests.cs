@@ -72,8 +72,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         {
             var counterpartyToUpdate = new CounterpartyEditRequest(
                 name: "RenamedName",
-                preferredPaymentMethod: PaymentTypes.Offline,
-                vatNumber: "changed vatNumber"
+                address: "New address",
+                billingEmail: "new_test@test.org",
+                city: "new city",
+                countryCode: "AF",
+                fax: "+7 111 2222222",
+                phone: "+7 111 3333333",
+                postalCode: "345100",
+                website: "www.testsite.org",
+                vatNumber: "changed vatNumber",
+                preferredPaymentMethod: PaymentTypes.Offline
             );
 
             var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);
