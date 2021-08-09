@@ -3,6 +3,7 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Reports.Helpers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
@@ -12,8 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class SalesBookingsReportDataConverter : IConverter<SalesBookingsReportData, SalesBookingsReportRow>
     {
-        public SalesBookingsReportRow Convert(SalesBookingsReportData data, Func<decimal, decimal> vatAmountFunc,
-            Func<decimal, decimal> amountExcludedVatFunc)
+        public SalesBookingsReportRow Convert(SalesBookingsReportData data)
             => new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
@@ -31,8 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 RoomsConfirmationNumbers = string.Join("; ", data.Rooms.Select(r => r.SupplierRoomReferenceCode)),
                 ConvertedAmount = data.ConvertedAmount,
                 ConvertedCurrency = data.ConvertedCurrency,
-                AmountExclVat = Math.Round(amountExcludedVatFunc(data.OrderAmount), 2),
-                VatAmount = Math.Round(vatAmountFunc(data.OrderAmount), 2),
+                AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OrderAmount), 2),
+                VatAmount = Math.Round(VatHelper.VatAmount(data.OrderAmount), 2),
                 Supplier = EnumFormatters.FromDescription(data.Supplier),
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",

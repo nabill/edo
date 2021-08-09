@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Services.Reports.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class FullBookingsReportDataConverter : IConverter<FullBookingsReportData, FullBookingsReportRow>
     {
-        public FullBookingsReportRow Convert(FullBookingsReportData data, Func<decimal, decimal> vatAmountFunc, Func<decimal, decimal> amountExcludedVatFunc) 
+        public FullBookingsReportRow Convert(FullBookingsReportData data) 
             => new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
@@ -26,8 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,
                 ConvertedCurrency = data.ConvertedCurrency,
-                AmountExclVat = Math.Round(amountExcludedVatFunc(data.OriginalAmount), 2),
-                VatAmount = Math.Round(vatAmountFunc(data.OriginalAmount), 2),
+                AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
+                VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
                 Supplier = EnumFormatters.FromDescription(data.Supplier),
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
                 CancellationPenaltyPercent = data.CancellationDate is null
