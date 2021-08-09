@@ -82,8 +82,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"agencies-productivity-report-{from:g}-{end:g}.csv"
             };
         }
-
-
+        
+        
         /// <summary>
         ///     Returns full bookings report
         /// </summary>
@@ -105,6 +105,45 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        ///     Returns pending supplier reference report
+        /// </summary>
+        [HttpGet("pending-supplier-reference-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetPendingSupplierReferenceReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.PendingSupplierReferenceReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"pending-supplier-reference-report-{from:g}-{end:g}.csv"
+            };
+        }
+
+        
+        /// <summary>
+        ///     Returns confirmed bookings report
+        /// </summary>
+        [HttpGet("confirmed-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetConfirmedBookingsReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.ConfirmedBookingsReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"confirmed-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
+
+        /// <summary>
         ///     Returns sales bookings report
         /// </summary>
         [HttpGet("sales-bookings-report")]
@@ -123,7 +162,67 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
+        
+        /// <summary>
+        ///     Returns hotel wise booking report 
+        /// </summary>
+        [HttpGet("hotel-wise-booking-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetHotelWiseReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetHotelWiseBookingReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"hotel-wise-report-{from:g}-{end:g}.csv"
+            };
+        }
+
+        
+        /// <summary>
+        ///     Returns cancellation deadline report 
+        /// </summary>
+        [HttpGet("cancellation-deadline-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetCancellationDeadlineReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetCancellationDeadlineReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"cancellation-deadline-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        /// <summary>
+        ///     Returns third party suppliers report 
+        /// </summary>
+        [HttpGet("third-party-suppliers-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetThirdPartySuppliersReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetThirdPartySuppliersReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"third-party-suppliers-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
         private readonly IReportService _reportService;
     }
 }

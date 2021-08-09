@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class AgencyWiseRecordDataConverter : IConverter<AgencyWiseRecordData, AgencyWiseReportRow>
     {
-        public AgencyWiseReportRow Convert(AgencyWiseRecordData data, Func<decimal, decimal> vatAmountFunc, Func<decimal, decimal> amountExcludedVatFunc)
+        public AgencyWiseReportRow Convert(AgencyWiseRecordData data)
             => new()
             {
                 Date = DateTimeFormatters.ToDateString(data.Date),
