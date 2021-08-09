@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",
                 PayableByAgent = data.BookingStatus == BookingStatuses.Cancelled
-                    ? GetCancellationPenaltyAmount(data, false)
+                    ? GetCancellationPenaltyAmount(data)
                     : data.TotalPrice,
                 PayableByAgentCurrency = data.TotalCurrency,
                 PayableToSupplierOrHotel = GetPayableToSupplierOrHotel(data),
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             };
 
 
-        private decimal GetCancellationPenaltyAmount(SalesBookingsReportData data, bool scaleToSupplierAmount)
+        private decimal GetCancellationPenaltyAmount(SalesBookingsReportData data)
         {
             if (data.CancellationDate is null)
                 return 0m;
@@ -57,32 +57,21 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 Currency = data.TotalCurrency
             };
 
-            var amount = BookingCancellationPenaltyCalculator.Calculate(booking, data.CancellationDate.Value).Amount;
-
-            if (scaleToSupplierAmount)
-            {
-                // Bookings are always in USD, ConvertedAmount too
-                var multiplier = data.ConvertedAmount / data.TotalPrice;
-                return MoneyRounder.Ceil(amount * multiplier, Currencies.USD);
-            }
-
-            return amount;
+            return BookingCancellationPenaltyCalculator.Calculate(booking, data.CancellationDate.Value).Amount;
         }
 
 
         private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
         {
+            var penaltyAmount = GetCancellationPenaltyAmount(data);
+            var multiplier = data.ConvertedAmount / data.TotalPrice;
+            var scaledAmount = MoneyRounder.Ceil(penaltyAmount * multiplier, Currencies.USD); // Bookings are always in USD, ConvertedAmount too
+            
             return data.BookingStatus == BookingStatuses.Cancelled
-                ? IsCancellationDateBetweenServiceAndSupplierDeadline(data) 
+                ? data.CancellationDate >= data.AgentDeadline && data.CancellationDate <= data.SupplierDeadline 
                     ? 0
-                    : GetCancellationPenaltyAmount(data, true)
+                    : scaledAmount
                 : data.ConvertedAmount;
-        }
-
-
-        private bool IsCancellationDateBetweenServiceAndSupplierDeadline(SalesBookingsReportData data)
-        {
-            return data.CancellationDate >= data.ServiceDeadline && data.CancellationDate <= data.SupplierDeadline;
         }
     }
 }
