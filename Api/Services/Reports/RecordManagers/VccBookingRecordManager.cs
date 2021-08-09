@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 
             var referenceCodes = bookings.Select(b => b.ReferenceCode).ToList();
             var client = _clientFactory.CreateClient(HttpClientNames.Connectors);
-            var vccBookingsInfoResponse = await client.PostAsJsonAsync($"{_options.Endpoint}/reports", referenceCodes);
+            var vccBookingsInfoResponse = await client.PostAsJsonAsync($"{_options.Endpoint}/history", referenceCodes);
             
             if (!vccBookingsInfoResponse.IsSuccessStatusCode)
                 return new List<VccBookingData>(0);
