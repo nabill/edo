@@ -549,6 +549,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
 
+            var vccServiceOptions = vaultClient.Get(configuration["VccService:Options"]).GetAwaiter().GetResult();
+            services.Configure<VccServiceOptions>(options =>
+            {
+                options.Endpoint = vccServiceOptions["endpoint"];
+            });
+
             return services;
         }
 

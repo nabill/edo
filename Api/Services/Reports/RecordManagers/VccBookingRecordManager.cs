@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,11 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
     public class VccBookingRecordManager : IRecordManager<VccBookingData>
     {
-        public VccBookingRecordManager(EdoContext context, IHttpClientFactory clientFactory)
+        public VccBookingRecordManager(EdoContext context, IHttpClientFactory clientFactory, VccServiceOptions options)
         {
             _context = context;
             _clientFactory = clientFactory;
+            _options = options;
         }
         
         
@@ -31,8 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 
             var referenceCodes = bookings.Select(b => b.ReferenceCode).ToList();
             var client = _clientFactory.CreateClient(HttpClientNames.Connectors);
-            // TODO: add vcc service endpoint to configuration
-            var vccBookingsInfoResponse = await client.PostAsJsonAsync("", referenceCodes);
+            var vccBookingsInfoResponse = await client.PostAsJsonAsync($"{_options.Endpoint}/reports", referenceCodes);
             
             if (!vccBookingsInfoResponse.IsSuccessStatusCode)
                 return new List<VccBookingData>(0);
@@ -62,5 +63,6 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         
         private readonly EdoContext _context;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly VccServiceOptions _options;
     }
 }
