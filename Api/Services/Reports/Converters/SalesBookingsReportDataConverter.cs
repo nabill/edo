@@ -40,9 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                     ? GetCancellationPenaltyAmount(data, false)
                     : data.TotalPrice,
                 PayableByAgentCurrency = data.TotalCurrency,
-                PayableToSupplierOrHotel = data.BookingStatus == BookingStatuses.Cancelled
-                    ? GetCancellationPenaltyAmount(data, true)
-                    : data.ConvertedAmount,
+                PayableToSupplierOrHotel = GetPayableToSupplierOrHotel(data),
                 PayableToSupplierOrHotelCurrency = data.ConvertedCurrency,
             };
 
@@ -69,6 +67,22 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             }
 
             return amount;
+        }
+
+
+        private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
+        {
+            return data.BookingStatus == BookingStatuses.Cancelled
+                ? IsCancellationDateBetweenServiceAndSupplierDeadline(data) 
+                    ? 0
+                    : GetCancellationPenaltyAmount(data, true)
+                : data.ConvertedAmount;
+        }
+
+
+        private bool IsCancellationDateBetweenServiceAndSupplierDeadline(SalesBookingsReportData data)
+        {
+            return data.CancellationDate >= data.ServiceDeadline && data.CancellationDate <= data.SupplierDeadline;
         }
     }
 }

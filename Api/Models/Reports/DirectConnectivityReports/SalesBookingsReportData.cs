@@ -34,5 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public DateTime CheckOutDate { get; init; }
         public decimal TotalPrice { get; init; }
         public Currencies TotalCurrency { get; init; }
+        public DateTime? ServiceDeadline { get; init; }
+        public DateTime? SupplierDeadline { get; init; }
     }
 }

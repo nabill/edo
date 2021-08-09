@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                join supplier in _context.SupplierOrders on booking.ReferenceCode equals supplier.ReferenceCode
                 let cancellationDate = _context.BookingStatusHistory
                     .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
                     .Select(c => c.CreatedAt)
@@ -68,6 +69,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     IsDirectContract = booking.IsDirectContract,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
+                    ServiceDeadline = booking.DeadlineDate,
+                    SupplierDeadline = supplier.Deadline?.Date
                 })
                 .ToListAsync();
 
