@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             try
             {
-                _logger.LogProviderAvailabilitySearchStarted(searchId, supplier);
+                _logger.LogSupplierAvailabilitySearchStarted(searchId, supplier);
 
                 await GetAvailability(connectorRequest, languageCode)
                     .Bind(ConvertCurrencies)
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             catch (Exception ex)
             {
-                _logger.LogProviderAvailabilitySearchException(ex);
+                _logger.LogSupplierAvailabilitySearchException(ex);
                 var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
@@ -164,11 +164,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
-                    _logger.LogProviderAvailabilitySearchSuccess(searchId, supplier, state.ResultCount);
+                    _logger.LogSupplierAvailabilitySearchSuccess(searchId, supplier, state.ResultCount);
                 }
                 else
                 {
-                    _logger.LogProviderAvailabilitySearchFailure(searchId, supplier, state.TaskState, state.Error);
+                    _logger.LogSupplierAvailabilitySearchFailure(searchId, supplier, state.TaskState, state.Error);
                 }
 
                 return _storage.SaveState(searchId, state, supplier);

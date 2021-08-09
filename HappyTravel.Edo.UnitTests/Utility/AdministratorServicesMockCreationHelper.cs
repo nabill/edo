@@ -227,35 +227,55 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 1,
                 Name = "Test",
                 IsActive = true,
-                State = CounterpartyStates.PendingVerification
+                State = CounterpartyStates.PendingVerification,
+                Address = "Test address",
+                City = "Test city",
+                CountryCode = "AF",
+                Phone = "+7 111 1111111"
             },
             new Counterparty
             {
                 Id = 2,
                 Name = "Test1",
                 IsActive = false,
-                State = CounterpartyStates.PendingVerification
+                State = CounterpartyStates.PendingVerification,
+                Address = "Test address 2",
+                City = "Test city 2",
+                CountryCode = "AF",
+                Phone = "+7 222 2222222"
             },
             new Counterparty
             {
                 Id = 3,
                 Name = "Test",
                 IsActive = true,
-                State = CounterpartyStates.ReadOnly
+                State = CounterpartyStates.ReadOnly,
+                Address = "Test address 3",
+                City = "Test city 3",
+                CountryCode = "AF",
+                Phone = "+7 333 3333333"
             },
             new Counterparty
             {
                 Id = 14,
                 Name = "CounterpartyWithBillingEmail",
                 State = CounterpartyStates.FullAccess,
-                IsActive = true
+                IsActive = true,
+                Address = "Test address 4",
+                City = "Test city 4",
+                CountryCode = "AF",
+                Phone = "+7 444 4444444"
             },
             new Counterparty
             {
                 Id = 15,
                 Name = "CounterpartyWithoutBillingEmail",
                 State = CounterpartyStates.FullAccess,
-                IsActive = true
+                IsActive = true,
+                Address = "Test address 5",
+                City = "Test city 5",
+                CountryCode = "AF",
+                Phone = "+7 555 5555555"
             }
         };
 

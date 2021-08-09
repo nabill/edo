@@ -17,5 +17,14 @@ namespace HappyTravel.Edo.Data.Agents
         public bool IsActive { get; set; }
         public bool IsContractUploaded { get; set; }
         public CounterpartyContractKind? ContractKind { get; set; }
+        public string Address { get; set; }
+        public string CountryCode { get; set; }
+        public string City { get; set; }
+        public string Phone { get; set; }
+        public string Fax { get; set; }
+        public string PostalCode { get; set; }
+        public string Website { get; set; }
+        public string VatNumber { get; set; }
+        public string BillingEmail { get; set; }
     }
 }
