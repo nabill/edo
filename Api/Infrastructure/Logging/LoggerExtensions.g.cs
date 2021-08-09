@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1072, "BookingConfirmationFailure"),
                 "Booking '{ReferenceCode} confirmation failed: '{Error}");
             
-            BookingEvaluationFailure = LoggerMessage.Define<System.Nullable<int>, string>(LogLevel.Critical,
+            BookingEvaluationFailure = LoggerMessage.Define<System.Nullable<int>, string>(LogLevel.Warning,
                 new EventId(1073, "BookingEvaluationFailure"),
                 "EvaluateOnConnector returned status code: {Status}, error: {Error}");
             
@@ -175,25 +175,25 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1130, "LocationNormalized"),
                 "Location normalized");
             
-            MultiProviderAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Information,
-                new EventId(1140, "MultiProviderAvailabilitySearchStarted"),
+            MultiSupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Information,
+                new EventId(1140, "MultiSupplierAvailabilitySearchStarted"),
                 "Starting availability search with id '{SearchId}'");
             
-            ProviderAvailabilitySearchStarted = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Debug,
-                new EventId(1141, "ProviderAvailabilitySearchStarted"),
+            SupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Information,
+                new EventId(1141, "SupplierAvailabilitySearchStarted"),
                 "Availability search with id '{SearchId}' on supplier '{Supplier}' started");
             
-            ProviderAvailabilitySearchSuccess = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers, int>(LogLevel.Debug,
-                new EventId(1142, "ProviderAvailabilitySearchSuccess"),
+            SupplierAvailabilitySearchSuccess = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers, int>(LogLevel.Information,
+                new EventId(1142, "SupplierAvailabilitySearchSuccess"),
                 "Availability search with id '{SearchId}' on supplier '{Supplier}' finished successfully with '{ResultCount}' results");
             
-            ProviderAvailabilitySearchFailure = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string>(LogLevel.Error,
-                new EventId(1143, "ProviderAvailabilitySearchFailure"),
+            SupplierAvailabilitySearchFailure = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string>(LogLevel.Warning,
+                new EventId(1143, "SupplierAvailabilitySearchFailure"),
                 "Availability search with id '{SearchId}' on supplier '{Supplier}' finished with state '{TaskState}', error '{Error}'");
             
-            ProviderAvailabilitySearchException = LoggerMessage.Define(LogLevel.Critical,
-                new EventId(1145, "ProviderAvailabilitySearchException"),
-                "Provider availability search exception");
+            SupplierAvailabilitySearchException = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1145, "SupplierAvailabilitySearchException"),
+                "Supplier availability search exception");
             
             CounterpartyStateAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1150, "CounterpartyStateAuthorizationSuccess"),
@@ -440,20 +440,20 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogLocationNormalized(this ILogger logger, Exception exception = null)
             => LocationNormalized(logger, exception);
                 
-         public static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
-            => MultiProviderAvailabilitySearchStarted(logger, SearchId, exception);
+         public static void LogMultiSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
+            => MultiSupplierAvailabilitySearchStarted(logger, SearchId, exception);
                 
-         public static void LogProviderAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
-            => ProviderAvailabilitySearchStarted(logger, SearchId, Supplier, exception);
+         public static void LogSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
+            => SupplierAvailabilitySearchStarted(logger, SearchId, Supplier, exception);
                 
-         public static void LogProviderAvailabilitySearchSuccess(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, int ResultCount, Exception exception = null)
-            => ProviderAvailabilitySearchSuccess(logger, SearchId, Supplier, ResultCount, exception);
+         public static void LogSupplierAvailabilitySearchSuccess(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, int ResultCount, Exception exception = null)
+            => SupplierAvailabilitySearchSuccess(logger, SearchId, Supplier, ResultCount, exception);
                 
-         public static void LogProviderAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
-            => ProviderAvailabilitySearchFailure(logger, SearchId, Supplier, TaskState, Error, exception);
+         public static void LogSupplierAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
+            => SupplierAvailabilitySearchFailure(logger, SearchId, Supplier, TaskState, Error, exception);
                 
-         public static void LogProviderAvailabilitySearchException(this ILogger logger, Exception exception = null)
-            => ProviderAvailabilitySearchException(logger, exception);
+         public static void LogSupplierAvailabilitySearchException(this ILogger logger, Exception exception = null)
+            => SupplierAvailabilitySearchException(logger, exception);
                 
          public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
             => CounterpartyStateAuthorizationSuccess(logger, Email, exception);
@@ -628,15 +628,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> LocationNormalized;
         
-        private static readonly Action<ILogger, System.Guid, Exception> MultiProviderAvailabilitySearchStarted;
+        private static readonly Action<ILogger, System.Guid, Exception> MultiSupplierAvailabilitySearchStarted;
         
-        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, Exception> ProviderAvailabilitySearchStarted;
+        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchStarted;
         
-        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, int, Exception> ProviderAvailabilitySearchSuccess;
+        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, int, Exception> SupplierAvailabilitySearchSuccess;
         
-        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string, Exception> ProviderAvailabilitySearchFailure;
+        private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string, Exception> SupplierAvailabilitySearchFailure;
         
-        private static readonly Action<ILogger, Exception> ProviderAvailabilitySearchException;
+        private static readonly Action<ILogger, Exception> SupplierAvailabilitySearchException;
         
         private static readonly Action<ILogger, string, Exception> CounterpartyStateAuthorizationSuccess;
         
