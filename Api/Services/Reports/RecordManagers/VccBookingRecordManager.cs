@@ -31,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 
             var referenceCodes = bookings.Select(b => b.ReferenceCode).ToList();
             var client = _clientFactory.CreateClient(HttpClientNames.Connectors);
+            // TODO: add vcc service endpoint to configuration
             var vccBookingsInfoResponse = await client.PostAsJsonAsync("", referenceCodes);
             
             if (!vccBookingsInfoResponse.IsSuccessStatusCode)
