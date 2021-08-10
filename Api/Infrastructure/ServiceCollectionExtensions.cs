@@ -169,13 +169,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     Address = $"{authorityUrl}connect/token",
                     ClientId = mapperClientOptions["clientId"],
-                    ClientSecret = mapperClientOptions["clientSecret"],
-                    Scope = mapperClientOptions["scope"]
+                    ClientSecret = mapperClientOptions["clientSecret"]
                 });
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(mapperClientOptions["address"]);
+            });
+            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
             });
 
             return services;
@@ -547,12 +550,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ConfirmationPageUrl = urlGenerationOptions["confirmationPageUrl"];
                 options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
-            });
-
-            var vccServiceOptions = vaultClient.Get(configuration["VccService:Options"]).GetAwaiter().GetResult();
-            services.Configure<VccServiceOptions>(options =>
-            {
-                options.Endpoint = vccServiceOptions["endpoint"];
             });
 
             return services;

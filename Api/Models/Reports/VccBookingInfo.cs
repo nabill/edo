@@ -1,10 +1,12 @@
 using System;
+using System.Text.Json.Serialization;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Reports
 {
     public readonly struct VccBookingInfo
     {
+        [JsonConstructor]
         public VccBookingInfo(string transactionId, string referenceCode, decimal amount, Currencies currency, DateTime activationDate, DateTime dueDate, string clientId, string cardNumber)
         {
             TransactionId = transactionId;
