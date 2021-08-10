@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             {
                 GuestName = data.GuestName,
                 ReferenceCode = data.ReferenceCode,
-                CheckingDate = DateTimeFormatters.ToDateString(data.CheckingDate),
+                CheckInDate = DateTimeFormatters.ToDateString(data.CheckInDate),
                 CheckOutDate = DateTimeFormatters.ToDateString(data.CheckOutDate),
                 Amount = data.Amount,
                 Currency = EnumFormatters.FromDescription(data.Currency),

@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 {
                     GuestName = x.Booking.MainPassengerName,
                     ReferenceCode = x.Booking.ReferenceCode,
-                    CheckingDate = x.Booking.CheckInDate,
+                    CheckInDate = x.Booking.CheckInDate,
                     CheckOutDate = x.Booking.CheckOutDate,
                     Amount = x.Booking.TotalPrice,
                     Currency = x.Booking.Currency,

@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Api.Models.Reports
     {
         public string GuestName { get; init; }
         public string ReferenceCode { get; init; }
-        public string CheckingDate { get; init; }
+        public string CheckInDate { get; init; }
         public string CheckOutDate { get; init; }
         public decimal Amount { get; init; }
         public string Currency { get; init; }
