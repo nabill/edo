@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
         {
             if (data.SupplierDeadline is null)
-                return 0;
+                throw new NotSupportedException($"The booking {data.ReferenceCode} has empty SupplierDeadline");
             
             if (data.BookingStatus == BookingStatuses.Confirmed)
                 return data.SupplierPrice;
