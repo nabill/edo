@@ -6,8 +6,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.Money.Enums;
-using HappyTravel.Money.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
@@ -29,32 +27,36 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 DepartureDate = DateTimeFormatters.ToDateString(data.DepartureDate),
                 ConfirmationNumber = data.ConfirmationNumber,
                 RoomsConfirmationNumbers = string.Join("; ", data.Rooms.Select(r => r.SupplierRoomReferenceCode)),
-                ConvertedAmount = data.ConvertedAmount,
-                ConvertedCurrency = data.ConvertedCurrency,
-                AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OrderAmount), 2),
-                VatAmount = Math.Round(VatHelper.VatAmount(data.OrderAmount), 2),
+                ConvertedAmount = data.SupplierConvertedPrice,
+                ConvertedCurrency = data.SupplierConvertedCurrency,
+                AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.SupplierPrice), 2),
+                VatAmount = Math.Round(VatHelper.VatAmount(data.SupplierPrice), 2),
                 Supplier = EnumFormatters.FromDescription(data.Supplier),
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",
-                PayableByAgent = data.BookingStatus == BookingStatuses.Cancelled
-                    ? GetCancellationPenaltyAmount(data)
-                    : data.TotalPrice,
-                PayableByAgentCurrency = data.TotalCurrency,
+                PayableByAgent = GetPayableByAgent(data),
+                PayableByAgentCurrency = data.AgentCurrency,
                 PayableToSupplierOrHotel = GetPayableToSupplierOrHotel(data),
-                PayableToSupplierOrHotelCurrency = data.ConvertedCurrency,
+                PayableToSupplierOrHotelCurrency = data.SupplierCurrency,
             };
+
+
+        private decimal GetPayableByAgent(SalesBookingsReportData data)
+        {
+            if (data.BookingStatus == BookingStatuses.Confirmed)
+                return data.AgentPrice;
+
+            return GetCancellationPenaltyAmount(data);
+        }
 
 
         private decimal GetCancellationPenaltyAmount(SalesBookingsReportData data)
         {
-            if (data.CancellationDate is null)
-                return 0m;
-
             var booking = new Booking
             {
                 Rooms = data.Rooms,
                 CancellationPolicies = data.CancellationPolicies,
-                Currency = data.TotalCurrency
+                Currency = data.AgentCurrency
             };
 
             return BookingCancellationPenaltyCalculator.Calculate(booking, data.CancellationDate.Value).Amount;
@@ -63,15 +65,22 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 
         private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
         {
-            var penaltyAmount = GetCancellationPenaltyAmount(data);
-            var multiplier = data.ConvertedAmount / data.TotalPrice;
-            var scaledAmount = MoneyRounder.Ceil(penaltyAmount * multiplier, Currencies.USD); // Bookings are always in USD, ConvertedAmount too
+            if (data.SupplierDeadline is null)
+                return 0;
             
-            return data.BookingStatus == BookingStatuses.Cancelled
-                ? data.CancellationDate >= data.AgentDeadline && data.CancellationDate <= data.SupplierDeadline 
-                    ? 0
-                    : scaledAmount
-                : data.ConvertedAmount;
+            if (data.BookingStatus == BookingStatuses.Confirmed)
+                return data.SupplierPrice;
+
+            if (data.AgentDeadline <= data.CancellationDate && data.CancellationDate <= data.SupplierDeadline.Date)
+                return 0;
+
+            var appliedPolicy = data.SupplierDeadline.Policies
+                .OrderBy(policy => policy.FromDate)
+                .Last(policy => policy.FromDate <= data.CancellationDate);
+            
+            var multiplier = (decimal) appliedPolicy.Percentage / 100;
+            
+            return data.SupplierPrice * multiplier;
         }
     }
 }

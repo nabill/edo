@@ -20,10 +20,10 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public DateTime Created { get; init; }
         public DateTime ArrivalDate { get; init; }
         public DateTime DepartureDate { get; init; }
-        public decimal OrderAmount { get; init; }
-        public Currencies OrderCurrency { get; init; }
-        public decimal ConvertedAmount { get; init; }
-        public Currencies ConvertedCurrency { get; init; }
+        public decimal SupplierPrice { get; init; }
+        public Currencies SupplierCurrency { get; init; }
+        public decimal SupplierConvertedPrice { get; init; }
+        public Currencies SupplierConvertedCurrency { get; init; }
         public List<BookedRoom> Rooms { get; init; }
         public Suppliers Supplier { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public bool IsDirectContract { get; init; }
         public DateTime CheckInDate { get; init; }
         public DateTime CheckOutDate { get; init; }
-        public decimal TotalPrice { get; init; }
-        public Currencies TotalCurrency { get; init; }
+        public decimal AgentPrice { get; init; }
+        public Currencies AgentCurrency { get; init; }
         public DateTime? AgentDeadline { get; init; }
-        public DateTime? SupplierDeadline { get; init; }
+        public Deadline? SupplierDeadline { get; init; }
     }
 }
