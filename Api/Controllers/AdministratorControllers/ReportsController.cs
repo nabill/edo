@@ -223,6 +223,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        ///     Returns vcc bookings report 
+        /// </summary>
+        [HttpGet("vcc-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetVccBookingReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetVccBookingReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"vcc-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
         private readonly IReportService _reportService;
     }
 }

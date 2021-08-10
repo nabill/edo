@@ -169,13 +169,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     Address = $"{authorityUrl}connect/token",
                     ClientId = mapperClientOptions["clientId"],
-                    ClientSecret = mapperClientOptions["clientSecret"],
-                    Scope = mapperClientOptions["scope"]
+                    ClientSecret = mapperClientOptions["clientSecret"]
                 });
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(mapperClientOptions["address"]);
+            });
+            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
             });
 
             return services;
@@ -789,6 +792,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
             services.AddTransient<IConverter<PendingSupplierReferenceData, PendingSupplierReferenceRow>, PendingSupplierReferenceProjectionConverter>();
             services.AddTransient<IConverter<ConfirmedBookingsData, ConfirmedBookingsRow>, ConfirmedBookingsConverter>();
+            services.AddTransient<IConverter<VccBookingData, VccBookingRow>, VccBookingDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
             services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
@@ -798,6 +802,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRecordManager<HotelWiseData>, HotelWiseRecordManager>();
             services.AddTransient<IRecordManager<CancellationDeadlineData>, CancellationDeadlineReportManager>();
             services.AddTransient<IRecordManager<ThirdPartySupplierData>, ThirdPartySuppliersReportManager>();
+            services.AddTransient<IRecordManager<VccBookingData>, VccBookingRecordManager>();
             services.AddTransient<IFixHtIdService, FixHtIdService>();
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
