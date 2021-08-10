@@ -171,6 +171,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> ChangeActivityState(int agencyId, int discountId, bool newActivityState)
         {
             return await Get(agencyId, discountId)
+                .Check(DiscountDoesntExceedMarkups)
                 .BindWithTransaction(_context, discount => Result.Success(discount)
                     .Tap(Update)
                     .Check(WriteAuditLog));
@@ -182,6 +183,32 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<Result> WriteAuditLog(Discount _)
                 => _managementAuditService.Write(ManagementEventType.DiscountEdit, new DiscountActivityStateEventData(agencyId, newActivityState));
+
+
+            async Task<Result<Discount>> DiscountDoesntExceedMarkups(Discount discount)
+            {
+                // We need additional check for activated discounts
+                // They can exceed markups
+                if (!newActivityState)
+                    return Result.Success(discount);
+
+                var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == discount.TargetPolicyId);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
+                
+                var allDiscounts = await _context.Discounts
+                    .Where(x => x.TargetPolicyId == markupPolicy.Id)
+                    .Where(d => d.TargetAgencyId == agencyId)
+                    .Where(d => d.IsActive)
+                    .Select(d => d.DiscountPercent)
+                    .ToListAsync();
+                
+                allDiscounts.Add(discount.DiscountPercent);
+
+                var discountDoesntExceed = DiscountsValidator.DiscountsDontExceedMarkups(allDiscounts, markupFunction);
+                return discountDoesntExceed.IsSuccess
+                    ? Result.Success(discount)
+                    : Result.Failure<Discount>("One of activate discounts exceeds markups");
+            }
         }
 
 
