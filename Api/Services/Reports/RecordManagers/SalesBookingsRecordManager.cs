@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         
         public async Task<IEnumerable<SalesBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
-            var bookingsQuery = from booking in _context.Bookings
+            var bookings = await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
                 join supplierOrder in _context.SupplierOrders on booking.ReferenceCode equals supplierOrder.ReferenceCode
@@ -26,8 +27,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
                     .Select(c => c.CreatedAt)
                     .FirstOrDefault()
-                where booking.Status == BookingStatuses.Confirmed ||
-                    booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate
+                where (booking.Status == BookingStatuses.Confirmed ||
+                        booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate)
+                    && (booking.Created >= fromDate && booking.Created < endDate
+                        || booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
                 select new SalesBookingsReportData
                 {
                     Created = booking.Created,
@@ -57,21 +60,20 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     CheckOutDate = booking.CheckOutDate,
                     AgentDeadline = booking.DeadlineDate,
                     SupplierDeadline = supplierOrder.Deadline
-                };
-
-            var notAdvancedPurchaseBookings = bookingsQuery
-                .AsEnumerable()
+                })
+                .ToListAsync();
+            
+            // ! We need to filter by CheckOutDate and Created second time to get the correct results !
+            
+            var notAdvancedPurchaseBookings = bookings
                 .Where(booking => booking.Rooms.All(room => !room.IsAdvancePurchaseRate))
-                .Where(booking => booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
-                .ToList();
+                .Where(booking => booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate);
 
-            var advancedPurchaseBookings = bookingsQuery
-                .AsEnumerable()
+            var advancedPurchaseBookings = bookings
                 .Where(booking => booking.Rooms.Any(room => room.IsAdvancePurchaseRate))
-                .Where(booking => booking.Created >= fromDate && booking.Created < endDate)
-                .ToList();
+                .Where(booking => booking.Created >= fromDate && booking.Created < endDate);
 
-            return advancedPurchaseBookings.Union(notAdvancedPurchaseBookings).ToList();
+            return advancedPurchaseBookings.Union(notAdvancedPurchaseBookings);
         }
 
 
