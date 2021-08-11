@@ -27,19 +27,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<Accommodation>("Could not get accommodation data");
 
             var key = _flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, htId);
-            var cachedAccommodation = await _flow.GetAsync<Accommodation>(key, AccommodationCacheLifeTime);
-            if (string.IsNullOrWhiteSpace(cachedAccommodation.Id))
-            {
-                var (_, isFailure, mapperAccommodation, error) = await _mapperClient.GetAccommodation(htId, languageCode);
-                if (isFailure)
-                    return ProblemDetailsBuilder.Fail<Accommodation>(error.Detail);
-
-                var accommodation = mapperAccommodation.ToEdoContract();
-                await _flow.SetAsync(key, accommodation, AccommodationCacheLifeTime);
+            var accommodation = await _flow.GetAsync<Accommodation>(key, AccommodationCacheLifeTime);
+            if (!string.IsNullOrWhiteSpace(accommodation.Id))
                 return accommodation;
-            }
+            
+            var (_, isFailure, mapperAccommodation, error) = await _mapperClient.GetAccommodation(htId, languageCode);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<Accommodation>(error.Detail);
 
-            return cachedAccommodation;
+            accommodation = mapperAccommodation.ToEdoContract();
+            await _flow.SetAsync(key, accommodation, AccommodationCacheLifeTime);
+            return accommodation;
         }
 
 
