@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -12,36 +11,26 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
     public class SalesBookingsRecordManager : IRecordManager<SalesBookingsReportData>
     {
-        public SalesBookingsRecordManager(EdoContext context,
-            IDateTimeProvider dateTimeProvider)
+        public SalesBookingsRecordManager(EdoContext context)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
         }
         
         
         public async Task<IEnumerable<SalesBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
-            var data = await (from booking in _context.Bookings
+            var bookings = await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
-                join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
                 join supplierOrder in _context.SupplierOrders on booking.ReferenceCode equals supplierOrder.ReferenceCode
                 let cancellationDate = _context.BookingStatusHistory
                     .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
                     .Select(c => c.CreatedAt)
                     .FirstOrDefault()
-                where
-                    (booking.CheckOutDate >= fromDate &&
-                    booking.CheckOutDate < endDate
-                    ||
-                    booking.Created >= fromDate &&
-                    booking.Created < endDate)
-                    &&
-                    (booking.Status == BookingStatuses.Confirmed ||
-                    booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate)
-                    &&
-                    (order.ConvertedPrice > 0m || booking.TotalPrice > 0m)
+                where (booking.Status == BookingStatuses.Confirmed ||
+                        booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate)
+                    && (booking.Created >= fromDate && booking.Created < endDate
+                        || booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
                 select new SalesBookingsReportData
                 {
                     Created = booking.Created,
@@ -56,12 +45,12 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     GuestName = booking.MainPassengerName,
                     ArrivalDate = booking.CheckInDate,
                     DepartureDate = booking.CheckOutDate,
-                    OrderAmount = order.Price,
-                    OrderCurrency = order.Currency,
-                    TotalPrice = booking.TotalPrice,
-                    TotalCurrency = booking.Currency,
-                    ConvertedAmount = order.ConvertedPrice,
-                    ConvertedCurrency = order.ConvertedCurrency,
+                    SupplierPrice = supplierOrder.Price,
+                    SupplierCurrency = supplierOrder.Currency,
+                    AgentPrice = booking.TotalPrice,
+                    AgentCurrency = booking.Currency,
+                    SupplierConvertedPrice = supplierOrder.ConvertedPrice,
+                    SupplierConvertedCurrency = supplierOrder.ConvertedCurrency,
                     PaymentStatus = booking.PaymentStatus,
                     Supplier = booking.Supplier,
                     CancellationPolicies = booking.CancellationPolicies,
@@ -70,35 +59,24 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
                     AgentDeadline = booking.DeadlineDate,
-                    SupplierDeadline = supplierOrder.Deadline.Date
+                    SupplierDeadline = supplierOrder.Deadline
                 })
                 .ToListAsync();
+            
+            // ! We need to filter by CheckOutDate and Created second time to get the correct results !
+            
+            var notAdvancedPurchaseBookings = bookings
+                .Where(booking => booking.Rooms.All(room => !room.IsAdvancePurchaseRate))
+                .Where(booking => booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate);
 
-            var now = _dateTimeProvider.UtcNow();
-            return data.Where(p =>
-                {
-                    var nonRefundableDate = GetNonRefundableDate(p);
-                    return nonRefundableDate > now &&
-                        p.CheckOutDate >= fromDate &&
-                        p.CheckOutDate < endDate
-                        ||
-                        nonRefundableDate <= now &&
-                        p.Created >= fromDate &&
-                        p.Created < endDate;
-                });
+            var advancedPurchaseBookings = bookings
+                .Where(booking => booking.Rooms.Any(room => room.IsAdvancePurchaseRate))
+                .Where(booking => booking.Created >= fromDate && booking.Created < endDate);
+
+            return advancedPurchaseBookings.Union(notAdvancedPurchaseBookings);
         }
 
 
-        private DateTime GetNonRefundableDate(SalesBookingsReportData data)
-        {
-            var lastPolicy = data.CancellationPolicies
-                .OrderBy(p => p.FromDate)
-                .FirstOrDefault(p => p.Percentage >= 100d);
-            return lastPolicy?.FromDate ?? data.CheckInDate;
-        }
-        
-        
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
