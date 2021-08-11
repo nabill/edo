@@ -667,9 +667,39 @@
                 Returns full bookings report
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetPendingSupplierReferenceReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns pending supplier reference report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetConfirmedBookingsReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns confirmed bookings report
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns sales bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetHotelWiseReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns hotel wise booking report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetCancellationDeadlineReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns cancellation deadline report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetThirdPartySuppliersReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns third party suppliers report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetVccBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns vcc bookings report 
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
