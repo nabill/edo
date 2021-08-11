@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
@@ -80,6 +81,7 @@ namespace HappyTravel.Edo.Api
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
+                .AddMongoDbStorage(Configuration)
                 .AddTracing(Configuration, options =>
                 {
                     options.ServiceName = $"{HostingEnvironment.ApplicationName}-{HostingEnvironment.EnvironmentName}";

@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         return supplierAvailabilities
                             .Select(pa => (Supplier: supplierKey, Availability: pa));
                     })
-                    .OrderBy(r => r.Availability.Timestamp)
+                    .OrderBy(r => r.Availability.Created)
                     .RemoveRepeatedAccommodations()
                     .Select(r =>
                     {
