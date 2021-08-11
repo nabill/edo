@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
             var to = endDate.Date.AddDays(1);
 
             return await Validate(from, to)
-                .Ensure(NoFutureDate, "Cannot query future dates for this report")
+                .Ensure(DatesAreNotInFuture, "Cannot query future dates for this report")
                 .Map(GetRecords)
                 .Bind(Generate<SalesBookingsReportData, SalesBookingsReportRow>);
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
                 => GetRecords<SalesBookingsReportData>(from, to);
 
 
-            bool NoFutureDate()
+            bool DatesAreNotInFuture()
             {
                 var now = _dateTimeProvider.UtcNow();
                 return now.Date > endDate.Date;
