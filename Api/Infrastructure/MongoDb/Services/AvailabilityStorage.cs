@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
                 Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Supplier));
 
             var ttlIndexDefinition = Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
-            var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(45)};
+            var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};
 
             await collection.Indexes.CreateManyAsync(new []
             {
@@ -48,6 +48,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             return collection;
         }
 
+
+        private const int RecordTtlInMinutes = 45;
 
         private readonly IMongoCollection<AccommodationAvailabilityResult> _collection;
     }
