@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var htIdMapping = accommodationCodeMappings
                     .ToDictionary(m => m.SupplierCode, m => m.HtId);
                 
-                var timestamp = _dateTimeProvider.UtcNow().Ticks;
+                var now = _dateTimeProvider.UtcNow();
                 return details
                     .Results
                     .Select(accommodationAvailability =>
@@ -133,15 +133,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                         htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
                         
-                        return new AccommodationAvailabilityResult(timestamp,
-                            details.AvailabilityId,
-                            roomContractSets,
-                            minPrice,
-                            maxPrice,
-                            connectorRequest.CheckInDate,
-                            connectorRequest.CheckOutDate,
-                            htId,
-                            accommodationAvailability.AccommodationId);
+                        return new AccommodationAvailabilityResult(searchId: searchId,
+                            supplier: supplier,
+                            created: now,
+                            availabilityId: details.AvailabilityId,
+                            roomContractSets: roomContractSets,
+                            minPrice: minPrice,
+                            maxPrice: maxPrice,
+                            checkInDate: connectorRequest.CheckInDate,
+                            checkOutDate: connectorRequest.CheckOutDate,
+                            htId: htId,
+                            supplierAccommodationCode: accommodationAvailability.AccommodationId);
                     })
                     .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();
