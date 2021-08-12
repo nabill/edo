@@ -8,7 +8,7 @@ using AccommodationRatings = HappyTravel.MapperContracts.Public.Accommodations.E
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public record SearchResultQueryOptions([Range(1, int.MaxValue)] int Top, 
+    public record AvailabilitySearchFilter([Range(1, int.MaxValue)] int Top, 
         int Skip,
         decimal? MinPrice,
         decimal? MaxPrice,

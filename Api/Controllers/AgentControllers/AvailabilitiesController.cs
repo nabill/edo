@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] SearchResultQueryOptions options)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] AvailabilitySearchFilter options)
         {
             return Ok(await _wideAvailabilitySearchService.GetResult(searchId, options, await _agentContextService.GetAgent(), LanguageCode));
         }

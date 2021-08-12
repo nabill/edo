@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
         
-        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, SearchResultQueryOptions options, AgentContext agent, string languageCode)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
