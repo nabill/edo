@@ -70,17 +70,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
         
-        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent, string languageCode)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
+            var suppliers = options.Suppliers is not null && options.Suppliers.Any()
+                ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
+                : searchSettings.EnabledConnectors;
+            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, suppliers);
             var htIds = supplierSearchResults
                 .SelectMany(r => r.AccommodationAvailabilities.Select(a=>a.HtId))
                 .ToList();
 
             await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
-            
+
             return CombineAvailabilities(supplierSearchResults);
 
             IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
@@ -88,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (availabilities == null || !availabilities.Any())
                     return Enumerable.Empty<WideAvailabilityResult>();
 
-                return availabilities
+                var queryable = availabilities
                     .SelectMany(supplierResults =>
                     {
                         var (supplierKey, supplierAvailabilities) = supplierResults;
@@ -101,17 +104,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     {
                         var (supplier, availability) = r;
                         var roomContractSets = availability.RoomContractSets
-                            .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible, isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
+                            .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible,
+                                isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
                             .ToList();
 
                         if (searchSettings.AprMode == AprMode.Hide)
                             roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
-                        
+
                         if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()).ToList();
+                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow())
+                                .ToList();
 
                         var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
-                        
+
                         return new WideAvailabilityResult(accommodation,
                             roomContractSets,
                             availability.MinPrice,
@@ -120,10 +125,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.CheckOutDate,
                             searchSettings.IsSupplierVisible
                                 ? supplier
-                                : (Suppliers?) null,
+                                : (Suppliers?)null,
                             availability.HtId);
                     })
-                    .Where(a => a.RoomContractSets.Any());
+                    .AsQueryable();
+
+                if (options.MinPrice.HasValue)
+                    queryable = queryable.Where(a => a.MinPrice >= options.MinPrice);
+
+                if (options.MaxPrice.HasValue)
+                    queryable = queryable.Where(a => a.MaxPrice <= options.MaxPrice);
+
+                if (options.BoardBasisTypes is not null && options.BoardBasisTypes.Any())
+                    queryable = queryable.Where(a => a.RoomContractSets.Any(rcs => rcs.Rooms.Any(r => options.BoardBasisTypes.Contains(r.BoardBasis))));
+
+                if (options.Ratings is not null && options.Ratings.Any())
+                    queryable = queryable.Where(a => options.Ratings.Contains(a.Accommodation.Rating));
+
+                return queryable
+                    .Where(a => a.RoomContractSets.Any())
+                    .Skip(options.Skip)
+                    .Take(options.Top)
+                    .ToList();
             }
         }
 

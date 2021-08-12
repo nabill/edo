@@ -80,17 +80,16 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// Gets result of previous started availability search.
         /// </summary>
         /// <param name="searchId">Search id</param>
+        /// <param name="options">Pagination and filters</param>
         /// <returns>Availability results</returns>
         [HttpGet("searches/{searchId}")]
         [ProducesResponseType(typeof(IEnumerable<WideAvailabilityResult>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        [EnableQuery(MaxAnyAllExpressionDepth = 2, EnsureStableOrdering = false)]
-        public async Task<IEnumerable<WideAvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] AvailabilitySearchFilter options)
         {
-            // TODO: Add validation and fool check for skip and top parameters
-            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent(), LanguageCode);
+            return Ok(await _wideAvailabilitySearchService.GetResult(searchId, options, await _agentContextService.GetAgent(), LanguageCode));
         }
 
 
