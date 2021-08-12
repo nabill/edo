@@ -14,6 +14,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent);
 
-        Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent, string languageCode);
+        Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, SearchResultQueryOptions options, AgentContext agent, string languageCode);
     }
 }
