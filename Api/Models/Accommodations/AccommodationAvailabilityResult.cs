@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             SupplierAccommodationCode = supplierAccommodationCode;
         }
         
+        [JsonIgnore]
         public ObjectId Id { get; init; }
         public Guid SearchId { get; init; }
         public Suppliers Supplier { get; init; }
