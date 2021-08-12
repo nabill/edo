@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
                 // TODO: uncomment to enable MongoDB
-                .AddMongoDbStorage(Configuration, vaultClient) 
+                //.AddMongoDbStorage(Configuration, vaultClient) 
                 .AddTracing(Configuration, options =>
                 {
                     options.ServiceName = $"{HostingEnvironment.ApplicationName}-{HostingEnvironment.EnvironmentName}";
