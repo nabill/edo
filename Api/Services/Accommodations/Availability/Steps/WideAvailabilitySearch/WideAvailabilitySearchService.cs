@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -130,23 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     })
                     .AsQueryable();
 
-                if (options.MinPrice.HasValue)
-                    queryable = queryable.Where(a => a.MinPrice >= options.MinPrice);
-
-                if (options.MaxPrice.HasValue)
-                    queryable = queryable.Where(a => a.MaxPrice <= options.MaxPrice);
-
-                if (options.BoardBasisTypes is not null && options.BoardBasisTypes.Any())
-                    queryable = queryable.Where(a => a.RoomContractSets.Any(rcs => rcs.Rooms.Any(r => options.BoardBasisTypes.Contains(r.BoardBasis))));
-
-                if (options.Ratings is not null && options.Ratings.Any())
-                    queryable = queryable.Where(a => options.Ratings.Contains(a.Accommodation.Rating));
-
-                return queryable
-                    .Where(a => a.RoomContractSets.Any())
-                    .Skip(options.Skip)
-                    .Take(options.Top)
-                    .ToList();
+                return options.ApplyTo(queryable);
             }
         }
 
