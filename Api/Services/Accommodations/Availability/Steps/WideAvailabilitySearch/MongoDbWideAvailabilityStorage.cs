@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Interfaces;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -18,8 +19,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             => throw new NotImplementedException();
 
 
-        public Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results) 
-            => throw new NotImplementedException();
+        public Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results)
+            => results.Any()
+                ? _availabilityStorage.Add(results)
+                : Task.CompletedTask;
 
 
         private readonly IMongoDbStorage<AccommodationAvailabilityResult> _availabilityStorage;
