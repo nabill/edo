@@ -14,5 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         decimal? MaxPrice,
         List<BoardBasisTypes>? BoardBasisTypes,
         List<AccommodationRatings>? Ratings,
-        List<Suppliers>? Suppliers);
+        List<Suppliers>? Suppliers,
+        string? Order,
+        string? Direction = "asc");
 }
