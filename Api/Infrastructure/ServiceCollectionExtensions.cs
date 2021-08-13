@@ -75,6 +75,7 @@ using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services;
@@ -495,7 +496,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
@@ -668,8 +669,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
-            services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
+
+            var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (isUseMongoDbStorage)
+            {
+                services.AddMongoDbStorage(configuration, vaultClient);
+                services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
+            }
+            else
+                services.AddTransient<IWideAvailabilityStorage, RedisWideAvailabilityStorage>();
 
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 

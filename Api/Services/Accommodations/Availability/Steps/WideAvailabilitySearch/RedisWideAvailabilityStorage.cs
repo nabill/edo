@@ -7,9 +7,9 @@ using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
-    public class WideAvailabilityStorage : IWideAvailabilityStorage
+    public class RedisWideAvailabilityStorage : IWideAvailabilityStorage
     {
-        public WideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage)
+        public RedisWideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage)
         {
             _multiProviderAvailabilityStorage = multiProviderAvailabilityStorage;
         }
@@ -20,22 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return  (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
                 .Where(t => t.Result != default)
                 .ToList();
-        }
-
-
-        public async Task<List<(Suppliers SupplierKey, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId,
-            List<Suppliers> suppliers)
-        {
-            return (await _multiProviderAvailabilityStorage
-                .Get<SupplierAvailabilitySearchState>(searchId.ToString(), suppliers, false))
-                .Where(t => !t.Result.Equals(default))
-                .ToList();
-        }
-
-
-        public Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, Suppliers supplier)
-        {
-            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), state, supplier);
         }
 
 
