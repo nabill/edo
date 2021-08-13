@@ -198,6 +198,21 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
         
         
+        public Task<Result<Stream>> GetCancelledBookingsReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1);
+
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate);
+
+
+            Task<IEnumerable<CancelledBookingsData>> GetRecords() 
+                => GetRecords<CancelledBookingsData>(from, end);
+        }
+       
+        
         private Result Validate(DateTime fromDate, DateTime toDate)
         {
             if (fromDate == default || toDate == default)
