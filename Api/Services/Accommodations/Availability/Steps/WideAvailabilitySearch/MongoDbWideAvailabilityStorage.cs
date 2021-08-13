@@ -43,6 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode)
         {
             var htIds = await _availabilityStorage.Collection()
+                .Where(r => r.SearchId == searchId && suppliers.Contains(r.Supplier))
                 .Select(r => r.HtId)
                 .Distinct()
                 .ToListAsync();
