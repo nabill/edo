@@ -11,14 +11,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMongoDbStorage(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddMongoDbStorage(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
 
+            var mongodbOptions = vaultClient.Get(configuration["MongoDB:Options"]).GetAwaiter().GetResult();
             services.Configure<MongoDbOptions>(o =>
             {
-                o.ConnectionString = configuration.GetValue<string>(configuration.GetValue<string>("MongoDB:ConnectionString"));
-                o.DatabaseName = configuration.GetValue<string>(configuration.GetValue<string>("MongoDB:Database"));
+                o.ConnectionString = mongodbOptions["connectionString"];
+                o.DatabaseName = mongodbOptions["database"];
             });
 
             services.AddSingleton<IMongoDbClient, MongoDbClient>();
