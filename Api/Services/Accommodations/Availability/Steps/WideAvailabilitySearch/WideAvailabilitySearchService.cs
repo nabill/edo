@@ -79,61 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
-            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, suppliers);
-            var htIds = supplierSearchResults
-                .SelectMany(r => r.AccommodationAvailabilities.Select(a=>a.HtId))
-                .ToList();
-
-            await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
-
-            return CombineAvailabilities(supplierSearchResults);
-
-            IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
-            {
-                if (availabilities == null || !availabilities.Any())
-                    return Enumerable.Empty<WideAvailabilityResult>();
-
-                var queryable = availabilities
-                    .SelectMany(supplierResults =>
-                    {
-                        var (supplierKey, supplierAvailabilities) = supplierResults;
-                        return supplierAvailabilities
-                            .Select(pa => (Supplier: supplierKey, Availability: pa));
-                    })
-                    .OrderBy(r => r.Availability.Created)
-                    .RemoveRepeatedAccommodations()
-                    .Select(r =>
-                    {
-                        var (supplier, availability) = r;
-                        var roomContractSets = availability.RoomContractSets
-                            .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible,
-                                isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
-                            .ToList();
-
-                        if (searchSettings.AprMode == AprMode.Hide)
-                            roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
-
-                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow())
-                                .ToList();
-
-                        var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
-
-                        return new WideAvailabilityResult(accommodation,
-                            roomContractSets,
-                            availability.MinPrice,
-                            availability.MaxPrice,
-                            availability.CheckInDate,
-                            availability.CheckOutDate,
-                            searchSettings.IsSupplierVisible
-                                ? supplier
-                                : (Suppliers?)null,
-                            availability.HtId);
-                    })
-                    .AsQueryable();
-
-                return options.ApplyTo(queryable);
-            }
+            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers, languageCode);
         }
 
 
