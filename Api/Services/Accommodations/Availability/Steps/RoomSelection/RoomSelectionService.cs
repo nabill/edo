@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
             AvailabilityAnalyticsService analyticsService,
-            IAccommodationMapperClient mapperClient)
+            IAccommodationMapperClient mapperClient,
+            IWideAvailabilitySearchStateStorage stateStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
@@ -35,13 +36,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _analyticsService = analyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _mapperClient = mapperClient;
+            _stateStorage = stateStorage;
         }
 
 
         public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, string htId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            var results = await _wideAvailabilityStorage.GetStates(searchId, settings.EnabledConnectors);
+            var results = await _stateStorage.GetStates(searchId, settings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
@@ -151,5 +153,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
+        private readonly IWideAvailabilitySearchStateStorage _stateStorage;
     }
 }

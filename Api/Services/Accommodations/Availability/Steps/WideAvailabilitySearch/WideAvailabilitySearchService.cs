@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, AvailabilityAnalyticsService analyticsService,
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
-            ILogger<WideAvailabilitySearchService> logger)
+            ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _dateTimeProvider = dateTimeProvider;
             _accommodationsStorage = accommodationsStorage;
             _logger = logger;
+            _stateStorage = stateStorage;
         }
         
    
@@ -66,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
+            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
 
@@ -142,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 if (!accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
                 {
-                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
                     continue;
                 }
                 
@@ -167,6 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
+        private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;

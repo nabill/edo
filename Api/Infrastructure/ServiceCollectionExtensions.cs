@@ -667,6 +667,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNameNormalizationServices();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
+            services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
 
