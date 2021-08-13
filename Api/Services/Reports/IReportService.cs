@@ -23,5 +23,6 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> GetCancellationDeadlineReport(DateTime fromDate, DateTime endDate);
         public Task<Result<Stream>> GetThirdPartySuppliersReport(DateTime fromDate, DateTime endDate);
         public Task<Result<Stream>> GetVccBookingReport(DateTime fromDate, DateTime endDate);
+        public Task<Result<Stream>> GetAgentWiseReport(DateTime fromDate, DateTime endDate);
     }
 }
