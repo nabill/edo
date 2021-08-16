@@ -702,6 +702,11 @@
                 Returns vcc bookings report 
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetCancelledBookingsReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns cancelled bookings report 
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
@@ -1072,11 +1077,12 @@
             <param name="searchId">Search id</param>
             <returns>Search state</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetAvailabilitySearchResult(System.Guid)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetAvailabilitySearchResult(System.Guid,HappyTravel.Edo.Api.Models.Accommodations.AvailabilitySearchFilter)">
             <summary>
             Gets result of previous started availability search.
             </summary>
             <param name="searchId">Search id</param>
+            <param name="options">Pagination and filters</param>
             <returns>Availability results</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetSearchStateForAccommodationAvailability(System.Guid,System.String)">
