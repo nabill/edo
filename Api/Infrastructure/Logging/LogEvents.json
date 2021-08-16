@@ -74,5 +74,6 @@
     {"id": 1709, "name": "GetAccommodationByHtIdFailed", "level": "Error", "template": "Error getting accommodation for HtId '{HtId}': error: {Error}", "argumentTypes": [ "string", "string" ]},
     {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]},
     {"id": 1801, "name": "ConnectorClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from connector. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
-    {"id": 1802, "name": "MapperClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]}
+    {"id": 1802, "name": "MapperClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
+    {"id": 1803, "name": "MapperClientRequestTimeout", "level": "Warning", "template":  "Request to mapper failed with timeout"}
 ]
