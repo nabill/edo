@@ -36,4 +36,7 @@ spec:
       app.kubernetes.io/component: metrics
       app.kubernetes.io/name: prometheus-adapter
       app.kubernetes.io/part-of: kube-prometheus
+      app.kubernetes.io/name: prometheus-operator
+      app.kubernetes.io/name: edo
+
 {{- end }}
