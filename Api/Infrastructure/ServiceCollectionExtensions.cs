@@ -359,68 +359,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
             });
 
-            var supplierOptions = vaultClient.Get(configuration["Suppliers:Options"]).GetAwaiter().GetResult();
-            services.Configure<SupplierOptions>(options =>
-            {
-                options.Netstorming = environment.IsLocal()
-                    ? configuration["Suppliers:Netstorming"]
-                    : supplierOptions["netstormingConnector"];
-
-                options.Illusions = environment.IsLocal()
-                    ? configuration["Suppliers:Illusions"]
-                    : supplierOptions["illusions"];
-
-                options.Etg = environment.IsLocal()
-                    ? configuration["Suppliers:Etg"]
-                    : supplierOptions["etg"];
-
-                options.DirectContracts = environment.IsLocal()
-                    ? configuration["Suppliers:DirectContracts"]
-                    : supplierOptions["directContracts"];
-                
-                options.Rakuten = environment.IsLocal()
-                    ? configuration["Suppliers:Rakuten"]
-                    : supplierOptions["rakuten"];
-                
-                options.Columbus = environment.IsLocal()
-                    ? configuration["Suppliers:Columbus"]
-                    : supplierOptions["columbus"];
-                
-                options.TravelgateXTest = environment.IsLocal()
-                    ? configuration["Suppliers:TravelgateXTest"]
-                    : supplierOptions["travelgateXTest"];
-                
-                options.Darina = environment.IsLocal()
-                    ? configuration["Suppliers:Darina"]
-                    : supplierOptions["darina"];
-                
-                options.Jumeirah = environment.IsLocal()
-                    ? configuration["Suppliers:Jumeirah"]
-                    : supplierOptions["jumeirah"];
-                
-                options.Paximum = environment.IsLocal()
-                    ? configuration["Suppliers:Paximum"]
-                    : supplierOptions["paximum"];
-
-                options.Yalago = environment.IsLocal()
-                    ? configuration["Suppliers:Yalago"]
-                    : supplierOptions["yalago"];
-                
-                options.HotelBeds = environment.IsLocal()
-                    ? configuration["Suppliers:HotelBeds"]
-                    : supplierOptions["hotelBeds"];
-
-                var enabledConnectors = environment.IsLocal()
-                    ? configuration["Suppliers:EnabledConnectors"]
-                    : supplierOptions["enabledConnectors"];
-
-                options.EnabledSuppliers = enabledConnectors
-                    .Split(';')
-                    .Select(c => c.Trim())
-                    .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Select(Enum.Parse<Suppliers>)
-                    .ToList();
-            });
+            services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
 
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })

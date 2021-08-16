@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using HappyTravel.SuppliersCatalog;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -7,10 +9,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public record AccommodationAvailabilityResult
     {
         [JsonConstructor]
-        public AccommodationAvailabilityResult(long timestamp, string availabilityId, List<RoomContractSet> roomContractSets,
+        public AccommodationAvailabilityResult(Guid searchId, Suppliers supplier, DateTime created, string availabilityId, List<RoomContractSet> roomContractSets,
             decimal minPrice, decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, string htId, string supplierAccommodationCode)
         {
-            Timestamp = timestamp;
+            SearchId = searchId;
+            Supplier = supplier;
+            Created = created;
             AvailabilityId = availabilityId;
             RoomContractSets = roomContractSets;
             MinPrice = minPrice;
@@ -21,7 +25,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             SupplierAccommodationCode = supplierAccommodationCode;
         }
         
-        public long Timestamp { get; init; }
+        [JsonIgnore]
+        public ObjectId Id { get; init; }
+        public Guid SearchId { get; init; }
+        public Suppliers Supplier { get; init; }
+        public DateTime Created { get; init; }
         public string AvailabilityId { get; init; }
         public List<RoomContractSet> RoomContractSets { get; init; }
         public decimal MinPrice { get; init; }

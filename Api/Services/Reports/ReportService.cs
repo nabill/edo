@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using CsvHelper;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
@@ -16,10 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Reports
 {
     public class ReportService : IReportService, IDisposable
     {
-        public ReportService(EdoContext context, IServiceProvider serviceProvider)
+        public ReportService(EdoContext context, IServiceProvider serviceProvider, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _serviceProvider = serviceProvider;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -74,12 +76,20 @@ namespace HappyTravel.Edo.Api.Services.Reports
             var to = endDate.Date.AddDays(1);
 
             return await Validate(from, to)
+                .Ensure(DatesAreNotInFuture, "Cannot query future dates for this report")
                 .Map(GetRecords)
                 .Bind(Generate<SalesBookingsReportData, SalesBookingsReportRow>);
 
 
             Task<IEnumerable<SalesBookingsReportData>> GetRecords()
                 => GetRecords<SalesBookingsReportData>(from, to);
+
+
+            bool DatesAreNotInFuture()
+            {
+                var now = _dateTimeProvider.UtcNow();
+                return now.Date > endDate.Date;
+            }
         }
 
 
@@ -277,6 +287,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         
         private readonly EdoContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
 
         public void Dispose()
