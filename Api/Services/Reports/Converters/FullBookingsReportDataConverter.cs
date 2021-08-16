@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
@@ -15,6 +16,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ReferenceCode = data.ReferenceCode,
                 InvoiceNumber = data.InvoiceNumber,
                 AgencyName = data.AgencyName,
+                AgencyCity = data.AgencyCity,
+                AgencyCountry = GetJsonProperty(data.AgencyCountry, "en"),
+                AgencyRegion = GetJsonProperty(data.AgencyRegion, "en"),
+                AgentName = data.AgentName,
                 PaymentMethod = EnumFormatters.FromDescription(data.PaymentMethod),
                 GuestName = data.GuestName,
                 AccommodationName = data.AccommodationName,
@@ -39,5 +44,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                         .Select(p => p.Percentage)
                         .FirstOrDefault()
             };
+
+
+        private string GetJsonProperty(string json, string property)
+        {
+            return JsonDocument.Parse(json)
+                .RootElement
+                .GetProperty(property)
+                .GetString();
+        }
     }
 }

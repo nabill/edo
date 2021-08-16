@@ -14,6 +14,10 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string AccommodationName { get; init; }
         public string ConfirmationNumber { get; init; }
         public string AgencyName { get; init; }
+        public string AgentName { get; init; }
+        public string AgencyCountry { get; init; }
+        public string AgencyCity { get; init; }
+        public string AgencyRegion { get; init; }
         public PaymentTypes PaymentMethod { get; init; }
         public string GuestName { get; init; }
         public DateTime Created { get; init; }
