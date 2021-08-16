@@ -16,9 +16,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/admin/reports")]
     [Produces("application/json")]
-    public class ReportsController : BaseController
+    public class AdministratorReportsController : BaseController
     {
-        public ReportsController(IReportService reportService)
+        public AdministratorReportsController(IReportService reportService)
         {
             _reportService = reportService;
         }
