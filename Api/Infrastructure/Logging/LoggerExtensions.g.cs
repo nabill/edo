@@ -311,6 +311,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1802, "MapperClientUnexpectedResponse"),
                 "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
             
+            MapperClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
+                new EventId(1803, "MapperClientRequestTimeout"),
+                "Request to mapper failed with timeout");
+            
         }
     
                 
@@ -541,6 +545,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
             => MapperClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
+                
+         public static void LogMapperClientRequestTimeout(this ILogger logger, Exception exception = null)
+            => MapperClientRequestTimeout(logger, exception);
     
     
         
@@ -695,5 +702,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> ConnectorClientUnexpectedResponse;
         
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperClientUnexpectedResponse;
+        
+        private static readonly Action<ILogger, Exception> MapperClientRequestTimeout;
     }
 }
