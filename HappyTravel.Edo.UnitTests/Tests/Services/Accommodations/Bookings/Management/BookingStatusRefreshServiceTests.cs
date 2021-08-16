@@ -24,21 +24,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         [Fact]
         public async Task Should_update_last_refresh_date_for_working_supplier()
         {
-            var doubleFlowMock = new Mock<IDoubleFlow>();
+            var flowMock = new Mock<IDistributedFlow>();
             
             // Using function instead of a member because the mock changes initial data
             var initialStates = GetInitialStates();
             var capturedStates = new List<BookingStatusRefreshState>();
             
-            doubleFlowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), It.IsAny<TimeSpan>(), default))
+            flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
                 .ReturnsAsync(initialStates);
             
-            doubleFlowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
+            flowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
                 .Callback<string, List<BookingStatusRefreshState>, TimeSpan, CancellationToken>((_, states, _, _) => { capturedStates = states; });
 
             var supplier = CreateWorkingSupplier();
 
-            var bookingStatusRefreshService = CreateBookingStatusRefreshService(doubleFlowMock.Object, supplier);
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(flowMock.Object, supplier);
             await bookingStatusRefreshService.RefreshStatuses(BookingIds, ApiCaller.InternalServiceAccount);
 
             Assert.Equal(2, capturedStates[0].RefreshStatusCount);
@@ -49,35 +49,36 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         [Fact]
         public async Task Should_update_last_refresh_date_for_failing_supplier()
         {
-            var doubleFlowMock = new Mock<IDoubleFlow>();
+            var flowMock = new Mock<IDistributedFlow>();
             
             // Using function instead of a member because the mock changes initial data
             var initialStates = GetInitialStates();
             var capturedStates = new List<BookingStatusRefreshState>();
             
-            doubleFlowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), It.IsAny<TimeSpan>(), default))
+            flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
                 .ReturnsAsync(initialStates);
             
-            doubleFlowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
+            flowMock.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<List<BookingStatusRefreshState>>(), It.IsAny<TimeSpan>(), default))
                 .Callback<string, List<BookingStatusRefreshState>, TimeSpan, CancellationToken>((_, states, _, _) => { capturedStates = states; });
 
             var supplier = CreateFailingSupplier();
 
-            var bookingStatusRefreshService = CreateBookingStatusRefreshService(doubleFlowMock.Object, supplier);
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(flowMock.Object, supplier);
             await bookingStatusRefreshService.RefreshStatuses(BookingIds, ApiCaller.InternalServiceAccount);
 
             Assert.Equal(2, capturedStates[0].RefreshStatusCount);
             Assert.Equal(DateTimeNow, capturedStates[0].LastRefreshDate);
         }
 
-        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDoubleFlow doubleFlow, ISupplierBookingManagementService supplierService)
+        
+        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService)
         {
             var context = CreateContext();
             var dateTimeProvider = new DateTimeProviderMock(DateTimeNow);
             var bookingOptions = Mock.Of<IOptions<BookingOptions>>();
             
             return new BookingStatusRefreshService(
-                doubleFlow,
+                flow,
                 dateTimeProvider,
                 supplierService,
                 context,
