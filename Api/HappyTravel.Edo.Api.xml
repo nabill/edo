@@ -89,6 +89,11 @@
                 Returns vcc bookings report 
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetCancelledBookingsReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns cancelled bookings report 
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
             <summary>
                 Gets all possible administrator roles
@@ -700,66 +705,6 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ConfirmCreditCartPayment(System.Int32)">
             <summary>
                 Confirm credit card payment
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns supplier wise direct connectivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgencyWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns agency wise direct connectivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgenciesProductivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns agencies productivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns full bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetPendingSupplierReferenceReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns pending supplier reference report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetConfirmedBookingsReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns confirmed bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns sales bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetHotelWiseReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns hotel wise booking report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetCancellationDeadlineReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns cancellation deadline report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetThirdPartySuppliersReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns third party suppliers report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetVccBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns vcc bookings report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetCancelledBookingsReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns cancelled bookings report 
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
