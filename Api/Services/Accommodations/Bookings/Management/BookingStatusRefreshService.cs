@@ -19,12 +19,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class BookingStatusRefreshService : IBookingStatusRefreshService
     {
-        public BookingStatusRefreshService(
-            IDoubleFlow flow,
-            IDateTimeProvider dateTimeProvider,
-            ISupplierBookingManagementService supplierBookingManagement,
-            EdoContext context,
-            IOptions<BookingOptions> bookingOptions)
+        public BookingStatusRefreshService(IDistributedFlow flow,
+            IDateTimeProvider dateTimeProvider, ISupplierBookingManagementService supplierBookingManagement,
+            EdoContext context, IOptions<BookingOptions> bookingOptions)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
@@ -154,13 +151,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            Task<Result> RefreshBookingStatus() => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
+            Task<Result> RefreshBookingStatus() 
+                => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
         }
 
 
         private async Task<List<BookingStatusRefreshState>> GetStates()
         {
-            return await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration)
+            return await _flow.GetAsync<List<BookingStatusRefreshState>>(Key)
                 ?? new List<BookingStatusRefreshState>();
         }
 
@@ -232,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private static readonly TimeSpan Expiration = TimeSpan.FromDays(3);
 
-        private readonly IDoubleFlow _flow;
+        private readonly IDistributedFlow _flow;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ISupplierBookingManagementService _supplierBookingManagement;
         private readonly EdoContext _context;
