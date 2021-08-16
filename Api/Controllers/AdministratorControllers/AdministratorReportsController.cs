@@ -243,6 +243,23 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        [HttpGet("hotel-productivity-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetHotelProductivityReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetHotelProductivityReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"hotel-productivity-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
         /// <summary>
         ///     Returns cancelled bookings report 
         /// </summary>

@@ -52,7 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Management
                     AgencyId = targetAgencyId,
                     InAgencyPermissions = relation.InAgencyPermissions,
                     IsActive = relation.IsActive,
-                    Type = relation.Type
+                    Type = relation.Type,
+                    AgentRoleIds = relation.AgentRoleIds
                 };
 
                 // Remove old record because EF Core can't update part of primary key
