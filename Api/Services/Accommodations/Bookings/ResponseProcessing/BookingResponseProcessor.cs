@@ -84,7 +84,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
         private async Task ProcessBookingNotFound(Data.Bookings.Booking booking, Booking bookingResponse, BookingChangeEvents eventType)
         {
-            if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout)
+            // If booking was confirmed or
+            if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout && booking.Status != BookingStatuses.Confirmed)
             {
                 _logger.LogBookingResponseProcessSuccess(bookingResponse.ReferenceCode, $"Has not been processed due to '{BookingStatusCodes.NotFound}' status.");
             }
