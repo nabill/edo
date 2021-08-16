@@ -208,8 +208,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
                 .Bind(Generate);
 
 
-            Task<IEnumerable<CancelledBookingsData>> GetRecords() 
-                => GetRecords<CancelledBookingsData>(from, end);
+            Task<IEnumerable<CancelledBookingsReportData>> GetRecords() 
+                => GetRecords<CancelledBookingsReportData>(from, end);
         }
        
         

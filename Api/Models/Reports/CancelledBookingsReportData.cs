@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.Api.Models.Reports
 {
-    public readonly struct CancelledBookingsData
+    public readonly struct CancelledBookingsReportData
     {
         public string ReferenceCode { get; init; }
         public string Supplier { get; init; }

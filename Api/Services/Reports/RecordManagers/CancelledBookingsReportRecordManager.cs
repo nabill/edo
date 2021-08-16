@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class CancelledBookingsReportRecordManager : IRecordManager<CancelledBookingsData>
+    public class CancelledBookingsReportRecordManager : IRecordManager<CancelledBookingsReportData>
     {
         public CancelledBookingsReportRecordManager(EdoContext context)
         {
@@ -17,13 +17,13 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
         
         
-        public async Task<IEnumerable<CancelledBookingsData>> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<CancelledBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
             var cancelledBookings = from booking in _context.Bookings
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 where booking.Created >= fromDate && booking.Created < endDate && booking.Status == BookingStatuses.Cancelled
-                select new CancelledBookingsData
+                select new CancelledBookingsReportData
                 {
                     Created = booking.Created,
                     AccommodationName = booking.AccommodationName,
