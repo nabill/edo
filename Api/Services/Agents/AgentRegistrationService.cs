@@ -140,7 +140,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 AgentId = agent.Id,
                 Type = relationType,
-                InAgencyPermissions = permissions,
                 AgencyId = agencyId,
                 IsActive = true,
                 AgentRoleIds = agentRoleIds
