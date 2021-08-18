@@ -417,45 +417,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ReturnUrl = payfortUrlsOptions["return"];
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
-
-            var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();
-            var aedAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:AED"]).GetAwaiter().GetResult();
-            var eurAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:EUR"]).GetAwaiter().GetResult();
-            var usdAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:USD"]).GetAwaiter().GetResult();
-
-            services.Configure<BankDetails>(options =>
-            {
-                options.BankAddress = commonBankDetails["bankAddress"];
-                options.BankName = commonBankDetails["bankName"];
-                options.CompanyName = commonBankDetails["companyName"];
-                options.RoutingCode = commonBankDetails["routingCode"];
-                options.SwiftCode = commonBankDetails["swiftCode"];
-
-                options.AccountDetails = new Dictionary<Currencies, BankDetails.CurrencySpecificData>
-                {
-                    {
-                        Currencies.AED, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = aedAccountDetails["iban"],
-                            AccountNumber = aedAccountDetails["accountNumber"]
-                        }
-                    },
-                    {
-                        Currencies.EUR, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = eurAccountDetails["iban"],
-                            AccountNumber = eurAccountDetails["accountNumber"]
-                        }
-                    },
-                    {
-                        Currencies.USD, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = usdAccountDetails["iban"],
-                            AccountNumber = usdAccountDetails["accountNumber"]
-                        }
-                    },
-                };
-            });
+            
+            services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
 
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
             var contractsS3FolderName = configuration["AmazonS3:ContractsS3FolderName"];
