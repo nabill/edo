@@ -75,6 +75,10 @@ affinity:
           values:
           - edo
       topologyKey: "kubernetes.io/hostname"
+metrics:
+  enabled: false
+  serviceMonitor:
+    enabled: false
 
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
