@@ -263,6 +263,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1601, "MapperClientException"),
                 "Mapper client exception");
             
+            MapperClientErrorResponse = LoggerMessage.Define<string, int, string[]>(LogLevel.Error,
+                new EventId(1602, "MapperClientErrorResponse"),
+                "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}");
+            
             CounterpartyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
                 new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
                 "Counterparty {CounterpartyId} account added notification failed with error {Error}");
@@ -510,6 +514,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMapperClientException(this ILogger logger, Exception exception = null)
             => MapperClientException(logger, exception);
                 
+         public static void LogMapperClientErrorResponse(this ILogger logger, string Message, int StatusCode, string[] HtIds, Exception exception = null)
+            => MapperClientErrorResponse(logger, Message, StatusCode, HtIds, exception);
+                
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
@@ -678,6 +685,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> ElasticAnalyticsEventSendError;
         
         private static readonly Action<ILogger, Exception> MapperClientException;
+        
+        private static readonly Action<ILogger, string, int, string[], Exception> MapperClientErrorResponse;
         
         private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountAddedNotificationFailure;
         

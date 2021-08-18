@@ -63,6 +63,7 @@
     {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "template": "Failed to process payment changes, could not find the corresponding booking. Payment status: {Status}. Payment: '{ReferenceCode}'", "argumentTypes": ["HappyTravel.Edo.Common.Enums.PaymentStatuses", "string"]},
     {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "template": "Sending event to elasticsearch failed"},
     {"id": 1601, "name": "MapperClientException", "level": "Error", "template": "Mapper client exception"},
+    {"id": 1602, "name": "MapperClientErrorResponse", "level": "Error", "template": "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}", "argumentTypes": ["string","int", "string[]"]},
     {"id": 1701, "name": "CounterpartyAccountAddedNotificationFailure", "level": "Error", "template": "Counterparty {CounterpartyId} account added notification failed with error {Error}", "argumentTypes": ["int","string"]},
     {"id": 1702, "name": "AgentRegistrationNotificationFailure", "level": "Error", "template": "Agent registration notification failure with error {Error}", "argumentTypes": ["string"]},
     {"id": 1703, "name": "ChildAgencyRegistrationNotificationFailure", "level": "Error", "template": "Child agency registration notification failed"},
