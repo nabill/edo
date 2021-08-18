@@ -191,9 +191,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1143, "SupplierAvailabilitySearchFailure"),
                 "Availability search with id '{SearchId}' on supplier '{Supplier}' finished with state '{TaskState}', error '{Error}'");
             
-            SupplierAvailabilitySearchException = LoggerMessage.Define(LogLevel.Error,
+            SupplierAvailabilitySearchException = LoggerMessage.Define<HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Error,
                 new EventId(1145, "SupplierAvailabilitySearchException"),
-                "Supplier availability search exception");
+                "Supplier availability search exception on supplier '{Supplier}'");
             
             CounterpartyStateAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1150, "CounterpartyStateAuthorizationSuccess"),
@@ -456,8 +456,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogSupplierAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
             => SupplierAvailabilitySearchFailure(logger, SearchId, Supplier, TaskState, Error, exception);
                 
-         public static void LogSupplierAvailabilitySearchException(this ILogger logger, Exception exception = null)
-            => SupplierAvailabilitySearchException(logger, exception);
+         public static void LogSupplierAvailabilitySearchException(this ILogger logger, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
+            => SupplierAvailabilitySearchException(logger, Supplier, exception);
                 
          public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
             => CounterpartyStateAuthorizationSuccess(logger, Email, exception);
@@ -643,7 +643,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string, Exception> SupplierAvailabilitySearchFailure;
         
-        private static readonly Action<ILogger, Exception> SupplierAvailabilitySearchException;
+        private static readonly Action<ILogger, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchException;
         
         private static readonly Action<ILogger, string, Exception> CounterpartyStateAuthorizationSuccess;
         
