@@ -74,7 +74,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 bookingRequest.SearchId,
                 bookingRequest.HtId,
                 bookingRequest.RoomContractSetId,
-                booking.TotalPrice);
+                booking.TotalPrice,
+                booking.Supplier.ToString());
             
             _analytics.LogEvent(@event, "booking-request-sent", agent, new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
         }

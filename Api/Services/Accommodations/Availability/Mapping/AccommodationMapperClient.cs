@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     }
                     else
                     {
-                        _logger.LogError("Request to mapper failed: {Message}:{StatusCode}", await response.Content.ReadAsStringAsync(), response.StatusCode);
+                        _logger.LogMapperClientErrorResponse(await response.Content.ReadAsStringAsync(), (int)response.StatusCode, htIds.ToArray());
                     }
                         
                 }
