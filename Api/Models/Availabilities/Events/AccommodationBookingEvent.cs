@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
             NumberOfNights = numberOfNights;
             RoomCount = roomCount;
             SearchId = searchId;
+            HtId = htId;
             RoomContractSetId = roomContractSetId;
             PriceInUsd = priceInUsd;
             Supplier = supplier;
@@ -31,6 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
         public int NumberOfNights { get; }
         public int RoomCount { get; }
         public Guid SearchId { get; }
+        public string HtId { get; }
         public Guid RoomContractSetId { get; }
         public decimal PriceInUsd { get; }
         public string Supplier { get; }
