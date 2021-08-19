@@ -595,7 +595,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
             services.AddTransient<IPaymentLinksStorage, PaymentLinksStorage>();
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
-            services.AddTransient<IAgentPermissionManagementService, AgentPermissionManagementService>();
             services.AddTransient<IAgentRolesAssignmentService, AgentRolesAssignmentService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
             

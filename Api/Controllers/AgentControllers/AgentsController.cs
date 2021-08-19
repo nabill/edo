@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -34,7 +33,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IInvitationRecordService invitationRecordService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgentSettingsManager agentSettingsManager,
-            IAgentPermissionManagementService permissionManagementService,
             IAgentService agentService,
             IAgentStatusManagementService agentStatusManagementService,
             IAgentInvitationRecordListService agentInvitationRecordListService,
@@ -49,7 +47,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _invitationRecordService = invitationRecordService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agentSettingsManager = agentSettingsManager;
-            _permissionManagementService = permissionManagementService;
             _agentService = agentService;
             _agentStatusManagementService = agentStatusManagementService;
             _agentInvitationRecordListService = agentInvitationRecordListService;
@@ -341,29 +338,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Updates permissions agent permissions
-        /// </summary>
-        [HttpPut("agency/agents/{agentId}/permissions")]
-        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int agentId,
-            [FromBody] List<InAgencyPermissions> newPermissions)
-        {
-            var (_, isFailure, permissions, error) = await _permissionManagementService
-                .SetInAgencyPermissions(agentId, newPermissions, await _agentContextService.GetAgent());
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            await _agentContextInternal.RefreshAgentContext();
-
-            return Ok(permissions);
-        }
-
-
-        /// <summary>
         ///     Updates agent roles
         /// </summary>
         [HttpPut("agency/agents/{agentId}/roles")]
@@ -486,7 +460,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAgentRegistrationService _agentRegistrationService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgentStatusManagementService _agentStatusManagementService;

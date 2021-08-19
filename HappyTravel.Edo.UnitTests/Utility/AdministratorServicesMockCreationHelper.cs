@@ -358,7 +358,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkup | InAgencyPermissions.PermissionManagement,
                 IsActive = true
             },
             new AgentAgencyRelation
@@ -366,7 +365,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
                 IsActive = true
             },
             new AgentAgencyRelation
@@ -374,7 +372,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 2,
                 AgentId = 4,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
                 IsActive = true
             },
             new AgentAgencyRelation
@@ -382,7 +379,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 3,
                 AgentId = 5,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
                 IsActive = false
             },
             new AgentAgencyRelation
@@ -390,7 +386,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 3,
                 AgentId = 6,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
                 IsActive = false
             },
             new AgentAgencyRelation
