@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -39,6 +40,24 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("currencies")]
         [ProducesResponseType(typeof(IReadOnlyCollection<Currencies>), (int) HttpStatusCode.OK)]
         public IActionResult GetCurrencies() => Ok(_paymentSettingsService.GetCurrencies());
+        
+        
+        /// <summary>
+        ///     Returns available payment systems
+        /// </summary>>
+        [HttpGet("payment-systems")]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentSystems>), StatusCodes.Status200OK)]
+        public IActionResult GetPaymentSystems() 
+            => Ok(_paymentSettingsService.GetPaymentSystems());
+
+
+        /// <summary>
+        ///     Returns enabled payment system
+        /// </summary>>
+        [HttpGet("payment-system")]
+        [ProducesResponseType(typeof(PaymentSystems), StatusCodes.Status200OK)]
+        public IActionResult GetEnabledPaymentSystem() 
+            => Ok(_paymentSettingsService.GetEnabledPaymentSystem());
 
 
         /// <summary>
