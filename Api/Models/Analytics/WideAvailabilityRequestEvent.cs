@@ -1,6 +1,6 @@
 using System;
 
-namespace HappyTravel.Edo.Api.Models.Availabilities.Events
+namespace HappyTravel.Edo.Api.Models.Analytics
 {
     public readonly struct WideAvailabilityRequestEvent
     {

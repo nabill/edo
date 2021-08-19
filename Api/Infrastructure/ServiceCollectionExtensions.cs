@@ -87,6 +87,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
@@ -696,7 +697,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IImageFileService, ImageFileService>();
 
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
-            services.AddTransient<AvailabilityAnalyticsService>();
+            services.AddTransient<AnalyticsService>();
             services.AddTransient<IAgentMovementService, AgentMovementService>();
 
             services.AddTransient<IAgentBookingManagementService, AgentBookingManagementService>();

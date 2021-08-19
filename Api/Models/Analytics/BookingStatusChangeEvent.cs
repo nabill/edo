@@ -1,11 +1,11 @@
 using System;
 
-namespace HappyTravel.Edo.Api.Models.Availabilities.Events
+namespace HappyTravel.Edo.Api.Models.Analytics
 {
-    public readonly struct AccommodationBookingEvent
+    public readonly struct BookingStatusChangeEvent
     {
-        public AccommodationBookingEvent(string accommodationId, string accommodationName, string country, string locality, int adultCount,
-            int childrenCount, int numberOfNights, int roomCount, Guid searchId, string htId, Guid roomContractSetId, decimal priceInUsd, string supplier)
+        public BookingStatusChangeEvent(string accommodationId, string accommodationName, string country, string locality, int adultCount,
+            int childrenCount, int numberOfNights, int roomCount, string htId, string status, decimal priceInUsd, string supplier)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -15,9 +15,8 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
             ChildrenCount = childrenCount;
             NumberOfNights = numberOfNights;
             RoomCount = roomCount;
-            SearchId = searchId;
             HtId = htId;
-            RoomContractSetId = roomContractSetId;
+            Status = status;
             PriceInUsd = priceInUsd;
             Supplier = supplier;
         }
@@ -31,9 +30,8 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
         public int ChildrenCount { get; }
         public int NumberOfNights { get; }
         public int RoomCount { get; }
-        public Guid SearchId { get; }
         public string HtId { get; }
-        public Guid RoomContractSetId { get; }
+        public string Status { get; }
         public decimal PriceInUsd { get; }
         public string Supplier { get; }
     }

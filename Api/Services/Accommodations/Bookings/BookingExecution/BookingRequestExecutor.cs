@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
@@ -25,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRequestExecutor(ISupplierConnectorManager supplierConnectorManager,
             IBookingResponseProcessor responseProcessor,
-            AvailabilityAnalyticsService analyticsService,
+            AnalyticsService analyticsService,
             IBookingRecordsUpdater bookingRecordsUpdater,
             IDateTimeProvider dateTimeProvider,
             ILogger<BookingRequestExecutor> logger)
@@ -137,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly AnalyticsService _analyticsService;
         private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingRequestExecutor> _logger;

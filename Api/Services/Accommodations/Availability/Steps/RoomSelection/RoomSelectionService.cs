@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.SuppliersCatalog;
@@ -26,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService,
+            AnalyticsService analyticsService,
             IAccommodationMapperClient mapperClient)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -148,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly AnalyticsService _analyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
     }

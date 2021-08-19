@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, AvailabilityAnalyticsService analyticsService,
+            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, AnalyticsService analyticsService,
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
             ILogger<WideAvailabilitySearchService> logger)
         {
@@ -168,7 +169,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly AnalyticsService _analyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
