@@ -79,7 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
-                    PermissionSets.Master,
                     rootAgency.Id,
                     roleIds);
             }
@@ -134,13 +133,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task AddAgentAgencyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId, int[] agentRoleIds)
+        private Task AddAgentAgencyRelation(Agent agent, AgentAgencyRelationTypes relationType, int agencyId, int[] agentRoleIds)
         {
             _context.AgentAgencyRelations.Add(new AgentAgencyRelation
             {
                 AgentId = agent.Id,
                 Type = relationType,
-                InAgencyPermissions = permissions,
                 AgencyId = agencyId,
                 IsActive = true,
                 AgentRoleIds = agentRoleIds

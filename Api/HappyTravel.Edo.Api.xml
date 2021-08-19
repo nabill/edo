@@ -1011,11 +1011,6 @@
                 Gets agent of a specified agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
-            <summary>
-                Updates permissions agent permissions
-            </summary>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.SetRolesInAgency(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
                 Updates agent roles
