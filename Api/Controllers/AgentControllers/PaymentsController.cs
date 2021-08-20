@@ -45,19 +45,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Returns available payment systems
         /// </summary>>
-        [HttpGet("payment-systems")]
+        [HttpGet("payment-processors")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentSystems>), StatusCodes.Status200OK)]
-        public IActionResult GetPaymentSystems() 
-            => Ok(_paymentSettingsService.GetPaymentSystems());
+        public IActionResult GetPaymentProcessors() 
+            => Ok(_paymentSettingsService.GetPaymentProcessors());
 
 
         /// <summary>
         ///     Returns enabled payment system
         /// </summary>>
-        [HttpGet("payment-system")]
+        [HttpGet("payment-processor")]
         [ProducesResponseType(typeof(PaymentSystems), StatusCodes.Status200OK)]
-        public IActionResult GetEnabledPaymentSystem() 
-            => Ok(_paymentSettingsService.GetEnabledPaymentSystem());
+        public IActionResult GetCurrentPaymentProcessor() 
+            => Ok(_paymentSettingsService.GetCurrentPaymentProcessor());
 
 
         /// <summary>

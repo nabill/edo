@@ -454,7 +454,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
             
-            services.Configure<PaymentSystemOption>(configuration.GetSection("PaymentSystem"));
+            services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
 
             #region Configure NGenius
 

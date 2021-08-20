@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentSettingsService : IPaymentSettingsService
     {
-        public PaymentSettingsService(IOptionsMonitor<PaymentSystemOption> optionsMonitor)
+        public PaymentSettingsService(IOptionsMonitor<PaymentProcessorOption> optionsMonitor)
         {
             _optionsMonitor = optionsMonitor;
         }
@@ -24,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             => new ReadOnlyCollection<PaymentTypes>(AvailablePaymentMethods);
 
 
-        public IReadOnlyCollection<PaymentSystems> GetPaymentSystems() 
+        public IReadOnlyCollection<PaymentSystems> GetPaymentProcessors() 
             => new ReadOnlyCollection<PaymentSystems>(Values<PaymentSystems>());
 
 
-        public PaymentSystems GetEnabledPaymentSystem() 
-            => _optionsMonitor.CurrentValue.EnabledPaymentSystem;
+        public PaymentSystems GetCurrentPaymentProcessor() 
+            => _optionsMonitor.CurrentValue.EnabledPaymentProcessor;
 
 
         private static T[] Values<T>() where T : Enum
@@ -39,6 +39,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private static readonly PaymentTypes[] AvailablePaymentMethods = {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard};
         
         
-        private readonly IOptionsMonitor<PaymentSystemOption> _optionsMonitor;
+        private readonly IOptionsMonitor<PaymentProcessorOption> _optionsMonitor;
     }
 }
