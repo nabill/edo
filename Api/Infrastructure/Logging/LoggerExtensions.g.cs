@@ -207,9 +207,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1200, "DefaultLanguageKeyIsMissingInFieldOfLocationsTable"),
                 "Default language key is missing in field of locations table");
             
-            ConnectorClientException = LoggerMessage.Define(LogLevel.Critical,
+            ConnectorClientException = LoggerMessage.Define<string, string>(LogLevel.Error,
                 new EventId(1300, "ConnectorClientException"),
-                "Connector client exception");
+                "Connector client exception, url {RequestUrl}, response: {Response}");
             
             SupplierConnectorRequestError = LoggerMessage.Define<string, string, System.Nullable<int>>(LogLevel.Error,
                 new EventId(1301, "SupplierConnectorRequestError"),
@@ -472,8 +472,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, Exception exception = null)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, exception);
                 
-         public static void LogConnectorClientException(this ILogger logger, Exception exception = null)
-            => ConnectorClientException(logger, exception);
+         public static void LogConnectorClientException(this ILogger logger, string RequestUrl, string Response, Exception exception = null)
+            => ConnectorClientException(logger, RequestUrl, Response, exception);
                 
          public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, System.Nullable<int> Status, Exception exception = null)
             => SupplierConnectorRequestError(logger, Url, Error, Status, exception);
@@ -658,7 +658,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTable;
         
-        private static readonly Action<ILogger, Exception> ConnectorClientException;
+        private static readonly Action<ILogger, string, string, Exception> ConnectorClientException;
         
         private static readonly Action<ILogger, string, string, System.Nullable<int>, Exception> SupplierConnectorRequestError;
         
