@@ -29,66 +29,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         public async Task<Result<NGeniusPaymentResponse>> Authorize(OrderRequest order)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/payment/card";
-            var token = await GetAccessToken();
-            var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
-            {
-                Content = new StringContent(JsonSerializer.Serialize(order, SerializerOptions), null, "application/vnd.ni-payment.v2+json")
-            };
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
-            var response = await client.SendAsync(request);
+            var response = await Post(endpoint, order);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             if (!response.IsSuccessStatusCode)
-            {
-                var messages = document.RootElement.GetProperty("errors")
-                    .EnumerateArray()
-                    .Select(e => e.GetProperty("localizedMessage").GetString())
-                    .ToList();
-                return Result.Failure<NGeniusPaymentResponse>(string.Join(';', messages));
-            }
+                return Result.Failure<NGeniusPaymentResponse>(GetErrorMessage(document));
 
-            var paymentId = document.RootElement
-                .GetProperty("_id")
-                .GetString()?
-                .Split(":")
-                .Last();
+            var paymentId = GetStringValue(document.RootElement, "_id").Split(":").Last();
+            var merchantOrderReference = GetStringValue(document.RootElement, "orderReference");
+            var paymentInformation = GetResponsePaymentInformation(document);
+            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
 
-            var state = document.RootElement
-                .GetProperty("state")
-                .GetString();
-
-            var merchantOrderReference = document.RootElement
-                .GetProperty("orderReference")
-                .GetString();
-
-            var paymentMethod = document.RootElement.GetProperty("paymentMethod");
-            var expiry = paymentMethod.GetProperty("expiry").GetString();
-            var cardholderName = paymentMethod.GetProperty("cardholderName").GetString();
-            var pan = paymentMethod.GetProperty("pan").GetString();
-            var cvv = paymentMethod.GetProperty("cvv").GetString();
-            var name = paymentMethod.GetProperty("name").GetString();
-            var paymentInformation = new ResponsePaymentInformation(pan, expiry, cvv, cardholderName, name);
-
-            var status = state switch
-            {
-                StateTypes.Authorized => CreditCardPaymentStatuses.Success,
-                StateTypes.Await3Ds => CreditCardPaymentStatuses.Secure3d,
-                StateTypes.Failed => CreditCardPaymentStatuses.Failed,
-                _ => throw new NotSupportedException($"Payment status `{state}` not supported")
-            };
-
-            Secure3dOptions? secure3dOptions = null;
-            if (status == CreditCardPaymentStatuses.Secure3d)
-            {
-                var element = document.RootElement.GetProperty("3ds");
-                var acs = element.GetProperty("acsUrl").GetString();
-                var acsPaReq = element.GetProperty("acsPaReq").GetString();
-                var acsMd = element.GetProperty("acsMd").GetString();
-                secure3dOptions = new Secure3dOptions(acs, acsPaReq, acsMd);
-            }
+            Secure3dOptions? secure3dOptions = status == CreditCardPaymentStatuses.Secure3d
+                ? GetSecure3dOptions(document)
+                : null;
 
             return new NGeniusPaymentResponse(paymentId: paymentId,
                 status: status, 
@@ -118,6 +74,66 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return token;
         }
+
+
+        private async Task<HttpResponseMessage> Post<T>(string endpoint, T data)
+        {
+            var token = await GetAccessToken();
+            var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(data, SerializerOptions), null, "application/vnd.ni-payment.v2+json")
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
+            return await client.SendAsync(request);
+        }
+
+
+        private static string GetErrorMessage(JsonDocument document)
+        {
+            var messages = document.RootElement.GetProperty("errors")
+                .EnumerateArray()
+                .Select(e => e.GetProperty("localizedMessage").GetString())
+                .ToList();
+            
+            return string.Join(';', messages);
+        }
+
+
+        private static ResponsePaymentInformation GetResponsePaymentInformation(JsonDocument document)
+        {
+            var element = document.RootElement.GetProperty("paymentMethod");
+            return new ResponsePaymentInformation(pan: GetStringValue(element, "pan"),
+                expiry: GetStringValue(element, "expiry"),
+                cvv: GetStringValue(element, "cvv"),
+                cardholderName: GetStringValue(element, "cardholderName"),
+                name: GetStringValue(element, "name"));
+        }
+
+
+        private static Secure3dOptions GetSecure3dOptions(JsonDocument document)
+        {
+            var element = document.RootElement.GetProperty("3ds");
+            return new Secure3dOptions(acsUrl: GetStringValue(element, "acsUrl"), 
+                acsPaReq: GetStringValue(element, "acsPaReq"),
+                acsMd: GetStringValue(element, "acsMd"));
+        }
+
+
+        private static CreditCardPaymentStatuses MapToStatus(string state)
+        {
+            return state switch
+            {
+                StateTypes.Authorized => CreditCardPaymentStatuses.Success,
+                StateTypes.Await3Ds => CreditCardPaymentStatuses.Secure3d,
+                StateTypes.Failed => CreditCardPaymentStatuses.Failed,
+                _ => throw new NotSupportedException($"Payment status `{state}` not supported")
+            };
+        }
+
+
+        private static string GetStringValue(JsonElement element, string key) 
+            => element.GetProperty(key).GetString();
 
 
         private static readonly JsonSerializerOptions SerializerOptions = new()
