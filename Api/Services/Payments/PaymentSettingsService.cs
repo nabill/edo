@@ -24,11 +24,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             => new ReadOnlyCollection<PaymentTypes>(AvailablePaymentMethods);
 
 
-        public IReadOnlyCollection<PaymentSystems> GetPaymentProcessors() 
-            => new ReadOnlyCollection<PaymentSystems>(Values<PaymentSystems>());
+        public IReadOnlyCollection<PaymentProcessors> GetPaymentProcessors() 
+            => new ReadOnlyCollection<PaymentProcessors>(Values<PaymentProcessors>());
 
 
-        public PaymentSystems GetCurrentPaymentProcessor() 
+        public PaymentProcessors GetCurrentPaymentProcessor() 
             => _optionsMonitor.CurrentValue.EnabledPaymentProcessor;
 
 

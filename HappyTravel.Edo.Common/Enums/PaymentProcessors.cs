@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Common.Enums
 {
-    public enum PaymentSystems
+    public enum PaymentProcessors
     {
         NotSpecified = 0,
         Payfort = 1,

@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Returns available payment systems
         /// </summary>>
         [HttpGet("payment-processors")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentSystems>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentProcessors>), StatusCodes.Status200OK)]
         public IActionResult GetPaymentProcessors() 
             => Ok(_paymentSettingsService.GetPaymentProcessors());
 
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Returns enabled payment system
         /// </summary>>
         [HttpGet("payment-processor")]
-        [ProducesResponseType(typeof(PaymentSystems), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaymentProcessors), StatusCodes.Status200OK)]
         public IActionResult GetCurrentPaymentProcessor() 
             => Ok(_paymentSettingsService.GetCurrentPaymentProcessor());
 

@@ -10,8 +10,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         IReadOnlyCollection<PaymentTypes> GetAvailableAgentPaymentTypes();
         
-        IReadOnlyCollection<PaymentSystems> GetPaymentProcessors();
+        IReadOnlyCollection<PaymentProcessors> GetPaymentProcessors();
 
-        PaymentSystems GetCurrentPaymentProcessor();
+        PaymentProcessors GetCurrentPaymentProcessor();
     }
 }
