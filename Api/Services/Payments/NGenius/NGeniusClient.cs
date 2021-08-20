@@ -26,28 +26,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private async Task<string> GetAccessToken()
-        {
-            var key = _cache.BuildKey(nameof(NGeniusClient), "access-token");
-
-            if (_cache.TryGetValue<string>(key, out var token))
-                return token;
-
-            using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
-            var request = new HttpRequestMessage(HttpMethod.Post, "identity/auth/access-token");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.Token);
-            var response = await client.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
-            var data = JsonSerializer.Deserialize<NGeniusAuthResponse>(await response.Content.ReadAsStringAsync());
-            _cache.Set(key, data.AccessToken, TimeSpan.FromSeconds(data.ExpiresIn).Subtract(TimeSpan.FromMinutes(1)));
-            token = data.AccessToken;
-
-            return token;
-        }
-
-
         public async Task<Result<NGeniusPaymentResponse>> Authorize(OrderRequest order)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/payment/card";
@@ -117,6 +95,28 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 merchantOrderReference: merchantOrderReference, 
                 payment: paymentInformation,
                 secure3dOptions: secure3dOptions);
+        }
+        
+        
+        private async Task<string> GetAccessToken()
+        {
+            var key = _cache.BuildKey(nameof(NGeniusClient), "access-token");
+
+            if (_cache.TryGetValue<string>(key, out var token))
+                return token;
+
+            using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
+            var request = new HttpRequestMessage(HttpMethod.Post, "identity/auth/access-token");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.Token);
+            var response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var data = JsonSerializer.Deserialize<NGeniusAuthResponse>(await response.Content.ReadAsStringAsync());
+            _cache.Set(key, data.AccessToken, TimeSpan.FromSeconds(data.ExpiresIn).Subtract(TimeSpan.FromMinutes(1)));
+            token = data.AccessToken;
+
+            return token;
         }
 
 
