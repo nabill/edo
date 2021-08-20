@@ -449,7 +449,21 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
+            
+            services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
 
+            #region Configure NGenius
+
+            var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
+            services.Configure<NGeniusOptions>(options =>
+            {
+                options.Token = nGeniusOptions["token"];
+                options.Endpoint = nGeniusOptions["endpoint"];
+                options.OutletId = nGeniusOptions["outletId"];
+            });
+            
+            #endregion
+            
             return services;
         }
 
