@@ -37,8 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (!response.IsSuccessStatusCode)
                 return Result.Failure<NGeniusPaymentResponse>(GetErrorMessage(document));
 
-            var paymentId = GetStringValue(document.RootElement, "_id").Split(":").Last();
-            var merchantOrderReference = GetStringValue(document.RootElement, "orderReference");
+            var paymentId = GetStringValue(document.RootElement, "orderReference");
+            var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
             var paymentInformation = GetResponsePaymentInformation(document);
             var status = MapToStatus(GetStringValue(document.RootElement, "state"));
 
