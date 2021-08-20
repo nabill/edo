@@ -90,6 +90,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
@@ -301,12 +302,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #endregion
 
             #region tag processing options
-
-            var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
-            services.Configure<TagProcessingOptions>(options =>
-            {
-                options.ReferenceCodePrefix = tagProcessingOptions["referenceCodePrefix"];
-            });
+            
+            services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
             
             #endregion
 
@@ -453,7 +450,25 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
+            
+            services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
 
+            #region Configure NGenius
+
+            var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
+            services.Configure<NGeniusOptions>(options =>
+            {
+                options.Token = nGeniusOptions["token"];
+                options.Endpoint = nGeniusOptions["endpoint"];
+                options.OutletId = nGeniusOptions["outletId"];
+            });
+
+            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            #endregion
+            
             return services;
         }
 
@@ -712,6 +727,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
+            services.AddTransient<NGeniusClient>();
+            services.AddTransient<NGeniusPaymentService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
