@@ -727,6 +727,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
+            services.AddTransient<NGeniusClient>();
             services.AddTransient<NGeniusPaymentService>();
 
             //TODO: move to Consul when it will be ready
