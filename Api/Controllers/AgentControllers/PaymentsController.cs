@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Http;
@@ -24,12 +26,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
-            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
+            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, NGeniusPaymentService nGeniusPaymentService)
         {
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
+            _nGeniusPaymentService = nGeniusPaymentService;
         }
 
 
@@ -106,6 +109,36 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 _bookingPaymentCallbackService,
                 await _agentContextService.GetAgent()));
         }
+        
+        
+        /// <summary>
+        ///     Pays by NGenius with new card
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost("accommodations/bookings/cards/ngenius/new/pay")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> PayByNGeniusWithNewCreditCard([FromBody] NewCreditCardRequest request)
+        {
+            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, LanguageCode, ClientIp, _bookingPaymentCallbackService, await _agentContextService.GetAgent()));
+        }
+
+
+        /// <summary>
+        ///     Pays by NGenius with saved card
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost("accommodations/bookings/cards/ngenius/saved/pay")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> PayByNGeniusWithSavedCreditCard([FromBody] SavedCreditCardRequest request)
+        {
+            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, LanguageCode, ClientIp, _bookingPaymentCallbackService, await _agentContextService.GetAgent()));
+        }
 
 
         /// <summary>
@@ -124,5 +157,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentSettingsService _paymentSettingsService;
+        private readonly NGeniusPaymentService _nGeniusPaymentService;
     }
 }
