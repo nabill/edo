@@ -49,7 +49,7 @@
     {"id": 1150, "name": "CounterpartyStateAuthorizationSuccess", "level": "Debug", "template": "Successfully checked counterparty state for agent {Email}", "argumentTypes": ["string"]},
     {"id": 1151, "name": "CounterpartyStateAuthorizationFailure", "level": "Warning", "template": "Counterparty of agent '{Email}' has wrong state {State}", "argumentTypes": ["string", "HappyTravel.Edo.Common.Enums.CounterpartyStates"]},
     {"id": 1200, "name": "DefaultLanguageKeyIsMissingInFieldOfLocationsTable", "level": "Warning", "template": "Default language key is missing in field of locations table"},
-    {"id": 1300, "name": "ConnectorClientException", "level": "Critical", "template": "Connector client exception"},
+    {"id": 1300, "name": "ConnectorClientException", "level": "Error", "template": "Connector client exception, url {RequestUrl}, response: {Response}", "argumentTypes": ["string", "string"]},
     {"id": 1301, "name": "SupplierConnectorRequestError", "level": "Error", "template": "Error executing connector request to {Url}: '{Error}', status code: '{Status}'", "argumentTypes": ["string", "string", "System.Nullable<int>"]},
     {"id": 1302, "name": "SupplierConnectorRequestDuration", "level": "Information", "template": "Request to {Url} finished at {ElapsedMilliseconds} ms.", "argumentTypes": ["string", "long"]},
     {"id": 1310, "name": "GetTokenForConnectorError", "level": "Error", "template": "Something went wrong while requesting the access token. Error: {Error}. Using existing token: '{Token}' with expiry date '{ExpiryDate}'", "argumentTypes": ["string", "string", "System.DateTime"]},
