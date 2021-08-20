@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -40,29 +41,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             // TODO: Firstly enable tokenization on NGenius side, then implement storing card
 
-            Result<OrderRequest> CreateRequest()
-            {
-                return new OrderRequest
-                {
-                    Order = new Order
-                    {
-                        Action = OrderTypes.Auth,
-                        Amount = new NGeniusAmount
-                        {
-                            CurrencyCode = booking.Currency.ToString(),
-                            Value = ToNGeniusAmount(booking.TotalPrice.ToMoneyAmount(booking.Currency))
-                        },
-                        MerchantOrderReference = booking.ReferenceCode,
-                        BillingAddress = new NGeniusBillingAddress
-                        {
-                            FirstName = agent.FirstName,
-                            LastName = agent.LastName
-                        },
-                        Email = agent.Email
-                    },
-                    Payment = request.Card
-                };
-            }
+            
+            Result<OrderRequest> CreateRequest() 
+                => CreateOrderRequest(request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card);
 
 
             async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(NGeniusPaymentResponse paymentResult)
@@ -95,35 +76,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 if (creditCard.IsFailure)
                     return Result.Failure<OrderRequest>(creditCard.Error);
 
-                return new OrderRequest
+                var savedCard = new SavedCard
                 {
-                    Order = new Order
-                    {
-                        Action = OrderTypes.Auth,
-                        Amount = new NGeniusAmount
-                        {
-                            CurrencyCode = booking.Currency.ToString(),
-                            Value = ToNGeniusAmount(booking.TotalPrice.ToMoneyAmount(booking.Currency))
-                        },
-                        MerchantOrderReference = booking.ReferenceCode,
-                        BillingAddress = new NGeniusBillingAddress
-                        {
-                            FirstName = agent.FirstName,
-                            LastName = agent.LastName
-                        },
-                        Email = agent.Email
-                    },
-                    SavedCard = new SavedCard
-                    {
-                        CardToken = creditCard.Value.Token,
-                        CardHolderName = creditCard.Value.HolderName,
-                        Expiry = creditCard.Value.ExpirationDate,
-                        MaskedPan = creditCard.Value.MaskedNumber,
-                        Scheme = string.Empty, // TODO: add new property to credit card
-                        Cvv = request.Cvv,
-                        RecaptureCsc = false
-                    }
+                    CardToken = creditCard.Value.Token,
+                    CardHolderName = creditCard.Value.HolderName,
+                    Expiry = creditCard.Value.ExpirationDate,
+                    MaskedPan = creditCard.Value.MaskedNumber,
+                    Scheme = string.Empty, // TODO: add new property to credit card
+                    Cvv = request.Cvv,
+                    RecaptureCsc = false
                 };
+
+                return CreateOrderRequest(booking.ReferenceCode, booking.Currency, booking.TotalPrice, agent, savedCard: savedCard);
             }
             
             
@@ -175,6 +139,32 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
             return payment;
+        }
+
+
+        private static OrderRequest CreateOrderRequest(string referenceCode, Currencies currency, decimal price, AgentContext agent, Payment? card = null, SavedCard? savedCard = null)
+        {
+            return new OrderRequest
+            {
+                Order = new Order
+                {
+                    Action = OrderTypes.Auth,
+                    Amount = new NGeniusAmount
+                    {
+                        CurrencyCode = currency.ToString(),
+                        Value = ToNGeniusAmount(price.ToMoneyAmount(currency))
+                    },
+                    MerchantOrderReference = referenceCode,
+                    BillingAddress = new NGeniusBillingAddress
+                    {
+                        FirstName = agent.FirstName,
+                        LastName = agent.LastName
+                    },
+                    Email = agent.Email
+                },
+                Payment = card,
+                SavedCard = savedCard
+            };
         }
         
         
