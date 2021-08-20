@@ -175,9 +175,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1130, "LocationNormalized"),
                 "Location normalized");
             
-            MultiSupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Information,
+            MultiSupplierAvailabilitySearchStarted = LoggerMessage.Define<string, string, string[], string, int>(LogLevel.Information,
                 new EventId(1140, "MultiSupplierAvailabilitySearchStarted"),
-                "Starting availability search with id '{SearchId}'");
+                "Starting availability search for {CheckInDate} - {CheckOutDate}. Locations: '{LocationHtIds}', nationality: '{Nationality}', rooms: {RoomCount}");
             
             SupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Information,
                 new EventId(1141, "SupplierAvailabilitySearchStarted"),
@@ -448,8 +448,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogLocationNormalized(this ILogger logger, Exception exception = null)
             => LocationNormalized(logger, exception);
                 
-         public static void LogMultiSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
-            => MultiSupplierAvailabilitySearchStarted(logger, SearchId, exception);
+         public static void LogMultiSupplierAvailabilitySearchStarted(this ILogger logger, string CheckInDate, string CheckOutDate, string[] LocationHtIds, string Nationality, int RoomCount, Exception exception = null)
+            => MultiSupplierAvailabilitySearchStarted(logger, CheckInDate, CheckOutDate, LocationHtIds, Nationality, RoomCount, exception);
                 
          public static void LogSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
             => SupplierAvailabilitySearchStarted(logger, SearchId, Supplier, exception);
@@ -642,7 +642,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> LocationNormalized;
         
-        private static readonly Action<ILogger, System.Guid, Exception> MultiSupplierAvailabilitySearchStarted;
+        private static readonly Action<ILogger, string, string, string[], string, int, Exception> MultiSupplierAvailabilitySearchStarted;
         
         private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchStarted;
         
