@@ -334,12 +334,13 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agents.MoveAgentToAgencyRequest)">
             <summary>
             Moves agent from one agency to another
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Source agency Id</param>
-            <param name="targetAgencyId">Target agency Id</param>
+            <param name="request">Move agent request</param>
+            <param>Target agency Id</param>
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetApiClient(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agents.ApiClientData)">
@@ -1514,6 +1515,16 @@
             </summary>
             <returns>List of currencies.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentProcessors">
+            <summary>
+                Returns available payment systems
+            </summary>>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetCurrentPaymentProcessor">
+            <summary>
+                Returns enabled payment system
+            </summary>>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentTypes">
             <summary>
                 Returns methods available for agent's payments
@@ -1547,6 +1558,13 @@
             <summary>
                 Gets payment history for an agency.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AuxiliaryControllers.Accommodations.GetAccommodation(System.String)">
+            <summary>
+            Returns accommodation info by htId
+            </summary>
+            <param name="htId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompanyController.Get">
