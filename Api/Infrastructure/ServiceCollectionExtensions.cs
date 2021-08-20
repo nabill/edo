@@ -461,6 +461,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Endpoint = nGeniusOptions["endpoint"];
                 options.OutletId = nGeniusOptions["outletId"];
             });
+
+            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
             
             #endregion
             
