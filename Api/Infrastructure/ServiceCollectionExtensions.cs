@@ -91,6 +91,7 @@ using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
@@ -302,12 +303,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #endregion
 
             #region tag processing options
-
-            var tagProcessingOptions = vaultClient.Get(configuration["Edo:TagProcessing:Options"]).GetAwaiter().GetResult();
-            services.Configure<TagProcessingOptions>(options =>
-            {
-                options.ReferenceCodePrefix = tagProcessingOptions["referenceCodePrefix"];
-            });
+            
+            services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
             
             #endregion
 
@@ -418,45 +415,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ReturnUrl = payfortUrlsOptions["return"];
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
-
-            var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();
-            var aedAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:AED"]).GetAwaiter().GetResult();
-            var eurAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:EUR"]).GetAwaiter().GetResult();
-            var usdAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:USD"]).GetAwaiter().GetResult();
-
-            services.Configure<BankDetails>(options =>
-            {
-                options.BankAddress = commonBankDetails["bankAddress"];
-                options.BankName = commonBankDetails["bankName"];
-                options.CompanyName = commonBankDetails["companyName"];
-                options.RoutingCode = commonBankDetails["routingCode"];
-                options.SwiftCode = commonBankDetails["swiftCode"];
-
-                options.AccountDetails = new Dictionary<Currencies, BankDetails.CurrencySpecificData>
-                {
-                    {
-                        Currencies.AED, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = aedAccountDetails["iban"],
-                            AccountNumber = aedAccountDetails["accountNumber"]
-                        }
-                    },
-                    {
-                        Currencies.EUR, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = eurAccountDetails["iban"],
-                            AccountNumber = eurAccountDetails["accountNumber"]
-                        }
-                    },
-                    {
-                        Currencies.USD, new BankDetails.CurrencySpecificData
-                        {
-                            Iban = usdAccountDetails["iban"],
-                            AccountNumber = usdAccountDetails["accountNumber"]
-                        }
-                    },
-                };
-            });
+            
+            services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
 
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
             var contractsS3FolderName = configuration["AmazonS3:ContractsS3FolderName"];
@@ -491,7 +451,25 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
+            
+            services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
 
+            #region Configure NGenius
+
+            var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
+            services.Configure<NGeniusOptions>(options =>
+            {
+                options.Token = nGeniusOptions["token"];
+                options.Endpoint = nGeniusOptions["endpoint"];
+                options.OutletId = nGeniusOptions["outletId"];
+            });
+
+            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            #endregion
+            
             return services;
         }
 
@@ -596,7 +574,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
             services.AddTransient<IPaymentLinksStorage, PaymentLinksStorage>();
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
-            services.AddTransient<IAgentPermissionManagementService, AgentPermissionManagementService>();
             services.AddTransient<IAgentRolesAssignmentService, AgentRolesAssignmentService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
             
@@ -751,6 +728,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
+            services.AddTransient<NGeniusClient>();
+            services.AddTransient<NGeniusPaymentService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
