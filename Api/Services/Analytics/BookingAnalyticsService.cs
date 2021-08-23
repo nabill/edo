@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
 
         public void LogBookingOccured(in AccommodationBookingRequest bookingRequest, Booking booking, in AgentContext agent)
         {
-            var (adultsCount, childrenCount) = new PassengersInfo(booking.Rooms);
+            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
             var agentAnalyticsInfo = new AgentAnalyticsInfo(agent.CounterpartyName);
 
             var @event = new AccommodationBookingEvent(booking.AccommodationId,
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
 
         public void LogBookingConfirmed(Booking booking, string counterpartyName)
         {
-            var (adultsCount, childrenCount) = new PassengersInfo(booking.Rooms);
+            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
             var agentAnalyticsInfo = new AgentAnalyticsInfo(counterpartyName);
 
             var @event = new BookingConfirmationEvent(booking.AccommodationId,
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
 
         public void LogBookingCancelled(Booking booking, string counterpartyName)
         {
-            var (adultsCount, childrenCount) = new PassengersInfo(booking.Rooms);
+            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
             var agentAnalyticsInfo = new AgentAnalyticsInfo(counterpartyName);
 
             var @event = new BookingCancellationEvent(booking.AccommodationId,

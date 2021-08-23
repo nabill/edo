@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result> ProcessConfirmation(Booking booking, DateTime confirmationDate)
         {
-            var counterParty = await _context.Counterparties
+            var counterparty = await _context.Counterparties
                 .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
                 
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
-                => _bookingAnalyticsService.LogBookingConfirmed(booking, counterParty.Name);
+                => _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
 
 
             void WriteFailureLog(string error) 
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, ApiCaller user)
         {
-            var counterParty = _context.Counterparties
+            var counterparty = _context.Counterparties
                 .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
             
             return SendNotifications()
@@ -189,7 +189,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics() 
-                => _bookingAnalyticsService.LogBookingCancelled(booking, (await counterParty).Name);
+                => _bookingAnalyticsService.LogBookingCancelled(booking, (await counterparty).Name);
 
 
             async Task<Result> SendNotifications()

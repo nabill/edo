@@ -1,17 +1,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Data.Bookings;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace HappyTravel.Edo.Api.Services.Analytics
 {
-    public readonly struct PassengersInfo
+    public class PassengersInfo
     {
-        public PassengersInfo(List<BookedRoom> rooms)
+        private PassengersInfo(int adultsCount, int childrenCount)
+        {
+            AdultsCount = adultsCount;
+            ChildrenCount = childrenCount;
+        }
+
+
+        public static PassengersInfo FromRooms(List<BookedRoom> rooms)
         {
             var passengers = rooms.SelectMany(r => r.Passengers).ToList();
-            AdultsCount = passengers.Count(p => p.Age is >= AdultAge);
-            ChildrenCount = passengers.Count(p => p.Age is < AdultAge);
+            
+            var adultsCount = passengers.Count(p => p.Age is >= AdultAge);
+            var childrenCount = passengers.Count(p => p.Age is < AdultAge);
+
+            return new PassengersInfo(adultsCount, childrenCount);
         }
 
 
