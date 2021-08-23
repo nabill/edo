@@ -27,13 +27,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            AnalyticsService analyticsService,
+            BookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _serviceScopeFactory = serviceScopeFactory;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _mapperClient = mapperClient;
         }
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (accommodation.IsFailure)
                 return accommodation.Error;
             
-            _analyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
+            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
             
             return accommodation.Value.ToEdoContract();
         }
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AnalyticsService _analyticsService;
+        private readonly BookingAnalyticsService _bookingAnalyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
     }

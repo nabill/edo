@@ -1,8 +1,7 @@
 using System;
-using System.Globalization;
 using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Analytics;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
         }
 
 
-        public void LogEvent<TEventData>(in TEventData eventData, string name, in AgentContext agentContext, in GeoPoint? point = default)
+        public void LogEvent<TEventData>(in TEventData eventData, string name, in AgentAnalyticsInfo agentAnalyticsInfo, in GeoPoint? point = default)
         {
             var date = new DateTimeOffset(_dateTimeProvider.UtcNow(), TimeSpan.Zero);
             var environmentName = _environment.EnvironmentName.ToLowerInvariant();
@@ -33,7 +32,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             {
                 DateTime = date,
                 EventData = eventData,
-                Counterparty = agentContext.CounterpartyName,
+                Counterparty = agentAnalyticsInfo.CounterpartyName,
                 Location = point.HasValue
                     ? GetElasticCoordinates(point.Value)
                     : null

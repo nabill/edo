@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IBookingNotificationService bookingNotificationService, IBookingMoneyReturnService moneyReturnService,
             IBookingDocumentsMailingService documentsMailingService, ISupplierOrderService supplierOrderService,
             INotificationService notificationService, IBookingChangeLogService bookingChangeLogService, 
-            AnalyticsService analyticsService, EdoContext context, AgentContext agentContext, ILogger<BookingRecordsUpdater> logger)
+            IBookingAnalyticsService bookingAnalyticsService, EdoContext context, ILogger<BookingRecordsUpdater> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _infoService = infoService;
@@ -42,10 +42,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _supplierOrderService = supplierOrderService;
             _notificationsService = notificationService;
             _context = context;
-            _agentContext = agentContext;
             _logger = logger;
             _bookingChangeLogService = bookingChangeLogService;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
         }
         
 
@@ -132,8 +131,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
 
-        private async Task<Result> ProcessConfirmation(Edo.Data.Bookings.Booking booking, DateTime confirmationDate)
+        private async Task<Result> ProcessConfirmation(Booking booking, DateTime confirmationDate)
         {
+            var counterParty = await _context.Counterparties
+                .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+                
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
@@ -163,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
-                => _analyticsService.LogBookingStatusChange(booking, BookingStatuses.Confirmed, _agentContext);
+                => _bookingAnalyticsService.LogBookingConfirmed(booking, counterParty.Name);
 
 
             void WriteFailureLog(string error) 
@@ -173,6 +175,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, ApiCaller user)
         {
+            var counterParty = _context.Counterparties
+                .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+            
             return SendNotifications()
                 .Tap(CancelSupplierOrder)
                 .Tap(LogAnalytics)
@@ -184,7 +189,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics() 
-                => _analyticsService.LogBookingStatusChange(booking, BookingStatuses.Cancelled, _agentContext);
+                => _bookingAnalyticsService.LogBookingCancelled(booking, (await counterParty).Name);
 
 
             async Task<Result> SendNotifications()
@@ -271,9 +276,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly INotificationService _notificationsService;
-        private readonly AnalyticsService _analyticsService;
+        private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly EdoContext _context;
-        private readonly AgentContext _agentContext;
         private readonly ILogger<BookingRecordsUpdater> _logger;
         private readonly IBookingChangeLogService _bookingChangeLogService;
     }

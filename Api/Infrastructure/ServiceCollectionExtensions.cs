@@ -697,7 +697,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IImageFileService, ImageFileService>();
 
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
-            services.AddTransient<AnalyticsService>();
+            services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
             services.AddTransient<IAgentMovementService, AgentMovementService>();
 
             services.AddTransient<IAgentBookingManagementService, AgentBookingManagementService>();

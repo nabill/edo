@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRequestExecutor(ISupplierConnectorManager supplierConnectorManager,
             IBookingResponseProcessor responseProcessor,
-            AnalyticsService analyticsService,
+            IBookingAnalyticsService bookingAnalyticsService,
             IBookingRecordsUpdater bookingRecordsUpdater,
             IDateTimeProvider dateTimeProvider,
             ILogger<BookingRequestExecutor> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _responseProcessor = responseProcessor;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
             _bookingRecordsUpdater = bookingRecordsUpdater;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         {
             var bookingRequestResult = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
             if (bookingRequestResult.IsSuccess)
-                _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
+                _bookingAnalyticsService.LogBookingOccured(bookingRequest, booking, agent);
             
             await ProcessRequestResult(bookingRequestResult);
             return bookingRequestResult;
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly AnalyticsService _analyticsService;
+        private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingRequestExecutor> _logger;
