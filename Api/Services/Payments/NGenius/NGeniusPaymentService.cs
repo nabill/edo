@@ -133,6 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 Data = JsonConvert.SerializeObject(info),
                 AccountId = cardId,
                 PaymentMethod = PaymentTypes.CreditCard,
+                PaymentProcessor = PaymentProcessors.NGenius,
                 ReferenceCode = paymentResult.MerchantOrderReference
             };
 
