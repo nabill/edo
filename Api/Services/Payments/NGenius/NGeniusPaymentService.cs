@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
         
         
-        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
+        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, AgentContext agent)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
