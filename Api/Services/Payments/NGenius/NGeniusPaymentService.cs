@@ -39,9 +39,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return await CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
                 .Bind(r => _client.CreateOrder(r))
-                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
+                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r))
+                .TapIf(request.IsSaveCardNeeded, StoreCreditCard);
 
-            // TODO: Firstly enable tokenization on NGenius side, then implement storing card
+
+            void StoreCreditCard()
+            {
+                // TODO: Firstly enable tokenization on NGenius side, then implement storing card
+            }
         }
 
 
