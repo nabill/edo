@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,14 +23,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, AvailabilityAnalyticsService analyticsService,
+            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, BookingAnalyticsService bookingAnalyticsService,
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
             _searchAreaService = searchAreaService;
             _dateTimeProvider = dateTimeProvider;
             _accommodationsStorage = accommodationsStorage;
@@ -55,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(error);
 
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
+            _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
@@ -170,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly BookingAnalyticsService _bookingAnalyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
