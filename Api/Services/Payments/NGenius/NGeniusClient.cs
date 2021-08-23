@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -37,7 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (!response.IsSuccessStatusCode)
                 return Result.Failure<NGeniusPaymentResponse>(GetErrorMessage(document));
 
-            var paymentId = GetStringValue(document.RootElement, "orderReference");
+            var paymentId = GetStringValue(document.RootElement, "_id").Split(':').Last();
+            var orderReference = GetStringValue(document.RootElement, "orderReference");
             var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
             var paymentInformation = GetResponsePaymentInformation(document);
             var status = MapToStatus(GetStringValue(document.RootElement, "state"));
@@ -48,12 +50,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return new NGeniusPaymentResponse(paymentId: paymentId,
                 status: status, 
+                orderReference: orderReference,
                 merchantOrderReference: merchantOrderReference, 
                 payment: paymentInformation,
                 secure3dOptions: secure3dOptions);
         }
-        
-        
+
+
         private async Task<string> GetAccessToken()
         {
             var key = _cache.BuildKey(nameof(NGeniusClient), "access-token");
