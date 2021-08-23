@@ -12,7 +12,6 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -27,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<NGeniusPaymentResponse>> Authorize(OrderRequest order)
+        public async Task<Result<NGeniusPaymentResponse>> CreateOrder(OrderRequest order)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/payment/card";
             var response = await Post(endpoint, order);

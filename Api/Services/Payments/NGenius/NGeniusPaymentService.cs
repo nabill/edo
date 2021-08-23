@@ -36,12 +36,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
             return await CreateRequest()
-                .Bind(CreateOrder)
+                .Bind(r => _client.CreateOrder(r))
                 .Bind(StorePaymentResults);
 
             // TODO: Firstly enable tokenization on NGenius side, then implement storing card
 
-            
             Result<OrderRequest> CreateRequest() 
                 => CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card);
 
@@ -66,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
             return await CreateRequest()
-                .Bind(CreateOrder)
+                .Bind(r => _client.CreateOrder(r))
                 .Bind(StorePaymentResults);
 
 
@@ -110,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
             return await CreateRequest()
-                .Bind(CreateOrder)
+                .Bind(r => _client.CreateOrder(r))
                 .Bind(StorePaymentResults);
 
             
@@ -128,10 +127,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     : Result.Success(paymentResult);
             }
         }
-        
-        
-        private Task<Result<NGeniusPaymentResponse>> CreateOrder(OrderRequest orderRequest) 
-            => _client.Authorize(orderRequest);
 
 
         private static int ToNGeniusAmount(MoneyAmount moneyAmount) 
