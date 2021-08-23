@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 message: string.Empty, 
                 authorizationCode: string.Empty, 
                 expirationDate: paymentResult.Payment.Expiry,
-                internalReferenceCode: paymentResult.MerchantOrderReference);
+                internalReferenceCode: paymentResult.OrderReference);
 
             var payment = new Edo.Data.Payments.Payment
             {
