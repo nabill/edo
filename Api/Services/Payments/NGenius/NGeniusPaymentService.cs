@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -19,17 +20,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusPaymentService
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
-            ICreditCardsManagementService creditCardsManagementService)
+            ICreditCardsManagementService creditCardsManagementService, IBookingPaymentCallbackService bookingPaymentCallbackService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _bookingRecordManager = bookingRecordManager;
             _client = client;
             _creditCardsManagementService = creditCardsManagementService;
+            _bookingPaymentCallbackService = bookingPaymentCallbackService;
         }
 
 
-        public async Task<Result<NGeniusPaymentResponse>> Authorize(NewCreditCardRequest request, string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
+        public async Task<Result<NGeniusPaymentResponse>> Authorize(NewCreditCardRequest request, string ipAddress, AgentContext agent)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
@@ -37,24 +39,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return await CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
                 .Bind(r => _client.CreateOrder(r))
-                .Bind(StorePaymentResults);
+                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
 
             // TODO: Firstly enable tokenization on NGenius side, then implement storing card
-
-            async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(NGeniusPaymentResponse paymentResult)
-            {
-                var payment = await CreatePayment(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, paymentResult);
-                var (_, isFailure, error) = await paymentCallbackService.ProcessPaymentChanges(payment);
-
-                return isFailure
-                    ? Result.Failure<NGeniusPaymentResponse>(error)
-                    : Result.Success(paymentResult);
-            }
         }
 
 
-        public async Task<Result<NGeniusPaymentResponse>> Authorize(SavedCreditCardRequest request, string languageCode, string ipAddress,
-            IPaymentCallbackService paymentCallbackService, AgentContext agent)
+        public async Task<Result<NGeniusPaymentResponse>> Authorize(SavedCreditCardRequest request, string ipAddress, AgentContext agent)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
@@ -77,22 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return await CreateOrderRequest(OrderTypes.Auth, booking.ReferenceCode, booking.Currency, booking.TotalPrice, agent, savedCard: savedCard)
                 .Bind(r => _client.CreateOrder(r))
-                .Bind(StorePaymentResults);
-
-
-            async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(NGeniusPaymentResponse paymentResult)
-            {
-                var payment = await CreatePayment(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), request.CardId, paymentResult);
-                var (_, isFailure, error) = await paymentCallbackService.ProcessPaymentChanges(payment);
-
-                return isFailure
-                    ? Result.Failure<NGeniusPaymentResponse>(error)
-                    : Result.Success(paymentResult);
-            }
+                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), request.CardId, r));
         }
         
         
-        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
+        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
@@ -100,18 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return await CreateOrderRequest(OrderTypes.Sale, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
                 .Bind(r => _client.CreateOrder(r))
-                .Bind(StorePaymentResults);
-
-
-            async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(NGeniusPaymentResponse paymentResult)
-            {
-                var payment = await CreatePayment(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, paymentResult);
-                var (_, isFailure, error) = await paymentCallbackService.ProcessPaymentChanges(payment);
-
-                return isFailure
-                    ? Result.Failure<NGeniusPaymentResponse>(error)
-                    : Result.Success(paymentResult);
-            }
+                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
         }
 
 
@@ -177,10 +146,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
         
         
+        private async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(string ipAddress, MoneyAmount price, int? cardId, NGeniusPaymentResponse paymentResult)
+        {
+            var payment = await CreatePayment(ipAddress, price, cardId, paymentResult);
+            var (_, isFailure, error) = await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+
+            return isFailure
+                ? Result.Failure<NGeniusPaymentResponse>(error)
+                : Result.Success(paymentResult);
+        }
+        
+        
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly ICreditCardsManagementService _creditCardsManagementService;
         private readonly NGeniusClient _client;
+        private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
     }
 }

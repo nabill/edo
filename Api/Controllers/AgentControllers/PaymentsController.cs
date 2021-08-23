@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayByNGeniusWithNewCreditCard([FromBody] NewCreditCardRequest request)
         {
-            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, LanguageCode, ClientIp, _bookingPaymentCallbackService, await _agentContextService.GetAgent()));
+            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, ClientIp, await _agentContextService.GetAgent()));
         }
 
 
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayByNGeniusWithSavedCreditCard([FromBody] SavedCreditCardRequest request)
         {
-            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, LanguageCode, ClientIp, _bookingPaymentCallbackService, await _agentContextService.GetAgent()));
+            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, ClientIp, await _agentContextService.GetAgent()));
         }
 
 
