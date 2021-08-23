@@ -107,9 +107,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             }
             catch (Exception ex)
             {
-                ex.Data.Add("Requested url", requestFactory().RequestUri);
-                ex.Data.Add("Response body", await response?.Content?.ReadAsStringAsync(cancellationToken));
-                _logger.LogConnectorClientException(ex);
+                _logger.LogConnectorClientException(requestFactory().RequestUri?.ToString(), await response?.Content?.ReadAsStringAsync(cancellationToken));
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
             finally

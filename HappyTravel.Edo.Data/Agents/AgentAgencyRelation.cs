@@ -6,7 +6,6 @@ namespace HappyTravel.Edo.Data.Agents
     {
         public int AgentId { get; set; }
         public int[] AgentRoleIds { get; set; }
-        public InAgencyPermissions InAgencyPermissions { get; set; }
         public int AgencyId { get; set; }
         public AgentAgencyRelationTypes Type { get; set; }
         public bool IsActive { get; set; }
@@ -16,10 +15,10 @@ namespace HappyTravel.Edo.Data.Agents
 
 
         public bool Equals(AgentAgencyRelation other)
-            => Equals((AgentId, InAgencyPermissions, AgencyId, Type),
-                (other.AgentId, other.InAgencyPermissions, other.AgencyId, other.Type));
+            => Equals((AgentId, AgencyId, Type),
+                (other.AgentId, other.AgencyId, other.Type));
 
 
-        public override int GetHashCode() => (AgentId, InAgencyPermissions, AgencyId, Type).GetHashCode();
+        public override int GetHashCode() => (AgentId, AgencyId, Type).GetHashCode();
     }
 }

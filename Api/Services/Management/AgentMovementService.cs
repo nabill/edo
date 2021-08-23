@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
@@ -17,15 +19,18 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
         
         
-        public async Task<Result> Move(int agentId, int sourceAgencyId, int targetAgencyId)
+        public async Task<Result> Move(int agentId, int sourceAgencyId, int targetAgencyId, List<int> roleIds)
         {
-            return await CheckTargetAgencyExists()
+            return await ValidateRequest()
                 .Bind(UpdateAgencyRelation)
                 .Bind(WriteLog);
 
 
-            async Task<Result> CheckTargetAgencyExists()
+            async Task<Result> ValidateRequest()
             {
+                if (roleIds is null || !roleIds.Any())
+                    Result.Failure("Assignable role list cannot be empty");
+                
                 var isExists = await _edoContext.Agencies
                     .AnyAsync(a => a.Id == targetAgencyId);
 
@@ -50,10 +55,10 @@ namespace HappyTravel.Edo.Api.Services.Management
                 {
                     AgentId = relation.AgentId,
                     AgencyId = targetAgencyId,
-                    InAgencyPermissions = relation.InAgencyPermissions,
                     IsActive = relation.IsActive,
-                    Type = relation.Type,
-                    AgentRoleIds = relation.AgentRoleIds
+                    // Moving an agent as a regular, because target agency mostly likely already contains Master
+                    Type = AgentAgencyRelationTypes.Regular,
+                    AgentRoleIds = roleIds.ToArray()
                 };
 
                 // Remove old record because EF Core can't update part of primary key
