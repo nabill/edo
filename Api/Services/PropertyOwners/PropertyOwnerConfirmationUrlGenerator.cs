@@ -28,9 +28,17 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
         private string Decrypt(string encryptedString)
         {
-            var encriptedBytes = Convert.FromBase64String(encryptedString);
+            Span<byte> bytes = null;
+            
+            if (Convert.TryFromBase64String(encryptedString, bytes, out int _))
+            {
+                var encriptedBytes = bytes.ToArray();
 
-            return DecryptStringFromBytes_Aes(encriptedBytes, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
+                return DecryptStringFromBytes_Aes(encriptedBytes, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
+            }
+
+
+            return string.Empty;
         }
 
 
@@ -128,9 +136,5 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
 
         private readonly UrlGenerationOptions _urlGenerationOptions;
-        //private static readonly byte[] Key = new byte[32] { 121, 90, 35, 45, 22, 214, 45, 89, 56, 176, 25, 11, 250, 177, 237, 251, 
-        //    155, 47, 115, 23, 157, 166, 101, 135, 83, 126, 222, 7, 26, 231, 219, 252 };
-        //private static readonly byte[] IV = new byte[16] { 26, 131, 30, 106, 233, 60, 139, 254, 4, 227, 5, 32, 11, 132, 253, 115 };
-        //private readonly string constantPartOfUrl = "dev.happytravel.com/confirmation-page";
     }
 }
