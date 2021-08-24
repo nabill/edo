@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -138,6 +139,25 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> PayByNGeniusWithSavedCreditCard([FromBody] SavedCreditCardRequest request)
         {
             return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, ClientIp, await _agentContextService.GetAgent()));
+        }
+        
+        
+        /// <summary>
+        ///     NGenius 3D Secure callback
+        /// </summary>
+        [HttpPost("ngenius/3ds-callback")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> NGenius3DSecureCallback([FromQuery] string paymentId, [FromQuery] string orderReference, [FromBody] NGenius3DSecureData data)
+        {
+            var result = await _nGeniusPaymentService.NGenius3DSecureCallback(paymentId, orderReference, data);
+
+            if (result.IsFailure)
+                return BadRequest(result.Error);
+
+            // TODO: replace hardcoded url with env specific url
+            return Redirect("https://edo-dev.happytravel.com/payments/callback");
         }
 
 
