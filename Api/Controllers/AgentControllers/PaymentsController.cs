@@ -12,10 +12,12 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -27,13 +29,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
-            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, NGeniusPaymentService nGeniusPaymentService)
+            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, NGeniusPaymentService nGeniusPaymentService,
+            IOptions<SenderOptions> options)
         {
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _nGeniusPaymentService = nGeniusPaymentService;
+            _options = options.Value;
         }
 
 
@@ -155,9 +159,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             if (result.IsFailure)
                 return BadRequest(result.Error);
-
-            // TODO: replace hardcoded url with env specific url
-            return Redirect("https://edo-dev.happytravel.com/payments/callback");
+            
+            return Redirect($"{_options.BaseUrl}/payments/callback?status={result.Value}");
         }
 
 
@@ -178,5 +181,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentSettingsService _paymentSettingsService;
         private readonly NGeniusPaymentService _nGeniusPaymentService;
+        private readonly SenderOptions _options;
     }
 }
