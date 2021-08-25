@@ -56,6 +56,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
+        public async Task<Result<CreditCardPaymentStatuses>> SubmitPaRes(string paymentId, string orderReference, NGenius3DSecureData data)
+        {
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/card/3ds";
+            var response = await Post(endpoint, data);
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+
+            return response.IsSuccessStatusCode
+                ? Result.Success(MapToStatus(GetStringValue(document.RootElement, "state")))
+                : Result.Failure<CreditCardPaymentStatuses>(GetErrorMessage(document));
+        }
+
+
         private async Task<string> GetAccessToken()
         {
             var key = _cache.BuildKey(nameof(NGeniusClient), "access-token");

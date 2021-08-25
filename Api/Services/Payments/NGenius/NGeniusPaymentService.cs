@@ -13,6 +13,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -86,6 +87,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return await CreateOrderRequest(OrderTypes.Sale, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
+        }
+        
+        
+        public async Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string paymentId, string orderReference, NGenius3DSecureData data)
+        {
+            return await CheckPaymentExists()
+                .Bind(() => _client.SubmitPaRes(paymentId, orderReference, data));
+
+
+            async Task<Result> CheckPaymentExists()
+            {
+                // TODO: add a check that the payment exists 
+                var isExists = true;
+
+                return isExists
+                    ? Result.Success()
+                    : Result.Failure($"Payment for  paymentId `{paymentId}` and orderReference `{orderReference}` not found");
+            }
         }
 
 
