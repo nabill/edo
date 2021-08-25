@@ -18,18 +18,16 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public class BookingRegistrationService : IBookingRegistrationService
     {
-        public BookingRegistrationService(EdoContext context,
-            ITagProcessor tagProcessor,
-            IDateTimeProvider dateTimeProvider,
-            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
-            IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService,
-            IBookingConfirmationService bookingConfirmationService)
+        public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
+            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
+            ISupplierOrderService supplierOrderService, IBookingConfirmationService bookingConfirmationService, 
+            IHostEnvironment hostingEnvironment)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -38,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
             _bookingConfirmationService = bookingConfirmationService;
+            _hostingEnvironment = hostingEnvironment;
         }
         
         
@@ -49,9 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Map(Create)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder);
-            //.Check(SendEmailToPropertyOwner); //TODO: Sending emails to property owners will be uncommented after readiness
-            // on the front of the booking confirmation page
+                .Tap(CreateSupplierOrder)
+                .Check(SendEmailToPropertyOwner); 
 
             return booking;
 
@@ -131,7 +129,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
             {
-                if (booking.IsDirectContract && booking.Supplier == Suppliers.Columbus)
+                if (_hostingEnvironment.IsProduction()) // TODO: This check will be removed after testing the hotel confirmation page in development
+                    return Result.Success();
+
+                if (!booking.IsDirectContract || booking.Supplier != Suppliers.Columbus)
                     return Result.Success();
 
                 return await _bookingConfirmationService.SendConfirmationEmail(booking);
@@ -232,8 +233,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
-        
-        
+
+
         private readonly EdoContext _context;
         private readonly ITagProcessor _tagProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -241,5 +242,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingConfirmationService _bookingConfirmationService;
+        private readonly IHostEnvironment _hostingEnvironment;
     }
 }
