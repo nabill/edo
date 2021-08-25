@@ -1543,6 +1543,18 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayByNGeniusWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NGenius.NewCreditCardRequest)">
+            <summary>
+                Pays by NGenius with new card
+            </summary>
+            <param name="request">Payment request</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayByNGeniusWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.NGenius.SavedCreditCardRequest)">
+            <summary>
+                Pays by NGenius with saved card
+            </summary>
+            <param name="request">Payment request</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
@@ -3749,6 +3761,36 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.IsSaveCardNeeded">
             <summary>
                 Flag, indicating that save card is needed, TRUE if card should be saved
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.NewCreditCardRequest.ReferenceCode">
+            <summary>
+                Service reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.NewCreditCardRequest.Card">
+            <summary>
+                Credit card information
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.NewCreditCardRequest.IsSaveCardNeeded">
+            <summary>
+                Flag, indicating that save card is needed, TRUE if card should be saved
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.SavedCreditCardRequest.ReferenceCode">
+            <summary>
+                Service reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.SavedCreditCardRequest.CardId">
+            <summary>
+                Saved card id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NGenius.SavedCreditCardRequest.Cvv">
+            <summary>
+                CVV code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Amount">
