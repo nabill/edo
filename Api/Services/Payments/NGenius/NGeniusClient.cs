@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         public async Task<Result<NGeniusPaymentResponse>> CreateOrder(OrderRequest order)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/payment/card";
-            var response = await Post(endpoint, order);
+            var response = await Send(HttpMethod.Post, endpoint, order);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
@@ -38,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<NGeniusPaymentResponse>(GetErrorMessage(document));
 
             var paymentId = GetStringValue(document.RootElement, "_id").Split(':').Last();
+            var captureId = GetCaptureId(document);
             var orderReference = GetStringValue(document.RootElement, "orderReference");
             var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
             var paymentInformation = GetResponsePaymentInformation(document);
@@ -48,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 : null;
 
             return new NGeniusPaymentResponse(paymentId: paymentId,
+                captureId: captureId,
                 status: status, 
                 orderReference: orderReference,
                 merchantOrderReference: merchantOrderReference, 
@@ -59,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         public async Task<Result<CreditCardPaymentStatuses>> SubmitPaRes(string paymentId, string orderReference, NGenius3DSecureData data)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/card/3ds";
-            var response = await Post(endpoint, data);
+            var response = await Send(HttpMethod.Post, endpoint, data);
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
@@ -67,6 +69,49 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return response.IsSuccessStatusCode
                 ? Result.Success(MapToStatus(GetStringValue(document.RootElement, "state")))
                 : Result.Failure<CreditCardPaymentStatuses>(GetErrorMessage(document));
+        }
+
+
+        public async Task<Result<string>> CaptureMoney(string paymentId, string orderReference, NGeniusAmount amount)
+        {
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures";
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount });
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+            var captureId = GetCaptureId(document);
+
+            return response.IsSuccessStatusCode
+                ? Result.Success(captureId)
+                : Result.Failure<string>(GetErrorMessage(document));
+        }
+
+
+        public async Task<Result> VoidMoney(string paymentId, string orderReference)
+        {
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/cancel";
+            var response = await Send(HttpMethod.Put, endpoint, null);
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failure(GetErrorMessage(document));
+        }
+        
+        
+        public async Task<Result> RefundMoney(string paymentId, string orderReference, string captureId, NGeniusAmount amount)
+        {
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount });
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failure(GetErrorMessage(document));
         }
 
 
@@ -92,14 +137,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private async Task<HttpResponseMessage> Post<T>(string endpoint, T data)
+        private async Task<HttpResponseMessage> Send(HttpMethod method, string endpoint, object data)
         {
             var token = await GetAccessToken();
-            var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
-            {
-                Content = new StringContent(JsonSerializer.Serialize(data, SerializerOptions), null, "application/vnd.ni-payment.v2+json")
-            };
+            var request = new HttpRequestMessage(method, endpoint);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            
+            if(data is not null)
+                request.Content = new StringContent(JsonSerializer.Serialize(data, SerializerOptions), null, "application/vnd.ni-payment.v2+json");
+            
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
             return await client.SendAsync(request);
         }
@@ -150,6 +196,30 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         private static string GetStringValue(JsonElement element, string key) 
             => element.GetProperty(key).GetString();
+
+
+        private static string GetCaptureId(JsonDocument document)
+        {
+            // From NGenius documentation:
+            // Note that 'index' in this context will always be 0 (zero) unless the order represents a recurring payment.
+
+            if(document.RootElement.TryGetProperty("_embedded", out var embeddedElement))
+            {
+                if (embeddedElement.TryGetProperty("cnp:capture", out var captureElement))
+                {
+                    var element = captureElement.EnumerateArray().First();
+                    
+                    return element.GetProperty("_links")
+                        .GetProperty("cnp:refund")
+                        .GetProperty("href")
+                        .GetString()?
+                        .Split('/')
+                        .LastOrDefault();
+                }
+            }
+
+            return null;
+        }
 
 
         private static readonly JsonSerializerOptions SerializerOptions = new()

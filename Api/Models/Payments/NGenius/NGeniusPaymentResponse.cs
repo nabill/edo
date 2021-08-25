@@ -4,10 +4,11 @@ namespace HappyTravel.Edo.Api.Models.Payments.NGenius
 {
     public readonly struct NGeniusPaymentResponse
     {
-        public NGeniusPaymentResponse(string paymentId, CreditCardPaymentStatuses status, string orderReference, string merchantOrderReference, 
+        public NGeniusPaymentResponse(string paymentId, string captureId, CreditCardPaymentStatuses status, string orderReference, string merchantOrderReference, 
             ResponsePaymentInformation payment, Secure3dOptions? secure3dOptions = null)
         {
             PaymentId = paymentId;
+            CaptureId = captureId;
             Status = status;
             OrderReference = orderReference;
             MerchantOrderReference = merchantOrderReference;
@@ -16,6 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.NGenius
         }
 
         public string PaymentId { get; }
+        public string CaptureId { get; }
         public CreditCardPaymentStatuses Status { get; }
         public string OrderReference { get; }
         public string MerchantOrderReference { get; }
