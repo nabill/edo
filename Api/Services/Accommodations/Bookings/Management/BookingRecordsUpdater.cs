@@ -175,9 +175,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, ApiCaller user)
         {
-            var counterparty = _context.Counterparties
-                .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
-            
             return SendNotifications()
                 .Tap(CancelSupplierOrder)
                 .Tap(LogAnalytics)
@@ -188,8 +185,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 => _supplierOrderService.Cancel(booking.ReferenceCode);
 
 
-            async Task LogAnalytics() 
-                => _bookingAnalyticsService.LogBookingCancelled(booking, (await counterparty).Name);
+            async Task LogAnalytics()
+            {
+                var counterparty = await _context.Counterparties
+                    .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+                
+                _bookingAnalyticsService.LogBookingCancelled(booking, counterparty.Name);
+            }
 
 
             async Task<Result> SendNotifications()
