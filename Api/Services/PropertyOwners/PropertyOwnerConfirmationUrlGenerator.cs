@@ -28,15 +28,14 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
         private string Decrypt(string encryptedString)
         {
-            Span<byte> bytes = null;
+            Span<byte> bytes = new byte[encryptedString.Length];
             
-            if (Convert.TryFromBase64String(encryptedString, bytes, out int _))
+            if (Convert.TryFromBase64String(encryptedString, bytes, out int bytesWritten))
             {
-                var encriptedBytes = bytes.ToArray();
+                var encriptedBytes = bytes.Slice(0, bytesWritten).ToArray();
 
                 return DecryptStringFromBytes_Aes(encriptedBytes, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
             }
-
 
             return string.Empty;
         }
