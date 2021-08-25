@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            BookingAnalyticsService bookingAnalyticsService,
+            IBookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly BookingAnalyticsService _bookingAnalyticsService;
+        private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
     }
