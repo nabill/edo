@@ -38,19 +38,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            var counterparty = await _context.Counterparties
-                .Where(cp => cp.Id == counterpartyId)
-                .SingleOrDefaultAsync();
-            if (counterparty == default)
+            var counterpartyInfo = await 
+                (from cp in _context.Counterparties
+                join c in _context.Countries on cp.CountryCode equals c.Code
+                where cp.Id == counterpartyId
+                select cp.ToCounterpartyInfo(c.Names, languageCode, null))
+                    .SingleOrDefaultAsync();
+
+            if (counterpartyInfo.Id == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
-            return ToCounterpartyInfo(counterparty);
+            return counterpartyInfo;
         }
 
 
-        public async Task<List<CounterpartyInfo>> Get()
+        public async Task<List<SlimCounterpartyInfo>> Get()
         {
             var counterparties = await (from cp in _context.Counterparties
                 join formula in _context.DisplayMarkupFormulas on new
@@ -71,7 +75,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     MarkupFormula = markupFormula == null ? null : markupFormula.DisplayFormula
                 }).ToListAsync();
 
-            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.MarkupFormula)).ToList();
+            return counterparties.Select(c => ToCounterpartySlimInfo(c.Counterparty, c.MarkupFormula)).ToList();
         }
 
 
@@ -137,6 +141,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
 
+                if (counterpartyToUpdate.State == CounterpartyStates.PendingVerification || counterpartyToUpdate.State == CounterpartyStates.ReadOnly)
+                {
+                    counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
+                    counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
+                    counterpartyToUpdate.City = changedCounterpartyInfo.City;
+                    counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
+                    counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                    counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
+                    counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                    counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
+                    counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
+                }
+
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
@@ -158,7 +175,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
 
-            return Result.Success(counterparty);
+            return counterparty;
         }
 
 
@@ -244,7 +261,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
-        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, string markupFormula = null)
+        private static SlimCounterpartyInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.LegalAddress,
@@ -256,7 +273,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 markupFormula);
 
 
-        private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
+        private static bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
         
 
         private readonly EdoContext _context;

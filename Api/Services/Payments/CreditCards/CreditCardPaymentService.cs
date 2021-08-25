@@ -182,6 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 Data = JsonConvert.SerializeObject(info),
                 AccountId = cardId,
                 PaymentMethod = PaymentTypes.CreditCard,
+                PaymentProcessor = PaymentProcessors.Payfort,
                 ReferenceCode = paymentResult.ReferenceCode
             };
                 

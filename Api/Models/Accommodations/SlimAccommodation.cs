@@ -7,10 +7,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct SlimAccommodation
     {
         [JsonConstructor]
-        public SlimAccommodation(string id, in SlimLocationInfo location, string name, in ImageInfo photo, AccommodationRatings rating,
+        public SlimAccommodation(in SlimLocationInfo location, string name, in ImageInfo photo, AccommodationRatings rating,
             PropertyTypes propertyType, string htId = null, string hotelChain = null)
         {
-            Id = id;
             Location = location;
             Name = name;
             Photo = photo;
@@ -20,11 +19,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             HotelChain = hotelChain;
         }
 
-
-        /// <summary>
-        ///     The accommodation ID.
-        /// </summary>
-        public string Id { get; }
 
         /// <summary>
         ///     The accommodation location description.
@@ -66,12 +60,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public bool Equals(in SlimAccommodation other)
-            => (Id, Location, Name, Photo, Rating, PropertyType)
-                .Equals((other.Id, other.Location, other.Name, other.Photo, other.Rating, other.PropertyType));
+            => (Location, Name, Photo, Rating, PropertyType)
+                .Equals((other.Location, other.Name, other.Photo, other.Rating, other.PropertyType));
 
 
         public override int GetHashCode()
-            => (Id, Location, Name, Photo, Rating)
+            => (Location, Name, Photo, Rating)
                 .GetHashCode();
     }
 }

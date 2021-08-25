@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -25,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Add(CounterpartyCreateRequest request)
+        public async Task<Result<SlimCounterpartyInfo>> Add(CounterpartyCreateRequest request)
         {
             var registrationAgencyInfo = request.RootAgencyInfo.ToRegistrationAgencyInfo(request.CounterpartyInfo.Name);
             return await Validate()
@@ -52,6 +51,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
                     State = CounterpartyStates.PendingVerification,
                     LegalAddress = request.CounterpartyInfo.LegalAddress,
+                    Address = request.RootAgencyInfo.Address,
+                    BillingEmail = request.RootAgencyInfo.BillingEmail,
+                    City = request.RootAgencyInfo.City,
+                    CountryCode = request.RootAgencyInfo.CountryCode,
+                    Fax = request.RootAgencyInfo.Fax,
+                    Phone = request.RootAgencyInfo.Phone,
+                    PostalCode = request.RootAgencyInfo.PostalCode,
+                    Website = request.RootAgencyInfo.Website,
+                    VatNumber = request.RootAgencyInfo.VatNumber,
                     Created = now,
                     Updated = now
                 };
@@ -140,7 +148,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId)
+        public async Task<Result<SlimCounterpartyInfo>> Get(int counterpartyId)
         {
             return await GetCounterpartyInfo(counterpartyId);
         }
@@ -152,9 +160,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Map(cp => cp.ContractKind.Value);
 
 
-        private Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId)
+        private Task<Result<SlimCounterpartyInfo>> GetCounterpartyInfo(int counterpartyId)
             => GetCounterpartyRecord(counterpartyId)
-                .Map(c => new CounterpartyInfo(
+                .Map(c => new SlimCounterpartyInfo(
                     c.Id,
                     c.Name,
                     c.LegalAddress,

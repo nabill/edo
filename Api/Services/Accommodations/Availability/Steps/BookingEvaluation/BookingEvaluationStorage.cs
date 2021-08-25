@@ -22,10 +22,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
+        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
             Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline supplierDeadline)
         {
-            var key = BuildKey(searchId, resultId, roomContractSetId);
+            var key = BuildKey(searchId, htId, roomContractSetId);
             var result = SupplierData.Create(supplier, availability);
             var roomSetAvailability = availability.Data;
             
@@ -63,9 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public async Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, Guid resultId, Guid roomContractSetId)
+        public async Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, string htId, Guid roomContractSetId)
         {
-            var key = BuildKey(searchId, resultId, roomContractSetId);
+            var key = BuildKey(searchId, htId, roomContractSetId);
             
             var result = await _doubleFlow.GetAsync<BookingAvailabilityInfo>(key, CacheExpirationTime);
             return result.Equals(default) 
@@ -74,8 +74,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
         
-        private string BuildKey(Guid searchId, Guid resultId, Guid roomContractSetId) 
-            => _doubleFlow.BuildKey(searchId.ToString(), resultId.ToString(), roomContractSetId.ToString());
+        private string BuildKey(Guid searchId, string htId, Guid roomContractSetId) 
+            => _doubleFlow.BuildKey(searchId.ToString(), htId, roomContractSetId.ToString());
         
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);

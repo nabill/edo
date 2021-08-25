@@ -74,9 +74,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         public async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(Func<HttpRequestMessage> requestFactory, string languageCode,
             CancellationToken cancellationToken)
         {
+            HttpResponseMessage response = null;
+
             try
             {
-                using var response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
+                response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
 
                 await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
                 using var streamReader = new StreamReader(stream);
@@ -84,8 +86,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
-                        ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                    ProblemDetails error;
+
+                    try
+                    {
+                        error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);
+                    }
+                    catch (JsonReaderException)
+                    {
+                        streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
+                        var responseBody = await streamReader.ReadToEndAsync();
+                        _logger.LogConnectorClientUnexpectedResponse(response.StatusCode, requestFactory().RequestUri, responseBody);
+                        error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                    }
 
                     return Result.Failure<TResponse, ProblemDetails>(error);
                 }
@@ -94,10 +107,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             }
             catch (Exception ex)
             {
-                ex.Data.Add("requested url", requestFactory().RequestUri);
-                ex.Data.Add("response body", await requestFactory().Content?.ReadAsStringAsync(cancellationToken));
-                _logger.LogConnectorClientException(ex);
+                _logger.LogConnectorClientException(requestFactory().RequestUri?.ToString(), await response?.Content?.ReadAsStringAsync(cancellationToken));
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
+            }
+            finally
+            {
+                response?.Dispose();
             }
         }
 

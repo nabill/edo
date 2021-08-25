@@ -8,28 +8,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public static class BookingCancellationPenaltyCalculator
     {
-        public static MoneyAmount Calculate(Booking booking, DateTime forDate)
+        public static MoneyAmount Calculate(Booking booking, DateTime cancellationDate)
         {
             var penaltyAmount = booking.Rooms
-                .Sum(room => room.Price.Amount * (decimal) GetPenaltyPercent(room.DeadlineDetails, room.IsAdvancePurchaseRate, forDate));
+                .Sum(room => room.Price.Amount * (decimal) GetPenaltyFraction(room.DeadlineDetails, room.IsAdvancePurchaseRate, cancellationDate));
 
             penaltyAmount = MoneyRounder.Ceil(penaltyAmount, booking.Currency);
             
             return new MoneyAmount(penaltyAmount, booking.Currency);
 
-            static double GetPenaltyPercent(Deadline deadline, bool isAdvancePurchaseRate, DateTime forDate)
+            static double GetPenaltyFraction(Deadline deadline, bool isAdvancePurchaseRate, DateTime cancellationDate)
             {
                 if (isAdvancePurchaseRate)
                     return Whole;
                 
                 if (!deadline.Policies.Any())
-                    return deadline.Date <= forDate
+                    return cancellationDate >= deadline.Date // Booking was cancelled after deadline
                         ? Whole
                         : Nothing;
 
                 var appliedPolicy = deadline.Policies
                     .OrderBy(p => p.FromDate)
-                    .LastOrDefault(p => p.FromDate <= forDate);
+                    .LastOrDefault(p => p.FromDate <= cancellationDate);
 
                 return appliedPolicy?.Percentage / 100 ?? Nothing;
             }

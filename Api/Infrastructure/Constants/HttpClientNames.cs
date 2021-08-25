@@ -8,6 +8,8 @@
         public const string Identity = "Identity";
         public const string Connectors = "Connectors";
         public const string MapperApi = "Mapper";
+        public const string VccApi = "Vcc";
         public const string MapperIdentityClient = "MapperIdentityClient";
+        public const string NGenius = "NGenius";
     }
 }

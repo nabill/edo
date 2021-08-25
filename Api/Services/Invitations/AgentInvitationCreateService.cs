@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
@@ -14,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -47,10 +49,12 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             var invitationCode = GenerateRandomCode();
             var now = _dateTimeProvider.UtcNow();
 
-            return SaveInvitation()
+            return Result.Success()
+                .Ensure(AllProvidedRolesExist, "All roles should exist")
+                .Bind(SaveInvitation)
                 .Tap(LogInvitationCreated)
                 .Map(_ => invitationCode);
-
+            
 
             string GenerateRandomCode()
             {
@@ -60,6 +64,14 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 provider.GetBytes(byteArray);
 
                 return Base64UrlEncoder.Encode(byteArray);
+            }
+
+
+            async Task<bool> AllProvidedRolesExist()
+            {
+                var allRoleIds = await _context.AgentRoles.Select(r => r.Id).ToListAsync();
+
+                return prefilledData.RoleIds.All(x => allRoleIds.Contains(x));
             }
 
 

@@ -50,39 +50,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
         }
         
-        
-        [Fact]
-        public async Task Should_return_bookings_within_given_checkin_date()
-        {
-            var date = new DateTime(2021, 12, 2);
-            var bookings = new []
-            {
-                CreateBooking(id: 1, checkInDate: new DateTime(2021, 12, 2)),
-                CreateBooking(id: 2, checkInDate: new DateTime(2021, 12, 3)),
-                CreateBooking(id: 3, checkInDate: new DateTime(2021, 12, 4)),
-                CreateBooking(id: 4, checkInDate: new DateTime(2021, 12, 5)),
-            };
-            var service = CreateProcessingService(bookings);
-
-            var bookingsToCapture = await service.GetForCharge(date);
-
-            Assert.Contains(1, bookingsToCapture);
-            Assert.DoesNotContain(2, bookingsToCapture);
-            Assert.DoesNotContain(3, bookingsToCapture);
-            Assert.DoesNotContain(4, bookingsToCapture);
-
-            static Booking CreateBooking(int id, DateTime checkInDate) => new Booking
-            {
-                Id = id, 
-                PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Status = BookingStatuses.Confirmed,
-                PaymentType = PaymentTypes.VirtualAccount,
-                DeadlineDate = null,
-                CheckInDate = checkInDate
-            };
-        }
-        
-        
         [Fact]
         public async Task Should_return_bookings_within_valid_payment_methods()
         {

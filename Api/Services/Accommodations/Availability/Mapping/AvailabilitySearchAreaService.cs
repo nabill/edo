@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
 using HappyTravel.SuppliersCatalog;
 

@@ -153,6 +153,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///  Gets specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        [HttpGet("{agencyId}")]
+        [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetAgency(int agencyId)
+            => OkOrBadRequest(await _agencyManagementService.Get(agencyId, LanguageCode));
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;

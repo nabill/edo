@@ -9,13 +9,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     public readonly struct SupplierAvailabilitySearchState
     {
         [JsonConstructor]
-        private SupplierAvailabilitySearchState(Guid id, AvailabilitySearchTaskState taskState, List<string> duplicateReportsIds, int resultCount = 0, string error = null)
+        private SupplierAvailabilitySearchState(Guid id, AvailabilitySearchTaskState taskState, List<string> htIds, int resultCount = 0, string error = null)
         {
             Id = id;
             TaskState = taskState;
             ResultCount = resultCount;
             Error = error;
-            DuplicateReportsIds = duplicateReportsIds;
+            HtIds = htIds;
         }
 
 
@@ -42,15 +42,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         /// <summary>
         /// Duplicate reports ids
         /// </summary>
-        public List<string> DuplicateReportsIds { get; }
+        public List<string> HtIds { get; }
 
 
         public static SupplierAvailabilitySearchState Failed(Guid id, string error)
             => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, new List<string>(), error: error);
 
 
-        public static SupplierAvailabilitySearchState Completed(Guid id, List<string> duplicateReportsIds, int resultCount, string error = null)
-            => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, duplicateReportsIds, resultCount, error);
+        public static SupplierAvailabilitySearchState Completed(Guid id, List<string> htIds, int resultCount, string error = null)
+            => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, htIds, resultCount, error);
 
         
         public static SupplierAvailabilitySearchState Pending(Guid id) => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Pending, new List<string>());

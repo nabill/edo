@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,12 +9,13 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
 using HappyTravel.Edo.Data;
 using HappyTravel.ErrorHandling.Extensions;
-using HappyTravel.StdOutLogger.Extensions;
+using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -80,12 +81,26 @@ namespace HappyTravel.Edo.Api
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
-                .AddTracing(HostingEnvironment, Configuration)
+                // TODO: uncomment to enable MongoDB
+                //.AddMongoDbStorage(Configuration, vaultClient) 
+                .AddTracing(Configuration, options =>
+                {
+                    options.ServiceName = $"{HostingEnvironment.ApplicationName}-{HostingEnvironment.EnvironmentName}";
+                    options.JaegerHost = HostingEnvironment.IsLocal()
+                        ? Configuration.GetValue<string>("Jaeger:AgentHost")
+                        : Configuration.GetValue<string>(Configuration.GetValue<string>("Jaeger:AgentHost"));
+                    options.JaegerPort = HostingEnvironment.IsLocal()
+                        ? Configuration.GetValue<int>("Jaeger:AgentPort")
+                        : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
+                    options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
+                })
                 .AddUserEventLogging(Configuration, vaultClient);
 
+            var (apiName, authorityUrl) = GetApiNameAndAuthority(Configuration, HostingEnvironment, vaultClient);
+
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
-                .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
-                .ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
+                .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient, authorityUrl)
+                .ConfigureAuthentication(Configuration, HostingEnvironment, apiName, authorityUrl)
                 .AddServices();
 
             services.AddHealthChecks()
@@ -104,8 +119,9 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("agent", new OpenApiInfo {Title = "Happytravel.com Edo API for an agent app", Version = "v1.0"});
-                options.SwaggerDoc("admin", new OpenApiInfo {Title = "Happytravel.com Edo API for an admin app", Version = "v1.0"});
+                options.SwaggerDoc("agent", new OpenApiInfo { Title = "Happytravel.com Edo API for an agent app", Version = "v1.0" });
+                options.SwaggerDoc("admin", new OpenApiInfo { Title = "Happytravel.com Edo API for an admin app", Version = "v1.0" });
+                options.SwaggerDoc("property-owner", new OpenApiInfo { Title = "Happytravel.com Edo API for property owners", Version = "v1.0" });
                 options.SwaggerDoc("service", new OpenApiInfo { Title = "Happytravel.com service Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -141,7 +157,7 @@ namespace HappyTravel.Edo.Api
             services.AddSwaggerGenNewtonsoftSupport();
             
             services.AddOData();
-            services.AddNotificationCenter();
+            services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             
             services.AddMvcCore(options =>
                 {
@@ -207,6 +223,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.SwaggerEndpoint("/swagger/agent/swagger.json", "Happytravel.com Edo API for an agent app");
                     options.SwaggerEndpoint("/swagger/admin/swagger.json", "Happytravel.com Edo API for an admin app");
+                    options.SwaggerEndpoint("/swagger/property-owner/swagger.json", "Happytravel.com Edo API for property owners");
                     options.SwaggerEndpoint("/swagger/service/swagger.json", "Happytravel.com service Edo API");
                     options.RoutePrefix = string.Empty;
                 });
@@ -242,6 +259,23 @@ namespace HappyTravel.Edo.Api
                     endpoints.MapHub<AdminNotificationHub>("/signalr/notifications/admins");
                     endpoints.MapHub<SearchHub>("/signalr/search");
                 });
+        }
+
+
+        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
+            IVaultClient vaultClient)
+        {
+            var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
+
+            var apiName = configuration["Authority:ApiName"];
+            var authorityUrl = configuration["Authority:Endpoint"];
+            if (environment.IsDevelopment() || environment.IsLocal())
+                return (apiName, authorityUrl);
+
+            apiName = authorityOptions["apiName"];
+            authorityUrl = authorityOptions["authorityUrl"];
+
+            return (apiName, authorityUrl);
         }
 
 

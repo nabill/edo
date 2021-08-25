@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
     {
         public int BookingId { get; init; }
         public string ReferenceCode { get; init; }
-        public BookingStatuses Status { get; init; }
+        public string Status { get; init; }
         public DateTime ChangeTime { get; init; }
         public string AccommodationName { get; init; }
         public ImageInfo AccommodationPhoto { get; init; }

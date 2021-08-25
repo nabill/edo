@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> Deactivate(int counterpartyId, int counterpartyAccountId, string reason);
 
-        Task<Result<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency);
+        Task<List<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency);
 
         Task<Result> AddMoney(int counterpartyAccountId, PaymentData paymentData, ApiCaller apiCaller);
 

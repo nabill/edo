@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
@@ -10,22 +8,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public WideAvailabilityResult(Guid id, 
-            SlimAccommodation accommodation,
-            List<RoomContractSet> roomContractSets,
-            decimal minPrice,
-            decimal maxPrice,
-            bool hasDuplicate,
-            DateTime checkInDate,
-            DateTime checkOutDate,
-            Suppliers? supplier,
-            string htId)
+        public WideAvailabilityResult(SlimAccommodation accommodation, List<RoomContractSet> roomContractSets, decimal minPrice,
+            decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, Suppliers? supplier, string htId)
         {
-            Id = id;
             Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
-            HasDuplicate = hasDuplicate;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Supplier = supplier;
@@ -35,12 +23,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate,
-                result.CheckInDate, result.CheckOutDate, result.Supplier, result.HtId)
+            : this(result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.CheckInDate,
+                result.CheckOutDate, result.Supplier, result.HtId)
         { }
         
-        public Guid Id { get; }
-
         /// <summary>
         /// Accommodation data
         /// </summary>
@@ -55,12 +41,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Maximal room contract set price
         /// </summary>
         public decimal MaxPrice { get; }
-
-        
-        /// <summary>
-        /// Indicates that accommodation of this availability has duplicates in other connectors.
-        /// </summary>
-        public bool HasDuplicate { get; }
 
         /// <summary>
         /// Check in date

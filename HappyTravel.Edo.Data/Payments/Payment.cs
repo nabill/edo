@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Data.Payments
         public DateTime Modified { get; set; }
         public PaymentStatuses Status { get; set; }
         public PaymentTypes PaymentMethod { get; set; }
+        public PaymentProcessors PaymentProcessor { get; set; }
         public string Data { get; set; }
     }
 }

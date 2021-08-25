@@ -73,8 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             return _context.Bookings
                 .Where(IsBookingValidForChargePredicate)
-                .Where(b => b.CheckInDate <= date
-                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date)
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -90,17 +89,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             async Task<Result<string>> Charge(Booking booking, ApiCaller serviceAcc)
             {
-                if (booking.CheckInDate <= _dateTimeProvider.UtcNow())
-                {
-                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
-                    { 
-                        Source = BookingChangeSources.System,
-                        Event = BookingChangeEvents.Charge,
-                        Reason = "Unable to charge due to expiration of check in date"
-                    });
-                    return Result.Failure<string>($"Unable to charge for booking {booking.ReferenceCode}. Reason: check in date expired");
-                }
-                
                 if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
                     var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, serviceAcc,
@@ -240,7 +228,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             var agencyIds = await _context.Agencies
                 .Where(a => a.IsActive)
                 .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive 
-                    && r.AgentRoleIds.Any(rolesWithPermission.Contains)))
+                    && r.AgentRoleIds.Any(rr => rolesWithPermission.Contains(rr))))
                 .Where(a => _context.AgencyAccounts.Any(acc => acc.AgencyId == a.Id && acc.Currency == Currencies.USD))
                 .Select(agency => agency.Id)
                 .ToListAsync();

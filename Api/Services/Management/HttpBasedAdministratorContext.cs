@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
@@ -23,13 +24,10 @@ namespace HappyTravel.Edo.Api.Services.Management
             var (_, isFailure, administrator, _) = await GetCurrent();
             if (isFailure)
                 return false;
-            
-            var availablePermissions = await _context.AdministratorRoles
-                .Where(x => administrator.AdministratorRoleIds.Contains(x.Id))
-                .Select(x => x.Permissions)
-                .ToListAsync();
 
-            var hasPermission = availablePermissions.Any(x => x.HasFlag(permission));
+            var availablePermissions = await GetAvailablePermissions(administrator);
+
+            var hasPermission = availablePermissions.HasFlag(permission);
 
             return hasPermission;
         }
@@ -43,12 +41,23 @@ namespace HappyTravel.Edo.Api.Services.Management
             
             var identityHash = HashGenerator.ComputeSha256(identity);
             var administrator = await _context.Administrators
-                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
+                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash && c.IsActive);
 
             if (administrator != default)
                 return Result.Success(administrator);
 
             return Result.Failure<Administrator>("Could not get administrator");
+        }
+
+
+        private async Task<AdministratorPermissions> GetAvailablePermissions(Administrator administrator)
+        {
+            var rolesPermissions = await _context.AdministratorRoles
+                .Where(x => administrator.AdministratorRoleIds.Contains(x.Id))
+                .Select(x => x.Permissions)
+                .ToListAsync();
+
+            return rolesPermissions.SelectMany(r => r.ToList()).Aggregate((a, b) => a | b);
         }
 
 

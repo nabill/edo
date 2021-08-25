@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -31,8 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationAcceptService agentInvitationAcceptService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgencyService agencyService,
-            IHttpClientFactory httpClientFactory,
-            IIdentityUserInfoService identityUserInfoService)
+            IIdentityUserInfoService identityUserInfoService, 
+            IAgentRolesService agentRolesService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -41,8 +40,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationAcceptService = agentInvitationAcceptService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agencyService = agencyService;
-            _httpClientFactory = httpClientFactory;
             _identityUserInfoService = identityUserInfoService;
+            _agentRolesService = agentRolesService;
         }
 
 
@@ -116,14 +115,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Request for child agency invitation</param>
         /// <returns></returns>
-        [HttpPost("agency/invitations/send")]
+        [HttpPost("agency/child-agencies/invitations/send")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
         public async Task<IActionResult> InviteChildAgency([FromBody] CreateChildAgencyInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
+            var roleIds = await _agentRolesService.GetAllRoleIds();
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(roleIds),
                 UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>>
         /// <returns></returns>
-        [HttpPost("agency/invitations/{invitationCodeHash}/resend")]
+        [HttpPost("agency/child-agencies/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
@@ -158,14 +158,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request">Request for child agency invitation</param>
         /// <returns>Invitation code</returns>
-        [HttpPost("agency/invitations/generate")]
+        [HttpPost("agency/child-agencies/invitations/generate")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
         public async Task<IActionResult> GenerateChildAgencyInvite([FromBody] CreateChildAgencyInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(),
+            var roleIds = await _agentRolesService.GetAllRoleIds();
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(roleIds),
                 UserInvitationTypes.ChildAgency, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -180,7 +181,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="invitationCodeHash">Invitation code hash</param>>
         /// <returns>Invitation code</returns>
-        [HttpPost("agency/invitations/{invitationCodeHash}/regenerate")]
+        [HttpPost("agency/child-agencies/invitations/{invitationCodeHash}/regenerate")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.InviteChildAgencies)]
@@ -199,7 +200,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Accepts invitation to create child agency.
         /// </summary>
         /// <returns></returns>
-        [HttpPost("agency/register")]
+        [HttpPost("agency/child-agencies/register")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AcceptChildAgencyInvite([FromBody] RegisterInvitedAgencyRequest request)
@@ -271,8 +272,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationAcceptService _agentInvitationAcceptService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgencyService _agencyService;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgencyManagementService _agencyManagementService;
+        private readonly IAgentRolesService _agentRolesService;
     }
 }

@@ -2,13 +2,15 @@ namespace HappyTravel.Edo.Api.Models.Management.Administrators
 {
     public readonly struct AdministratorInfo
     {
-        public AdministratorInfo(int id, string firstName, 
-            string lastName, string position)
+        public AdministratorInfo(int id, string firstName, string lastName, string position, int[] administratorRoleIds,
+            bool isActive)
         {
             Id = id;
             FirstName = firstName;
             LastName = lastName;
             Position = position;
+            AdministratorRoleIds = administratorRoleIds;
+            IsActive = isActive;
         }
         
         /// <summary>
@@ -30,5 +32,15 @@ namespace HappyTravel.Edo.Api.Models.Management.Administrators
         /// Position
         /// </summary>
         public string Position { get; }
+
+        /// <summary>
+        /// Ids of administrator roles
+        /// </summary>
+        public int[] AdministratorRoleIds { get; }
+
+        /// <summary>
+        /// Flag of administrator activity state
+        /// </summary>
+        public bool IsActive { get; }
     }
 }

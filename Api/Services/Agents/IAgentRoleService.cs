@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public interface IAgentRolesService
     {
         Task<IEnumerable<AgentRoleInfo>> GetAll();
+        Task<int[]> GetAllRoleIds();
     } 
 }

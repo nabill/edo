@@ -11,10 +11,12 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         [JsonConstructor]
         public UserInvitationData(UserDescriptionInfo userRegistrationInfo,
             // Think about removing such a special property from there
-            RegistrationAgencyInfo childAgencyRegistrationInfo)
+            RegistrationAgencyInfo childAgencyRegistrationInfo,
+            int[] roleIds)
         {
             UserRegistrationInfo = userRegistrationInfo;
             ChildAgencyRegistrationInfo = childAgencyRegistrationInfo;
+            RoleIds = roleIds;
         }
 
         /// <summary>
@@ -28,13 +30,20 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// </summary>
         public RegistrationAgencyInfo ChildAgencyRegistrationInfo { get; }
 
+        
+        /// <summary>
+        /// Role Ids assigned to the user
+        /// </summary>
+        public int[] RoleIds { get; }
 
         public override int GetHashCode()
-            => (UserRegistrationInfo, ChildAgencyRegistrationInfo).GetHashCode();
+            => (UserRegistrationInfo, ChildAgencyRegistrationInfo, AgentRoleIds: RoleIds).GetHashCode();
 
 
         public bool Equals(UserInvitationData other)
-            => UserRegistrationInfo.Equals(other.UserRegistrationInfo) && ChildAgencyRegistrationInfo.Equals(other.ChildAgencyRegistrationInfo);
+            => UserRegistrationInfo.Equals(other.UserRegistrationInfo)
+                && ChildAgencyRegistrationInfo.Equals(other.ChildAgencyRegistrationInfo)
+                && RoleIds.Equals(other.RoleIds);
 
 
         public override bool Equals(object obj)

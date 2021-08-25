@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -17,16 +16,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             public bool Equals((Suppliers, AccommodationAvailabilityResult Data) result1, (Suppliers, AccommodationAvailabilityResult Data) result2)
             {
-                if (string.IsNullOrWhiteSpace(result1.Data.DuplicateReportId) || string.IsNullOrWhiteSpace(result2.Data.DuplicateReportId))
+                if (string.IsNullOrWhiteSpace(result1.Data.HtId) || string.IsNullOrWhiteSpace(result2.Data.HtId))
                     return false;
                 
-                return result1.Data.DuplicateReportId == result2.Data.DuplicateReportId;
+                return result1.Data.HtId == result2.Data.HtId;
             }
 
 
             public int GetHashCode((Suppliers, AccommodationAvailabilityResult Data) result)
             {
-                return result.Data.DuplicateReportId.GetHashCode();
+                return result.Data.HtId.GetHashCode();
             }
         }
     }

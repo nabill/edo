@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FloxDc.CacheFlow;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
-using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Data.AccommodationMappings;
+using HappyTravel.Edo.Api.Services.Analytics;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,22 +22,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
-        public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IWideAvailabilityStorage availabilityStorage,
-            IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService,
-            IAvailabilitySearchAreaService searchAreaService,
-            IDateTimeProvider dateTimeProvider,
+        public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, IBookingAnalyticsService bookingAnalyticsService,
+            IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
             ILogger<WideAvailabilitySearchService> logger)
         {
-            _duplicatesService = duplicatesService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
             _searchAreaService = searchAreaService;
             _dateTimeProvider = dateTimeProvider;
+            _accommodationsStorage = accommodationsStorage;
             _logger = logger;
         }
         
@@ -51,13 +49,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var searchId = Guid.NewGuid();
             
             Baggage.SetSearchId(searchId);
-            _logger.LogMultiProviderAvailabilitySearchStarted(searchId);
+            _logger.LogMultiSupplierAvailabilitySearchStarted(request.CheckInDate.ToShortDateString(), request.CheckOutDate.ToShortDateString(),
+                request.HtIds.ToArray(), request.Nationality, request.RoomDetails.Count);
 
             var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
             if (isFailure)
                 return Result.Failure<Guid>(error);
 
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
+            _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
@@ -66,21 +65,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
+
         
-        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var accommodationDuplicates = await _duplicatesService.Get(agent);
-            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
+            var suppliers = options.Suppliers is not null && options.Suppliers.Any()
+                ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
+                : searchSettings.EnabledConnectors;
             
+            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, suppliers);
+            var htIds = supplierSearchResults
+                .SelectMany(r => r.AccommodationAvailabilities.Select(a=>a.HtId))
+                .ToList();
+
+            await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
+
             return CombineAvailabilities(supplierSearchResults);
 
             IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
@@ -88,40 +95,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (availabilities == null || !availabilities.Any())
                     return Enumerable.Empty<WideAvailabilityResult>();
 
-                return availabilities
+                var queryable = availabilities
                     .SelectMany(supplierResults =>
                     {
                         var (supplierKey, supplierAvailabilities) = supplierResults;
                         return supplierAvailabilities
-                            .Select(pa => (Provider: supplierKey, Availability: pa));
+                            .Select(pa => (Supplier: supplierKey, Availability: pa));
                     })
-                    .OrderBy(r => r.Availability.Timestamp)
+                    .OrderBy(r => r.Availability.Created)
                     .RemoveRepeatedAccommodations()
                     .Select(r =>
                     {
                         var (supplier, availability) = r;
-                        var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
-                        var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
                         var roomContractSets = availability.RoomContractSets
-                            .Select(rs => searchSettings.IsDirectContractFlagVisible
-                                ? rs
-                                : rs.WithFalseDirectContractsFlag())
+                            .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible,
+                                isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
                             .ToList();
-                        
-                        return new WideAvailabilityResult(availability.Id,
-                            availability.Accommodation,
+
+                        if (searchSettings.AprMode == AprMode.Hide)
+                            roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
+
+                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow())
+                                .ToList();
+
+                        var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
+
+                        return new WideAvailabilityResult(accommodation,
                             roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
-                            hasDuplicatesForCurrentAgent,
                             availability.CheckInDate,
                             availability.CheckOutDate,
                             searchSettings.IsSupplierVisible
                                 ? supplier
-                                : (Suppliers?) null,
+                                : (Suppliers?)null,
                             availability.HtId);
                     })
-                    .Where(a => a.RoomContractSets.Any());
+                    .AsQueryable();
+
+                return options.ApplyTo(queryable);
             }
         }
 
@@ -155,13 +168,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -27,7 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
             IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService)
+            ISupplierOrderService supplierOrderService,
+            IBookingConfirmationService bookingConfirmationService)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -35,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
+            _bookingConfirmationService = bookingConfirmationService;
         }
         
         
@@ -47,6 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder);
+            //.Check(SendEmailToPropertyOwner); //TODO: Sending emails to property owners will be uncommented after readiness
+            // on the front of the booking confirmation page
 
             return booking;
 
@@ -122,6 +127,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             Task CreateSupplierOrder(Booking booking) 
                 => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.ConvertedSupplierPrice, availabilityInfo.OriginalSupplierPrice, availabilityInfo.SupplierDeadline, booking.Supplier);
+
+
+            async Task<Result> SendEmailToPropertyOwner(Booking booking)
+            {
+                if (booking.IsDirectContract && booking.Supplier == Suppliers.Columbus)
+                    return Result.Success();
+
+                return await _bookingConfirmationService.SendConfirmationEmail(booking);
+            }
         }
 
 
@@ -226,5 +240,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IBookingConfirmationService _bookingConfirmationService;
     }
 }

@@ -1,20 +1,21 @@
-﻿using System;
+using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -40,10 +41,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
         }
 
 
-        public Task<Result<string>> Create(UserDescriptionInfo prefilledData, int inviterUserId)
+        public Task<Result<string>> Create(UserInvitationData prefilledData, int inviterUserId)
         {
+            if (prefilledData.RoleIds is null || !prefilledData.RoleIds.Any())
+                return Task.FromResult(Result.Failure<string>("Invitation should have role ids"));
+            
             var invitationCode = GenerateRandomCode();
             var now = _dateTimeProvider.UtcNow();
+            var registrationInfo = prefilledData.UserRegistrationInfo;
 
             return SaveInvitation()
                 .Tap(LogInvitationCreated)
@@ -66,12 +71,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 var newInvitation = new UserInvitation
                 {
                     CodeHash = HashGenerator.ComputeSha256(invitationCode),
-                    Email = prefilledData.Email,
+                    Email = registrationInfo.Email,
                     Created = now,
                     InviterUserId = inviterUserId,
                     InvitationType = UserInvitationTypes.Administrator,
                     InvitationStatus = UserInvitationStatuses.Active,
-                    Data = JsonConvert.SerializeObject(prefilledData.ToUserInvitationData())
+                    Data = JsonConvert.SerializeObject(prefilledData)
                 };
 
                 _context.UserInvitations.Add(newInvitation);
@@ -83,29 +88,43 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
 
 
             void LogInvitationCreated()
-                => _logger.LogInvitationCreated(UserInvitationTypes.Administrator, prefilledData.Email);
+                => _logger.LogInvitationCreated(UserInvitationTypes.Administrator, registrationInfo.Email);
         }
 
 
-        public Task<Result<string>> Send(UserDescriptionInfo prefilledData, int inviterUserId)
+        public Task<Result<string>> Send(UserInvitationData prefilledData, int inviterUserId)
         {
-            return Create(prefilledData, inviterUserId)
+            return Result.Success()
+                .Ensure(AllProvidedRolesExist, "All admin roles should exist")
+                .Bind(CreateInvitation)
                 .Check(SendInvitationMail);
 
 
+            async Task<bool> AllProvidedRolesExist()
+            {
+                var allRoles = await _context.AdministratorRoles.Select(x => x.Id).ToListAsync();
+                return prefilledData.RoleIds.All(allRoles.Contains);
+            }
+            
+            
+            Task<Result<string>> CreateInvitation()
+                => Create(prefilledData, inviterUserId);
+            
+
             async Task<Result> SendInvitationMail(string invitationCode)
             {
+                var registrationInfo = prefilledData.UserRegistrationInfo;
                 var messagePayload = new InvitationData
                 {
                     InvitationCode = invitationCode,
-                    UserEmailAddress = prefilledData.Email,
-                    UserName = $"{prefilledData.FirstName} {prefilledData.LastName}",
+                    UserEmailAddress = registrationInfo.Email,
+                    UserName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
                     FrontendBaseUrl = _options.FrontendBaseUrl
                 };
 
                 return await _notificationService.Send(messageData: messagePayload,
                     notificationType: NotificationTypes.AdministratorInvitation,
-                    emails: new() { prefilledData.Email },
+                    emails: new() { registrationInfo.Email },
                     templateId: _options.AdminInvitationTemplateId);
             }
         }
@@ -127,8 +146,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Invitations
                 => _invitationRecordService.SetToResent(oldInvitationCodeHash);
 
 
-            UserDescriptionInfo GetInvitationData(UserInvitation invitation)
-                => _invitationRecordService.GetInvitationData(invitation).UserRegistrationInfo;
+            UserInvitationData GetInvitationData(UserInvitation invitation)
+                => _invitationRecordService.GetInvitationData(invitation);
         }
 
 

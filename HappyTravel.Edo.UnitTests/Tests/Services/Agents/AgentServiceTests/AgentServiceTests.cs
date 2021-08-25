@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
             edoContextMock.Setup(x => x.DisplayMarkupFormulas).Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
-            edoContextMock.Setup(x => x.AgentRoles).Returns(DbSetMockProvider.GetDbSetMock(new List<AgentRole>()));
+            edoContextMock.Setup(x => x.AgentRoles).Returns(DbSetMockProvider.GetDbSetMock(_agentRoles));
 
             _agentService = new AgentService(edoContextMock.Object, new DefaultDateTimeProvider());
         }
@@ -198,6 +198,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 AgentId = 4,
                 Type = AgentAgencyRelationTypes.Regular,
                 IsActive = true
+            }
+        };
+
+        private readonly IEnumerable<AgentRole> _agentRoles = new[]
+        {
+            new AgentRole
+            {
+                Id = 0,
+                Name = "Can book",
+                Permissions = InAgencyPermissions.AccommodationBooking
             }
         };
 

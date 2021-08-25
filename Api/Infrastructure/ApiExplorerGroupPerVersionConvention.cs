@@ -18,6 +18,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 case "AgentControllers":
                     controller.ApiExplorer.GroupName = "agent";
                     return;
+                case "PropertyOwnerControllers":
+                    controller.ApiExplorer.GroupName = "property-owner";
+                    return;
                 case "Controllers":
                     controller.ApiExplorer.GroupName = "service";
                     return;

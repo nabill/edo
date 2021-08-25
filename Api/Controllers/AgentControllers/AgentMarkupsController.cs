@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agentId">Agent id</param>
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
-        [HttpPost("agency/agents/{agentId}/markups")]
+        [HttpPost("agency/agents/{agentId}/markup-policies")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agentId">Agent id</param>
         /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
-        [HttpDelete("agency/agents/{agentId}/markups/{policyId}")]
+        [HttpDelete("agency/agents/{agentId}/markup-policies/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="policyId">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
-        [HttpPut("agency/agents/{agentId}/markups/{policyId}")]
+        [HttpPut("agency/agents/{agentId}/markup-policies/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="agentId">Agent id</param>
         /// <returns></returns>
-        [HttpGet("agency/agents/{agentId}/markups")]
+        [HttpGet("agency/agents/{agentId}/markup-policies")]
         [ProducesResponseType(typeof(List<MarkupInfo>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetPolicies(int agentId)
         {

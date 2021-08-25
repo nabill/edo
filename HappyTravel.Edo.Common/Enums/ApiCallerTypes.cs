@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.Common.Enums
         Agent = 2,
         ServiceAccount = 3,
         InternalServiceAccount = 4,
-        Supplier = 5
+        Supplier = 5,
+        PropertyOwner = 6
     }
 }

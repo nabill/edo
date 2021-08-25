@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Calculates signature from json model
         /// </summary>
         /// <returns>signature</returns>
-        [HttpPost("signatures")]
+        [HttpPost("signatures/calculate")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public IActionResult CalculateSignature([FromBody] JObject value)

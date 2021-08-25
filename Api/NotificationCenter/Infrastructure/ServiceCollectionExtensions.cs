@@ -5,9 +5,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddNotificationCenter(this IServiceCollection services)
+        public static IServiceCollection AddNotificationCenter(this IServiceCollection services, string redisConnectionString)
         {
-            services.AddSignalR();
+            services.AddSignalR().AddStackExchangeRedis(redisConnectionString);
             services.AddTransient<IInternalNotificationService, InternalNotificationService>();
             services.AddTransient<INotificationOptionsService, NotificationOptionsService>();
             services.AddTransient<INotificationService, NotificationService>();

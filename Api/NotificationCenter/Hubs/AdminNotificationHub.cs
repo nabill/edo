@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Hubs
                 return;
 
             var adminId = await _context.Administrators
-                .Where(a => a.IdentityHash == HashGenerator.ComputeSha256(identityId))
+                .Where(a => a.IdentityHash == HashGenerator.ComputeSha256(identityId) && a.IsActive)
                 .Select(a => a.Id)
                 .SingleOrDefaultAsync();
             if (adminId == default)

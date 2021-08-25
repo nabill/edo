@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -34,6 +35,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
+            Baggage.SetSearchId(bookingRequest.SearchId);
+
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Ensure(IsDeadlineNotPassed, "Deadline already passed, can not book")
@@ -53,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
                 => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
-                    bookingRequest.ResultId,
+                    bookingRequest.HtId,
                     bookingRequest.RoomContractSetId);
             
 

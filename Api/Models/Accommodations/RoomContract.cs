@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct RoomContract
+    public record RoomContract
     {
         [JsonConstructor]
         public RoomContract(BoardBasisTypes boardBasis, string mealPlan, int contractTypeCode, bool isAvailableImmediately,
@@ -35,75 +35,75 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The board basis of a contract.
         /// </summary>
-        public BoardBasisTypes BoardBasis { get; }
+        public BoardBasisTypes BoardBasis { get; init; }
 
         /// <summary>
         ///     The textual description of a board basis.
         /// </summary>
-        public string MealPlan { get; }
+        public string MealPlan { get; init; }
 
         /// <summary>
         ///     The numerical code of a contract type.
         /// </summary>
-        public int ContractTypeCode { get; }
+        public int ContractTypeCode { get; init; }
 
-        public bool IsAvailableImmediately { get; }
+        public bool IsAvailableImmediately { get; init; }
 
         /// <summary>
         ///     Indicates if a contract a dynamic offer.
         /// </summary>
-        public bool IsDynamic { get; }
+        public bool IsDynamic { get; init; }
 
         /// <summary>
         ///     The textual contract description i.e. "Pool View Suite", "Ocean Club Room", or "Pioneer Cabin".
         /// </summary>
-        public string ContractDescription { get; }
+        public string ContractDescription { get; init; }
 
         /// <summary>
         ///     The total contract price.
         /// </summary>
-        public Rate Rate { get; }
+        public Rate Rate { get; init; }
 
         /// <summary>
         ///     Contract remarks.
         /// </summary>
-        public List<KeyValuePair<string, string>> Remarks { get; }
+        public List<KeyValuePair<string, string>> Remarks { get; init; }
 
         /// <summary>
         ///     Required. Number of adult passengers.
         /// </summary>
         [Required]
-        public int AdultsNumber { get; }
+        public int AdultsNumber { get; init; }
 
         /// <summary>
         ///     Ages of each child.
         /// </summary>
-        public List<int> ChildrenAges { get; }
+        public List<int> ChildrenAges { get; init; }
 
         /// <summary>
         ///     Indicates if extra child bed needed.
         /// </summary>
-        public bool IsExtraBedNeeded { get; }
+        public bool IsExtraBedNeeded { get; init; }
 
         /// <summary>
         ///     Deadline and cancellation information.
         ///     <b>Null considers as an unknown deadline for first search steps, and as an empty deadline for the evaluation step.</b>
         /// </summary>
-        public Deadline Deadline { get; }
+        public Deadline Deadline { get; init; }
 
         /// <summary>
         ///     Indicates if a contract is an advance purchase.
         /// </summary>
-        public bool IsAdvancePurchaseRate { get; }
+        public bool IsAdvancePurchaseRate { get; init; }
 
         /// <summary>
         ///     List of room prices on daily basis
         /// </summary>
-        public List<DailyRate> DailyRoomRates { get; }
+        public List<DailyRate> DailyRoomRates { get; init; }
 
         /// <summary>
         ///     Desirable room type.
         /// </summary>
-        public RoomTypes Type { get; }
+        public RoomTypes Type { get; init; }
     }
 }

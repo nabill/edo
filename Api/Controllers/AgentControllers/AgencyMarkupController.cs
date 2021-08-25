@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Agency id</param>
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
-        [HttpPost("agency/child-agencies/{agencyId}/markups")]
+        [HttpPost("agency/child-agencies/{agencyId}/markup-policies")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="agencyId">Agency id</param>
         /// <returns></returns>
-        [HttpGet("agency/child-agencies/{agencyId}/markups")]
+        [HttpGet("agency/child-agencies/{agencyId}/markup-policies")]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(List<MarkupInfo>), (int)HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">Agency id</param>
         /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
-        [HttpDelete("agency/child-agencies/{agencyId}/markups/{policyId}")]
+        [HttpDelete("agency/child-agencies/{agencyId}/markup-policies/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="policyId">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
-        [HttpPut("agency/child-agencies/{agencyId}/markups/{policyId}")]
+        [HttpPut("agency/child-agencies/{agencyId}/markup-policies/{policyId}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]

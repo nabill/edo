@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -34,8 +33,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IInvitationRecordService invitationRecordService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgentSettingsManager agentSettingsManager,
-            IAgentPermissionManagementService permissionManagementService,
-            IHttpClientFactory httpClientFactory,
             IAgentService agentService,
             IAgentStatusManagementService agentStatusManagementService,
             IAgentInvitationRecordListService agentInvitationRecordListService,
@@ -50,8 +47,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _invitationRecordService = invitationRecordService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agentSettingsManager = agentSettingsManager;
-            _permissionManagementService = permissionManagementService;
-            _httpClientFactory = httpClientFactory;
             _agentService = agentService;
             _agentStatusManagementService = agentStatusManagementService;
             _agentInvitationRecordListService = agentInvitationRecordListService;
@@ -130,7 +125,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.RegistrationInfo.ToUserInvitationData(request.Email),
+            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
                 UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
 
             if (isFailure)
@@ -171,7 +166,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CreateInvitation([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.RegistrationInfo.ToUserInvitationData(request.Email),
+            var (_, isFailure, code, error) = await _agentInvitationCreateService.Create(request.ToUserInvitationData(),
                 UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -186,8 +181,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="invitationCodeHash">Invitation code hash</param>
         /// <returns>Invitation code.</returns>
         [HttpPost("agent/invitations/{invitationCodeHash}/regenerate")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> RecreateInvitation(string invitationCodeHash)
         {
@@ -221,7 +216,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///    Gets agency not accepted invitations list
         /// </summary>
-        [HttpGet("agency/invitations")]
+        [HttpGet("agency/invitations/not-accepted")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyNotAcceptedInvitations()
@@ -234,15 +229,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///    Gets agent not accepted invitations list
         /// </summary>
-        [HttpGet("agent/invitations")]
+        [HttpGet("agent/invitations/not-accepted")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentNotAcceptedInvitations()
         {
             var agent = await _agentContextService.GetAgent();
             return await _agentInvitationRecordListService.GetAgentNotAcceptedInvitations(agent.AgentId);
         }
-        
-        
+
+
         /// <summary>
         ///    Gets agency accepted invitations list
         /// </summary>
@@ -343,29 +338,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Updates permissions agent permissions
-        /// </summary>
-        [HttpPut("agency/agents/{agentId}/permissions")]
-        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int agentId,
-            [FromBody] List<InAgencyPermissions> newPermissions)
-        {
-            var (_, isFailure, permissions, error) = await _permissionManagementService
-                .SetInAgencyPermissions(agentId, newPermissions, await _agentContextService.GetAgent());
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            await _agentContextInternal.RefreshAgentContext();
-
-            return Ok(permissions);
-        }
-
-
-        /// <summary>
         ///     Updates agent roles
         /// </summary>
         [HttpPut("agency/agents/{agentId}/roles")]
@@ -457,8 +429,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("all-permissions-list")]
         [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() 
-            => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
+        public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 
         /// <summary>
@@ -468,18 +439,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Enable(int agentId) 
+        public async Task<IActionResult> Enable(int agentId)
             => OkOrBadRequest(await _agentStatusManagementService.Enable(agentId, await _agentContextService.GetAgent()));
-        
+
 
         /// <summary>
         ///     Disables a given agent to operate using a given agency
         /// </summary>
         [HttpPost("agency/agents/{agentId}/disable")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Disable(int agentId) 
+        public async Task<IActionResult> Disable(int agentId)
             => OkOrBadRequest(await _agentStatusManagementService.Disable(agentId, await _agentContextService.GetAgent()));
 
 
@@ -489,8 +460,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAgentRegistrationService _agentRegistrationService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IAgentStatusManagementService _agentStatusManagementService;

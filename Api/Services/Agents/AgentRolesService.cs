@@ -22,8 +22,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agentRoles = await _context.AgentRoles.ToListAsync();
             return agentRoles.Select(ToAgentRoleInfo);
         }
+
+
+        public async Task<int[]> GetAllRoleIds()
+            => await _context.AgentRoles.Select(r => r.Id).ToArrayAsync();        
         
-        
+
         private static AgentRoleInfo ToAgentRoleInfo(AgentRole agentRole)
             => new (agentRole.Id, agentRole.Name, agentRole.Permissions.ToList());
 

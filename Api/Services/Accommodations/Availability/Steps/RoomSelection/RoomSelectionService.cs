@@ -4,16 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
-using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
@@ -26,66 +24,49 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionService : IRoomSelectionService
     {
         public RoomSelectionService(IWideAvailabilityStorage wideAvailabilityStorage,
-            IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService,
+            IBookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
-            _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
-            _analyticsService = analyticsService;
+            _bookingAnalyticsService = bookingAnalyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _mapperClient = mapperClient;
         }
 
 
-        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId, AgentContext agent)
+        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, string htId, AgentContext agent)
         {
-            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
-            if (isFailure)
-                return Result.Failure<AvailabilitySearchTaskState>(error);
-            
-            var supplierAccommodationIds = new List<SupplierAccommodationId>
-            {
-                new (selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
-            };
-            
-            var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
-            var suppliers = otherSuppliersAccommodations
-                .Select(a => a.Key.Supplier)
-                .ToList();
-
-            var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
+            var settings = await _accommodationBookingSettingsService.Get(agent);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, settings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
         
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
-            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
-            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, searchId, resultId, agent);
-
-            var accommodation = await _mapperClient.GetAccommodation(selectedResult.Result.Accommodation.HtId, languageCode);
-            return accommodation.IsFailure
-                ? accommodation.Error
-                : accommodation.Value.ToEdoContract();
+            var accommodation = await _mapperClient.GetAccommodation(htId, languageCode);
+            if (accommodation.IsFailure)
+                return accommodation.Error;
+            
+            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
+            
+            return accommodation.Value.ToEdoContract();
         }
 
 
-        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.SetSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
-            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
+            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, htId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
 
@@ -116,33 +97,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId, resultId, source, result.Accommodation, result.AvailabilityId, searchSettings, agent, languageCode);
+                    .GetSupplierAvailability(searchId, htId, source, result.SupplierAccommodationCode, result.AvailabilityId, searchSettings, agent, languageCode);
             }
             
 
-            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
+            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, string htId, AgentContext agent)
             {
-                var results = await GetWideAvailabilityResults(searchId, agent);
-                
-                var selectedResult = results
-                    .SingleOrDefault(r => r.Result.Id == resultId);
-
-                if (selectedResult.Equals(default))
-                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("Could not find selected availability");
-
-                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide &&
-                    selectedResult.Result.CheckInDate.Date <= _dateTimeProvider.UtcTomorrow())
+                var results = await GetWideAvailabilityResults(searchId, htId, agent);
+                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
                 {
-                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                    results = results
+                        .Where(r => r.Result.CheckInDate > _dateTimeProvider.UtcTomorrow());
                 }
 
-                // If there is no duplicate, we'll execute request to a single supplier only
-                if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
-                    return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
-
-                return results
-                    .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
-                    .ToList();
+                return results.ToList();
             }
 
             
@@ -158,7 +126,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                         var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
 
                         return rs.ToRoomContractSet(supplier, isDirectContractFlag);
-                    });
+                    })
+                    .OrderBy(rs => rs.Rate.FinalPrice.Amount);
             }
 
 
@@ -167,31 +136,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
+        private async Task<IEnumerable<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId,
+            AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierKey, Result: acr)))
-                .ToList();
+                .Where(r => r.Result.HtId == htId);
         }
 
 
-        private async Task<Result<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
-        {
-            var result = (await GetWideAvailabilityResults(searchId, agent))
-                .SingleOrDefault(r => r.Result.Id == resultId);
-
-            return result.Equals(default)
-                ? Result.Failure<(Suppliers, AccommodationAvailabilityResult)>("Could not find selected availability")
-                : result;
-        }
-        
-        
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly AvailabilityAnalyticsService _analyticsService;
+        private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
     }

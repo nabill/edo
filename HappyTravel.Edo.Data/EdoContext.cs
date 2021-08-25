@@ -5,7 +5,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
@@ -77,10 +76,6 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Receipt> Receipts { get; set; }
         
-        public virtual DbSet<AccommodationDuplicate> AccommodationDuplicates { get; set; }
-        
-        public virtual DbSet<AccommodationDuplicateReport> AccommodationDuplicateReports { get; set; }
-        
         public virtual DbSet<AgentSystemSettings> AgentSystemSettings { get; set; }
         
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
@@ -97,6 +92,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
+        public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -238,8 +234,6 @@ namespace HappyTravel.Edo.Data
             BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
             BuildReceipts(builder);
-            BuildAccommodationDuplicates(builder);
-            BuildAccommodationDuplicateReports(builder);
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
             BuildUploadedImages(builder);
@@ -251,6 +245,7 @@ namespace HappyTravel.Edo.Data
             BuildNotifications(builder);
             BuildNotificationOptions(builder);
             BuildDefaultNotificationOptions(builder);
+            BuildBookingConfirmationHistory(builder);
         }
 
 
@@ -388,6 +383,7 @@ namespace HappyTravel.Edo.Data
                 adm.Property(a => a.Position).IsRequired();
                 adm.Property(a => a.Email).IsRequired();
                 adm.HasIndex(a => a.IdentityHash);
+                adm.Property(a => a.IsActive).HasDefaultValue(true);
             });
         }
 
@@ -473,11 +469,13 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
                 counterparty.Property(c => c.LegalAddress).IsRequired();
+                counterparty.Property(c => c.Address).IsRequired();
+                counterparty.Property(c => c.City).IsRequired();
+                counterparty.Property(c => c.CountryCode).IsRequired();
+                counterparty.Property(c => c.Phone).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
                 counterparty.Property(c => c.State).IsRequired();
-                counterparty.Property(c => c.IsActive)
-                    .IsRequired()
-                    .HasDefaultValue(true);
+                counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 
@@ -731,33 +729,6 @@ namespace HappyTravel.Edo.Data
         }
         
         
-        private void BuildAccommodationDuplicates(ModelBuilder builder)
-        {
-            builder.Entity<AccommodationDuplicate>(duplicate =>
-            {
-                duplicate.HasKey(r => r.Id);
-                duplicate.HasIndex(r=>r.AccommodationId1);
-                duplicate.HasIndex(r=>r.AccommodationId2);
-                duplicate.HasIndex(r => r.ReporterAgencyId);
-                duplicate.HasIndex(r => r.ReporterAgentId);
-            });
-        }
-        
-        
-        private void BuildAccommodationDuplicateReports(ModelBuilder builder)
-        {
-            builder.Entity<AccommodationDuplicateReport>(duplicate =>
-            {
-                duplicate.HasKey(r => r.Id);
-                duplicate.HasIndex(r => r.ReporterAgencyId);
-                duplicate.HasIndex(r => r.ReporterAgentId);
-                
-                duplicate.HasIndex(r => r.ReporterAgentId);
-                duplicate.Property(r => r.Accommodations).HasColumnType("jsonb");
-            });
-        }
-        
-        
         private void BuildAgentSystemSettings(ModelBuilder builder)
         {
             builder.Entity<AgentSystemSettings>(settings =>
@@ -900,6 +871,21 @@ namespace HappyTravel.Edo.Data
                 e.Property(o => o.EnabledProtocols).IsRequired();
                 e.Property(o => o.IsMandatory).IsRequired();
                 e.Property(o => o.EnabledReceivers).IsRequired();
+            });
+        }
+
+
+        private void BuildBookingConfirmationHistory(ModelBuilder builder)
+        {
+            builder.Entity<BookingConfirmationHistoryEntry>(e =>
+            {
+                e.HasKey(hche => hche.Id);
+                e.Property(hche => hche.ReferenceCode).IsRequired();
+                e.HasIndex(hche => hche.ReferenceCode);
+                e.Property(hche => hche.Status).IsRequired();
+                e.Property(hche => hche.Initiator).IsRequired();
+                e.HasIndex(hche => hche.CreatedAt);
+                e.ToTable("BookingConfirmationHistory");
             });
         }
 

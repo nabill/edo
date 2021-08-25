@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IDeadlineService
     {
-        Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode);
+        Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode);
     }
 }

@@ -9,6 +9,8 @@ using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
@@ -97,6 +99,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             context
                 .Setup(x => x.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(Agencies));
+
+            context
+                .Setup(x => x.Counterparties)
+                .Returns(DbSetMockProvider.GetDbSetMock(Counterparties));
             
             return new BookingRecordsUpdater(
                 Mock.Of<IDateTimeProvider>(), 
@@ -107,6 +113,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 _supplierOrderServiceMock.Object,
                 Mock.Of<INotificationService>(),
                 Mock.Of<IBookingChangeLogService>(),
+                Mock.Of<IBookingAnalyticsService>(),
                 context.Object, 
                 Mock.Of<ILogger<BookingRecordsUpdater>>());
         }
@@ -116,7 +123,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             new()
             {
-                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1
+                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1, CounterpartyId = 1
             }
         };
 
@@ -133,6 +140,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             new()
             {
                 Id = 1
+            }
+        };
+        
+        private static readonly Counterparty[] Counterparties =
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Test Counterparty"
             }
         };
 

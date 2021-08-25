@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -127,6 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             // TODO: use counterparty information from headers to get counterparty id
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
+            // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByIdentityHash(identityHash);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
@@ -150,6 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         
         private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
         {
+            // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByApiClientCredentials(name, passwordHash);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
@@ -172,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<InAgencyPermissions> GetInAgencyPermissionsByIdentityHash(string identityHash)
+        private async Task<InAgencyPermissions> GetInAgencyPermissionsByIdentityHash(string identityHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
@@ -184,7 +187,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
+        private async Task<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
@@ -198,14 +201,17 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
+        private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
         {
+            if (agentRoleIds is null || !agentRoleIds.Any())
+                return 0;
+            
             var permissionList = await (from agentRole in _context.AgentRoles
                     where agentRoleIds.Contains(agentRole.Id)
                     select agentRole.Permissions)
                 .ToListAsync();
 
-            return permissionList.Aggregate((a, b) => a & b);
+            return permissionList.Aggregate((a, b) => a | b);
         }
 
 

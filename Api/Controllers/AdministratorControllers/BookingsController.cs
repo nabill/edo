@@ -115,6 +115,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        ///     Gets booking confirmation changes history
+        /// </summary>
+        /// <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
+        /// <returns>List of booking confirmation change events</returns>
+        [HttpGet("accommodations/bookings/{referenceCode}/confirmation-history")]
+        [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
+        {
+            return OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
+        }
+
+
+        /// <summary>
         ///     Discards accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
