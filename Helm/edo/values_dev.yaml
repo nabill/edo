@@ -78,8 +78,9 @@ affinity:
 metrics:
   enabled: true
   serviceMonitor:
+    enabled: false
+  podMonitor:
     enabled: true
-
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"

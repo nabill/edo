@@ -79,7 +79,8 @@ metrics:
   enabled: false
   serviceMonitor:
     enabled: false
-
+  podMonitor:
+    enabled: false
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
   HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
