@@ -24,6 +24,7 @@ spec:
       app.kubernetes.io/name: prometheus-adapter
       app.kubernetes.io/part-of: kube-prometheus
       app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: edo-dev 
   podMetricsEndpoints:
-  - port: tcp-metrics
+  - port: http
 {{- end }}
