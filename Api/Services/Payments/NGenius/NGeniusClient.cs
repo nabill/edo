@@ -79,10 +79,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
-            var captureId = GetCaptureId(document);
 
             return response.IsSuccessStatusCode
-                ? Result.Success(captureId)
+                ? Result.Success(GetCaptureId(document))
                 : Result.Failure<string>(GetErrorMessage(document));
         }
 
