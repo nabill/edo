@@ -1487,9 +1487,17 @@
             <param name="request">JSON request.</param>
             <returns>Signature.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.Pay(System.String,System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaPayfort(System.String,System.String)">
             <summary>
                 Executes payment for link.
+            </summary>
+            <param name="code">Payment link code.</param>
+            <param name="token">Payment token.</param>
+            <returns>Payment result. Can return data for further 3DSecure processing.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.Payment)">
+            <summary>
+                Executes payment for link via Ngenius.
             </summary>
             <param name="code">Payment link code.</param>
             <param name="token">Payment token.</param>
@@ -1554,6 +1562,11 @@
                 Pays by NGenius with saved card
             </summary>
             <param name="request">Payment request</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.NGenius3DSecureCallback(System.String,System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGenius3DSecureData)">
+            <summary>
+                NGenius 3D Secure callback
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>

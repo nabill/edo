@@ -13,12 +13,11 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
-    public class NGeniusPaymentService
+    public class NGeniusPaymentService : INGeniusPaymentService
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
             ICreditCardsManagementService creditCardsManagementService, IBookingPaymentCallbackService bookingPaymentCallbackService)
