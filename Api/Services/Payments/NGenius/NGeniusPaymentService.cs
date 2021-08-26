@@ -113,6 +113,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         private async Task<Edo.Data.Payments.Payment> CreatePayment(string ipAddress, MoneyAmount price, int? cardId, NGeniusPaymentResponse paymentResult)
         {
+            // TODO: store capture id
+
             var now = _dateTimeProvider.UtcNow();
 
             var info = new CreditCardPaymentInfo(customerIp: ipAddress, 
