@@ -133,9 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result> ProcessConfirmation(Booking booking, DateTime confirmationDate)
         {
-            var counterparty = await _context.Counterparties
-                .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
-                
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
@@ -165,7 +162,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
-                => _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
+            {
+                var counterparty = await _context.Counterparties
+                    .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+                _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
+            }
 
 
             void WriteFailureLog(string error) 
