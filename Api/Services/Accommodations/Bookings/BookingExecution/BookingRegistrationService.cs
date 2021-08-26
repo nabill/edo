@@ -11,14 +11,12 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
@@ -26,8 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService, IBookingConfirmationService bookingConfirmationService, 
-            IHostEnvironment hostingEnvironment)
+            ISupplierOrderService supplierOrderService)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -35,8 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
-            _bookingConfirmationService = bookingConfirmationService;
-            _hostingEnvironment = hostingEnvironment;
         }
         
         
@@ -48,8 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Map(Create)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder)
-                .Check(SendEmailToPropertyOwner); 
+                .Tap(CreateSupplierOrder); 
 
             return booking;
 
@@ -125,18 +119,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             Task CreateSupplierOrder(Booking booking) 
                 => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.ConvertedSupplierPrice, availabilityInfo.OriginalSupplierPrice, availabilityInfo.SupplierDeadline, booking.Supplier);
-
-
-            async Task<Result> SendEmailToPropertyOwner(Booking booking)
-            {
-                if (_hostingEnvironment.IsProduction()) // TODO: This check will be removed after testing the hotel confirmation page in development
-                    return Result.Success();
-
-                if (!booking.IsDirectContract || booking.Supplier != Suppliers.Columbus)
-                    return Result.Success();
-
-                return await _bookingConfirmationService.SendConfirmationEmail(booking);
-            }
         }
 
 
@@ -241,7 +223,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly IBookingConfirmationService _bookingConfirmationService;
-        private readonly IHostEnvironment _hostingEnvironment;
     }
 }

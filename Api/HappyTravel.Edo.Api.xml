@@ -1555,6 +1555,11 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.NGenius3DSecureCallback(System.String,System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGenius3DSecureData)">
+            <summary>
+                NGenius 3D Secure callback
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
