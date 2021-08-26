@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Should_return_payment_result_from_payfort(CreditCardPaymentResult cardPaymentResult)
         {
             var processingService = new PaymentLinksProcessingService(CreatMockPayfortService(),
-                Mock.Of<NGeniusPaymentService>(),
+                Mock.Of<INGeniusPaymentService>(),
                 Mock.Of<IPayfortResponseParser>(),
                 CreateLinkStorageMock().Object,
                 SignatureServiceStub,
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     Mock.Of<IPayfortService>(),
-                    Mock.Of<NGeniusPaymentService>(),
+                    Mock.Of<INGeniusPaymentService>(),
                     parser.Object,
                     linkStorageMock.Object,
                     SignatureServiceStub,
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
-                    Mock.Of<NGeniusPaymentService>(),
+                    Mock.Of<INGeniusPaymentService>(),
                     Mock.Of<IPayfortResponseParser>(),
                     CreateLinkStorageMock().Object,
                     SignatureServiceStub,
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
-                    Mock.Of<NGeniusPaymentService>(),
+                    Mock.Of<INGeniusPaymentService>(),
                     Mock.Of<IPayfortResponseParser>(),
                     linkStorageMock.Object,
                     SignatureServiceStub,

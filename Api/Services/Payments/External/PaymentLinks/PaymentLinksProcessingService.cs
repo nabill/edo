@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
-            NGeniusPaymentService nGeniusPaymentService,
+            INGeniusPaymentService nGeniusPaymentService,
             IPayfortResponseParser payfortResponseParser,
             IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
@@ -210,7 +210,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly PayfortOptions _payfortOptions;
 
         private readonly IPayfortService _payfortService;
-        private readonly NGeniusPaymentService _nGeniusPaymentService;
+        private readonly INGeniusPaymentService _nGeniusPaymentService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
         private readonly IPaymentLinkNotificationService _notificationService;
