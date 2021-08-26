@@ -72,11 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
-            {
-
-
-                return await _bookingConfirmationService.SendConfirmationEmail(booking);
-            }
+                => await _bookingConfirmationService.SendConfirmationEmail(booking);
 
 
             // TODO NIJO-1135: Revert logging in further refactoring steps
