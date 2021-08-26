@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     // 2) In the current implementation of the mapper, we do not know which provider returns the second email address to us,
                     // so we cannot use it.
                     // TODO: After Notification Center refactoring ReservationsOfficeBackupEmail will be moved to the copy.
-                    templateId: _options.BookingConfirmationTemplateId); ;
+                    templateId: _options.BookingConfirmationTemplateId);
 
 
             static string BuildPassengersString(List<Passenger> passengers)
