@@ -29,11 +29,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
         private static DateTime ShiftDate(DateTime? current, DateTime checkInDate, TimeSpan shiftValue)
-        {
-            if (current == default) // TODO: Add logging of such events, including information from which connector it was received
-                current = null;
-
-            return (current ?? checkInDate) + shiftValue;
-        }
+            => (current ?? checkInDate) + shiftValue;
     }
 }
