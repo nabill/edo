@@ -95,7 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     ? Result.Success(new CreditCardCaptureResult(
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
-                        model.MerchantReference))
+                        model.MerchantReference,
+                        string.Empty))
                     : Result.Failure<CreditCardCaptureResult>($"Unable capture payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
