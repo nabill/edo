@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AllowAnonymous]
-        public async Task<IActionResult> NGenius3DSecureCallback([FromQuery] string paymentId, [FromQuery] string orderReference, [FromBody] NGenius3DSecureData data)
+        public async Task<IActionResult> NGenius3DSecureCallback([FromQuery] string paymentId, [FromQuery] string orderReference, [FromForm] NGenius3DSecureData data)
         {
             var result = await _nGeniusPaymentService.NGenius3DSecureCallback(paymentId, orderReference, data);
 

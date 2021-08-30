@@ -2,15 +2,18 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
@@ -21,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusPaymentService : INGeniusPaymentService
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
-            ICreditCardsManagementService creditCardsManagementService, IBookingPaymentCallbackService bookingPaymentCallbackService)
+            ICreditCardsManagementService creditCardsManagementService, IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -29,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _client = client;
             _creditCardsManagementService = creditCardsManagementService;
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
+            _agencyService = agencyService;
         }
 
 
@@ -38,7 +42,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
-            return await CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
+            var agency = await _agencyService.Get(agent);
+            if (agency.IsFailure)
+                return Result.Failure<NGeniusPaymentResponse>(agency.Error);
+
+            return await CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, request.Card)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r))
                 .TapIf(request.IsSaveCardNeeded, StoreCreditCard);
@@ -61,6 +69,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (creditCard.IsFailure)
                 return Result.Failure<NGeniusPaymentResponse>(creditCard.Error);
             
+            var agency = await _agencyService.Get(agent);
+            if (agency.IsFailure)
+                return Result.Failure<NGeniusPaymentResponse>(agency.Error);
+            
             var savedCard = new SavedCard
             {
                 CardToken = creditCard.Value.Token,
@@ -72,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 RecaptureCsc = false
             };
 
-            return await CreateOrderRequest(OrderTypes.Auth, booking.ReferenceCode, booking.Currency, booking.TotalPrice, agent, savedCard: savedCard)
+            return await CreateOrderRequest(OrderTypes.Auth, booking.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, savedCard: savedCard)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), request.CardId, r));
         }
@@ -83,8 +95,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
+            
+            var agency = await _agencyService.Get(agent);
+            if (agency.IsFailure)
+                return Result.Failure<NGeniusPaymentResponse>(agency.Error);
 
-            return await CreateOrderRequest(OrderTypes.Sale, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, request.Card)
+            return await CreateOrderRequest(OrderTypes.Sale, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, request.Card)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
         }
@@ -182,7 +198,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, AgentContext agent, Payment? card = null, SavedCard? savedCard = null)
+        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, AgentContext agent, 
+            SlimAgencyInfo agency, Payment? card = null, SavedCard? savedCard = null)
         {
             return new OrderRequest
             {
@@ -198,7 +215,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     BillingAddress = new NGeniusBillingAddress
                     {
                         FirstName = agent.FirstName,
-                        LastName = agent.LastName
+                        LastName = agent.LastName,
+                        Address1 = agency.Address,
+                        City = agency.City,
+                        CountryCode = agency.CountryCode
                     },
                     Email = agent.Email
                 },
@@ -225,5 +245,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly ICreditCardsManagementService _creditCardsManagementService;
         private readonly NGeniusClient _client;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
+        private readonly IAgencyService _agencyService;
     }
 }
