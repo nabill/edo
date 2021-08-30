@@ -65,6 +65,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 
         private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
         {
+            // SupplierDeadline is required to properly calculate PayableToSupplierOrHotel
+            // It was added in the beginning of summer 2021
+            // Hence we cannot generate this report for earlier dates
             if (data.SupplierDeadline is null)
                 throw new NotSupportedException($"The booking {data.ReferenceCode} has empty SupplierDeadline");
             
