@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
@@ -87,8 +88,45 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
         }
-        
-        
+
+
+        public async Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount)
+        {
+            var result = await _client.CaptureMoney(paymentId, orderReference, new NGeniusAmount
+            {
+                CurrencyCode = amount.Currency.ToString(),
+                Value = ToNGeniusAmount(amount)
+            });
+
+            return result.IsFailure 
+                ? Result.Failure<CreditCardCaptureResult>(result.Error) 
+                : new CreditCardCaptureResult(paymentId, string.Empty, orderReference, result.Value);
+        }
+
+
+        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference)
+        {
+            var result = await _client.VoidMoney(paymentId, orderReference);
+            return result.IsFailure
+                ? Result.Failure<CreditCardVoidResult>(result.Error)
+                : new CreditCardVoidResult(paymentId, string.Empty, orderReference);
+        }
+
+
+        public async Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount)
+        {
+            var result = await _client.RefundMoney(paymentId, orderReference, captureId, new NGeniusAmount
+            {
+                CurrencyCode = amount.Currency.ToString(),
+                Value = ToNGeniusAmount(amount)
+            });
+            
+            return result.IsFailure
+                ? Result.Failure<CreditCardRefundResult>(result.Error)
+                : new CreditCardRefundResult(paymentId, string.Empty, orderReference);
+        }
+
+
         public async Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string paymentId, string orderReference, NGenius3DSecureData data)
         {
             return await CheckPaymentExists()
