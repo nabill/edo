@@ -18,5 +18,6 @@ namespace HappyTravel.Edo.Data.Payments
         public PaymentTypes PaymentMethod { get; set; }
         public PaymentProcessors PaymentProcessor { get; set; }
         public string Data { get; set; }
+        public string CaptureId { get; set; }
     }
 }
