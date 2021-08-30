@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (result.IsFailure)
                 return BadRequest(result.Error);
             
-            return Redirect($"{_options.BaseUrl}/payments/callback?status={result.Value}");
+            return Redirect($"{_options.BaseUrl}payments/callback?status={result.Value}");
         }
 
 
