@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -41,9 +42,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task<Result<CreditCardCaptureResult>> Capture()
             {
-                return paymentProcessor == PaymentProcessors.Payfort 
-                    ? _payfortService.Capture(request) 
-                    : _nGeniusPaymentService.Capture(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode, request.Amount.ToMoneyAmount(request.Currency));
+                return paymentProcessor switch
+                {
+                    PaymentProcessors.Payfort => _payfortService.Capture(request),
+                    PaymentProcessors.NGenius => _nGeniusPaymentService.Capture(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode, request.Amount.ToMoneyAmount(request.Currency)),
+                    _ => throw new NotSupportedException($"Payment processor `{nameof(paymentProcessor)}` not supported")
+                };
             }
 
 
@@ -80,9 +84,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task<Result<CreditCardVoidResult>> Void()
             {
-                return paymentProcessor == PaymentProcessors.Payfort 
-                    ? _payfortService.Void(request) 
-                    : _nGeniusPaymentService.Void(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode);
+                return paymentProcessor switch
+                {
+                    PaymentProcessors.Payfort => _payfortService.Void(request) ,
+                    PaymentProcessors.NGenius => _nGeniusPaymentService.Void(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode),
+                    _ => throw new NotSupportedException($"Payment processor {nameof(paymentProcessor)} not supported")
+                };
             }
 
 
