@@ -240,7 +240,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                         City = agency.City,
                         CountryCode = agency.CountryCode
                     },
-                    Email = agent.Email
+                    EmailAddress = agent.Email
                 },
                 Payment = card,
                 SavedCard = savedCard

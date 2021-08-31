@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Models.Payments.NGenius
         public string MerchantOrderReference { get; init; }
         public NGeniusBillingAddress BillingAddress { get; init; }
         public NGeniusAmount Amount { get; init; }
-        public string Email { get; init; }
+        public string EmailAddress { get; init; }
     }
 }
