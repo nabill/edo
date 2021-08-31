@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static string ParseErrorMessage(JsonDocument document)
+        private static string ParseErrorMessage(in JsonDocument document)
         {
             var element = document.RootElement.GetProperty("errors");
             var count = element.GetArrayLength();
@@ -156,30 +156,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static NGeniusPaymentResponse ParseResponseInformation(JsonDocument document)
+        private static NGeniusPaymentResponse ParseResponseInformation(in JsonDocument document)
         {
-            var paymentId = GetStringValue(document.RootElement, "_id").Split(':').Last();
-            var captureId = ParseCaptureId(document);
-            var orderReference = GetStringValue(document.RootElement, "orderReference");
-            var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
-            var paymentInformation = ParseResponsePaymentInformation(document);
-            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
-
-            Secure3dOptions? secure3dOptions = status == CreditCardPaymentStatuses.Secure3d
-                ? ParseSecure3dOptions(document)
-                : null;
-
-            return new NGeniusPaymentResponse(paymentId: paymentId,
-                captureId: captureId,
+            var rootElement = document.RootElement;
+            var status = MapToStatus(GetStringValue(rootElement, "state"));
+            
+            return new NGeniusPaymentResponse(paymentId: GetStringValue(rootElement, "_id").Split(':').Last(),
+                captureId: ParseCaptureId(document),
                 status: status, 
-                orderReference: orderReference,
-                merchantOrderReference: merchantOrderReference, 
-                payment: paymentInformation,
-                secure3dOptions: secure3dOptions);
+                orderReference: GetStringValue(rootElement, "orderReference"),
+                merchantOrderReference: GetStringValue(rootElement, "merchantOrderReference"), 
+                payment: ParseResponsePaymentInformation(document),
+                secure3dOptions: status == CreditCardPaymentStatuses.Secure3d
+                    ? ParseSecure3dOptions(document)
+                    : null);
         }
 
 
-        private static ResponsePaymentInformation ParseResponsePaymentInformation(JsonDocument document)
+        private static ResponsePaymentInformation ParseResponsePaymentInformation(in JsonDocument document)
         {
             var element = document.RootElement.GetProperty("paymentMethod");
             return new ResponsePaymentInformation(pan: GetStringValue(element, "pan"),
@@ -190,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Secure3dOptions ParseSecure3dOptions(JsonDocument document)
+        private static Secure3dOptions ParseSecure3dOptions(in JsonDocument document)
         {
             var element = document.RootElement.GetProperty("3ds");
             return new Secure3dOptions(acsUrl: GetStringValue(element, "acsUrl"), 
@@ -212,11 +206,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static string GetStringValue(JsonElement element, string key) 
+        private static string GetStringValue(in JsonElement element, string key) 
             => element.GetProperty(key).GetString();
 
 
-        private static string ParseCaptureId(JsonDocument document)
+        private static string ParseCaptureId(in JsonDocument document)
         {
             if (!document.RootElement.TryGetProperty("_embedded", out var embeddedElement))
                 return null;
