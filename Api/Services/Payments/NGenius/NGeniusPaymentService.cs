@@ -13,10 +13,10 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -143,20 +143,43 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string paymentId, string orderReference, NGenius3DSecureData data)
+        public async Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string referenceCode, NGenius3DSecureData data)
         {
             return await CheckPaymentExists()
-                .Bind(() => _client.SubmitPaRes(paymentId, orderReference, data));
+                .Bind(Submit)
+                .Bind(UpdatePayment);
 
 
-            async Task<Result> CheckPaymentExists()
+            async Task<Result<Edo.Data.Payments.Payment>> CheckPaymentExists()
             {
-                // TODO: add a check that the payment exists 
-                var isExists = true;
+                var payment = await _context.Payments
+                    .SingleOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
 
-                return isExists
-                    ? Result.Success()
-                    : Result.Failure($"Payment for  paymentId `{paymentId}` and orderReference `{orderReference}` not found");
+                if (payment is null)
+                    return Result.Failure<Edo.Data.Payments.Payment>($"Payment for `{referenceCode}` not found");
+
+                return payment;
+            }
+
+
+            async Task<Result<(CreditCardPaymentStatuses, Edo.Data.Payments.Payment)>> Submit(Edo.Data.Payments.Payment payment)
+            {
+                var paymentData = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                var status = await _client.SubmitPaRes(paymentData.ExternalId, paymentData.InternalReferenceCode, data);
+
+                return status.IsFailure
+                    ? Result.Failure<(CreditCardPaymentStatuses, Data.Payments.Payment)>(status.Error)
+                    : (status.Value, payment);
+            }
+
+
+            async Task<Result<CreditCardPaymentStatuses>> UpdatePayment((CreditCardPaymentStatuses Status, Edo.Data.Payments.Payment Payment) data)
+            {
+                data.Payment.Modified = _dateTimeProvider.UtcNow();
+                data.Payment.Status = data.Status.ToPaymentStatus();
+                await _context.SaveChangesAsync();
+                await _bookingPaymentCallbackService.ProcessPaymentChanges(data.Payment);
+                return data.Status;
             }
         }
 
