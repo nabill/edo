@@ -145,12 +145,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         public async Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string referenceCode, NGenius3DSecureData data)
         {
-            return await CheckPaymentExists()
+            return await GetPayment()
                 .Bind(Submit)
                 .Bind(UpdatePayment);
 
 
-            async Task<Result<Edo.Data.Payments.Payment>> CheckPaymentExists()
+            async Task<Result<Edo.Data.Payments.Payment>> GetPayment()
             {
                 var payment = await _context.Payments
                     .SingleOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
