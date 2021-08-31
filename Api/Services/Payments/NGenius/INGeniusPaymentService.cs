@@ -22,6 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount);
 
-        Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string paymentId, string orderReference, NGenius3DSecureData data);
+        Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string referenceCode, NGenius3DSecureData data);
     }
 }
