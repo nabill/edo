@@ -200,25 +200,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         private static string GetCaptureId(JsonDocument document)
         {
+            if (!document.RootElement.TryGetProperty("_embedded", out var embeddedElement))
+                return null;
+
+            if (!embeddedElement.TryGetProperty("cnp:capture", out var captureElement))
+                return null;
+            
             // From NGenius documentation:
             // Note that 'index' in this context will always be 0 (zero) unless the order represents a recurring payment.
 
-            if(document.RootElement.TryGetProperty("_embedded", out var embeddedElement))
-            {
-                if (embeddedElement.TryGetProperty("cnp:capture", out var captureElement))
-                {
-                    var element = captureElement.EnumerateArray().First();
+            var element = captureElement.EnumerateArray().First();
                     
-                    return element.GetProperty("_links")
-                        .GetProperty("self")
-                        .GetProperty("href")
-                        .GetString()?
-                        .Split('/')
-                        .LastOrDefault();
-                }
-            }
-
-            return null;
+            return element.GetProperty("_links")
+                .GetProperty("self")
+                .GetProperty("href")
+                .GetString()?
+                .Split('/')
+                .LastOrDefault();
         }
 
 
