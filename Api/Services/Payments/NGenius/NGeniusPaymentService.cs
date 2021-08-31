@@ -155,10 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 var payment = await _context.Payments
                     .SingleOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
 
-                if (payment is null)
-                    return Result.Failure<Edo.Data.Payments.Payment>($"Payment for `{referenceCode}` not found");
-
-                return payment;
+                return payment ?? Result.Failure<Edo.Data.Payments.Payment>($"Payment for `{referenceCode}` not found");
             }
 
 
