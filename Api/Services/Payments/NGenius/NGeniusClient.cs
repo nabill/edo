@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     var element = captureElement.EnumerateArray().First();
                     
                     return element.GetProperty("_links")
-                        .GetProperty("cnp:refund")
+                        .GetProperty("self")
                         .GetProperty("href")
                         .GetString()?
                         .Split('/')
