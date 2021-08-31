@@ -44,8 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Map(RegisterBooking)
-                .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
+                .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo);
 
