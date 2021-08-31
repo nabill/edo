@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var request = new HttpRequestMessage(method, endpoint);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             
-            if(data is not null)
+            if (data is not null)
                 request.Content = new StringContent(JsonSerializer.Serialize(data, SerializerOptions), null, "application/vnd.ni-payment.v2+json");
             
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
