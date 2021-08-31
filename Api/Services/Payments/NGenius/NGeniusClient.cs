@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -89,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         public async Task<Result> VoidMoney(string paymentId, string orderReference)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/cancel";
-            var response = await Send(HttpMethod.Put, endpoint, null);
+            var response = await Send(HttpMethod.Put, endpoint);
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
@@ -136,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private async Task<HttpResponseMessage> Send(HttpMethod method, string endpoint, object data)
+        private async Task<HttpResponseMessage> Send<T>(HttpMethod method, string endpoint, T data)
         {
             var token = await GetAccessToken();
             var request = new HttpRequestMessage(method, endpoint);
@@ -148,15 +150,28 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
             return await client.SendAsync(request);
         }
+        
+        
+        private async Task<HttpResponseMessage> Send(HttpMethod method, string endpoint)
+        {
+            var token = await GetAccessToken();
+            var request = new HttpRequestMessage(method, endpoint);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
+            return await client.SendAsync(request);
+        }
 
 
         private static string GetErrorMessage(JsonDocument document)
         {
-            var messages = document.RootElement.GetProperty("errors")
-                .EnumerateArray()
-                .Select(e => e.GetProperty("localizedMessage").GetString())
-                .ToList();
-            
+            var element = document.RootElement.GetProperty("errors");
+            var count = element.GetArrayLength();
+            var messages = new string[count];
+
+            for (var i = 0; i < count; i++)
+                messages[i] = GetStringValue(element[i], "localizedMessage");
+
             return string.Join(';', messages);
         }
 
@@ -208,10 +223,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             
             // From NGenius documentation:
             // Note that 'index' in this context will always be 0 (zero) unless the order represents a recurring payment.
-
-            var element = captureElement.EnumerateArray().First();
-                    
-            return element.GetProperty("_links")
+            return captureElement[0]
+                .GetProperty("_links")
                 .GetProperty("self")
                 .GetProperty("href")
                 .GetString()?
