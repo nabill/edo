@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -36,27 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
-            if (!response.IsSuccessStatusCode)
-                return Result.Failure<NGeniusPaymentResponse>(GetErrorMessage(document));
-
-            var paymentId = GetStringValue(document.RootElement, "_id").Split(':').Last();
-            var captureId = GetCaptureId(document);
-            var orderReference = GetStringValue(document.RootElement, "orderReference");
-            var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
-            var paymentInformation = GetResponsePaymentInformation(document);
-            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
-
-            Secure3dOptions? secure3dOptions = status == CreditCardPaymentStatuses.Secure3d
-                ? GetSecure3dOptions(document)
-                : null;
-
-            return new NGeniusPaymentResponse(paymentId: paymentId,
-                captureId: captureId,
-                status: status, 
-                orderReference: orderReference,
-                merchantOrderReference: merchantOrderReference, 
-                payment: paymentInformation,
-                secure3dOptions: secure3dOptions);
+            return response.IsSuccessStatusCode
+                ? Result.Success(ParseResponseInformation(document))
+                : Result.Failure<NGeniusPaymentResponse>(ParseErrorMessage(document));
         }
 
 
@@ -70,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return response.IsSuccessStatusCode
                 ? Result.Success(MapToStatus(GetStringValue(document.RootElement, "state")))
-                : Result.Failure<CreditCardPaymentStatuses>(GetErrorMessage(document));
+                : Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document));
         }
 
 
@@ -83,8 +63,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success(GetCaptureId(document))
-                : Result.Failure<string>(GetErrorMessage(document));
+                ? Result.Success(ParseCaptureId(document))
+                : Result.Failure<string>(ParseErrorMessage(document));
         }
 
 
@@ -98,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return response.IsSuccessStatusCode
                 ? Result.Success()
-                : Result.Failure(GetErrorMessage(document));
+                : Result.Failure(ParseErrorMessage(document));
         }
         
         
@@ -112,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             return response.IsSuccessStatusCode
                 ? Result.Success()
-                : Result.Failure(GetErrorMessage(document));
+                : Result.Failure(ParseErrorMessage(document));
         }
 
 
@@ -163,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static string GetErrorMessage(JsonDocument document)
+        private static string ParseErrorMessage(JsonDocument document)
         {
             var element = document.RootElement.GetProperty("errors");
             var count = element.GetArrayLength();
@@ -176,7 +156,30 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static ResponsePaymentInformation GetResponsePaymentInformation(JsonDocument document)
+        private static NGeniusPaymentResponse ParseResponseInformation(JsonDocument document)
+        {
+            var paymentId = GetStringValue(document.RootElement, "_id").Split(':').Last();
+            var captureId = ParseCaptureId(document);
+            var orderReference = GetStringValue(document.RootElement, "orderReference");
+            var merchantOrderReference = GetStringValue(document.RootElement, "merchantOrderReference");
+            var paymentInformation = ParseResponsePaymentInformation(document);
+            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
+
+            Secure3dOptions? secure3dOptions = status == CreditCardPaymentStatuses.Secure3d
+                ? ParseSecure3dOptions(document)
+                : null;
+
+            return new NGeniusPaymentResponse(paymentId: paymentId,
+                captureId: captureId,
+                status: status, 
+                orderReference: orderReference,
+                merchantOrderReference: merchantOrderReference, 
+                payment: paymentInformation,
+                secure3dOptions: secure3dOptions);
+        }
+
+
+        private static ResponsePaymentInformation ParseResponsePaymentInformation(JsonDocument document)
         {
             var element = document.RootElement.GetProperty("paymentMethod");
             return new ResponsePaymentInformation(pan: GetStringValue(element, "pan"),
@@ -187,7 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Secure3dOptions GetSecure3dOptions(JsonDocument document)
+        private static Secure3dOptions ParseSecure3dOptions(JsonDocument document)
         {
             var element = document.RootElement.GetProperty("3ds");
             return new Secure3dOptions(acsUrl: GetStringValue(element, "acsUrl"), 
@@ -213,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             => element.GetProperty(key).GetString();
 
 
-        private static string GetCaptureId(JsonDocument document)
+        private static string ParseCaptureId(JsonDocument document)
         {
             if (!document.RootElement.TryGetProperty("_embedded", out var embeddedElement))
                 return null;
