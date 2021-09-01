@@ -97,9 +97,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                         streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
                         var responseBody = await streamReader.ReadToEndAsync();
                         _logger.LogConnectorClientUnexpectedResponse(response.StatusCode, requestFactory().RequestUri, responseBody);
-                        error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-                    }
 
+                        var reasonPhrase = string.IsNullOrWhiteSpace(response.ReasonPhrase)
+                            ? $"Error is not specified, status code: {response.StatusCode}"
+                            : response.ReasonPhrase;
+
+                        error = ProblemDetailsBuilder.Build(reasonPhrase, response.StatusCode);
+                    }
+                    
                     return Result.Failure<TResponse, ProblemDetails>(error);
                 }
 
