@@ -55,6 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>>
         [HttpGet("payment-processors")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentProcessors>), StatusCodes.Status200OK)]
+        [AllowAnonymous]
         public IActionResult GetPaymentProcessors() 
             => Ok(_paymentSettingsService.GetPaymentProcessors());
 
@@ -64,6 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>>
         [HttpGet("payment-processor")]
         [ProducesResponseType(typeof(PaymentProcessors), StatusCodes.Status200OK)]
+        [AllowAnonymous]
         public IActionResult GetCurrentPaymentProcessor() 
             => Ok(_paymentSettingsService.GetCurrentPaymentProcessor());
 
