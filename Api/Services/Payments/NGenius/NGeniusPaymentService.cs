@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -152,8 +153,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             async Task<Result<Edo.Data.Payments.Payment>> GetPayment()
             {
+                // TODO: implement selecting single row paymentd and orderReference
+                // https://github.com/happy-travel/agent-app-project/issues/537
                 var payment = await _context.Payments
-                    .SingleOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
+                    .OrderByDescending(p => p.Created)
+                    .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
 
                 return payment ?? Result.Failure<Edo.Data.Payments.Payment>($"Payment for `{referenceCode}` not found");
             }
