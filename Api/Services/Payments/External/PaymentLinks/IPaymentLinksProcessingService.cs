@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     {
         Task<Result<PaymentResponse>> Pay(string code, string token, string ip, string languageCode);
         
-        Task<Result<PaymentResponse>> Pay(string code, Payment card, string ip, string languageCode);
+        Task<Result<PaymentResponse>> Pay(string code, NGeniusPayLinkRequest request, string ip, string languageCode);
 
         Task<Result<PaymentResponse>> ProcessResponse(string code, JObject value);
 

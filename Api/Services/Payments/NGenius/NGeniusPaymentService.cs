@@ -47,7 +47,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (agency.IsFailure)
                 return Result.Failure<NGeniusPaymentResponse>(agency.Error);
 
-            return await CreateOrderRequest(OrderTypes.Auth, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, request.Card)
+            var billingAddress = GetBillingAddress(agent, agency.Value);
+
+            return await CreateOrderRequest(orderType: OrderTypes.Auth, 
+                    referenceCode: request.ReferenceCode, 
+                    currency: booking.Currency, 
+                    price: booking.TotalPrice, 
+                    email: agent.Email, 
+                    billingAddress: billingAddress, 
+                    card: request.Card)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r))
                 .TapIf(request.IsSaveCardNeeded, StoreCreditCard);
@@ -74,6 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (agency.IsFailure)
                 return Result.Failure<NGeniusPaymentResponse>(agency.Error);
             
+            var billingAddress = GetBillingAddress(agent, agency.Value);
+            
             var savedCard = new SavedCard
             {
                 CardToken = creditCard.Value.Token,
@@ -85,23 +95,31 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 RecaptureCsc = false
             };
 
-            return await CreateOrderRequest(OrderTypes.Auth, booking.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, savedCard: savedCard)
+            return await CreateOrderRequest(orderType: OrderTypes.Auth, 
+                    referenceCode: booking.ReferenceCode, 
+                    currency: booking.Currency, 
+                    price: booking.TotalPrice, 
+                    email: agent.Email, 
+                    billingAddress: billingAddress, 
+                    savedCard: savedCard)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), request.CardId, r));
         }
         
         
-        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, AgentContext agent)
+        public async Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, string email, NGeniusBillingAddress billingAddress)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
-            
-            var agency = await _agencyService.Get(agent);
-            if (agency.IsFailure)
-                return Result.Failure<NGeniusPaymentResponse>(agency.Error);
 
-            return await CreateOrderRequest(OrderTypes.Sale, request.ReferenceCode, booking.Currency, booking.TotalPrice, agent, agency.Value, request.Card)
+            return await CreateOrderRequest(orderType: OrderTypes.Sale, 
+                    referenceCode: request.ReferenceCode, 
+                    currency: booking.Currency, 
+                    price: booking.TotalPrice, 
+                    email: email, 
+                    billingAddress: billingAddress, 
+                    card: request.Card)
                 .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
         }
@@ -222,8 +240,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, AgentContext agent, 
-            SlimAgencyInfo agency, Payment? card = null, SavedCard? savedCard = null)
+        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
+            NGeniusBillingAddress billingAddress, Payment? card = null, SavedCard? savedCard = null)
         {
             return new OrderRequest
             {
@@ -236,15 +254,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                         Value = ToNGeniusAmount(price.ToMoneyAmount(currency))
                     },
                     MerchantOrderReference = referenceCode,
-                    BillingAddress = new NGeniusBillingAddress
-                    {
-                        FirstName = agent.FirstName,
-                        LastName = agent.LastName,
-                        Address1 = agency.Address,
-                        City = agency.City,
-                        CountryCode = agency.CountryCode
-                    },
-                    EmailAddress = agent.Email
+                    BillingAddress = billingAddress,
+                    EmailAddress = email
                 },
                 Payment = card,
                 SavedCard = savedCard
@@ -261,6 +272,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 ? Result.Failure<NGeniusPaymentResponse>(error)
                 : Result.Success(paymentResult);
         }
+
+
+        private static NGeniusBillingAddress GetBillingAddress(AgentContext agent, SlimAgencyInfo agency)
+            => new ()
+            {
+                FirstName = agent.FirstName,
+                LastName = agent.LastName,
+                Address1 = agency.Address,
+                City = agency.City,
+                CountryCode = agency.CountryCode
+            };
         
         
         private readonly EdoContext _context;
