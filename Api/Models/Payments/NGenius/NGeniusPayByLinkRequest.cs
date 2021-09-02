@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Api.Models.Payments.NGenius
 {
-    public readonly struct NGeniusPayLinkRequest
+    public readonly struct NGeniusPayByLinkRequest
     {
         public Payment Card { get; init; }
         public string EmailAddress { get; init; }

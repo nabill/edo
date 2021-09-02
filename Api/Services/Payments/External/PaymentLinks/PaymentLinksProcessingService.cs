@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentResponse>> Pay(string code, NGeniusPayLinkRequest request, string ip, string languageCode)
+        public Task<Result<PaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
         {
             return GetLink(code)
                 .Bind(link => ProcessPay(link, code, request, ip, languageCode));
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
         
         
-        private async Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, NGeniusPayLinkRequest request, string ip, string languageCode)
+        private async Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
         {
             var agent = await _agentContextService.GetAgent();
             
