@@ -326,7 +326,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             var account = await _context.CounterpartyAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == counterpartyAccountId);
             return account == default
-                ? Result.Failure<CounterpartyAccount>("Could not find account")
+                ? Result.Failure<CounterpartyAccount>("Could not find active counterparty account")
                 : Result.Success(account);
         }
 
