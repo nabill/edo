@@ -51,10 +51,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentResponse>> Pay(string code, Payment card, string ip, string languageCode)
+        public Task<Result<PaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
         {
             return GetLink(code)
-                .Bind(link => ProcessPay(link, code, card, ip, languageCode));
+                .Bind(link => ProcessPay(link, code, request, ip, languageCode));
         }
 
 
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
         
         
-        private async Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, Payment card, string ip, string languageCode)
+        private async Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
         {
             var agent = await _agentContextService.GetAgent();
             
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Task<Result<NGeniusPaymentResponse>> Pay()
                 => _nGeniusPaymentService.Pay(new NewCreditCardRequest(
-                    link.ReferenceCode, card, false), ip, agent);
+                    link.ReferenceCode, request.Card, false), ip, request.EmailAddress, request.BillingAddress);
 
             bool IsPaymentComplete(NGeniusPaymentResponse paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 

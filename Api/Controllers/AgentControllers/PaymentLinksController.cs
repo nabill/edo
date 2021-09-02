@@ -194,9 +194,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [RequestSizeLimit(512)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] Payment card)
+        public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, card, ClientIp, LanguageCode);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
 
             return isSuccess
                 ? Ok(paymentResponse)

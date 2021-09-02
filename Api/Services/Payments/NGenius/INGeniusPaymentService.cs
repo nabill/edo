@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         Task<Result<NGeniusPaymentResponse>> Authorize(SavedCreditCardRequest request, string ipAddress, AgentContext agent);
 
-        Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, AgentContext agent);
+        Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, string email, NGeniusBillingAddress billingAddress);
 
         Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount);
 
