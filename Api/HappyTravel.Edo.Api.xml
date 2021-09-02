@@ -1495,7 +1495,7 @@
             <param name="token">Payment token.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.Payment)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusPayByLinkRequest)">
             <summary>
                 Executes payment for link via Ngenius.
             </summary>
