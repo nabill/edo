@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var status = MapToStatus(GetStringValue(document.RootElement, "state"));
 
             return status == CreditCardPaymentStatuses.Failed
-                ? Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document))
+                ? Result.Failure<CreditCardPaymentStatuses>(Parse3DsMessage(document))
                 : Result.Success(status);
         }
 
