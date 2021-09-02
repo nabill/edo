@@ -116,52 +116,20 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 _bookingPaymentCallbackService,
                 await _agentContextService.GetAgent()));
         }
-        
-        
+
+
         /// <summary>
-        ///     Pays by NGenius with new card
+        ///     Pays by NGenius
         /// </summary>
-        /// <param name="request">Payment request</param>
-        [HttpPost("accommodations/bookings/cards/ngenius/new/pay")]
+        /// <param name="referenceCode">Booking reference code</param>
+        [HttpPost("accommodations/bookings/{referenceCode}/pay")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> PayByNGeniusWithNewCreditCard([FromBody] NewCreditCardRequest request)
+        public async Task<IActionResult> PayByNGenius(string referenceCode)
         {
-            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, ClientIp, await _agentContextService.GetAgent()));
-        }
-
-
-        /// <summary>
-        ///     Pays by NGenius with saved card
-        /// </summary>
-        /// <param name="request">Payment request</param>
-        [HttpPost("accommodations/bookings/cards/ngenius/saved/pay")]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> PayByNGeniusWithSavedCreditCard([FromBody] SavedCreditCardRequest request)
-        {
-            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(request, ClientIp, await _agentContextService.GetAgent()));
-        }
-        
-        
-        /// <summary>
-        ///     NGenius 3D Secure callback
-        /// </summary>
-        [HttpPost("ngenius/3ds-callback")]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
-        public async Task<IActionResult> NGenius3DSecureCallback([FromQuery] string referenceCode, [FromForm] NGenius3DSecureData data)
-        {
-            var result = await _nGeniusPaymentService.NGenius3DSecureCallback(referenceCode, data);
-
-            return result.IsSuccess
-                ? Redirect($"{_options.BaseUrl}payments/callback?status={result.Value}")
-                : Redirect($"{_options.BaseUrl}payments/callback?status={CreditCardPaymentStatuses.Failed}&message={result.Error}");
+            return OkOrBadRequest(await _nGeniusPaymentService.Authorize(referenceCode, ClientIp, await _agentContextService.GetAgent()));
         }
 
 

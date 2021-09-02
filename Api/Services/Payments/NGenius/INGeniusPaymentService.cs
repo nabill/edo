@@ -10,18 +10,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public interface INGeniusPaymentService
     {
-        Task<Result<NGeniusPaymentResponse>> Authorize(NewCreditCardRequest request, string ipAddress, AgentContext agent);
+        Task<Result<NGeniusPaymentResponse>> Authorize(string referenceCode, string ipAddress, AgentContext agent);
 
-        Task<Result<NGeniusPaymentResponse>> Authorize(SavedCreditCardRequest request, string ipAddress, AgentContext agent);
-
-        Task<Result<NGeniusPaymentResponse>> Pay(NewCreditCardRequest request, string ipAddress, string email, NGeniusBillingAddress billingAddress);
+        Task<Result<NGeniusPaymentResponse>> Pay(string referenceCode, string ipAddress, string email, NGeniusBillingAddress billingAddress);
 
         Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount);
 
         Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference);
         
         Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount);
-
-        Task<Result<CreditCardPaymentStatuses>> NGenius3DSecureCallback(string referenceCode, NGenius3DSecureData data);
     }
 }
