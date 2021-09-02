@@ -196,6 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             {
                 data.Payment.Modified = _dateTimeProvider.UtcNow();
                 data.Payment.Status = data.Status.ToPaymentStatus();
+                _context.Update(data.Payment);
                 await _context.SaveChangesAsync();
                 await _bookingPaymentCallbackService.ProcessPaymentChanges(data.Payment);
                 return data.Status;
