@@ -195,7 +195,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Booking booking)
         {
             var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
-                .OrderByDescending(i => i.Metadata.Date)
+                .OrderBy(i => i.Metadata.Date)
                 .LastOrDefault();
 
             return lastInvoice.Equals(default)
