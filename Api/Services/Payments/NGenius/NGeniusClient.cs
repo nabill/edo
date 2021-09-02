@@ -47,10 +47,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
+            
+            if (!response.IsSuccessStatusCode)
+                Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document));
 
-            return response.IsSuccessStatusCode
-                ? Result.Success(MapToStatus(GetStringValue(document.RootElement, "state")))
-                : Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document));
+            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
+
+            return status == CreditCardPaymentStatuses.Failed
+                ? Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document))
+                : Result.Success(status);
         }
 
 
@@ -190,6 +195,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return new Secure3dOptions(acsUrl: GetStringValue(element, "acsUrl"), 
                 acsPaReq: GetStringValue(element, "acsPaReq"),
                 acsMd: GetStringValue(element, "acsMd"));
+        }
+
+
+        private static string Parse3DsMessage(in JsonDocument document)
+        {
+            var element = document.RootElement.GetProperty("3ds");
+            return GetStringValue(element, "summaryText");
         }
 
 

@@ -159,10 +159,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var result = await _nGeniusPaymentService.NGenius3DSecureCallback(referenceCode, data);
 
-            if (result.IsFailure)
-                return BadRequest(result.Error);
-            
-            return Redirect($"{_options.BaseUrl}payments/callback?status={result.Value}");
+            return result.IsSuccess
+                ? Redirect($"{_options.BaseUrl}payments/callback?status={result.Value}")
+                : Redirect($"{_options.BaseUrl}payments/callback?status={CreditCardPaymentStatuses.Failed}&message={result.Error}");
         }
 
 
