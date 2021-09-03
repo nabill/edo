@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
@@ -131,6 +132,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             return OkOrBadRequest(await _nGeniusPaymentService.Authorize(referenceCode, ClientIp, await _agentContextService.GetAgent()));
         }
+
+
+        /// <summary>
+        ///     NGenius webhook
+        /// </summary>
+        [HttpPost("accommodations/bookings/ngenius/webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> NGeniusWebhook([FromBody] JsonDocument request)
+        {
+            await _nGeniusPaymentService.ProcessWebHook(request);
+            return Ok();
+        }
+        
 
 
         /// <summary>
