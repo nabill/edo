@@ -110,7 +110,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.DeadlineDate ?? booking.CheckInDate,
                 booking.CheckInDate,
                 booking.CheckOutDate,
-                booking.PaymentStatus,
                 booking.DeadlineDate
             );
 
@@ -192,15 +191,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         }
         
         
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Booking booking)
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceInfo Data)>> GetActualInvoice(Booking booking)
         {
             var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
                 .OrderBy(i => i.Metadata.Date)
                 .LastOrDefault();
 
             return lastInvoice.Equals(default)
-                ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
-                : Result.Success(lastInvoice);
+                ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceInfo Data)>("Could not find invoice")
+                : (lastInvoice.Metadata, new BookingInvoiceInfo(lastInvoice.Data, booking.PaymentStatus));
         }
 
 

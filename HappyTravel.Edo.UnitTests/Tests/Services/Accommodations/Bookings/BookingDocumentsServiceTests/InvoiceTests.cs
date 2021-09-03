@@ -59,7 +59,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                             It.IsAny<DateTime>(),
                             It.IsAny<DateTime>(),
                             It.IsAny<DateTime>(),
-                            It.IsAny<BookingPaymentStatuses>(),
                             It.IsAny<DateTime?>())
                     )
                 }

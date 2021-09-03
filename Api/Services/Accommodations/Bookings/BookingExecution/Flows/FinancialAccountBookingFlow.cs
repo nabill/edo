@@ -23,8 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
-            IBookingRequestExecutor requestExecutor,
-            IBookingRecordManager bookingRecordManager)
+            IBookingRequestExecutor requestExecutor)
         {
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
@@ -33,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
-            _bookingRecordManager = bookingRecordManager;
         }
         
         
@@ -48,7 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Map(RegisterBooking)
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
-                .CheckIf(IsDeadlinePassed, GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo);
 
@@ -77,19 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Result> ChargeMoney((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, _) = bookingInfo;
-                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller())
-                    .Check(UpdateBookingPaymentStatus);
-
-
-                async Task<Result> UpdateBookingPaymentStatus(string _)
-                {
-                    var (_, isFailure, updatedBooking, error) = await _bookingRecordManager.Get(booking.ReferenceCode);
-                    if (isFailure)
-                        return Result.Failure(error);
-
-                    booking.PaymentStatus = updatedBooking.PaymentStatus;
-                    return Result.Success();
-                }
+                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
             }
             
             
@@ -136,6 +121,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
-        private readonly IBookingRecordManager _bookingRecordManager;
     }
 }
