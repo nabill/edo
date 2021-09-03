@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -110,6 +111,60 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return result.IsFailure
                 ? Result.Failure<CreditCardRefundResult>(result.Error)
                 : new CreditCardRefundResult(paymentId, string.Empty, orderReference);
+        }
+
+
+        public async Task WebHook(JsonDocument document)
+        {
+            var eventType = document.RootElement.GetProperty("eventName").GetString();
+            var paymentElement = document.RootElement.GetProperty("_embedded").GetProperty("payment")[0];
+            var paymentId = paymentElement.GetProperty("_id").GetString().Split(':').Last();
+            var orderReference = paymentElement.GetProperty("orderReference").GetString();
+            var merchantReference = paymentElement.GetProperty("merchantOrderReference").GetString();
+
+            var payments = await _context.Payments
+                .Where(p => p.ReferenceCode == merchantReference)
+                .ToListAsync();
+
+            var payment = payments.Where(p =>
+                {
+                    var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
+                    return data.ExternalId == paymentId && data.InternalReferenceCode == orderReference;
+                })
+                .SingleOrDefault();
+
+            if (payment == default)
+                return;
+
+            var status = eventType switch
+            {
+                EventTypes.Authorised => PaymentStatuses.Authorized,
+                EventTypes.Captured => PaymentStatuses.Captured,
+                EventTypes.FullAuthReversed => PaymentStatuses.Voided,
+                EventTypes.Refunded => PaymentStatuses.Refunded,
+                EventTypes.PartiallyRefunded => PaymentStatuses.Refunded,
+                EventTypes.Declined => PaymentStatuses.Failed,
+                EventTypes.AuthorisationFailed => PaymentStatuses.Failed,
+                EventTypes.CaptureFailed => PaymentStatuses.Failed,
+                EventTypes.FullAuthReversalFailed => PaymentStatuses.Failed,
+                EventTypes.RefundFailed => PaymentStatuses.Failed,
+                EventTypes.PartialRefundFailed => PaymentStatuses.Failed
+            };
+            
+            // It is important to note that, for orders processed in SALE mode
+            // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
+            // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
+            // and another for the CAPTURED event.
+            if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
+                return;
+
+            if (status != payment.Status)
+            {
+                payment.Status = status;
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+            }
         }
 
 
