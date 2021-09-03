@@ -142,20 +142,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             var agent = await _agentContextService.GetAgent();
             
             return await Pay()
-                .TapIf(IsPaymentComplete, SendConfirmation)
                 .Map(ToPaymentResponse)
                 .Tap(StorePaymentResult);
 
 
             Task<Result<NGeniusPaymentResponse>> Pay()
-                => _nGeniusPaymentService.Pay(new NewCreditCardRequest(
-                    link.ReferenceCode, request.Card, false), ip, request.EmailAddress, request.BillingAddress);
-
-            bool IsPaymentComplete(NGeniusPaymentResponse paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
+                => _nGeniusPaymentService.Pay(link.ReferenceCode, ip, request.EmailAddress, request.BillingAddress);
 
             Task SendConfirmation() => this.SendConfirmation(link.ToLinkData());
 
-            PaymentResponse ToPaymentResponse(NGeniusPaymentResponse r) => new PaymentResponse(JsonConvert.SerializeObject(r.Secure3dOptions), r.Status, string.Empty);
+            PaymentResponse ToPaymentResponse(NGeniusPaymentResponse r) => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Created, string.Empty);
 
             Task StorePaymentResult(PaymentResponse response) => _storage.UpdatePaymentStatus(code, response);
         }

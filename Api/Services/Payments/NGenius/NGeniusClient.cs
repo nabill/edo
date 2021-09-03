@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         public async Task<Result<NGeniusPaymentResponse>> CreateOrder(OrderRequest order)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/payment/card";
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders";
             var response = await Send(HttpMethod.Post, endpoint, order);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
@@ -37,25 +37,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return response.IsSuccessStatusCode
                 ? Result.Success(ParseResponseInformation(document))
                 : Result.Failure<NGeniusPaymentResponse>(ParseErrorMessage(document));
-        }
-
-
-        public async Task<Result<CreditCardPaymentStatuses>> SubmitPaRes(string paymentId, string orderReference, NGenius3DSecureData data)
-        {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/card/3ds";
-            var response = await Send(HttpMethod.Post, endpoint, data);
-            
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            using var document = await JsonDocument.ParseAsync(stream);
-            
-            if (!response.IsSuccessStatusCode)
-                Result.Failure<CreditCardPaymentStatuses>(ParseErrorMessage(document));
-
-            var status = MapToStatus(GetStringValue(document.RootElement, "state"));
-
-            return status == CreditCardPaymentStatuses.Failed
-                ? Result.Failure<CreditCardPaymentStatuses>(Parse3DsMessage(document))
-                : Result.Success(status);
         }
 
 
@@ -164,44 +145,21 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private static NGeniusPaymentResponse ParseResponseInformation(in JsonDocument document)
         {
             var rootElement = document.RootElement;
-            var status = MapToStatus(GetStringValue(rootElement, "state"));
             
             return new NGeniusPaymentResponse(paymentId: GetStringValue(rootElement, "_id").Split(':').Last(),
-                captureId: ParseCaptureId(document),
-                status: status, 
-                orderReference: GetStringValue(rootElement, "orderReference"),
-                merchantOrderReference: GetStringValue(rootElement, "merchantOrderReference"), 
-                payment: ParseResponsePaymentInformation(document),
-                secure3dOptions: status == CreditCardPaymentStatuses.Secure3d
-                    ? ParseSecure3dOptions(document)
-                    : null);
+                orderReference: GetStringValue(rootElement, "reference"),
+                merchantOrderReference: GetStringValue(rootElement, "merchantOrderReference"),
+                paymentLink: ParsePaymentLink(document));
         }
 
 
-        private static ResponsePaymentInformation ParseResponsePaymentInformation(in JsonDocument document)
+        private static string ParsePaymentLink(in JsonDocument document)
         {
-            var element = document.RootElement.GetProperty("paymentMethod");
-            return new ResponsePaymentInformation(pan: GetStringValue(element, "pan"),
-                expiry: GetStringValue(element, "expiry"),
-                cvv: GetStringValue(element, "cvv"),
-                cardholderName: GetStringValue(element, "cardholderName"),
-                name: GetStringValue(element, "name"));
-        }
-
-
-        private static Secure3dOptions ParseSecure3dOptions(in JsonDocument document)
-        {
-            var element = document.RootElement.GetProperty("3ds");
-            return new Secure3dOptions(acsUrl: GetStringValue(element, "acsUrl"), 
-                acsPaReq: GetStringValue(element, "acsPaReq"),
-                acsMd: GetStringValue(element, "acsMd"));
-        }
-
-
-        private static string Parse3DsMessage(in JsonDocument document)
-        {
-            var element = document.RootElement.GetProperty("3ds");
-            return GetStringValue(element, "summaryText");
+            return document.RootElement
+                .GetProperty("_links")
+                .GetProperty("payment")
+                .GetProperty("href")
+                .GetString();
         }
 
 
