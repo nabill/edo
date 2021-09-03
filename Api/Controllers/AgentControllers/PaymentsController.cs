@@ -139,9 +139,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpPost("accommodations/bookings/ngenius/webhook")]
         [AllowAnonymous]
-        public async Task<IActionResult> NGeniusWebhook([FromBody] JsonDocument document)
+        public async Task<IActionResult> NGeniusWebhook([FromBody] JsonDocument request)
         {
-            await _nGeniusPaymentService.WebHook(document);
+            await _nGeniusPaymentService.ProcessWebHook(request);
             return Ok();
         }
         

@@ -20,6 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount);
 
-        Task WebHook(JsonDocument document);
+        Task ProcessWebHook(JsonDocument request);
     }
 }

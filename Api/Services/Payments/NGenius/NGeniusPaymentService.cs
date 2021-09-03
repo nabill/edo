@@ -19,6 +19,7 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -26,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusPaymentService : INGeniusPaymentService
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
-            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService)
+            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService, ILogger<NGeniusPaymentService> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -34,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _client = client;
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _agencyService = agencyService;
+            _logger = logger;
         }
 
 
@@ -114,10 +116,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task WebHook(JsonDocument document)
+        public async Task ProcessWebHook(JsonDocument request)
         {
-            var eventType = document.RootElement.GetProperty("eventName").GetString();
-            var paymentElement = document.RootElement.GetProperty("_embedded").GetProperty("payment")[0];
+            _logger.LogDebug($"NGenius webhook {request}");
+            
+            var eventType = request.RootElement.GetProperty("eventName").GetString();
+            var paymentElement = request.RootElement.GetProperty("_embedded").GetProperty("payment")[0];
             var paymentId = paymentElement.GetProperty("_id").GetString().Split(':').Last();
             var orderReference = paymentElement.GetProperty("orderReference").GetString();
             var merchantReference = paymentElement.GetProperty("merchantOrderReference").GetString();
@@ -250,5 +254,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly NGeniusClient _client;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IAgencyService _agencyService;
+        private readonly ILogger<NGeniusPaymentService> _logger;
     }
 }
