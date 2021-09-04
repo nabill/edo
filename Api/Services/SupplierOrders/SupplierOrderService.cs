@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 .FirstOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal) (1 - applyingPolicy.Percentage) * orderToCancel.Price;
+                orderToCancel.RefundableAmount = (decimal) (100 - applyingPolicy.Percentage) * orderToCancel.Price;
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
