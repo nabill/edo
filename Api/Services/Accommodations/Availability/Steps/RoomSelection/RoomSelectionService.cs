@@ -85,8 +85,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
                 .SelectMany(MapToRoomContractSets)
-                .OrderBy(r => r.Rate.FinalPrice.Amount)
                 .Where(SettingsFilter)
+                .OrderBy(r => r.Rate.FinalPrice.Amount)
                 .ToList();
 
 
