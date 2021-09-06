@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Invoice data.</returns>
         [HttpGet("invoice")]
-        [ProducesResponseType(typeof((DocumentRegistrationInfo, BookingInvoiceData)), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BookingDocument<BookingInvoiceInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             var (regData, invoice) = document;
-            return Ok(new BookingDocument<BookingInvoiceData>(regData.Number, regData.Date, invoice));
+            return Ok(new BookingDocument<BookingInvoiceInfo>(regData.Number, regData.Date, invoice));
         }
 
 

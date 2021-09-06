@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
     {
         Task<Result<BookingVoucherData>> GenerateVoucher(Data.Bookings.Booking booking, string languageCode);
 
-        Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Data.Bookings.Booking booking);
+        Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceInfo Data)>> GetActualInvoice(Data.Bookings.Booking booking);
 
         Task<Result> GenerateInvoice(Data.Bookings.Booking booking);
 
