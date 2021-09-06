@@ -90,7 +90,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 
                     try
                     {
-                        error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);
+                        error = _serializer.Deserialize<ProblemDetails>(jsonTextReader)
+                            ?? ProblemDetailsBuilder.Build($"Connector error is not specified, status code: {response.StatusCode}", response.StatusCode);
                     }
                     catch (JsonReaderException)
                     {
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                         _logger.LogConnectorClientUnexpectedResponse(response.StatusCode, requestFactory().RequestUri, responseBody);
 
                         var reasonPhrase = string.IsNullOrWhiteSpace(response.ReasonPhrase)
-                            ? $"Error is not specified, status code: {response.StatusCode}"
+                            ? $"Connector error is not specified, status code: {response.StatusCode}"
                             : response.ReasonPhrase;
 
                         error = ProblemDetailsBuilder.Build(reasonPhrase, response.StatusCode);
