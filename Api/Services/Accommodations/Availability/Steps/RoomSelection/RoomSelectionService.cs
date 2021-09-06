@@ -86,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(taskResult => taskResult.Value)
                 .SelectMany(MapToRoomContractSets)
                 .Where(SettingsFilter)
+                .OrderBy(r => r.Rate.FinalPrice.Amount)
                 .ToList();
 
 
@@ -126,8 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                         var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
 
                         return rs.ToRoomContractSet(supplier, isDirectContractFlag);
-                    })
-                    .OrderBy(rs => rs.Rate.FinalPrice.Amount);
+                    });
             }
 
 
