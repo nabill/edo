@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
+        public Task<Result<PaymentResponse>> ProcessPayfortWebhook(string code, JObject response)
         {
             return Result.Success()
                 .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()

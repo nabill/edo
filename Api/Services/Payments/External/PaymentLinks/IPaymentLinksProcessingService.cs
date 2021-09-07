@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         
         Task<Result<PaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode);
 
-        Task<Result<PaymentResponse>> ProcessResponse(string code, JObject value);
+        Task<Result<PaymentResponse>> ProcessPayfortWebhook(string code, JObject value);
         
         Task<Result<PaymentResponse>> ProcessNGeniusWebhook(string code, CreditCardPaymentStatuses status);
 
