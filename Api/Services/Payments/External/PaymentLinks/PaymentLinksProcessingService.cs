@@ -76,7 +76,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     .Bind(GetLink)
                     .Bind(ProcessResponse));
 
-            Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
+            Task<Result<PaymentLink>> GetLink() 
+                => this.GetLink(code);
 
             Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, status);
         }
@@ -227,7 +228,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 return status == CreditCardPaymentStatuses.Success &&
                     IsNotAlreadyPaid(link);
 
-                static bool IsNotAlreadyPaid(PaymentLinkData link) => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
+                static bool IsNotAlreadyPaid(PaymentLinkData link) 
+                    => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
             }
 
 
