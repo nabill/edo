@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
+using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
@@ -27,13 +28,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusPaymentService : INGeniusPaymentService
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
-            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService, ILogger<NGeniusPaymentService> logger)
+            IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentLinksProcessingService paymentLinksProcessingService, IAgencyService agencyService
+            , ILogger<NGeniusPaymentService> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _bookingRecordManager = bookingRecordManager;
             _client = client;
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
+            _paymentLinksProcessingService = paymentLinksProcessingService;
             _agencyService = agencyService;
             _logger = logger;
         }
@@ -125,21 +128,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var paymentId = paymentElement.GetProperty("_id").GetString().Split(':').Last();
             var orderReference = paymentElement.GetProperty("orderReference").GetString();
             var merchantReference = paymentElement.GetProperty("merchantOrderReference").GetString();
-
-            var payments = await _context.Payments
-                .Where(p => p.ReferenceCode == merchantReference)
-                .ToListAsync();
-
-            var payment = payments.Where(p =>
-                {
-                    var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
-                    return data.ExternalId == paymentId && data.InternalReferenceCode == orderReference;
-                })
-                .SingleOrDefault();
-
-            if (payment == default)
-                return;
-
             var status = eventType switch
             {
                 EventTypes.Authorised => PaymentStatuses.Authorized,
@@ -154,20 +142,44 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EventTypes.RefundFailed => PaymentStatuses.Failed,
                 EventTypes.PartialRefundFailed => PaymentStatuses.Failed
             };
-            
-            // It is important to note that, for orders processed in SALE mode
-            // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
-            // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
-            // and another for the CAPTURED event.
-            if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
-                return;
 
-            if (status != payment.Status)
+            var payments = await _context.Payments
+                .Where(p => p.ReferenceCode == merchantReference)
+                .ToListAsync();
+
+            var payment = payments.Where(p =>
+                {
+                    var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
+                    return data.ExternalId == paymentId && data.InternalReferenceCode == orderReference;
+                })
+                .SingleOrDefault();
+
+            if (payment != default)
             {
-                payment.Status = status;
-                payment.Modified = _dateTimeProvider.UtcNow();
-                _context.Update(payment);
-                await _context.SaveChangesAsync();
+                // It is important to note that, for orders processed in SALE mode
+                // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
+                // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
+                // and another for the CAPTURED event.
+                if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
+                    return;
+
+                if (status != payment.Status)
+                {
+                    payment.Status = status;
+                    payment.Modified = _dateTimeProvider.UtcNow();
+                    _context.Update(payment);
+                    await _context.SaveChangesAsync();
+                    await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+                }
+            }
+            
+            var paymentLink = await _context.PaymentLinks
+                .Where(l => l.ReferenceCode == merchantReference)
+                .SingleOrDefaultAsync();
+
+            if (paymentLink != default && status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
+            {
+                await _paymentLinksProcessingService.ProcessResponse(paymentLink.Code, CreditCardPaymentStatuses.Success);
             }
         }
 
@@ -253,6 +265,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly NGeniusClient _client;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
+        private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
         private readonly IAgencyService _agencyService;
         private readonly ILogger<NGeniusPaymentService> _logger;
     }

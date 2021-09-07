@@ -4,7 +4,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
@@ -15,7 +14,6 @@ using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
@@ -68,6 +66,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
 
             Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, response);
+        }
+
+
+        public Task<Result<PaymentResponse>> ProcessResponse(string code, CreditCardPaymentStatuses status)
+        {
+            return Result.Success()
+                .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()
+                    .Bind(GetLink)
+                    .Bind(ProcessResponse));
+
+            Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
+
+            Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, status);
         }
 
 
@@ -186,6 +197,42 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
 
             Task SendReceipt() => this.SendConfirmation(link);
+
+
+            async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
+            {
+                await _storage.UpdatePaymentStatus(code, paymentResponse);
+                return paymentResponse;
+            }
+        }
+        
+        
+        private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, CreditCardPaymentStatuses status)
+        {
+            return GenerateResponse()
+                .TapIf(ShouldSendReceipt, parsedResponse => SendReceipt())
+                .Map(StorePaymentResult);
+            
+            
+            Result<PaymentResponse> GenerateResponse()
+            {
+                return Result.Success(new PaymentResponse(string.Empty,
+                    status,
+                    string.Empty));
+            }
+
+
+            bool ShouldSendReceipt(PaymentResponse parsedResponse)
+            {
+                return status == CreditCardPaymentStatuses.Success &&
+                    IsNotAlreadyPaid(link);
+
+                static bool IsNotAlreadyPaid(PaymentLinkData link) => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
+            }
+
+
+            Task SendReceipt() 
+                => SendConfirmation(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
