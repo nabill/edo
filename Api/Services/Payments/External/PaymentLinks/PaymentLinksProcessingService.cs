@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentResponse>> ProcessResponse(string code, CreditCardPaymentStatuses status)
+        public Task<Result<PaymentResponse>> ProcessNGeniusWebhook(string code, CreditCardPaymentStatuses status)
         {
             return Result.Success()
                 .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()

@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
         Task<Result<PaymentResponse>> ProcessResponse(string code, JObject value);
         
-        Task<Result<PaymentResponse>> ProcessResponse(string code, CreditCardPaymentStatuses status);
+        Task<Result<PaymentResponse>> ProcessNGeniusWebhook(string code, CreditCardPaymentStatuses status);
 
         Task<Result<string>> CalculateSignature(string code, string merchantReference, string fingerprint, string languageCode);
     }

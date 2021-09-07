@@ -179,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             if (paymentLink != default && status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
             {
-                await _paymentLinksProcessingService.ProcessResponse(paymentLink.Code, CreditCardPaymentStatuses.Success);
+                await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
             }
         }
 
