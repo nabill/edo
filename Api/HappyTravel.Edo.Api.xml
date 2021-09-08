@@ -1557,6 +1557,11 @@
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.NGeniusWebhook(System.Text.Json.JsonDocument)">
+            <summary>
+                NGenius webhook
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
