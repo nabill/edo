@@ -2,7 +2,7 @@
 {
     public readonly struct BalanceNotificationSettingInfo
     {
-        public int AccountId { get; init; }
+        public int AgencyAccountId { get; init; }
         public int[] Thresholds { get; init; }
     }
 }

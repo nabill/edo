@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AccountId = table.Column<int>(type: "integer", nullable: false),
+                    AgencyAccountId = table.Column<int>(type: "integer", nullable: false),
                     Thresholds = table.Column<int[]>(type: "integer[]", nullable: true)
                 },
                 constraints: table =>

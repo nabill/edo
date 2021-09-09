@@ -16,32 +16,32 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<BalanceNotificationSettingInfo>> Get(int accountId)
+        public async Task<Result<BalanceNotificationSettingInfo>> Get(int agencyAccountId)
         {
-            var setting = await _context.BalanceNotificationSettings.SingleOrDefaultAsync(s => s.AccountId == accountId);
-            return new BalanceNotificationSettingInfo {AccountId = accountId, Thresholds = setting?.Thresholds ?? new int[0]};
+            var setting = await _context.BalanceNotificationSettings.SingleOrDefaultAsync(s => s.AgencyAccountId == agencyAccountId);
+            return new BalanceNotificationSettingInfo {AgencyAccountId = agencyAccountId, Thresholds = setting?.Thresholds ?? new int[0]};
         }
 
 
-        public Task<Result> Set(int accountId, int[] thresholds)
+        public Task<Result> Set(int agencyAccountId, int[] thresholds)
         {
             return CheckAccountExists()
                 .Tap(Set);
 
 
             async Task<Result> CheckAccountExists()
-                => await _context.AgencyAccounts.AnyAsync(a => a.Id == accountId)
+                => await _context.AgencyAccounts.AnyAsync(a => a.Id == agencyAccountId)
                     ? Result.Success()
                     : Result.Failure("Specified account does not exist");
 
 
             async Task Set()
             {
-                var setting = await _context.BalanceNotificationSettings.SingleOrDefaultAsync(s => s.AccountId == accountId);
+                var setting = await _context.BalanceNotificationSettings.SingleOrDefaultAsync(s => s.AgencyAccountId == agencyAccountId);
 
                 if (setting is null)
                 {
-                    setting = new BalanceNotificationSetting {AccountId = accountId, Thresholds = thresholds};
+                    setting = new BalanceNotificationSetting {AgencyAccountId = agencyAccountId, Thresholds = thresholds};
                     _context.Add(setting);
                     await _context.SaveChangesAsync();
                     return;

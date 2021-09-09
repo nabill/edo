@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IBalanceNotificationsManagementService
     {
-        Task<Result<BalanceNotificationSettingInfo>> Get(int accountId);
-        Task<Result> Set(int accountId, int[] thresholds);
+        Task<Result<BalanceNotificationSettingInfo>> Get(int agencyAccountId);
+        Task<Result> Set(int agencyAccountId, int[] thresholds);
     }
 }

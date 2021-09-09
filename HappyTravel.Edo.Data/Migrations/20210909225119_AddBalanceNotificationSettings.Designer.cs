@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210909013848_AddBalanceNotificationSettings")]
+    [Migration("20210909225119_AddBalanceNotificationSettings")]
     partial class AddBalanceNotificationSettings
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int>("AccountId")
+                    b.Property<int>("AgencyAccountId")
                         .HasColumnType("integer");
 
                     b.Property<int[]>("Thresholds")
