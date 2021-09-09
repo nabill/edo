@@ -21,10 +21,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AgencyAccountsController : BaseController
     {
-        public AgencyAccountsController(IAdministratorContext administratorContext, IAgencyAccountService agencyAccountService)
+        public AgencyAccountsController(IAdministratorContext administratorContext, IAgencyAccountService agencyAccountService,
+            IBalanceNotificationsManagementService balanceNotificationsManagementService)
         {
             _administratorContext = administratorContext;
             _agencyAccountService = agencyAccountService;
+            _balanceNotificationsManagementService = balanceNotificationsManagementService;
         }
 
 
@@ -96,8 +98,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
         [HttpPost("agency-accounts/{agencyAccountId}/decrease-manually")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
         public async Task<IActionResult> DecreaseMoneyManuallyFromAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
@@ -107,11 +109,42 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return isSuccess
                 ? NoContent()
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Gets thresholds for balance notifications
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        [HttpGet("agency-accounts/{agencyAccountId}/balance-notification-settings")]
+        [ProducesResponseType(typeof(BalanceNotificationSettingInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AccountsReportGeneration)]
+        public async Task<IActionResult> GetBalanceNotificationSettings(int agencyAccountId)
+            => OkOrBadRequest(await _balanceNotificationsManagementService.Get(agencyAccountId));
+
+
+        /// <summary>
+        ///     Sets thresholds for balance notifications
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        [HttpPut("agency-accounts/{agencyAccountId}/balance-notification-settings")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AccountsReportGeneration)]
+        public async Task<IActionResult> SetBalanceNotificationSettings(int agencyAccountId, [FromBody] BalanceNotificationSettingInfo info)
+        {
+            var (isSuccess, _, error) = await _balanceNotificationsManagementService.Set(agencyAccountId, info.Thresholds);
+            
+            return isSuccess
+                ? NoContent()
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
         private readonly IAgencyAccountService _agencyAccountService;
+        private readonly IBalanceNotificationsManagementService _balanceNotificationsManagementService;
         private readonly IAdministratorContext _administratorContext;
     }
 }
