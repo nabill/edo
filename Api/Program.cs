@@ -53,7 +53,8 @@ namespace HappyTravel.Edo.Api
                     config.AddConsulKeyValueClient(
                         Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
                         "edo",
-                        Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"));
+                        Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"),
+                        environment.EnvironmentName);
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
