@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             async Task FillInitialBalance(int accountId)
-                => initialBalance = (await _context.AgencyAccounts.SingleAsync(a => a.Id == accountId)).Balance;
+                => initialBalance = (await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.Id == accountId))?.Balance ?? 0m;
 
 
             Task SendNotificationIfRequired((int accountId, MoneyAmount amount) chargeInfo)
