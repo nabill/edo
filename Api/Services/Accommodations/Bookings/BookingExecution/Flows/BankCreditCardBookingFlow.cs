@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 var (request, availabilityInfo) = requestInfo;
                 Baggage.SetSearchId(request.SearchId);
 
-                return await _requestExecutor.Execute(request, availabilityInfo, booking, agentContext, languageCode);
+                return await _requestExecutor.Execute(booking, agentContext, languageCode);
             }
 
             
