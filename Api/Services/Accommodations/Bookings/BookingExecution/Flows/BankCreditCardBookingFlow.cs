@@ -62,13 +62,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.CreditCard);
 
 
-            async Task<Booking> Register(BookingAvailabilityInfo bookingAvailability)
-            {
-                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
-                await _requestStorage.Set(booking.ReferenceCode, bookingRequest, bookingAvailability);
-                
-                return booking;
-            }
+            Task<Booking> Register(BookingAvailabilityInfo bookingAvailability) 
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
 
 
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
