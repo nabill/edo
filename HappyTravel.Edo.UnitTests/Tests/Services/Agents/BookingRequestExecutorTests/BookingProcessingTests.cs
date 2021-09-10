@@ -17,88 +17,88 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutorTests
 {
-    public class BookingProcessingTests
-    {
-        [Fact]
-        public async Task When_success_booking_should_be_passed_to_process_response()
-        {
-            InitializeMocks();
-            var service = CreateBookingRequestExecutor();
-            var referenceCode = "RefCode12";
-            var booking = new Booking { ReferenceCode = referenceCode };
-            var request = Utility.CreateAccommodationBookingRequest();
-            EdoContracts.Accommodations.Booking bookingPassedToProcessResponse = default;
-            SaveResponseProcessorPassedParameter();
-            Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
-
-            await service.Execute(request, default, booking, default, default);
-
-            _responseProcessorMock
-                .Verify(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()));
-            Assert.Equal(referenceCode, bookingPassedToProcessResponse.ReferenceCode);
-
-
-            void SaveResponseProcessorPassedParameter()
-                => _responseProcessorMock
-                    .Setup(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()))
-                    .Callback<EdoContracts.Accommodations.Booking, ApiCaller, BookingChangeEvents>((b, _, _) => bookingPassedToProcessResponse = b);
-        }
-
-
-        [Fact]
-        public async Task When_failure_change_status_to_invalid_should_be_called()
-        {
-            InitializeMocks();
-            var service = CreateBookingRequestExecutor();
-            var booking = new Booking();
-            var request = Utility.CreateAccommodationBookingRequest();
-            var problemDetails = Utility.CreateProblemDetailsWithFailureCode(true, BookingFailureCodes.ConnectorValidationFailed);
-            Utility.SetupConnectorBookFailure(_supplierConnectorMock, problemDetails);
-
-            await service.Execute(request, default, booking, default, default);
-
-            _bookingRecordsUpdaterMock
-                .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTime>(),
-                    It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
-        }
-
-
-        private void InitializeMocks()
-        {
-            _supplierConnectorManagerMock = new Mock<ISupplierConnectorManager>();
-            _responseProcessorMock = new Mock<IBookingResponseProcessor>();
-            _bookingAnalyticsServiceMock = new Mock<IBookingAnalyticsService>();
-            _bookingRecordsUpdaterMock = new Mock<IBookingRecordsUpdater>();
-            _dateTimeProviderMock = new Mock<IDateTimeProvider>();
-            _loggerMock = new Mock<ILogger<BookingRequestExecutor>>();
-            _supplierConnectorMock = new Mock<ISupplierConnector>();
-
-            _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<Suppliers>()))
-                .Returns(_supplierConnectorMock.Object);
-        }
-
-
-        private BookingRequestExecutor CreateBookingRequestExecutor()
-        {
-            return new BookingRequestExecutor(
-                _supplierConnectorManagerMock.Object,
-                _responseProcessorMock.Object,
-                _bookingAnalyticsServiceMock.Object,
-                _bookingRecordsUpdaterMock.Object,
-                _dateTimeProviderMock.Object,
-                _loggerMock.Object);
-        }
-
-
-#pragma warning disable CS8618
-        private Mock<ISupplierConnectorManager> _supplierConnectorManagerMock;
-        private Mock<IBookingResponseProcessor> _responseProcessorMock;
-        private Mock<IBookingAnalyticsService> _bookingAnalyticsServiceMock;
-        private Mock<IBookingRecordsUpdater> _bookingRecordsUpdaterMock;
-        private Mock<IDateTimeProvider> _dateTimeProviderMock;
-        private Mock<ILogger<BookingRequestExecutor>> _loggerMock;
-        private Mock<ISupplierConnector> _supplierConnectorMock;
-#pragma warning restore CS8618
-    }
+//     public class BookingProcessingTests
+//     {
+//         [Fact]
+//         public async Task When_success_booking_should_be_passed_to_process_response()
+//         {
+//             InitializeMocks();
+//             var service = CreateBookingRequestExecutor();
+//             var referenceCode = "RefCode12";
+//             var booking = new Booking { ReferenceCode = referenceCode };
+//             var request = Utility.CreateAccommodationBookingRequest();
+//             EdoContracts.Accommodations.Booking bookingPassedToProcessResponse = default;
+//             SaveResponseProcessorPassedParameter();
+//             Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
+//
+//             await service.Execute(request, default, booking, default, default);
+//
+//             _responseProcessorMock
+//                 .Verify(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()));
+//             Assert.Equal(referenceCode, bookingPassedToProcessResponse.ReferenceCode);
+//
+//
+//             void SaveResponseProcessorPassedParameter()
+//                 => _responseProcessorMock
+//                     .Setup(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()))
+//                     .Callback<EdoContracts.Accommodations.Booking, ApiCaller, BookingChangeEvents>((b, _, _) => bookingPassedToProcessResponse = b);
+//         }
+//
+//
+//         [Fact]
+//         public async Task When_failure_change_status_to_invalid_should_be_called()
+//         {
+//             InitializeMocks();
+//             var service = CreateBookingRequestExecutor();
+//             var booking = new Booking();
+//             var request = Utility.CreateAccommodationBookingRequest();
+//             var problemDetails = Utility.CreateProblemDetailsWithFailureCode(true, BookingFailureCodes.ConnectorValidationFailed);
+//             Utility.SetupConnectorBookFailure(_supplierConnectorMock, problemDetails);
+//
+//             await service.Execute(request, default, booking, default, default);
+//
+//             _bookingRecordsUpdaterMock
+//                 .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTime>(),
+//                     It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
+//         }
+//
+//
+//         private void InitializeMocks()
+//         {
+//             _supplierConnectorManagerMock = new Mock<ISupplierConnectorManager>();
+//             _responseProcessorMock = new Mock<IBookingResponseProcessor>();
+//             _bookingAnalyticsServiceMock = new Mock<IBookingAnalyticsService>();
+//             _bookingRecordsUpdaterMock = new Mock<IBookingRecordsUpdater>();
+//             _dateTimeProviderMock = new Mock<IDateTimeProvider>();
+//             _loggerMock = new Mock<ILogger<BookingRequestExecutor>>();
+//             _supplierConnectorMock = new Mock<ISupplierConnector>();
+//
+//             _supplierConnectorManagerMock
+//                 .Setup(x => x.Get(It.IsAny<Suppliers>()))
+//                 .Returns(_supplierConnectorMock.Object);
+//         }
+//
+//
+//         private BookingRequestExecutor CreateBookingRequestExecutor()
+//         {
+//             return new BookingRequestExecutor(
+//                 _supplierConnectorManagerMock.Object,
+//                 _responseProcessorMock.Object,
+//                 _bookingAnalyticsServiceMock.Object,
+//                 _bookingRecordsUpdaterMock.Object,
+//                 _dateTimeProviderMock.Object,
+//                 _loggerMock.Object);
+//         }
+//
+//
+// #pragma warning disable CS8618
+//         private Mock<ISupplierConnectorManager> _supplierConnectorManagerMock;
+//         private Mock<IBookingResponseProcessor> _responseProcessorMock;
+//         private Mock<IBookingAnalyticsService> _bookingAnalyticsServiceMock;
+//         private Mock<IBookingRecordsUpdater> _bookingRecordsUpdaterMock;
+//         private Mock<IDateTimeProvider> _dateTimeProviderMock;
+//         private Mock<ILogger<BookingRequestExecutor>> _loggerMock;
+//         private Mock<ISupplierConnector> _supplierConnectorMock;
+// #pragma warning restore CS8618
+//    }
 }
