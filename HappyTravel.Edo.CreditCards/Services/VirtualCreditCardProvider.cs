@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.CreditCards.Models;
@@ -17,7 +18,7 @@ namespace HappyTravel.Edo.CreditCards.Services
         
         public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate)
         {
-            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate);
+            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate, new Dictionary<string, string>());
             if (isFailure)
                 return Result.Failure<CreditCardInfo>(error);
 
