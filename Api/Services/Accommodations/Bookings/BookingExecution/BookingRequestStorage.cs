@@ -21,9 +21,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         {
             var bookingRequest = new BookingRequest
             {
-                AvailabilityId = availabilityInfo.AvailabilityId,
                 ReferenceCode = referenceCode,
-                RequestData = JsonConvert.SerializeObject(request)
+                RequestData = JsonConvert.SerializeObject(request),
+                AvailabilityData = JsonConvert.SerializeObject(availabilityInfo),
             };
             _edoContext.BookingRequests.Add(bookingRequest);
             return _edoContext.SaveChangesAsync();
