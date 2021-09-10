@@ -31,14 +31,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
             
             var edoContextMock = MockEdoContextFactory.Create();
-            var edoContextMock1 = edoContextMock;
             _mockedEdoContext = edoContextMock.Object;
     
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
     
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                Mock.Of<IDateTimeProvider>());
+                Mock.Of<IDateTimeProvider>(), Mock.Of<BalanceManagementNotificationsService>());
     
             var strategy = new ExecutionStrategyMock();
     
@@ -46,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
     
-            edoContextMock1
+            edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
                 {
@@ -58,17 +57,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                     },
                 }));
 
-            edoContextMock1
+            edoContextMock
                 .Setup(c => c.AgencyAccounts)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
                     _account,
                 }));
 
-            edoContextMock1
+            edoContextMock
                 .Setup(c => c.Detach(_account));
             
-            edoContextMock1
+            edoContextMock
                 .Setup(c => c.Payments)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Payment>()));
         }

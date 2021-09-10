@@ -22,11 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         public AccountPaymentService(IAccountPaymentProcessingService accountPaymentProcessingService,
             EdoContext context,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IBalanceManagementNotificationsService balanceManagementNotificationsService)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
+            _balanceManagementNotificationsService = balanceManagementNotificationsService;
         }
 
 
@@ -129,9 +131,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<PaymentResponse>> Charge(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService)
         {
+            decimal initialBalance = default;
+
             return await GetChargingAccount()
+                .Tap(FillInitialBalance)
                 .Bind(GetChargingAmount)
                 .Check(ChargeMoney)
+                .Tap(SendNotificationIfRequired)
                 .Bind(StorePayment)
                 .Bind(ProcessPaymentResults)
                 .Map(CreateResult);
@@ -196,6 +202,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             Task<Result> ProcessPaymentResults(Payment payment) 
                 => paymentCallbackService.ProcessPaymentChanges(payment);
 
+
+            async Task FillInitialBalance(int accountId)
+                => initialBalance = (await _context.AgencyAccounts.SingleAsync(a => a.Id == accountId)).Balance;
+
+
+            Task SendNotificationIfRequired((int accountId, MoneyAmount amount) chargeInfo)
+                => _balanceManagementNotificationsService.SendNotificationIfRequired(chargeInfo.accountId,
+                    initialBalance,
+                    initialBalance - chargeInfo.amount.Amount);
+            
             
             PaymentResponse CreateResult() 
                 => new(string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
@@ -221,6 +237,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBalanceManagementNotificationsService _balanceManagementNotificationsService;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
     }
 }

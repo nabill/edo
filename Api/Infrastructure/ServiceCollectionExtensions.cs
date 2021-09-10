@@ -300,10 +300,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
+
+            var happyTravelAccountsEmail = mailSettings[configuration["Edo:Email:HappyTravelAccountsEmail"]];
+            var balanceManagementNotificationTemplateId = mailSettings[configuration["Edo:Email:BalanceManagementNotificationTemplateId"]];
+            services.Configure<BalanceManagementNotificationsOptions>(options =>
+            {
+                options.AccountsEmail = happyTravelAccountsEmail;
+                options.BalanceManagementNotificationTemplateId = balanceManagementNotificationTemplateId;
+            });
             #endregion
 
             #region tag processing options
-            
+
             services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
             
             #endregion
