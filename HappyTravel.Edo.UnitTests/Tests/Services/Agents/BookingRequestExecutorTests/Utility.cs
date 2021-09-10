@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -21,6 +22,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         public static AccommodationBookingRequest CreateAccommodationBookingRequest(Guid roomContractSetId, bool rejectIfUnavailable)
             => new(default, default, default, default, default, default, default, roomContractSetId, string.Empty, rejectIfUnavailable);
 
+        public static BookingAvailabilityInfo CreateAvailabilityInfo(string availabilityId)
+            => new(default, default, default, default, default, default, default, default, default, default, default,
+                default, default, default, default, default, default, availabilityId, default, default, default,
+                default);
 
         public static EdoContracts.Accommodations.Booking CreateBooking(string referenceCode)
             => new(referenceCode, default, string.Empty, string.Empty, default, default, new List<SlimRoomOccupation>(0), default);
