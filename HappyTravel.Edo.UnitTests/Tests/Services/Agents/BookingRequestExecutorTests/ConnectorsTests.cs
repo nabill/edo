@@ -1,65 +1,69 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using BookingRequest = HappyTravel.EdoContracts.Accommodations.BookingRequest;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutorTests
 {
-    public class BookingRequestExecutorBookingProcessingTests
+    public class ConnectorsTests
     {
-        [Fact]
-        public async Task When_success_booking_should_be_passed_to_process_response()
+        [Theory]
+        [InlineData(Suppliers.Illusions)]
+        [InlineData(Suppliers.Etg)]
+        [InlineData(Suppliers.Columbus)]
+        public async Task Correct_supplier_should_be_passed_when_getting_supplier_connector(Suppliers supplier)
         {
             InitializeMocks();
             var service = CreateBookingRequestExecutor();
-            var referenceCode = "RefCode12";
-            var booking = new Booking { ReferenceCode = referenceCode };
+            var booking = new Booking { Supplier = supplier };
             var request = Utility.CreateAccommodationBookingRequest();
-            EdoContracts.Accommodations.Booking bookingPassedToProcessResponse = default;
-            SaveResponseProcessorPassedParameter();
-            Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
 
             await service.Execute(request, default, booking, default, default);
 
-            _responseProcessorMock
-                .Verify(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()));
-            Assert.Equal(referenceCode, bookingPassedToProcessResponse.ReferenceCode);
-
-
-            void SaveResponseProcessorPassedParameter()
-                => _responseProcessorMock
-                    .Setup(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()))
-                    .Callback<EdoContracts.Accommodations.Booking, ApiCaller, BookingChangeEvents>((b, _, _) => bookingPassedToProcessResponse = b);
+            _supplierConnectorManagerMock.Verify(x => x.Get(supplier));
         }
 
 
-        [Fact]
-        public async Task When_failure_change_status_to_invalid_should_be_called()
+        [Theory]
+        [InlineData("1", "2", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", true)]
+        [InlineData("3", "4", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab", false)]
+        [InlineData("5", "6", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaac", true)]
+        public async Task Correct_request_should_be_passed_when_booking_on_connector(
+            string availabilityId,
+            string referenceCode,
+            string roomContractSetIdString,
+            bool rejectIfUnavailable)
         {
             InitializeMocks();
+            var roomContractSetId = new Guid(roomContractSetIdString);
             var service = CreateBookingRequestExecutor();
-            var booking = new Booking();
-            var request = Utility.CreateAccommodationBookingRequest();
-            var problemDetails = Utility.CreateProblemDetailsWithFailureCode(true, BookingFailureCodes.ConnectorValidationFailed);
-            Utility.SetupConnectorBookFailure(_supplierConnectorMock, problemDetails);
+            var booking = new Booking { ReferenceCode = referenceCode };
+            var request = Utility.CreateAccommodationBookingRequest(roomContractSetId, rejectIfUnavailable);
+            BookingRequest actualInnerRequest = default;
+            var setupResult = Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
+            SaveConnectorBookPassedParameter();
 
-            await service.Execute(request, default, booking, default, default);
+            await service.Execute(request, availabilityId, booking, default, default);
 
-            _bookingRecordsUpdaterMock
-                .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTime>(),
-                    It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
+            _supplierConnectorMock.Verify(x => x.Book(It.IsAny<BookingRequest>(), It.IsAny<string>()));
+            Assert.Equal(availabilityId, actualInnerRequest.AvailabilityId);
+            Assert.Equal(roomContractSetId, actualInnerRequest.RoomContractSetId);
+            Assert.Equal(rejectIfUnavailable, actualInnerRequest.RejectIfUnavailable);
+            Assert.Equal(referenceCode, actualInnerRequest.ReferenceCode);
+
+            
+            void SaveConnectorBookPassedParameter()
+                => setupResult.Callback<BookingRequest, string>((req, _) => actualInnerRequest = req);
         }
 
 
