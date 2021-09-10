@@ -63,6 +63,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     booking.ReferenceCode,
                     roomDetails,
                     features,
+                    // TODO: Get credit card there https://github.com/happy-travel/agent-app-project/issues/558
+                    null,
                     bookingRequest.RejectIfUnavailable);
 
                 try

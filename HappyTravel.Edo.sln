@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.Notifications", "HappyTravel.Edo.Notifications\HappyTravel.Edo.Notifications.csproj", "{D0241090-A76F-4AE4-9B79-FF93C1885822}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Edo.CreditCards", "HappyTravel.Edo.CreditCards\HappyTravel.Edo.CreditCards.csproj", "{8B267CD6-CCDD-4811-845D-34968DDA2F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D0241090-A76F-4AE4-9B79-FF93C1885822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0241090-A76F-4AE4-9B79-FF93C1885822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0241090-A76F-4AE4-9B79-FF93C1885822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B267CD6-CCDD-4811-845D-34968DDA2F7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B267CD6-CCDD-4811-845D-34968DDA2F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B267CD6-CCDD-4811-845D-34968DDA2F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B267CD6-CCDD-4811-845D-34968DDA2F7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

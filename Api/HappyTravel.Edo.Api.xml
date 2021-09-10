@@ -237,6 +237,18 @@
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetBalanceNotificationSettings(System.Int32)">
+            <summary>
+                Gets thresholds for balance notifications
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetBalanceNotificationSettings(System.Int32,HappyTravel.Edo.Api.Models.Agencies.BalanceNotificationSettingInfo)">
+            <summary>
+                Sets thresholds for balance notifications
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.GetAgencyDiscounts(System.Int32)">
             <summary>
             Gets discounts for an agency.
