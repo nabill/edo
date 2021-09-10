@@ -1,0 +1,5 @@
+[
+  {"id": 100100, "name": "CreditCardServiceCardRequested", "template":"Requested a credit card to {DueDate} for reference code '{ReferenceCode}'. Amount: {Amount} {Currency}", "level": "Information", "argumentTypes": ["DateTime","string", "decimal", "string"]},
+  {"id": 100101, "name": "CreditCardServiceCardFailure", "template":"Failed to get credit card for reference code '{ReferenceCode}'. Error: {Error}", "level": "Warning", "argumentTypes": ["string", "string"]},
+  {"id": 100102, "name": "CreditCardServiceCardSuccess", "template":"Successfully got credit card for reference code '{ReferenceCode}'", "level": "Information", "argumentTypes": ["string"]}
+]
