@@ -50,11 +50,15 @@ namespace HappyTravel.Edo.Api
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                         .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     config.AddEnvironmentVariables();
-                    config.AddConsulKeyValueClient(
-                        Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
-                        "edo",
-                        Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"),
-                        environment.EnvironmentName);
+
+                    if (!environment.IsLocal())
+                    {
+                        config.AddConsulKeyValueClient(
+                            Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set"),
+                            "edo",
+                            Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set"),
+                            environment.EnvironmentName);
+                    }
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
