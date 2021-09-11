@@ -1,12 +1,14 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Notifications.Enums;
-using Microsoft.EntityFrameworkCore;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
@@ -14,44 +16,43 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     public class BalanceManagementNotificationsService : IBalanceManagementNotificationsService
     {
         // Do not build any functionality based on this service, because it is probably going to be deleted soon
-        public BalanceManagementNotificationsService(EdoContext context,
-            INotificationService notificationService,
-            IOptions<BalanceManagementNotificationsOptions> balanceManagementNotificationsOptions)
+        public BalanceManagementNotificationsService(INotificationService notificationService,
+            IOptions<BalanceManagementNotificationsOptions> balanceManagementNotificationsOptions,
+            IBalanceNotificationsManagementService balanceNotificationsManagementService,
+            IAdminAgencyManagementService adminAgencyManagementService)
         {
-            _context = context;
             _notificationService = notificationService;
             _options = balanceManagementNotificationsOptions.Value;
+            _balanceNotificationsManagementService = balanceNotificationsManagementService;
+            _adminAgencyManagementService = adminAgencyManagementService;
         }
 
 
-        public async Task SendNotificationIfRequired(int agencyAccountId, decimal initialBalance, decimal resultingBalance)
+        public async Task SendNotificationIfRequired(AgencyAccount account, MoneyAmount chargedAmount)
         {
-            var setting = await _context.BalanceNotificationSettings
-                .SingleOrDefaultAsync(s => s.AgencyAccountId == agencyAccountId &&
-                    s.Thresholds.Any(t => initialBalance >= t && resultingBalance < t));
+            var resultingBalance = account.Balance - chargedAmount.Amount;
 
-            if (setting is null)
+            var (_, isFailure, setting, _) = await _balanceNotificationsManagementService.Get(account.Id);
+            if (isFailure || !setting.Thresholds.Any(t => account.Balance >= t && resultingBalance < t))
+                return;
+
+            var (_, isAgencyFailure, agency, _) = await _adminAgencyManagementService.Get(account.AgencyId);
+            if (isAgencyFailure)
                 return;
 
             var lowestThreshold = setting.Thresholds
-                .Where(t => initialBalance >= t && resultingBalance < t)
+                .Where(t => account.Balance >= t && resultingBalance < t)
                 .OrderBy(t => t)
                 .First();
-            
-            var agencyAndAccount = await (from ag in _context.Agencies
-                    join acc in _context.AgencyAccounts on ag.Id equals acc.AgencyId
-                    where acc.Id == agencyAccountId
-                    select new {Agency = ag, AgencyAccount = acc})
-                .SingleAsync();
 
             var messageData = new AccountBalanceManagementNotificationData
             {
-                AgencyAccountId = agencyAccountId,
-                AgencyId = agencyAndAccount.Agency.Id,
-                AgencyName = agencyAndAccount.Agency.Name,
-                Currency = EnumFormatters.FromDescription(agencyAndAccount.AgencyAccount.Currency),
+                AgencyAccountId = account.Id,
+                AgencyId = agency.Id ?? 0,
+                AgencyName = agency.Name,
+                Currency = EnumFormatters.FromDescription(account.Currency),
                 Threshold = lowestThreshold,
-                NewAmount = MoneyFormatter.ToCurrencyString(resultingBalance, agencyAndAccount.AgencyAccount.Currency)
+                NewAmount = MoneyFormatter.ToCurrencyString(resultingBalance, account.Currency)
             };
 
             await _notificationService.Send(messageData: messageData,
@@ -60,9 +61,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 templateId: _options.BalanceManagementNotificationTemplateId);
         }
 
-
-        private readonly EdoContext _context;
+        
         private readonly INotificationService _notificationService;
         private readonly BalanceManagementNotificationsOptions _options;
+        private readonly IBalanceNotificationsManagementService _balanceNotificationsManagementService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
     }
 }

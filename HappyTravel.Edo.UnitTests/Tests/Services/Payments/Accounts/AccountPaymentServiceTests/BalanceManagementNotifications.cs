@@ -77,11 +77,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_charge_should_call_notification_with_correct_parameters()
         {
-            var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
+            var chargingAmount = new MoneyAmount(100, Currencies.USD);
+            var paymentService = CreatePaymentServiceWithMoneyAmount(chargingAmount);
             
             var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
     
-            _balanceManagementNotificationsServiceMock.Verify(x => x.SendNotificationIfRequired(1, 1000, 900));
+            _balanceManagementNotificationsServiceMock.Verify(x => x.SendNotificationIfRequired(It.IsAny<AgencyAccount>(), chargingAmount));
         }
     
     

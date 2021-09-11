@@ -131,10 +131,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<PaymentResponse>> Charge(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService)
         {
-            decimal initialBalance = default;
-
-            return await GetChargingAccount()
-                .Tap(FillInitialBalance)
+            return await GetChargingAccountId()
+                .Bind(GetChargingAccount)
                 .Bind(GetChargingAmount)
                 .Check(ChargeMoney)
                 .Tap(SendNotificationIfRequired)
@@ -143,24 +141,29 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Map(CreateResult);
 
             
-            Task<Result<int>> GetChargingAccount() 
+            Task<Result<int>> GetChargingAccountId() 
                 => paymentCallbackService.GetChargingAccountId(referenceCode);
-            
-            
-            async Task<Result<(int, MoneyAmount)>> GetChargingAmount(int accountId)
+
+
+            async Task<Result<AgencyAccount>> GetChargingAccount(int accountId)
+                => await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.Id == accountId) 
+                    ?? Result.Failure<AgencyAccount>("Could not find agency account");
+
+
+            async Task<Result<(AgencyAccount, MoneyAmount)>> GetChargingAmount(AgencyAccount account)
             {
                 var (_, isFailure, amount, error) = await paymentCallbackService.GetChargingAmount(referenceCode);
                 if (isFailure)
-                    return Result.Failure<(int, MoneyAmount)>(error);
+                    return Result.Failure<(AgencyAccount, MoneyAmount)>(error);
 
-                return (accountId, amount);
+                return (account, amount);
             }
             
             
-            Task<Result> ChargeMoney((int accountId, MoneyAmount amount) chargeInfo)
+            Task<Result> ChargeMoney((AgencyAccount account, MoneyAmount amount) chargeInfo)
             {
-                var (accountId, amount) = chargeInfo;
-                return _accountPaymentProcessingService.ChargeMoney(accountId, new ChargedMoneyData(
+                var (account, amount) = chargeInfo;
+                return _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
                         currency: amount.Currency,
                         amount: amount.Amount,
                         reason: $"Charge money for service '{referenceCode}'",
@@ -169,9 +172,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<Result<Payment>> StorePayment((int accountId, MoneyAmount amount) chargeInfo)
+            async Task<Result<Payment>> StorePayment((AgencyAccount account, MoneyAmount amount) chargeInfo)
             {
-                var (accountId, amount) = chargeInfo;
+                var (account, amount) = chargeInfo;
                 var (paymentExistsForBooking, _, _, _) = await GetPayment(referenceCode);
                 if (paymentExistsForBooking)
                     return Result.Failure<Payment>("Payment for current booking already exists");
@@ -181,13 +184,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var payment = new Payment
                 {
                     Amount = amount.Amount,
-                    AccountNumber = accountId.ToString(),
+                    AccountNumber = account.Id.ToString(),
                     Currency = amount.Currency.ToString(),
                     Created = now,
                     Modified = now,
                     Status = PaymentStatuses.Captured,
                     Data = JsonConvert.SerializeObject(info),
-                    AccountId = accountId,
+                    AccountId = account.Id,
                     PaymentMethod = PaymentTypes.VirtualAccount,
                     ReferenceCode = referenceCode
                 };
@@ -203,14 +206,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 => paymentCallbackService.ProcessPaymentChanges(payment);
 
 
-            async Task FillInitialBalance(int accountId)
-                => initialBalance = (await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.Id == accountId))?.Balance ?? 0m;
-
-
-            Task SendNotificationIfRequired((int accountId, MoneyAmount amount) chargeInfo)
-                => _balanceManagementNotificationsService.SendNotificationIfRequired(chargeInfo.accountId,
-                    initialBalance,
-                    initialBalance - chargeInfo.amount.Amount);
+            Task SendNotificationIfRequired((AgencyAccount account, MoneyAmount amount) chargeInfo)
+                => _balanceManagementNotificationsService.SendNotificationIfRequired(chargeInfo.account, chargeInfo.amount);
             
             
             PaymentResponse CreateResult() 
