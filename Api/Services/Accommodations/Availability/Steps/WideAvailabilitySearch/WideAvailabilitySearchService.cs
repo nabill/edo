@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, IBookingAnalyticsService bookingAnalyticsService,
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
-            ILogger<WideAvailabilitySearchService> logger)
+            ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _dateTimeProvider = dateTimeProvider;
             _accommodationsStorage = accommodationsStorage;
             _logger = logger;
+            _stateStorage = stateStorage;
         }
         
    
@@ -68,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
+            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
 
@@ -80,62 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
-            
-            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, suppliers);
-            var htIds = supplierSearchResults
-                .SelectMany(r => r.AccommodationAvailabilities.Select(a=>a.HtId))
-                .ToList();
-
-            await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
-
-            return CombineAvailabilities(supplierSearchResults);
-
-            IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
-            {
-                if (availabilities == null || !availabilities.Any())
-                    return Enumerable.Empty<WideAvailabilityResult>();
-
-                var queryable = availabilities
-                    .SelectMany(supplierResults =>
-                    {
-                        var (supplierKey, supplierAvailabilities) = supplierResults;
-                        return supplierAvailabilities
-                            .Select(pa => (Supplier: supplierKey, Availability: pa));
-                    })
-                    .OrderBy(r => r.Availability.Created)
-                    .RemoveRepeatedAccommodations()
-                    .Select(r =>
-                    {
-                        var (supplier, availability) = r;
-                        var roomContractSets = availability.RoomContractSets
-                            .Select(rs => rs.ApplySearchSettings(isSupplierVisible: searchSettings.IsSupplierVisible,
-                                isDirectContractsVisible: searchSettings.IsDirectContractFlagVisible))
-                            .ToList();
-
-                        if (searchSettings.AprMode == AprMode.Hide)
-                            roomContractSets = roomContractSets.Where(rcs => !rcs.IsAdvancePurchaseRate).ToList();
-
-                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                            roomContractSets = roomContractSets.Where(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow())
-                                .ToList();
-
-                        var accommodation = _accommodationsStorage.GetAccommodation(availability.HtId, languageCode);
-
-                        return new WideAvailabilityResult(accommodation,
-                            roomContractSets,
-                            availability.MinPrice,
-                            availability.MaxPrice,
-                            availability.CheckInDate,
-                            availability.CheckOutDate,
-                            searchSettings.IsSupplierVisible
-                                ? supplier
-                                : (Suppliers?)null,
-                            availability.HtId);
-                    })
-                    .AsQueryable();
-
-                return options.ApplyTo(queryable);
-            }
+            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers, languageCode);
         }
 
 
@@ -145,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 if (!accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
                 {
-                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
                     continue;
                 }
                 
@@ -170,6 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
+        private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
