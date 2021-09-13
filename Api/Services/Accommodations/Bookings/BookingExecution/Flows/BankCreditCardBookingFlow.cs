@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Booking> Register(BookingAvailabilityInfo bookingAvailability)
             {
                 var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
-                await _requestStorage.Set(booking.ReferenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
+                await _requestStorage.Set(booking.ReferenceCode, bookingRequest, bookingAvailability);
                 
                 return booking;
             }
@@ -124,10 +124,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 if(isFailure)
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
                 
-                var (request, availabilityId) = requestInfo;
+                var (request, availabilityInfo) = requestInfo;
                 Baggage.SetSearchId(request.SearchId);
 
-                return await _requestExecutor.Execute(request, availabilityId, booking, agentContext, languageCode);
+                return await _requestExecutor.Execute(request, availabilityInfo.AvailabilityId, booking, agentContext, languageCode);
             }
 
             
