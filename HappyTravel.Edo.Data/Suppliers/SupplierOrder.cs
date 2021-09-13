@@ -21,5 +21,6 @@ namespace HappyTravel.Edo.Data.Suppliers
         public DateTime Modified { get; set; }
         public Deadline Deadline { get; set; }
         public decimal RefundableAmount { get; set; }
+        public DateTime PaymentDate { get; set; }
     }
 }
