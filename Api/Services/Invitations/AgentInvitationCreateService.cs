@@ -105,12 +105,27 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         public Task<Result<string>> Send(UserInvitationData prefilledData, UserInvitationTypes invitationType,
             int inviterUserId, int? inviterAgencyId = null)
         {
-            return Create(prefilledData, invitationType, inviterUserId, inviterAgencyId)
+            return Result.Success()
+                .Ensure(IsInvitationEmailValid, "Invitation email is not valid")
+                .Bind(CreateInvitation)
                 .Check(SendInvitationMailPipe);
 
 
             Task<Result> SendInvitationMailPipe(string invitationCode) 
                 => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
+
+
+            async Task<bool> IsInvitationEmailValid()
+            {
+                var email = prefilledData.UserRegistrationInfo.Email;
+                return email.Contains('@') && email.First() != '@' && email.Last() != '@';
+            }
+
+
+            Task<Result<string>> CreateInvitation()
+            {
+                return Create(prefilledData, invitationType, inviterUserId, inviterAgencyId);
+            }
         }
 
 
