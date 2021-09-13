@@ -196,7 +196,54 @@ namespace HappyTravel.Edo.Api.Services.Reports
             Task<IEnumerable<VccBookingData>> GetRecords() 
                 => GetRecords<VccBookingData>(from, end);
         }
+
+
+        public Task<Result<Stream>> GetAgentWiseReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate<AgentWiseReportData, AgentWiseReportRow>);
+            
+            
+            Task<IEnumerable<AgentWiseReportData>> GetRecords() 
+                => GetRecords<AgentWiseReportData>(from, end);
+        }
+
+
+        public Task<Result<Stream>> GetHotelProductivityReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate);
+            
+            
+            Task<IEnumerable<HotelProductivityData>> GetRecords() 
+                => GetRecords<HotelProductivityData>(from, end);
+        }
+
+
         
+        
+        public Task<Result<Stream>> GetCancelledBookingsReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1);
+
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate);
+
+
+            Task<IEnumerable<CancelledBookingsReportData>> GetRecords() 
+                => GetRecords<CancelledBookingsReportData>(from, end);
+        }
+       
         
         private Result Validate(DateTime fromDate, DateTime toDate)
         {

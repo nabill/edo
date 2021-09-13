@@ -65,6 +65,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
                 return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
             }
+            // This is timeout exception
+            catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
+            {
+                _logger.LogMapperClientRequestTimeout(ex);
+                return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Static data request failure");
+            }
             catch (Exception ex)
             {
                 _logger.LogMapperClientException(ex);
@@ -101,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     }
                     else
                     {
-                        _logger.LogError("Request to mapper failed: {Message}:{StatusCode}", await response.Content.ReadAsStringAsync(), response.StatusCode);
+                        _logger.LogMapperClientErrorResponse(await response.Content.ReadAsStringAsync(), (int)response.StatusCode, htIds.ToArray());
                     }
                         
                 }

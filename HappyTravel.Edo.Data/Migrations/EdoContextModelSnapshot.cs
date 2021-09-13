@@ -173,9 +173,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int[]>("AgentRoleIds")
                         .HasColumnType("integer[]");
 
-                    b.Property<int>("InAgencyPermissions")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -254,6 +251,24 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Name", "PasswordHash");
 
                     b.ToTable("ApiClients");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.BalanceNotificationSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int>("AgencyAccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<int[]>("Thresholds")
+                        .HasColumnType("integer[]");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BalanceNotificationSettings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
@@ -1464,6 +1479,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("CaptureId")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1479,6 +1497,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentProcessor")
                         .HasColumnType("integer");
 
                     b.Property<string>("ReferenceCode")

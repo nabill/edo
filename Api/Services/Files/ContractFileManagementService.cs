@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -26,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         public async Task<Result> Add(int counterpartyId, IFormFile file)
         {
             return await ValidateFile()
-                .Bind(Upload)
+                .Bind(() => GetCounterpartyRecord(counterpartyId))
+                .Check(Upload)
                 .Bind(UpdateCounterparty);
 
 
@@ -37,19 +39,15 @@ namespace HappyTravel.Edo.Api.Services.Files
                     .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == PdfFileExtension, $"The file must have extension '{PdfFileExtension}'");
 
 
-            async Task<Result> Upload()
+            async Task<Result> Upload(Counterparty _)
             {
                 await using var stream = file.OpenReadStream();
                 return await _amazonS3ClientService.Add(_bucketName, GetKey(counterpartyId), stream, S3CannedACL.Private);
             }
 
 
-            async Task<Result> UpdateCounterparty()
+            async Task<Result> UpdateCounterparty(Counterparty counterparty)
             {
-                var counterparty = await _context.Counterparties.FindAsync(counterpartyId);
-                if (counterparty is null)
-                    return Result.Failure($"Could not find counterparty with id {counterpartyId}");
-
                 counterparty.IsContractUploaded = true;
                 _context.Entry(counterparty).Property(i => i.IsContractUploaded).IsModified = true;
                 await _context.SaveChangesAsync();
@@ -58,19 +56,37 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId)
+        public Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId)
         {
-            var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(counterpartyId));
+            return GetCounterpartyRecord(counterpartyId)
+                .Ensure(c => c.IsContractUploaded, "No contract file was uploaded")
+                .Bind(GetContractFileStream);
 
-            if (isFailure)
-                return Result.Failure<(Stream, string)>("Couldn't get a contract file");
 
-            return (stream, PdfContentType);
+            async Task<Result<(Stream stream, string contentType)>> GetContractFileStream(Counterparty _)
+            {
+                var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(counterpartyId));
+
+                if (isFailure)
+                    return Result.Failure<(Stream, string)>("Couldn't get a contract file");
+
+                return (stream, PdfContentType);
+            }
         }
 
 
         private string GetKey(int counterpartyId) 
             => $"{_s3FolderName}/{counterpartyId}.pdf";
+
+
+        private async Task<Result<Counterparty>> GetCounterpartyRecord(int counterpartyId)
+        {
+            var counterparty = await _context.Counterparties.FindAsync(counterpartyId);
+            if (counterparty is null)
+                return Result.Failure<Counterparty>($"Could not find counterparty with id {counterpartyId}");
+
+            return counterparty;
+        }
 
 
         private const string PdfFileExtension = ".pdf";

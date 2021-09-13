@@ -23,6 +23,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                     join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                    join agent in _context.Agents on booking.AgentId equals agent.Id
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join region in _context.Regions on country.RegionId equals region.Id
                     let cancellationDate = _context.BookingStatusHistory
                         .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
                         .Select(c => c.CreatedAt)
@@ -36,6 +39,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ReferenceCode = booking.ReferenceCode,
                         InvoiceNumber = invoice.Number,
                         AgencyName = agency.Name,
+                        AgencyCity = agency.City,
+                        AgencyCountry = country.Names,
+                        AgentName = $"{agent.FirstName} {agent.LastName}",
+                        AgencyRegion = region.Names,
                         PaymentMethod = booking.PaymentType,
                         AccommodationName = booking.AccommodationName,
                         ConfirmationNumber = booking.SupplierReferenceCode,

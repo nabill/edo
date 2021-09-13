@@ -37,7 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
                 numberOfNights: value.NumberOfNights,
-                roomContractSet: roomContractSet);
+                roomContractSet: roomContractSet,
+                isCreditCardNeeded: value.IsCreditCardNeeded);
         }
 
 
@@ -54,7 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
                 numberOfNights: value.NumberOfNights,
-                roomContractSet: roomContractSet);
+                roomContractSet: roomContractSet,
+                isCreditCardNeeded: value.IsCreditCardNeeded);
         }
 
 

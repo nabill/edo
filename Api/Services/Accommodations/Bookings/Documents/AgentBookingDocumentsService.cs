@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         }
        
         
-        public Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentContext agentContext)
+        public Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceInfo Data)>> GetActualInvoice(int bookingId, AgentContext agentContext)
         {
             return _recordManager.Get(bookingId)
                 .CheckPermissions(agentContext)

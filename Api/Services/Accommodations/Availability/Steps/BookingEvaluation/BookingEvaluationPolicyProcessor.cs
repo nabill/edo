@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkOutDate: availability.CheckOutDate,
                 numberOfNights: availability.NumberOfNights,
                 roomContractSet: RoomContractSetPolicyProcessor.Process(availability.RoomContractSet, availability.CheckInDate,
-                    settings));
+                    settings),
+                isCreditCardNeeded: availability.IsCreditCardNeeded);
         }
     }
 }

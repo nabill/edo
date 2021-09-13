@@ -34,6 +34,66 @@
                 Roles for admin
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns supplier wise direct connectivity report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgencyWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agency wise direct connectivity report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgenciesProductivityReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agencies productivity report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns full bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPendingSupplierReferenceReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns pending supplier reference report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetConfirmedBookingsReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns confirmed bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns sales bookings report
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetHotelWiseReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns hotel wise booking report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetCancellationDeadlineReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns cancellation deadline report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetThirdPartySuppliersReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns third party suppliers report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetVccBookingReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns vcc bookings report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetCancelledBookingsReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns cancelled bookings report 
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
             <summary>
                 Gets all possible administrator roles
@@ -177,6 +237,18 @@
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetBalanceNotificationSettings(System.Int32)">
+            <summary>
+                Gets thresholds for balance notifications
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SetBalanceNotificationSettings(System.Int32,HappyTravel.Edo.Api.Models.Agencies.BalanceNotificationSettingInfo)">
+            <summary>
+                Sets thresholds for balance notifications
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.GetAgencyDiscounts(System.Int32)">
             <summary>
             Gets discounts for an agency.
@@ -274,12 +346,13 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agents.MoveAgentToAgencyRequest)">
             <summary>
             Moves agent from one agency to another
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Source agency Id</param>
-            <param name="targetAgencyId">Target agency Id</param>
+            <param name="request">Move agent request</param>
+            <param>Target agency Id</param>
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetApiClient(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agents.ApiClientData)">
@@ -647,61 +720,6 @@
                 Confirm credit card payment
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns supplier wise direct connectivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgencyWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns agency wise direct connectivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetAgenciesProductivityReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns agencies productivity report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetFullBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns full bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetPendingSupplierReferenceReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns pending supplier reference report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetConfirmedBookingsReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns confirmed bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns sales bookings report
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetHotelWiseReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns hotel wise booking report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetCancellationDeadlineReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns cancellation deadline report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetThirdPartySuppliersReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns third party suppliers report 
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ReportsController.GetVccBookingReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns vcc bookings report 
-            </summary>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
@@ -907,6 +925,11 @@
             <param name="filter">Filter for date range</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentReportsController.GetAgentWiseReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns agent wise report data
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentRolesController.GetAll">
             <summary>
                Returns all agent roles
@@ -1001,11 +1024,6 @@
                 Gets agent of a specified agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
-            <summary>
-                Updates permissions agent permissions
-            </summary>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.SetRolesInAgency(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
                 Updates agent roles
@@ -1072,11 +1090,12 @@
             <param name="searchId">Search id</param>
             <returns>Search state</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetAvailabilitySearchResult(System.Guid)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetAvailabilitySearchResult(System.Guid,HappyTravel.Edo.Api.Models.Accommodations.AvailabilitySearchFilter)">
             <summary>
             Gets result of previous started availability search.
             </summary>
             <param name="searchId">Search id</param>
+            <param name="options">Pagination and filters</param>
             <returns>Availability results</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.GetSearchStateForAccommodationAvailability(System.Guid,System.String)">
@@ -1480,9 +1499,17 @@
             <param name="request">JSON request.</param>
             <returns>Signature.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.Pay(System.String,System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaPayfort(System.String,System.String)">
             <summary>
                 Executes payment for link.
+            </summary>
+            <param name="code">Payment link code.</param>
+            <param name="token">Payment token.</param>
+            <returns>Payment result. Can return data for further 3DSecure processing.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusPayByLinkRequest)">
+            <summary>
+                Executes payment for link via Ngenius.
             </summary>
             <param name="code">Payment link code.</param>
             <param name="token">Payment token.</param>
@@ -1508,6 +1535,16 @@
             </summary>
             <returns>List of currencies.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentProcessors">
+            <summary>
+                Returns available payment systems
+            </summary>>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetCurrentPaymentProcessor">
+            <summary>
+                Returns enabled payment system
+            </summary>>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.GetPaymentTypes">
             <summary>
                 Returns methods available for agent's payments
@@ -1526,6 +1563,17 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayByNGenius(System.String)">
+            <summary>
+                Pays by NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.NGeniusWebhook(System.Text.Json.JsonDocument)">
+            <summary>
+                NGenius webhook
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
@@ -1541,6 +1589,13 @@
             <summary>
                 Gets payment history for an agency.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AuxiliaryControllers.Accommodations.GetAccommodation(System.String)">
+            <summary>
+            Returns accommodation info by htId
+            </summary>
+            <param name="htId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompanyController.Get">

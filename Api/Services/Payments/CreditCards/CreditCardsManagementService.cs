@@ -88,10 +88,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public Task<Result<CreditCardInfo>> Get(int cardId, AgentContext agentContext)
+        public Task<Result<CreditCard>> Get(int cardId, AgentContext agentContext)
         {
-            return GetCreditCard(cardId, agentContext)
-                .Map(ToCardInfoFunc);
+            return GetCreditCard(cardId, agentContext);
         }
 
 

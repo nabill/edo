@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -12,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, string supplierReferenceCode,
             List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate,
-            BookingPaymentStatuses paymentStatus, DateTime? deadlineDate)
+            DateTime? deadlineDate)
         {
             BuyerDetails = buyerDetails;
             PayDueDate = payDueDate;
@@ -23,7 +22,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             SellerDetails = sellerDetails;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            PaymentStatus = paymentStatus;
             DeadlineDate = deadlineDate;
         }
 
@@ -38,7 +36,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public DateTime? DeadlineDate { get; }
-        public BookingPaymentStatuses PaymentStatus { get; }
 
 
         public readonly struct BuyerInfo

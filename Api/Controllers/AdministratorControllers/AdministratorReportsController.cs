@@ -16,9 +16,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/admin/reports")]
     [Produces("application/json")]
-    public class ReportsController : BaseController
+    public class AdministratorReportsController : BaseController
     {
-        public ReportsController(IReportService reportService)
+        public AdministratorReportsController(IReportService reportService)
         {
             _reportService = reportService;
         }
@@ -239,6 +239,43 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
                 FileDownloadName = $"vcc-bookings-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        [HttpGet("hotel-productivity-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetHotelProductivityReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetHotelProductivityReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"hotel-productivity-report-{from:g}-{end:g}.csv"
+            };
+        }
+        
+        
+        /// <summary>
+        ///     Returns cancelled bookings report 
+        /// </summary>
+        [HttpGet("cancelled-bookings-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
+        public async Task<IActionResult> GetCancelledBookingsReport(DateTime from, DateTime end)
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetCancelledBookingsReport(from, end);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"cancelled-bookings-report-{from:g}-{end:g}.csv"
             };
         }
         

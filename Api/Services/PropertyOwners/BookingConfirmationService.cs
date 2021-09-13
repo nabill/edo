@@ -12,6 +12,8 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.SuppliersCatalog;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -25,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
     {
         public BookingConfirmationService(EdoContext context, IBookingRecordManager bookingRecordManager, 
             IBookingRecordsUpdater recordsUpdater, IPropertyOwnerConfirmationUrlGenerator urlGenerationService, INotificationService notificationService,
-            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client, ILogger<BookingConfirmationService> logger)
+            IOptions<PropertyOwnerMailingOptions> options, IAccommodationMapperClient client, ILogger<BookingConfirmationService> logger,
+            IHostEnvironment hostingEnvironment)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -35,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             _options = options.Value;
             _client = client;
             _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
         }
 
 
@@ -118,6 +122,12 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
         public async Task<Result> SendConfirmationEmail(Booking booking)
         {
+            if (_hostingEnvironment.IsProduction()) // TODO: This check will be removed after testing the hotel confirmation page in development
+                return Result.Success();
+
+            if (!booking.IsDirectContract || booking.Supplier != Suppliers.Columbus)
+                return Result.Success(); 
+            
             var url = _urlGenerationService.Generate(booking.ReferenceCode);
 
             var roomDetails = new List<BookingConfirmationData.BookedRoomDetails>();
@@ -160,9 +170,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                 return Result.Failure("Missing email address to send email to property owner");
             }
 
-            return await _notificationService.Send(messageData: bookingConfirmationData,
+            return await _notificationService.Send(apiCaller: new Models.Users.ApiCaller(id: default, type: ApiCallerTypes.PropertyOwner),
+                    messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { emails[0], _options.ReservationsOfficeBackupEmail },   
+                    emails: new List<string> { emails[0], _options.ReservationsOfficeBackupEmail },
                     // We only use the first email because: 1) Hotel email from Columbus will be returned first;
                     // 2) In the current implementation of the mapper, we do not know which provider returns the second email address to us,
                     // so we cannot use it.
@@ -221,5 +232,6 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private readonly PropertyOwnerMailingOptions _options;
         private readonly IAccommodationMapperClient _client;
         private readonly ILogger<BookingConfirmationService> _logger;
+        private readonly IHostEnvironment _hostingEnvironment;
     }
 }

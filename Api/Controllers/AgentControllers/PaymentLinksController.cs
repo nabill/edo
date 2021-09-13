@@ -8,6 +8,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using Microsoft.AspNetCore.Authorization;
@@ -169,12 +170,33 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [RequestSizeLimit(512)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Pay([Required] string code, [FromBody] [Required] string token)
+        public async Task<IActionResult> PayViaPayfort([Required] string code, [FromBody] [Required] string token)
         {
             var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
                 token,
                 ClientIp,
                 LanguageCode);
+
+            return isSuccess
+                ? Ok(paymentResponse)
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        
+        /// <summary>
+        ///     Executes payment for link via Ngenius.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <param name="token">Payment token.</param>
+        /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
+        [HttpPost("{code}/ngenius/pay")]
+        [AllowAnonymous]
+        [RequestSizeLimit(512)]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
+        {
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
 
             return isSuccess
                 ? Ok(paymentResponse)

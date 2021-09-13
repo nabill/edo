@@ -182,6 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 Data = JsonConvert.SerializeObject(info),
                 AccountId = cardId,
                 PaymentMethod = PaymentTypes.CreditCard,
+                PaymentProcessor = PaymentProcessors.Payfort,
                 ReferenceCode = paymentResult.ReferenceCode
             };
                 
@@ -338,6 +339,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _captureService.Capture(request,
                     paymentInfo,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
                     Enum.Parse<Currencies>(payment.Currency),
                     apiCaller,
@@ -348,6 +350,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task StoreCaptureResults(CreditCardCaptureResult captureResult)
             {
                 payment.Status = PaymentStatuses.Captured;
+                payment.CaptureId = captureResult.CaptureId;
                 _context.Payments.Update(payment);
                 await _context.SaveChangesAsync();
                 await paymentCallbackService.ProcessPaymentChanges(payment);
@@ -381,6 +384,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _captureService.Void(request,
                     info,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
                     new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
                     payment.ReferenceCode,
@@ -427,8 +431,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _refundService.Refund(request,
                     info,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
                     payment.ReferenceCode,
+                    payment.CaptureId,
                     apiCaller,
                     buyerInfo.AgentId);
             }

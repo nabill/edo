@@ -175,9 +175,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1130, "LocationNormalized"),
                 "Location normalized");
             
-            MultiSupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid>(LogLevel.Information,
+            MultiSupplierAvailabilitySearchStarted = LoggerMessage.Define<string, string, string[], string, int>(LogLevel.Information,
                 new EventId(1140, "MultiSupplierAvailabilitySearchStarted"),
-                "Starting availability search with id '{SearchId}'");
+                "Starting availability search for {CheckInDate} - {CheckOutDate}. Locations: '{LocationHtIds}', nationality: '{Nationality}', rooms: {RoomCount}");
             
             SupplierAvailabilitySearchStarted = LoggerMessage.Define<System.Guid, HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Information,
                 new EventId(1141, "SupplierAvailabilitySearchStarted"),
@@ -191,9 +191,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1143, "SupplierAvailabilitySearchFailure"),
                 "Availability search with id '{SearchId}' on supplier '{Supplier}' finished with state '{TaskState}', error '{Error}'");
             
-            SupplierAvailabilitySearchException = LoggerMessage.Define(LogLevel.Error,
+            SupplierAvailabilitySearchException = LoggerMessage.Define<HappyTravel.SuppliersCatalog.Suppliers>(LogLevel.Error,
                 new EventId(1145, "SupplierAvailabilitySearchException"),
-                "Supplier availability search exception");
+                "Supplier availability search exception on supplier '{Supplier}'");
             
             CounterpartyStateAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1150, "CounterpartyStateAuthorizationSuccess"),
@@ -207,9 +207,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1200, "DefaultLanguageKeyIsMissingInFieldOfLocationsTable"),
                 "Default language key is missing in field of locations table");
             
-            ConnectorClientException = LoggerMessage.Define(LogLevel.Critical,
+            ConnectorClientException = LoggerMessage.Define<string, string>(LogLevel.Error,
                 new EventId(1300, "ConnectorClientException"),
-                "Connector client exception");
+                "Connector client exception, url {RequestUrl}, response: {Response}");
             
             SupplierConnectorRequestError = LoggerMessage.Define<string, string, System.Nullable<int>>(LogLevel.Error,
                 new EventId(1301, "SupplierConnectorRequestError"),
@@ -263,6 +263,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1601, "MapperClientException"),
                 "Mapper client exception");
             
+            MapperClientErrorResponse = LoggerMessage.Define<string, int, string[]>(LogLevel.Error,
+                new EventId(1602, "MapperClientErrorResponse"),
+                "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}");
+            
             CounterpartyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
                 new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
                 "Counterparty {CounterpartyId} account added notification failed with error {Error}");
@@ -310,6 +314,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             MapperClientUnexpectedResponse = LoggerMessage.Define<System.Net.HttpStatusCode, System.Uri, string>(LogLevel.Error,
                 new EventId(1802, "MapperClientUnexpectedResponse"),
                 "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
+            
+            MapperClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
+                new EventId(1803, "MapperClientRequestTimeout"),
+                "Request to mapper failed with timeout");
             
         }
     
@@ -440,8 +448,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogLocationNormalized(this ILogger logger, Exception exception = null)
             => LocationNormalized(logger, exception);
                 
-         public static void LogMultiSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, Exception exception = null)
-            => MultiSupplierAvailabilitySearchStarted(logger, SearchId, exception);
+         public static void LogMultiSupplierAvailabilitySearchStarted(this ILogger logger, string CheckInDate, string CheckOutDate, string[] LocationHtIds, string Nationality, int RoomCount, Exception exception = null)
+            => MultiSupplierAvailabilitySearchStarted(logger, CheckInDate, CheckOutDate, LocationHtIds, Nationality, RoomCount, exception);
                 
          public static void LogSupplierAvailabilitySearchStarted(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
             => SupplierAvailabilitySearchStarted(logger, SearchId, Supplier, exception);
@@ -452,8 +460,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogSupplierAvailabilitySearchFailure(this ILogger logger, System.Guid SearchId, HappyTravel.SuppliersCatalog.Suppliers Supplier, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState TaskState, string Error, Exception exception = null)
             => SupplierAvailabilitySearchFailure(logger, SearchId, Supplier, TaskState, Error, exception);
                 
-         public static void LogSupplierAvailabilitySearchException(this ILogger logger, Exception exception = null)
-            => SupplierAvailabilitySearchException(logger, exception);
+         public static void LogSupplierAvailabilitySearchException(this ILogger logger, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
+            => SupplierAvailabilitySearchException(logger, Supplier, exception);
                 
          public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
             => CounterpartyStateAuthorizationSuccess(logger, Email, exception);
@@ -464,8 +472,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, Exception exception = null)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, exception);
                 
-         public static void LogConnectorClientException(this ILogger logger, Exception exception = null)
-            => ConnectorClientException(logger, exception);
+         public static void LogConnectorClientException(this ILogger logger, string RequestUrl, string Response, Exception exception = null)
+            => ConnectorClientException(logger, RequestUrl, Response, exception);
                 
          public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, System.Nullable<int> Status, Exception exception = null)
             => SupplierConnectorRequestError(logger, Url, Error, Status, exception);
@@ -506,6 +514,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMapperClientException(this ILogger logger, Exception exception = null)
             => MapperClientException(logger, exception);
                 
+         public static void LogMapperClientErrorResponse(this ILogger logger, string Message, int StatusCode, string[] HtIds, Exception exception = null)
+            => MapperClientErrorResponse(logger, Message, StatusCode, HtIds, exception);
+                
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
@@ -541,6 +552,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
             => MapperClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
+                
+         public static void LogMapperClientRequestTimeout(this ILogger logger, Exception exception = null)
+            => MapperClientRequestTimeout(logger, exception);
     
     
         
@@ -628,7 +642,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> LocationNormalized;
         
-        private static readonly Action<ILogger, System.Guid, Exception> MultiSupplierAvailabilitySearchStarted;
+        private static readonly Action<ILogger, string, string, string[], string, int, Exception> MultiSupplierAvailabilitySearchStarted;
         
         private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchStarted;
         
@@ -636,7 +650,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, System.Guid, HappyTravel.SuppliersCatalog.Suppliers, HappyTravel.Edo.Api.Models.Availabilities.AvailabilitySearchTaskState, string, Exception> SupplierAvailabilitySearchFailure;
         
-        private static readonly Action<ILogger, Exception> SupplierAvailabilitySearchException;
+        private static readonly Action<ILogger, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchException;
         
         private static readonly Action<ILogger, string, Exception> CounterpartyStateAuthorizationSuccess;
         
@@ -644,7 +658,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTable;
         
-        private static readonly Action<ILogger, Exception> ConnectorClientException;
+        private static readonly Action<ILogger, string, string, Exception> ConnectorClientException;
         
         private static readonly Action<ILogger, string, string, System.Nullable<int>, Exception> SupplierConnectorRequestError;
         
@@ -672,6 +686,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> MapperClientException;
         
+        private static readonly Action<ILogger, string, int, string[], Exception> MapperClientErrorResponse;
+        
         private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountAddedNotificationFailure;
         
         private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailure;
@@ -695,5 +711,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> ConnectorClientUnexpectedResponse;
         
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperClientUnexpectedResponse;
+        
+        private static readonly Action<ILogger, Exception> MapperClientRequestTimeout;
     }
 }
