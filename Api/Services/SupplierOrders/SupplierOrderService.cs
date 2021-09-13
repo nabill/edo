@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 
 
         public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Deadline deadline,
-            Suppliers supplier)
+            Suppliers supplier, DateTime paymentDate)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Type = serviceType,
                 ReferenceCode = referenceCode,
                 Deadline = deadline,
+                PaymentDate = paymentDate
             };
 
             _context.SupplierOrders.Add(supplierOrder);
