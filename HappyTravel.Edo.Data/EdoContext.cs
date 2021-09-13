@@ -93,6 +93,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
         public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
+        public DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
 
 
         [DbFunction("jsonb_to_string")]

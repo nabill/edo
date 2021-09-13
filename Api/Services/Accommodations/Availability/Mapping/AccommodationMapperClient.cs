@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using HappyTravel.MapperContracts.Public.Accommodations;
+using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -185,6 +186,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             {
                 _logger.LogMapperClientException(ex);
                 return ProblemDetailsBuilder.Fail<List<string>>(ex.Message);
+            }
+        }
+        
+        
+        public async Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings)
+        {
+            using var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+            try
+            {
+                var ratingsQuery = string.Join("&", ratings.Select(r => $"ratings={r}"));
+                using var response = await client.PostAsJsonAsync($"api/1.0/accommodations/filtered-by-rating?{ratingsQuery}", htIds);
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
+
+                _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, await response.Content.ReadAsStringAsync());
+                return new List<string>(0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperClientException(ex);
+                return new List<string>(0);
             }
         }
 
