@@ -52,5 +52,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public bool IsDirectContract { get; set; }
         public List<CancellationPolicy> CancellationPolicies { get; set; }
         public string PropertyOwnerConfirmationCode { get; set; }
+        public DateTime? Cancelled { get; set; }
     }
 }
