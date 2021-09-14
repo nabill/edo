@@ -13,9 +13,9 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string InvoiceNumber { get; init; }
         public BookingStatuses BookingStatus { get; init; }
         public string AccommodationName { get; init; }
+        public Suppliers Supplier { get; init; }
         public string ConfirmationNumber { get; init; }
         public string AgencyName { get; init; }
-        public PaymentTypes PaymentMethod { get; init; }
         public string GuestName { get; init; }
         public DateTime Created { get; init; }
         public DateTime ArrivalDate { get; init; }
@@ -25,8 +25,6 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public decimal SupplierConvertedPrice { get; init; }
         public Currencies SupplierConvertedCurrency { get; init; }
         public List<BookedRoom> Rooms { get; init; }
-        public Suppliers Supplier { get; init; }
-        public BookingPaymentStatuses PaymentStatus { get; init; }
         public List<CancellationPolicy> CancellationPolicies { get; init; }
         public DateTime? CancellationDate { get; init; }
         public bool IsDirectContract { get; init; }

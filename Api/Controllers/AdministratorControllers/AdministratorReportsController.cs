@@ -144,13 +144,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
         /// <summary>
-        ///     Returns sales bookings report
+        ///     Returns finalized bookings report
         /// </summary>
-        [HttpGet("sales-bookings-report")]
+        [HttpGet("finalized-bookings-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
-        public async Task<IActionResult> GetSalesBookingReport(DateTime from, DateTime end)
+        public async Task<IActionResult> GetFinalizedBookingReport(DateTime from, DateTime end)
         {
             var (_, isFailure, stream, error) = await _reportService.GetFinalizedBookingsReport(from, end);
             if (isFailure)
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"sales-bookings-report-{from:g}-{end:g}.csv"
+                FileDownloadName = $"finalized-bookings-report-{from:g}-{end:g}.csv"
             };
         }
 
