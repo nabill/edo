@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
+            _requestStorage = requestStorage;
         }
         
         
@@ -41,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
                 .Map(Create)
+                .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder); 
@@ -99,6 +101,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                 return createdBooking;
             }
+
+
+            Task SaveRequestInfo(Booking booking) 
+                => _requestStorage.Set(booking.ReferenceCode, bookingRequest, availabilityInfo);
 
 
             Task LogBookingStatus(Booking booking)
@@ -231,5 +237,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IBookingRequestStorage _requestStorage;
     }
 }
