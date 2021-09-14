@@ -14,7 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="5.0.2" />
-    <PackageReference Include="CSharpFunctionalExtensions" Version="2.15.1" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.15.3" />
     <PackageReference Include="CsvHelper" Version="25.0.0" />
     <PackageReference Include="Elasticsearch.Net" Version="7.10.0" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.9.1" />
@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
+    <ProjectReference Include="..\HappyTravel.Edo.CreditCards\HappyTravel.Edo.CreditCards.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
