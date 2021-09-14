@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .Bind(SaveInvitation)
                 .Tap(LogInvitationCreated)
                 .Map(_ => invitationCode);
-            
+
 
             string GenerateRandomCode()
             {
@@ -98,8 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            void LogInvitationCreated()
-                => _logger.LogInvitationCreated(invitationType, prefilledData.UserRegistrationInfo.Email);
+            void LogInvitationCreated() => _logger.LogInvitationCreated(invitationType, prefilledData.UserRegistrationInfo.Email);
         }
 
 
@@ -110,26 +109,24 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .Bind(CreateInvitation)
                 .Check(SendInvitationMailPipe);
 
-
-            Task<Result> SendInvitationMailPipe(string invitationCode) 
-                => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
+            Task<Result> SendInvitationMailPipe(string invitationCode) => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
 
 
             Result Validate()
-            {
-                return GenericValidator<UserInvitationData>.Validate(v =>
+                => GenericValidator<UserInvitationData>.Validate(v =>
                 {
-                    v.RuleFor(x => x.UserRegistrationInfo.FirstName).NotEmpty();
-                    v.RuleFor(x => x.UserRegistrationInfo.LastName).NotEmpty();
-                    v.RuleFor(x => x.UserRegistrationInfo.Title).NotEmpty();
-                    v.RuleFor(e => e.UserRegistrationInfo.Email).NotEmpty().EmailAddress();
+                    v.RuleFor(x => x.UserRegistrationInfo.FirstName).NotEmpty()
+                        .WithMessage("FirstName is required");
+                    v.RuleFor(x => x.UserRegistrationInfo.LastName).NotEmpty()
+                        .WithMessage("LastName is required");
+                    v.RuleFor(x => x.UserRegistrationInfo.Title).NotEmpty()
+                        .WithMessage("Title is required");
+                    v.RuleFor(e => e.UserRegistrationInfo.Email).NotEmpty().EmailAddress()
+                        .WithMessage("Valid email is required");
                 }, prefilledData);
-            }
 
-            Task<Result<string>> CreateInvitation()
-            {
-                return Create(prefilledData, invitationType, inviterUserId, inviterAgencyId);
-            }
+
+            Task<Result<string>> CreateInvitation() => Create(prefilledData, invitationType, inviterUserId, inviterAgencyId);
         }
 
 
@@ -140,9 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     .Check(SetOldInvitationResent)
                     .Bind(CreateNewInvitation));
 
-
-            Task<Result> SetOldInvitationResent(UserInvitation _)
-                => _invitationRecordService.SetToResent(oldInvitationCodeHash);
+            Task<Result> SetOldInvitationResent(UserInvitation _) => _invitationRecordService.SetToResent(oldInvitationCodeHash);
 
 
             Task<Result<string>> CreateNewInvitation(UserInvitation oldInvitation)
@@ -162,8 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        private UserInvitationData GetInvitationData(UserInvitation invitation)
-            => _invitationRecordService.GetInvitationData(invitation);
+        private UserInvitationData GetInvitationData(UserInvitation invitation) => _invitationRecordService.GetInvitationData(invitation);
 
 
         private async Task<Result> SendInvitationMail(string invitationCode, UserInvitationData prefilledData,
