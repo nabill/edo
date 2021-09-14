@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,8 +23,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 join order in _context.SupplierOrders on booking.ReferenceCode equals order.ReferenceCode
                 where
                     booking.IsDirectContract &&
-                    booking.Created >= fromDate &&
-                    booking.Created < endDate
+                    order.PaymentDate >= fromDate &&
+                    order.PaymentDate < endDate &&
+                    (booking.Status == BookingStatuses.Confirmed ||
+                        booking.Status == BookingStatuses.Cancelled && booking.Cancelled >= booking.DeadlineDate)
                 select new PayableToSupplierRecordData
                 {
                     ReferenceCode = booking.ReferenceCode,
