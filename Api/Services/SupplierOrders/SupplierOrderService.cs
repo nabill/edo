@@ -58,19 +58,19 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 return;
 
             var applyingPolicy = orderToCancel.Deadline?.Policies
-                .Where(p => p.FromDate >= _dateTimeProvider.UtcNow())
-                .OrderByDescending(p => p.FromDate)
-                .FirstOrDefault();
+                .Where(p => p.FromDate <= _dateTimeProvider.UtcNow())
+                .OrderBy(p => p.FromDate)
+                .LastOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal) (100 - applyingPolicy.Percentage) * orderToCancel.Price;
+                orderToCancel.RefundableAmount = (decimal)((100 - applyingPolicy.Percentage)/100) * orderToCancel.Price;
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
             await _context.SaveChangesAsync();
         }
-        
-        
+
+
         public async Task Discard(string referenceCode)
         {
             var discardingOrder = await _context.SupplierOrders
