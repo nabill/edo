@@ -101,6 +101,10 @@ using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
+using HappyTravel.Edo.CreditCards.Models;
+using HappyTravel.Edo.CreditCards.Options;
+using HappyTravel.Edo.CreditCards.Services;
+using HappyTravel.VccServiceClient.Extensions;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -750,6 +754,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
 
+            services.AddCreditCardProvider(configuration, vaultClient);
+
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
             {
@@ -796,6 +802,44 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .HandleTransientHttpError()
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
+        }
+
+
+        private static IServiceCollection AddCreditCardProvider(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        {
+            var creditCardProvider = configuration.GetValue<CreditCardProviderTypes>("CreditCardProvider");
+            if (creditCardProvider == CreditCardProviderTypes.Vcc)
+            {
+                var vccServiceOptions = vaultClient.Get("edo/vcc-service-options").GetAwaiter().GetResult();
+                services.AddVccService(options =>
+                {
+                    options.VccEndpoint = vccServiceOptions["vccEndpoint"];
+                    options.IdentityEndpoint = vccServiceOptions["identityEndpoint"];
+                    options.IdentityClient = vccServiceOptions["identityClient"];
+                    options.IdentitySecret = vccServiceOptions["identitySecret"];
+                });
+                services.AddTransient<ICreditCardProvider, VirtualCreditCardProvider>();
+            }
+            else if (creditCardProvider == CreditCardProviderTypes.Actual)
+            {
+                services.AddTransient<ICreditCardProvider, ActualCreditCardProvider>();
+                var actualCreditCardOptions = vaultClient.Get("edo/actual-credit-cards/AED").GetAwaiter().GetResult();
+                services.Configure<ActualCreditCardOptions>(o =>
+                {
+                    // Only AED card is supported for now
+                    var card = new HappyTravel.Edo.CreditCards.Models.CreditCardInfo(Number: actualCreditCardOptions["number"],
+                        ExpiryDate: DateTime.Parse(actualCreditCardOptions["expiry"], CultureInfo.InvariantCulture),
+                        HolderName: actualCreditCardOptions["holder"],
+                        SecurityCode: actualCreditCardOptions["code"]);
+
+                    o.Cards = new Dictionary<Currencies, HappyTravel.Edo.CreditCards.Models.CreditCardInfo>()
+                    {
+                        {Currencies.AED, card}
+                    };
+                });
+            }
+
+            return services;
         }
         
         
