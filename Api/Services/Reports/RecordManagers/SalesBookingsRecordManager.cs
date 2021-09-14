@@ -23,12 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
                 join supplierOrder in _context.SupplierOrders on booking.ReferenceCode equals supplierOrder.ReferenceCode
-                let cancellationDate = _context.BookingStatusHistory
-                    .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
-                    .Select(c => c.CreatedAt)
-                    .FirstOrDefault()
                 where (booking.Status == BookingStatuses.Confirmed ||
-                        booking.Status == BookingStatuses.Cancelled && cancellationDate >= booking.DeadlineDate)
+                        booking.Status == BookingStatuses.Cancelled && booking.Cancelled >= booking.DeadlineDate)
                     && (booking.Created >= fromDate && booking.Created < endDate
                         || booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
                 select new SalesBookingsReportData
@@ -54,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     PaymentStatus = booking.PaymentStatus,
                     Supplier = booking.Supplier,
                     CancellationPolicies = booking.CancellationPolicies,
-                    CancellationDate = cancellationDate,
+                    CancellationDate = booking.Cancelled,
                     IsDirectContract = booking.IsDirectContract,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,

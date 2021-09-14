@@ -81,8 +81,6 @@ namespace HappyTravel.Edo.Api
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
-                // TODO: uncomment to enable MongoDB
-                //.AddMongoDbStorage(Configuration, vaultClient) 
                 .AddTracing(Configuration, options =>
                 {
                     options.ServiceName = $"{HostingEnvironment.ApplicationName}-{HostingEnvironment.EnvironmentName}";
@@ -101,7 +99,7 @@ namespace HappyTravel.Edo.Api
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient, authorityUrl)
                 .ConfigureAuthentication(Configuration, HostingEnvironment, apiName, authorityUrl)
-                .AddServices();
+                .AddServices(Configuration, vaultClient);
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()

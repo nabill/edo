@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
@@ -16,28 +17,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
         
         
-        public Task Set(string referenceCode, (AccommodationBookingRequest request, string availabilityId) requestInfo)
+        public Task Set(string referenceCode, AccommodationBookingRequest request, BookingAvailabilityInfo availabilityInfo)
         {
-            var request = new BookingRequest
+            var bookingRequest = new BookingRequest
             {
-                AvailabilityId = requestInfo.availabilityId,
                 ReferenceCode = referenceCode,
-                RequestData = JsonConvert.SerializeObject(requestInfo.request)
+                RequestData = JsonConvert.SerializeObject(request),
+                AvailabilityData = JsonConvert.SerializeObject(availabilityInfo),
             };
-            _edoContext.BookingRequests.Add(request);
+            _edoContext.BookingRequests.Add(bookingRequest);
             return _edoContext.SaveChangesAsync();
         }
 
 
-        public async Task<Result<(AccommodationBookingRequest request, string availabilityId)>> Get(string referenceCode)
+        public async Task<Result<(AccommodationBookingRequest request, BookingAvailabilityInfo availabilityInfo)>> Get(string referenceCode)
         {
             var request = await _edoContext.BookingRequests
                 .SingleOrDefaultAsync(b => b.ReferenceCode == referenceCode);
 
             if (request is null)
-                return Result.Failure<(AccommodationBookingRequest, string)>($"Could not get booking request by reference code {referenceCode}");
+                return Result.Failure<(AccommodationBookingRequest, BookingAvailabilityInfo)>($"Could not get booking request by reference code {referenceCode}");
 
-            return (JsonConvert.DeserializeObject<AccommodationBookingRequest>(request.RequestData), request.AvailabilityId);
+            var requestData = JsonConvert.DeserializeObject<AccommodationBookingRequest>(request.RequestData);
+            var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(request.AvailabilityData);
+            return (requestData, availabilityInfo);
         }
 
         
