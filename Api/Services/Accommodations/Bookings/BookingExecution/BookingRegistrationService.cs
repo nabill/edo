@@ -124,7 +124,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
 
             Task CreateSupplierOrder(Booking booking) 
-                => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.ConvertedSupplierPrice, availabilityInfo.OriginalSupplierPrice, availabilityInfo.SupplierDeadline, booking.Supplier);
+                => _supplierOrderService.Add(referenceCode: booking.ReferenceCode,
+                    serviceType: ServiceTypes.HTL, 
+                    convertedPrice: availabilityInfo.ConvertedSupplierPrice, 
+                    supplierPrice: availabilityInfo.OriginalSupplierPrice, 
+                    deadline: availabilityInfo.SupplierDeadline, 
+                    supplier: booking.Supplier,
+                    paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
+                        ? booking.Created
+                        : booking.CheckOutDate);
         }
 
 
