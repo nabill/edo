@@ -25,18 +25,18 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        public async Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate)
+        public async Task<Result<Stream>> GetPayableToSupplierReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
             var to = endDate.Date.AddDays(1);
             
             return await Validate(from, to)
                 .Map(GetRecords)
-                .Bind(Generate<SupplierWiseRecordData, SupplierWiseReportRow>);
+                .Bind(Generate<PayableToSupplierRecordData, PayableToSupplierReportRow>);
 
 
-            Task<IEnumerable<SupplierWiseRecordData>> GetRecords()
-                => GetRecords<SupplierWiseRecordData>(from, to);
+            Task<IEnumerable<PayableToSupplierRecordData>> GetRecords()
+                => GetRecords<PayableToSupplierRecordData>(from, to);
         }
 
 

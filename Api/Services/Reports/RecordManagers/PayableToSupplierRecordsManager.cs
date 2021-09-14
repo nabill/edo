@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class SupplierWiseRecordsManager : IRecordManager<SupplierWiseRecordData>
+    public class PayableToSupplierRecordsManager : IRecordManager<PayableToSupplierRecordData>
     {
-        public SupplierWiseRecordsManager(EdoContext context)
+        public PayableToSupplierRecordsManager(EdoContext context)
         {
             _context = context;
         }
         
-        public async Task<IEnumerable<SupplierWiseRecordData>> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<PayableToSupplierRecordData>> Get(DateTime fromDate, DateTime endDate)
         {
             return await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     booking.IsDirectContract &&
                     booking.Created >= fromDate &&
                     booking.Created < endDate
-                select new SupplierWiseRecordData
+                select new PayableToSupplierRecordData
                 {
                     ReferenceCode = booking.ReferenceCode,
                     InvoiceNumber = invoice.Number,

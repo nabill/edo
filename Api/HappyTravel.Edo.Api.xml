@@ -34,7 +34,7 @@
                 Roles for admin
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.PayableToSupplierDirectConnectivityReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns supplier wise direct connectivity report
             </summary>

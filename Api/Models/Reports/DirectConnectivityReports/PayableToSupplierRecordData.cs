@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
 using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
-    public readonly struct SupplierWiseRecordData
+    public readonly struct PayableToSupplierRecordData
     {
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }
