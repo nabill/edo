@@ -98,7 +98,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             }
 
 
-            void LogInvitationCreated() => _logger.LogInvitationCreated(invitationType, prefilledData.UserRegistrationInfo.Email);
+            void LogInvitationCreated() 
+                => _logger.LogInvitationCreated(invitationType, prefilledData.UserRegistrationInfo.Email);
         }
 
 
@@ -109,7 +110,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .Bind(CreateInvitation)
                 .Check(SendInvitationMailPipe);
 
-            Task<Result> SendInvitationMailPipe(string invitationCode) => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
+            Task<Result> SendInvitationMailPipe(string invitationCode) 
+                => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
 
 
             Result Validate()
@@ -126,7 +128,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 }, prefilledData);
 
 
-            Task<Result<string>> CreateInvitation() => Create(prefilledData, invitationType, inviterUserId, inviterAgencyId);
+            Task<Result<string>> CreateInvitation() 
+                => Create(prefilledData, invitationType, inviterUserId, inviterAgencyId);
         }
 
 
@@ -137,7 +140,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     .Check(SetOldInvitationResent)
                     .Bind(CreateNewInvitation));
 
-            Task<Result> SetOldInvitationResent(UserInvitation _) => _invitationRecordService.SetToResent(oldInvitationCodeHash);
+            Task<Result> SetOldInvitationResent(UserInvitation _) 
+                => _invitationRecordService.SetToResent(oldInvitationCodeHash);
 
 
             Task<Result<string>> CreateNewInvitation(UserInvitation oldInvitation)
