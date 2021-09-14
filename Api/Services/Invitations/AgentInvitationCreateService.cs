@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -105,8 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         public Task<Result<string>> Send(UserInvitationData prefilledData, UserInvitationTypes invitationType,
             int inviterUserId, int? inviterAgencyId = null)
         {
-            return Result.Success()
-                .Ensure(IsInvitationEmailValid, "Invitation email is not valid")
+            return Validate()
                 .Bind(CreateInvitation)
                 .Check(SendInvitationMailPipe);
 
@@ -115,12 +115,16 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 => SendInvitationMail(invitationCode, prefilledData, invitationType, inviterAgencyId);
 
 
-            async Task<bool> IsInvitationEmailValid()
+            Result Validate()
             {
-                var email = prefilledData.UserRegistrationInfo.Email;
-                return email.Contains('@') && email.First() != '@' && email.Last() != '@';
+                return GenericValidator<UserInvitationData>.Validate(v =>
+                {
+                    v.RuleFor(x => x.UserRegistrationInfo.FirstName).NotEmpty();
+                    v.RuleFor(x => x.UserRegistrationInfo.LastName).NotEmpty();
+                    v.RuleFor(x => x.UserRegistrationInfo.Title).NotEmpty();
+                    v.RuleFor(e => e.UserRegistrationInfo.Email).NotEmpty().EmailAddress();
+                }, prefilledData);
             }
-
 
             Task<Result<string>> CreateInvitation()
             {
