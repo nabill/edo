@@ -7,7 +7,7 @@ using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
-    public readonly struct SalesBookingsReportData
+    public readonly struct FinalizedBookingsReportData
     {
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }

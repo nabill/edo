@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        public async Task<Result<Stream>> GetSalesBookingsReport(DateTime fromDate, DateTime endDate)
+        public async Task<Result<Stream>> GetFinalizedBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
             var to = endDate.Date.AddDays(1);
@@ -78,11 +78,11 @@ namespace HappyTravel.Edo.Api.Services.Reports
             return await Validate(from, to)
                 .Ensure(DatesAreNotInFuture, "Cannot query future dates for this report")
                 .Map(GetRecords)
-                .Bind(Generate<SalesBookingsReportData, SalesBookingsReportRow>);
+                .Bind(Generate<FinalizedBookingsReportData, FinalizedBookingsReportRow>);
 
 
-            Task<IEnumerable<SalesBookingsReportData>> GetRecords()
-                => GetRecords<SalesBookingsReportData>(from, to);
+            Task<IEnumerable<FinalizedBookingsReportData>> GetRecords()
+                => GetRecords<FinalizedBookingsReportData>(from, to);
 
 
             bool DatesAreNotInFuture()

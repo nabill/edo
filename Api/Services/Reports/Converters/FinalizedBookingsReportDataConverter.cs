@@ -9,9 +9,9 @@ using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
-    public class SalesBookingsReportDataConverter : IConverter<SalesBookingsReportData, SalesBookingsReportRow>
+    public class FinalizedBookingsReportDataConverter : IConverter<FinalizedBookingsReportData, FinalizedBookingsReportRow>
     {
-        public SalesBookingsReportRow Convert(SalesBookingsReportData data)
+        public FinalizedBookingsReportRow Convert(FinalizedBookingsReportData data)
             => new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             };
 
 
-        private decimal GetPayableByAgent(SalesBookingsReportData data)
+        private decimal GetPayableByAgent(FinalizedBookingsReportData data)
         {
             if (data.BookingStatus == BookingStatuses.Confirmed)
                 return data.AgentPrice;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         }
 
 
-        private decimal GetCancellationPenaltyAmount(SalesBookingsReportData data)
+        private decimal GetCancellationPenaltyAmount(FinalizedBookingsReportData data)
         {
             var booking = new Booking
             {
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         }
 
 
-        private decimal GetPayableToSupplierOrHotel(SalesBookingsReportData data)
+        private decimal GetPayableToSupplierOrHotel(FinalizedBookingsReportData data)
         {
             // SupplierDeadline is required to properly calculate PayableToSupplierOrHotel
             // It was added in the beginning of summer 2021

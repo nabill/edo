@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
         public async Task<IActionResult> GetSalesBookingReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _reportService.GetSalesBookingsReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetFinalizedBookingsReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

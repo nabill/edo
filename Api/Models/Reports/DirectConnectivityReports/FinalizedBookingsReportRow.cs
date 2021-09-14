@@ -2,7 +2,7 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
-    public readonly struct SalesBookingsReportRow
+    public readonly struct FinalizedBookingsReportRow
     {
         public string ReferenceCode { get; init; }
         public string InvoiceNumber { get; init; }
