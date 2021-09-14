@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
@@ -26,9 +27,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             InitializeMocks();
             var service = CreateBookingRequestExecutor();
             var booking = new Booking { Supplier = supplier };
-            var request = Utility.CreateAccommodationBookingRequest();
 
-            await service.Execute(request, default, booking, default, default);
+            await service.Execute(booking, default, default);
 
             _supplierConnectorManagerMock.Verify(x => x.Get(supplier));
         }
@@ -48,12 +48,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             var roomContractSetId = new Guid(roomContractSetIdString);
             var service = CreateBookingRequestExecutor();
             var booking = new Booking { ReferenceCode = referenceCode };
-            var request = Utility.CreateAccommodationBookingRequest(roomContractSetId, rejectIfUnavailable);
             BookingRequest actualInnerRequest = default;
+            SetupRequestStorageMock();
             var setupResult = Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
             SaveConnectorBookPassedParameter();
 
-            await service.Execute(request, availabilityId, booking, default, default);
+            await service.Execute(booking, default, default);
 
             _supplierConnectorMock.Verify(x => x.Book(It.IsAny<BookingRequest>(), It.IsAny<string>()));
             Assert.Equal(availabilityId, actualInnerRequest.AvailabilityId);
@@ -61,9 +61,19 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             Assert.Equal(rejectIfUnavailable, actualInnerRequest.RejectIfUnavailable);
             Assert.Equal(referenceCode, actualInnerRequest.ReferenceCode);
 
-            
-            void SaveConnectorBookPassedParameter()
+
+            void SaveConnectorBookPassedParameter() 
                 => setupResult.Callback<BookingRequest, string>((req, _) => actualInnerRequest = req);
+
+
+            void SetupRequestStorageMock()
+            {
+                var request = Utility.CreateAccommodationBookingRequest(roomContractSetId, rejectIfUnavailable);
+                var availabilityInfo = Utility.CreateAvailabilityInfo(availabilityId);
+                _requestStorageMock
+                    .Setup(x => x.Get(It.IsAny<string>()))
+                    .ReturnsAsync((request, availabilityInfo));
+            }
         }
 
 
@@ -76,6 +86,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _dateTimeProviderMock = new Mock<IDateTimeProvider>();
             _loggerMock = new Mock<ILogger<BookingRequestExecutor>>();
             _supplierConnectorMock = new Mock<ISupplierConnector>();
+            _requestStorageMock = new Mock<IBookingRequestStorage>();
+            _creditCardProvider = new Mock<ICreditCardProvider>();
+            
+            var request = Utility.CreateAccommodationBookingRequest();
+
+            _requestStorageMock
+                .Setup(x => x.Get(It.IsAny<string>()))
+                .ReturnsAsync((request, default));
 
             _supplierConnectorManagerMock
                 .Setup(x => x.Get(It.IsAny<Suppliers>()))
@@ -91,6 +109,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 _bookingAnalyticsServiceMock.Object,
                 _bookingRecordsUpdaterMock.Object,
                 _dateTimeProviderMock.Object,
+                _requestStorageMock.Object,
+                _creditCardProvider.Object,
                 _loggerMock.Object);
         }
 
@@ -103,6 +123,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         private Mock<IDateTimeProvider> _dateTimeProviderMock;
         private Mock<ILogger<BookingRequestExecutor>> _loggerMock;
         private Mock<ISupplierConnector> _supplierConnectorMock;
+        private Mock<IBookingRequestStorage> _requestStorageMock;
+        private Mock<ICreditCardProvider> _creditCardProvider;
 #pragma warning restore CS8618
     }
 }

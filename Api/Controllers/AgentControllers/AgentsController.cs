@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
+            var (_, isFailure, _, error) = await _agentInvitationCreateService.Send(request.ToUserInvitationData(),
                 UserInvitationTypes.Agent, agent.AgentId, agent.AgencyId);
 
             if (isFailure)

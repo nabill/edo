@@ -64,26 +64,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.Offline);
 
 
-            async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
-            {
-                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
-                return (booking, bookingAvailability);
-            }
-            
-            
-            Task<Result> GenerateInvoice((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
-            {
-                var (booking, _) = bookingInfo;
-                return _documentsService.GenerateInvoice(booking);
-            }
+            Task<Data.Bookings.Booking> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
 
 
-            async Task<Result<Booking>> SendSupplierRequest((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
+            Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
+                => _documentsService.GenerateInvoice(booking);
+
+
+            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             {
-                var (booking, availabilityInfo) = bookingInfo;
-                return await _requestExecutor.Execute(bookingRequest, 
-                    availabilityInfo.AvailabilityId,
-                    booking,
+                return await _requestExecutor.Execute(booking,
                     agentContext,
                     languageCode);
             }
