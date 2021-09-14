@@ -6,6 +6,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,12 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 .LastOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal)((100 - applyingPolicy.Percentage)/100) * orderToCancel.Price;
+            {
+                var rawRefundableAmount = (decimal) ((100 - applyingPolicy.Percentage) / 100) * orderToCancel.Price;
+                // TODO: add ToEven rounding to MoneyHelper and use this new mehtod here. Tech debt issue 957.
+                var roundedRefundableAmount = Math.Round(rawRefundableAmount, orderToCancel.Currency.GetDecimalDigitsCount(), MidpointRounding.ToEven);
+                orderToCancel.RefundableAmount = roundedRefundableAmount;
+            }
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
