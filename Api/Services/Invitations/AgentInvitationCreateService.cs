@@ -161,7 +161,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         }
 
 
-        private UserInvitationData GetInvitationData(UserInvitation invitation) => _invitationRecordService.GetInvitationData(invitation);
+        private UserInvitationData GetInvitationData(UserInvitation invitation) 
+            => _invitationRecordService.GetInvitationData(invitation);
 
 
         private async Task<Result> SendInvitationMail(string invitationCode, UserInvitationData prefilledData,
