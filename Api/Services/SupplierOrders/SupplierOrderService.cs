@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
@@ -14,9 +15,10 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
     public class SupplierOrderService : ISupplierOrderService
     {
-        public SupplierOrderService(EdoContext context, IDateTimeProvider dateTimeProvider)
+        public SupplierOrderService(EdoContext context, ICreditCardProvider creditCardProvider, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _creditCardProvider = creditCardProvider;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -69,6 +71,9 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
             await _context.SaveChangesAsync();
+
+            var moneyToCharge = orderToCancel.Price - orderToCancel.RefundableAmount;
+            await _creditCardProvider.ProcessAmountChange(orderToCancel.ReferenceCode, new MoneyAmount(moneyToCharge, orderToCancel.Currency));
         }
         
         
@@ -84,10 +89,13 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             discardingOrder.State = SupplierOrderState.Discarded;
             _context.SupplierOrders.Update(discardingOrder);
             await _context.SaveChangesAsync();
+
+            await _creditCardProvider.ProcessAmountChange(discardingOrder.ReferenceCode, new MoneyAmount(0, discardingOrder.Currency));
         }
 
 
         private readonly EdoContext _context;
+        private readonly ICreditCardProvider _creditCardProvider;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
