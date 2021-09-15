@@ -45,21 +45,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var htIds = availabilities.Select(a => a.HtId).ToList();
             await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
             
-            var queriable = availabilities.ToList().Select(a =>
-            {
-                var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
+            var queriable = availabilities
+                .OrderBy(a => a.Created)
+                .ToList()
+                .Select(a =>
+                {
+                    var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
 
-                return new WideAvailabilityResult(accommodation,
-                    a.RoomContractSets,
-                    a.MinPrice,
-                    a.MaxPrice,
-                    a.CheckInDate,
-                    a.CheckOutDate,
-                    searchSettings.IsSupplierVisible
-                        ? a.Supplier
-                        : (Suppliers?)null,
-                    a.HtId);
-            }).AsQueryable();
+                    return new WideAvailabilityResult(accommodation,
+                        a.RoomContractSets,
+                        a.MinPrice,
+                        a.MaxPrice,
+                        a.CheckInDate,
+                        a.CheckOutDate,
+                        searchSettings.IsSupplierVisible
+                            ? a.Supplier
+                            : (Suppliers?)null,
+                        a.HtId);
+                })
+                .AsQueryable();
             
             return filters.ApplyTo(queriable).ToList();
         }
