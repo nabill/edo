@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             var queriable = availabilities
                 .OrderBy(a => a.Created)
+                .ThenBy(a => a.HtId)
                 .ToList()
                 .Select(a =>
                 {
