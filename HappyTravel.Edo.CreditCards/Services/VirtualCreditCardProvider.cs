@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Money.Models;
 using HappyTravel.SuppliersCatalog;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.CreditCards.Services
         {
             var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate, new Dictionary<string, string>
             {
-                {"Supplier", supplier.ToString()},
+                {"Supplier", EnumFormatters.FromDescription(supplier)},
                 {"AccommodationName", accommodationName}
             });
             if (isFailure)
