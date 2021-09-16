@@ -1507,14 +1507,6 @@
             <param name="token">Payment token.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusPayByLinkRequest)">
-            <summary>
-                Executes payment for link via Ngenius.
-            </summary>
-            <param name="code">Payment link code.</param>
-            <param name="token">Payment token.</param>
-            <returns>Payment result. Can return data for further 3DSecure processing.</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processed payment callback. Typically is used with 3D Secure payment flow.
