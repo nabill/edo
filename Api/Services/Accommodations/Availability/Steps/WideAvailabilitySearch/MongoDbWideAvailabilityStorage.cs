@@ -80,6 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             query = query
                 .OrderBy(r => r.Created)
+                .ThenBy(r => r.HtId)
                 // TODO: remove duplicates
                 //.GroupBy(r => r.HtId)
                 //.Select(g => g.First())
