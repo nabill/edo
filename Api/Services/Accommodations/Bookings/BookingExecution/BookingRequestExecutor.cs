@@ -172,7 +172,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             return await _creditCardProvider.Get(referenceCode: referenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: activationDate,
-                dueDate: dueDate);
+                dueDate: dueDate,
+                supplier: availabilityInfo.Supplier,
+                accommodationName: availabilityInfo.AccommodationName);
         }
 
 
