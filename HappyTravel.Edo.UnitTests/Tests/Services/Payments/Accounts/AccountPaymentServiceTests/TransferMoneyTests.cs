@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                Mock.Of<IDateTimeProvider>());
+                Mock.Of<IDateTimeProvider>(), Mock.Of<IBalanceManagementNotificationsService>());
 
             var strategy = new ExecutionStrategyMock();
 

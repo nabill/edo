@@ -39,6 +39,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         CounterpartyAccountBalanceSubtracted = 29,
         CounterpartyAccountBalanceIncreasedManually = 30,
         CounterpartyAccountBalanceDecreasedManually = 31,
-        PropertyOwnerBookingConfirmation = 32
+        PropertyOwnerBookingConfirmation = 32,
+        AccountBalanceManagementNotification = 33
     }
 }
