@@ -6,9 +6,9 @@ using HappyTravel.Edo.Api.Services.Reports.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
-    public  class SupplierWiseRecordDataConverter : IConverter<SupplierWiseRecordData, SupplierWiseReportRow>
+    public  class PayableToSupplierRecordDataConverter : IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>
     {
-        public SupplierWiseReportRow Convert(SupplierWiseRecordData data) 
+        public PayableToSupplierReportRow Convert(PayableToSupplierRecordData data) 
             => new()
             {
                 ReferenceCode = data.ReferenceCode,

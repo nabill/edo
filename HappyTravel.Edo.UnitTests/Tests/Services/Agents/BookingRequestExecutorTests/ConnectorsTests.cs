@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
@@ -86,6 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _loggerMock = new Mock<ILogger<BookingRequestExecutor>>();
             _supplierConnectorMock = new Mock<ISupplierConnector>();
             _requestStorageMock = new Mock<IBookingRequestStorage>();
+            _creditCardProvider = new Mock<ICreditCardProvider>();
             
             var request = Utility.CreateAccommodationBookingRequest();
 
@@ -108,6 +110,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 _bookingRecordsUpdaterMock.Object,
                 _dateTimeProviderMock.Object,
                 _requestStorageMock.Object,
+                _creditCardProvider.Object,
                 _loggerMock.Object);
         }
 
@@ -121,6 +124,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         private Mock<ILogger<BookingRequestExecutor>> _loggerMock;
         private Mock<ISupplierConnector> _supplierConnectorMock;
         private Mock<IBookingRequestStorage> _requestStorageMock;
+        private Mock<ICreditCardProvider> _creditCardProvider;
 #pragma warning restore CS8618
-   }
+    }
 }
