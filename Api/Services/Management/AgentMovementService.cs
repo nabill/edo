@@ -87,8 +87,8 @@ namespace HappyTravel.Edo.Api.Services.Management
 
             async Task<Result> DeactivateAgencyIfNeeded()
             {
-                var isRelationsExist = await _edoContext.AgentAgencyRelations.AnyAsync(r => r.AgencyId == sourceAgencyId);
-                if (isRelationsExist)
+                var isRelationExists = await _edoContext.AgentAgencyRelations.AnyAsync(r => r.AgencyId == sourceAgencyId);
+                if (isRelationExists)
                     return Result.Success();
 
                 return await _adminAgencyManagementService.DeactivateAgency(sourceAgencyId, "There are no agents in the agency");
