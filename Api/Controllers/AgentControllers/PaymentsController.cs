@@ -31,14 +31,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public PaymentsController(IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
             IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, INGeniusPaymentService nGeniusPaymentService,
-            IOptions<SenderOptions> options)
+            NGeniusWebhookProcessingService nGeniusWebhookProcessingService)
         {
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _nGeniusPaymentService = nGeniusPaymentService;
-            _options = options.Value;
+            _nGeniusWebhookProcessingService = nGeniusWebhookProcessingService;
         }
 
 
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AllowAnonymous]
         public async Task<IActionResult> NGeniusWebhook([FromBody] JsonDocument request)
         {
-            await _nGeniusPaymentService.ProcessWebHook(request);
+            await _nGeniusWebhookProcessingService.ProcessWebHook(request);
             return Ok();
         }
         
@@ -164,6 +164,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentSettingsService _paymentSettingsService;
         private readonly INGeniusPaymentService _nGeniusPaymentService;
-        private readonly SenderOptions _options;
+        private readonly NGeniusWebhookProcessingService _nGeniusWebhookProcessingService;
     }
 }

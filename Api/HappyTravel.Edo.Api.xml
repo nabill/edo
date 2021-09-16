@@ -64,9 +64,9 @@
                 Returns confirmed bookings report
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetSalesBookingReport(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetFinalizedBookingReport(System.DateTime,System.DateTime)">
             <summary>
-                Returns sales bookings report
+                Returns finalized bookings report
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetHotelWiseReport(System.DateTime,System.DateTime)">
@@ -1502,6 +1502,14 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaPayfort(System.String,System.String)">
             <summary>
                 Executes payment for link.
+            </summary>
+            <param name="code">Payment link code.</param>
+            <param name="token">Payment token.</param>
+            <returns>Payment result. Can return data for further 3DSecure processing.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusPayByLinkRequest)">
+            <summary>
+                Executes payment for link via Ngenius.
             </summary>
             <param name="code">Payment link code.</param>
             <param name="token">Payment token.</param>

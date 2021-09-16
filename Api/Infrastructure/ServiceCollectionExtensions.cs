@@ -752,6 +752,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
             services.AddTransient<NGeniusClient>();
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
+            services.AddTransient<NGeniusWebhookProcessingService>();
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
 
