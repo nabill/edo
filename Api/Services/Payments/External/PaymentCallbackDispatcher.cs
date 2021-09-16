@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
             if (linkCode == default)
                 return Result.Failure<PaymentResponse>("Invalid settlement reference");
 
-            return await _linksProcessingService.ProcessResponse(linkCode, response);
+            return await _linksProcessingService.ProcessPayfortWebhook(linkCode, response);
         }
 
 
