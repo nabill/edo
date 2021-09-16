@@ -9,7 +9,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
     public interface ISupplierOrderService
     {
-        Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedPrice, MoneyAmount supplierPrice, Deadline deadline, Suppliers supplier, DateTime paymentDate);
+        Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedPrice, MoneyAmount supplierPrice, Deadline deadline, Suppliers supplier,
+            SupplierPaymentType paymentType, DateTime paymentDate);
 
         Task Cancel(string referenceCode);
 

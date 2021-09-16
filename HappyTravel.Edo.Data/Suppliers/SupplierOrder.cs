@@ -2,7 +2,6 @@ using System;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Data.Suppliers
 {
@@ -22,5 +21,6 @@ namespace HappyTravel.Edo.Data.Suppliers
         public Deadline Deadline { get; set; }
         public decimal RefundableAmount { get; set; }
         public DateTime PaymentDate { get; set; }
+        public SupplierPaymentType PaymentType { get; set; }
     }
 }

@@ -27,8 +27,17 @@ namespace HappyTravel.Edo.CreditCards.Services
                 HolderName: virtualCreditCard.Holder,
                 SecurityCode: virtualCreditCard.Code);
         }
-        
-        
+
+
+        public async Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount)
+        {
+            if (newAmount.Amount == 0)
+                return await _vccService.Delete(referenceCode);
+
+            return await _vccService.ModifyAmount(referenceCode, newAmount);
+        }
+
+
         private readonly IVccService _vccService;
     }
 }
