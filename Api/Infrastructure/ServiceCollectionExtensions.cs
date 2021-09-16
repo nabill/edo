@@ -305,10 +305,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
+
+            var happyTravelAccountsEmail = mailSettings[configuration["Edo:Email:HappyTravelAccountsEmail"]];
+            var balanceManagementNotificationTemplateId = mailSettings[configuration["Edo:Email:BalanceManagementNotificationTemplateId"]];
+            services.Configure<BalanceManagementNotificationsOptions>(options =>
+            {
+                options.AccountsEmail = happyTravelAccountsEmail;
+                options.BalanceManagementNotificationTemplateId = balanceManagementNotificationTemplateId;
+            });
             #endregion
 
             #region tag processing options
-            
+
             services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
             
             #endregion
@@ -710,23 +718,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAdministratorRolesAssignmentService, AdministratorRolesAssignmentService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
-            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>, PayableToSupplierRecordDataConverter>();
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
-            services.AddTransient<IConverter<SalesBookingsReportData, SalesBookingsReportRow>, SalesBookingsReportDataConverter>();
+            services.AddTransient<IConverter<FinalizedBookingsReportData, FinalizedBookingsReportRow>, FinalizedBookingsReportDataConverter>();
             services.AddTransient<IConverter<HotelWiseData, HotelWiseRow>, HotelWiseBookingReportDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
-            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<PayableToSupplierRecordData>, PayableToSupplierRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
-            services.AddTransient<IRecordManager<SalesBookingsReportData>, SalesBookingsRecordManager>();
+            services.AddTransient<IRecordManager<FinalizedBookingsReportData>, FinalizedBookingsRecordManager>();
             services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
-            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>, PayableToSupplierRecordDataConverter>();
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
             services.AddTransient<IConverter<PendingSupplierReferenceData, PendingSupplierReferenceRow>, PendingSupplierReferenceProjectionConverter>();
             services.AddTransient<IConverter<ConfirmedBookingsData, ConfirmedBookingsRow>, ConfirmedBookingsConverter>();
             services.AddTransient<IConverter<VccBookingData, VccBookingRow>, VccBookingDataConverter>();
             services.AddTransient<IConverter<AgentWiseReportData, AgentWiseReportRow>, AgentWiseRecordDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
-            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<PayableToSupplierRecordData>, PayableToSupplierRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
             services.AddTransient<IRecordManager<PendingSupplierReferenceData>, PendingSupplierReferenceRecordManager>();
             services.AddTransient<IRecordManager<ConfirmedBookingsData>, ConfirmedBookingsRecordManager>();

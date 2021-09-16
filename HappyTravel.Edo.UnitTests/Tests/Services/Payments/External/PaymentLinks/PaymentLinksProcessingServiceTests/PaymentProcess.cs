@@ -34,7 +34,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Should_return_payment_result_from_payfort(CreditCardPaymentResult cardPaymentResult)
         {
             var processingService = new PaymentLinksProcessingService(CreatMockPayfortService(),
-                Mock.Of<INGeniusPaymentService>(),
                 Mock.Of<IPayfortResponseParser>(),
                 CreateLinkStorageMock().Object,
                 SignatureServiceStub,
@@ -70,7 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             var processingService = CreateProcessingServiceWithProcess();
 
             const string linkCode = "fkkk4l88lll";
-            var (_, _, response, _) = await processingService.ProcessResponse(linkCode, It.IsAny<JObject>());
+            var (_, _, response, _) = await processingService.ProcessPayfortWebhook(linkCode, It.IsAny<JObject>());
 
             linkStorageMock
                 .Verify(l => l.UpdatePaymentStatus(linkCode, response), Times.Once);
@@ -84,7 +83,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     Mock.Of<IPayfortService>(),
-                    Mock.Of<INGeniusPaymentService>(),
                     parser.Object,
                     linkStorageMock.Object,
                     SignatureServiceStub,
@@ -119,7 +117,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
-                    Mock.Of<INGeniusPaymentService>(),
                     Mock.Of<IPayfortResponseParser>(),
                     CreateLinkStorageMock().Object,
                     SignatureServiceStub,
@@ -153,7 +150,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
-                    Mock.Of<INGeniusPaymentService>(),
                     Mock.Of<IPayfortResponseParser>(),
                     linkStorageMock.Object,
                     SignatureServiceStub,

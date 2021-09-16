@@ -181,27 +181,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
-        
-        /// <summary>
-        ///     Executes payment for link via Ngenius.
-        /// </summary>
-        /// <param name="code">Payment link code.</param>
-        /// <param name="token">Payment token.</param>
-        /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
-        [HttpPost("{code}/ngenius/pay")]
-        [AllowAnonymous]
-        [RequestSizeLimit(512)]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
-        {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
-
-            return isSuccess
-                ? Ok(paymentResponse)
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
-        }
 
 
         /// <summary>
@@ -217,7 +196,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPayfortWebhook(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));

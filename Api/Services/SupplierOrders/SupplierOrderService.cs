@@ -7,6 +7,7 @@ using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
@@ -61,12 +62,17 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 return;
 
             var applyingPolicy = orderToCancel.Deadline?.Policies
-                .Where(p => p.FromDate >= _dateTimeProvider.UtcNow())
-                .OrderByDescending(p => p.FromDate)
-                .FirstOrDefault();
+                .Where(p => p.FromDate <= _dateTimeProvider.UtcNow())
+                .OrderBy(p => p.FromDate)
+                .LastOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal) (100 - applyingPolicy.Percentage) * orderToCancel.Price;
+            {
+                var rawRefundableAmount = (decimal) ((100 - applyingPolicy.Percentage) / 100) * orderToCancel.Price;
+                // TODO: add ToEven rounding to MoneyHelper and use this new mehtod here. Tech debt issue 957.
+                var roundedRefundableAmount = Math.Round(rawRefundableAmount, orderToCancel.Currency.GetDecimalDigitsCount(), MidpointRounding.ToEven);
+                orderToCancel.RefundableAmount = roundedRefundableAmount;
+            }
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
@@ -78,8 +84,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 await _creditCardProvider.ProcessAmountChange(orderToCancel.ReferenceCode, new MoneyAmount(moneyToCharge, orderToCancel.Currency));
             }
         }
-        
-        
+
+
         public async Task Discard(string referenceCode)
         {
             var discardingOrder = await _context.SupplierOrders
