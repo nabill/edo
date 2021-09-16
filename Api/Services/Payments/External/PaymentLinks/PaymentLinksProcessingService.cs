@@ -21,6 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
+            INGeniusPaymentService nGeniusPaymentService,
             IPayfortResponseParser payfortResponseParser,
             IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IAgentContextService agentContextService)
         {
             _payfortService = payfortService;
+            _nGeniusPaymentService = nGeniusPaymentService;
             _payfortResponseParser = payfortResponseParser;
             _storage = storage;
             _signatureService = signatureService;
@@ -224,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IPaymentLinksStorage _storage;
         private readonly IEntityLocker _locker;
         private readonly PayfortOptions _payfortOptions;
-
+        private readonly INGeniusPaymentService _nGeniusPaymentService;
         private readonly IPayfortService _payfortService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
