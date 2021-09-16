@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using HappyTravel.MapperContracts.Public.Accommodations;
+using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,5 +16,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode);
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode);
         Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId);
+        Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings);
     }
 }

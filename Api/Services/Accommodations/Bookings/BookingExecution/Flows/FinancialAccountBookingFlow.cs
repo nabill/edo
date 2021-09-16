@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Bind(GetAccommodationBookingInfo);
 
 
-            bool IsDeadlinePassed((Data.Bookings.Booking booking, BookingAvailabilityInfo) bookingInfo)
-                => bookingInfo.booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
+            bool IsDeadlinePassed(Data.Bookings.Booking booking)
+                => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
 
 
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
@@ -64,36 +64,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.VirtualAccount);
 
 
-            async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
-            {
-                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, agentContext, languageCode);
-                return (booking, bookingAvailability);
-            }
-
-            
-            async Task<Result> ChargeMoney((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
-            {
-                var (booking, _) = bookingInfo;
-                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
-            }
-            
-            
-            Task<Result> GenerateInvoice((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
-            {
-                var (booking, _) = bookingInfo;
-                return _documentsService.GenerateInvoice(booking);
-            }
+            Task<Data.Bookings.Booking> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, agentContext, languageCode);
 
 
-            async Task<Result<Booking>> SendSupplierRequest((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
-            {
-                var (booking, availabilityInfo) = bookingInfo;
-                return await _requestExecutor.Execute(bookingRequest, 
-                    availabilityInfo.AvailabilityId,
-                    booking,
-                    agentContext,
-                    languageCode);
-            }
+            async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
+                => await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
+
+
+            Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
+                => _documentsService.GenerateInvoice(booking);
+
+
+            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking) 
+                => await _requestExecutor.Execute(booking, agentContext, languageCode);
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)

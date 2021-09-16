@@ -253,6 +253,24 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("ApiClients");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.BalanceNotificationSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int>("AgencyAccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<int[]>("Thresholds")
+                        .HasColumnType("integer[]");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BalanceNotificationSettings");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
                 {
                     b.Property<int>("Id")
@@ -419,6 +437,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
                         .HasDefaultValueSql("'[]'::jsonb");
+
+                    b.Property<DateTime?>("Cancelled")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp without time zone");
@@ -588,7 +609,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ReferenceCode")
                         .HasColumnType("text");
 
-                    b.Property<string>("AvailabilityId")
+                    b.Property<string>("AvailabilityData")
                         .HasColumnType("text");
 
                     b.Property<string>("RequestData")
@@ -1537,6 +1558,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("Price")

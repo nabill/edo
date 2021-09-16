@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -11,11 +10,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         Task<List<(Suppliers SupplierKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> suppliers);
 
-        Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results);
+        Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode);
 
-        Task<List<(Suppliers SupplierKey, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId,
-            List<Suppliers> suppliers);
-        
-        Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, Suppliers supplier);
+        Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results);
     }
 }

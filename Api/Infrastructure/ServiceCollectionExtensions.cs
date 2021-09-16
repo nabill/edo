@@ -75,6 +75,7 @@ using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services;
@@ -100,6 +101,10 @@ using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
+using HappyTravel.Edo.CreditCards.Models;
+using HappyTravel.Edo.CreditCards.Options;
+using HappyTravel.Edo.CreditCards.Services;
+using HappyTravel.VccServiceClient.Extensions;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -474,7 +479,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
@@ -645,8 +650,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNameNormalizationServices();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
-            services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
+            services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
+
+            var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (isUseMongoDbStorage)
+            {
+                services.AddMongoDbStorage(configuration, vaultClient);
+                services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
+            }
+            else
+                services.AddTransient<IWideAvailabilityStorage, RedisWideAvailabilityStorage>();
 
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 
@@ -730,6 +744,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
             services.AddTransient<NGeniusClient>();
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
+            services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
+
+            services.AddCreditCardProvider(configuration, vaultClient);
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
@@ -777,6 +794,44 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .HandleTransientHttpError()
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
+        }
+
+
+        private static IServiceCollection AddCreditCardProvider(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        {
+            var creditCardProvider = configuration.GetValue<CreditCardProviderTypes>("CreditCardProvider");
+            if (creditCardProvider == CreditCardProviderTypes.Vcc)
+            {
+                var vccServiceOptions = vaultClient.Get("edo/vcc-service-options").GetAwaiter().GetResult();
+                services.AddVccService(options =>
+                {
+                    options.VccEndpoint = vccServiceOptions["vccEndpoint"];
+                    options.IdentityEndpoint = vccServiceOptions["identityEndpoint"];
+                    options.IdentityClient = vccServiceOptions["identityClient"];
+                    options.IdentitySecret = vccServiceOptions["identitySecret"];
+                });
+                services.AddTransient<ICreditCardProvider, VirtualCreditCardProvider>();
+            }
+            else if (creditCardProvider == CreditCardProviderTypes.Actual)
+            {
+                services.AddTransient<ICreditCardProvider, ActualCreditCardProvider>();
+                var actualCreditCardOptions = vaultClient.Get("edo/actual-credit-cards/AED").GetAwaiter().GetResult();
+                services.Configure<ActualCreditCardOptions>(o =>
+                {
+                    // Only AED card is supported for now
+                    var card = new HappyTravel.Edo.CreditCards.Models.CreditCardInfo(Number: actualCreditCardOptions["number"],
+                        ExpiryDate: DateTime.Parse(actualCreditCardOptions["expiry"], CultureInfo.InvariantCulture),
+                        HolderName: actualCreditCardOptions["holder"],
+                        SecurityCode: actualCreditCardOptions["code"]);
+
+                    o.Cards = new Dictionary<Currencies, HappyTravel.Edo.CreditCards.Models.CreditCardInfo>()
+                    {
+                        {Currencies.AED, card}
+                    };
+                });
+            }
+
+            return services;
         }
         
         

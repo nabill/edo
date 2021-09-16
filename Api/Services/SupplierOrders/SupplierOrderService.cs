@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -5,6 +6,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 
 
         public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Deadline deadline,
-            Suppliers supplier)
+            Suppliers supplier, DateTime paymentDate)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -38,6 +40,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Type = serviceType,
                 ReferenceCode = referenceCode,
                 Deadline = deadline,
+                PaymentDate = paymentDate
             };
 
             _context.SupplierOrders.Add(supplierOrder);
@@ -56,19 +59,24 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 return;
 
             var applyingPolicy = orderToCancel.Deadline?.Policies
-                .Where(p => p.FromDate >= _dateTimeProvider.UtcNow())
-                .OrderByDescending(p => p.FromDate)
-                .FirstOrDefault();
+                .Where(p => p.FromDate <= _dateTimeProvider.UtcNow())
+                .OrderBy(p => p.FromDate)
+                .LastOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal) (1 - applyingPolicy.Percentage) * orderToCancel.Price;
+            {
+                var rawRefundableAmount = (decimal) ((100 - applyingPolicy.Percentage) / 100) * orderToCancel.Price;
+                // TODO: add ToEven rounding to MoneyHelper and use this new mehtod here. Tech debt issue 957.
+                var roundedRefundableAmount = Math.Round(rawRefundableAmount, orderToCancel.Currency.GetDecimalDigitsCount(), MidpointRounding.ToEven);
+                orderToCancel.RefundableAmount = roundedRefundableAmount;
+            }
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
             await _context.SaveChangesAsync();
         }
-        
-        
+
+
         public async Task Discard(string referenceCode)
         {
             var discardingOrder = await _context.SupplierOrders
