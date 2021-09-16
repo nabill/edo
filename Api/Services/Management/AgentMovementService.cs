@@ -29,8 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .Ensure(AgentHasNoBookings, $"Agent {agentId} has bookings in agency {sourceAgencyId}")
                 .Bind(UpdateAgencyRelation)
                 .Bind(WriteLog)
-                .Bind(DeactivateAgencyIfNeed)
-                .Bind(DeactivateCounterpartyIfNeed);
+                .Bind(DeactivateAgencyIfNeeded)
+                .Bind(DeactivateCounterpartyIfNeeded);
 
 
             async Task<Result> ValidateRequest()
@@ -48,11 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Management
 
 
             async Task<bool> AgentHasNoBookings()
-            {
-                var firstBooking = await _edoContext.Bookings.FirstOrDefaultAsync(b => b.AgentId == agentId && b.AgencyId == sourceAgencyId);
-
-                return firstBooking == default;
-            }
+                => !(await _edoContext.Bookings.AnyAsync(b => b.AgentId == agentId && b.AgencyId == sourceAgencyId));
 
 
             async Task<Result> UpdateAgencyRelation()
@@ -89,22 +85,22 @@ namespace HappyTravel.Edo.Api.Services.Management
                     new AgentMovedFromOneAgencyToAnother(agentId, sourceAgencyId, targetAgencyId));
 
 
-            async Task<Result> DeactivateAgencyIfNeed()
+            async Task<Result> DeactivateAgencyIfNeeded()
             {
-                var relation = await _edoContext.AgentAgencyRelations.FirstOrDefaultAsync(r => r.AgencyId == sourceAgencyId);
-                if (relation != default)
+                var isRelationsExist = await _edoContext.AgentAgencyRelations.AnyAsync(r => r.AgencyId == sourceAgencyId);
+                if (isRelationsExist)
                     return Result.Success();
 
                 return await _adminAgencyManagementService.DeactivateAgency(sourceAgencyId, "There are no agents in the agency");
             }
 
 
-            async Task<Result> DeactivateCounterpartyIfNeed()
+            async Task<Result> DeactivateCounterpartyIfNeeded()
             {
                 var sourceAgency = await _edoContext.Agencies.SingleOrDefaultAsync(a => a.Id == sourceAgencyId);
 
-                var firstActiveAgency = await _edoContext.Agencies.FirstOrDefaultAsync(a => a.CounterpartyId == sourceAgency.CounterpartyId && a.IsActive);
-                if (firstActiveAgency != default)
+                var isActiveAgencyExists = await _edoContext.Agencies.AnyAsync(a => a.CounterpartyId == sourceAgency.CounterpartyId && a.IsActive);
+                if (isActiveAgencyExists)
                     return Result.Success();
 
                 return await _counterpartyManagementService.DeactivateCounterparty(sourceAgency.CounterpartyId, "There are no active agencies in the counterparty");
