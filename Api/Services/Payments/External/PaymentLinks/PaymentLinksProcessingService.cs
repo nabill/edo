@@ -21,7 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
-            INGeniusPaymentService nGeniusPaymentService,
             IPayfortResponseParser payfortResponseParser,
             IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
@@ -31,7 +30,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IAgentContextService agentContextService)
         {
             _payfortService = payfortService;
-            _nGeniusPaymentService = nGeniusPaymentService;
             _payfortResponseParser = payfortResponseParser;
             _storage = storage;
             _signatureService = signatureService;
@@ -46,13 +44,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return GetLink(code)
                 .Bind(link => ProcessPay(link, code, token, ip, languageCode));
-        }
-
-
-        public Task<Result<PaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
-        {
-            return GetLink(code)
-                .Bind(link => ProcessPay(link, code, request, ip, languageCode));
         }
 
 
@@ -147,26 +138,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Task StorePaymentResult(PaymentResponse response) => _storage.UpdatePaymentStatus(code, response);
         }
-        
-        
-        private async Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
-        {
-            var agent = await _agentContextService.GetAgent();
-            
-            return await Pay()
-                .Map(ToPaymentResponse)
-                .Tap(StorePaymentResult);
-
-
-            Task<Result<NGeniusPaymentResponse>> Pay()
-                => _nGeniusPaymentService.Pay(link.ReferenceCode, ip, request.EmailAddress, request.BillingAddress);
-
-            Task SendConfirmation() => this.SendConfirmation(link.ToLinkData());
-
-            PaymentResponse ToPaymentResponse(NGeniusPaymentResponse r) => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Created, string.Empty);
-
-            Task StorePaymentResult(PaymentResponse response) => _storage.UpdatePaymentStatus(code, response);
-        }
 
 
         private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
@@ -255,7 +226,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly PayfortOptions _payfortOptions;
 
         private readonly IPayfortService _payfortService;
-        private readonly INGeniusPaymentService _nGeniusPaymentService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
         private readonly IPaymentLinkNotificationService _notificationService;
