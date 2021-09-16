@@ -33,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     {
                         Created = booking.Created,
                         ReferenceCode = booking.ReferenceCode,
+                        Status = booking.Status.ToString(),
                         InvoiceNumber = invoice.Number,
                         AgencyName = agency.Name,
                         AgencyCity = agency.City,
@@ -52,7 +53,6 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ConvertedCurrency = order.ConvertedCurrency,
                         PaymentStatus = booking.PaymentStatus,
                         Supplier = booking.Supplier,
-                        CancellationPolicies = booking.CancellationPolicies,
                         CancellationDate = booking.Cancelled
                     })
                 .ToListAsync();
