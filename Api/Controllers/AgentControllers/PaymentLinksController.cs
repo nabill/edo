@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPayfortWebhook(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
