@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
                 ReferenceCode = data.ReferenceCode,
+                Status = data.Status,
                 InvoiceNumber = data.InvoiceNumber,
                 AgencyName = data.AgencyName,
                 AgencyCity = data.AgencyCity,
@@ -35,14 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
                 Supplier = EnumFormatters.FromDescription(data.Supplier),
-                PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
-                CancellationPenaltyPercent = data.CancellationDate is null
-                    ? 0
-                    : data.CancellationPolicies
-                        .OrderBy(p => p.FromDate)
-                        .Where(p => p.FromDate > data.CancellationDate)
-                        .Select(p => p.Percentage)
-                        .FirstOrDefault()
+                PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
             };
 
 
