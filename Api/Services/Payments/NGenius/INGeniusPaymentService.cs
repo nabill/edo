@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
@@ -12,14 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     {
         Task<Result<NGeniusPaymentResponse>> Authorize(string referenceCode, string ipAddress, AgentContext agent);
 
-        Task<Result<NGeniusPaymentResponse>> Pay(string referenceCode, string ipAddress, string email, NGeniusBillingAddress billingAddress);
+        Task<Result<NGeniusPaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode);
 
         Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount);
 
         Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference);
         
         Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount);
-
-        Task ProcessWebHook(JsonDocument request);
     }
 }

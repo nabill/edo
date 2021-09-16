@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json.Linq;
 
