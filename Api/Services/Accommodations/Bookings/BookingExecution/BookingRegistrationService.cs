@@ -130,6 +130,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     supplierPrice: availabilityInfo.OriginalSupplierPrice, 
                     deadline: availabilityInfo.SupplierDeadline, 
                     supplier: booking.Supplier,
+                    paymentType: availabilityInfo.IsCreditCardRequired
+                        ? SupplierPaymentType.CreditCard
+                        : SupplierPaymentType.DirectPayment,
                     paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
                         ? booking.Created
                         : booking.CheckOutDate);
@@ -157,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 HtId = htId,
                 Tags = tags,
                 IsDirectContract = isDirectContract,
-                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies
+                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies,
             };
             
             AddRequestInfo(bookingRequest);

@@ -22,7 +22,12 @@ namespace HappyTravel.Edo.CreditCards.Services
                 ? await Task.FromResult(Result.Success(cardInfo))
                 : await Task.FromResult(Result.Failure<CreditCardInfo>($"Could not get credit card for currency {moneyAmount.Currency}"));
         }
-        
+
+
+        public Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount) 
+            => Task.FromResult(Result.Success());
+
+
         private readonly ActualCreditCardOptions _options;
     }
 }
