@@ -181,27 +181,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
-        
-        /// <summary>
-        ///     Executes payment for link via Ngenius.
-        /// </summary>
-        /// <param name="code">Payment link code.</param>
-        /// <param name="token">Payment token.</param>
-        /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
-        [HttpPost("{code}/ngenius/pay")]
-        [AllowAnonymous]
-        [RequestSizeLimit(512)]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
-        {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
-
-            return isSuccess
-                ? Ok(paymentResponse)
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
-        }
 
 
         /// <summary>

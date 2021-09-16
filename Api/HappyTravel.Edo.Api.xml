@@ -34,9 +34,9 @@
                 Roles for admin
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetSupplerWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.PayableToSupplierDirectConnectivityReport(System.DateTime,System.DateTime)">
             <summary>
-                Returns supplier wise direct connectivity report
+                Returns payable to supplier direct connectivity report
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgencyWiseDirectConnectivityReport(System.DateTime,System.DateTime)">
@@ -1502,14 +1502,6 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaPayfort(System.String,System.String)">
             <summary>
                 Executes payment for link.
-            </summary>
-            <param name="code">Payment link code.</param>
-            <param name="token">Payment token.</param>
-            <returns>Payment result. Can return data for further 3DSecure processing.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PayViaNGenius(System.String,HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusPayByLinkRequest)">
-            <summary>
-                Executes payment for link via Ngenius.
             </summary>
             <param name="code">Payment link code.</param>
             <param name="token">Payment token.</param>

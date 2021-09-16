@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(CancellationDate);
     
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, mockedEdoContext,
-                dateTimeProviderMock.Object);
+                dateTimeProviderMock.Object, Mock.Of<IBalanceManagementNotificationsService>());
     
             var strategy = new ExecutionStrategyMock();
     

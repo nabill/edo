@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             var dateTimeProvider = new DefaultDateTimeProvider();
             _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
-                dateTimeProvider);
+                dateTimeProvider, Mock.Of<IBalanceManagementNotificationsService>());
 
             edoContextMock
                 .Setup(c => c.AgencyAccounts)
