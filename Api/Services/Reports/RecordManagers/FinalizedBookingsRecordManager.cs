@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
-    public class SalesBookingsRecordManager : IRecordManager<SalesBookingsReportData>
+    public class FinalizedBookingsRecordManager : IRecordManager<FinalizedBookingsReportData>
     {
-        public SalesBookingsRecordManager(EdoContext context)
+        public FinalizedBookingsRecordManager(EdoContext context)
         {
             _context = context;
         }
         
         
-        public async Task<IEnumerable<SalesBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
+        public async Task<IEnumerable<FinalizedBookingsReportData>> Get(DateTime fromDate, DateTime endDate)
         {
             var bookings = await (from booking in _context.Bookings
                 join invoice in _context.Invoices on booking.ReferenceCode equals invoice.ParentReferenceCode
@@ -27,14 +27,13 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         booking.Status == BookingStatuses.Cancelled && booking.Cancelled >= booking.DeadlineDate)
                     && (booking.Created >= fromDate && booking.Created < endDate
                         || booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
-                select new SalesBookingsReportData
+                select new FinalizedBookingsReportData
                 {
                     Created = booking.Created,
                     ReferenceCode = booking.ReferenceCode,
                     BookingStatus = booking.Status,
                     InvoiceNumber = invoice.Number,
                     AgencyName = agency.Name,
-                    PaymentMethod = booking.PaymentType,
                     AccommodationName = booking.AccommodationName,
                     ConfirmationNumber = booking.SupplierReferenceCode,
                     Rooms = booking.Rooms,
@@ -47,7 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     AgentCurrency = booking.Currency,
                     SupplierConvertedPrice = supplierOrder.ConvertedPrice,
                     SupplierConvertedCurrency = supplierOrder.ConvertedCurrency,
-                    PaymentStatus = booking.PaymentStatus,
                     Supplier = booking.Supplier,
                     CancellationPolicies = booking.CancellationPolicies,
                     CancellationDate = booking.Cancelled,

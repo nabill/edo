@@ -10,6 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
     public readonly struct FullBookingsReportData
     {
         public string ReferenceCode { get; init; }
+        public string Status { get; init; }
         public string InvoiceNumber { get; init; }
         public string AccommodationName { get; init; }
         public string ConfirmationNumber { get; init; }
@@ -30,7 +31,6 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public List<BookedRoom> Rooms { get; init; }
         public Suppliers Supplier { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
-        public List<CancellationPolicy> CancellationPolicies { get; init; }
         public DateTime? CancellationDate { get; init; }
     }
 }

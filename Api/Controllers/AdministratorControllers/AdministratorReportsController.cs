@@ -22,18 +22,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             _reportService = reportService;
         }
-        
-        
+
+
         /// <summary>
-        ///     Returns supplier wise direct connectivity report
+        ///     Returns payable to supplier direct connectivity report
         /// </summary>
-        [HttpGet("direct-connectivity-report/supplier-wise")]
+        [HttpGet("direct-connectivity-report/payable-to-supplier")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
-        public async Task<IActionResult> GetSupplerWiseDirectConnectivityReport(DateTime from, DateTime end)
+        public async Task<IActionResult> PayableToSupplierDirectConnectivityReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _reportService.GetSupplierWiseReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetPayableToSupplierReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -144,21 +144,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
         /// <summary>
-        ///     Returns sales bookings report
+        ///     Returns finalized bookings report
         /// </summary>
-        [HttpGet("sales-bookings-report")]
+        [HttpGet("finalized-bookings-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingReportGeneration)]
-        public async Task<IActionResult> GetSalesBookingReport(DateTime from, DateTime end)
+        public async Task<IActionResult> GetFinalizedBookingReport(DateTime from, DateTime end)
         {
-            var (_, isFailure, stream, error) = await _reportService.GetSalesBookingsReport(from, end);
+            var (_, isFailure, stream, error) = await _reportService.GetFinalizedBookingsReport(from, end);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
             {
-                FileDownloadName = $"sales-bookings-report-{from:g}-{end:g}.csv"
+                FileDownloadName = $"finalized-bookings-report-{from:g}-{end:g}.csv"
             };
         }
 
