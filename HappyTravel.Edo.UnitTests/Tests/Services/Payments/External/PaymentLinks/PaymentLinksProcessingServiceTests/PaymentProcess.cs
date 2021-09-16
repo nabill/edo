@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             var processingService = CreateProcessingServiceWithProcess();
 
             const string linkCode = "fkkk4l88lll";
-            var (_, _, response, _) = await processingService.ProcessResponse(linkCode, It.IsAny<JObject>());
+            var (_, _, response, _) = await processingService.ProcessPayfortWebhook(linkCode, It.IsAny<JObject>());
 
             linkStorageMock
                 .Verify(l => l.UpdatePaymentStatus(linkCode, response), Times.Once);
