@@ -77,10 +77,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var filteredHtIds = await GetAccommodationRatings(htIds, filters.Ratings);
                 query = query.Where(r => filteredHtIds.Contains(r.HtId));
             }
+            
+            if (filters.Order == "price")
+            {
+                query = filters.Direction switch
+                {
+                    "asc" => query.OrderBy(x => x.MinPrice),
+                    "desc" => query.OrderByDescending(x => x.MinPrice)
+                };
+            }
+            else
+            {
+                query = query
+                    .OrderBy(r => r.Created)
+                    .ThenBy(r => r.HtId);
+            }
 
             query = query
-                .OrderBy(r => r.Created)
-                .ThenBy(r => r.HtId)
                 // TODO: remove duplicates
                 //.GroupBy(r => r.HtId)
                 //.Select(g => g.First())
