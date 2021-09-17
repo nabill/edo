@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -25,11 +26,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
             IPaymentLinksProcessingService paymentLinksProcessingService,
-            ICreditCardsManagementService cardsManagementService)
+            ICreditCardsManagementService cardsManagementService,
+            INGeniusPaymentService nGeniusPaymentService)
         {
             _paymentLinkService = paymentLinkService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
             _cardsManagementService = cardsManagementService;
+            _nGeniusPaymentService = nGeniusPaymentService;
         }
 
 
@@ -192,11 +195,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("{code}/ngenius/pay")]
         [AllowAnonymous]
         [RequestSizeLimit(512)]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(NGeniusPaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
+            var (isSuccess, _, paymentResponse, error) = await _nGeniusPaymentService.Pay(code, request, ClientIp, LanguageCode);
 
             return isSuccess
                 ? Ok(paymentResponse)
@@ -217,7 +220,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPayfortWebhook(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -235,9 +238,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         private readonly ICreditCardsManagementService _cardsManagementService;
-
-
         private readonly IPaymentLinkService _paymentLinkService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
+        private readonly INGeniusPaymentService _nGeniusPaymentService;
     }
 }

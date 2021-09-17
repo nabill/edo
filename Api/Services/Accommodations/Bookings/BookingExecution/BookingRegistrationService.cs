@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
+            _requestStorage = requestStorage;
         }
         
         
@@ -41,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
                 .Map(Create)
+                .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder); 
@@ -101,6 +103,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
+            Task SaveRequestInfo(Booking booking) 
+                => _requestStorage.Set(booking.ReferenceCode, bookingRequest, availabilityInfo);
+
+
             Task LogBookingStatus(Booking booking)
             {
                 var changeReason = new BookingChangeReason
@@ -118,7 +124,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
 
             Task CreateSupplierOrder(Booking booking) 
-                => _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.ConvertedSupplierPrice, availabilityInfo.OriginalSupplierPrice, availabilityInfo.SupplierDeadline, booking.Supplier);
+                => _supplierOrderService.Add(referenceCode: booking.ReferenceCode,
+                    serviceType: ServiceTypes.HTL, 
+                    convertedPrice: availabilityInfo.ConvertedSupplierPrice, 
+                    supplierPrice: availabilityInfo.OriginalSupplierPrice, 
+                    deadline: availabilityInfo.SupplierDeadline, 
+                    supplier: booking.Supplier,
+                    paymentType: availabilityInfo.IsCreditCardRequired
+                        ? SupplierPaymentType.CreditCard
+                        : SupplierPaymentType.DirectPayment,
+                    paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
+                        ? booking.Created
+                        : booking.CheckOutDate);
         }
 
 
@@ -143,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 HtId = htId,
                 Tags = tags,
                 IsDirectContract = isDirectContract,
-                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies
+                CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies,
             };
             
             AddRequestInfo(bookingRequest);
@@ -223,5 +240,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IBookingRequestStorage _requestStorage;
     }
 }

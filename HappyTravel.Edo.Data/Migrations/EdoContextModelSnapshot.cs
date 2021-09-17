@@ -438,6 +438,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("jsonb")
                         .HasDefaultValueSql("'[]'::jsonb");
 
+                    b.Property<DateTime?>("Cancelled")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -606,7 +609,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ReferenceCode")
                         .HasColumnType("text");
 
-                    b.Property<string>("AvailabilityId")
+                    b.Property<string>("AvailabilityData")
                         .HasColumnType("text");
 
                     b.Property<string>("RequestData")
@@ -1556,6 +1559,12 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");

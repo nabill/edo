@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using HappyTravel.VccServiceClient.Services;
 
 namespace HappyTravel.Edo.CreditCards.Services
@@ -16,9 +18,13 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
         
         
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate)
+        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, Suppliers supplier, string accommodationName)
         {
-            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate, new Dictionary<string, string>());
+            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate, new Dictionary<string, string>
+            {
+                {"Supplier", EnumFormatters.FromDescription(supplier)},
+                {"AccommodationName", accommodationName}
+            });
             if (isFailure)
                 return Result.Failure<CreditCardInfo>(error);
 
@@ -27,8 +33,17 @@ namespace HappyTravel.Edo.CreditCards.Services
                 HolderName: virtualCreditCard.Holder,
                 SecurityCode: virtualCreditCard.Code);
         }
-        
-        
+
+
+        public async Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount)
+        {
+            if (newAmount.Amount == 0)
+                return await _vccService.Delete(referenceCode);
+
+            return await _vccService.ModifyAmount(referenceCode, newAmount);
+        }
+
+
         private readonly IVccService _vccService;
     }
 }

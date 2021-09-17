@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.CreditCards.Infrastructure.Logging;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.CreditCards.Services
@@ -17,11 +18,11 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
 
 
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, DateTime activationDate, DateTime dueDate, MoneyAmount amount)
+        public async Task<Result<CreditCardInfo>> Get(string referenceCode, DateTime activationDate, DateTime dueDate, MoneyAmount amount, Suppliers supplier, string accommodationName)
         {
             _logger.LogCreditCardServiceCardRequested(dueDate, referenceCode, amount.Amount, amount.Currency.ToString());
                     
-            var (_, isFailure, creditCard, error) = await _creditCardProvider.Get(referenceCode, amount, activationDate, dueDate);
+            var (_, isFailure, creditCard, error) = await _creditCardProvider.Get(referenceCode, amount, activationDate, dueDate, supplier, accommodationName);
 
             if (isFailure)
             {

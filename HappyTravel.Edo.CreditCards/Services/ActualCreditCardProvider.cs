@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Money.Models;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.CreditCards.Services
@@ -16,13 +17,18 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
         
 
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate)
+        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, Suppliers supplier, string accommodationName)
         {
             return _options.Cards.TryGetValue(moneyAmount.Currency, out var cardInfo)
                 ? await Task.FromResult(Result.Success(cardInfo))
                 : await Task.FromResult(Result.Failure<CreditCardInfo>($"Could not get credit card for currency {moneyAmount.Currency}"));
         }
-        
+
+
+        public Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount) 
+            => Task.FromResult(Result.Success());
+
+
         private readonly ActualCreditCardOptions _options;
     }
 }

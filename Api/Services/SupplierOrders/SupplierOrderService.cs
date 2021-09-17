@@ -1,10 +1,13 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +16,16 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
     public class SupplierOrderService : ISupplierOrderService
     {
-        public SupplierOrderService(EdoContext context, IDateTimeProvider dateTimeProvider)
+        public SupplierOrderService(EdoContext context, ICreditCardProvider creditCardProvider, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _creditCardProvider = creditCardProvider;
             _dateTimeProvider = dateTimeProvider;
         }
 
 
-        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, Deadline deadline,
-            Suppliers supplier)
+        public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice,
+            Deadline deadline, Suppliers supplier, SupplierPaymentType paymentType, DateTime paymentDate)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -38,6 +42,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Type = serviceType,
                 ReferenceCode = referenceCode,
                 Deadline = deadline,
+                PaymentDate = paymentDate,
+                PaymentType = paymentType
             };
 
             _context.SupplierOrders.Add(supplierOrder);
@@ -56,19 +62,30 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 return;
 
             var applyingPolicy = orderToCancel.Deadline?.Policies
-                .Where(p => p.FromDate >= _dateTimeProvider.UtcNow())
-                .OrderByDescending(p => p.FromDate)
-                .FirstOrDefault();
+                .Where(p => p.FromDate <= _dateTimeProvider.UtcNow())
+                .OrderBy(p => p.FromDate)
+                .LastOrDefault();
 
             if (applyingPolicy is not null)
-                orderToCancel.RefundableAmount = (decimal) (100 - applyingPolicy.Percentage) * orderToCancel.Price;
+            {
+                var rawRefundableAmount = (decimal) ((100 - applyingPolicy.Percentage) / 100) * orderToCancel.Price;
+                // TODO: add ToEven rounding to MoneyHelper and use this new mehtod here. Tech debt issue 957.
+                var roundedRefundableAmount = Math.Round(rawRefundableAmount, orderToCancel.Currency.GetDecimalDigitsCount(), MidpointRounding.ToEven);
+                orderToCancel.RefundableAmount = roundedRefundableAmount;
+            }
 
             orderToCancel.State = SupplierOrderState.Canceled;
             _context.SupplierOrders.Update(orderToCancel);
             await _context.SaveChangesAsync();
+
+            if (orderToCancel.PaymentType == SupplierPaymentType.CreditCard)
+            {
+                var moneyToCharge = orderToCancel.Price - orderToCancel.RefundableAmount;
+                await _creditCardProvider.ProcessAmountChange(orderToCancel.ReferenceCode, new MoneyAmount(moneyToCharge, orderToCancel.Currency));
+            }
         }
-        
-        
+
+
         public async Task Discard(string referenceCode)
         {
             var discardingOrder = await _context.SupplierOrders
@@ -81,10 +98,14 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             discardingOrder.State = SupplierOrderState.Discarded;
             _context.SupplierOrders.Update(discardingOrder);
             await _context.SaveChangesAsync();
+
+            if (discardingOrder.PaymentType == SupplierPaymentType.CreditCard)
+                await _creditCardProvider.ProcessAmountChange(discardingOrder.ReferenceCode, new MoneyAmount(0, discardingOrder.Currency));
         }
 
 
         private readonly EdoContext _context;
+        private readonly ICreditCardProvider _creditCardProvider;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

@@ -7,13 +7,13 @@ namespace HappyTravel.Edo.Api.Services.Reports
 {
     public interface IReportService
     {
-        public Task<Result<Stream>> GetSupplierWiseReport(DateTime fromDate, DateTime endDate);
+        public Task<Result<Stream>> GetPayableToSupplierReport(DateTime fromDate, DateTime endDate);
 
         public Task<Result<Stream>> GetAgencyWiseReport(DateTime fromDate, DateTime endDate);
 
         public Task<Result<Stream>> GetFullBookingsReport(DateTime fromDate, DateTime endDate);
 
-        public Task<Result<Stream>> GetSalesBookingsReport(DateTime fromDate, DateTime endDate);
+        public Task<Result<Stream>> GetFinalizedBookingsReport(DateTime fromDate, DateTime endDate);
         
         public Task<Result<Stream>> AgenciesProductivityReport(DateTime fromDate, DateTime endDate);
         

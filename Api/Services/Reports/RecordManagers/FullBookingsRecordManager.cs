@@ -26,10 +26,6 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     join agent in _context.Agents on booking.AgentId equals agent.Id
                     join country in _context.Countries on agency.CountryCode equals country.Code
                     join region in _context.Regions on country.RegionId equals region.Id
-                    let cancellationDate = _context.BookingStatusHistory
-                        .Where(c => c.BookingId == booking.Id && c.Status == BookingStatuses.Cancelled)
-                        .Select(c => c.CreatedAt)
-                        .FirstOrDefault()
                     where
                         booking.CheckOutDate >= fromDate &&
                         booking.CheckOutDate < endDate
@@ -37,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     {
                         Created = booking.Created,
                         ReferenceCode = booking.ReferenceCode,
+                        Status = booking.Status.ToString(),
                         InvoiceNumber = invoice.Number,
                         AgencyName = agency.Name,
                         AgencyCity = agency.City,
@@ -56,8 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ConvertedCurrency = order.ConvertedCurrency,
                         PaymentStatus = booking.PaymentStatus,
                         Supplier = booking.Supplier,
-                        CancellationPolicies = booking.CancellationPolicies,
-                        CancellationDate = cancellationDate
+                        CancellationDate = booking.Cancelled
                     })
                 .ToListAsync();
         }

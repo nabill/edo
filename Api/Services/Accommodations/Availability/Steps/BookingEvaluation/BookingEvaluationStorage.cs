@@ -57,7 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 htId: htId,
                 availablePaymentTypes: availablePaymentTypes,
                 isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
-                supplierDeadline: supplierDeadline.ToDeadline());
+                supplierDeadline: supplierDeadline.ToDeadline(),
+                isCreditCardRequired: roomSetAvailability.IsCreditCardNeeded);
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -12,9 +13,12 @@ namespace HappyTravel.Edo.Api.Services.Management
 {
     public class AgentMovementService : IAgentMovementService
     {
-        public AgentMovementService(EdoContext edoContext, IManagementAuditService managementAuditService)
+        public AgentMovementService(EdoContext edoContext, ICounterpartyManagementService counterpartyManagementService,
+            IAdminAgencyManagementService adminAgencyManagementService,  IManagementAuditService managementAuditService)
         {
             _edoContext = edoContext;
+            _counterpartyManagementService = counterpartyManagementService;
+            _adminAgencyManagementService = adminAgencyManagementService;
             _managementAuditService = managementAuditService;
         }
         
@@ -22,8 +26,11 @@ namespace HappyTravel.Edo.Api.Services.Management
         public async Task<Result> Move(int agentId, int sourceAgencyId, int targetAgencyId, List<int> roleIds)
         {
             return await ValidateRequest()
+                .Ensure(AgentHasNoBookings, $"Agent {agentId} has bookings in agency {sourceAgencyId}")
                 .Bind(UpdateAgencyRelation)
-                .Bind(WriteLog);
+                .Bind(WriteLog)
+                .Bind(DeactivateAgencyIfNeeded)
+                .Bind(DeactivateCounterpartyIfNeeded);
 
 
             async Task<Result> ValidateRequest()
@@ -38,6 +45,10 @@ namespace HappyTravel.Edo.Api.Services.Management
                     ? Result.Success()
                     : Result.Failure($"Target agency {targetAgencyId} not found");
             }
+
+
+            async Task<bool> AgentHasNoBookings()
+                => !(await _edoContext.Bookings.AnyAsync(b => b.AgentId == agentId && b.AgencyId == sourceAgencyId));
 
 
             async Task<Result> UpdateAgencyRelation()
@@ -70,12 +81,36 @@ namespace HappyTravel.Edo.Api.Services.Management
 
 
             Task<Result> WriteLog()
-                => _managementAuditService.Write(ManagementEventType.AgentMovement, 
+                => _managementAuditService.Write(ManagementEventType.AgentMovement,
                     new AgentMovedFromOneAgencyToAnother(agentId, sourceAgencyId, targetAgencyId));
+
+
+            async Task<Result> DeactivateAgencyIfNeeded()
+            {
+                var isRelationExists = await _edoContext.AgentAgencyRelations.AnyAsync(r => r.AgencyId == sourceAgencyId);
+                if (isRelationExists)
+                    return Result.Success();
+
+                return await _adminAgencyManagementService.DeactivateAgency(sourceAgencyId, "There are no agents in the agency");
+            }
+
+
+            async Task<Result> DeactivateCounterpartyIfNeeded()
+            {
+                var sourceAgency = await _edoContext.Agencies.SingleOrDefaultAsync(a => a.Id == sourceAgencyId);
+
+                var isActiveAgencyExists = await _edoContext.Agencies.AnyAsync(a => a.CounterpartyId == sourceAgency.CounterpartyId && a.IsActive);
+                if (isActiveAgencyExists)
+                    return Result.Success();
+
+                return await _counterpartyManagementService.DeactivateCounterparty(sourceAgency.CounterpartyId, "There are no active agencies in the counterparty");
+            }
         }
 
 
         private readonly EdoContext _edoContext;
+        private readonly ICounterpartyManagementService _counterpartyManagementService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly IManagementAuditService _managementAuditService;
     }
 }
