@@ -179,10 +179,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> DeactivateCounterparty(int counterpartyId, string reason)
+        public Task<Result> DeactivateCounterparty(int counterpartyId, string reason, MasterAgentContext displacedMaster = default)
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive)
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive, displacedMaster)
                     .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
 
 
@@ -193,7 +193,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
 
 
-        private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status)
+        private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status, MasterAgentContext displacedMaster = default)
         {
             var convertedStatus = ConvertToDbStatus(status);
             if (convertedStatus == counterparty.IsActive)
@@ -231,9 +231,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SendNotificationToMaster()
             {
-                var (_, isFailure, master, error) = await GetRootAgencyMasterAgent(counterparty.Id);
-                if (isFailure)
-                    return Result.Failure(error);
+                MasterAgentContext master;
+                if (displacedMaster == default)
+                {
+                    var (_, isFailure, currentMaster, error) = await GetRootAgencyMasterAgent(counterparty.Id);
+                    if (isFailure)
+                        return Result.Failure(error);
+
+                    master = currentMaster;
+                }
+                else
+                    master = displacedMaster;
 
                 var messageData = new CounterpartyIsActiveStatusChangedData
                 {
