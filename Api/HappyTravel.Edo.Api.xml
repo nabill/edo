@@ -688,6 +688,22 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Combine(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.CombineAccommodationsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Combines two accommodations by htAccommodationId
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.DeactivateBecauseOfInvalidMatching(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deactivates accommodations by htId with the reason is invalid mapping 
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
                 Gets the notification history of the current administrator
