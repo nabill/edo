@@ -231,7 +231,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SendNotificationToMaster()
             {
-                MasterAgentContext master;
+                MasterAgentContext master = displacedMaster;
                 if (displacedMaster == default)
                 {
                     var (_, isFailure, currentMaster, error) = await GetRootAgencyMasterAgent(counterparty.Id);
@@ -240,8 +240,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                     master = currentMaster;
                 }
-                else
-                    master = displacedMaster;
 
                 var messageData = new CounterpartyIsActiveStatusChangedData
                 {
