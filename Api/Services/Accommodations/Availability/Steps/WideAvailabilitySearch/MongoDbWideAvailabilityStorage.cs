@@ -100,7 +100,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .ToListAsync();
             
             return results
-                .Select(r => r.First())
+                .Select(group => group
+                    .OrderBy(x => x.MinPrice)
+                    .First())
                 .Select(a =>
                 {
                     var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
