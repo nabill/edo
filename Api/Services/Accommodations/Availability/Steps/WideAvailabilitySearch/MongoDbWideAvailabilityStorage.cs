@@ -93,29 +93,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .ThenBy(r => r.HtId);
             }
 
-            query = query
-                // TODO: remove duplicates
-                //.GroupBy(r => r.HtId)
-                //.Select(g => g.First())
+            var results = await query
+                .GroupBy(r => r.HtId)
                 .Skip(filters.Skip)
-                .Take(filters.Top);
+                .Take(filters.Top)
+                .ToListAsync();
+            
+            return results
+                .Select(r => r.First())
+                .Select(a =>
+                {
+                    var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
 
-            var results = await query.ToListAsync();
-            return results.Select(a =>
-            {
-                var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
-
-                return new WideAvailabilityResult(accommodation,
-                    a.RoomContractSets,
-                    a.MinPrice,
-                    a.MaxPrice,
-                    a.CheckInDate,
-                    a.CheckOutDate,
-                    searchSettings.IsSupplierVisible
-                        ? a.Supplier
-                        : (Suppliers?)null,
-                    a.HtId);
-            }).ToList();
+                    return new WideAvailabilityResult(accommodation,
+                        a.RoomContractSets,
+                        a.MinPrice,
+                        a.MaxPrice,
+                        a.CheckInDate,
+                        a.CheckOutDate,
+                        searchSettings.IsSupplierVisible
+                            ? a.Supplier
+                            : null,
+                        a.HtId);
+                }).ToList();
         }
 
 
