@@ -64,8 +64,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             : (Suppliers?)null,
                         a.HtId);
                 })
-                .Where(a => a.RoomContractSets.All(rcs => rcs.Deadline.Policies
-                    .All(p => p.Percentage <= 100)))
                 .AsQueryable();
             
             return filters.ApplyTo(queriable).ToList();

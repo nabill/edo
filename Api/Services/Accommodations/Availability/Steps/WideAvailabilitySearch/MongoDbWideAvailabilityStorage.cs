@@ -97,9 +97,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // TODO: remove duplicates
                 //.GroupBy(r => r.HtId)
                 //.Select(g => g.First())
-                .Where(r => r.RoomContractSets
-                    .All(rcs => rcs.Deadline.Policies
-                        .All(p => p.Percentage <= 100)))
                 .Skip(filters.Skip)
                 .Take(filters.Top);
 
