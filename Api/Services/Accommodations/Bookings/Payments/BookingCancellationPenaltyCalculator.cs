@@ -27,6 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                         ? Whole
                         : Nothing;
 
+                if (deadline.Policies.Any(p => p.Percentage > 100))
+                    throw new Exception("Percentage cannot be greater then 100");
+
                 var appliedPolicy = deadline.Policies
                     .OrderBy(p => p.FromDate)
                     .LastOrDefault(p => p.FromDate <= cancellationDate);
