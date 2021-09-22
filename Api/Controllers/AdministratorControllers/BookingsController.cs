@@ -274,9 +274,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="bookingId">Booking ID for retrieving status change history</param>
         /// <returns>List of booking status change events</returns>
-        [HttpGet("{bookingId}/status-history")]
+        [HttpGet("accommodations/bookings/{bookingId}/status-history")]
         [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
         {
