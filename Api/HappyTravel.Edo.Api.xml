@@ -696,7 +696,7 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.DeactivateBecauseOfInvalidMatching(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.DeactivateBecauseOfInvalidMatching(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
             <summary>
             Deactivates accommodations by htId with the reason is invalid mapping 
             </summary>

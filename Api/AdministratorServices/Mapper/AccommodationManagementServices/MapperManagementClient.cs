@@ -11,8 +11,7 @@ using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.MapperContracts.Public.Accommodations;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +34,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServi
         }
 
 
-        public Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(AccommodationsRequest request, DeactivationReasons deactivationReason, CancellationToken cancellationToken)
+        public Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
         {
             var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
             var requestUri = "api/1.0/AccommodationsManagement/accommodations/deactivate";
@@ -44,11 +43,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServi
         }
 
 
-        public Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, Suppliers supplier, string supplierId, CancellationToken cancellationToken = default)
+        public Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
-            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/suppliers/{supplier}/accommodations/{supplierId}/remove";
+            var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/suppliers/remove";
             
-            return Post(requestUri, null, cancellationToken);
+            return Post(requestUri, requestContent, cancellationToken);
         }
 
 
