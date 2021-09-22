@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
