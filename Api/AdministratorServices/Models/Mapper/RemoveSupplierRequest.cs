@@ -3,7 +3,7 @@ using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
-    public struct RemoveSupplierRequest
+    public readonly struct RemoveSupplierRequest
     {
         [Required]
         public Suppliers Supplier { get; init; }
