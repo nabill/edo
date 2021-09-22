@@ -267,6 +267,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             await _fixHtIdService.FillEmptyHtIds();
             return NoContent();
         }
+        
+        
+        /// <summary>
+        ///     Gets booking status changes history
+        /// </summary>
+        /// <param name="bookingId">Booking ID for retrieving status change history</param>
+        /// <returns>List of booking status change events</returns>
+        [HttpGet("{bookingId}/status-history")]
+        [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
+        {
+            return Ok(await _bookingInfoService.GetBookingStatusHistory(bookingId));
+        }
 
 
         private readonly IAdministratorContext _administratorContext;
