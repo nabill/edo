@@ -704,6 +704,15 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.RemoveSupplier(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.RemoveSupplierRequest,System.Threading.CancellationToken)">
+            <summary>
+            Removes a supplier from an accommodation
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
                 Gets the notification history of the current administrator

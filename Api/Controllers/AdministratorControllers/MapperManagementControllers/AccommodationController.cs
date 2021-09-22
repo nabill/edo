@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Http;
@@ -34,14 +35,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)] 
         [AdministratorPermissions(AdministratorPermissions.MapperAccommodationManagement)]
         public async Task<IActionResult> Combine([FromBody] CombineAccommodationsRequest request, CancellationToken cancellationToken = default)
-        {
-            var (_, isFailure, _, error) = await _mapperManagementClient.CombineAccommodations(request.BaseHtAccommodationId, request.CombinedHtAccommodationId, cancellationToken);
-
-            if (isFailure)
-                return BadRequest(error);
-
-            return NoContent();
-        }
+            => NoContentOrBadRequest(await _mapperManagementClient.CombineAccommodations(request.BaseHtAccommodationId, request.CombinedHtAccommodationId, cancellationToken));
 
         
         /// <summary>
@@ -55,28 +49,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MapperAccommodationManagement)]
         public async Task<IActionResult> DeactivateBecauseOfInvalidMatching([FromBody] DeactivateAccommodationsRequest request, CancellationToken cancellationToken = default)
-        {
-            var (_, isFailure, _, error) = await _mapperManagementClient.DeactivateAccommodations(request, AccommodationDeactivationReasons.WrongMatching, cancellationToken);
+            => NoContentOrBadRequest(await _mapperManagementClient.DeactivateAccommodations(request, AccommodationDeactivationReasons.WrongMatching, cancellationToken));
 
-            if (isFailure)
-                return BadRequest(error);
-
-            return NoContent();
-        }
-
-
+        /// <summary>
+        /// Removes a supplier from an accommodation
+        /// </summary>
+        /// <param name="htAccommodationId"></param>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpPost("{htAccommodationId}/suppliers/remove")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MapperAccommodationManagement)]
         public async Task<IActionResult> RemoveSupplier([FromRoute] string htAccommodationId, [FromBody] RemoveSupplierRequest request, CancellationToken cancellationToken = default)
-        {
-            var (_, isFailure, _, error) = await _mapperManagementClient.RemoveSupplier(htAccommodationId, request, cancellationToken);
-            if (isFailure)
-                return BadRequest(error);
-
-            return NoContent();
-        }
+            => NoContentOrBadRequest(await _mapperManagementClient.RemoveSupplier(htAccommodationId, request, cancellationToken));
         
         
         private readonly IMapperManagementClient _mapperManagementClient;

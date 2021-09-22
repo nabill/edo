@@ -72,7 +72,4 @@
     </None>
     <None Remove=".appsettings.Local.json.swp" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="AdministratorServices\Mapper" />
-  </ItemGroup>
 </Project>
