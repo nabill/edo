@@ -67,10 +67,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Rooms.Any(room => filters.BoardBasisTypes.Contains(room.BoardBasis))));
 
             if (searchSettings.AprMode == AprMode.Hide)
-                query = query.Where(r => r.RoomContractSets.All(rcs => !rcs.IsAdvancePurchaseRate));
+                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.IsAdvancePurchaseRate));
 
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                query = query.Where(r => r.RoomContractSets.All(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
+                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
 
             if (filters.Ratings is not null)
             {
