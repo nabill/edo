@@ -69,9 +69,13 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             if (applyingPolicy is not null)
             {
                 var rawRefundableAmount = (decimal) ((100 - applyingPolicy.Percentage) / 100) * orderToCancel.Price;
-                // TODO: add ToEven rounding to MoneyHelper and use this new mehtod here. Tech debt issue 957.
+                // TODO: add ToEven rounding to MoneyHelper and use this new method here. Tech debt issue 957.
                 var roundedRefundableAmount = Math.Round(rawRefundableAmount, orderToCancel.Currency.GetDecimalDigitsCount(), MidpointRounding.ToEven);
                 orderToCancel.RefundableAmount = roundedRefundableAmount;
+            }
+            else
+            {
+                orderToCancel.RefundableAmount = orderToCancel.Price;
             }
 
             orderToCancel.State = SupplierOrderState.Canceled;
