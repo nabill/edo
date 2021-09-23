@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 {
@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
     {
         public static Task<Result> BindWithTransaction(
             this Result target,
-            EdoContext context,
+            DbContext context,
             Func<Task<Result>> f)
         {
             var (_, isFailure, error) = target;
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         
         public static Task<Result<T>> BindWithTransaction<T>(
             this Result target,
-            EdoContext context,
+            DbContext context,
             Func<Task<Result<T>>> f)
         {
             var (_, isFailure, error) = target;
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result> BindWithTransaction(
             this Task<Result> target,
-            EdoContext context,
+            DbContext context,
             Func<Task<Result>> f)
         {
             var (_, isFailure, error) = await target;
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result<TK>> BindWithTransaction<T, TK>(
             this Task<Result<T>> target,
-            EdoContext context,
+            DbContext context,
             Func<T, Task<Result<TK>>> f)
         {
             var (_, isFailure, result, error) = await target;
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result> BindWithTransaction<T>(
             this Task<Result<T>> target,
-            EdoContext context,
+            DbContext context,
             Func<T, Task<Result>> f)
         {
             var (_, isFailure, result, error) = await target;
@@ -72,9 +72,22 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
+        public static async Task<Result<T>> BindWithTransaction<T>(
+            this Task<Result> target,
+            DbContext context,
+            Func<Task<Result<T>>> f)
+        {
+            var (_, isFailure, error) = await target;
+            if (isFailure)
+                return Result.Failure<T>(error);
+
+            return await WithTransactionScope(context, f);
+        }
+
+
         public static async Task<Result<T>> BindWithTransaction<T, TK>(
             this Result<TK> target,
-            EdoContext context,
+            DbContext context,
             Func<TK, Task<Result<T>>> f)
         {
             var (_, isFailure, result, error) = target;
@@ -87,7 +100,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result<T, TE>> BindWithTransaction<T, TE>(
             this Task<Result<T, TE>> target,
-            EdoContext context,
+            DbContext context,
             Func<T, Task<Result<T, TE>>> f)
         {
             var (_, isFailure, result, error) = await target;
@@ -100,7 +113,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result<TOutput, TE>> BindWithTransaction<TInput, TOutput, TE>(
             this Task<Result<TInput, TE>> target,
-            EdoContext context,
+            DbContext context,
             Func<TInput, Task<Result<TOutput, TE>>> f)
         {
             var (_, isFailure, result, error) = await target;
@@ -113,7 +126,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
         public static async Task<Result> BindWithTransaction<T>(
             this Result<T> target,
-            EdoContext context,
+            DbContext context,
             Func<T, Task<Result>> f)
         {
             var (_, isFailure, result, error) = target;
@@ -124,7 +137,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        private static Task<TResult> WithTransactionScope<TResult>(EdoContext context, Func<Task<TResult>> operation)
+        private static Task<TResult> WithTransactionScope<TResult>(DbContext context, Func<Task<TResult>> operation)
             where TResult : IResult
         {
             var strategy = context.Database.CreateExecutionStrategy();

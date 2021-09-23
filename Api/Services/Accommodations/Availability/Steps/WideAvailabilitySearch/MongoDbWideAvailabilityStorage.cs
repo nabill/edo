@@ -67,10 +67,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Rooms.Any(room => filters.BoardBasisTypes.Contains(room.BoardBasis))));
 
             if (searchSettings.AprMode == AprMode.Hide)
-                query = query.Where(r => r.RoomContractSets.All(rcs => !rcs.IsAdvancePurchaseRate));
+                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.IsAdvancePurchaseRate));
 
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                query = query.Where(r => r.RoomContractSets.All(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
+                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
 
             if (filters.Ratings is not null)
             {
@@ -93,17 +93,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .ThenBy(r => r.HtId);
             }
 
-            query = query
-                // TODO: remove duplicates
-                //.GroupBy(r => r.HtId)
-                //.Select(g => g.First())
+            var results = await query
+                .GroupBy(r => r.HtId)
                 .Skip(filters.Skip)
-                .Take(filters.Top);
-
-            var results = await query.ToListAsync();
-            return results.Select(a =>
-            {
-                var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
+                .Take(filters.Top)
+                .ToListAsync();
+            
+            return results
+                .Select(group => group
+                    .OrderBy(x => x.MinPrice)
+                    .First())
+                .Select(a =>
+                {
+                    var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
 
                 return new WideAvailabilityResult(accommodation,
                     a.RoomContractSets.Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
