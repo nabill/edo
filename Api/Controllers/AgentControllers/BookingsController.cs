@@ -330,11 +330,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (bookingIsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(bookingError));
 
-            var (_, isFailure, statusHistory, error) = await _bookingInfoService.GetBookingStatusHistory(bookingId, agent);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(statusHistory);
+            return Ok(await _bookingInfoService.GetBookingStatusHistory(bookingId));
         }
 
 
