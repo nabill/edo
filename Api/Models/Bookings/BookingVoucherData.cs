@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct BookingVoucherData
     {
         public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
-            in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, 
-            string mainPassengerName, string referenceCode, string supplierReferenceCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails)
+            in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, string mainPassengerName, string referenceCode,
+            string supplierReferenceCode, string propertyOwnerConfirmationCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails)
         {
             AgentName = agentName;
             Accommodation = accommodation;
@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             MainPassengerName = mainPassengerName;
             ReferenceCode = referenceCode;
             SupplierReferenceCode = supplierReferenceCode;
+            PropertyOwnerConfirmationCode = propertyOwnerConfirmationCode;
             BannerUrl = bannerUrl;
             LogoUrl = logoUrl;
             RoomDetails = roomDetails;
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string MainPassengerName { get; }
         public string ReferenceCode { get; }
         public string SupplierReferenceCode { get; }
+        public string PropertyOwnerConfirmationCode { get; }
         public string BannerUrl { get; }
         public string LogoUrl { get; }
         public List<RoomInfo> RoomDetails { get; }
