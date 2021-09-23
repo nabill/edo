@@ -456,6 +456,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
+            <summary>
+                Gets booking status changes history
+            </summary>
+            <param name="bookingId">Booking ID for retrieving status change history</param>
+            <returns>List of booking status change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
