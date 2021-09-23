@@ -72,6 +72,7 @@ using Amazon.S3;
 using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
+using HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
@@ -168,7 +169,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
             
-            
+            #region MapperClient
             var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
             services.AddAccessTokenManagement(options =>
             {
@@ -183,6 +184,25 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 client.BaseAddress = new Uri(mapperClientOptions["address"]);
             });
+            #endregion
+
+            #region MapperManagementClient
+            var mapperManagementClientOptions = vaultClient.Get(configuration["Edo:MapperManagementClient:Options"]).GetAwaiter().GetResult();
+            services.AddAccessTokenManagement(options =>
+            {
+                options.Client.Clients.Add(HttpClientNames.MapperManagementIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = $"{authorityUrl}connect/token",
+                    ClientId = mapperManagementClientOptions["clientId"],
+                    ClientSecret = mapperManagementClientOptions["clientSecret"]
+                });
+            });
+            services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(mapperManagementClientOptions["address"]);
+            });
+            #endregion
+            
             services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
@@ -705,6 +725,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
+            services.AddTransient<IMapperManagementClient, MapperManagementClient>();
             services.AddTransient<IAvailabilitySearchAreaService, AvailabilitySearchAreaService>();
 
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
