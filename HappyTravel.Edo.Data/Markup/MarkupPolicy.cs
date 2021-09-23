@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Markup
         public int TemplateId { get; set; }
         public IDictionary<string, decimal> TemplateSettings { get; set; }
         public Currencies Currency { get; set; }
-        public AgentMarkupScopeType AgentScopeType { get; set; }
+        public AgentMarkupScopeTypes AgentScopeType { get; set; }
         public string AgentScopeId { get; set; }
         public AccommodationScopeType AccommodationScopeType { get; set; }
         public string AccommodationScopeId { get; set; }
