@@ -267,6 +267,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1602, "MapperClientErrorResponse"),
                 "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}");
             
+            MapperManagementClientException = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1603, "MapperManagementClientException"),
+                "Mapper management client exception");
+            
             CounterpartyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
                 new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
                 "Counterparty {CounterpartyId} account added notification failed with error {Error}");
@@ -318,6 +322,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             MapperClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
                 new EventId(1803, "MapperClientRequestTimeout"),
                 "Request to mapper failed with timeout");
+            
+            MapperManagementClientUnexpectedResponse = LoggerMessage.Define<System.Net.HttpStatusCode, System.Uri, string>(LogLevel.Error,
+                new EventId(1804, "MapperManagementClientUnexpectedResponse"),
+                "Unexpected response received from a mapper management endpoint. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
+            
+            MapperManagementClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
+                new EventId(1806, "MapperManagementClientRequestTimeout"),
+                "Request to a mapper management endpoint failed with timeout");
             
         }
     
@@ -517,6 +529,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMapperClientErrorResponse(this ILogger logger, string Message, int StatusCode, string[] HtIds, Exception exception = null)
             => MapperClientErrorResponse(logger, Message, StatusCode, HtIds, exception);
                 
+         public static void LogMapperManagementClientException(this ILogger logger, Exception exception = null)
+            => MapperManagementClientException(logger, exception);
+                
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
@@ -555,6 +570,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperClientRequestTimeout(this ILogger logger, Exception exception = null)
             => MapperClientRequestTimeout(logger, exception);
+                
+         public static void LogMapperManagementClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
+            => MapperManagementClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
+                
+         public static void LogMapperManagementClientRequestTimeout(this ILogger logger, Exception exception = null)
+            => MapperManagementClientRequestTimeout(logger, exception);
     
     
         
@@ -688,6 +709,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, int, string[], Exception> MapperClientErrorResponse;
         
+        private static readonly Action<ILogger, Exception> MapperManagementClientException;
+        
         private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountAddedNotificationFailure;
         
         private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailure;
@@ -713,5 +736,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperClientUnexpectedResponse;
         
         private static readonly Action<ILogger, Exception> MapperClientRequestTimeout;
+        
+        private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperManagementClientUnexpectedResponse;
+        
+        private static readonly Action<ILogger, Exception> MapperManagementClientRequestTimeout;
     }
 }
