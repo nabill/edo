@@ -25,7 +25,7 @@
     <PackageReference Include="HappyTravel.CurrencyConverter" Version="1.0.3" />
     <PackageReference Include="HappyTravel.DataFormatters" Version="1.1.5" />
     <PackageReference Include="HappyTravel.EdoContracts" Version="2.1.1" />
-    <PackageReference Include="HappyTravel.ErrorHandling" Version="1.0.0" />
+    <PackageReference Include="HappyTravel.ErrorHandling" Version="1.2.2" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.1.0" />
     <PackageReference Include="HappyTravel.MapperContracts" Version="0.10.3" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.4.1" />
