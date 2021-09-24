@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.SuppliersCatalog;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -42,16 +43,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode)
         {
-            var htIds = await _availabilityStorage.Collection()
+            var rows = await _availabilityStorage.Collection()
                 .Where(r => r.SearchId == searchId && suppliers.Contains(r.Supplier))
-                .Select(r => r.HtId)
-                .Distinct()
+                .Select(r => new {r.Id, r.HtId, r.MinPrice})
                 .ToListAsync();
+
+            var htIds = new List<string>();
+            var ids = new List<ObjectId>();
+
+            foreach (var group in rows.GroupBy(r => r.HtId))
+            {
+                htIds.Add(group.Key);
+                ids.Add(group.OrderBy(g => g.MinPrice).First().Id);
+            }
             
             await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
             
             var query = _availabilityStorage.Collection()
-                .Where(r => r.SearchId == searchId);
+                .Where(r => r.SearchId == searchId && ids.Contains(r.Id));
 
             query = filters.Suppliers is not null
                 ? query.Where(r => filters.Suppliers.Contains(r.Supplier))
@@ -94,30 +103,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
             var results = await query
-                .GroupBy(r => r.HtId)
                 .Skip(filters.Skip)
                 .Take(filters.Top)
                 .ToListAsync();
             
             return results
-                .Select(group => group
-                    .OrderBy(x => x.MinPrice)
-                    .First())
                 .Select(a =>
                 {
                     var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
 
-                return new WideAvailabilityResult(accommodation,
-                    a.RoomContractSets.Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
-                    a.MinPrice,
-                    a.MaxPrice,
-                    a.CheckInDate,
-                    a.CheckOutDate,
-                    searchSettings.IsSupplierVisible
-                        ? a.Supplier
-                        : (Suppliers?)null,
-                    a.HtId);
-            }).ToList();
+                    return new WideAvailabilityResult(accommodation,
+                        a.RoomContractSets.Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
+                        a.MinPrice,
+                        a.MaxPrice,
+                        a.CheckInDate,
+                        a.CheckOutDate,
+                        searchSettings.IsSupplierVisible
+                            ? a.Supplier
+                            : null,
+                        a.HtId);
+                }).ToList();
         }
 
 
