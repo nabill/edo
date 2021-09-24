@@ -78,8 +78,6 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 metrics:
   enabled: true
-  serviceMonitor:
-    enabled: false
   podMonitor:
     enabled: true
 env:
