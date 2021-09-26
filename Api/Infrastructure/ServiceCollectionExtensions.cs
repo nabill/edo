@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
             {
-                client.BaseAddress = new Uri(mapperClientOptions["address"]);
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             #endregion
 
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
             {
-                client.BaseAddress = new Uri(mapperManagementClientOptions["address"]);
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             #endregion
             
