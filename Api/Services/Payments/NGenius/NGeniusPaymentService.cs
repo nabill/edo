@@ -14,9 +14,11 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -26,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
             IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService
-            , IPaymentLinksStorage storage)
+            , IPaymentLinksStorage storage, IOptions<SenderOptions> senderOptions)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -35,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _agencyService = agencyService;
             _storage = storage;
+            _senderOptions = senderOptions.Value;
         }
 
 
@@ -178,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
+        private Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
             NGeniusBillingAddress billingAddress)
         {
             return new OrderRequest
@@ -191,7 +194,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 },
                 MerchantOrderReference = referenceCode,
                 BillingAddress = billingAddress,
-                EmailAddress = email
+                EmailAddress = email,
+                MerchantAttributes = new MerchantAttributes
+                {
+                    RedirectUrl = new Uri(_senderOptions.BaseUrl, $"/payments/callback?referenceCode={referenceCode}").ToString(),
+                    CancelUrl = new Uri(_senderOptions.BaseUrl, "/accommodation/booking").ToString(),
+                    CancelText = "Back to Booking Page"
+                }
             };
         }
         
@@ -225,5 +234,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IAgencyService _agencyService;
         private readonly IPaymentLinksStorage _storage;
+        private readonly SenderOptions _senderOptions;
     }
 }
