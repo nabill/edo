@@ -138,6 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<PaymentStatuses>("Status checking failed");
 
             payment.Status = status;
+            payment.Modified = _dateTimeProvider.UtcNow();
             _context.Update(payment);
             await _context.SaveChangesAsync();
             await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
