@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<PaymentStatuses>> CheckStatus(string orderReference)
+        public async Task<Result<PaymentStatuses>> GetStatus(string orderReference)
         {
             var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}";
             var response = await Send(HttpMethod.Get, endpoint);
