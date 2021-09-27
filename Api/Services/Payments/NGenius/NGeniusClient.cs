@@ -82,6 +82,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
+        public async Task<Result<PaymentStatuses>> GetStatus(string orderReference)
+        {
+            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}";
+            var response = await Send(HttpMethod.Get, endpoint);
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+
+            return response.IsSuccessStatusCode
+                ? ParsePaymentStatus(document)
+                : Result.Failure<PaymentStatuses>(ParseErrorMessage(document));
+        }
+
+
         private async Task<string> GetAccessToken()
         {
             var key = _cache.BuildKey(nameof(NGeniusClient), "access-token");
@@ -163,14 +177,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static CreditCardPaymentStatuses MapToStatus(string state)
+        private static PaymentStatuses ParsePaymentStatus(in JsonDocument document)
         {
+            var state = document.RootElement.GetProperty("_embedded")
+                .GetProperty("payment")[0]
+                .GetProperty("state")
+                .GetString();
+            
             return state switch
             {
-                StateTypes.Authorized => CreditCardPaymentStatuses.Success,
-                StateTypes.Await3Ds => CreditCardPaymentStatuses.Secure3d,
-                StateTypes.Failed => CreditCardPaymentStatuses.Failed,
-                StateTypes.Captured => CreditCardPaymentStatuses.Success,
+                StateTypes.Authorized => PaymentStatuses.Authorized,
+                StateTypes.Await3Ds => PaymentStatuses.Secure3d,
+                StateTypes.Failed => PaymentStatuses.Failed,
+                StateTypes.Captured => PaymentStatuses.Captured,
                 _ => throw new NotSupportedException($"Payment status `{state}` not supported")
             };
         }

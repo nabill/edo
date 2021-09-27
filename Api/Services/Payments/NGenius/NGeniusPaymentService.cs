@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -18,6 +19,7 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -117,6 +119,34 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             return result.IsFailure
                 ? Result.Failure<CreditCardRefundResult>(result.Error)
                 : new CreditCardRefundResult(paymentId, string.Empty, orderReference);
+        }
+
+
+        public async Task<Result<PaymentStatuses>> RefreshStatus(string referenceCode)
+        {
+            var payment = await _context.Payments
+                .OrderByDescending(p => p.Created)
+                .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
+
+            if (payment is null)
+                return Result.Failure<PaymentStatuses>($"Payment for {referenceCode} not found");
+
+            var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+            var (_, isFailure, status) = await _client.GetStatus(data.ExternalId);
+
+            if (isFailure)
+                return Result.Failure<PaymentStatuses>("Status checking failed");
+
+            if (payment.Status != status)
+            {
+                payment.Status = status;
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+                await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+            }
+            
+            return payment.Status;
         }
 
 
