@@ -132,6 +132,20 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             return OkOrBadRequest(await _nGeniusPaymentService.Authorize(referenceCode, ClientIp, await _agentContextService.GetAgent()));
         }
+        
+        
+        /// <summary>
+        ///     Checks payment status in NGenius
+        /// </summary>
+        /// <param name="referenceCode">Booking reference code</param>
+        [HttpGet("accommodations/bookings/{referenceCode}/pay/status")]
+        [ProducesResponseType(typeof(PaymentStatuses), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckStatusInNGenius(string referenceCode)
+        {
+            return OkOrBadRequest(await _nGeniusPaymentService.CheckStatus(referenceCode));
+        }
 
 
         /// <summary>
