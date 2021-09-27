@@ -1,3 +1,5 @@
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
+
 namespace HappyTravel.Edo.Api.Models.Payments.NGenius
 {
     public readonly struct OrderRequest
@@ -7,5 +9,6 @@ namespace HappyTravel.Edo.Api.Models.Payments.NGenius
         public NGeniusAmount Amount { get; init; }
         public string EmailAddress { get; init; }
         public NGeniusBillingAddress BillingAddress { get; init; }
+        public MerchantAttributes MerchantAttributes { get; init; }
     }
 }

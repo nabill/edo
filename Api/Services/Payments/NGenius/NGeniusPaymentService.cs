@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -13,9 +14,12 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -24,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     {
         public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
             IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService
-            , IPaymentLinksStorage storage)
+            , IPaymentLinksStorage storage, IOptions<SenderOptions> senderOptions)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -33,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _agencyService = agencyService;
             _storage = storage;
+            _senderOptions = senderOptions.Value;
         }
 
 
@@ -117,6 +122,34 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
+        public async Task<Result<PaymentStatuses>> RefreshStatus(string referenceCode)
+        {
+            var payment = await _context.Payments
+                .OrderByDescending(p => p.Created)
+                .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
+
+            if (payment is null)
+                return Result.Failure<PaymentStatuses>($"Payment for {referenceCode} not found");
+
+            var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+            var (_, isFailure, status) = await _client.GetStatus(data.ExternalId);
+
+            if (isFailure)
+                return Result.Failure<PaymentStatuses>("Status checking failed");
+
+            if (payment.Status != status)
+            {
+                payment.Status = status;
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+                await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+            }
+            
+            return payment.Status;
+        }
+
+
         private static int ToNGeniusAmount(MoneyAmount moneyAmount) 
             => decimal.ToInt32(moneyAmount.Amount * (decimal)Math.Pow(10, moneyAmount.Currency.GetDecimalDigitsCount()));
 
@@ -153,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
+        private Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
             NGeniusBillingAddress billingAddress)
         {
             return new OrderRequest
@@ -166,7 +199,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 },
                 MerchantOrderReference = referenceCode,
                 BillingAddress = billingAddress,
-                EmailAddress = email
+                EmailAddress = email,
+                MerchantAttributes = new MerchantAttributes
+                {
+                    RedirectUrl = new Uri(_senderOptions.BaseUrl, $"/payments/callback?referenceCode={referenceCode}").ToString(),
+                    CancelUrl = new Uri(_senderOptions.BaseUrl, "/accommodation/booking").ToString(),
+                    CancelText = "Back to Booking Page"
+                }
             };
         }
         
@@ -200,5 +239,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IAgencyService _agencyService;
         private readonly IPaymentLinksStorage _storage;
+        private readonly SenderOptions _senderOptions;
     }
 }
