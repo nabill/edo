@@ -141,6 +141,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("accommodations/bookings/{referenceCode}/pay/refresh-status")]
         [ProducesResponseType(typeof(PaymentStatuses), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RefreshStatusInNGenius(string referenceCode)
         {
             return OkOrBadRequest(await _nGeniusPaymentService.RefreshStatus(referenceCode));
