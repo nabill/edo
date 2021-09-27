@@ -117,7 +117,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             Counters.SupplierRequestCounter
                 .WithLabels(step,
                     _supplier.ToString(),
-                    result.IsFailure ? result.Error.Detail : string.Empty,
                     result.IsFailure ? result.Error.Status.ToString() : string.Empty)
                 .Inc();
             

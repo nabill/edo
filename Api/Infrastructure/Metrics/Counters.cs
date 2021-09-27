@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Metrics
             "Supplier request counter",
             new CounterConfiguration
             {
-                LabelNames = new [] {"step", "supplier", "errorDetails", "errorCode"}
+                LabelNames = new [] {"step", "supplier", "errorCode"}
             });
         
         
