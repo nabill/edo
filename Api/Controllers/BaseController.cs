@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
         
+        
         protected IActionResult NoContentOrBadRequest<T, TProblemDetails>(Result<T, TProblemDetails> model)
         {
             var (_, isFailure, _, error) = model;
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
 
+        
         protected IActionResult OkOrBadRequest<T>(Result<T> model)
         {
             var (_, isFailure, response, error) = model;
@@ -33,6 +35,16 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
+        }
+        
+        
+        protected IActionResult OkOrBadRequest<T, TProblemDetails>(Result<T, TProblemDetails> model)
+        {
+            var (_, isFailure, result, error) = model;
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(result);
         }
         
         
