@@ -86,11 +86,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             async Task<Result<StatusResponse>> StorePaymentResult(PaymentStatuses status)
             {
+                var creditCardPaymentStatus = status == PaymentStatuses.Captured
+                    ? CreditCardPaymentStatuses.Success
+                    : CreditCardPaymentStatuses.Failed;
+                
                 await _storage.UpdatePaymentStatus(code, new PaymentResponse(string.Empty, 
-                    CreditCardPaymentStatuses.Created, 
+                    creditCardPaymentStatus, 
                     string.Empty));
                 
-                return new StatusResponse(status);
+                return new StatusResponse(creditCardPaymentStatus);
             }
         }
 

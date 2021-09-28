@@ -108,7 +108,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
             }
             
-            return new StatusResponse(payment.Status);
+            return new StatusResponse(payment.Status == PaymentStatuses.Authorized
+                ? CreditCardPaymentStatuses.Success
+                : CreditCardPaymentStatuses.Failed);
         }
 
 
