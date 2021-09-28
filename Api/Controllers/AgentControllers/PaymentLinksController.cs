@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="referenceCode">Booking reference code</param>
         /// <param name="code">Payment link code</param>
         [HttpPost("{code}/ngenius/pay/refresh-status")]
-        [ProducesResponseType(typeof(PaymentStatuses), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StatusResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshStatusInNGenius(string code)
