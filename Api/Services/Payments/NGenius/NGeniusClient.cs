@@ -225,6 +225,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 StateTypes.Await3Ds => PaymentStatuses.Secure3d,
                 StateTypes.Failed => PaymentStatuses.Failed,
                 StateTypes.Captured => PaymentStatuses.Captured,
+                StateTypes.Started => PaymentStatuses.Created,
+                StateTypes.Reversed => PaymentStatuses.Refunded,
+                // StateTypes.PartiallyCaptured not supported
                 _ => throw new NotSupportedException($"Payment status `{state}` not supported")
             };
         }
