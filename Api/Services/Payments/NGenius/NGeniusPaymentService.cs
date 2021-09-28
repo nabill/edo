@@ -84,20 +84,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<PaymentStatuses>> RefreshStatus(string referenceCode)
+        public async Task<Result<StatusResponse>> RefreshStatus(string referenceCode)
         {
             var payment = await _context.Payments
                 .OrderByDescending(p => p.Created)
                 .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
 
             if (payment is null)
-                return Result.Failure<PaymentStatuses>($"Payment for {referenceCode} not found");
+                return Result.Failure<StatusResponse>($"Payment for {referenceCode} not found");
 
             var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
             var (_, isFailure, status) = await _client.GetStatus(data.ExternalId);
 
             if (isFailure)
-                return Result.Failure<PaymentStatuses>("Status checking failed");
+                return Result.Failure<StatusResponse>("Status checking failed");
 
             if (payment.Status != status)
             {
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
             }
             
-            return payment.Status;
+            return new StatusResponse(payment.Status);
         }
 
 

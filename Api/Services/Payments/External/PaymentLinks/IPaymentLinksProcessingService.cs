@@ -19,6 +19,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
         Task<Result<string>> CalculateSignature(string code, string merchantReference, string fingerprint, string languageCode);
         
-        Task<Result<PaymentStatuses>> RefreshStatus(string code);
+        Task<Result<StatusResponse>> RefreshStatus(string code);
     }
 }

@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
         
         
-        public async Task<Result<PaymentStatuses>> RefreshStatus(string code)
+        public async Task<Result<StatusResponse>> RefreshStatus(string code)
         {
             return await GetLink(code)
                 .Bind(GetStatus)
@@ -84,13 +84,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            async Task<Result<PaymentStatuses>> StorePaymentResult(PaymentStatuses status)
+            async Task<Result<StatusResponse>> StorePaymentResult(PaymentStatuses status)
             {
                 await _storage.UpdatePaymentStatus(code, new PaymentResponse(string.Empty, 
                     CreditCardPaymentStatuses.Created, 
                     string.Empty));
                 
-                return status;
+                return new StatusResponse(status);
             }
         }
 
