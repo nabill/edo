@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<StatusResponse>($"Payment for {referenceCode} not found");
 
             var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-            var (_, isFailure, status) = await _client.GetStatus(data.ExternalId);
+            var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode);
 
             if (isFailure)
                 return Result.Failure<StatusResponse>("Status checking failed");
