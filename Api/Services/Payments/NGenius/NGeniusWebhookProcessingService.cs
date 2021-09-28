@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         public async Task ProcessWebHook(JsonDocument request)
         {
-            _logger.LogDebug($"NGenius webhook {request}");
+            _logger.LogDebug("NGenius webhook processing started");
             
             var eventType = request.RootElement.GetProperty("eventName").GetString();
             var paymentElement = request.RootElement.GetProperty("_embedded").GetProperty("payment")[0];

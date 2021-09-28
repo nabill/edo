@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         Task<Result<PaymentLink>> Register(PaymentLinkCreationRequest paymentLinkCreationData);
 
         Task<Result> UpdatePaymentStatus(string code, PaymentResponse paymentResponse);
+
+        Task<Result> SetExternalId(string code, string externalId);
     }
 }

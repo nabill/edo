@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
@@ -21,24 +20,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
-            INGeniusPaymentService nGeniusPaymentService,
             IPayfortResponseParser payfortResponseParser,
             IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
             IPaymentLinkNotificationService notificationService,
             IEntityLocker locker,
-            IAgentContextService agentContextService)
+            INGeniusClient nGeniusClient)
         {
             _payfortService = payfortService;
-            _nGeniusPaymentService = nGeniusPaymentService;
             _payfortResponseParser = payfortResponseParser;
             _storage = storage;
             _signatureService = signatureService;
             _notificationService = notificationService;
             _locker = locker;
             _payfortOptions = payfortOptions.Value;
-            _agentContextService = agentContextService;
+            _nGeniusClient = nGeniusClient;
         }
 
 
@@ -46,6 +43,55 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return GetLink(code)
                 .Bind(link => ProcessPay(link, code, token, ip, languageCode));
+        }
+        
+        
+        public async Task<Result<NGeniusPaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
+        {
+            var (_, isFailure, link, error) = await _storage.Get(code);
+            if (isFailure)
+                return Result.Failure<NGeniusPaymentResponse>(error);
+
+            return await _nGeniusClient.CreateOrder(orderType: OrderTypes.Sale,
+                    referenceCode: link.ReferenceCode,
+                    currency: link.Currency,
+                    price: link.Amount,
+                    email: request.EmailAddress,
+                    billingAddress: request.BillingAddress)
+                .Bind(SaveExternalId);
+
+
+            async Task<Result<NGeniusPaymentResponse>> SaveExternalId(NGeniusPaymentResponse response)
+            {
+                await _storage.SetExternalId(code, response.OrderReference);
+                return response;
+            }
+        }
+        
+        
+        public async Task<Result<StatusResponse>> RefreshStatus(string code)
+        {
+            return await GetLink(code)
+                .Bind(GetStatus)
+                .Bind(StorePaymentResult);
+            
+            // TODO: add sending confirmation
+
+
+            Task<Result<PaymentStatuses>> GetStatus(PaymentLink paymentLink)
+            {
+                return _nGeniusClient.GetStatus(paymentLink.ExternalId);
+            }
+
+
+            async Task<Result<StatusResponse>> StorePaymentResult(PaymentStatuses status)
+            {
+                await _storage.UpdatePaymentStatus(code, new PaymentResponse(string.Empty, 
+                    CreditCardPaymentStatuses.Created, 
+                    string.Empty));
+                
+                return new StatusResponse(status);
+            }
         }
 
 
@@ -226,11 +272,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IPaymentLinksStorage _storage;
         private readonly IEntityLocker _locker;
         private readonly PayfortOptions _payfortOptions;
-        private readonly INGeniusPaymentService _nGeniusPaymentService;
         private readonly IPayfortService _payfortService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
         private readonly IPaymentLinkNotificationService _notificationService;
-        private readonly IAgentContextService _agentContextService;
+        private readonly INGeniusClient _nGeniusClient;
     }
 }

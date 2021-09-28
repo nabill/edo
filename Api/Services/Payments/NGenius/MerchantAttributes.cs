@@ -5,5 +5,6 @@
         public string RedirectUrl { get; init; }
         public string CancelUrl { get; init; }
         public string CancelText { get; init; }
+        public bool SkipConfirmationPage { get; init; }
     }
 }
