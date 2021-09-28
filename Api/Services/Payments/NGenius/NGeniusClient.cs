@@ -195,7 +195,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         {
             var rootElement = document.RootElement;
             
-            return new NGeniusPaymentResponse(paymentId: GetStringValue(rootElement, "_id").Split(':').Last(),
+            return new NGeniusPaymentResponse(paymentId: ParsePaymentId(document),
                 orderReference: GetStringValue(rootElement, "reference"),
                 merchantOrderReference: GetStringValue(rootElement, "merchantOrderReference"),
                 paymentLink: ParsePaymentLink(document));
@@ -209,6 +209,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 .GetProperty("payment")
                 .GetProperty("href")
                 .GetString();
+        }
+        
+        
+        private static string ParsePaymentId(in JsonDocument document)
+        {
+            return document.RootElement.GetProperty("_embedded")
+                .GetProperty("payment")[0]
+                .GetProperty("_id")
+                .GetString()?
+                .Split(':')
+                .Last();
         }
 
 
