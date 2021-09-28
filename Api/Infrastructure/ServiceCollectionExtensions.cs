@@ -497,7 +497,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.Outlets = new Dictionary<Currencies, string>
                 {
                     {Currencies.USD, nGeniusOptions["usd"]},
-                    {Currencies.AED, nGeniusOptions["ead"]}
+                    {Currencies.AED, nGeniusOptions["aed"]}
                 };
             });
 
