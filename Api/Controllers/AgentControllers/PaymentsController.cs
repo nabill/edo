@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>
         [HttpPost("accommodations/bookings/{referenceCode}/pay/refresh-status")]
-        [ProducesResponseType(typeof(PaymentStatuses), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StatusResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
