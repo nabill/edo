@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 }
             };
             
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders";
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders";
             var response = await Send(HttpMethod.Post, endpoint, order);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         public async Task<Result<string>> CaptureMoney(string paymentId, string orderReference, MoneyAmount amount)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures";
+            var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures";
             var response = await Send(HttpMethod.Post, endpoint, new { Amount = new NGeniusAmount
             {
                 CurrencyCode = amount.Currency.ToString(),
@@ -85,9 +85,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result> VoidMoney(string paymentId, string orderReference)
+        public async Task<Result> VoidMoney(string paymentId, string orderReference, Currencies currency)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/cancel";
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders/{orderReference}/payments/{paymentId}/cancel";
             var response = await Send(HttpMethod.Put, endpoint);
             
             await using var stream = await response.Content.ReadAsStreamAsync();
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         public async Task<Result> RefundMoney(string paymentId, string orderReference, string captureId, MoneyAmount amount)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
+            var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
             var response = await Send(HttpMethod.Post, endpoint, new { Amount = new NGeniusAmount
             {
                 CurrencyCode = amount.Currency.ToString(),
@@ -117,9 +117,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<PaymentStatuses>> GetStatus(string orderReference)
+        public async Task<Result<PaymentStatuses>> GetStatus(string orderReference, Currencies currency)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}";
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders/{orderReference}";
             var response = await Send(HttpMethod.Get, endpoint);
             
             await using var stream = await response.Content.ReadAsStreamAsync();

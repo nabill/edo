@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -65,9 +66,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference)
+        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency)
         {
-            var result = await _client.VoidMoney(paymentId, orderReference);
+            var result = await _client.VoidMoney(paymentId, orderReference, currency);
             return result.IsFailure
                 ? Result.Failure<CreditCardVoidResult>(result.Error)
                 : new CreditCardVoidResult(paymentId, string.Empty, orderReference);
@@ -94,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 return Result.Failure<StatusResponse>($"Payment for {referenceCode} not found");
 
             var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-            var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode);
+            var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode, payment.Currency);
 
             if (isFailure)
                 return Result.Failure<StatusResponse>("Status checking failed");
@@ -128,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var payment = new Edo.Data.Payments.Payment
             {
                 Amount = price.Amount,
-                Currency = price.Currency.ToString(),
+                Currency = price.Currency,
                 AccountNumber = string.Empty,
                 Created = now,
                 Modified = now,

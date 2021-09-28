@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Task<Result<PaymentStatuses>> GetStatus(PaymentLink paymentLink)
             {
-                return _nGeniusClient.GetStatus(paymentLink.ExternalId);
+                return _nGeniusClient.GetStatus(paymentLink.ExternalId, paymentLink.Currency);
             }
 
 
