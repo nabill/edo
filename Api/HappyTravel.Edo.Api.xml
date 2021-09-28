@@ -1601,9 +1601,9 @@
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.CheckStatusInNGenius(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.RefreshStatusInNGenius(System.String)">
             <summary>
-                Checks payment status in NGenius
+                Refreshes payment status in NGenius
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>

@@ -22,8 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            Suppliers supplier, List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline supplierDeadline)
+        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Suppliers supplier,
+            List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline agentDeadline, Deadline supplierDeadline)
         {
             var key = BuildKey(searchId, htId, roomContractSetId);
             var result = SupplierData.Create(supplier, availability);
@@ -57,6 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 htId: htId,
                 availablePaymentTypes: availablePaymentTypes,
                 isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
+                agentDeadline: agentDeadline.ToDeadline(),
                 supplierDeadline: supplierDeadline.ToDeadline(),
                 isCreditCardRequired: roomSetAvailability.IsCreditCardNeeded);
             
