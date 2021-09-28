@@ -50,7 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 {
                     RedirectUrl = new Uri(_senderOptions.BaseUrl, $"/payments/callback?referenceCode={referenceCode}").ToString(),
                     CancelUrl = new Uri(_senderOptions.BaseUrl, "/accommodation/booking").ToString(),
-                    CancelText = "Back to Booking Page"
+                    CancelText = "Back to Booking Page",
+                    SkipConfirmationPage = true
                 }
             };
             
