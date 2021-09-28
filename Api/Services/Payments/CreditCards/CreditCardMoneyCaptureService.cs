@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return paymentProcessor switch
                 {
                     PaymentProcessors.Payfort => _payfortService.Void(request) ,
-                    PaymentProcessors.NGenius => _nGeniusPaymentService.Void(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode),
+                    PaymentProcessors.NGenius => _nGeniusPaymentService.Void(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode, moneyAmount.Currency),
                     _ => throw new NotSupportedException($"Payment processor {nameof(paymentProcessor)} not supported")
                 };
             }

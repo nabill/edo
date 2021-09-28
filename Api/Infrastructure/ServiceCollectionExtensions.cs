@@ -494,7 +494,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.Token = nGeniusOptions["token"];
                 options.Endpoint = nGeniusOptions["endpoint"];
-                options.OutletId = nGeniusOptions["outletId"];
+                options.Outlets = new Dictionary<Currencies, string>
+                {
+                    {Currencies.USD, nGeniusOptions["usd"]},
+                    {Currencies.AED, nGeniusOptions["ead"]}
+                };
             });
 
             services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })

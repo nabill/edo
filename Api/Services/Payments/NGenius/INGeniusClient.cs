@@ -13,10 +13,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         Task<Result<string>> CaptureMoney(string paymentId, string orderReference, MoneyAmount amount);
 
-        Task<Result> VoidMoney(string paymentId, string orderReference);
+        Task<Result> VoidMoney(string paymentId, string orderReference, Currencies currency);
 
         Task<Result> RefundMoney(string paymentId, string orderReference, string captureId, MoneyAmount amount);
 
-        Task<Result<PaymentStatuses>> GetStatus(string orderReference);
+        Task<Result<PaymentStatuses>> GetStatus(string orderReference, Currencies currency);
     }
 }
