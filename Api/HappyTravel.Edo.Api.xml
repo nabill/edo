@@ -3579,6 +3579,16 @@
                 Currency of policy. Needed for proper currency applying.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeType">
+            <summary>
+                Type of destination markup scope
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
+            <summary>
+                Id of scope for destination. Could be Locality_XXXX, City_XXXX, Country_XXXX
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
             <summary>
                 Account balance info
