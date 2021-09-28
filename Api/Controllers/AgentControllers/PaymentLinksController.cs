@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -12,6 +14,7 @@ using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -199,11 +202,26 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PayViaNGenius([Required] string code, [FromBody] NGeniusPayByLinkRequest request)
         {
-            var (isSuccess, _, paymentResponse, error) = await _nGeniusPaymentService.Pay(code, request, ClientIp, LanguageCode);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code, request, ClientIp, LanguageCode);
 
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Refreshes payment status in NGenius
+        /// </summary>
+        /// <param name="referenceCode">Booking reference code</param>
+        /// <param name="code">Payment link code</param>
+        [HttpPost("{code}/ngenius/pay/refresh-status")]
+        [ProducesResponseType(typeof(PaymentStatuses), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshStatusInNGenius(string code)
+        {
+            return OkOrBadRequest(await _paymentLinksProcessingService.RefreshStatus(code));
         }
 
 
