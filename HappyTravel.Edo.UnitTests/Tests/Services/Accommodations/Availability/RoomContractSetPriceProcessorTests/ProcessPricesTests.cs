@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         
 
         private RoomContractSet CreateRoomContractSet(Rate contractSetTotalRate, List<RoomContract> roomContracts)
-            => new(default, contractSetTotalRate, default, roomContracts, default, default);
+            => new(default, contractSetTotalRate, default, roomContracts, default, default, default, default);
         
 
         private RoomContract CreateRoomContract(List<DailyRate> roomDailyRates, Rate roomTotalRate)
