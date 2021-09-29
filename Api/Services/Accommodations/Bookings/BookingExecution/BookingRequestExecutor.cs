@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             
             var activationDate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
                 ? _dateTimeProvider.UtcNow()
-                : availabilityInfo.CheckOutDate;
+                : availabilityInfo.CheckInDate;
 
             var dueDate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
                 ? availabilityInfo.CheckOutDate

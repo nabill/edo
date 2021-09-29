@@ -44,6 +44,7 @@ ingress:
     ingress.kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ingress.allow-http: "false"
     kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
   hosts:
     - host: edo-dev.happytravel.com
       paths:
@@ -77,8 +78,6 @@ affinity:
       topologyKey: "kubernetes.io/hostname"
 metrics:
   enabled: true
-  serviceMonitor:
-    enabled: false
   podMonitor:
     enabled: true
 env:

@@ -16,5 +16,6 @@ namespace HappyTravel.Edo.Data.PaymentLinks
         public DateTime Created { get; set; }
         public DateTime? LastPaymentDate { get; set; }
         public string LastPaymentResponse { get; set; }
+        public string ExternalId { get; set; }
     }
 }

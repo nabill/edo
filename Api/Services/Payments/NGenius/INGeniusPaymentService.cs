@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
@@ -11,12 +12,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     {
         Task<Result<NGeniusPaymentResponse>> Authorize(string referenceCode, string ipAddress, AgentContext agent);
 
-        Task<Result<NGeniusPaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode);
-
         Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount);
 
-        Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference);
+        Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency);
         
         Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount);
+
+        Task<Result<StatusResponse>> RefreshStatus(string referenceCode);
     }
 }

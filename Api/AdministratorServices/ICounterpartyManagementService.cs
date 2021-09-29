@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest counterparty, int counterpartyId);
 
-        Task<Result> DeactivateCounterparty(int counterpartyId, string reason);
+        Task<Result> DeactivateCounterparty(int counterpartyId, string reason, MasterAgentContext masterAgentContext = default);
 
         Task<Result> ActivateCounterparty(int counterpartyId, string reason);
     }

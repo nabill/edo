@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 {
                     Amount = amount.Amount,
                     AccountNumber = account.Id.ToString(),
-                    Currency = amount.Currency.ToString(),
+                    Currency = amount.Currency,
                     Created = now,
                     Modified = now,
                     Status = PaymentStatuses.Captured,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -583,7 +584,7 @@ namespace HappyTravel.Edo.Data
                     payment.Property(p => p.Data).HasColumnType("jsonb").IsRequired();
                     payment.Property(p => p.AccountNumber).IsRequired();
                     payment.Property(p => p.Amount).IsRequired();
-                    payment.Property(p => p.Currency).IsRequired();
+                    payment.Property(p => p.Currency).IsRequired().HasConversion<string>();
                     payment.Property(p => p.Created).IsRequired();
                     payment.Property(p => p.Status).IsRequired();
                 });

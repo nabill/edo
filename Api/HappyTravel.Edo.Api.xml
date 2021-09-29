@@ -456,6 +456,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
+            <summary>
+                Gets booking status changes history
+            </summary>
+            <param name="bookingId">Booking ID for retrieving status change history</param>
+            <returns>List of booking status change events</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -687,6 +694,31 @@
                 Disable invitation.
             </summary>
             <param name="codeHash">Invitation code hash.</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Combine(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.CombineAccommodationsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Combines two accommodations by htAccommodationId
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.DeactivateBecauseOfInvalidMatching(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deactivates accommodations by htId with the reason is invalid mapping 
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.RemoveSupplier(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.RemoveSupplierRequest,System.Threading.CancellationToken)">
+            <summary>
+            Removes a supplier from an accommodation
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
@@ -1515,6 +1547,13 @@
             <param name="token">Payment token.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.RefreshStatusInNGenius(System.String)">
+            <summary>
+                Refreshes payment status in NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <param name="code">Payment link code</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processed payment callback. Typically is used with 3D Secure payment flow.
@@ -1566,6 +1605,12 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayByNGenius(System.String)">
             <summary>
                 Pays by NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.RefreshStatusInNGenius(System.String)">
+            <summary>
+                Refreshes payment status in NGenius
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>

@@ -1,4 +1,4 @@
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -10,21 +10,20 @@ using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusPaymentService : INGeniusPaymentService
     {
-        public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, NGeniusClient client, 
-            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService
-            , IPaymentLinksStorage storage)
+        public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, INGeniusClient client, 
+            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -32,7 +31,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _client = client;
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _agencyService = agencyService;
-            _storage = storage;
         }
 
 
@@ -48,45 +46,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             var billingAddress = GetBillingAddress(agent, agency.Value);
 
-            return await CreateOrderRequest(orderType: OrderTypes.Auth,
+            return await _client.CreateOrder(orderType: OrderTypes.Auth,
                     referenceCode: booking.ReferenceCode,
                     currency: booking.Currency,
                     price: booking.TotalPrice,
                     email: agent.Email,
                     billingAddress: billingAddress)
-                .Bind(r => _client.CreateOrder(r))
                 .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
-        }
-        
-        
-        public async Task<Result<NGeniusPaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
-        {
-            var link = await _storage.Get(code);
-            if (link.IsFailure)
-                return Result.Failure<NGeniusPaymentResponse>(link.Error);
-            
-            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(link.Value.ReferenceCode);
-            if (isFailure)
-                return Result.Failure<NGeniusPaymentResponse>(error);
-
-            return await CreateOrderRequest(orderType: OrderTypes.Sale, 
-                    referenceCode: booking.ReferenceCode, 
-                    currency: booking.Currency, 
-                    price: booking.TotalPrice, 
-                    email: request.EmailAddress, 
-                    billingAddress: request.BillingAddress)
-                .Bind(r => _client.CreateOrder(r))
-                .Bind(r => StorePaymentResults(ip, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
         }
 
 
         public async Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount)
         {
-            var result = await _client.CaptureMoney(paymentId, orderReference, new NGeniusAmount
-            {
-                CurrencyCode = amount.Currency.ToString(),
-                Value = ToNGeniusAmount(amount)
-            });
+            var result = await _client.CaptureMoney(paymentId, orderReference, amount);
 
             return result.IsFailure 
                 ? Result.Failure<CreditCardCaptureResult>(result.Error) 
@@ -94,9 +66,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference)
+        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency)
         {
-            var result = await _client.VoidMoney(paymentId, orderReference);
+            var result = await _client.VoidMoney(paymentId, orderReference, currency);
             return result.IsFailure
                 ? Result.Failure<CreditCardVoidResult>(result.Error)
                 : new CreditCardVoidResult(paymentId, string.Empty, orderReference);
@@ -105,11 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         public async Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount)
         {
-            var result = await _client.RefundMoney(paymentId, orderReference, captureId, new NGeniusAmount
-            {
-                CurrencyCode = amount.Currency.ToString(),
-                Value = ToNGeniusAmount(amount)
-            });
+            var result = await _client.RefundMoney(paymentId, orderReference, captureId, amount);
             
             return result.IsFailure
                 ? Result.Failure<CreditCardRefundResult>(result.Error)
@@ -117,8 +85,34 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        private static int ToNGeniusAmount(MoneyAmount moneyAmount) 
-            => decimal.ToInt32(moneyAmount.Amount * (decimal)Math.Pow(10, moneyAmount.Currency.GetDecimalDigitsCount()));
+        public async Task<Result<StatusResponse>> RefreshStatus(string referenceCode)
+        {
+            var payment = await _context.Payments
+                .OrderByDescending(p => p.Created)
+                .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
+
+            if (payment is null)
+                return Result.Failure<StatusResponse>($"Payment for {referenceCode} not found");
+
+            var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+            var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode, payment.Currency);
+
+            if (isFailure)
+                return Result.Failure<StatusResponse>("Status checking failed");
+
+            if (payment.Status != status)
+            {
+                payment.Status = status;
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+                await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+            }
+            
+            return new StatusResponse(payment.Status == PaymentStatuses.Authorized
+                ? CreditCardPaymentStatuses.Success
+                : CreditCardPaymentStatuses.Failed);
+        }
 
 
         private async Task<Edo.Data.Payments.Payment> CreatePayment(string ipAddress, MoneyAmount price, int? cardId, NGeniusPaymentResponse paymentResult)
@@ -135,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var payment = new Edo.Data.Payments.Payment
             {
                 Amount = price.Amount,
-                Currency = price.Currency.ToString(),
+                Currency = price.Currency,
                 AccountNumber = string.Empty,
                 Created = now,
                 Modified = now,
@@ -150,24 +144,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
             return payment;
-        }
-
-
-        private static Result<OrderRequest> CreateOrderRequest(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
-            NGeniusBillingAddress billingAddress)
-        {
-            return new OrderRequest
-            {
-                Action = orderType,
-                Amount = new NGeniusAmount
-                {
-                    CurrencyCode = currency.ToString(),
-                    Value = ToNGeniusAmount(price.ToMoneyAmount(currency))
-                },
-                MerchantOrderReference = referenceCode,
-                BillingAddress = billingAddress,
-                EmailAddress = email
-            };
         }
         
         
@@ -196,9 +172,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordManager _bookingRecordManager;
-        private readonly NGeniusClient _client;
+        private readonly INGeniusClient _client;
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IAgencyService _agencyService;
-        private readonly IPaymentLinksStorage _storage;
     }
 }
