@@ -20,6 +20,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.Errors;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
@@ -74,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     .ToList();
 
                 var creditCardInfo = creditCard is not null
-                    ? new CreditCard(creditCard.Number, creditCard.ExpiryDate, creditCard.HolderName, creditCard.SecurityCode)
+                    ? new CreditCard(creditCard.Number, creditCard.ExpiryDate, creditCard.HolderName, creditCard.SecurityCode, CreditCardTypes.AmericanExpress)
                     : (CreditCard?)null;
 
                 var innerRequest = new BookingRequest(availabilityId: availabilityId,
