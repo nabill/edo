@@ -2071,6 +2071,11 @@
             Direct contract flag
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsPackageRate">
+            <summary>
+            Indicates that rates must be sold as a package
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
             <summary>
                 The availability ID.
