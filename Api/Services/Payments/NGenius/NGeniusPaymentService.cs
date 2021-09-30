@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -12,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
@@ -22,8 +24,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusPaymentService : INGeniusPaymentService
     {
-        public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, INGeniusClient client, 
-            IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService)
+        public NGeniusPaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingRecordManager bookingRecordManager, 
+            INGeniusClient client, IBookingPaymentCallbackService bookingPaymentCallbackService, IAgencyService agencyService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -40,82 +42,88 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
-            var agency = await _agencyService.Get(agent);
-            if (agency.IsFailure)
-                return Result.Failure<NGeniusPaymentResponse>(agency.Error);
+            return await _agencyService.Get(agent)
+                .Bind(CreateOrder)
+                .Bind(StorePayment);
 
-            var billingAddress = GetBillingAddress(agent, agency.Value);
 
-            return await _client.CreateOrder(orderType: OrderTypes.Auth,
+            Task<Result<NGeniusPaymentResponse>> CreateOrder(SlimAgencyInfo agency)
+                => _client.CreateOrder(orderType: OrderTypes.Auth,
                     referenceCode: booking.ReferenceCode,
                     currency: booking.Currency,
                     price: booking.TotalPrice,
                     email: agent.Email,
-                    billingAddress: billingAddress)
-                .Bind(r => StorePaymentResults(ipAddress, booking.TotalPrice.ToMoneyAmount(booking.Currency), null, r));
+                    billingAddress: (agent, agency).ToBillingAddress());
+
+
+            Task<Result<NGeniusPaymentResponse>> StorePayment(NGeniusPaymentResponse response)
+                => StorePaymentResults(ipAddress: ipAddress, 
+                    price: booking.TotalPrice.ToMoneyAmount(booking.Currency), 
+                    paymentResult: response);
         }
 
 
-        public async Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount)
+        public Task<Result<CreditCardCaptureResult>> Capture(string paymentId, string orderReference, MoneyAmount amount)
+            => _client.CaptureMoney(paymentId, orderReference, amount);
+
+
+        public Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency) 
+            => _client.VoidMoney(paymentId, orderReference, currency);
+
+
+        public Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount) 
+            => _client.RefundMoney(paymentId, orderReference, captureId, amount);
+
+
+        public Task<Result<StatusResponse>> RefreshStatus(string referenceCode)
         {
-            var result = await _client.CaptureMoney(paymentId, orderReference, amount);
-
-            return result.IsFailure 
-                ? Result.Failure<CreditCardCaptureResult>(result.Error) 
-                : new CreditCardCaptureResult(paymentId, string.Empty, orderReference, result.Value);
-        }
+            return GetPayment()
+                .Bind(GetStatus)
+                .CheckIf(x => x.Item1.Status != x.Item2, SavePayment)
+                .Map(MapToResponse);
 
 
-        public async Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency)
-        {
-            var result = await _client.VoidMoney(paymentId, orderReference, currency);
-            return result.IsFailure
-                ? Result.Failure<CreditCardVoidResult>(result.Error)
-                : new CreditCardVoidResult(paymentId, string.Empty, orderReference);
-        }
-
-
-        public async Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount)
-        {
-            var result = await _client.RefundMoney(paymentId, orderReference, captureId, amount);
-            
-            return result.IsFailure
-                ? Result.Failure<CreditCardRefundResult>(result.Error)
-                : new CreditCardRefundResult(paymentId, string.Empty, orderReference);
-        }
-
-
-        public async Task<Result<StatusResponse>> RefreshStatus(string referenceCode)
-        {
-            var payment = await _context.Payments
-                .OrderByDescending(p => p.Created)
-                .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
-
-            if (payment is null)
-                return Result.Failure<StatusResponse>($"Payment for {referenceCode} not found");
-
-            var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-            var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode, payment.Currency);
-
-            if (isFailure)
-                return Result.Failure<StatusResponse>("Status checking failed");
-
-            if (payment.Status != status)
+            async Task<Result<Payment>> GetPayment()
             {
+                var payment = await _context.Payments
+                    .OrderByDescending(p => p.Created)
+                    .FirstOrDefaultAsync(p => p.PaymentProcessor == PaymentProcessors.NGenius && p.ReferenceCode == referenceCode);
+
+                return payment ?? Result.Failure<Payment>($"Payment for {referenceCode} not found");
+            }
+
+
+            async Task<Result<(Payment, PaymentStatuses)>> GetStatus(Payment payment)
+            {
+                var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode, payment.Currency);
+
+                return isFailure 
+                    ? Result.Failure<(Payment, PaymentStatuses)>("Status checking failed") 
+                    : (payment, status);
+            }
+
+
+            async Task<Result> SavePayment((Payment Payment, PaymentStatuses Status) tuple)
+            {
+                var (payment, status) = tuple;
                 payment.Status = status;
                 payment.Modified = _dateTimeProvider.UtcNow();
                 _context.Update(payment);
                 await _context.SaveChangesAsync();
                 await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
+                return Result.Success();
             }
-            
-            return new StatusResponse(payment.Status == PaymentStatuses.Authorized
-                ? CreditCardPaymentStatuses.Success
-                : CreditCardPaymentStatuses.Failed);
+
+
+            StatusResponse MapToResponse((Payment Payment, PaymentStatuses Status) tuple) 
+                => new (tuple.Payment.Status == PaymentStatuses.Authorized
+                    ? CreditCardPaymentStatuses.Success
+                    : CreditCardPaymentStatuses.Failed);
         }
 
 
-        private async Task<Edo.Data.Payments.Payment> CreatePayment(string ipAddress, MoneyAmount price, int? cardId, NGeniusPaymentResponse paymentResult)
+        private async Task<Result<Payment>> CreatePayment(string ipAddress, MoneyAmount price, NGeniusPaymentResponse paymentResult)
         {
             var now = _dateTimeProvider.UtcNow();
 
@@ -126,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 expirationDate: string.Empty,
                 internalReferenceCode: paymentResult.OrderReference);
 
-            var payment = new Edo.Data.Payments.Payment
+            var payment = new Payment
             {
                 Amount = price.Amount,
                 Currency = price.Currency,
@@ -135,7 +143,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 Modified = now,
                 Status = PaymentStatuses.Created,
                 Data = JsonConvert.SerializeObject(info),
-                AccountId = cardId,
                 PaymentMethod = PaymentTypes.CreditCard,
                 PaymentProcessor = PaymentProcessors.NGenius,
                 ReferenceCode = paymentResult.MerchantOrderReference
@@ -147,28 +154,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
         
         
-        private async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(string ipAddress, MoneyAmount price, int? cardId, NGeniusPaymentResponse paymentResult)
-        {
-            var payment = await CreatePayment(ipAddress, price, cardId, paymentResult);
-            var (_, isFailure, error) = await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
-
-            return isFailure
-                ? Result.Failure<NGeniusPaymentResponse>(error)
-                : Result.Success(paymentResult);
-        }
+        private async Task<Result<NGeniusPaymentResponse>> StorePaymentResults(string ipAddress, MoneyAmount price, 
+            NGeniusPaymentResponse paymentResult) 
+            => await CreatePayment(ipAddress, price, paymentResult)
+                .Bind(p => _bookingPaymentCallbackService.ProcessPaymentChanges(p))
+                .Map(() => paymentResult);
 
 
-        private static NGeniusBillingAddress GetBillingAddress(AgentContext agent, SlimAgencyInfo agency)
-            => new ()
-            {
-                FirstName = agent.FirstName,
-                LastName = agent.LastName,
-                Address1 = agency.Address,
-                City = agency.City,
-                CountryCode = agency.CountryCode
-            };
-        
-        
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordManager _bookingRecordManager;
