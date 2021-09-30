@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
             var request = new HttpRequestMessage(HttpMethod.Post, "identity/auth/access-token");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.ApiKey);
             var response = await client.SendAsync(request);
 
             response.EnsureSuccessStatusCode();

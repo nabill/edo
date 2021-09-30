@@ -492,8 +492,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
             services.Configure<NGeniusOptions>(options =>
             {
-                options.Token = nGeniusOptions["token"];
-                options.Endpoint = nGeniusOptions["endpoint"];
+                options.ApiKey = nGeniusOptions["apiKey"];
+                options.Host = nGeniusOptions["host"];
                 options.Outlets = new Dictionary<Currencies, string>
                 {
                     {Currencies.USD, nGeniusOptions["usd"]},
