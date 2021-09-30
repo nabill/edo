@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -36,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
         
         
-        public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode)
+        public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
         {
             if (!htIds.Any())
                 return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Could not get mapping for an empty ids list");
@@ -45,20 +46,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             try
             {
                 var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
-                using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}");
+                using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(_options);
+                    return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(_options, cancellationToken);
                 
                 ProblemDetails error;
 
                 try
                 {
-                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options);
+                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken);
                 }
                 catch (JsonException)
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
+                    var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
                     _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
                     error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
                 }
@@ -79,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
         
         
-        public async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode)
+        public async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
         {
             if (htIds.Any())
             {
@@ -87,11 +88,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 try
                 {
                     var requestContent = new StringContent(JsonSerializer.Serialize(htIds), Encoding.UTF8, "application/json");
-                    using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent);
+                    using var response = await client.PostAsync("api/1.0/accommodations-list", requestContent, cancellationToken);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(_options);
+                        var results = await response.Content.ReadFromJsonAsync<List<SlimAccommodation>>(_options, cancellationToken);
                         if (results is null)
                         {
                             _logger.LogError("Request for {HtIds} returned null", htIds);
@@ -107,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     }
                     else
                     {
-                        _logger.LogMapperClientErrorResponse(await response.Content.ReadAsStringAsync(), (int)response.StatusCode, htIds.ToArray());
+                        _logger.LogMapperClientErrorResponse(await response.Content.ReadAsStringAsync(cancellationToken), (int)response.StatusCode, htIds.ToArray());
                     }
                         
                 }
@@ -121,17 +122,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default)
         {
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}");
+                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options);
+                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options, cancellationToken);
                 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<Accommodation, ProblemDetails>(error);
@@ -144,17 +145,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
         
         
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode, CancellationToken cancellationToken = default)
         {
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}");
+                using var response = await client.GetAsync($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options);
+                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options, cancellationToken);
                 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<Accommodation, ProblemDetails>(error);
@@ -167,17 +168,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId)
+        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default)
         {
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}/email-addresses");
+                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}/email-addresses", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<string>>(_options);
+                    return await response.Content.ReadFromJsonAsync<List<string>>(_options, cancellationToken);
 
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options) ??
+                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
                     ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
                 return Result.Failure<List<string>, ProblemDetails>(error);
@@ -190,18 +191,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
         
         
-        public async Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings)
+        public async Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings, CancellationToken cancellationToken = default)
         {
             using var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
                 var ratingsQuery = string.Join("&", ratings.Select(r => $"ratings={r}"));
-                using var response = await client.PostAsJsonAsync($"api/1.0/accommodations/filtered-by-rating?{ratingsQuery}", htIds);
+                using var response = await client.PostAsJsonAsync($"api/1.0/accommodations/filtered-by-rating?{ratingsQuery}", htIds, cancellationToken);
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<string>>();
+                    return await response.Content.ReadFromJsonAsync<List<string>>(cancellationToken: cancellationToken);
 
-                _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, await response.Content.ReadAsStringAsync());
+                _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, await response.Content.ReadAsStringAsync(cancellationToken));
                 return new List<string>(0);
             }
             catch (Exception ex)

@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var rows = await _availabilityStorage.Collection()
                 .Where(r => r.SearchId == searchId && suppliers.Contains(r.Supplier))
-                .Select(r => new {r.Id, r.HtId, r.MinPrice})
+                .Select(r => new {r.Id, r.HtId, r.Created})
                 .ToListAsync();
 
             var htIds = new List<string>();
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             foreach (var group in rows.GroupBy(r => r.HtId))
             {
                 htIds.Add(group.Key);
-                ids.Add(group.OrderBy(g => g.MinPrice).First().Id);
+                ids.Add(group.OrderBy(g => g.Created).First().Id);
             }
             
             await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);

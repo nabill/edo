@@ -171,7 +171,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
                     responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedSupplierPrice, responseWithDeadline.OriginalSupplierPrice);
 
-                var deadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.RoomContracts);
+                var agentDeadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.RoomContracts);
+                var supplierDeadline = DeadlineMerger.CalculateMergedDeadline(connectorEvaluationResult.Value.Value.RoomContractSet.RoomContracts);
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
                     roomContractSetId: finalRoomContractSet.Id, 
@@ -180,7 +181,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     availablePaymentTypes: paymentTypes, 
                     htId: result.htId,
                     accommodation: slimAccommodation,
-                    supplierDeadline: deadline);
+                    agentDeadline: agentDeadline,
+                    supplierDeadline: supplierDeadline);
             }
 
 
