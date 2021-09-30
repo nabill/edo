@@ -85,7 +85,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 default,
                 roomContracts,
                 new List<string>(),
-                false);
+                false,
+                isPackageRate: default,
+                isAdvancePurchaseRate: default);
         }
 
 
