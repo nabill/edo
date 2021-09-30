@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             {
                 Amount = paymentResult.Amount,
                 AccountNumber = paymentResult.CardNumber,
-                Currency = moneyAmount.Currency.ToString(),
+                Currency = moneyAmount.Currency,
                 Created = now,
                 Modified = now,
                 Status = paymentResult.Status.ToPaymentStatus(),
@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 var (_, _, serviceBuyer, _) = await paymentCallbackService.GetServiceBuyer(payment.ReferenceCode);
                 
                 var (_, isProcessFailure, processResult, processError) = await _moneyAuthorizationService.ProcessPaymentResponse(paymentResponse,
-                    Enum.Parse<Currencies>(payment.Currency),
+                    payment.Currency,
                     serviceBuyer.AgentId);
                 
                 if (isProcessFailure)
@@ -341,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     paymentInfo,
                     payment.PaymentProcessor,
                     payment.AccountNumber,
-                    Enum.Parse<Currencies>(payment.Currency),
+                    payment.Currency,
                     apiCaller,
                     buyerInfo.AgentId);
             }
@@ -386,7 +386,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     info,
                     payment.PaymentProcessor,
                     payment.AccountNumber,
-                    new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
+                    new MoneyAmount(payment.Amount, payment.Currency),
                     payment.ReferenceCode,
                     apiCaller,
                     buyerInfo.AgentId);

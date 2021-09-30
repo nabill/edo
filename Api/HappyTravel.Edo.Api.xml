@@ -720,6 +720,14 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Get(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns mapper's accommodation details
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
                 Gets the notification history of the current administrator
@@ -1547,6 +1555,13 @@
             <param name="token">Payment token.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.RefreshStatusInNGenius(System.String)">
+            <summary>
+                Refreshes payment status in NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <param name="code">Payment link code</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processed payment callback. Typically is used with 3D Secure payment flow.
@@ -1601,9 +1616,9 @@
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.CheckStatusInNGenius(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.RefreshStatusInNGenius(System.String)">
             <summary>
-                Checks payment status in NGenius
+                Refreshes payment status in NGenius
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>

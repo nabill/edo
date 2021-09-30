@@ -494,7 +494,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.Token = nGeniusOptions["token"];
                 options.Endpoint = nGeniusOptions["endpoint"];
-                options.OutletId = nGeniusOptions["outletId"];
+                options.Outlets = new Dictionary<Currencies, string>
+                {
+                    {Currencies.USD, nGeniusOptions["usd"]},
+                    {Currencies.AED, nGeniusOptions["aed"]}
+                };
             });
 
             services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
@@ -771,7 +775,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
-            services.AddTransient<NGeniusClient>();
+            services.AddTransient<INGeniusClient, NGeniusClient>();
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
             services.AddTransient<NGeniusWebhookProcessingService>();
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
