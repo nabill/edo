@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var messages = new string[count];
 
             for (var i = 0; i < count; i++)
-                messages[i] = GetStringValue(element[i], "localizedMessage");
+                messages[i] = GetStringValue(element[i], "message");
 
             return string.Join(';', messages);
         }
