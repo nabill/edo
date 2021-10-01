@@ -6,7 +6,7 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public interface IPaymentService
+    public interface ICreditCardPaymentManagementService
     {
         Task<Result<Payment>> Create(string paymentId, string paymentOrderReference, string bookingReferenceCode, MoneyAmount price, 
             string ipAddress);

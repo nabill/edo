@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusPaymentService : INGeniusPaymentService
     {
         public NGeniusPaymentService(IBookingRecordManager bookingRecordManager, 
-            INGeniusClient client, IAgencyService agencyService, IPaymentService paymentService)
+            INGeniusClient client, IAgencyService agencyService, ICreditCardPaymentManagementService paymentService)
         {
             _bookingRecordManager = bookingRecordManager;
             _client = client;
@@ -112,6 +112,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly INGeniusClient _client;
         private readonly IAgencyService _agencyService;
-        private readonly IPaymentService _paymentService;
+        private readonly ICreditCardPaymentManagementService _paymentService;
     }
 }

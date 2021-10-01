@@ -13,9 +13,9 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public class PaymentService : IPaymentService
+    public class CreditCardPaymentManagementService : ICreditCardPaymentManagementService
     {
-        public PaymentService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingPaymentCallbackService bookingPaymentCallbackService)
+        public CreditCardPaymentManagementService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingPaymentCallbackService bookingPaymentCallbackService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;

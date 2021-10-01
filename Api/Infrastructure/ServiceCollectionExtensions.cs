@@ -778,7 +778,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<INGeniusClient, NGeniusClient>();
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
             services.AddTransient<NGeniusWebhookProcessingService>();
-            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<ICreditCardPaymentManagementService, CreditCardPaymentManagementService>();
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
 
