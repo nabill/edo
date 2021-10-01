@@ -2,7 +2,7 @@
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
 
-namespace HappyTravel.Edo.Api.Extensions
+namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public static class MoneyAmountExtensions
     {

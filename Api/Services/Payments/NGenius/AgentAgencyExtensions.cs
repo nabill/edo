@@ -2,7 +2,7 @@
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 
-namespace HappyTravel.Edo.Api.Extensions
+namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public static class AgentAgencyExtensions
     {
