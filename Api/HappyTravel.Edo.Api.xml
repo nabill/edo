@@ -726,7 +726,7 @@
             </summary>
             <param name="htAccommodationId"></param>
             <param name="cancellationToken"></param>
-            <returns></returns>
+            <returns>Raw accommodation details</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
@@ -2077,6 +2077,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
             <summary>
             Direct contract flag
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsPackageRate">
+            <summary>
+            Indicates that rates must be sold as a package
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
