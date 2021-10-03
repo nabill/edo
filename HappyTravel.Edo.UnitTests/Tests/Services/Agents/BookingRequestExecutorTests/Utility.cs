@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         public static BookingAvailabilityInfo CreateAvailabilityInfo(string availabilityId)
             => new(default, default, default, default, default, default, default, default, default, default, default,
                 default, default, default, default, default, default, availabilityId, default, default, default,
-                default, default);
+                default, default, default);
 
         public static EdoContracts.Accommodations.Booking CreateBooking(string referenceCode)
             => new(referenceCode, default, string.Empty, string.Empty, default, default, new List<SlimRoomOccupation>(0), default);
