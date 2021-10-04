@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.Infrastructure.Middlewares;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
@@ -247,6 +248,7 @@ namespace HappyTravel.Edo.Api
                 .UseHttpMetrics()
                 .UseAuthentication()
                 .UseAuthorization()
+                .UseAgentRequestLogging()
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapMetrics();
