@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
@@ -38,11 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var order = new OrderRequest
             {
                 Action = orderType,
-                Amount = new NGeniusAmount
-                {
-                    CurrencyCode = currency.ToString(),
-                    Value = ToNGeniusAmount(price.ToMoneyAmount(currency))
-                },
+                Amount = price.ToMoneyAmount(currency).ToNGeniusAmount(),
                 MerchantOrderReference = referenceCode,
                 BillingAddress = billingAddress,
                 EmailAddress = email,
@@ -67,25 +65,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<string>> CaptureMoney(string paymentId, string orderReference, MoneyAmount amount)
+        public async Task<Result<CreditCardCaptureResult>> CaptureMoney(string paymentId, string orderReference, MoneyAmount amount)
         {
             var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures";
-            var response = await Send(HttpMethod.Post, endpoint, new { Amount = new NGeniusAmount
-            {
-                CurrencyCode = amount.Currency.ToString(),
-                Value = ToNGeniusAmount(amount)
-            }});
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount.ToNGeniusAmount() });
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success(ParseCaptureId(document))
-                : Result.Failure<string>(ParseErrorMessage(document));
+                ? new CreditCardCaptureResult(externalCode: paymentId, 
+                    message: string.Empty, 
+                    merchantReference: orderReference, 
+                    captureId: ParseCaptureId(document))
+                : Result.Failure<CreditCardCaptureResult>(ParseErrorMessage(document));
         }
 
 
-        public async Task<Result> VoidMoney(string paymentId, string orderReference, Currencies currency)
+        public async Task<Result<CreditCardVoidResult>> VoidMoney(string paymentId, string orderReference, Currencies currency)
         {
             var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders/{orderReference}/payments/{paymentId}/cancel";
             var response = await Send(HttpMethod.Put, endpoint);
@@ -94,26 +91,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success()
-                : Result.Failure(ParseErrorMessage(document));
+                ? new CreditCardVoidResult(paymentId, string.Empty, orderReference)
+                : Result.Failure<CreditCardVoidResult>(ParseErrorMessage(document));
         }
         
         
-        public async Task<Result> RefundMoney(string paymentId, string orderReference, string captureId, MoneyAmount amount)
+        public async Task<Result<CreditCardRefundResult>> RefundMoney(string paymentId, string orderReference, string captureId, MoneyAmount amount)
         {
             var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
-            var response = await Send(HttpMethod.Post, endpoint, new { Amount = new NGeniusAmount
-            {
-                CurrencyCode = amount.Currency.ToString(),
-                Value = ToNGeniusAmount(amount)
-            }});
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount.ToNGeniusAmount() });
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success()
-                : Result.Failure(ParseErrorMessage(document));
+                ? new CreditCardRefundResult(paymentId, string.Empty, orderReference)
+                : Result.Failure<CreditCardRefundResult>(ParseErrorMessage(document));
         }
 
 
@@ -140,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
             var request = new HttpRequestMessage(HttpMethod.Post, "identity/auth/access-token");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.ApiKey);
             var response = await client.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
@@ -185,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var messages = new string[count];
 
             for (var i = 0; i < count; i++)
-                messages[i] = GetStringValue(element[i], "localizedMessage");
+                messages[i] = GetStringValue(element[i], "message");
 
             return string.Join(';', messages);
         }
@@ -266,16 +259,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 .Split('/')
                 .LastOrDefault();
         }
-        
-        
-        private static int ToNGeniusAmount(MoneyAmount moneyAmount) 
-            => decimal.ToInt32(moneyAmount.Amount * (decimal)Math.Pow(10, moneyAmount.Currency.GetDecimalDigitsCount()));
 
 
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            }
         };
 
 
