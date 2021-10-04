@@ -20,17 +20,23 @@ namespace HappyTravel.Edo.Api.Infrastructure.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var scopedData = new Dictionary<string, object>();
             var (isSuccess, _, agentContext, _) = await _agentContextService.GetAgentInfo();
 
             if (isSuccess)
             {
-                scopedData.Add("AgentId", agentContext.AgentId);
-                scopedData.Add("AgencyId", agentContext.AgencyId);
+                var scopedData = new Dictionary<string, object>
+                {
+                    {"AgentId", agentContext.AgentId},
+                    {"AgencyId", agentContext.AgencyId}
+                };
+                
+                using var disposable = _logger.BeginScope(scopedData);
+                await _next(context);
             }
-
-            using var disposable = _logger.BeginScope(scopedData);
-            await _next(context);
+            else
+            {
+                await _next(context);
+            }
         }
         
         
