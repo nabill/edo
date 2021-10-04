@@ -95,6 +95,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
         public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
         public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
+        public virtual DbSet<Refund> Refunds { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -248,6 +249,7 @@ namespace HappyTravel.Edo.Data
             BuildNotificationOptions(builder);
             BuildDefaultNotificationOptions(builder);
             BuildBookingConfirmationHistory(builder);
+            BuildRefund(builder);
         }
 
 
@@ -888,6 +890,17 @@ namespace HappyTravel.Edo.Data
                 e.Property(hche => hche.Initiator).IsRequired();
                 e.HasIndex(hche => hche.CreatedAt);
                 e.ToTable("BookingConfirmationHistory");
+            });
+        }
+
+
+        private void BuildRefund(ModelBuilder builder)
+        {
+            builder.Entity<Refund>(e =>
+            {
+                e.HasKey(r => r.Id);
+                e.HasIndex(r => r.PlannedDate);
+                e.ToTable("Refunds");
             });
         }
 
