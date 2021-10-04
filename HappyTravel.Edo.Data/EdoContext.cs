@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
         public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
         public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
-        public virtual DbSet<Refund> Refunds { get; set; }
+        public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -249,7 +249,7 @@ namespace HappyTravel.Edo.Data
             BuildNotificationOptions(builder);
             BuildDefaultNotificationOptions(builder);
             BuildBookingConfirmationHistory(builder);
-            BuildRefund(builder);
+            BuildNGeniusRefund(builder);
         }
 
 
@@ -894,9 +894,9 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildRefund(ModelBuilder builder)
+        private static void BuildNGeniusRefund(ModelBuilder builder)
         {
-            builder.Entity<Refund>(e =>
+            builder.Entity<NGeniusRefund>(e =>
             {
                 e.HasKey(r => r.Id);
                 e.HasIndex(r => r.PlannedDate);

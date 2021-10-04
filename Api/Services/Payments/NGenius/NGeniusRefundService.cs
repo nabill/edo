@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             date ??= _dateTimeProvider.UtcNow();
             
             return (from payment in _context.Payments
-                    join refund in _context.Refunds on payment.Id equals refund.PaymentId
+                    join refund in _context.NGeniusRefunds on payment.Id equals refund.PaymentId
                     where refund.PlannedDate >= date && payment.Status == PaymentStatuses.Captured
                     select payment.Id)
                 .ToListAsync();
@@ -41,9 +41,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         public async Task<Result<BatchOperationResult>> RefundPayments(List<int> paymentIds)
         {
             var payments = await (from payment in _context.Payments
-                    join refund in _context.Refunds on payment.Id equals refund.PaymentId
+                    join refund in _context.NGeniusRefunds on payment.Id equals refund.PaymentId
                     where paymentIds.Contains(payment.Id) && payment.Status == PaymentStatuses.Captured
-                    select new Tuple<Payment, Refund>(payment, refund))
+                    select new Tuple<Payment, NGeniusRefund>(payment, refund))
                 .ToListAsync();
 
             if (payments.Count != paymentIds.Count)
