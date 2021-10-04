@@ -10,17 +10,16 @@ namespace HappyTravel.Edo.Api.Infrastructure.Middlewares
 {
     public class AgentRequestLoggingMiddleware
     {
-        public AgentRequestLoggingMiddleware(RequestDelegate next, IAgentContextInternal agentContextService, ILogger<AgentRequestLoggingMiddleware> logger)
+        public AgentRequestLoggingMiddleware(RequestDelegate next, ILogger<AgentRequestLoggingMiddleware> logger)
         {
             _next = next;
-            _agentContextService = agentContextService;
             _logger = logger;
         }
 
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IAgentContextInternal agentContextService)
         {
-            var (isSuccess, _, agentContext, _) = await _agentContextService.GetAgentInfo();
+            var (isSuccess, _, agentContext, _) = await agentContextService.GetAgentInfo();
 
             if (isSuccess)
             {
@@ -41,7 +40,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Middlewares
         
         
         private readonly RequestDelegate _next;
-        private readonly IAgentContextInternal _agentContextService;
         private readonly ILogger<AgentRequestLoggingMiddleware> _logger;
     }
 }
