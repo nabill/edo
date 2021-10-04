@@ -726,7 +726,7 @@
             </summary>
             <param name="htAccommodationId"></param>
             <param name="cancellationToken"></param>
-            <returns></returns>
+            <returns>Raw accommodation details</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
