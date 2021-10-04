@@ -69,8 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Created = now,
                     Modified = now,
                     TemplateId = settings.TemplateId,
-                    DestinationScopeId = settings.DestinationScopeId,
-                    DestinationScopeType = settings.DestinationScopeType
+                    DestinationScopeId = settings.DestinationScopeId
                 };
 
                 _context.MarkupPolicies.Add(policy);
@@ -158,7 +157,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
                 policy.DestinationScopeId = settings.DestinationScopeId;
-                policy.DestinationScopeType = settings.DestinationScopeType;
 
                 var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), policy);
                 if (isFailure)
@@ -283,7 +281,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
             return new MarkupPolicyData(policy.Target,
-                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeType, policy.DestinationScopeId),
+                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
                 new MarkupPolicyScope(policy.ScopeType, policy.CounterpartyId, policy.AgencyId, policy.AgentId));
         }
 
@@ -293,7 +291,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return ValidateTemplate()
                 .Ensure(ScopeIsValid, "Invalid scope data")
                 .Ensure(TargetIsValid, "Invalid policy target")
-                .Ensure(DestinationScopeIdIsMatchedWithType, "Destination scope id is not matched with type")
                 .Ensure(DestinationScopeIdExists, "Provided destination scope id does not exist")
                 .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
 
@@ -306,25 +303,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
 
-
-            bool DestinationScopeIdIsMatchedWithType()
-            {
-                var scopeId = policyData.Settings.DestinationScopeId;
-                var scopeType = policyData.Settings.DestinationScopeType;
-                return scopeType switch
-                {
-                    DestinationMarkupScopeTypes.City => scopeId.Contains("Locality"),
-                    DestinationMarkupScopeTypes.Country => scopeId.Contains("Country"),
-                    DestinationMarkupScopeTypes.Accommodation => scopeId.Contains("Accommodation"),
-                    _ => scopeId == ""
-                };
-            }
-
-
+            
+            // TODO: use method for check existence of destination when it will be ready https://github.com/happy-travel/agent-app-project/issues/667
             async Task<bool> DestinationScopeIdExists()
             {
-                var scopeId = policyData.Settings.DestinationScopeId;
-                var (isSuccess, _, value) = await _mapperClient.GetMappings(new List<string> { scopeId }, "en");
+                var (isSuccess, _, value) = await _mapperClient.GetMappings(new List<string> { policyData.Settings.DestinationScopeId }, "en");
                 return isSuccess && value.Any();
             }
             

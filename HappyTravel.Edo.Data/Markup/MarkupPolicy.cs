@@ -22,7 +22,6 @@ namespace HappyTravel.Edo.Data.Markup
         public Currencies Currency { get; set; }
         public AgentMarkupScopeTypes AgentScopeType { get; set; }
         public string AgentScopeId { get; set; }
-        public DestinationMarkupScopeTypes DestinationScopeType { get; set; }
         public string DestinationScopeId { get; set; }
     }
 }
