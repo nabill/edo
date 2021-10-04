@@ -900,7 +900,7 @@ namespace HappyTravel.Edo.Data
             {
                 e.HasKey(r => r.Id);
                 e.HasIndex(r => r.PlannedDate);
-                e.ToTable("Refunds");
+                e.ToTable("NGeniusRefunds");
             });
         }
 
