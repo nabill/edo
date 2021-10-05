@@ -11,7 +11,6 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         Counterparty = 2,
         Agency = 3,
         Agent = 4,
-        Country = 5,
-        City = 6
+        Location = 5
     }
 }
