@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<List<MarkupPolicy>> Get(Func<MarkupPolicy, bool> predicate)
         {
-            if (_lastUpdate.Add(_refreshDelay) >= DateTime.Now)
+            if (_lastUpdate.Add(_refreshDelay) <= DateTime.Now)
                 await Refresh();
 
             _lock.EnterReadLock();
