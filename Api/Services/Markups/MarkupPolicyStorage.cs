@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task Refresh()
         {
-            if (_lock.WaitingWriteCount > 1)
+            if (_lock.WaitingWriteCount > 0 || _lock.IsWriteLockHeld)
                 return;
 
             _lock.EnterWriteLock();
