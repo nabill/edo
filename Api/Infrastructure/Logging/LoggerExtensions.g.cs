@@ -339,6 +339,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1091, "MarkupPolicyStorageUpdateCompleted"),
                 "Markup policy storage update completed");
             
+            MarkupPolicyStorageUpdateFailed = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1092, "MarkupPolicyStorageUpdateFailed"),
+                "Markup policy storage update failed");
+            
         }
     
                 
@@ -590,6 +594,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMarkupPolicyStorageUpdateCompleted(this ILogger logger, Exception exception = null)
             => MarkupPolicyStorageUpdateCompleted(logger, exception);
+                
+         public static void LogMarkupPolicyStorageUpdateFailed(this ILogger logger, Exception exception = null)
+            => MarkupPolicyStorageUpdateFailed(logger, exception);
     
     
         
@@ -758,5 +765,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, int, Exception> MarkupPolicyStorageRefreshed;
         
         private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateCompleted;
+        
+        private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateFailed;
     }
 }

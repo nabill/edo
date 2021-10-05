@@ -1700,6 +1700,11 @@
                 Prevents authorization policies execution for not authenticated clients
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Infrastructure.Options.MarkupPolicyStorageOptions.Timeout">
+            <summary>
+            Timeout in milliseconds
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Infrastructure.SupplierConnectors.ConnectorClient.ExecuteWithRetryOnUnauthorized(System.Func{System.Net.Http.HttpRequestMessage},System.String,System.Threading.CancellationToken)">
             <summary>
             Method covers two situations:
