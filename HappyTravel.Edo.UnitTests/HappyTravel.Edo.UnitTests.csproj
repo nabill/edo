@@ -13,6 +13,7 @@
       <Compile Remove="Documents\**" />
       <EmbeddedResource Remove="Documents\**" />
       <None Remove="Documents\**" />
+      <Compile Remove="Tests\Services\Markups\AdminMarkupPolicyManagerTests\DestinationsTest.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,6 +38,7 @@
 
     <ItemGroup>
       <Folder Include="Tests\Services\Agents\AgentInvitationServiceTests\" />
+      <Folder Include="Tests\Services\Markups\AdminMarkupPolicyManagerTests" />
     </ItemGroup>
 
 </Project>

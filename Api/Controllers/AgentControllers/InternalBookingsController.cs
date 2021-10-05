@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -25,13 +26,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IServiceAccountContext serviceAccountContext,
             IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService,
-            IBookingStatusRefreshService bookingRefreshStatusService)
+            IBookingStatusRefreshService bookingRefreshStatusService,
+            INGeniusRefundService refundService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
             _reportsService = reportsService;
             _markupBonusMaterializationService = markupBonusMaterializationService;
             _bookingRefreshStatusService = bookingRefreshStatusService;
+            _refundService = refundService;
         }
 
 
@@ -260,11 +263,34 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToApiCaller()));
         }
         
+        
+        /// <summary>
+        ///     Get payment ids for refund
+        /// </summary>
+        [HttpGet("refunds")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetPaymentsForRefund([FromQuery]DateTime? date)
+            => Ok(await _refundService.GetPaymentsForRefund(date));
+
+
+        /// <summary>
+        ///     Refunds payments
+        /// </summary>
+        [HttpPost("refunds")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> RefundPayments(List<int> paymentIds) 
+            => OkOrBadRequest(await _refundService.RefundPayments(paymentIds));
+
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IBookingReportsService _reportsService;
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
         private readonly IBookingStatusRefreshService _bookingRefreshStatusService;
+        private readonly INGeniusRefundService _refundService;
     }
 }
