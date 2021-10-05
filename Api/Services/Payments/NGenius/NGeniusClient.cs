@@ -264,10 +264,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Converters = {
-                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-            }
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
 
