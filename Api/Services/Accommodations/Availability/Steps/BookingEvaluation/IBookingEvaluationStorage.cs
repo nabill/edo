@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public interface IBookingEvaluationStorage
     {
         Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Suppliers resultSupplier,
-            List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline supplierDeadline);
+            List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline agentDeadline, Deadline supplierDeadline);
         
         Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, string htId, Guid roomContractSetId);
     }

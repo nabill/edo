@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 var changeReason = new BookingChangeReason
                 {
                     Event = eventType,
-                    Source = BookingChangeSources.Supplier
+                    Source = BookingChangeSources.System
                 };
                 
                 await _bookingRecordsUpdater.ChangeStatus(b, BookingStatuses.PendingCancellation, _dateTimeProvider.UtcNow(), apiCaller, changeReason);

@@ -720,6 +720,14 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Get(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns mapper's accommodation details
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="cancellationToken"></param>
+            <returns>Raw accommodation details</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
                 Gets the notification history of the current administrator
@@ -1547,6 +1555,13 @@
             <param name="token">Payment token.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.RefreshStatusInNGenius(System.String)">
+            <summary>
+                Refreshes payment status in NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+            <param name="code">Payment link code</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processed payment callback. Typically is used with 3D Secure payment flow.
@@ -1598,6 +1613,12 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayByNGenius(System.String)">
             <summary>
                 Pays by NGenius
+            </summary>
+            <param name="referenceCode">Booking reference code</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.RefreshStatusInNGenius(System.String)">
+            <summary>
+                Refreshes payment status in NGenius
             </summary>
             <param name="referenceCode">Booking reference code</param>
         </member>
@@ -2056,6 +2077,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsDirectContract">
             <summary>
             Direct contract flag
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsPackageRate">
+            <summary>
+            Indicates that rates must be sold as a package
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">

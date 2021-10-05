@@ -230,7 +230,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         {
             var deadline = new Deadline(deadlineDate);
             var roomContractSetWithApr = new RoomContractSet(default, default, deadline, default,
-                default, default, isAdvancePurchaseRate: isApr);
+                default, default, isAdvancePurchaseRate: isApr, default);
 
             return new RoomContractSetAvailability(availabilityId: default,
                 accommodationId: default,

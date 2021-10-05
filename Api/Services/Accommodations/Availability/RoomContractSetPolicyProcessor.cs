@@ -33,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     shiftedRoomContracts, 
                     roomContractSet.Tags, 
                     isDirectContract: roomContractSet.IsDirectContract,
-                    isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate
+                    isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
+                    isPackageRate: roomContractSet.IsPackageRate
                 );
 
 

@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 ? rs.Supplier
                 : null,
             rs.Tags,
-            isDirectContract: isDirectContractsVisible && rs.IsDirectContract);
+            isDirectContract: isDirectContractsVisible && rs.IsDirectContract,
+            isPackageRate: rs.IsPackageRate);
     }
 }

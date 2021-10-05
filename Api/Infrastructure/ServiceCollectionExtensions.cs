@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
             {
-                client.BaseAddress = new Uri(mapperClientOptions["address"]);
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             #endregion
 
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
             services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
             {
-                client.BaseAddress = new Uri(mapperManagementClientOptions["address"]);
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             #endregion
             
@@ -492,9 +492,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
             services.Configure<NGeniusOptions>(options =>
             {
-                options.Token = nGeniusOptions["token"];
-                options.Endpoint = nGeniusOptions["endpoint"];
-                options.OutletId = nGeniusOptions["outletId"];
+                options.ApiKey = nGeniusOptions["apiKey"];
+                options.Host = nGeniusOptions["host"];
+                options.Outlets = new Dictionary<Currencies, string>
+                {
+                    {Currencies.USD, nGeniusOptions["usd"]},
+                    {Currencies.AED, nGeniusOptions["aed"]}
+                };
             });
 
             services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
@@ -771,9 +775,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
-            services.AddTransient<NGeniusClient>();
+            services.AddTransient<INGeniusClient, NGeniusClient>();
             services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
             services.AddTransient<NGeniusWebhookProcessingService>();
+            services.AddTransient<ICreditCardPaymentManagementService, CreditCardPaymentManagementService>();
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
 

@@ -8,27 +8,52 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.Money.Enums;
+using HappyTravel.Money.Extensions;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
-    public class NGeniusClient
+    public class NGeniusClient : INGeniusClient
     {
-        public NGeniusClient(IOptions<NGeniusOptions> options, IHttpClientFactory clientFactory, IMemoryFlow<string> cache)
+        public NGeniusClient(IOptions<NGeniusOptions> options, IHttpClientFactory clientFactory, IMemoryFlow<string> cache, 
+            IOptions<SenderOptions> senderOptions)
         {
             _options = options.Value;
             _cache = cache;
             _clientFactory = clientFactory;
+            _senderOptions = senderOptions.Value;
         }
 
 
-        public async Task<Result<NGeniusPaymentResponse>> CreateOrder(OrderRequest order)
+        public async Task<Result<NGeniusPaymentResponse>> CreateOrder(string orderType, string referenceCode, Currencies currency, decimal price, string email, 
+            NGeniusBillingAddress billingAddress)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders";
+            var order = new OrderRequest
+            {
+                Action = orderType,
+                Amount = price.ToMoneyAmount(currency).ToNGeniusAmount(),
+                MerchantOrderReference = referenceCode,
+                BillingAddress = billingAddress,
+                EmailAddress = email,
+                MerchantAttributes = new MerchantAttributes
+                {
+                    RedirectUrl = new Uri(_senderOptions.BaseUrl, $"/payments/callback?referenceCode={referenceCode}").ToString(),
+                    CancelUrl = new Uri(_senderOptions.BaseUrl, "/accommodation/booking").ToString(),
+                    CancelText = "Back to Booking Page",
+                    SkipConfirmationPage = true
+                }
+            };
+            
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders";
             var response = await Send(HttpMethod.Post, endpoint, order);
 
             await using var stream = await response.Content.ReadAsStreamAsync();
@@ -40,45 +65,62 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public async Task<Result<string>> CaptureMoney(string paymentId, string orderReference, NGeniusAmount amount)
+        public async Task<Result<CreditCardCaptureResult>> CaptureMoney(string paymentId, string orderReference, MoneyAmount amount)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures";
-            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount });
+            var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures";
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount.ToNGeniusAmount() });
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success(ParseCaptureId(document))
-                : Result.Failure<string>(ParseErrorMessage(document));
+                ? new CreditCardCaptureResult(externalCode: paymentId, 
+                    message: string.Empty, 
+                    merchantReference: orderReference, 
+                    captureId: ParseCaptureId(document))
+                : Result.Failure<CreditCardCaptureResult>(ParseErrorMessage(document));
         }
 
 
-        public async Task<Result> VoidMoney(string paymentId, string orderReference)
+        public async Task<Result<CreditCardVoidResult>> VoidMoney(string paymentId, string orderReference, Currencies currency)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/cancel";
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders/{orderReference}/payments/{paymentId}/cancel";
             var response = await Send(HttpMethod.Put, endpoint);
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success()
-                : Result.Failure(ParseErrorMessage(document));
+                ? new CreditCardVoidResult(paymentId, string.Empty, orderReference)
+                : Result.Failure<CreditCardVoidResult>(ParseErrorMessage(document));
         }
         
         
-        public async Task<Result> RefundMoney(string paymentId, string orderReference, string captureId, NGeniusAmount amount)
+        public async Task<Result<CreditCardRefundResult>> RefundMoney(string paymentId, string orderReference, string captureId, MoneyAmount amount)
         {
-            var endpoint = $"transactions/outlets/{_options.OutletId}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
-            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount });
+            var endpoint = $"transactions/outlets/{_options.Outlets[amount.Currency]}/orders/{orderReference}/payments/{paymentId}/captures/{captureId}/refund";
+            var response = await Send(HttpMethod.Post, endpoint, new { Amount = amount.ToNGeniusAmount() });
             
             await using var stream = await response.Content.ReadAsStreamAsync();
             using var document = await JsonDocument.ParseAsync(stream);
 
             return response.IsSuccessStatusCode
-                ? Result.Success()
-                : Result.Failure(ParseErrorMessage(document));
+                ? new CreditCardRefundResult(paymentId, string.Empty, orderReference)
+                : Result.Failure<CreditCardRefundResult>(ParseErrorMessage(document));
+        }
+
+
+        public async Task<Result<PaymentStatuses>> GetStatus(string orderReference, Currencies currency)
+        {
+            var endpoint = $"transactions/outlets/{_options.Outlets[currency]}/orders/{orderReference}";
+            var response = await Send(HttpMethod.Get, endpoint);
+            
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var document = await JsonDocument.ParseAsync(stream);
+
+            return response.IsSuccessStatusCode
+                ? ParsePaymentStatus(document)
+                : Result.Failure<PaymentStatuses>(ParseErrorMessage(document));
         }
 
 
@@ -91,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             using var client = _clientFactory.CreateClient(HttpClientNames.NGenius);
             var request = new HttpRequestMessage(HttpMethod.Post, "identity/auth/access-token");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", _options.ApiKey);
             var response = await client.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
@@ -136,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var messages = new string[count];
 
             for (var i = 0; i < count; i++)
-                messages[i] = GetStringValue(element[i], "localizedMessage");
+                messages[i] = GetStringValue(element[i], "message");
 
             return string.Join(';', messages);
         }
@@ -146,7 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         {
             var rootElement = document.RootElement;
             
-            return new NGeniusPaymentResponse(paymentId: GetStringValue(rootElement, "_id").Split(':').Last(),
+            return new NGeniusPaymentResponse(paymentId: ParsePaymentId(document),
                 orderReference: GetStringValue(rootElement, "reference"),
                 merchantOrderReference: GetStringValue(rootElement, "merchantOrderReference"),
                 paymentLink: ParsePaymentLink(document));
@@ -161,16 +203,35 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 .GetProperty("href")
                 .GetString();
         }
-
-
-        private static CreditCardPaymentStatuses MapToStatus(string state)
+        
+        
+        private static string ParsePaymentId(in JsonDocument document)
         {
+            return document.RootElement.GetProperty("_embedded")
+                .GetProperty("payment")[0]
+                .GetProperty("_id")
+                .GetString()?
+                .Split(':')
+                .Last();
+        }
+
+
+        private static PaymentStatuses ParsePaymentStatus(in JsonDocument document)
+        {
+            var state = document.RootElement.GetProperty("_embedded")
+                .GetProperty("payment")[0]
+                .GetProperty("state")
+                .GetString();
+            
             return state switch
             {
-                StateTypes.Authorized => CreditCardPaymentStatuses.Success,
-                StateTypes.Await3Ds => CreditCardPaymentStatuses.Secure3d,
-                StateTypes.Failed => CreditCardPaymentStatuses.Failed,
-                StateTypes.Captured => CreditCardPaymentStatuses.Success,
+                StateTypes.Authorized => PaymentStatuses.Authorized,
+                StateTypes.Await3Ds => PaymentStatuses.Secure3d,
+                StateTypes.Failed => PaymentStatuses.Failed,
+                StateTypes.Captured => PaymentStatuses.Captured,
+                StateTypes.Started => PaymentStatuses.Created,
+                StateTypes.Reversed => PaymentStatuses.Refunded,
+                // StateTypes.PartiallyCaptured not supported
                 _ => throw new NotSupportedException($"Payment status `{state}` not supported")
             };
         }
@@ -210,5 +271,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly NGeniusOptions _options;
         private readonly IHttpClientFactory _clientFactory;
         private readonly IMemoryFlow<string> _cache;
+        private readonly SenderOptions _senderOptions;
     }
 }
