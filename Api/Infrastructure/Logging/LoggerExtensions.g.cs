@@ -331,6 +331,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1806, "MapperManagementClientRequestTimeout"),
                 "Request to a mapper management endpoint failed with timeout");
             
+            MarkupPolicyStorageRefreshed = LoggerMessage.Define<int>(LogLevel.Debug,
+                new EventId(1090, "MarkupPolicyStorageRefreshed"),
+                "MarkupPolicyStorage refreshed. Was set {Count} entities");
+            
+            MarkupPolicyStorageUpdateCompleted = LoggerMessage.Define(LogLevel.Debug,
+                new EventId(1091, "MarkupPolicyStorageUpdateCompleted"),
+                "Markup policy storage update completed");
+            
         }
     
                 
@@ -576,6 +584,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperManagementClientRequestTimeout(this ILogger logger, Exception exception = null)
             => MapperManagementClientRequestTimeout(logger, exception);
+                
+         public static void LogMarkupPolicyStorageRefreshed(this ILogger logger, int Count, Exception exception = null)
+            => MarkupPolicyStorageRefreshed(logger, Count, exception);
+                
+         public static void LogMarkupPolicyStorageUpdateCompleted(this ILogger logger, Exception exception = null)
+            => MarkupPolicyStorageUpdateCompleted(logger, exception);
     
     
         
@@ -740,5 +754,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperManagementClientUnexpectedResponse;
         
         private static readonly Action<ILogger, Exception> MapperManagementClientRequestTimeout;
+        
+        private static readonly Action<ILogger, int, Exception> MarkupPolicyStorageRefreshed;
+        
+        private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateCompleted;
     }
 }
