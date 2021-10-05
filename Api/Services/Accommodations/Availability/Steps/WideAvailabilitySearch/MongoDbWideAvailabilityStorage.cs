@@ -76,10 +76,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Rooms.Any(room => filters.BoardBasisTypes.Contains(room.BoardBasis))));
 
             if (searchSettings.AprMode == AprMode.Hide)
-                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.IsAdvancePurchaseRate));
+                query = query.Where(r => r.RoomContractSets.All(rcs => !rcs.IsAdvancePurchaseRate));
 
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                query = query.Where(r => !r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
+                query = query.Where(r => r.RoomContractSets.All(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
 
             if (filters.Ratings is not null)
             {
@@ -111,9 +111,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .Select(a =>
                 {
                     var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
+                    var roomContractSets = a.RoomContractSets
+                        .Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible))
+                        .ToList();
+
+                    if (searchSettings.AprMode == AprMode.Hide)
+                        roomContractSets = roomContractSets.Where(r => !r.IsAdvancePurchaseRate).ToList();
+
+                    if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                        roomContractSets = roomContractSets.Where(r => r.Deadline.Date == null || r.Deadline.Date >= _dateTimeProvider.UtcNow()).ToList();
 
                     return new WideAvailabilityResult(accommodation,
-                        a.RoomContractSets.Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
+                        roomContractSets,
                         a.MinPrice,
                         a.MaxPrice,
                         a.CheckInDate,
