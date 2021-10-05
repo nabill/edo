@@ -40,19 +40,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
         public async Task<Result<BatchOperationResult>> RefundPayments(List<int> paymentIds)
         {
-            var payments = await (from payment in _context.Payments
+            var paymentsWithRefunds = await (from payment in _context.Payments
                     join refund in _context.NGeniusRefunds on payment.Id equals refund.PaymentId
                     where paymentIds.Contains(payment.Id) && payment.Status == PaymentStatuses.Captured
                     select new Tuple<Payment, NGeniusRefund>(payment, refund))
                 .ToListAsync();
 
-            if (payments.Count != paymentIds.Count)
+            if (paymentsWithRefunds.Count != paymentIds.Count)
                 return Result.Failure<BatchOperationResult>("Invalid payment ids. Could not find some of requested payments.");
             
             var builder = new StringBuilder();
             var hasErrors = false;
 
-            foreach (var (payment, refund) in payments)
+            foreach (var (payment, refund) in paymentsWithRefunds)
             {
                 var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                 var (_, isFailure, _, error) = await _nGeniusPaymentService.Refund(paymentId: data.ExternalId,
