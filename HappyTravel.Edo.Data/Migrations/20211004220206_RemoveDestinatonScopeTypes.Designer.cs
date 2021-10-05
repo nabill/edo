@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211004220206_RemoveDestinatonScopeTypes")]
+    partial class RemoveDestinatonScopeTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1257,9 +1259,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("LastPaymentDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -1451,32 +1450,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CreditCardAuditLogs");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.NGeniusRefund", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PaymentId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("PlannedDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlannedDate");
-
-                    b.ToTable("NGeniusRefunds");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.OfflinePaymentAuditLogEntry", b =>
