@@ -10,12 +10,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct Rate
     {
         [JsonConstructor]
-        public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount> discounts,
-            PriceTypes type, string description)
+        public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount> discounts = null,
+            PriceTypes type = PriceTypes.Room, string description = "")
         {
             Description = description;
             Gross = gross;
-            Discounts = discounts;
+            Discounts = discounts ?? new List<Discount>();
             FinalPrice = finalPrice;
             Type = type;
             Currency = finalPrice.Currency;

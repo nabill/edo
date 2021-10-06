@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,10 +18,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        public async Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response, AgentContext agent)
+        public async Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
-            var convertedResults = new List<SlimAccommodationAvailability>(response.Results.Count);
-            foreach (var slimAccommodationAvailability in response.Results)
+            var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
+            foreach (var slimAccommodationAvailability in results)
             {
                 // Currency can differ in different results
                 var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
@@ -31,15 +31,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 convertedResults.Add(convertedAccommodationAvailability);
             }
 
-            return new EdoContracts.Accommodations.Availability(response.AvailabilityId, response.NumberOfNights,
-                response.CheckInDate, response.CheckOutDate, convertedResults, response.NumberOfProcessedAccommodations);
+            return convertedResults;
         }
 
 
-        public async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails, AgentContext agent)
+        public async Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
-            var convertedResults = new List<SlimAccommodationAvailability>(availabilityDetails.Results.Count);
-            foreach (var slimAccommodationAvailability in availabilityDetails.Results)
+            var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
+            foreach (var slimAccommodationAvailability in results)
             {
                 // Currency can differ in different results
                 var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent,
@@ -48,33 +47,40 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     GetCurrency);
 
                 if (isFailure)
-                    return Result.Failure<EdoContracts.Accommodations.Availability, ProblemDetails>(error);
+                    return Result.Failure<List<AccommodationAvailabilityResult>, ProblemDetails>(error);
                     
                 convertedResults.Add(convertedAccommodationAvailability);
             }
 
-            return new EdoContracts.Accommodations.Availability(availabilityDetails.AvailabilityId, availabilityDetails.NumberOfNights,
-                availabilityDetails.CheckInDate, availabilityDetails.CheckOutDate, convertedResults, availabilityDetails.NumberOfProcessedAccommodations);
+            return convertedResults;
         }
         
         
-        public async ValueTask<EdoContracts.Accommodations.Availability> AlignPrices(EdoContracts.Accommodations.Availability response)
+        public async ValueTask<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results)
         {
-            var convertedResults = new List<SlimAccommodationAvailability>(response.Results.Count);
-            foreach (var slimAccommodationAvailability in response.Results)
+            var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
+            foreach (var accommodationAvailability in results)
             {
                 // Currency can differ in different results
-                var roomContractSets = await RoomContractSetPriceProcessor.AlignPrices(slimAccommodationAvailability.RoomContractSets);
-                convertedResults.Add(new SlimAccommodationAvailability(slimAccommodationAvailability.AccommodationId,
-                    roomContractSets, slimAccommodationAvailability.AvailabilityId));
+                var roomContractSets = await RoomContractSetPriceProcessor_New.AlignPrices(accommodationAvailability.RoomContractSets);
+                convertedResults.Add(new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
+                    supplier: accommodationAvailability.Supplier,
+                    created: accommodationAvailability.Created,
+                    availabilityId: accommodationAvailability.AvailabilityId,
+                    roomContractSets: roomContractSets,
+                    minPrice: accommodationAvailability.MinPrice,
+                    maxPrice: accommodationAvailability.MaxPrice,
+                    checkInDate: accommodationAvailability.CheckInDate,
+                    checkOutDate: accommodationAvailability.CheckOutDate,
+                    htId: accommodationAvailability.HtId,
+                    supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode));
             }
 
-            return new EdoContracts.Accommodations.Availability(response.AvailabilityId, response.NumberOfNights,
-                response.CheckInDate, response.CheckOutDate, convertedResults, response.NumberOfProcessedAccommodations);
+            return convertedResults;
         }
         
         
-        private static Currencies? GetCurrency(SlimAccommodationAvailability accommodationAvailability)
+        private static Currencies? GetCurrency(AccommodationAvailabilityResult accommodationAvailability)
         {
             if (!accommodationAvailability.RoomContractSets.Any())
                 return null;
@@ -83,13 +89,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
 
-        private static async ValueTask<SlimAccommodationAvailability> ProcessPrices(SlimAccommodationAvailability supplierResponse, PriceProcessFunction function)
+        private static async ValueTask<AccommodationAvailabilityResult> ProcessPrices(AccommodationAvailabilityResult accommodationAvailability, PriceProcessFunction function)
         {
-            var supplierRoomContractSets = supplierResponse.RoomContractSets;
-            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor.ProcessPrices(supplierRoomContractSets, function);
-            var convertedAccommodationAvailability = new SlimAccommodationAvailability(supplierResponse.AccommodationId,
-                roomContractSetsWithMarkup,
-                supplierResponse.AvailabilityId);
+            var supplierRoomContractSets = accommodationAvailability.RoomContractSets;
+            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor_New.ProcessPrices(supplierRoomContractSets, function);
+            var convertedAccommodationAvailability = new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
+                supplier: accommodationAvailability.Supplier,
+                created: accommodationAvailability.Created,
+                availabilityId: accommodationAvailability.AvailabilityId,
+                roomContractSets: roomContractSetsWithMarkup,
+                minPrice: accommodationAvailability.MinPrice,
+                maxPrice: accommodationAvailability.MaxPrice,
+                checkInDate: accommodationAvailability.CheckInDate,
+                checkOutDate: accommodationAvailability.CheckOutDate,
+                htId: accommodationAvailability.HtId,
+                supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode);
             
             return convertedAccommodationAvailability;
         }

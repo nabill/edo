@@ -1,26 +1,29 @@
+using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.Api.Models.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
     public static class WideAvailabilityPolicyProcessor
     {
-        public static EdoContracts.Accommodations.Availability Process(EdoContracts.Accommodations.Availability availability, CancellationPolicyProcessSettings settings)
+        public static List<AccommodationAvailabilityResult> Process(List<AccommodationAvailabilityResult> results, CancellationPolicyProcessSettings settings)
         {
-            var results = availability.Results
+            return results
                 .Select(r =>
                 {
-                    return new SlimAccommodationAvailability(r.AccommodationId, 
-                        RoomContractSetPolicyProcessor.Process(r.RoomContractSets, availability.CheckInDate, settings),
-                        r.AvailabilityId);
+                    return new AccommodationAvailabilityResult(searchId: r.SearchId,
+                        supplier: r.Supplier,
+                        created: r.Created,
+                        availabilityId: r.AvailabilityId,
+                        roomContractSets: RoomContractSetPolicyProcessor_New.Process(r.RoomContractSets, r.CheckInDate, settings),
+                        minPrice: r.MinPrice,
+                        maxPrice: r.MaxPrice,
+                        checkInDate: r.CheckInDate,
+                        checkOutDate: r.CheckOutDate,
+                        htId: r.HtId,
+                        supplierAccommodationCode: r.SupplierAccommodationCode);
                 })
                 .ToList();
-
-            return new EdoContracts.Accommodations.Availability(availability.AvailabilityId,
-                availability.NumberOfNights, availability.CheckInDate,
-                availability.CheckOutDate,
-                results,
-                availability.NumberOfProcessedAccommodations);
         }
     }
 }
