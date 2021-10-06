@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -117,19 +117,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSet> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSet> MapToRoomContractSets(SingleAccommodationAvailability accommodationAvailability)
             {
-                return accommodationAvailability.Data.RoomContractSets
-                    .Select(rs =>
-                    {
-                        var supplier = searchSettings.IsSupplierVisible
-                            ? accommodationAvailability.Source
-                            : (Suppliers?) null;
-
-                        var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
-
-                        return rs.ToRoomContractSet(supplier, isDirectContractFlag);
-                    });
+                return accommodationAvailability.RoomContractSets
+                    .Select(rs => rs.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible));
             }
 
 
