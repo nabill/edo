@@ -52,8 +52,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<MarkupPolicy> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
-                var (type, agentScopeId) = policyData.Scope;
+                var (type, counterpartyId, agencyId, agentId, agentScopeId) = policyData.Scope;
                 var settings = policyData.Settings;
+                
+                // TODO remove after completing migration to new markups
+                var scopeType = type switch 
+                {
+                    AgentMarkupScopeTypes.Agency => MarkupPolicyScopeType.Agency,
+                    AgentMarkupScopeTypes.Agent => MarkupPolicyScopeType.Agent,
+                    AgentMarkupScopeTypes.Counterparty => MarkupPolicyScopeType.Counterparty,
+                    AgentMarkupScopeTypes.Global => MarkupPolicyScopeType.Global,
+                    _ => MarkupPolicyScopeType.NotSpecified
+                };
 
                 var policy = new MarkupPolicy
                 {
@@ -61,6 +71,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Order = settings.Order,
                     Target = policyData.Target,
                     TemplateSettings = settings.TemplateSettings,
+                    ScopeType = scopeType,
+                    CounterpartyId = counterpartyId,
+                    AgencyId = agencyId,
+                    AgentId = agentId,
                     Currency = settings.Currency,
                     Created = now,
                     Modified = now,
@@ -302,7 +316,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
-            var (agentScopeType, agentScopeId) = scope;
+            var (agentScopeType, counterpartyId, agencyId, agentId, agentScopeId) = scope;
             return agentScopeType switch
             {
                 AgentMarkupScopeTypes.Global => _context.MarkupPolicies

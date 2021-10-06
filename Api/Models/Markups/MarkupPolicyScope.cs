@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         }
 
 
-        public void Deconstruct(out AgentMarkupScopeTypes type, out string agentScopeId)
+        public void Deconstruct(out AgentMarkupScopeTypes type, out int? counterpartyId, out int? agencyId, out int? agentId, out string agentScopeId)
         {
             type = Type;
             agentScopeId = type switch
@@ -69,6 +69,9 @@ namespace HappyTravel.Edo.Api.Models.Markups
                 AgentMarkupScopeTypes.Location => LocationId,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Wrong AgentMarkupScopeType")
             };
+            counterpartyId = CounterpartyId;
+            agencyId = AgencyId;
+            agentId = AgentId;
         }
         
 

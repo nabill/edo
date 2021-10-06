@@ -6,8 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyData
     {
         [JsonConstructor]
-        public MarkupPolicyData(MarkupPolicyTarget target, MarkupPolicySettings settings,
-            MarkupPolicyScope scope)
+        public MarkupPolicyData(MarkupPolicyTarget target, MarkupPolicySettings settings, MarkupPolicyScope scope)
         {
             Target = target;
             Settings = settings;
