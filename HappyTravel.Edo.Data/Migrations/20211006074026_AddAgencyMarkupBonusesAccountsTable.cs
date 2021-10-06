@@ -30,9 +30,10 @@ namespace HappyTravel.Edo.Data.Migrations
             
             migrationBuilder.Sql(@"
                 INSERT INTO ""AgencyMarkupBonusesAccounts""(""AgencyId"", ""Currency"", ""Balance"")
-                SELECT ""Id"", 1, 0
-                FROM ""Agencies""
-                WHERE ""IsActive"" IS true
+                SELECT a.""Id"", 1, 0
+                FROM ""Agencies"" AS a
+                JOIN ""Counterparties"" AS c ON a.""CounterpartyId"" = c.""Id""
+                WHERE c.""State"" = 1
             ");
         }
 
