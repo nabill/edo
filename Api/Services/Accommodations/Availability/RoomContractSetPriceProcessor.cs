@@ -62,8 +62,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return BuildRoomContractSet(sourceRoomContractSet, roomContractSetRate, roomContracts);
 
 
-            MoneyAmount ChangeProportionally(MoneyAmount price) 
-                => price / sourceTotalPrice;
+            MoneyAmount ChangeProportionally(MoneyAmount price)
+            {
+                var totalPricePercent = (price / sourceTotalPrice).Amount;
+                return new MoneyAmount(processedTotalPrice.Amount * totalPricePercent, processedTotalPrice.Currency);
+            }
         }
         
         

@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             MoneyAmount ChangeProportionally(MoneyAmount price)
             {
-                var totalPricePercent = price.Amount / sourceTotalPrice.Amount;
+                var totalPricePercent = (price / sourceTotalPrice).Amount;
                 return new MoneyAmount(processedTotalPrice.Amount * totalPricePercent, processedTotalPrice.Currency);
             }
         }
