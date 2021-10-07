@@ -406,9 +406,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public async Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTime operationDate,  IPaymentCallbackService paymentCallbackService)
         {
-            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
-            if (payment.PaymentMethod != PaymentTypes.CreditCard)
-                return Result.Failure<string>($"Invalid payment method: {payment.PaymentMethod}");
+            var payment = await _context.Payments
+                .SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode && p.Status == PaymentStatuses.Captured);
+            
+            if (payment == default)
+                return Result.Failure<string>($"Could not find payment by reference code {referenceCode}");
 
             return await GetRefundableAmount()
                 .Bind(Refund)
@@ -436,7 +438,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     payment.PaymentProcessor,
                     payment.AccountNumber,
                     payment.ReferenceCode,
-                    payment.CaptureId,
+                    payment.Id,
                     apiCaller,
                     buyerInfo.AgentId);
             }

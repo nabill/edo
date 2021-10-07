@@ -501,7 +501,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 };
             });
 
-            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
+            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["host"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
             
