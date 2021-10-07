@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups
         {
             var monitor = Mock.Of<IOptionsMonitor<MarkupPolicyStorageOptions>>(_ => _.CurrentValue == new MarkupPolicyStorageOptions
             {
-                Timeout = 1
+                Timeout = TimeSpan.FromMilliseconds(1)
             });
             
             return new MarkupPolicyStorage(monitor);
