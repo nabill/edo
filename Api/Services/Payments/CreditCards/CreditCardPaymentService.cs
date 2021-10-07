@@ -365,9 +365,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         public async Task<Result> VoidMoney(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService)
         {
-            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
-            if (payment.PaymentMethod != PaymentTypes.CreditCard)
-                return Result.Failure<string>($"Invalid payment method: {payment.PaymentMethod}");
+            var payment = await _context.Payments
+                .SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode && p.Status == PaymentStatuses.Authorized);
+            
+            if (payment == default)
+                return Result.Failure<string>($"Could not find payment by reference code {referenceCode}");
 
             return await Void()
                 .Tap(StoreVoidResults);
