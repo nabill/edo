@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     Created = _dateTimeProvider.UtcNow()
                 };
                 _context.AgencyAccounts.Add(account);
+                _context.AgencyMarkupBonusesAccounts.Add(new AgencyMarkupBonusesAccount
+                {
+                    AgencyId = agency.Id,
+                    Currency = Currencies.USD,
+                    Balance = 0
+                });
                 await _context.SaveChangesAsync();
 
                 return account;

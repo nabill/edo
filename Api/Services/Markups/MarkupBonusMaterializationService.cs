@@ -125,11 +125,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, MoneyAmount amount)
         {
-            var agencyAccount = await _context.AgencyAccounts
+            var bonusAgencyAccount = await _context.AgencyMarkupBonusesAccounts
                 .SingleOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == amount.Currency);
 
-            if (agencyAccount is null)
-                return Result.Failure($"Account for agency '{agencyId}' with currency {amount.Currency} not found");
+            if (bonusAgencyAccount is null)
+                return Result.Failure($"Markup bonus account for agency '{agencyId}' with currency {amount.Currency} not found");
 
             var paidDate = _dateTimeProvider.UtcNow();
 
@@ -143,10 +143,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task UpdateBalance()
             {
-                agencyAccount.Balance += amount.Amount;
-                _context.AgencyAccounts.Update(agencyAccount);
+                bonusAgencyAccount.Balance += amount.Amount;
+                _context.AgencyMarkupBonusesAccounts.Update(bonusAgencyAccount);
                 await _context.SaveChangesAsync();
-                _context.Detach(agencyAccount);
+                _context.Detach(bonusAgencyAccount);
             }
 
 
@@ -168,7 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     PolicyId = policyId,
                     ReferenceCode = referenceCode,
-                    AgencyAccountId = agencyAccount.Id,
+                    AgencyAccountId = bonusAgencyAccount.Id,
                     Amount = amount.Amount,
                     Created = paidDate
                 });
