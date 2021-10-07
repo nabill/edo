@@ -1457,6 +1457,16 @@
                 Refresh booking statuses
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTime})">
+            <summary>
+                Get payment ids for refund
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.RefundPayments(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Refunds payments
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InvitationsController.GetInvitationData(System.String)">
             <summary>
                 Gets invitation data.
@@ -3603,11 +3613,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
                 Currency of policy. Needed for proper currency applying.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeType">
-            <summary>
-                Type of destination markup scope
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
