@@ -119,14 +119,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
-                var supplier = settings.IsSupplierVisible
-                    ? result.Supplier
-                    : (Suppliers?) null;
-
-                var isDirectContract = settings.IsDirectContractFlagVisible && availabilityData.RoomContractSet.IsDirectContract;
-
-                return availabilityData.ToRoomContractSetAvailability(supplier, isDirectContract,
-                    GetAvailablePaymentTypes(availabilityData, contractKind), slimAccommodation);
+                var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
+                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation);
             }
             
 
