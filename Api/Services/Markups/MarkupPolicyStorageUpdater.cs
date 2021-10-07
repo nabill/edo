@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private readonly TimeSpan _delay = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan _delay = TimeSpan.FromMinutes(2);
         private DateTime? _lastCheckingDate;
 
 
