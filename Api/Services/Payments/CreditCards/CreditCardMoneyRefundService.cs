@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
     {
         public CreditCardMoneyRefundService(IPayfortService payfortService,
             ICreditCardAuditService creditCardAuditService,
-            INGeniusPaymentService nGeniusPaymentService)
+            INGeniusRefundService nGeniusRefundService)
         {
             _payfortService = payfortService;
             _creditCardAuditService = creditCardAuditService;
-            _nGeniusPaymentService = nGeniusPaymentService;
+            _nGeniusRefundService = nGeniusRefundService;
         }
 
         public async Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest request,
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             PaymentProcessors paymentProcessor,
             string maskedNumber,
             string referenceCode,
-            string captureId,
+            int paymentId,
             ApiCaller apiCaller,
             int agentId)
         {
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return request.Amount.IsGreaterThan(0m)
                     ? paymentProcessor == PaymentProcessors.Payfort 
                         ? await _payfortService.Refund(request)
-                        : await _nGeniusPaymentService.Refund(paymentInfo.ExternalId, paymentInfo.InternalReferenceCode, captureId, request.Amount.ToMoneyAmount(request.Currency))
+                        : await _nGeniusRefundService.Refund(paymentId, request.Amount.ToMoneyAmount(request.Currency), paymentInfo.ExternalId, request.MerchantReference)
                     : new CreditCardRefundResult(default, default, request.MerchantReference);
             }
 
@@ -65,6 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private readonly ICreditCardAuditService _creditCardAuditService;
         private readonly IPayfortService _payfortService;
-        private readonly INGeniusPaymentService _nGeniusPaymentService;
+        private readonly INGeniusRefundService _nGeniusRefundService;
     }
 }

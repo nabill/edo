@@ -96,6 +96,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
         public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
         public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
+        public virtual DbSet<AgencyMarkupBonusesAccount> AgencyMarkupBonusesAccounts { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -250,6 +251,7 @@ namespace HappyTravel.Edo.Data
             BuildDefaultNotificationOptions(builder);
             BuildBookingConfirmationHistory(builder);
             BuildNGeniusRefund(builder);
+            BuildAgencyMarkupBonusesAccounts(builder);
         }
 
 
@@ -901,6 +903,17 @@ namespace HappyTravel.Edo.Data
                 e.HasKey(r => r.Id);
                 e.HasIndex(r => r.PlannedDate);
                 e.ToTable("NGeniusRefunds");
+            });
+        }
+
+
+        private static void BuildAgencyMarkupBonusesAccounts(ModelBuilder builder)
+        {
+            builder.Entity<AgencyMarkupBonusesAccount>(b =>
+            {
+                b.HasKey(a => a.Id);
+                b.HasIndex(a => a.AgencyId);
+                b.ToTable("AgencyMarkupBonusesAccounts");
             });
         }
 
