@@ -349,6 +349,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return ValidateTemplate()
                 .Ensure(ScopeIsValid, "Invalid scope data")
                 .Ensure(TargetIsValid, "Invalid policy target")
+                .Ensure(LocationScopeIdExists, "Provided location scope id does not exist")
                 .Ensure(DestinationScopeIdExists, "Provided destination scope id does not exist")
                 .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
 
@@ -365,11 +366,27 @@ namespace HappyTravel.Edo.Api.Services.Markups
             // TODO: use method for check existence of destination when it will be ready https://github.com/happy-travel/agent-app-project/issues/667
             async Task<bool> DestinationScopeIdExists()
             {
-                var (isSuccess, _, value) = await _mapperClient.GetMappings(new List<string> { policyData.Settings.DestinationScopeId }, "en");
+                var destinationScopeId = policyData.Settings.DestinationScopeId;
+                if (string.IsNullOrWhiteSpace(destinationScopeId))
+                    return true;
+                
+                var (isSuccess, _, value) = await _mapperClient.GetMappings(new List<string> { destinationScopeId }, "en");
                 return isSuccess && value.Any();
             }
             
+            
+            // TODO: use method for check existence of destination when it will be ready https://github.com/happy-travel/agent-app-project/issues/667
+            async Task<bool> LocationScopeIdExists()
+            {
+                var locationScopeId = policyData.Settings.LocationScopeId;
+                if (string.IsNullOrWhiteSpace(locationScopeId))
+                    return true;
+                
+                var (isSuccess, _, value) = await _mapperClient.GetMappings(new List<string> { locationScopeId }, "en");
+                return isSuccess && value.Any();
+            }
 
+            
             async Task<bool> PolicyOrderIsUniqueForScope()
             {
                 if (sourcePolicy is not null && sourcePolicy.Order == policyData.Settings.Order)
