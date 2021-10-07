@@ -7,10 +7,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Extensions;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -69,6 +71,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             }
             
             return new BatchOperationResult(builder.ToString(), hasErrors);
+        }
+
+
+        public async Task<Result<CreditCardRefundResult>> Refund(int paymentId, MoneyAmount amount, string externalId, string referenceCode)
+        {
+            _context.NGeniusRefunds.Add(new NGeniusRefund
+            {
+                PaymentId = paymentId,
+                Amount = amount.Amount,
+                Currency = amount.Currency,
+                PlannedDate = _dateTimeProvider.UtcNow().Date.AddDays(1)
+            });
+            await _context.SaveChangesAsync();
+            return Result.Success(new CreditCardRefundResult(externalId, "Awaiting refund", referenceCode));
         }
 
 
