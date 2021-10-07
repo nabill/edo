@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 {
                     var supplierCodeMapping = new SupplierCodeMapping
                     {
-                        HtId = accommodationMapping.HtId,
+                        AccommodationHtId = accommodationMapping.HtId,
                         SupplierCode = supplierCode.Value
                     };
 
