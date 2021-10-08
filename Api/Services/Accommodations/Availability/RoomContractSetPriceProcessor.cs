@@ -64,8 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             MoneyAmount ChangeProportionally(MoneyAmount price)
             {
-                var totalPricePercent = (price / sourceTotalPrice).Amount;
-                return new MoneyAmount(processedTotalPrice.Amount * totalPricePercent, processedTotalPrice.Currency);
+                var ratio = (price / sourceTotalPrice).Amount;
+                return new MoneyAmount(processedTotalPrice.Amount * ratio, processedTotalPrice.Currency);
             }
         }
         
@@ -114,11 +114,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         
         private static DailyRate BuildDailyPrice(in DailyRate dailyRate, MoneyAmount roomFinalPrice, MoneyAmount roomGross)
-            => new DailyRate(dailyRate.FromDate, dailyRate.ToDate, roomFinalPrice, roomGross, dailyRate.Type, dailyRate.Description);
+            => new (dailyRate.FromDate, dailyRate.ToDate, roomFinalPrice, roomGross, dailyRate.Type, dailyRate.Description);
         
         
         static RoomContract BuildRoomContracts(in RoomContract room, List<DailyRate> roomPrices, Rate totalPrice)
-            => new RoomContract(room.BoardBasis, 
+            => new (room.BoardBasis, 
                 room.MealPlan, 
                 room.ContractTypeCode,
                 room.IsAvailableImmediately,

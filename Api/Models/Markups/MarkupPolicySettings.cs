@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
@@ -9,13 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Markups
     {
         [JsonConstructor]
         public MarkupPolicySettings(string description, int templateId, IDictionary<string, decimal> templateSettings, 
-            int order, Currencies currency, string destinationScopeId = "")
+            int order, Currencies currency, string locationScopeId = "", string destinationScopeId = "")
         {
             Description = description;
             TemplateId = templateId;
             TemplateSettings = templateSettings;
             Order = order;
             Currency = currency;
+            LocationScopeId = locationScopeId;
             DestinationScopeId = destinationScopeId;
         }
 
@@ -45,8 +45,14 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// </summary>
         public Currencies Currency { get; }
         
+        
         /// <summary>
-        ///     Id of scope for destination. Could be Locality_XXXX, City_XXXX, Country_XXXX
+        ///     Location of agent from the mapper
+        /// </summary>
+        public string LocationScopeId { get; }
+        
+        /// <summary>
+        ///     Destination of booking from the mapper
         /// </summary>
         public string DestinationScopeId { get; }
     }

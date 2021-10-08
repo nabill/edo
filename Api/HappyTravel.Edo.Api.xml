@@ -695,6 +695,34 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetPolicies">
+            <summary>
+            Gets agent location markup policies
+            </summary>
+            <returns>List of location markups</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates location markup policy.
+            </summary>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes location policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Combine(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.CombineAccommodationsRequest,System.Threading.CancellationToken)">
             <summary>
             Combines two accommodations by htAccommodationId
@@ -3560,6 +3588,11 @@
                 Agent id for agent scope type
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.LocationId">
+            <summary>
+                Location id for location scope type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Description">
             <summary>
                 Policy description.
@@ -3585,9 +3618,14 @@
                 Currency of policy. Needed for proper currency applying.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeId">
+            <summary>
+                Location of agent from the mapper
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
             <summary>
-                Id of scope for destination. Could be Locality_XXXX, City_XXXX, Country_XXXX
+                Destination of booking from the mapper
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
