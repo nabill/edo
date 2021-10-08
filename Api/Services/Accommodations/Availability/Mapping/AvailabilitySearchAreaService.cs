@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 locations.Add(mapping.Location);
                 
                 foreach (var accommodationMapping in mapping.AccommodationMappings)
-                    FillSupplierCodes(accommodationMapping, codes);
+                    FillSupplierCodes(accommodationMapping, codes, mapping.Location);
             }
 
             return new SearchArea
@@ -43,14 +43,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             };
 
 
-            static void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<Suppliers, List<SupplierCodeMapping>> dictionary)
+            static void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<Suppliers, List<SupplierCodeMapping>> dictionary, Location location)
             {
                 foreach (var supplierCode in accommodationMapping.SupplierCodes)
                 {
                     var supplierCodeMapping = new SupplierCodeMapping
                     {
                         AccommodationHtId = accommodationMapping.HtId,
-                        SupplierCode = supplierCode.Value
+                        SupplierCode = supplierCode.Value,
+                        CountryHtId = location.CountryHtId,
+                        LocalityHtId = location.LocalityHtId 
                     };
 
                     var supplier = (Suppliers) supplierCode.Key;
