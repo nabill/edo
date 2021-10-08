@@ -12,41 +12,38 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class MarkupPolicyStorageUpdater : IHostedService
+    public class MarkupPolicyStorageUpdater : BackgroundService
     {
-        public MarkupPolicyStorageUpdater(IServiceScopeFactory scopeFactory, ILogger<MarkupPolicyStorageUpdater> logger, IMarkupPolicyStorage storage)
+        public MarkupPolicyStorageUpdater(IServiceScopeFactory scopeFactory, IMarkupPolicyStorage storage)
         {
             _scopeFactory = scopeFactory;
-            _logger = logger;
             _storage = storage;
         }
 
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stoppingToken.IsCancellationRequested)
             {
+                using var scope = _scopeFactory.CreateScope();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<MarkupPolicyStorageUpdater>>();
+                
                 try
                 {
-                    await UpdateStorage(cancellationToken);
+                    await UpdateStorage(scope, logger, stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogMarkupPolicyStorageUpdateFailed(ex);
+                    logger.LogMarkupPolicyStorageUpdateFailed(ex);
                 }
 
-                await Task.Delay(_delay, cancellationToken);
+                await Task.Delay(_delay, stoppingToken);
             }
         }
 
 
-        public Task StopAsync(CancellationToken cancellationToken) 
-            => Task.CompletedTask;
-
-
-        private async Task UpdateStorage(CancellationToken cancellationToken)
+        private async Task UpdateStorage(IServiceScope scope, ILogger<MarkupPolicyStorageUpdater> logger, CancellationToken cancellationToken)
         {
-            using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<EdoContext>();
             var dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
 
@@ -61,11 +58,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .ToListAsync(cancellationToken);
                 
                 _storage.Set(markupPolicies);
-                _logger.LogMarkupPolicyStorageRefreshed(markupPolicies.Count);
+                logger.LogMarkupPolicyStorageRefreshed(markupPolicies.Count);
             }
                     
             _lastCheckingDate = dateTimeProvider.UtcNow();
-            _logger.LogMarkupPolicyStorageUpdateCompleted();
+            logger.LogMarkupPolicyStorageUpdateCompleted();
         }
 
 
@@ -74,7 +71,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<MarkupPolicyStorageUpdater> _logger;
         private readonly IMarkupPolicyStorage _storage;
     }
 }
