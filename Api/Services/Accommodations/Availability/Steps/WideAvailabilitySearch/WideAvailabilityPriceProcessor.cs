@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             foreach (var accommodationAvailability in results)
             {
                 // Currency can differ in different results
-                var roomContractSets = await RoomContractSetPriceProcessor_New.AlignPrices(accommodationAvailability.RoomContractSets);
+                var roomContractSets = await RoomContractSetPriceProcessor.AlignPrices(accommodationAvailability.RoomContractSets);
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
                     supplier: accommodationAvailability.Supplier,
                     created: accommodationAvailability.Created,
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private static async ValueTask<AccommodationAvailabilityResult> ProcessPrices(AccommodationAvailabilityResult accommodationAvailability, PriceProcessFunction function)
         {
             var supplierRoomContractSets = accommodationAvailability.RoomContractSets;
-            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor_New.ProcessPrices(supplierRoomContractSets, function);
+            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor.ProcessPrices(supplierRoomContractSets, function);
             var convertedAccommodationAvailability = new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
                 supplier: accommodationAvailability.Supplier,
                 created: accommodationAvailability.Created,

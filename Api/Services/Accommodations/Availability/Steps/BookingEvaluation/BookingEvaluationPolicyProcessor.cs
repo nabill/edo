@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: availability.CheckInDate,
                 checkOutDate: availability.CheckOutDate,
                 numberOfNights: availability.NumberOfNights,
-                roomContractSet: RoomContractSetPolicyProcessor_New.Process(availability.RoomContractSet, availability.CheckInDate,
+                roomContractSet: RoomContractSetPolicyProcessor.Process(availability.RoomContractSet, availability.CheckInDate,
                     settings),
                 availablePaymentMethods: availability.AvailablePaymentMethods,
                 accommodation: availability.Accommodation);

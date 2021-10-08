@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     {
         public static SingleAccommodationAvailability Process(SingleAccommodationAvailability accommodationAvailability, CancellationPolicyProcessSettings settings)
         {
-            var processedRoomContractSets = RoomContractSetPolicyProcessor_New.Process(accommodationAvailability.RoomContractSets,
+            var processedRoomContractSets = RoomContractSetPolicyProcessor.Process(accommodationAvailability.RoomContractSets,
                 accommodationAvailability.CheckInDate,
                 settings);
 

@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Xunit;
@@ -49,10 +48,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
             
-            Assert.Equal(120, processed.RoomContracts[0].Rate.Gross.Amount);
-            Assert.Equal(60, processed.RoomContracts[0].Rate.FinalPrice.Amount);
-            Assert.Equal(Currencies.USD, processed.RoomContracts[0].Rate.Gross.Currency);
-            Assert.Equal(Currencies.USD, processed.RoomContracts[0].Rate.FinalPrice.Currency);
+            Assert.Equal(120, processed.Rooms[0].Rate.Gross.Amount);
+            Assert.Equal(60, processed.Rooms[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed.Rooms[0].Rate.Gross.Currency);
+            Assert.Equal(Currencies.USD, processed.Rooms[0].Rate.FinalPrice.Currency);
         }
         
         
@@ -64,10 +63,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
             
-            Assert.Equal(120, processed[0].RoomContracts[0].Rate.Gross.Amount);
-            Assert.Equal(60, processed[0].RoomContracts[0].Rate.FinalPrice.Amount);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].Rate.Gross.Currency);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].Rate.FinalPrice.Currency);
+            Assert.Equal(120, processed[0].Rooms[0].Rate.Gross.Amount);
+            Assert.Equal(60, processed[0].Rooms[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].Rate.Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].Rate.FinalPrice.Currency);
         }
 
 
@@ -78,10 +77,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, AddTenReturnUsd);
             
-            Assert.Equal(120, processed.RoomContracts[0].DailyRoomRates[0].Gross.Amount);
-            Assert.Equal(60, processed.RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
-            Assert.Equal(Currencies.USD, processed.RoomContracts[0].DailyRoomRates[0].Gross.Currency);
-            Assert.Equal(Currencies.USD, processed.RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+            Assert.Equal(120, processed.Rooms[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(60, processed.Rooms[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed.Rooms[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed.Rooms[0].DailyRoomRates[0].FinalPrice.Currency);
         }
         
         
@@ -93,10 +92,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, AddTenReturnUsd); 
             
-            Assert.Equal(120, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Amount);
-            Assert.Equal(60, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Currency);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+            Assert.Equal(120, processed[0].Rooms[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(60, processed[0].Rooms[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].DailyRoomRates[0].FinalPrice.Currency);
         }
         
         [InlineData(100, 50, 1d)]
@@ -112,12 +111,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
             var processed = await RoomContractSetPriceProcessor.ProcessPrices(roomContractSets, PriceProcessFunction); 
             
-            Assert.Equal(gross * ratio, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Amount);
-            Assert.Equal(net * ratio, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Amount);
-            Assert.Equal(gross * ratio, processed[0].RoomContracts[0].Rate.Gross.Amount);
-            Assert.Equal(net * ratio, processed[0].RoomContracts[0].Rate.FinalPrice.Amount);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].Gross.Currency);
-            Assert.Equal(Currencies.USD, processed[0].RoomContracts[0].DailyRoomRates[0].FinalPrice.Currency);
+            Assert.Equal(gross * ratio, processed[0].Rooms[0].DailyRoomRates[0].Gross.Amount);
+            Assert.Equal(net * ratio, processed[0].Rooms[0].DailyRoomRates[0].FinalPrice.Amount);
+            Assert.Equal(gross * ratio, processed[0].Rooms[0].Rate.Gross.Amount);
+            Assert.Equal(net * ratio, processed[0].Rooms[0].Rate.FinalPrice.Amount);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].DailyRoomRates[0].Gross.Currency);
+            Assert.Equal(Currencies.USD, processed[0].Rooms[0].DailyRoomRates[0].FinalPrice.Currency);
         }
         
         
@@ -141,12 +140,33 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
         
 
         private RoomContractSet CreateRoomContractSet(Rate contractSetTotalRate, List<RoomContract> roomContracts)
-            => new(default, contractSetTotalRate, default, roomContracts, default, default, default, default);
+            => new (id: default,
+                rate: contractSetTotalRate,
+                deadline: default,
+                rooms: roomContracts,
+                isAdvancePurchaseRate: default,
+                supplier: default,
+                tags: default,
+                isDirectContract: default,
+                isPackageRate: default);
         
 
         private RoomContract CreateRoomContract(List<DailyRate> roomDailyRates, Rate roomTotalRate)
-            => new(default, default, default, default, 
-                default, default, default, roomDailyRates, roomTotalRate, default);
+            => new (boardBasis: default,
+                mealPlan: default,
+                contractTypeCode: default,
+                isAvailableImmediately: default,
+                isDynamic: default,
+                contractDescription: default,
+                remarks: default,
+                dailyRoomRates: roomDailyRates,
+                rate: roomTotalRate,
+                adultsNumber: default,
+                childrenAges: default,
+                type: default,
+                isAdvancePurchaseRate: default,
+                isExtraBedNeeded: default,
+                deadline: default);
         
 
         private List<DailyRate> CreateDailyRates(Currencies currency, decimal final, decimal gross)
@@ -154,11 +174,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
             var fromDate = new DateTime();
             return new List<DailyRate>
             {
-                new(fromDate,
+                new (fromDate,
                     fromDate.AddDays(1), // because of validation "toDate" should be bigger by exactly 1 day
                     new MoneyAmount(final, currency),
-                    new MoneyAmount(gross, currency)
-                )
+                    new MoneyAmount(gross, currency),
+                    default,
+                    default)
             };
         }
        

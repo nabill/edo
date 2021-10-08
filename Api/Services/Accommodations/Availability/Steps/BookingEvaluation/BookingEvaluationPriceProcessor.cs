@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
         public async ValueTask<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability value)
         {
-            var roomContractSet = await RoomContractSetPriceProcessor_New.AlignPrices(value.RoomContractSet);
+            var roomContractSet = await RoomContractSetPriceProcessor.AlignPrices(value.RoomContractSet);
             return new RoomContractSetAvailability(availabilityId: value.AvailabilityId,
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private static async ValueTask<RoomContractSetAvailability> ProcessPrices(RoomContractSetAvailability value,
             PriceProcessFunction processFunction)
         {
-            var roomContractSet = await RoomContractSetPriceProcessor_New.ProcessPrices(value.RoomContractSet, processFunction);
+            var roomContractSet = await RoomContractSetPriceProcessor.ProcessPrices(value.RoomContractSet, processFunction);
             return new RoomContractSetAvailability(availabilityId: value.AvailabilityId,
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
