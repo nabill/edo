@@ -65,8 +65,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             MoneyAmount ChangeProportionally(MoneyAmount price)
             {
-                var totalPricePercent = (price / sourceTotalPrice).Amount;
-                return new MoneyAmount(processedTotalPrice.Amount * totalPricePercent, processedTotalPrice.Currency);
+                var ratio = (price / sourceTotalPrice).Amount;
+                return new MoneyAmount(processedTotalPrice.Amount * ratio, processedTotalPrice.Currency);
             }
         }
         
@@ -115,25 +115,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         
         private static DailyRate BuildDailyPrice(in DailyRate dailyRate, MoneyAmount roomFinalPrice, MoneyAmount roomGross)
-            => new DailyRate(dailyRate.FromDate, dailyRate.ToDate, roomFinalPrice, roomGross, dailyRate.Type, dailyRate.Description);
+            => new (dailyRate.FromDate, dailyRate.ToDate, roomFinalPrice, roomGross, dailyRate.Type, dailyRate.Description);
         
         
         static RoomContract BuildRoomContracts(in RoomContract room, List<DailyRate> roomPrices, Rate totalPrice)
-            => new RoomContract(room.BoardBasis, 
-                room.MealPlan, 
-                room.ContractTypeCode,
-                room.IsAvailableImmediately,
-                room.IsDynamic,
-                room.ContractDescription,
-                room.Remarks,
-                roomPrices, 
-                totalPrice,
-                room.AdultsNumber, 
-                room.ChildrenAges,
-                room.Type,
-                room.IsExtraBedNeeded,
-                room.Deadline,
-                room.IsAdvancePurchaseRate);
+            => new (boardBasis: room.BoardBasis, 
+                mealPlan: room.MealPlan, 
+                contractTypeCode: room.ContractTypeCode,
+                isAvailableImmediately: room.IsAvailableImmediately,
+                isDynamic: room.IsDynamic,
+                contractDescription: room.ContractDescription,
+                remarks: room.Remarks,
+                dailyRoomRates: roomPrices, 
+                rate: totalPrice,
+                adultsNumber: room.AdultsNumber, 
+                childrenAges: room.ChildrenAges,
+                type: room.Type,
+                isExtraBedNeeded: room.IsExtraBedNeeded,
+                deadline: room.Deadline,
+                isAdvancePurchaseRate: room.IsAdvancePurchaseRate);
 
             
         static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Rate roomContractSetRate, List<RoomContract> rooms)

@@ -40,22 +40,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
             static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline)
-                => new (roomContract.BoardBasis,
-                    roomContract.MealPlan,
-                    roomContract.ContractTypeCode,
+                => new (boardBasis: roomContract.BoardBasis,
+                    mealPlan: roomContract.MealPlan,
+                    contractTypeCode: roomContract.ContractTypeCode,
                     isAvailableImmediately: roomContract.IsAvailableImmediately,
-                    roomContract.IsDynamic,
-                    roomContract.ContractDescription,
-                    roomContract.Remarks,
-                    roomContract.DailyRoomRates,
-                    roomContract.Rate,
-                    roomContract.AdultsNumber,
-                    roomContract.ChildrenAges,
-                    roomContract.Type,
-                    roomContract.IsExtraBedNeeded,
-                    roomContractDeadline,
-                    isAdvancePurchaseRate: roomContract.IsAdvancePurchaseRate
-                );
+                    isDynamic: roomContract.IsDynamic,
+                    contractDescription: roomContract.ContractDescription,
+                    remarks: roomContract.Remarks,
+                    dailyRoomRates: roomContract.DailyRoomRates,
+                    rate: roomContract.Rate,
+                    adultsNumber: roomContract.AdultsNumber,
+                    childrenAges: roomContract.ChildrenAges,
+                    type: roomContract.Type,
+                    isExtraBedNeeded: roomContract.IsExtraBedNeeded,
+                    deadline: roomContractDeadline,
+                    isAdvancePurchaseRate: roomContract.IsAdvancePurchaseRate);
         }
     }
 }

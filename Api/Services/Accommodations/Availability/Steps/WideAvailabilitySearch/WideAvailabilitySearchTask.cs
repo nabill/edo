@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             List<AccommodationAvailabilityResult> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var htIdMapping = accommodationCodeMappings
-                    .ToDictionary(m => m.SupplierCode, m => m.HtId);
+                    .ToDictionary(m => m.SupplierCode, m => m.AccommodationHtId);
                 
                 var now = _dateTimeProvider.UtcNow();
                 return details
