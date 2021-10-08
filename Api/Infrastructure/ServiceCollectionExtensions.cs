@@ -132,17 +132,60 @@ namespace HappyTravel.Edo.Api.Infrastructure
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
-
+            var identityUri = new Uri(new Uri(authorityUrl), "/connect/token").ToString();
+            var clientId = clientOptions["clientId"];
+            var clientSecret = clientOptions["clientSecret"];
+            
             services.Configure<ConnectorTokenRequestOptions>(options =>
             {
-                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
-                options.Address = uri.ToString();
-                options.ClientId = clientOptions["clientId"];
-                options.ClientSecret = clientOptions["clientSecret"];
-                options.Scope = clientOptions["scope"];
+                options.Address = identityUri;
+                options.ClientId = clientId;
+                options.ClientSecret = clientSecret;
+                options.Scope = clientOptions["connectorsScope"];
                 options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
             });
             
+            services.AddAccessTokenManagement(options =>
+            {
+                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["mapperScope"]
+                });
+                
+                options.Client.Clients.Add(HttpClientNames.MapperManagementIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["mapperManagementScope"]
+                });
+                
+                options.Client.Clients.Add(HttpClientNames.VccApiIdentity, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["vccScope"]
+                });
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+            });
             
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 
@@ -168,45 +211,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
-            
-            #region MapperClient
-            var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
-            services.AddAccessTokenManagement(options =>
-            {
-                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = $"{authorityUrl}connect/token",
-                    ClientId = mapperClientOptions["clientId"],
-                    ClientSecret = mapperClientOptions["clientSecret"]
-                });
-            });
-            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
-            });
-            #endregion
-
-            #region MapperManagementClient
-            var mapperManagementClientOptions = vaultClient.Get(configuration["Edo:MapperManagementClient:Options"]).GetAwaiter().GetResult();
-            services.AddAccessTokenManagement(options =>
-            {
-                options.Client.Clients.Add(HttpClientNames.MapperManagementIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = $"{authorityUrl}connect/token",
-                    ClientId = mapperManagementClientOptions["clientId"],
-                    ClientSecret = mapperManagementClientOptions["clientSecret"]
-                });
-            });
-            services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
-            });
-            #endregion
-            
-            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
-            });
 
             return services;
         }
