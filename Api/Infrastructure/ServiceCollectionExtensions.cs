@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             
-            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
+            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
             });
