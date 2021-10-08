@@ -119,21 +119,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         
         static RoomContract BuildRoomContracts(in RoomContract room, List<DailyRate> roomPrices, Rate totalPrice)
-            => new (room.BoardBasis, 
-                room.MealPlan, 
-                room.ContractTypeCode,
-                room.IsAvailableImmediately,
-                room.IsDynamic,
-                room.ContractDescription,
-                room.Remarks,
-                roomPrices, 
-                totalPrice,
-                room.AdultsNumber, 
-                room.ChildrenAges,
-                room.Type,
-                room.IsExtraBedNeeded,
-                room.Deadline,
-                room.IsAdvancePurchaseRate);
+            => new (boardBasis: room.BoardBasis, 
+                mealPlan: room.MealPlan, 
+                contractTypeCode: room.ContractTypeCode,
+                isAvailableImmediately: room.IsAvailableImmediately,
+                isDynamic: room.IsDynamic,
+                contractDescription: room.ContractDescription,
+                remarks: room.Remarks,
+                dailyRoomRates: roomPrices, 
+                rate: totalPrice,
+                adultsNumber: room.AdultsNumber, 
+                childrenAges: room.ChildrenAges,
+                type: room.Type,
+                isExtraBedNeeded: room.IsExtraBedNeeded,
+                deadline: room.Deadline,
+                isAdvancePurchaseRate: room.IsAdvancePurchaseRate);
 
             
         static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Rate roomContractSetRate, List<RoomContract> rooms)
