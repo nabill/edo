@@ -1,17 +1,15 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Prometheus;
+
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
@@ -34,17 +32,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         );
 
 
-        public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability(Guid searchId,
+        public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             string htId, Suppliers supplier, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
             AgentContext agent, string languageCode)
         {
             return await ExecuteRequest()
-                .Bind(ReplaceAccommodationData)
+                .Bind(Convert)
                 .Bind(ConvertCurrencies)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
                 .Map(AlignPrices)
-                .Map(AddSupplierData)
                 .Tap(SaveToCache);
 
 
@@ -52,30 +49,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
 
-            Result<AccommodationAvailability, ProblemDetails> ReplaceAccommodationData(AccommodationAvailability availabilityDetails)
+            Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
-                return new AccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, 
-                    accommodationId: supplierAccommodationCode,
-                    checkInDate: availabilityDetails.CheckInDate,
-                    checkOutDate: availabilityDetails.CheckOutDate,
-                    numberOfNights: availabilityDetails.NumberOfNights,
-                    roomContractSets: availabilityDetails.RoomContractSets);
+                var roomContractSets = availabilityDetails.RoomContractSets
+                    .Select(r => r.ToRoomContractSet(supplier, r.IsDirectContract))
+                    .ToList();
+                
+                return new SingleAccommodationAvailability(availabilityDetails.AvailabilityId,
+                    availabilityDetails.CheckInDate,
+                    roomContractSets,
+                    htId);
             }
 
 
-            Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
+            Task<Result<SingleAccommodationAvailability, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailability availabilityDetails)
                 => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
-            AccommodationAvailability ProcessPolicies(AccommodationAvailability availabilityDetails)
+            SingleAccommodationAvailability ProcessPolicies(SingleAccommodationAvailability availabilityDetails)
                 => RoomSelectionPolicyProcessor.Process(availabilityDetails, settings.CancellationPolicyProcessSettings);
 
 
-            Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
+            Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response) 
                 => _priceProcessor.ApplyMarkups(response, agent);
             
             
-            async Task<AccommodationAvailability> AlignPrices(AccommodationAvailability response) 
+            async Task<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability response) 
                 => await _priceProcessor.AlignPrices(response);
 
 
@@ -83,16 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => SupplierData.Create(supplier, availabilityDetails);
             
             
-            Task SaveToCache(SupplierData<AccommodationAvailability> details)
-            {
-                var availabilityData = details.Data;
-                var result = new SingleAccommodationAvailability(availabilityData.AvailabilityId,
-                    availabilityData.CheckInDate,
-                    availabilityData.RoomContractSets,
-                    htId);
-                
-                return _roomSelectionStorage.SaveResult(searchId, htId, result, details.Source);
-            }
+            Task SaveToCache(SingleAccommodationAvailability details) 
+                => _roomSelectionStorage.SaveResult(searchId, htId, details, supplier);
         }
         
         

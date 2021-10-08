@@ -1,27 +1,24 @@
 using System.Collections.Generic;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.Api.Models.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
     public static class RoomSelectionPolicyProcessor
     {
-        public static AccommodationAvailability Process(AccommodationAvailability accommodationAvailability, CancellationPolicyProcessSettings settings)
+        public static SingleAccommodationAvailability Process(SingleAccommodationAvailability accommodationAvailability, CancellationPolicyProcessSettings settings)
         {
-            var processedRoomContractSets = RoomContractSetPolicyProcessor.Process(accommodationAvailability.RoomContractSets,
+            var processedRoomContractSets = RoomContractSetPolicyProcessor_New.Process(accommodationAvailability.RoomContractSets,
                 accommodationAvailability.CheckInDate,
                 settings);
 
             return SetRoomContractSets(accommodationAvailability, processedRoomContractSets);
 
 
-            static AccommodationAvailability SetRoomContractSets(in AccommodationAvailability availability, List<RoomContractSet> roomContractSets)
-                => new AccommodationAvailability(availabilityId: availability.AvailabilityId,
-                    accommodationId: availability.AccommodationId,
+            static SingleAccommodationAvailability SetRoomContractSets(in SingleAccommodationAvailability availability, List<RoomContractSet> roomContractSets)
+                => new (availabilityId: availability.AvailabilityId,
                     checkInDate: availability.CheckInDate,
-                    checkOutDate: availability.CheckOutDate,
-                    numberOfNights: availability.NumberOfNights,
-                    roomContractSets: roomContractSets);
+                    roomContractSets: roomContractSets,
+                    htId: availability.HtId);
         }
     }
 }
