@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public static List<AccommodationAvailabilityResult> Process(List<AccommodationAvailabilityResult> results, CancellationPolicyProcessSettings settings)
         {
             return results
-                .Select(r => r with { RoomContractSets = RoomContractSetPolicyProcessor_New.Process(r.RoomContractSets, r.CheckInDate, settings)})
+                .Select(r => r with { RoomContractSets = RoomContractSetPolicyProcessor.Process(r.RoomContractSets, r.CheckInDate, settings)})
                 .ToList();
         }
     }
