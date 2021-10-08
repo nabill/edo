@@ -1,26 +1,16 @@
+using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.Api.Models.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
     public static class WideAvailabilityPolicyProcessor
     {
-        public static EdoContracts.Accommodations.Availability Process(EdoContracts.Accommodations.Availability availability, CancellationPolicyProcessSettings settings)
+        public static List<AccommodationAvailabilityResult> Process(List<AccommodationAvailabilityResult> results, CancellationPolicyProcessSettings settings)
         {
-            var results = availability.Results
-                .Select(r =>
-                {
-                    return new SlimAccommodationAvailability(r.AccommodationId, 
-                        RoomContractSetPolicyProcessor.Process(r.RoomContractSets, availability.CheckInDate, settings),
-                        r.AvailabilityId);
-                })
+            return results
+                .Select(r => r with { RoomContractSets = RoomContractSetPolicyProcessor_New.Process(r.RoomContractSets, r.CheckInDate, settings)})
                 .ToList();
-
-            return new EdoContracts.Accommodations.Availability(availability.AvailabilityId,
-                availability.NumberOfNights, availability.CheckInDate,
-                availability.CheckOutDate,
-                results,
-                availability.NumberOfProcessedAccommodations);
         }
     }
 }
