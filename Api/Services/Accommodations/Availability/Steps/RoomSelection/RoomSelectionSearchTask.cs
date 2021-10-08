@@ -78,10 +78,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => await _priceProcessor.AlignPrices(response);
 
 
-            SupplierData<AccommodationAvailability> AddSupplierData(AccommodationAvailability availabilityDetails)
-                => SupplierData.Create(supplier, availabilityDetails);
-            
-            
             Task SaveToCache(SingleAccommodationAvailability details) 
                 => _roomSelectionStorage.SaveResult(searchId, htId, details, supplier);
         }
