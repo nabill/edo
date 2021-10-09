@@ -11,8 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         Task<Result> Remove(int policyId);
 
-        Task<Result> Modify(int policyId, MarkupPolicySettings settings);
-
         Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
         
         Task<List<MarkupInfo>> GetGlobalPolicies();
@@ -30,5 +28,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
         Task<Result> ModifyCounterpartyPolicy(int policyId, int counterpartyId, MarkupPolicySettings settings);
 
         Task<List<MarkupInfo>> GetMarkupsForCounterparty(int counterpartyId);
-    }
+
+        Task<List<MarkupInfo>> GetLocationPolicies();
+
+        Task<Result> AddLocationPolicy(MarkupPolicySettings settings);
+       
+        Task<Result> RemoveLocationPolicy(int policyId);
+
+        Task<Result> ModifyLocationPolicy(int policyId, MarkupPolicySettings settings);
+   }
 }

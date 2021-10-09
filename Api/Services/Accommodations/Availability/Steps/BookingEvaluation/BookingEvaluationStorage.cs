@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.Edo.Data.Bookings;
 using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
-using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
@@ -22,24 +18,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Suppliers supplier,
-            List<PaymentTypes> availablePaymentTypes, string htId, SlimAccommodation accommodation, Deadline agentDeadline, Deadline supplierDeadline)
+        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
+            Deadline supplierDeadline, bool isCreditCardRequired, string supplierAccommodationCode)
         {
-            var key = BuildKey(searchId, htId, roomContractSetId);
-            var result = SupplierData.Create(supplier, availability);
+            var accommodation = availability.Data.Accommodation;
+            var key = BuildKey(searchId, accommodation.HtId, roomContractSetId);
             var roomSetAvailability = availability.Data;
             
             var location = accommodation.Location;
-            var roomContractSet = roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source,
-                roomSetAvailability.RoomContractSet.IsDirectContract);
             
-            var dataWithMarkup = result.Data;
             
             var bookingAvailabilityInfo = new BookingAvailabilityInfo(
-                accommodationId: roomSetAvailability.AccommodationId,
+                accommodationId: supplierAccommodationCode,
                 accommodationName: accommodation.Name,
                 accommodationInfo: new AccommodationInfo(accommodation.Photo),
-                roomContractSet: roomContractSet,
+                roomContractSet: roomSetAvailability.RoomContractSet,
                 zoneName: location.LocalityZone,
                 localityName: location.Locality,
                 countryName: location.Country,
@@ -49,17 +42,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: roomSetAvailability.CheckInDate,
                 checkOutDate: roomSetAvailability.CheckOutDate,
                 numberOfNights: roomSetAvailability.NumberOfNights,
-                supplier: result.Source,
-                appliedMarkups: dataWithMarkup.AppliedMarkups,
-                convertedSupplierPrice: dataWithMarkup.ConvertedSupplierPrice,
-                originalSupplierPrice: dataWithMarkup.OriginalSupplierPrice,
+                supplier: availability.Data.RoomContractSet.Supplier.Value,
+                appliedMarkups: availability.AppliedMarkups,
+                convertedSupplierPrice: availability.ConvertedSupplierPrice,
+                originalSupplierPrice: availability.OriginalSupplierPrice,
                 availabilityId: roomSetAvailability.AvailabilityId,
-                htId: htId,
-                availablePaymentTypes: availablePaymentTypes,
+                htId: roomSetAvailability.Accommodation.HtId,
+                availablePaymentTypes: roomSetAvailability.AvailablePaymentMethods,
                 isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
-                agentDeadline: agentDeadline.ToDeadline(),
-                supplierDeadline: supplierDeadline.ToDeadline(),
-                isCreditCardRequired: roomSetAvailability.IsCreditCardNeeded);
+                agentDeadline: agentDeadline,
+                supplierDeadline: supplierDeadline,
+                isCreditCardRequired: isCreditCardRequired);
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }

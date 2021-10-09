@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +9,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public interface IWideAvailabilityPriceProcessor
     {
-        Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response, AgentContext agent);
+        Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> results, AgentContext agent);
 
-        Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails, AgentContext agent);
+        Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> results, AgentContext agent);
 
-        ValueTask<EdoContracts.Accommodations.Availability> AlignPrices(EdoContracts.Accommodations.Availability response);
+        ValueTask<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results);
     }
 }

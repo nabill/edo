@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,40 +17,36 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails, AgentContext agent)
+        public Task<Result<SingleAccommodationAvailability, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailability availabilityDetails, AgentContext agent)
             => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, ProcessPrices, GetCurrency);
 
 
-        public Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response, AgentContext agent)
+        public Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
             => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices);
 
 
-        public async ValueTask<AccommodationAvailability> AlignPrices(AccommodationAvailability source)
+        public async ValueTask<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability source)
         {
             var roomContractSets = await RoomContractSetPriceProcessor.AlignPrices(source.RoomContractSets);
-            return new AccommodationAvailability(availabilityId: source.AvailabilityId,
-                accommodationId: source.AccommodationId,
+            return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
-                checkOutDate: source.CheckOutDate,
-                numberOfNights: source.NumberOfNights,
-                roomContractSets: roomContractSets);
+                roomContractSets: roomContractSets,
+                htId: source.HtId);
         }
 
 
-        private static async ValueTask<AccommodationAvailability> ProcessPrices(AccommodationAvailability source,
+        private static async ValueTask<SingleAccommodationAvailability> ProcessPrices(SingleAccommodationAvailability source,
             PriceProcessFunction processFunction)
         {
             var roomContractSets = await RoomContractSetPriceProcessor.ProcessPrices(source.RoomContractSets, processFunction);
-            return new AccommodationAvailability(availabilityId: source.AvailabilityId,
-                accommodationId: source.AccommodationId,
+            return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
-                checkOutDate: source.CheckOutDate,
-                numberOfNights: source.NumberOfNights,
-                roomContractSets: roomContractSets);
+                roomContractSets: roomContractSets,
+                htId: source.HtId);
         }
 
 
-        private static Currencies? GetCurrency(AccommodationAvailability availabilityDetails)
+        private static Currencies? GetCurrency(SingleAccommodationAvailability availabilityDetails)
         {
             if (!availabilityDetails.RoomContractSets.Any())
                 return null;

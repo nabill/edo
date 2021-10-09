@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             return new RoomContractSet(roomContractSet.Id,
                 roomContractSet.Rate.ToRate(),
-                DeadlineMerger.CalculateMergedDeadline(roomContractSet.RoomContracts).ToDeadline(),
+                DeadlineMerger.CalculateMergedDeadline(roomContractSet.RoomContracts),
                 roomContractSet.RoomContracts.ToRoomContractList(),
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 supplier,
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
 
-        private static RoomContract ToRoomContract(this EdoContracts.Accommodations.Internals.RoomContract roomContract)
+        public static RoomContract ToRoomContract(this EdoContracts.Accommodations.Internals.RoomContract roomContract)
         {
             return new RoomContract(roomContract.BoardBasis, roomContract.MealPlan,
                 roomContract.ContractTypeCode, roomContract.IsAvailableImmediately, roomContract.IsDynamic,
