@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
@@ -32,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .Check(_ => UpdateAgencyRelation())
                 .Check(_ => WriteLog())
                 .Check(_ => DeactivateAgencyIfNeeded())
-                .Check(DeactivateCounterpartyIfNeeded);
+                .Check(DeactivateCounterpartyIfNeeded)
+                .Check(_ => CreateNewMasterIfNeeded());
 
 
             async Task<Result> ValidateRequest()
@@ -119,6 +121,62 @@ namespace HappyTravel.Edo.Api.Services.Management
 
                 return await _counterpartyManagementService.DeactivateCounterparty(sourceAgency.CounterpartyId, 
                     "There are no active agencies in the counterparty", masterAgentContext);
+            }
+
+
+            async Task<Result> CreateNewMasterIfNeeded()
+            {
+                var isRelationExists = await _edoContext.AgentAgencyRelations.AnyAsync(r => r.AgencyId == sourceAgencyId && r.IsActive);
+                if (!isRelationExists)
+                    return Result.Success();
+
+                var allAgentRoles = await _edoContext.AgentRoles.ToListAsync();
+                var allPreservedRoleIds = allAgentRoles.Where(r => r.IsPreservedInAgency).Select(r => r.Id).ToList();
+
+                var doesMasterWithPreservedRolesExist = await _edoContext.AgentAgencyRelations
+                    .AnyAsync(r => r.AgencyId == sourceAgencyId
+                        && r.IsActive
+                        && r.Type == AgentAgencyRelationTypes.Master 
+                        && allPreservedRoleIds.All(pr => r.AgentRoleIds.Contains(pr)));
+                if (doesMasterWithPreservedRolesExist)
+                    return Result.Success();
+                
+                var preservedRoleIds = allAgentRoles
+                    .Where(r => r.IsPreservedInAgency)
+                    .Select(r => r.Id)
+                    .ToList();
+
+                var allRolesPrivelegesCounts = allAgentRoles
+                    .ToDictionary(k => k.Id, v => v.Permissions.ToList().Count);
+
+                var allActiveAgentsRelations = await _edoContext.AgentAgencyRelations
+                    .Where(rel => rel.AgencyId == sourceAgencyId && rel.IsActive)
+                    .ToListAsync();
+
+                // If there already is a master, then we just grant preserved roles to that relation.
+                // If none or many, we find someone with preserved roles to make new master.
+                // If none or many again, we find someone whose roles grants highest privileges sum.
+                // Finally, we take the oldest agent.
+                var relationToMakeMaster = allActiveAgentsRelations
+                    .OrderByDescending(rel => rel.Type)
+                    .ThenByDescending(rel => rel.AgentRoleIds.Count(r => preservedRoleIds.Contains(r)))
+                    .ThenByDescending(rel => rel.AgentRoleIds.Sum(r => allRolesPrivelegesCounts[r]))
+                    .ThenBy(rel => rel.AgentId)
+                    .FirstOrDefault();
+
+                if (relationToMakeMaster is not null)
+                    await MakeMaster(relationToMakeMaster);
+
+                return Result.Success();
+
+                async Task MakeMaster(AgentAgencyRelation newMasterRelation)
+                {
+                    newMasterRelation.Type = AgentAgencyRelationTypes.Master;
+                    newMasterRelation.AgentRoleIds = newMasterRelation.AgentRoleIds.Concat(preservedRoleIds).Distinct().ToArray();
+
+                    _edoContext.Update(newMasterRelation);
+                    await _edoContext.SaveChangesAsync();
+                }
             }
         }
 
