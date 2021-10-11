@@ -7,6 +7,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -31,11 +32,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public async Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
+        public async Task<TDetails> ApplyMarkups<TDetails>(MarkupSubjectInfo subject, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc, 
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var policies = await _markupPolicyService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(subject, MarkupPolicyTarget.AccommodationAvailability);
             var currentData = details;
             foreach (var policy in policies)
             {
@@ -44,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var markupFunction = GetPriceProcessFunction(policy);
                 currentData = await priceProcessFunc(currentData, markupFunction);
 
-                var discountFunction = await _discountFunctionService.Get(policy, agent);
+                var discountFunction = await _discountFunctionService.Get(policy, subject);
                 currentData = await priceProcessFunc(currentData, discountFunction);;
 
                 logAction?.Invoke(new MarkupApplicationResult<TDetails>(detailsBefore, policy, currentData));

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -21,15 +21,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<List<MarkupPolicy>> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget)
+        public async Task<List<MarkupPolicy>> Get(MarkupSubjectInfo subject, MarkupPolicyTarget policyTarget)
         {
-            return await GetAgentPolicies(agentContext, policyTarget);
+            return await GetAgentPolicies(subject, policyTarget);
         }
 
 
-        private Task<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, MarkupPolicyTarget policyTarget)
+        private Task<List<MarkupPolicy>> GetAgentPolicies(MarkupSubjectInfo subject, MarkupPolicyTarget policyTarget)
         {
-            var (agentId, counterpartyId, agencyId, _) = agentContext;
+            var agentId = subject.AgentId;
+            var counterpartyId = subject.CounterpartyId;
+            var agencyId = subject.AgencyId;
 
             return _flow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,

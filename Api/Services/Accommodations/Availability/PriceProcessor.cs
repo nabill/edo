@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
-            => _markupService.ApplyMarkups(agent, details, priceProcessFunc, logAction);
+        {
+            var markupSubject = new MarkupSubjectInfo
+            {
+                AgentId = agent.AgentId,
+                AgencyId = agent.AgencyId,
+                CounterpartyId = agent.CounterpartyId
+            };
+            return _markupService.ApplyMarkups(markupSubject, details, priceProcessFunc, logAction);
+        }
 
 
         private readonly IMarkupService _markupService;
