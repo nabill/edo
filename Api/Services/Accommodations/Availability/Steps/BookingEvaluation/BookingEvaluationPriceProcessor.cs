@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, ProcessPrices, GetCurrency);
 
 
-        public async ValueTask<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability value)
+        public RoomContractSetAvailability AlignPrices(RoomContractSetAvailability value)
         {
-            var roomContractSet = await RoomContractSetPriceProcessor.AlignPrices(value.RoomContractSet);
+            var roomContractSet = RoomContractSetPriceProcessor.AlignPrices(value.RoomContractSet);
             return new RoomContractSetAvailability(availabilityId: value.AvailabilityId,
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
