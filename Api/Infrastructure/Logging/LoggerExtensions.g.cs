@@ -343,6 +343,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1092, "MarkupPolicyStorageUpdateFailed"),
                 "Markup policy storage update failed");
             
+            CurrencyConversionFailed = LoggerMessage.Define<HappyTravel.Money.Enums.Currencies, HappyTravel.Money.Enums.Currencies, string>(LogLevel.Error,
+                new EventId(1093, "CurrencyConversionFailed"),
+                "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`");
+            
         }
     
                 
@@ -597,6 +601,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMarkupPolicyStorageUpdateFailed(this ILogger logger, Exception exception = null)
             => MarkupPolicyStorageUpdateFailed(logger, exception);
+                
+         public static void LogCurrencyConversionFailed(this ILogger logger, HappyTravel.Money.Enums.Currencies Source, HappyTravel.Money.Enums.Currencies Target, string Error, Exception exception = null)
+            => CurrencyConversionFailed(logger, Source, Target, Error, exception);
     
     
         
@@ -767,5 +774,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateCompleted;
         
         private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateFailed;
+        
+        private static readonly Action<ILogger, HappyTravel.Money.Enums.Currencies, HappyTravel.Money.Enums.Currencies, string, Exception> CurrencyConversionFailed;
     }
 }
