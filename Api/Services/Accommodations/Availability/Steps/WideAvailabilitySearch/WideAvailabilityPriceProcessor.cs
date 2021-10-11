@@ -73,7 +73,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     checkInDate: accommodationAvailability.CheckInDate,
                     checkOutDate: accommodationAvailability.CheckOutDate,
                     htId: accommodationAvailability.HtId,
-                    supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode));
+                    supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
+                    countryHtId: accommodationAvailability.CountryHtId,
+                    localityHtId: accommodationAvailability.LocalityHtId));
             }
 
             return convertedResults;
@@ -103,7 +105,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 checkInDate: accommodationAvailability.CheckInDate,
                 checkOutDate: accommodationAvailability.CheckOutDate,
                 htId: accommodationAvailability.HtId,
-                supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode);
+                supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
+                countryHtId: accommodationAvailability.CountryHtId,
+                localityHtId: accommodationAvailability.LocalityHtId);
             
             return convertedAccommodationAvailability;
         }
