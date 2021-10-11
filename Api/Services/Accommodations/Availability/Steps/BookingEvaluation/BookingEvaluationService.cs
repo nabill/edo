@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
@@ -16,7 +17,6 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -61,7 +61,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return (RoomContractSetAvailability?)null;
             }
 
-            var originalSupplierPrice = connectorEvaluationResult.Value?.RoomContractSet.Rate.FinalPrice ?? default;
+            if (connectorEvaluationResult.Value is null)
+                return (RoomContractSetAvailability?)null;
+
+            var originalSupplierPrice = connectorEvaluationResult.Value.Value.RoomContractSet.Rate.FinalPrice;
             
             var (_, isContractFailure, contractKind, contractError) = await _counterpartyService.GetContractKind(agent.CounterpartyId);
             if (isContractFailure)
@@ -76,14 +79,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             var slimAccommodation = GetSlimAccommodation(accommodationResult.Value);
 
-            return await ConvertCurrencies(connectorEvaluationResult.Value)
+            return await Convert(connectorEvaluationResult.Value.Value)
+                .Bind(ConvertCurrencies)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
                 .Map(AlignPrices)
                 .Tap(SaveToCache)
-                .Map(ToDetails)
+                .Map(e => e.Data)
                 .Check(CheckAgainstSettings)
-                .Check(CheckCancellationPolicies);
+                .Check(CheckCancellationPolicies)
+                .Map(ApplySearchSettings);
 
 
             async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
@@ -111,27 +116,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
 
+            
+            Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
+            {
+                var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
+                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation);
+            }
+            
 
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) 
+            Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails) 
                 => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
             
-            EdoContracts.Accommodations.RoomContractSetAvailability? ProcessPolicies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) 
+            RoomContractSetAvailability ProcessPolicies(RoomContractSetAvailability availabilityDetails) 
                 => BookingEvaluationPolicyProcessor.Process(availabilityDetails, settings.CancellationPolicyProcessSettings);
             
 
-            async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
-                ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
+            async Task<DataWithMarkup<RoomContractSetAvailability>> ApplyMarkups(RoomContractSetAvailability response)
             {
                 var appliedMarkups = new List<AppliedMarkup>();
-                var convertedSupplierPrice = response?.RoomContractSet.Rate.FinalPrice ?? default;
+                var convertedSupplierPrice = response.RoomContractSet.Rate.FinalPrice;
                 // Saving all the changes in price that was done by markups
-                Action<MarkupApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
+                Action<MarkupApplicationResult<RoomContractSetAvailability>> logAction = appliedMarkup =>
                 {
-                    if (appliedMarkup.Before is null || appliedMarkup.After is null)
-                        return;
-                    
-                    var markupAmount = appliedMarkup.After.Value.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.Value.RoomContractSet.Rate.FinalPrice;
+                    var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
                     appliedMarkups.Add(new AppliedMarkup(
                         scope: new MarkupPolicyScope(policy.AgentScopeType, policy.CounterpartyId, policy.AgencyId, policy.AgentId),
@@ -145,85 +153,48 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>> AlignPrices(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> availabilityWithMarkup)
+            async Task<DataWithMarkup<RoomContractSetAvailability>> AlignPrices(DataWithMarkup<RoomContractSetAvailability> availabilityWithMarkup)
             {
-                if (availabilityWithMarkup.Data is null)
-                    return availabilityWithMarkup;
-
                 var processedData = await _priceProcessor.AlignPrices(availabilityWithMarkup.Data);
-                return new DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>(processedData,
+                return new DataWithMarkup<RoomContractSetAvailability>(processedData,
                     availabilityWithMarkup.AppliedMarkups,
                     availabilityWithMarkup.ConvertedSupplierPrice,
                     originalSupplierPrice);
             } 
                 
             
-            Task SaveToCache(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> responseWithDeadline)
+            Task SaveToCache(DataWithMarkup<RoomContractSetAvailability> responseWithDeadline)
             {
-                if (responseWithDeadline.Data is null)
-                    return Task.CompletedTask;
-
                 // TODO: Check that this id will not change on all connectors NIJO-823
-                var finalRoomContractSet = responseWithDeadline.Data.Value.RoomContractSet;
+                var finalRoomContractSet = responseWithDeadline.Data.RoomContractSet;
 
-                var paymentTypes = GetAvailablePaymentTypes(responseWithDeadline.Data.Value, contractKind);
-
-                var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data.Value,
+                var dataWithMarkup = DataWithMarkup.Create(responseWithDeadline.Data,
                     responseWithDeadline.AppliedMarkups, responseWithDeadline.ConvertedSupplierPrice, responseWithDeadline.OriginalSupplierPrice);
 
-                var agentDeadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.RoomContracts);
+                var agentDeadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.Rooms);
                 var supplierDeadline = DeadlineMerger.CalculateMergedDeadline(connectorEvaluationResult.Value.Value.RoomContractSet.RoomContracts);
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
                     roomContractSetId: finalRoomContractSet.Id, 
                     availability: dataWithMarkup, 
-                    resultSupplier: result.Supplier,
-                    availablePaymentTypes: paymentTypes, 
-                    htId: result.htId,
-                    accommodation: slimAccommodation,
                     agentDeadline: agentDeadline,
-                    supplierDeadline: supplierDeadline);
+                    supplierDeadline: supplierDeadline,
+                    isCreditCardRequired: connectorEvaluationResult.Value.Value.IsCreditCardNeeded,
+                    supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId);
             }
 
 
-            RoomContractSetAvailability? ToDetails(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> availabilityDetails)
+            Result<Unit, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability availabilityValue)
             {
-                var availabilityData = availabilityDetails.Data;
-                if (availabilityData is null)
-                    return null;
-                
-                var supplier = settings.IsSupplierVisible
-                    ? result.Supplier
-                    : (Suppliers?) null;
-
-                var isDirectContract = settings.IsDirectContractFlagVisible && availabilityData.Value.RoomContractSet.IsDirectContract;
-
-                return availabilityDetails.Data.ToRoomContractSetAvailability(supplier, isDirectContract,
-                    GetAvailablePaymentTypes(availabilityData.Value, contractKind), slimAccommodation);
-            }
-
-
-            Result<Unit, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability? availability)
-            {
-                if (availability is null)
-                    return Unit.Instance;
-
-                var availabilityValue = availability.Value;
-
                 return RoomContractSetSettingsChecker.IsEvaluationAllowed(availabilityValue.RoomContractSet, availabilityValue.CheckInDate, settings, _dateTimeProvider) && availabilityValue.AvailablePaymentMethods.Any()
                     ? Unit.Instance
                     : ProblemDetailsBuilder.Fail<Unit>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
             }
 
 
-            Result<Unit, ProblemDetails> CheckCancellationPolicies(RoomContractSetAvailability? availability)
+            Result<Unit, ProblemDetails> CheckCancellationPolicies(RoomContractSetAvailability availabilityValue)
             {
                 // We need to perform such a check because there were cases, when cancellation policies with 0% penalty came from connectors, which is incorrect
-
-                if (availability is null)
-                    return Unit.Instance;
-
-                var availabilityValue = availability.Value;
                 var deadline = availabilityValue.RoomContractSet.Deadline;
 
                 var isInvalid = deadline is null || deadline.Policies.Any(p => p.Percentage == 0d);
@@ -235,6 +206,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 }
 
                 return Unit.Instance;
+            }
+
+
+            RoomContractSetAvailability? ApplySearchSettings(RoomContractSetAvailability availability)
+            {
+                var roomContractSet = availability.RoomContractSet.ApplySearchSettings(settings.IsSupplierVisible, settings.IsDirectContractFlagVisible);
+                return new RoomContractSetAvailability(availabilityId: availability.AvailabilityId,
+                    checkInDate: availability.CheckInDate,
+                    checkOutDate: availability.CheckOutDate,
+                    numberOfNights: availability.NumberOfNights,
+                    accommodation: availability.Accommodation,
+                    roomContractSet: roomContractSet,
+                    availablePaymentMethods: availability.AvailablePaymentMethods);
             }
 
 

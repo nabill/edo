@@ -1826,26 +1826,6 @@
                 The Modification date of accommodation data
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Id">
-            <summary>
-            Report id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Created">
-            <summary>
-            Created date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.State">
-            <summary>
-            Report approval state
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Accommodations">
-            <summary>
-            Reported accommodations
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo.Photo">
             <summary>
                 Accommodation photo.
@@ -2245,16 +2225,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo.LocalityZone">
             <summary>
                 The locality zone name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SupplierData`1.Source">
-            <summary>
-            Results source
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SupplierData`1.Data">
-            <summary>
-            Nested data
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Accommodation">

@@ -59,8 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 var checkInDate = selectedResult.Select(s => s.Result.CheckInDate).FirstOrDefault();
                 return await MakeSupplierRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
-                    .Bind(deadline => ProcessDeadline(deadline, checkInDate, agent))
-                    .Map(d => d.ToDeadline());
+                    .Bind(deadline => ProcessDeadline(deadline, checkInDate, agent));
             }
 
 
@@ -77,8 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                     if (selectedRoom is not null && !selectedRoom.Id.Equals(default))
                         return await MakeSupplierRequest(SupplierKey, selectedRoom.Id, a.AvailabilityId)
-                            .Bind(d => ProcessDeadline(d, a.CheckInDate, agent))
-                            .Map(d => d.ToDeadline());
+                            .Bind(d => ProcessDeadline(d, a.CheckInDate, agent));
                 }
 
                 return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
@@ -90,10 +88,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
         
         
-        private async Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTime checkInDate, AgentContext agent)
+        private async Task<Result<Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTime checkInDate, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            return DeadlinePolicyProcessor.Process(deadline, checkInDate, settings.CancellationPolicyProcessSettings);
+            return DeadlinePolicyProcessor.Process(deadline.ToDeadline(), checkInDate, settings.CancellationPolicyProcessSettings);
         }
 
 

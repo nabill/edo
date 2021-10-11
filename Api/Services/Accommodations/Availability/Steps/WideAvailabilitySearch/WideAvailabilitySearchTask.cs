@@ -68,11 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 _logger.LogSupplierAvailabilitySearchStarted(searchId, supplier);
 
                 await GetAvailability(connectorRequest, languageCode)
+                    .Map(Convert)
                     .Bind(ConvertCurrencies)
                     .Map(ProcessPolicies)
                     .Map(ApplyMarkups)
                     .Map(AlignPrices)
-                    .Map(Convert)
                     .Tap(SaveResult)
                     .Tap(NotifyClient)
                     .Finally(SaveState);
@@ -94,24 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
                 return getAvailabilityTask.Result;
             }
-
-
-            Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails) 
-                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
-
-
-            Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response) 
-                => _priceProcessor.ApplyMarkups(response, agent);
             
             
-            async Task<EdoContracts.Accommodations.Availability> AlignPrices(EdoContracts.Accommodations.Availability response) 
-                => await _priceProcessor.AlignPrices(response);
-
-
-            EdoContracts.Accommodations.Availability ProcessPolicies(EdoContracts.Accommodations.Availability response) 
-                => WideAvailabilityPolicyProcessor.Process(response, searchSettings.CancellationPolicyProcessSettings);
-
-
             List<AccommodationAvailabilityResult> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var htIdMapping = accommodationCodeMappings
@@ -148,6 +132,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();
             }
+
+
+            Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> availabilityDetails) 
+                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
+
+
+            Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> response) 
+                => _priceProcessor.ApplyMarkups(response, agent);
+            
+            
+            async Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> response) 
+                => await _priceProcessor.AlignPrices(response);
+
+
+            List<AccommodationAvailabilityResult> ProcessPolicies(List<AccommodationAvailabilityResult> response) 
+                => WideAvailabilityPolicyProcessor.Process(response, searchSettings.CancellationPolicyProcessSettings);
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results) 
