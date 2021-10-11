@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
+            Func<TDetails, MarkupObjectInfo> getMarkupObjectFunc = null,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
             var markupSubject = new MarkupSubjectInfo
@@ -40,7 +41,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 AgencyId = agent.AgencyId,
                 CounterpartyId = agent.CounterpartyId
             };
-            return _markupService.ApplyMarkups(markupSubject, details, priceProcessFunc, logAction);
+            // TODO: Implement getting markup object for all models used with this function (TDetails)
+            // https://github.com/happy-travel/agent-app-project/issues/696
+            var markupObject = getMarkupObjectFunc?.Invoke(details) ?? default;
+            
+            return _markupService.ApplyMarkups(markupSubject, markupObject, details, priceProcessFunc, logAction);
         }
 
 
