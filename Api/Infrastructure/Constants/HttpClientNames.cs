@@ -12,6 +12,7 @@
         public const string MapperManagement = "MapperManagement";
         public const string MapperManagementIdentityClient = "MapperManagementIdentityClient";
         public const string VccApi = "Vcc";
+        public const string VccApiIdentity = "VccIdentity";
         public const string NGenius = "NGenius";
     }
 }
