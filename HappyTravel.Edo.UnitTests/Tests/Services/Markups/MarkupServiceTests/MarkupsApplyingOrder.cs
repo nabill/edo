@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Agents;
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new FakeDoubleFlow());
 
             var discountServiceMock = new  Mock<IDiscountFunctionService>();
-            discountServiceMock.Setup(service => service.Get(It.IsAny<MarkupPolicy>(), It.IsAny<AgentContext>()))
+            discountServiceMock.Setup(service => service.Get(It.IsAny<MarkupPolicy>(), It.IsAny<MarkupSubjectInfo>()))
                 .ReturnsAsync((price => new ValueTask<MoneyAmount>(price)));
             
             _markupService = new MarkupService(_markupPolicyService, discountServiceMock.Object, new MarkupPolicyTemplateService(), currencyRateServiceMock.Object, new FakeMemoryFlow());
@@ -58,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_should_be_ordered_by_scope()
         {
-            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].ScopeType, policies[i + 1].ScopeType));
@@ -95,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_in_scope_should_be_ordered_by_order()
         {
-            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
@@ -122,8 +123,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         public async Task Agencies_policies_should_be_ordered_by_agency_tree()
         {
             var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(AgentContext.AgencyId);
-            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            agencyTreeIds.Add(MarkupSubject.AgencyId);
+            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
             var agencyPolicies = policies.Where(p => p.ScopeType == MarkupPolicyScopeType.Agency).ToList();
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
@@ -140,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var dataWithMarkup = await _markupService.ApplyMarkups(AgentContext,  data, TestStructureUnderMarkup.Apply);
+            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject,  data, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, dataWithMarkup.Price.Amount);
         }
@@ -150,8 +151,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 1,
-                AgentId = AgentContext.AgentId,
-                AgencyId = AgentContext.AgencyId,
+                AgentId = MarkupSubject.AgentId,
+                AgencyId = MarkupSubject.AgencyId,
                 Order = 21,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Agent,
@@ -161,8 +162,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 2,
-                AgentId = AgentContext.AgentId,
-                AgencyId = AgentContext.AgencyId,
+                AgentId = MarkupSubject.AgentId,
+                AgencyId = MarkupSubject.AgencyId,
                 Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Agent,
@@ -176,7 +177,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 3,
-                CounterpartyId = AgentContext.CounterpartyId,
+                CounterpartyId = MarkupSubject.CounterpartyId,
                 Order = 21,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Counterparty,
@@ -186,7 +187,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 4,
-                CounterpartyId = AgentContext.CounterpartyId,
+                CounterpartyId = MarkupSubject.CounterpartyId,
                 Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Counterparty,
@@ -223,7 +224,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 Id = 7,
                 Order = 1,
-                AgencyId = AgentContext.AgencyId,
+                AgencyId = MarkupSubject.AgencyId,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Agency,
                 TemplateId = 1,
@@ -256,7 +257,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             new Agency
             {
-                Id = AgentContext.AgencyId,
+                Id = MarkupSubject.AgencyId,
                 Name = "Child agency",
                 Ancestors = new List<int> {2000, 1000}
             },
@@ -277,7 +278,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         public void Dispose() { }
 
 
-        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
+        private static readonly MarkupSubjectInfo MarkupSubject = new ()
+        {
+            AgentId = 1,
+            AgencyId = 1,
+            CounterpartyId = 1
+        };
+
         private readonly MarkupPolicyService _markupPolicyService;
         private readonly MarkupService _markupService;
     }
