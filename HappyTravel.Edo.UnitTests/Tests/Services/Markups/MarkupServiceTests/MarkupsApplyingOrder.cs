@@ -44,22 +44,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
                 .Returns(new ValueTask<Result<decimal>>(Result.Success((decimal)1)));
     
-            var agentSettingsMock = new Mock<IAgentSettingsManager>();
-            
-            agentSettingsMock
-                .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
-                .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
-            
-            var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
-            accommodationBookingSettingsServiceMock
-                .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, isMarkupDisabled: false, isSupplierVisible: default, default, isDirectContractFlagVisible: default, default));
-                
-                
             _markupPolicyService = new MarkupPolicyService(edoContextMock.Object,
-                new FakeDoubleFlow(), 
-                agentSettingsMock.Object,
-                accommodationBookingSettingsServiceMock.Object);
+                new FakeDoubleFlow());
 
             var discountServiceMock = new  Mock<IDiscountFunctionService>();
             discountServiceMock.Setup(service => service.Get(It.IsAny<MarkupPolicy>(), It.IsAny<AgentContext>()))
@@ -100,13 +86,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                         return secondScope != MarkupPolicyScopeType.Global &&
                             secondScope != MarkupPolicyScopeType.Counterparty &&
                             secondScope != MarkupPolicyScopeType.Agency;
-                    }
-                    case MarkupPolicyScopeType.EndClient:
-                    {
-                        return secondScope != MarkupPolicyScopeType.Global &&
-                            secondScope != MarkupPolicyScopeType.Counterparty &&
-                            secondScope != MarkupPolicyScopeType.Agency &&
-                            secondScope != MarkupPolicyScopeType.Agent;
                     }
                     default: throw new AssertionFailedException("Unexpected scope type");
                 }
@@ -272,29 +251,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             },
         };
         
-        private IEnumerable<MarkupPolicy> _endClientPolicies = new[]
-        {
-            new MarkupPolicy
-            {
-                Id = 8,
-                Order = 111,
-                AgentId = AgentContext.AgentId,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.EndClient,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
-            },
-            new MarkupPolicy
-            {
-                Id = 9,
-                Order = 14,
-                AgentId = AgentContext.AgentId,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.EndClient,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 14}},
-            }
-        };
         
         private readonly List<Agency> _agencies = new()
         {
