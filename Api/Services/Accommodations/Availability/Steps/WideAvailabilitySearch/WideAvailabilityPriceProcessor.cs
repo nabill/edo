@@ -56,13 +56,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        public async ValueTask<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results)
+        public List<AccommodationAvailabilityResult> AlignPrices(List<AccommodationAvailabilityResult> results)
         {
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var accommodationAvailability in results)
             {
                 // Currency can differ in different results
-                var roomContractSets = await RoomContractSetPriceProcessor.AlignPrices(accommodationAvailability.RoomContractSets);
+                var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(accommodationAvailability.RoomContractSets);
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
                     supplier: accommodationAvailability.Supplier,
                     created: accommodationAvailability.Created,
