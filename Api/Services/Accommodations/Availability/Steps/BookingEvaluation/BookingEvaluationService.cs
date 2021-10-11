@@ -173,13 +173,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
                 var agentDeadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.Rooms);
                 var supplierDeadline = DeadlineMerger.CalculateMergedDeadline(connectorEvaluationResult.Value.Value.RoomContractSet.RoomContracts);
+                var creditCardRequirement = connectorEvaluationResult.Value.Value.CreditCardRequirement;
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
                     roomContractSetId: finalRoomContractSet.Id, 
                     availability: dataWithMarkup, 
                     agentDeadline: agentDeadline,
                     supplierDeadline: supplierDeadline,
-                    isCreditCardRequired: connectorEvaluationResult.Value.Value.IsCreditCardNeeded,
+                    cardRequirement: creditCardRequirement.HasValue
+                        ? new CreditCardRequirement(creditCardRequirement.Value.ActivationDate, creditCardRequirement.Value.DueDate)
+                        : null,
                     supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId);
             }
 

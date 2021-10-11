@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
-            Deadline supplierDeadline, bool isCreditCardRequired, string supplierAccommodationCode)
+            Deadline supplierDeadline, CreditCardRequirement? cardRequirement, string supplierAccommodationCode)
         {
             var accommodation = availability.Data.Accommodation;
             var key = BuildKey(searchId, accommodation.HtId, roomContractSetId);
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
                 agentDeadline: agentDeadline,
                 supplierDeadline: supplierDeadline,
-                isCreditCardRequired: isCreditCardRequired);
+                cardRequirement: cardRequirement);
             
             return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }
