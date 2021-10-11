@@ -5,6 +5,5 @@
         public string AgentName { get; set; }
         public string CounterpartyName { get; set; }
         public string State { get; set; }
-        public string VerificationReason { get; set; }
     }
 }
