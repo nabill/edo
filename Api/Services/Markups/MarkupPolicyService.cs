@@ -21,9 +21,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<List<MarkupPolicy>> Get(MarkupSubjectInfo subject, MarkupPolicyTarget policyTarget)
+        public async Task<List<MarkupPolicy>> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
         {
-            return await GetAgentPolicies(subject, policyTarget);
+            return await GetAgentPolicies(subjectInfo, policyTarget);
         }
 
 

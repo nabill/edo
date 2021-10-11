@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_should_be_ordered_by_scope()
         {
-            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].ScopeType, policies[i + 1].ScopeType));
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_in_scope_should_be_ordered_by_order()
         {
-            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             var agencyTreeIds = _agencies[0].Ancestors;
             agencyTreeIds.Add(MarkupSubject.AgencyId);
-            var policies = await _markupPolicyService.Get(MarkupSubject, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             var agencyPolicies = policies.Where(p => p.ScopeType == MarkupPolicyScopeType.Agency).ToList();
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject,  data, TestStructureUnderMarkup.Apply);
+            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject, default, data, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, dataWithMarkup.Price.Amount);
         }

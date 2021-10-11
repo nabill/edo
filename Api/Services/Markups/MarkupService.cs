@@ -32,11 +32,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public async Task<TDetails> ApplyMarkups<TDetails>(MarkupSubjectInfo subject, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc, 
+        public async Task<TDetails> ApplyMarkups<TDetails>(MarkupSubjectInfo subject, MarkupObjectInfo objectInfo, TDetails details,
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var policies = await _markupPolicyService.Get(subject, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(subject, objectInfo, MarkupPolicyTarget.AccommodationAvailability);
             var currentData = details;
             foreach (var policy in policies)
             {
