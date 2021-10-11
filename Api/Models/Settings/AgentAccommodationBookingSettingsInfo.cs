@@ -9,11 +9,6 @@ namespace HappyTravel.Edo.Api.Models.Settings
     public readonly struct AgentAccommodationBookingSettingsInfo
     {
         /// <summary>
-        /// If this is set to true, no markup is applied, even global markup
-        /// </summary>
-        public bool IsMarkupDisabled { get; init; }
-
-        /// <summary>
         /// Tells whether the user can see and book accommodations with advanced purchase flag
         /// </summary>
         public AprMode? AprMode { get; init; }
