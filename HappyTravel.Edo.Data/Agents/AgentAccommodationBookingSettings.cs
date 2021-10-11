@@ -15,8 +15,6 @@ namespace HappyTravel.Edo.Data.Agents
         
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
         
-        public bool IsMarkupDisabled { get; set; }
-        
         public bool IsSupplierVisible { get; set; }
         
         public bool IsDirectContractFlagVisible { get; set; }
