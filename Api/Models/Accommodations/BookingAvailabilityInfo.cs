@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DateTime checkOutDate, int numberOfNights, Suppliers supplier, List<AppliedMarkup> appliedMarkups,
             MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, string availabilityId,
             string htId, List<PaymentTypes> availablePaymentTypes, bool isDirectContract, Deadline agentDeadline, Deadline supplierDeadline,
-            bool isCreditCardRequired)
+            CreditCardRequirement? cardRequirement)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             IsDirectContract = isDirectContract;
             AgentDeadline = agentDeadline;
             SupplierDeadline = supplierDeadline;
-            IsCreditCardRequired = isCreditCardRequired;
+            CardRequirement = cardRequirement;
         }
 
 
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public bool IsDirectContract { get; }
         public Deadline AgentDeadline { get; }
         public Deadline SupplierDeadline { get; }
-        public bool IsCreditCardRequired { get; }
+        public CreditCardRequirement? CardRequirement { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
