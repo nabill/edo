@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         
         public Task<RoomContractSetAvailability> ApplyMarkups(RoomContractSetAvailability response, AgentContext agent, Action<MarkupApplicationResult<RoomContractSetAvailability>> logAction) 
-            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, logAction);
+            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, null, logAction);
 
         
         public Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails, AgentContext agent) 
