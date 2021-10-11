@@ -6,8 +6,10 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -17,11 +19,13 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
     {
         public CurrencyRateService(IHttpClientFactory httpClientFactory,
             IOptions<CurrencyRateServiceOptions> options,
-            IDoubleFlow flow)
+            IDoubleFlow flow,
+            ILogger<CurrencyRateService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _flow = flow;
             _options = options.Value;
+            _logger = logger;
         }
 
         public async ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
@@ -46,13 +50,13 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 var error = JsonConvert.DeserializeObject<ProblemDetails>(content);
-                // TODO: Add logging
+                _logger.LogCurrencyConversionFailed(source, target, error.Detail);
                 return Result.Failure<decimal>(error.Detail);
             }
             
             if (!response.IsSuccessStatusCode)
             {
-                // TODO: Add logging
+                _logger.LogCurrencyConversionFailed(source, target, content);
                 return Result.Failure<decimal>("Currency conversion error");
             }
             
@@ -64,5 +68,6 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
         private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success((decimal)1);
         private readonly CurrencyRateServiceOptions _options;
+        private ILogger<CurrencyRateService> _logger;
     }
 }
