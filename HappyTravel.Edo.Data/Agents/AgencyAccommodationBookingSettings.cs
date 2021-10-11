@@ -5,8 +5,6 @@ namespace HappyTravel.Edo.Data.Agents
 {
     public class AgencyAccommodationBookingSettings
     {
-        public bool IsMarkupDisabled { get; set; }
-        
         public AprMode? AprMode { get; set; }
         
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }

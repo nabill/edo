@@ -10,9 +10,8 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AccommodationBookingSettingsExtensions
     {
         public static AgencyAccommodationBookingSettingsInfo ToAgencyAccommodationBookingSettingsInfo(this AgencyAccommodationBookingSettings settings)
-            => new AgencyAccommodationBookingSettingsInfo
+            => new ()
             {
-                IsMarkupDisabled = settings.IsMarkupDisabled,
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 EnabledSuppliers = settings.EnabledSuppliers.ToBoolDictionary(),
@@ -23,9 +22,8 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgentAccommodationBookingSettingsInfo ToAgentAccommodationBookingSettingsInfo(this AgentAccommodationBookingSettings settings)
-            => new AgentAccommodationBookingSettingsInfo
+            => new ()
             {
-                IsMarkupDisabled = settings.IsMarkupDisabled,
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 EnabledSuppliers = settings.EnabledSuppliers.ToBoolDictionary(),
@@ -36,9 +34,8 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgencyAccommodationBookingSettings ToAgencyAccommodationBookingSettings(this AgencyAccommodationBookingSettingsInfo settings)
-            => new AgencyAccommodationBookingSettings
+            => new ()
             {
-                IsMarkupDisabled = settings.IsMarkupDisabled,
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 EnabledSuppliers = settings.EnabledSuppliers.ToEnumList(),
@@ -49,9 +46,8 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgentAccommodationBookingSettings ToAgentAccommodationBookingSettings(this AgentAccommodationBookingSettingsInfo settings)
-            => new AgentAccommodationBookingSettings
+            => new ()
             {
-                IsMarkupDisabled = settings.IsMarkupDisabled,
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 EnabledSuppliers = settings.EnabledSuppliers.ToEnumList(),

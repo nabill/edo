@@ -4023,11 +4023,6 @@
                 Payfort tokenization url
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.IsMarkupDisabled">
-            <summary>
-            If this is set to true, no markup is applied, even global markup
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.AprMode">
             <summary>
             Tells whether the user can see and book accommodations with advanced purchase flag
@@ -4056,11 +4051,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.CustomDeadlineShift">
             <summary>
             Amount of days, on which deadline policies dated will be shifted towards past. Must not be a positive number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.IsMarkupDisabled">
-            <summary>
-            If this is set to true, no markup is applied, even global markup
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.AprMode">

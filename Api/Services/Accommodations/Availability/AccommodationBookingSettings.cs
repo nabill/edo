@@ -11,7 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AccommodationBookingSettings(List<Suppliers> enabledConnectors, 
             AprMode aprMode,
             PassedDeadlineOffersMode passedDeadlineOffersMode,
-            bool isMarkupDisabled,
             bool isSupplierVisible,
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings,
             bool isDirectContractFlagVisible,
@@ -22,7 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             EnabledConnectors = enabledConnectors;
             AprMode = aprMode;
             PassedDeadlineOffersMode = passedDeadlineOffersMode;
-            IsMarkupDisabled = isMarkupDisabled;
             IsSupplierVisible = isSupplierVisible;
             AdditionalSearchFilters = additionalSearchFilters;
         }
@@ -30,7 +28,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public List<Suppliers> EnabledConnectors { get; }
         public AprMode AprMode { get; }
         public PassedDeadlineOffersMode PassedDeadlineOffersMode { get; }
-        public bool IsMarkupDisabled { get; }
         public bool IsSupplierVisible { get; }
         public CancellationPolicyProcessSettings CancellationPolicyProcessSettings { get; }
         public bool IsDirectContractFlagVisible { get; }

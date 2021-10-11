@@ -36,7 +36,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var settings = await service.Get(_agentContext);
 
-            Assert.False(settings.IsMarkupDisabled);
             Assert.False(settings.IsSupplierVisible);
             Assert.False(settings.IsDirectContractFlagVisible);
         }
@@ -59,7 +58,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    IsMarkupDisabled = expectedMarkupDisabled,
                     IsSupplierVisible = expectedSupplierVisible,
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
@@ -75,7 +73,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var settings = await service.Get(_agentContext);
 
-            Assert.Equal(expectedMarkupDisabled, settings.IsMarkupDisabled);
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
         }
@@ -99,7 +96,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    IsMarkupDisabled = expectedMarkupDisabled,
                     IsSupplierVisible = expectedSupplierVisible,
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
@@ -114,7 +110,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var settings = await service.Get(_agentContext);
 
-            Assert.Equal(expectedMarkupDisabled, settings.IsMarkupDisabled);
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
         }
@@ -133,14 +128,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    IsMarkupDisabled = agentMarkupDisabled,
                     IsSupplierVisible = agentSupplierVisible,
                     IsDirectContractFlagVisible = agentDirectContractFlagVisible
                 });
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    IsMarkupDisabled = agencyMarkupDisabled,
                     IsSupplierVisible = agencySupplierVisible,
                     IsDirectContractFlagVisible = agencyDirectContractFlagVisible
                 });
@@ -155,7 +148,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var settings = await service.Get(_agentContext);
 
-            Assert.Equal(expectedMarkupDisabled, settings.IsMarkupDisabled);
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
         }
