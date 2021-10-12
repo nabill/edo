@@ -16,14 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusWebhookProcessingService
     {
-        public NGeniusWebhookProcessingService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingPaymentCallbackService bookingPaymentCallbackService,
+        public NGeniusWebhookProcessingService(EdoContext context, ICreditCardPaymentManagementService paymentService,
             IPaymentLinksProcessingService paymentLinksProcessingService, ILogger<NGeniusWebhookProcessingService> logger)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
-            _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
             _logger = logger;
+            _paymentService = paymentService;
         }
         
         
@@ -69,15 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             if (payment is null)
                 return;
-
+            
             if (status != payment.Status)
-            {
-                payment.Status = status;
-                payment.Modified = _dateTimeProvider.UtcNow();
-                _context.Update(payment);
-                await _context.SaveChangesAsync();
-                await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
-            }
+                return;
+
+            await _paymentService.SetStatus(payment, status);
         }
 
 
@@ -99,9 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
 
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
         private readonly ILogger<NGeniusWebhookProcessingService> _logger;
+        private readonly ICreditCardPaymentManagementService _paymentService;
     }
 }
