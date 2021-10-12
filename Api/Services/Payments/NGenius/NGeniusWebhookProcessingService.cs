@@ -66,10 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 })
                 .SingleOrDefault();
 
-            if (payment is null)
-                return;
-            
-            if (status != payment.Status)
+            if (payment is null || status != payment.Status)
                 return;
 
             await _paymentService.SetStatus(payment, status);
