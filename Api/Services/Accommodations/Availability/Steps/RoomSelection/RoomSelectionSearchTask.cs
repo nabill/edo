@@ -58,7 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return new SingleAccommodationAvailability(availabilityDetails.AvailabilityId,
                     availabilityDetails.CheckInDate,
                     roomContractSets,
-                    htId);
+                    htId,
+                    "", // TODO: populate with correct data
+                    ""  // TODO: populate with correct data
+                    );
             }
 
 

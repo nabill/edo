@@ -9,12 +9,16 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string availabilityId,
             DateTime checkInDate,
             List<RoomContractSet> roomContractSets,
-            string htId)
+            string htId,
+            string countryHtId,
+            string localityHtId)
         {
             AvailabilityId = availabilityId;
             CheckInDate = checkInDate;
             HtId = htId;
             RoomContractSets = roomContractSets ?? new List<RoomContractSet>(0);
+            CountryHtId = countryHtId;
+            LocalityHtId = localityHtId;
         }
 
         public string AvailabilityId { get; }
@@ -24,5 +28,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string HtId { get; }
 
         public List<RoomContractSet> RoomContractSets { get; }
+        
+        public string CountryHtId { get; }
+        
+        public string LocalityHtId { get; }
     }
 }
