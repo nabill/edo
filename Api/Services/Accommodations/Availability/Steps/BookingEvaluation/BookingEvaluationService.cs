@@ -153,9 +153,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            async Task<DataWithMarkup<RoomContractSetAvailability>> AlignPrices(DataWithMarkup<RoomContractSetAvailability> availabilityWithMarkup)
+            DataWithMarkup<RoomContractSetAvailability> AlignPrices(DataWithMarkup<RoomContractSetAvailability> availabilityWithMarkup)
             {
-                var processedData = await _priceProcessor.AlignPrices(availabilityWithMarkup.Data);
+                var processedData = _priceProcessor.AlignPrices(availabilityWithMarkup.Data);
                 return new DataWithMarkup<RoomContractSetAvailability>(processedData,
                     availabilityWithMarkup.AppliedMarkups,
                     availabilityWithMarkup.ConvertedSupplierPrice,
@@ -173,13 +173,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
                 var agentDeadline = DeadlineMerger.CalculateMergedDeadline(finalRoomContractSet.Rooms);
                 var supplierDeadline = DeadlineMerger.CalculateMergedDeadline(connectorEvaluationResult.Value.Value.RoomContractSet.RoomContracts);
+                var creditCardRequirement = connectorEvaluationResult.Value.Value.CreditCardRequirement;
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
                     roomContractSetId: finalRoomContractSet.Id, 
                     availability: dataWithMarkup, 
                     agentDeadline: agentDeadline,
                     supplierDeadline: supplierDeadline,
-                    isCreditCardRequired: connectorEvaluationResult.Value.Value.IsCreditCardNeeded,
+                    cardRequirement: creditCardRequirement.HasValue
+                        ? new CreditCardRequirement(creditCardRequirement.Value.ActivationDate, creditCardRequirement.Value.DueDate)
+                        : null,
                     supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId);
             }
 

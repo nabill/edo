@@ -18,12 +18,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         public static Deadline CalculateMergedDeadline(List<RoomContract> roomContracts)
         {
+            var isFinal = roomContracts.All(p => p.Deadline.IsFinal);
+            
             var contractsWithDeadline = roomContracts
                 .Where(contract => contract.Deadline.Date.HasValue)
                 .ToList();
-            
+
             if (!contractsWithDeadline.Any())
-                return default;
+                return new Deadline(null, new List<CancellationPolicy>(), new List<string>(), isFinal);
             
             var totalAmount = Convert.ToDouble(roomContracts.Sum(r => r.Rate.FinalPrice.Amount));
             var deadlineDate = contractsWithDeadline
@@ -49,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 })
                 .ToList();
 
-            var isFinal = contractsWithDeadline.All(p => p.Deadline.IsFinal);
+            
             
             return new Deadline(deadlineDate, policies, new List<string>(), isFinal);
             

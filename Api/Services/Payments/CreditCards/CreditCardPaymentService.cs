@@ -288,10 +288,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return paymentResult.ToPaymentResponse();
             }
 
+
             async Task<Result<Payment>> GetPaymentForResponse(CreditCardPaymentResult paymentResponse)
             {
-                var payment = await _context.Payments
-                    .SingleOrDefaultAsync(p => p.ReferenceCode == paymentResponse.ReferenceCode);
+                var cardPaymentsForRefcode = await _context.Payments
+                    .Where(p => p.PaymentMethod == PaymentTypes.CreditCard)
+                    .Where(p => p.ReferenceCode == paymentResponse.ReferenceCode)
+                    .ToListAsync();
+
+                var payment = cardPaymentsForRefcode
+                    .SingleOrDefault(p => JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data).ExternalId == paymentResponse.ExternalCode);
 
                 if (payment == default)
                     return Result.Failure<Payment>($"Could not find a payment record with the reference code {paymentResponse.ReferenceCode}");

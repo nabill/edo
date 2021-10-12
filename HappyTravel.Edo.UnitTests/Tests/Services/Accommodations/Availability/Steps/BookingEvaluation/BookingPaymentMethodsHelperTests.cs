@@ -237,7 +237,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
                 checkOutDate: default,
                 numberOfNights: default, 
                 roomContractSetWithApr,
-                isCreditCardNeeded: false);
+                creditCardRequirement: null);
         }
     }
 }

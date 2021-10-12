@@ -13,6 +13,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
         Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails, AgentContext agent);
         
-        ValueTask<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability availabilityDetails);
+        RoomContractSetAvailability AlignPrices(RoomContractSetAvailability availabilityDetails);
     }
 }

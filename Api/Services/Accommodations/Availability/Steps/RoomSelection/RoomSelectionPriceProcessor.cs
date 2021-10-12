@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices);
 
 
-        public async ValueTask<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability source)
+        public SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability source)
         {
-            var roomContractSets = await RoomContractSetPriceProcessor.AlignPrices(source.RoomContractSets);
+            var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(source.RoomContractSets);
             return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
                 roomContractSets: roomContractSets,

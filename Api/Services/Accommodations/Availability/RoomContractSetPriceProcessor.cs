@@ -70,12 +70,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
         
         
-        public static async ValueTask<List<RoomContractSet>> AlignPrices(List<RoomContractSet> sourceRoomContractSets)
+        public static List<RoomContractSet> AlignPrices(List<RoomContractSet> sourceRoomContractSets)
         {
             var roomContractSets = new List<RoomContractSet>(sourceRoomContractSets.Count);
             foreach (var roomContractSet in sourceRoomContractSets)
             {
-                var roomContractSetWithMarkup = await AlignPrices(roomContractSet);
+                var roomContractSetWithMarkup = AlignPrices(roomContractSet);
                 roomContractSets.Add(roomContractSetWithMarkup);
             }
 
@@ -83,23 +83,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public static async ValueTask<RoomContractSet> AlignPrices(RoomContractSet roomContractSet)
+        public static RoomContractSet AlignPrices(RoomContractSet roomContractSet)
         {
-            var ceiledRoomContractSet = await ProcessPrices(roomContractSet, price 
-                => new ValueTask<MoneyAmount>(MoneyRounder.Ceil(price)));
+            var totalFinalPrice = MoneyRounder.Ceil(roomContractSet.Rate.FinalPrice);
+            var roomFinalPrices = roomContractSet.Rooms
+                .Select(r => MoneyRounder.Ceil(r.Rate.FinalPrice))
+                .ToList();
             
-            var finalPrice = ceiledRoomContractSet.Rate.FinalPrice;
-            var roomFinalRates = ceiledRoomContractSet.Rooms.Select(r => r.Rate.FinalPrice).ToList();
-            var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregateValues(finalPrice, roomFinalRates);
+            var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregateValues(totalFinalPrice, roomFinalPrices);
 
-            var gross = ceiledRoomContractSet.Rate.Gross;
-            var roomGrossRateRates = ceiledRoomContractSet.Rooms.Select(r => r.Rate.Gross).ToList();
-            var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregateValues(gross, roomGrossRateRates);
+            var totalGrossPrice = MoneyRounder.Ceil(roomContractSet.Rate.Gross);
+            var roomGrossPrices = roomContractSet.Rooms
+                .Select(r => MoneyRounder.Ceil(r.Rate.Gross))
+                .ToList();
+            
+            var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregateValues(totalGrossPrice, roomGrossPrices);
 
             var roomContracts = new List<RoomContract>(roomContractSet.Rooms.Count);
-            for (var i = 0; i < ceiledRoomContractSet.Rooms.Count; i++)
+            for (var i = 0; i < roomContractSet.Rooms.Count; i++)
             {
-                var room = ceiledRoomContractSet.Rooms[i];
+                var room = roomContractSet.Rooms[i];
                 var totalPriceNet = alignedRoomFinalPrices[i];
                 var totalPriceGross = alignedRoomGrossRates[i];
                 var totalRate = new Rate(totalPriceNet, totalPriceGross);

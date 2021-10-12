@@ -159,21 +159,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private async ValueTask<Result<CreditCardInfo>> GetCreditCard(string referenceCode, BookingAvailabilityInfo availabilityInfo)
         {
-            if (!availabilityInfo.IsCreditCardRequired)
+            if (availabilityInfo.CardRequirement is null)
                 return null;
-            
-            var activationDate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
-                ? _dateTimeProvider.UtcNow()
-                : availabilityInfo.CheckInDate;
-
-            var dueDate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
-                ? availabilityInfo.CheckOutDate
-                : availabilityInfo.CheckOutDate.AddDays(30);
 
             return await _creditCardProvider.Get(referenceCode: referenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
-                activationDate: activationDate,
-                dueDate: dueDate,
+                activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
+                dueDate: availabilityInfo.CardRequirement.Value.DueDate,
                 supplier: availabilityInfo.Supplier,
                 accommodationName: availabilityInfo.AccommodationName);
         }
