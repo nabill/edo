@@ -90,8 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (paymentLink is null)
                 return;
             
-            // Only success statuses processed
-            if (status is not PaymentStatuses.Captured or PaymentStatuses.Authorized)
+            // Only Captured status processed
+            if (status is not PaymentStatuses.Captured)
                 return;
             
             await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
