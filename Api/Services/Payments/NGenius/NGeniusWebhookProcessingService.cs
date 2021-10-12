@@ -1,10 +1,8 @@
 ﻿using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -28,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         public async Task ProcessWebHook(NGeniusWebhookRequest request)
         {
-            _logger.LogDebug("NGenius webhook processing started. Request `{Request}`", request);
+            _logger.LogDebug("NGenius webhook processing started. Request `{Request}`", JsonConvert.SerializeObject(request));
 
             var eventType = request.EventName;
             var paymentElement = request.Order.Embedded.Payments[0];
