@@ -3,7 +3,9 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.External;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +18,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Route("api/{v:apiVersion}/external/payments")]
     public class ExternalPaymentsController : BaseController
     {
-        public ExternalPaymentsController(IPaymentCallbackDispatcher callbackDispatcher)
+        public ExternalPaymentsController(IPaymentCallbackDispatcher callbackDispatcher, NGeniusWebhookProcessingService nGeniusWebhookProcessingService)
         {
             _callbackDispatcher = callbackDispatcher;
+            _nGeniusWebhookProcessingService = nGeniusWebhookProcessingService;
         }
 
 
@@ -38,8 +41,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var value = JObject.FromObject(dictionary);
             return OkOrBadRequest(await _callbackDispatcher.ProcessCallback(value));
         }
+        
+        
+        /// <summary>
+        ///     NGenius webhook
+        /// </summary>
+        [HttpPost("ngenius/callback")]
+        [AllowAnonymous]
+        public async Task<IActionResult> NGeniusWebhook(NGeniusWebhookRequest request)
+        {
+            await _nGeniusWebhookProcessingService.ProcessWebHook(request);
+            return Ok();
+        }
 
 
         private readonly IPaymentCallbackDispatcher _callbackDispatcher;
+        private readonly NGeniusWebhookProcessingService _nGeniusWebhookProcessingService;
     }
 }

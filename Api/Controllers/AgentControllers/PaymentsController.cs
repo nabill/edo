@@ -30,15 +30,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IBookingPaymentCallbackService bookingPaymentCallbackService, IPaymentSettingsService paymentSettingsService,
-            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, INGeniusPaymentService nGeniusPaymentService,
-            NGeniusWebhookProcessingService nGeniusWebhookProcessingService)
+            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, INGeniusPaymentService nGeniusPaymentService)
         {
             _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _nGeniusPaymentService = nGeniusPaymentService;
-            _nGeniusWebhookProcessingService = nGeniusWebhookProcessingService;
         }
 
 
@@ -149,18 +147,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        /// <summary>
-        ///     NGenius webhook
-        /// </summary>
-        [HttpPost("accommodations/bookings/ngenius/webhook")]
-        [AllowAnonymous]
-        public async Task<IActionResult> NGeniusWebhook([FromBody] JsonDocument request)
-        {
-            await _nGeniusWebhookProcessingService.ProcessWebHook(request);
-            return Ok();
-        }
-        
-
 
         /// <summary>
         ///     Processes payment callback
@@ -179,6 +165,5 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentSettingsService _paymentSettingsService;
         private readonly INGeniusPaymentService _nGeniusPaymentService;
-        private readonly NGeniusWebhookProcessingService _nGeniusWebhookProcessingService;
     }
 }

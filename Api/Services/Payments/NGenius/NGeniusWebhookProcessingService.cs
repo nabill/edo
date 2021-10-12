@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
@@ -26,15 +27,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
         
         
-        public async Task ProcessWebHook(JsonDocument request)
+        public async Task ProcessWebHook(NGeniusWebhookRequest request)
         {
-            _logger.LogDebug("NGenius webhook processing started");
-            
-            var eventType = request.RootElement.GetProperty("eventName").GetString();
-            var paymentElement = request.RootElement.GetProperty("_embedded").GetProperty("payment")[0];
-            var paymentId = paymentElement.GetProperty("_id").GetString().Split(':').Last();
-            var orderReference = paymentElement.GetProperty("orderReference").GetString();
-            var merchantReference = paymentElement.GetProperty("merchantOrderReference").GetString();
+            _logger.LogDebug("NGenius webhook processing started. Request `{Request}`", request);
+
+            var eventType = request.EventName;
+            var paymentElement = request.Order.Embedded.Payments[0];
+            var paymentId = paymentElement.Id.Split(':').Last();
             var status = eventType switch
             {
                 EventTypes.Authorised => PaymentStatuses.Authorized,
@@ -50,14 +49,21 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EventTypes.PartialRefundFailed => PaymentStatuses.Failed
             };
 
+            await TryUpdatePayment(paymentElement.MerchantOrderReference, paymentId, status);
+            await TryUpdatePaymentLink(paymentElement.MerchantOrderReference, status);
+        }
+
+
+        private async Task TryUpdatePayment(string referenceCode, string paymentId, PaymentStatuses status)
+        {
             var payments = await _context.Payments
-                .Where(p => p.ReferenceCode == merchantReference)
+                .Where(p => p.ReferenceCode == referenceCode)
                 .ToListAsync();
 
             var payment = payments.Where(p =>
                 {
                     var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
-                    return data.ExternalId == paymentId && data.InternalReferenceCode == orderReference;
+                    return data.ExternalId == paymentId;
                 })
                 .SingleOrDefault();
 
@@ -79,9 +85,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
                 }
             }
-            
+        }
+
+
+        private async Task TryUpdatePaymentLink(string referenceCode, PaymentStatuses status)
+        {
             var paymentLink = await _context.PaymentLinks
-                .Where(l => l.ReferenceCode == merchantReference)
+                .Where(l => l.ReferenceCode == referenceCode)
                 .SingleOrDefaultAsync();
 
             if (paymentLink != default && status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
