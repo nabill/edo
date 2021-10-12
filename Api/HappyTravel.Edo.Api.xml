@@ -1392,6 +1392,11 @@
                 Processes payment callback
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ExternalPaymentsController.NGeniusWebhook(HappyTravel.Edo.Api.Models.Payments.NGenius.NGeniusWebhookRequest)">
+            <summary>
+                NGenius webhook
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation">
             <summary>
                 Gets bookings for cancellation
@@ -1659,11 +1664,6 @@
                 Refreshes payment status in NGenius
             </summary>
             <param name="referenceCode">Booking reference code</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.NGeniusWebhook(System.Text.Json.JsonDocument)">
-            <summary>
-                NGenius webhook
-            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
