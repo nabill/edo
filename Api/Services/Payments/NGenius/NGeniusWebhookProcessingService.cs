@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -26,8 +27,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         
         public async Task ProcessWebHook(NGeniusWebhookRequest request)
         {
-            _logger.LogDebug("NGenius webhook processing started. Request `{Request}`", JsonConvert.SerializeObject(request));
-
             var eventType = request.EventName;
             var paymentElement = request.Order.Embedded.Payments[0];
             var paymentId = paymentElement.Id.Split(':').Last();
@@ -45,6 +44,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EventTypes.RefundFailed => PaymentStatuses.Failed,
                 EventTypes.PartialRefundFailed => PaymentStatuses.Failed
             };
+
+            using var disposable = _logger.BeginScope(new Dictionary<string, object>
+            {
+                {"ReferenceCode", paymentElement.MerchantOrderReference},
+                {"EventType", eventType}
+            });
+            _logger.LogNGeniusWebhookProcessingStarted();
 
             await TryUpdatePayment(paymentElement.MerchantOrderReference, paymentId, status);
             await TryUpdatePaymentLink(paymentElement.MerchantOrderReference, status);
@@ -67,6 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (payment is null || status != payment.Status)
                 return;
 
+            _logger.LogNGeniusWebhookPaymentUpdate();
             await _paymentService.SetStatus(payment, status);
         }
 
@@ -84,6 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (status is not PaymentStatuses.Captured)
                 return;
             
+            _logger.LogNGeniusWebhookPaymentLinkUpdate();
             await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
         }
 

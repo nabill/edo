@@ -83,5 +83,8 @@
     {"Id": 1090, "name": "MarkupPolicyStorageRefreshed", "level": "Debug", "template": "MarkupPolicyStorage refreshed. Was set {Count} entities", "argumentTypes": ["int"]},
     {"Id": 1091, "name": "MarkupPolicyStorageUpdateCompleted", "level": "Debug", "template": "Markup policy storage update completed"},
     {"Id": 1092, "name": "MarkupPolicyStorageUpdateFailed", "level": "Error", "template": "Markup policy storage update failed"},
-    {"Id": 1093, "name": "CurrencyConversionFailed", "level": "Error", "template": "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`", "argumentTypes": ["HappyTravel.Money.Enums.Currencies", "HappyTravel.Money.Enums.Currencies", "string"]}
+    {"Id": 1093, "name": "CurrencyConversionFailed", "level": "Error", "template": "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`", "argumentTypes": ["HappyTravel.Money.Enums.Currencies", "HappyTravel.Money.Enums.Currencies", "string"]},
+    {"Id": 1095, "name": "NGeniusWebhookProcessingStarted", "level": "Information", "template": "NGenius webhook processing started"},
+    {"Id": 1096, "name": "NGeniusWebhookPaymentUpdate", "level": "Information", "template": "Started updating payment by NGenius webhook"},
+    {"Id": 1097, "name": "NGeniusWebhookPaymentLinkUpdate", "level": "Information", "template": "Started updating payment link by NGenius webhook"}
 ]
