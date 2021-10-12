@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -15,26 +15,21 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusWebhookProcessingService
     {
-        public NGeniusWebhookProcessingService(EdoContext context, IDateTimeProvider dateTimeProvider, IBookingPaymentCallbackService bookingPaymentCallbackService,
+        public NGeniusWebhookProcessingService(EdoContext context, ICreditCardPaymentManagementService paymentService,
             IPaymentLinksProcessingService paymentLinksProcessingService, ILogger<NGeniusWebhookProcessingService> logger)
         {
             _context = context;
-            _dateTimeProvider = dateTimeProvider;
-            _bookingPaymentCallbackService = bookingPaymentCallbackService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
             _logger = logger;
+            _paymentService = paymentService;
         }
         
         
-        public async Task ProcessWebHook(JsonDocument request)
+        public async Task ProcessWebHook(NGeniusWebhookRequest request)
         {
-            _logger.LogDebug("NGenius webhook processing started");
-            
-            var eventType = request.RootElement.GetProperty("eventName").GetString();
-            var paymentElement = request.RootElement.GetProperty("_embedded").GetProperty("payment")[0];
-            var paymentId = paymentElement.GetProperty("_id").GetString().Split(':').Last();
-            var orderReference = paymentElement.GetProperty("orderReference").GetString();
-            var merchantReference = paymentElement.GetProperty("merchantOrderReference").GetString();
+            var eventType = request.EventName;
+            var paymentElement = request.Order.Embedded.Payments[0];
+            var paymentId = paymentElement.Id.Split(':').Last();
             var status = eventType switch
             {
                 EventTypes.Authorised => PaymentStatuses.Authorized,
@@ -50,51 +45,60 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EventTypes.PartialRefundFailed => PaymentStatuses.Failed
             };
 
+            using var disposable = _logger.BeginScope(new Dictionary<string, object>
+            {
+                {"ReferenceCode", paymentElement.MerchantOrderReference},
+                {"EventType", eventType}
+            });
+            _logger.LogNGeniusWebhookProcessingStarted();
+
+            await TryUpdatePayment(paymentElement.MerchantOrderReference, paymentId, status);
+            await TryUpdatePaymentLink(paymentElement.MerchantOrderReference, status);
+        }
+
+
+        private async Task TryUpdatePayment(string referenceCode, string paymentId, PaymentStatuses status)
+        {
             var payments = await _context.Payments
-                .Where(p => p.ReferenceCode == merchantReference)
+                .Where(p => p.ReferenceCode == referenceCode)
                 .ToListAsync();
 
             var payment = payments.Where(p =>
                 {
                     var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
-                    return data.ExternalId == paymentId && data.InternalReferenceCode == orderReference;
+                    return data.ExternalId == paymentId;
                 })
                 .SingleOrDefault();
 
-            if (payment != default)
-            {
-                // It is important to note that, for orders processed in SALE mode
-                // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
-                // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
-                // and another for the CAPTURED event.
-                if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
-                    return;
+            if (payment is null || status != payment.Status)
+                return;
 
-                if (status != payment.Status)
-                {
-                    payment.Status = status;
-                    payment.Modified = _dateTimeProvider.UtcNow();
-                    _context.Update(payment);
-                    await _context.SaveChangesAsync();
-                    await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
-                }
-            }
-            
+            _logger.LogNGeniusWebhookPaymentUpdate();
+            await _paymentService.SetStatus(payment, status);
+        }
+
+
+        private async Task TryUpdatePaymentLink(string referenceCode, PaymentStatuses status)
+        {
             var paymentLink = await _context.PaymentLinks
-                .Where(l => l.ReferenceCode == merchantReference)
+                .Where(l => l.ReferenceCode == referenceCode)
                 .SingleOrDefaultAsync();
-
-            if (paymentLink != default && status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
-            {
-                await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
-            }
+            
+            if (paymentLink is null)
+                return;
+            
+            // Only Captured status processed
+            if (status is not PaymentStatuses.Captured)
+                return;
+            
+            _logger.LogNGeniusWebhookPaymentLinkUpdate();
+            await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
         }
 
 
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingPaymentCallbackService _bookingPaymentCallbackService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
         private readonly ILogger<NGeniusWebhookProcessingService> _logger;
+        private readonly ICreditCardPaymentManagementService _paymentService;
     }
 }
