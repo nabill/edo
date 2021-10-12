@@ -347,6 +347,18 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1093, "CurrencyConversionFailed"),
                 "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`");
             
+            NGeniusWebhookProcessingStarted = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1095, "NGeniusWebhookProcessingStarted"),
+                "NGenius webhook processing started");
+            
+            NGeniusWebhookPaymentUpdate = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1096, "NGeniusWebhookPaymentUpdate"),
+                "Started updating payment by NGenius webhook");
+            
+            NGeniusWebhookPaymentLinkUpdate = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1097, "NGeniusWebhookPaymentLinkUpdate"),
+                "Started updating payment link by NGenius webhook");
+            
         }
     
                 
@@ -604,6 +616,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogCurrencyConversionFailed(this ILogger logger, HappyTravel.Money.Enums.Currencies Source, HappyTravel.Money.Enums.Currencies Target, string Error, Exception exception = null)
             => CurrencyConversionFailed(logger, Source, Target, Error, exception);
+                
+         public static void LogNGeniusWebhookProcessingStarted(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookProcessingStarted(logger, exception);
+                
+         public static void LogNGeniusWebhookPaymentUpdate(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookPaymentUpdate(logger, exception);
+                
+         public static void LogNGeniusWebhookPaymentLinkUpdate(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookPaymentLinkUpdate(logger, exception);
     
     
         
@@ -776,5 +797,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateFailed;
         
         private static readonly Action<ILogger, HappyTravel.Money.Enums.Currencies, HappyTravel.Money.Enums.Currencies, string, Exception> CurrencyConversionFailed;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookProcessingStarted;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentUpdate;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentLinkUpdate;
     }
 }
