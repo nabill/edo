@@ -67,23 +67,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 })
                 .SingleOrDefault();
 
-            if (payment != default)
-            {
-                // It is important to note that, for orders processed in SALE mode
-                // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
-                // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
-                // and another for the CAPTURED event.
-                if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
-                    return;
+            if (payment is null)
+                return;
+            
+            // It is important to note that, for orders processed in SALE mode
+            // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
+            // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
+            // and another for the CAPTURED event.
+            if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
+                return;
 
-                if (status != payment.Status)
-                {
-                    payment.Status = status;
-                    payment.Modified = _dateTimeProvider.UtcNow();
-                    _context.Update(payment);
-                    await _context.SaveChangesAsync();
-                    await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
-                }
+            if (status != payment.Status)
+            {
+                payment.Status = status;
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+                await _bookingPaymentCallbackService.ProcessPaymentChanges(payment);
             }
         }
 
@@ -93,8 +93,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             var paymentLink = await _context.PaymentLinks
                 .Where(l => l.ReferenceCode == referenceCode)
                 .SingleOrDefaultAsync();
+            
+            if (paymentLink is null)
+                return;
 
-            if (paymentLink != default && status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
+            if (status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
             {
                 await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
             }
