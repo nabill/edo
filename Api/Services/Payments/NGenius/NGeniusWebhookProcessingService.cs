@@ -69,13 +69,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 
             if (payment is null)
                 return;
-            
-            // It is important to note that, for orders processed in SALE mode
-            // (whereby a transaction is AUTHORISED and then immediately CAPTURED, ready for settlement)
-            // your nominated URL will receive multiple web-hooks at the same - one for the AUTHORISED event,
-            // and another for the CAPTURED event.
-            if (payment.Status == PaymentStatuses.Captured && status == PaymentStatuses.Authorized)
-                return;
 
             if (status != payment.Status)
             {
@@ -96,11 +89,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             
             if (paymentLink is null)
                 return;
-
-            if (status is PaymentStatuses.Captured or PaymentStatuses.Authorized)
-            {
-                await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
-            }
+            
+            // Only success statuses processed
+            if (status is not PaymentStatuses.Captured or PaymentStatuses.Authorized)
+                return;
+            
+            await _paymentLinksProcessingService.ProcessNGeniusWebhook(paymentLink.Code, CreditCardPaymentStatuses.Success);
         }
 
 
