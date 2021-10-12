@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Currency can differ in different results
                 var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
                     slimAccommodationAvailability,
-                    ProcessPrices);
+                    ProcessPrices,
+                    GetMarkupObjectInfo
+                    );
 
                 convertedResults.Add(convertedAccommodationAvailability);
             }
@@ -111,7 +114,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             return convertedAccommodationAvailability;
         }
-        
+
+
+        private static MarkupObjectInfo GetMarkupObjectInfo(AccommodationAvailabilityResult availability) 
+            => new (availability.CountryHtId, availability.LocalityHtId, availability.HtId);
+
 
         private readonly IPriceProcessor _priceProcessor;
     }
