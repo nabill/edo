@@ -221,7 +221,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     numberOfNights: availability.NumberOfNights,
                     accommodation: availability.Accommodation,
                     roomContractSet: roomContractSet,
-                    availablePaymentMethods: availability.AvailablePaymentMethods);
+                    availablePaymentMethods: availability.AvailablePaymentMethods,
+                    countryHtId: availability.CountryHtId,
+                    localityHtId: availability.LocalityHtId
+                    );
             }
 
 
