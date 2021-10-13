@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             
             double CalculatePercent(double amount) 
-                => amount / totalAmount;
+                => Math.Round(amount / totalAmount, 2, MidpointRounding.AwayFromZero);
         }
     }
 }
