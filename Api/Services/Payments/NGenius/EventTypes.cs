@@ -33,6 +33,6 @@
         public const string PostAuthFraudCheckRejected = "POST_AUTH_FRAUD_CHECK_REJECTED";
         public const string PostAuthFraudCheckReview = "POST_AUTH_FRAUD_CHECK_REVIEW";
         public const string PostAuthFraudCheckAccepted = "POST_AUTH_FRAUD_CHECK_ACCEPTED";
-
+        public const string ThreeDsNotAuthenticated = "THREE_DS_NOT_AUTHENTICATED";
     }
 }
