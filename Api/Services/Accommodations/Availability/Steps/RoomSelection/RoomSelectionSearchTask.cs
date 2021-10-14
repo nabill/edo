@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             string htId, Suppliers supplier, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
-            AgentContext agent, string languageCode)
+            AgentContext agent, string languageCode, string countryHtId, string localityHtId)
         {
             return await ExecuteRequest()
                 .Bind(Convert)
@@ -59,8 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     availabilityDetails.CheckInDate,
                     roomContractSets,
                     htId,
-                    "", // TODO: populate with correct data
-                    ""  // TODO: populate with correct data
+                    countryHtId,
+                    localityHtId
                     );
             }
 

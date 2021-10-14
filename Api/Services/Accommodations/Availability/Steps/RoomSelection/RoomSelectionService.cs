@@ -100,7 +100,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId, htId, source, result.SupplierAccommodationCode, result.AvailabilityId, searchSettings, agent, languageCode);
+                    .GetSupplierAvailability(searchId, htId, source, result.SupplierAccommodationCode, result.AvailabilityId, searchSettings, agent, languageCode,
+                        result.CountryHtId, result.LocalityHtId);
             }
             
 
