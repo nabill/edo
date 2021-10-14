@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
@@ -8,7 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType)
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType,
+            List<int> ancestors)
         {
             Name = name;
             Id = id;
@@ -24,6 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Website = website;
             VatNumber = vatNumber;
             DefaultPaymentType = defaultPaymentType;
+            Ancestors = ancestors;
         }
 
 
@@ -100,6 +103,13 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Default payment type
         /// </summary>
         public PaymentTypes DefaultPaymentType { get; }
+        
+        
+        
+        /// <summary>
+        /// List of ancestors ids
+        /// </summary>
+        public List<int> Ancestors { get; }
 
 
         public override int GetHashCode()
