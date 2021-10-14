@@ -55,13 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .Select(r => r.ToRoomContractSet(supplier, r.IsDirectContract))
                     .ToList();
                 
-                return new SingleAccommodationAvailability(availabilityDetails.AvailabilityId,
-                    availabilityDetails.CheckInDate,
-                    roomContractSets,
-                    htId,
-                    countryHtId,
-                    localityHtId
-                    );
+                return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
+                    roomContractSets: roomContractSets, htId: htId, countryHtId: countryHtId, localityHtId: localityHtId);
             }
 
 
