@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             string htId, Suppliers supplier, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
-            AgentContext agent, string languageCode)
+            AgentContext agent, string languageCode, string countryHtId, string localityHtId)
         {
             return await ExecuteRequest()
                 .Bind(Convert)
@@ -55,13 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .Select(r => r.ToRoomContractSet(supplier, r.IsDirectContract))
                     .ToList();
                 
-                return new SingleAccommodationAvailability(availabilityDetails.AvailabilityId,
-                    availabilityDetails.CheckInDate,
-                    roomContractSets,
-                    htId,
-                    "", // TODO: populate with correct data
-                    ""  // TODO: populate with correct data
-                    );
+                return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
+                    roomContractSets: roomContractSets, htId: htId, countryHtId: countryHtId, localityHtId: localityHtId);
             }
 
 
