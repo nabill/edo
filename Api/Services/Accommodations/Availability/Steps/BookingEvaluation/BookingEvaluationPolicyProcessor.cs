@@ -13,7 +13,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 roomContractSet: RoomContractSetPolicyProcessor.Process(availability.RoomContractSet, availability.CheckInDate,
                     settings),
                 availablePaymentMethods: availability.AvailablePaymentMethods,
-                accommodation: availability.Accommodation);
+                accommodation: availability.Accommodation,
+                countryHtId: availability.CountryHtId,
+                localityHtId: availability.LocalityHtId);
         }
     }
 }

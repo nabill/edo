@@ -31,7 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
                 roomContractSets: roomContractSets,
-                htId: source.HtId);
+                htId: source.HtId,
+                countryHtId: source.CountryHtId,
+                localityHtId: source.LocalityHtId);
         }
 
 
@@ -42,7 +44,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
                 roomContractSets: roomContractSets,
-                htId: source.HtId);
+                htId: source.HtId,
+                countryHtId: source.CountryHtId,
+                localityHtId: source.LocalityHtId);
         }
 
 
