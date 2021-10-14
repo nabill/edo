@@ -18,7 +18,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => new (availabilityId: availability.AvailabilityId,
                     checkInDate: availability.CheckInDate,
                     roomContractSets: roomContractSets,
-                    htId: availability.HtId);
+                    htId: availability.HtId,
+                    countryHtId: availability.CountryHtId,
+                    localityHtId: availability.LocalityHtId);
         }
     }
 }

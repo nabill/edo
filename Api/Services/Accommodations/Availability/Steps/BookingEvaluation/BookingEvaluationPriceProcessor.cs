@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         
         public Task<RoomContractSetAvailability> ApplyMarkups(RoomContractSetAvailability response, AgentContext agent, Action<MarkupApplicationResult<RoomContractSetAvailability>> logAction) 
-            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, null, logAction);
+            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, GetMarkupObjectInfo, logAction);
 
         
         public Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails, AgentContext agent) 
@@ -34,7 +35,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 numberOfNights: value.NumberOfNights,
                 roomContractSet: roomContractSet,
                 accommodation: value.Accommodation,
-                availablePaymentMethods: value.AvailablePaymentMethods);
+                availablePaymentMethods: value.AvailablePaymentMethods,
+                countryHtId: value.CountryHtId,
+                localityHtId: value.LocalityHtId);
         }
 
 
@@ -48,8 +51,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 numberOfNights: value.NumberOfNights,
                 roomContractSet: roomContractSet,
                 accommodation: value.Accommodation,
-                availablePaymentMethods: value.AvailablePaymentMethods);
+                availablePaymentMethods: value.AvailablePaymentMethods,
+                countryHtId: value.CountryHtId,
+                localityHtId: value.LocalityHtId);
         }
+
+
+        private static MarkupObjectInfo GetMarkupObjectInfo(RoomContractSetAvailability availability)
+            => new(availability.CountryHtId, availability.LocalityHtId, availability.Accommodation.HtId);
 
 
         private static Currencies? GetCurrency(RoomContractSetAvailability availabilityDetails)

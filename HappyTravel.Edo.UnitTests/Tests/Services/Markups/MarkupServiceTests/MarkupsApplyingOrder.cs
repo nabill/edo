@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -17,6 +18,7 @@ using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
+using Microsoft.Extensions.Options;
 using Moq;
 using NetTopologySuite.Utilities;
 using Xunit;
@@ -31,12 +33,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var allPolicies = _agentPolicies
                 .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
-                .Union(_agencyPolicies);
-            
+                .Union(_agencyPolicies)
+                .ToList();
+
             var edoContextMock = MockEdoContextFactory.Create();
-            edoContextMock.Setup(c => c.MarkupPolicies)
-                .Returns(DbSetMockProvider.GetDbSetMock(allPolicies));
-            
             edoContextMock.Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             
@@ -44,8 +44,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             currencyRateServiceMock
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
                 .Returns(new ValueTask<Result<decimal>>(Result.Success((decimal)1)));
+
+            var markupPolicyStorage = new MarkupPolicyStorage(Mock.Of<IOptionsMonitor<MarkupPolicyStorageOptions>>(_ => _.CurrentValue ==
+                new MarkupPolicyStorageOptions {Timeout = TimeSpan.FromMilliseconds(1)}));
+            markupPolicyStorage.Set(allPolicies);
     
-            _markupPolicyService = new MarkupPolicyService(edoContextMock.Object,
+            _markupPolicyService = new MarkupPolicyService(markupPolicyStorage, edoContextMock.Object,
                 new FakeDoubleFlow());
 
             var discountServiceMock = new  Mock<IDiscountFunctionService>();

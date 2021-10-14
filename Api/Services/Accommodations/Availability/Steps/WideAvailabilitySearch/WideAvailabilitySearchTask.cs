@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             List<AccommodationAvailabilityResult> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var htIdMapping = accommodationCodeMappings
-                    .ToDictionary(m => m.SupplierCode, m => m.AccommodationHtId);
+                    .ToDictionary(m => m.SupplierCode, m => (m.AccommodationHtId, m.CountryHtId, m.LocalityHtId));
                 
                 var now = _dateTimeProvider.UtcNow();
                 return details
@@ -126,8 +126,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             maxPrice: maxPrice,
                             checkInDate: connectorRequest.CheckInDate,
                             checkOutDate: connectorRequest.CheckOutDate,
-                            htId: htId,
-                            supplierAccommodationCode: accommodationAvailability.AccommodationId);
+                            htId: htId.AccommodationHtId,
+                            supplierAccommodationCode: accommodationAvailability.AccommodationId,
+                            countryHtId: htId.CountryHtId,
+                            localityHtId: htId.LocalityHtId);
                     })
                     .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();
