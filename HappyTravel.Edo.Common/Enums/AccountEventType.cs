@@ -12,11 +12,14 @@ namespace HappyTravel.Edo.Common.Enums
         Authorize = 3,
         Capture = 4,
         Void = 5,
-        AgencyAdd = 6,
-        AgencySubtract = 7,
+        CounterpartyAdd = 6,
+        CounterpartySubtract = 7,
+        CounterpartyTransferToAgency = 8,
         AgencyTransferToAgency = 9,
         Refund = 10,
         ManualIncrease = 11,
-        ManualDecrease = 12
+        ManualDecrease = 12,
+        AgencyAdd = 12,
+        AgencySubtract = 13
     }
 }
