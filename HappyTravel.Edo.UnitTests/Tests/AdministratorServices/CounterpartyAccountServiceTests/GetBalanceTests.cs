@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
@@ -28,8 +29,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             var edoContextMock = MockEdoContextFactory.Create();
             var mockedEdoContext = edoContextMock.Object;
 
-            _counterpartyAccountService = new CounterpartyAccountService(mockedEdoContext, entityLockerMock.Object, 
-                Mock.Of<IManagementAuditService>(), Mock.Of<IAccountBalanceAuditService>(), Mock.Of<ICounterpartyBillingNotificationService>());
+            _agencyAccountService = new AgencyAccountService(mockedEdoContext, entityLockerMock.Object, 
+                Mock.Of<IManagementAuditService>(), Mock.Of<IAccountBalanceAuditService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -38,40 +39,40 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
 
             edoContextMock
-                .Setup(c => c.Counterparties)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
+                .Setup(c => c.Agencies)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
                 {
-                    new Counterparty
+                    new Agency
                     {
                         Id = 1
                     },
                     // Having more than one element for predicates to be tested too
-                    new Counterparty
+                    new Agency
                     {
                         Id = 2
                     },
                 }));
-
+            
             edoContextMock
-                .Setup(c => c.CounterpartyAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<CounterpartyAccount>
+                .Setup(c => c.AgencyAccounts)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
-                    new CounterpartyAccount
+                    new AgencyAccount
                     {
                         Id = 1,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 1,
+                        AgencyId = 1,
                         IsActive = true
                     },
-                    new CounterpartyAccount
+                    new AgencyAccount
                     {
-                        Id = 2,
-                        Balance = 1000,
-                        Currency = Currencies.EUR,
-                        CounterpartyId = 2,
+                        Id = 1,
+                        Balance = 0,
+                        Currency = Currencies.USD,
+                        AgencyId = 1,
                         IsActive = true
-                    },
+                    }
                 }));
         }
 
@@ -79,21 +80,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         [Fact]
         public async Task Existing_currency_balance_should_be_shown()
         {
-            var balanceInfo = await _counterpartyAccountService.GetBalance(1, Currencies.USD);
+            var balanceInfo = await _agencyAccountService.Get(1, Currencies.USD);
             
-            Assert.Equal(1000, balanceInfo[0].Balance);
+            Assert.Equal(1000, balanceInfo[0].Balance.Amount);
         }
 
 
         [Fact]
         public async Task Not_existing_currency_balance_show_should_empty_list()
         {
-            var balanceInfo = await _counterpartyAccountService.GetBalance(1, Currencies.EUR);
+            var balanceInfo = await _agencyAccountService.Get(1, Currencies.EUR);
             
             Assert.True(balanceInfo.Count == 0);
         }
 
 
-        private readonly ICounterpartyAccountService _counterpartyAccountService;
+        private readonly IAgencyAccountService _agencyAccountService;
     }
 }
