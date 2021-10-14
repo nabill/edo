@@ -14,8 +14,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupPolicyService : IMarkupPolicyService
     {
-        public MarkupPolicyService(EdoContext context, IDoubleFlow flow)
+        public MarkupPolicyService(IMarkupPolicyStorage markupPolicyStorage, EdoContext context, IDoubleFlow flow)
         {
+            _markupPolicyStorage = markupPolicyStorage;
             _context = context;
             _flow = flow;
         }
@@ -52,16 +53,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .SingleOrDefaultAsync() ?? new List<int>();
                 
                 agencyTreeIds.Add(agencyId);
-                
-                var policies = await _context.MarkupPolicies
-                    .Where(p => p.Target == policyTarget)
-                    .Where(p =>
+
+                var policies = _markupPolicyStorage.Get(p =>
+                        p.Target == policyTarget &&
                         p.ScopeType == MarkupPolicyScopeType.Global ||
                         p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
                         p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
                         p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId
                     )
-                    .ToListAsync();
+                    .ToList();
 
                 return policies
                     .OrderBy(p => p.ScopeType)
@@ -72,8 +72,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
         private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
+
+        private readonly IMarkupPolicyStorage _markupPolicyStorage;
         private readonly EdoContext _context;
-       
         private readonly IDoubleFlow _flow;
     }
 }
