@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         public Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
-            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices);
+            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, GetMarkupObjectInfo);
 
 
         public SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability source)
@@ -48,6 +49,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 countryHtId: source.CountryHtId,
                 localityHtId: source.LocalityHtId);
         }
+
+
+        private static MarkupObjectInfo GetMarkupObjectInfo(SingleAccommodationAvailability availability)
+            => new(availability.CountryHtId, availability.LocalityHtId, availability.HtId);
 
 
         private static Currencies? GetCurrency(SingleAccommodationAvailability availabilityDetails)
