@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,6 +51,26 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .ToListAsync();
 
 
+        public Task<List<FullAgencyAccountInfo>> Get(int agencyId, Currencies currency)
+        {
+            return _context.AgencyAccounts
+                .Where(a => a.AgencyId == agencyId && a.Currency == currency)
+                .Select(a => new FullAgencyAccountInfo
+                {
+                    Id = a.Id,
+                    Balance = new MoneyAmount
+                    {
+                        Amount = a.Balance,
+                        Currency = a.Currency
+                    },
+                    Currency = a.Currency,
+                    Created = a.Created,
+                    IsActive = a.IsActive
+                })
+                .ToListAsync();
+        }
+
+
         public async Task<Result> Activate(int agencyId, int agencyAccountId, string reason)
             => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: true, reason);
 
@@ -58,7 +79,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => await ChangeAccountActivity(agencyId, agencyAccountId, isActive: false, reason);
 
 
-        public async Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+        public Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller) 
+            => IncreaseBalance(agencyAccountId, paymentData, apiCaller, AccountEventType.ManualIncrease);
+
+
+        public Task<Result> DecreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+            => DecreaseBalance(agencyAccountId, paymentData, apiCaller, AccountEventType.ManualDecrease);
+
+
+        public Task<Result> AddMoney(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+            => IncreaseBalance(agencyAccountId, paymentData, apiCaller, AccountEventType.AgencyAdd);
+
+
+        public Task<Result> Subtract(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+            => DecreaseBalance(agencyAccountId, paymentData, apiCaller, AccountEventType.AgencySubtract);
+
+        
+        private async Task<Result> IncreaseBalance(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller, AccountEventType eventType)
         {
             return await GetAgencyAccount(agencyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
@@ -77,11 +114,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualIncrease,
-                    account.Id,
-                    paymentData.Amount,
-                    apiCaller,
-                    eventData,
+                await _accountBalanceAuditService.Write(eventType: eventType,
+                    accountId: account.Id,
+                    amount: paymentData.Amount,
+                    apiCaller: apiCaller,
+                    eventData: eventData,
                     null);
 
                 return account;
@@ -98,7 +135,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> DecreaseManually(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller)
+        private async Task<Result> DecreaseBalance(int agencyAccountId, PaymentData paymentData, ApiCaller apiCaller, AccountEventType eventType)
         {
             return await GetAgencyAccount(agencyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
@@ -117,7 +154,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _accountBalanceAuditService.Write(AccountEventType.ManualDecrease,
+                await _accountBalanceAuditService.Write(eventType,
                     account.Id,
                     paymentData.Amount,
                     apiCaller,
@@ -136,7 +173,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return agencyAccount;
             }
         }
-
+        
 
         private async Task<Result> ChangeAccountActivity(int agencyId, int agencyAccountId, bool isActive, string reason)
         {
