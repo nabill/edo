@@ -104,8 +104,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// </summary>
         public PaymentTypes DefaultPaymentType { get; }
         
-        
-        
         /// <summary>
         /// List of ancestors ids
         /// </summary>
