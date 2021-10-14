@@ -10,7 +10,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public AccommodationAvailabilityResult(Guid searchId, Suppliers supplier, DateTime created, string availabilityId, List<RoomContractSet> roomContractSets,
-            decimal minPrice, decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, string htId, string supplierAccommodationCode)
+            decimal minPrice, decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, string htId, string supplierAccommodationCode, string countryHtId,
+            string localityHtId)
         {
             SearchId = searchId;
             Supplier = supplier;
@@ -23,6 +24,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckOutDate = checkOutDate;
             HtId = htId;
             SupplierAccommodationCode = supplierAccommodationCode;
+            CountryHtId = countryHtId;
+            LocalityHtId = localityHtId;
         }
         
         [JsonIgnore]
@@ -38,6 +41,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckOutDate { get; init; }
         public string HtId { get; init; }
         public string SupplierAccommodationCode { get; init; }
+        public string CountryHtId { get; init; }
+        public string LocalityHtId { get; init; }
 
     }
 }

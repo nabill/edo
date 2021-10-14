@@ -91,26 +91,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplySearchSettings);
 
 
-            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId)>> GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId)>> 
+                GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId));
+                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId,
+                                CountryHtId: r.Result.CountryHtId, LocalityHtId: r.Result.LocalityHtId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
                 if (result.Equals(default))
-                    return Result.Failure<(Suppliers, RoomContractSet, string, string)>("Could not find selected room contract set");
+                    return Result.Failure<(Suppliers, RoomContractSet, string, string, string, string)>("Could not find selected room contract set");
                 
                 return result;
             }
 
             
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string, string) selectedSet)
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string, string, string, string) selectedSet)
             {
-                var (supplier, roomContractSet, availabilityId, _) = selectedSet;
+                var (supplier, roomContractSet, availabilityId, _, _, _) = selectedSet;
                 return _supplierConnectorManager
                     .Get(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
@@ -120,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation);
+                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation, result.CountryHtId, result.LocalityHtId);
             }
             
 
@@ -221,7 +223,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     numberOfNights: availability.NumberOfNights,
                     accommodation: availability.Accommodation,
                     roomContractSet: roomContractSet,
-                    availablePaymentMethods: availability.AvailablePaymentMethods);
+                    availablePaymentMethods: availability.AvailablePaymentMethods,
+                    countryHtId: availability.CountryHtId,
+                    localityHtId: availability.LocalityHtId
+                    );
             }
 
 
