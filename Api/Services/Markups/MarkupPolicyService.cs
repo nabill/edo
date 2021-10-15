@@ -30,16 +30,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             var policies = _markupPolicyStorage.Get(p =>
                     p.Target == policyTarget &&
-                    p.ScopeType == MarkupPolicyScopeType.Global ||
-                    p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
-                    p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
-                    p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId
+                    p.AgentScopeType == AgentMarkupScopeTypes.Global ||
+                    p.AgentScopeType == AgentMarkupScopeTypes.Location && (p.AgentScopeId == subjectInfo.CountryHtId || p.AgentScopeId == subjectInfo.LocalityHtId) ||
+                    p.AgentScopeType == AgentMarkupScopeTypes.Counterparty && p.AgentScopeId == counterpartyId.ToString() ||
+                    p.AgentScopeType == AgentMarkupScopeTypes.Agency && (p.AgentScopeId == agencyId.ToString() || agencyTreeIds.Contains(int.Parse(p.AgentScopeId))) ||
+                    p.AgentScopeType == AgentMarkupScopeTypes.Agent && p.AgentScopeId == $"{agencyId}-{agentId}" ||
+                    p.DestinationScopeId == null || 
+                    p.DestinationScopeId == objectInfo.CountryHtId || p.DestinationScopeId == objectInfo.LocalityHtId || p.DestinationScopeId == objectInfo.AccommodationHtId
                 )
                 .ToList();
 
             return policies
-                .OrderBy(p => p.ScopeType)
-                .ThenBy(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId.HasValue ? agencyTreeIds.IndexOf(p.AgencyId.Value) : 0)
+                .OrderBy(p => p.AgentScopeType)
+                .ThenBy(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.AgentScopeId)) : 0)
                 .ThenBy(p => p.Order)
                 .ToList();
         }
