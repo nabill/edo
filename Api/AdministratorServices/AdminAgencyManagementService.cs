@@ -141,6 +141,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
             string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId)
         {
+            var ancestors = new List<int>();
+
+            if (parentAgencyId is not null)
+            {
+                var parentAncestors = await _context.Agencies
+                    .Where(a => a.Id == parentAgencyId.Value)
+                    .Select(a => a.Ancestors ?? new List<int>(0))
+                    .SingleAsync();
+                
+                ancestors.AddRange(parentAncestors);
+                ancestors.Add(parentAgencyId.Value);
+            }
+            
             var now = _dateTimeProvider.UtcNow();
             var agency = new Agency
             {
@@ -160,6 +173,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 VatNumber = vatNumber,
                 // Hardcode because we only support USD
                 PreferredCurrency = Currencies.USD,
+                Ancestors = ancestors
             };
             _context.Agencies.Add(agency);
 
