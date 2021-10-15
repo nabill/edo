@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
-            string propertyOwnerConfirmationCode)
+            string propertyOwnerConfirmationCode, bool isAdvancePurchaseRate)
         {
             ReferenceCode = referenceCode;
             AgentReference = agentReference;
