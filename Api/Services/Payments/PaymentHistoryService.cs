@@ -76,7 +76,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 AccountEventType.Capture => PaymentHistoryType.Capture,
                 AccountEventType.Void => PaymentHistoryType.Void,
                 AccountEventType.Refund => PaymentHistoryType.Refund,
-                AccountEventType.CounterpartyTransferToAgency => PaymentHistoryType.Add,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

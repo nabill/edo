@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -39,6 +40,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
             => Ok(await _agencyAccountService.Get(agencyId));
+        
+        
+        /// <summary>
+        ///     Gets balance for a agency account
+        /// </summary>
+        /// <param name="agencyId">Agency Id</param>
+        /// <param name="currency">Currency</param>
+        [HttpGet("agencies/{agencyId}/accounts/{currency}/balance")]
+        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
+        public async Task<IActionResult> GetCounterpartyBalance(int counterpartyId, Currencies currency)
+            => Ok(await _agencyAccountService.Get(counterpartyId, currency));
 
 
         /// <summary>
@@ -70,6 +83,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
             => OkOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
+        
+        /// <summary>
+        ///     Append money to the agency account
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("agency-accounts/{agencyAccountId}/replenish")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> ReplenishAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _agencyAccountService.AddMoney(agencyAccountId, paymentData,
+                administrator.ToApiCaller());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
 
         /// <summary>
         ///     Manually Adds money to the agency account
@@ -110,6 +144,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        
+        /// <summary>
+        ///     Subtracts money from the agency account
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("agency-accounts/{agencyAccountId}/subtract")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        public async Task<IActionResult> SubtractAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _agencyAccountService.Subtract(agencyAccountId, paymentData,
+                administrator.ToApiCaller());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 

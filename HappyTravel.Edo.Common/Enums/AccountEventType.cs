@@ -18,6 +18,8 @@ namespace HappyTravel.Edo.Common.Enums
         AgencyTransferToAgency = 9,
         Refund = 10,
         ManualIncrease = 11,
-        ManualDecrease = 12
+        ManualDecrease = 12,
+        AgencyAdd = 12,
+        AgencySubtract = 13
     }
 }

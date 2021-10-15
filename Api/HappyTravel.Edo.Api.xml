@@ -207,6 +207,13 @@
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
+            <summary>
+                Gets balance for a agency account
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <param name="currency">Currency</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.ActivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
             Activates specified agency account.
@@ -223,6 +230,13 @@
             <param name="agencyAccountId">Agency account Id.</param>
             <param name="activityStatusChangeRequest">Request data for deactivation.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.ReplenishAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Append money to the agency account
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.IncreaseMoneyManuallyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually Adds money to the agency account
@@ -233,6 +247,13 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.DecreaseMoneyManuallyFromAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually Subtracts money from the agency account
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.SubtractAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Subtracts money from the agency account
             </summary>
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
@@ -2137,6 +2158,16 @@
             List of available payment methods
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.CountryHtId">
+            <summary>
+            Country of accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.LocalityHtId">
+            <summary>
+            Locality of accommodation
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
@@ -2350,6 +2381,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.DefaultPaymentType">
             <summary>
             Default payment type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Ancestors">
+            <summary>
+            List of ancestors ids
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
@@ -2590,6 +2626,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.DefaultPaymentType">
             <summary>
             Default payment type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Ancestors">
+            <summary>
+            List of ancestors ids
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">

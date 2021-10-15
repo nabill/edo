@@ -49,8 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new MarkupPolicyStorageOptions {Timeout = TimeSpan.FromMilliseconds(1)}));
             markupPolicyStorage.Set(allPolicies);
     
-            _markupPolicyService = new MarkupPolicyService(markupPolicyStorage, edoContextMock.Object,
-                new FakeDoubleFlow());
+            _markupPolicyService = new MarkupPolicyService(markupPolicyStorage);
 
             var discountServiceMock = new  Mock<IDiscountFunctionService>();
             discountServiceMock.Setup(service => service.Get(It.IsAny<MarkupPolicy>(), It.IsAny<MarkupSubjectInfo>()))
@@ -61,9 +60,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
     
     
         [Fact]
-        public async Task Policies_should_be_ordered_by_scope()
+        public void Policies_should_be_ordered_by_scope()
         {
-            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].ScopeType, policies[i + 1].ScopeType));
@@ -98,9 +97,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         }
         
         [Fact]
-        public async Task Policies_in_scope_should_be_ordered_by_order()
+        public void Policies_in_scope_should_be_ordered_by_order()
         {
-            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
@@ -124,16 +123,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
 
 
         [Fact]
-        public async Task Agencies_policies_should_be_ordered_by_agency_tree()
+        public void Agencies_policies_should_be_ordered_by_agency_tree()
         {
-            var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(MarkupSubject.AgencyId);
-            var policies = await _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             var agencyPolicies = policies.Where(p => p.ScopeType == MarkupPolicyScopeType.Agency).ToList();
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
             {
-                Assert.True(agencyPolicies[i].AgencyId == agencyTreeIds[i]);
+                Assert.True(agencyPolicies[i].AgencyId == MarkupSubject.AgencyAncestors[i]);
             }
         }
     
@@ -286,7 +283,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             AgentId = 1,
             AgencyId = 1,
-            CounterpartyId = 1
+            CounterpartyId = 1,
+            AgencyAncestors = new List<int>{ 2000, 1000 }
         };
 
         private readonly MarkupPolicyService _markupPolicyService;
