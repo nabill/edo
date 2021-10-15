@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agentId = subjectInfo.AgentId;
             var counterpartyId = subjectInfo.CounterpartyId;
             var agencyId = subjectInfo.AgencyId;
-            var agencyTreeIds = subjectInfo.AgencyTreeIds;
+            var agencyTreeIds = subjectInfo.AgencyAncestors;
+            agencyTreeIds.Add(agencyId);
             
             var policies = _markupPolicyStorage.Get(p =>
                     p.Target == policyTarget &&

@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Abstractions
         public int CounterpartyId { get; init;}
         public int AgencyId { get; init;}
         public int AgentId { get; init;}
-        public List<int> AgencyTreeIds { get; init; }
+        public List<int> AgencyAncestors { get; init; }
     }
 }

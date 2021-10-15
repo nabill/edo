@@ -41,16 +41,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var (_, isFailure, agency, error) = await _agencyService.Get(agent);
             if (isFailure)
                 throw new Exception(error);
-
-            var agencyTreeIds = agency.Ancestors;
-            agencyTreeIds.Add(agent.AgencyId);
             
             var markupSubject = new MarkupSubjectInfo
             {
                 AgentId = agent.AgentId,
                 AgencyId = agent.AgencyId,
                 CounterpartyId = agent.CounterpartyId,
-                AgencyTreeIds = agencyTreeIds
+                AgencyAncestors = agency.Ancestors
             };
             // TODO: Implement getting markup object for all models used with this function (TDetails)
             // https://github.com/happy-travel/agent-app-project/issues/696

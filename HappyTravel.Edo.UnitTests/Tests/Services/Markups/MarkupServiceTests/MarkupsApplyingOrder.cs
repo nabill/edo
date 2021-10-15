@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
             {
-                Assert.True(agencyPolicies[i].AgencyId == MarkupSubject.AgencyTreeIds[i]);
+                Assert.True(agencyPolicies[i].AgencyId == MarkupSubject.AgencyAncestors[i]);
             }
         }
     
@@ -284,7 +284,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             AgentId = 1,
             AgencyId = 1,
             CounterpartyId = 1,
-            AgencyTreeIds = new List<int>{ 2000, 1000, 1 }
+            AgencyAncestors = new List<int>{ 2000, 1000 }
         };
 
         private readonly MarkupPolicyService _markupPolicyService;
