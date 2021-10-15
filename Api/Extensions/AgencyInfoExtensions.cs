@@ -1,4 +1,5 @@
-﻿using HappyTravel.Edo.Api.Infrastructure;
+﻿using System.Collections.Generic;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Data.Agents;
@@ -25,7 +26,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
                 agency.CountryHtId,
                 agency.LocalityHtId,
-                agency.Ancestors);
+                agency.Ancestors ?? new List<int>());
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
