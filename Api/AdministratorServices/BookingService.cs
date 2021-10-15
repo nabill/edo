@@ -42,7 +42,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agent is null)
                 return Result.Failure<List<Booking>>($"Agent with ID {agentId} not found");
 
-            return await _context.Bookings.Where(booking => booking.AgentId == agentId).ToListAsync();
+            return await _context.Bookings
+                .Where(booking => booking.AgentId == agentId)
+                .OrderByDescending(booking => booking.CheckInDate)
+                .ToListAsync();
         }
 
 

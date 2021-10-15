@@ -45,6 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         NightCount = voucher.NightCount,
                         ReferenceCode = voucher.ReferenceCode,
                         SupplierReferenceCode = voucher.SupplierReferenceCode,
+                        PropertyOwnerConfirmationCode = voucher.PropertyOwnerConfirmationCode,
+                        RoomConfirmationCodes = string.Join("; ", voucher.RoomDetails.Select(r => r.SupplierRoomReferenceCode)),
                         RoomDetails = voucher.RoomDetails,
                         CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate),

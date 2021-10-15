@@ -65,7 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                 DefaultPassedDeadlineOffersMode;
 
-            bool isMarkupDisabled = agentSettingsValue?.IsMarkupDisabled == true || agencySettingsValue?.IsMarkupDisabled == true;
             bool isSupplierVisible = agentSettingsValue?.IsSupplierVisible == true || agencySettingsValue?.IsSupplierVisible == true;
             bool isDirectContractFlagVisible = agentSettingsValue?.IsDirectContractFlagVisible == true || agencySettingsValue?.IsDirectContractFlagVisible == true;
 
@@ -84,7 +83,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return new AccommodationBookingSettings(enabledConnectors,
                 aprMode.Value,
                 passedDeadlineOffersMode.Value,
-                isMarkupDisabled: isMarkupDisabled, 
                 isSupplierVisible: isSupplierVisible,
                 cancellationPolicyProcessSettings,
                 isDirectContractFlagVisible: isDirectContractFlagVisible,

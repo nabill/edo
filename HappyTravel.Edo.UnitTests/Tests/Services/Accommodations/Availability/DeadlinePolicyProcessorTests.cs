@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Extensions;
 using Xunit;
 
@@ -15,14 +13,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         public void Positive_shift_should_be_made_zero_in_deadline_date()
         {
             var originalDeadlineDate = new DateTime(2021, 1, 15);
-            var originalDeadline = new Deadline(originalDeadlineDate);
+            var originalDeadline = new Deadline(originalDeadlineDate, default, default, default);
             var checkIn = originalDeadlineDate;
             var shiftSpan = TimeSpan.FromDays(10);
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 
             var shiftedDeadline = DeadlinePolicyProcessor.Process(originalDeadline, checkIn, settings);
 
-            Assert.Equal(originalDeadline, shiftedDeadline);
+            Assert.Equal(originalDeadline.Date, shiftedDeadline.Date);
+            Assert.Equal(originalDeadline.IsFinal, shiftedDeadline.IsFinal);
+            Assert.True(originalDeadline.Remarks.SafeSequenceEqual(shiftedDeadline.Remarks));
+            Assert.True(originalDeadline.Policies.SafeSequenceEqual(shiftedDeadline.Policies));
         }
 
 
@@ -31,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         {
             var originalDeadlineDate = new DateTime(2021, 1, 15);
             var shiftSpan = TimeSpan.FromDays(10);
-            var originalDeadline = new Deadline(originalDeadlineDate, Policies);
+            var originalDeadline = new Deadline(originalDeadlineDate, Policies, default, default);
             var checkIn = originalDeadlineDate;
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
             var originalDeadlineDate = new DateTime(2021, 1, 15);
             var expectedShiftedDate = new DateTime(2021, 1, 5);
             var shiftSpan = TimeSpan.FromDays(-10);
-            var originalDeadline = new Deadline(originalDeadlineDate);
+            var originalDeadline = new Deadline(originalDeadlineDate, default, default, default);
             var checkIn = originalDeadlineDate;
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 
@@ -70,7 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
                 new DateTime(2021, 1, 8),
                 new DateTime(2021, 1, 9),
             };
-            var originalDeadline = new Deadline(originalDeadlineDate, Policies);
+            var originalDeadline = new Deadline(originalDeadlineDate, Policies, default, default);
             var checkIn = originalDeadlineDate;
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 
@@ -86,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         {
             var originalDeadlineDate = new DateTime(2021, 1, 15);
             var shiftSpan = TimeSpan.FromDays(-10);
-            var originalDeadline = new Deadline(originalDeadlineDate, Policies);
+            var originalDeadline = new Deadline(originalDeadlineDate, Policies, default, default);
             var checkIn = originalDeadlineDate;
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 
@@ -102,7 +103,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         {
             var originalDeadlineDate = new DateTime(2021, 1, 15);
             var shiftSpan = TimeSpan.FromDays(0);
-            var originalDeadline = new Deadline(null);
+            var originalDeadline = new Deadline(null, default, default, default);
             var checkIn = originalDeadlineDate;
             var settings = new CancellationPolicyProcessSettings { PolicyStartDateShift = shiftSpan };
 

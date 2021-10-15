@@ -267,6 +267,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1602, "MapperClientErrorResponse"),
                 "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}");
             
+            MapperManagementClientException = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1603, "MapperManagementClientException"),
+                "Mapper management client exception");
+            
             CounterpartyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
                 new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
                 "Counterparty {CounterpartyId} account added notification failed with error {Error}");
@@ -318,6 +322,42 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             MapperClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
                 new EventId(1803, "MapperClientRequestTimeout"),
                 "Request to mapper failed with timeout");
+            
+            MapperManagementClientUnexpectedResponse = LoggerMessage.Define<System.Net.HttpStatusCode, System.Uri, string>(LogLevel.Error,
+                new EventId(1804, "MapperManagementClientUnexpectedResponse"),
+                "Unexpected response received from a mapper management endpoint. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}");
+            
+            MapperManagementClientRequestTimeout = LoggerMessage.Define(LogLevel.Warning,
+                new EventId(1806, "MapperManagementClientRequestTimeout"),
+                "Request to a mapper management endpoint failed with timeout");
+            
+            MarkupPolicyStorageRefreshed = LoggerMessage.Define<int>(LogLevel.Debug,
+                new EventId(1090, "MarkupPolicyStorageRefreshed"),
+                "MarkupPolicyStorage refreshed. Was set {Count} entities");
+            
+            MarkupPolicyStorageUpdateCompleted = LoggerMessage.Define(LogLevel.Debug,
+                new EventId(1091, "MarkupPolicyStorageUpdateCompleted"),
+                "Markup policy storage update completed");
+            
+            MarkupPolicyStorageUpdateFailed = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1092, "MarkupPolicyStorageUpdateFailed"),
+                "Markup policy storage update failed");
+            
+            CurrencyConversionFailed = LoggerMessage.Define<HappyTravel.Money.Enums.Currencies, HappyTravel.Money.Enums.Currencies, string>(LogLevel.Error,
+                new EventId(1093, "CurrencyConversionFailed"),
+                "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`");
+            
+            NGeniusWebhookProcessingStarted = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1095, "NGeniusWebhookProcessingStarted"),
+                "NGenius webhook processing started");
+            
+            NGeniusWebhookPaymentUpdate = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1096, "NGeniusWebhookPaymentUpdate"),
+                "Started updating payment by NGenius webhook");
+            
+            NGeniusWebhookPaymentLinkUpdate = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1097, "NGeniusWebhookPaymentLinkUpdate"),
+                "Started updating payment link by NGenius webhook");
             
         }
     
@@ -517,6 +557,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMapperClientErrorResponse(this ILogger logger, string Message, int StatusCode, string[] HtIds, Exception exception = null)
             => MapperClientErrorResponse(logger, Message, StatusCode, HtIds, exception);
                 
+         public static void LogMapperManagementClientException(this ILogger logger, Exception exception = null)
+            => MapperManagementClientException(logger, exception);
+                
          public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
             => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
                 
@@ -555,6 +598,33 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperClientRequestTimeout(this ILogger logger, Exception exception = null)
             => MapperClientRequestTimeout(logger, exception);
+                
+         public static void LogMapperManagementClientUnexpectedResponse(this ILogger logger, System.Net.HttpStatusCode StatusCode, System.Uri Uri, string Response, Exception exception = null)
+            => MapperManagementClientUnexpectedResponse(logger, StatusCode, Uri, Response, exception);
+                
+         public static void LogMapperManagementClientRequestTimeout(this ILogger logger, Exception exception = null)
+            => MapperManagementClientRequestTimeout(logger, exception);
+                
+         public static void LogMarkupPolicyStorageRefreshed(this ILogger logger, int Count, Exception exception = null)
+            => MarkupPolicyStorageRefreshed(logger, Count, exception);
+                
+         public static void LogMarkupPolicyStorageUpdateCompleted(this ILogger logger, Exception exception = null)
+            => MarkupPolicyStorageUpdateCompleted(logger, exception);
+                
+         public static void LogMarkupPolicyStorageUpdateFailed(this ILogger logger, Exception exception = null)
+            => MarkupPolicyStorageUpdateFailed(logger, exception);
+                
+         public static void LogCurrencyConversionFailed(this ILogger logger, HappyTravel.Money.Enums.Currencies Source, HappyTravel.Money.Enums.Currencies Target, string Error, Exception exception = null)
+            => CurrencyConversionFailed(logger, Source, Target, Error, exception);
+                
+         public static void LogNGeniusWebhookProcessingStarted(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookProcessingStarted(logger, exception);
+                
+         public static void LogNGeniusWebhookPaymentUpdate(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookPaymentUpdate(logger, exception);
+                
+         public static void LogNGeniusWebhookPaymentLinkUpdate(this ILogger logger, Exception exception = null)
+            => NGeniusWebhookPaymentLinkUpdate(logger, exception);
     
     
         
@@ -688,6 +758,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, int, string[], Exception> MapperClientErrorResponse;
         
+        private static readonly Action<ILogger, Exception> MapperManagementClientException;
+        
         private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountAddedNotificationFailure;
         
         private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailure;
@@ -713,5 +785,23 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperClientUnexpectedResponse;
         
         private static readonly Action<ILogger, Exception> MapperClientRequestTimeout;
+        
+        private static readonly Action<ILogger, System.Net.HttpStatusCode, System.Uri, string, Exception> MapperManagementClientUnexpectedResponse;
+        
+        private static readonly Action<ILogger, Exception> MapperManagementClientRequestTimeout;
+        
+        private static readonly Action<ILogger, int, Exception> MarkupPolicyStorageRefreshed;
+        
+        private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateCompleted;
+        
+        private static readonly Action<ILogger, Exception> MarkupPolicyStorageUpdateFailed;
+        
+        private static readonly Action<ILogger, HappyTravel.Money.Enums.Currencies, HappyTravel.Money.Enums.Currencies, string, Exception> CurrencyConversionFailed;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookProcessingStarted;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentUpdate;
+        
+        private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentLinkUpdate;
     }
 }

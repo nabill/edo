@@ -133,9 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result> ProcessConfirmation(Booking booking, DateTime confirmationDate)
         {
-            var counterparty = await _context.Counterparties
-                .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
-                
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
@@ -165,7 +162,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
-                => _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
+            {
+                var counterparty = await _context.Counterparties
+                    .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+                _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
+            }
 
 
             void WriteFailureLog(string error) 
@@ -175,10 +176,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, ApiCaller user)
         {
-            return SendNotifications()
+            return GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
+                .Tap(SetCancellationDate)
+                .Bind(SendNotifications)
                 .Tap(CancelSupplierOrder)
                 .Tap(LogAnalytics)
                 .Bind(() => ReturnMoney(booking, cancellationDate, user));
+            
+            
+            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) 
+                => _infoService.GetAccommodationBookingInfo(referenceCode, languageCode);
+            
+            
+            Task SetCancellationDate(AccommodationBookingInfo _) 
+                => this.SetCancellationDate(booking, cancellationDate);
 
             
             Task CancelSupplierOrder() 
@@ -194,7 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            async Task<Result> SendNotifications()
+            async Task<Result> SendNotifications(AccommodationBookingInfo _)
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                 if (agent == default)
@@ -265,6 +276,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private async Task SetStatus(Booking booking, BookingStatuses status)
         {
             booking.Status = status;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Detach(booking);
+        }
+
+
+        private async Task SetCancellationDate(Booking booking, DateTime date)
+        {
+            booking.Cancelled = date;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Detach(booking);

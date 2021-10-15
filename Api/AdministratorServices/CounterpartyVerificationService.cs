@@ -151,7 +151,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     AgentName = master.FullName,
                     CounterpartyName = counterparty.Name,
                     State = EnumFormatters.FromDescription<CounterpartyStates>(state),
-                    VerificationReason = reason
                 };
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),

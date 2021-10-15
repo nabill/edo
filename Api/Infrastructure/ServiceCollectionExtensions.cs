@@ -72,9 +72,11 @@ using Amazon.S3;
 using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
+using HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Api.Services;
@@ -100,6 +102,10 @@ using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
+using HappyTravel.Edo.CreditCards.Models;
+using HappyTravel.Edo.CreditCards.Options;
+using HappyTravel.Edo.CreditCards.Services;
+using HappyTravel.VccServiceClient.Extensions;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -126,17 +132,60 @@ namespace HappyTravel.Edo.Api.Infrastructure
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
-
+            var identityUri = new Uri(new Uri(authorityUrl), "/connect/token").ToString();
+            var clientId = clientOptions["clientId"];
+            var clientSecret = clientOptions["clientSecret"];
+            
             services.Configure<ConnectorTokenRequestOptions>(options =>
             {
-                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
-                options.Address = uri.ToString();
-                options.ClientId = clientOptions["clientId"];
-                options.ClientSecret = clientOptions["clientSecret"];
-                options.Scope = clientOptions["scope"];
+                options.Address = identityUri;
+                options.ClientId = clientId;
+                options.ClientSecret = clientSecret;
+                options.Scope = clientOptions["connectorsScope"];
                 options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
             });
             
+            services.AddAccessTokenManagement(options =>
+            {
+                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["mapperScope"]
+                });
+                
+                options.Client.Clients.Add(HttpClientNames.MapperManagementIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["mapperManagementScope"]
+                });
+                
+                options.Client.Clients.Add(HttpClientNames.VccApiIdentity, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["vccScope"]
+                });
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+            });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+            });
             
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 
@@ -162,26 +211,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
-            
-            
-            var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
-            services.AddAccessTokenManagement(options =>
-            {
-                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = $"{authorityUrl}connect/token",
-                    ClientId = mapperClientOptions["clientId"],
-                    ClientSecret = mapperClientOptions["clientSecret"]
-                });
-            });
-            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
-            {
-                client.BaseAddress = new Uri(mapperClientOptions["address"]);
-            });
-            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.MapperIdentityClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
-            });
 
             return services;
         }
@@ -300,10 +329,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
+
+            var happyTravelAccountsEmail = mailSettings[configuration["Edo:Email:HappyTravelAccountsEmail"]];
+            var balanceManagementNotificationTemplateId = mailSettings[configuration["Edo:Email:BalanceManagementNotificationTemplateId"]];
+            services.Configure<BalanceManagementNotificationsOptions>(options =>
+            {
+                options.AccountsEmail = happyTravelAccountsEmail;
+                options.BalanceManagementNotificationTemplateId = balanceManagementNotificationTemplateId;
+            });
             #endregion
 
             #region tag processing options
-            
+
             services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
             
             #endregion
@@ -453,18 +490,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
             
             services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
+            services.Configure<MarkupPolicyStorageOptions>(configuration.GetSection("MarkupPolicyStorageOptions"));
 
             #region Configure NGenius
 
             var nGeniusOptions = vaultClient.Get(configuration["Edo:NGenius"]).GetAwaiter().GetResult();
             services.Configure<NGeniusOptions>(options =>
             {
-                options.Token = nGeniusOptions["token"];
-                options.Endpoint = nGeniusOptions["endpoint"];
-                options.OutletId = nGeniusOptions["outletId"];
+                options.ApiKey = nGeniusOptions["apiKey"];
+                options.Host = nGeniusOptions["host"];
+                options.Outlets = new Dictionary<Currencies, string>
+                {
+                    {Currencies.USD, nGeniusOptions["usd"]},
+                    {Currencies.AED, nGeniusOptions["aed"]}
+                };
             });
 
-            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["endpoint"]); })
+            services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["host"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
             
@@ -474,7 +516,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
@@ -645,8 +687,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNameNormalizationServices();
 
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
-            services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
+            services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
+
+            var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (isUseMongoDbStorage)
+            {
+                services.AddMongoDbStorage(configuration, vaultClient);
+                services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
+            }
+            else
+                services.AddTransient<IWideAvailabilityStorage, RedisWideAvailabilityStorage>();
 
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 
@@ -683,6 +734,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
+            services.AddTransient<IMapperManagementClient, MapperManagementClient>();
             services.AddTransient<IAvailabilitySearchAreaService, AvailabilitySearchAreaService>();
 
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
@@ -696,23 +748,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAdministratorRolesAssignmentService, AdministratorRolesAssignmentService>();
 
             services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
-            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>, PayableToSupplierRecordDataConverter>();
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
-            services.AddTransient<IConverter<SalesBookingsReportData, SalesBookingsReportRow>, SalesBookingsReportDataConverter>();
+            services.AddTransient<IConverter<FinalizedBookingsReportData, FinalizedBookingsReportRow>, FinalizedBookingsReportDataConverter>();
             services.AddTransient<IConverter<HotelWiseData, HotelWiseRow>, HotelWiseBookingReportDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
-            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<PayableToSupplierRecordData>, PayableToSupplierRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
-            services.AddTransient<IRecordManager<SalesBookingsReportData>, SalesBookingsRecordManager>();
+            services.AddTransient<IRecordManager<FinalizedBookingsReportData>, FinalizedBookingsRecordManager>();
             services.AddTransient<IConverter<AgencyWiseRecordData, AgencyWiseReportRow>, AgencyWiseRecordDataConverter>();
-            services.AddTransient<IConverter<SupplierWiseRecordData, SupplierWiseReportRow>, SupplierWiseRecordDataConverter>();
+            services.AddTransient<IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>, PayableToSupplierRecordDataConverter>();
             services.AddTransient<IConverter<FullBookingsReportData, FullBookingsReportRow>, FullBookingsReportDataConverter>();
             services.AddTransient<IConverter<PendingSupplierReferenceData, PendingSupplierReferenceRow>, PendingSupplierReferenceProjectionConverter>();
             services.AddTransient<IConverter<ConfirmedBookingsData, ConfirmedBookingsRow>, ConfirmedBookingsConverter>();
             services.AddTransient<IConverter<VccBookingData, VccBookingRow>, VccBookingDataConverter>();
             services.AddTransient<IConverter<AgentWiseReportData, AgentWiseReportRow>, AgentWiseRecordDataConverter>();
             services.AddTransient<IRecordManager<AgencyWiseRecordData>, AgencyWiseRecordManager>();
-            services.AddTransient<IRecordManager<SupplierWiseRecordData>, SupplierWiseRecordsManager>();
+            services.AddTransient<IRecordManager<PayableToSupplierRecordData>, PayableToSupplierRecordsManager>();
             services.AddTransient<IRecordManager<FullBookingsReportData>, FullBookingsRecordManager>();
             services.AddTransient<IRecordManager<PendingSupplierReferenceData>, PendingSupplierReferenceRecordManager>();
             services.AddTransient<IRecordManager<ConfirmedBookingsData>, ConfirmedBookingsRecordManager>();
@@ -728,8 +780,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingConfirmationService, BookingConfirmationService>();
             services.AddTransient<IPropertyOwnerConfirmationUrlGenerator, PropertyOwnerConfirmationUrlGenerator>();
-            services.AddTransient<NGeniusClient>();
-            services.AddTransient<NGeniusPaymentService>();
+            services.AddTransient<INGeniusClient, NGeniusClient>();
+            services.AddTransient<INGeniusPaymentService, NGeniusPaymentService>();
+            services.AddTransient<NGeniusWebhookProcessingService>();
+            services.AddTransient<INGeniusRefundService, NGeniusRefundService>();
+            services.AddTransient<ICreditCardPaymentManagementService, CreditCardPaymentManagementService>();
+            services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
+            services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
+            services.AddHostedService<MarkupPolicyStorageUpdater>();
+            services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+
+            services.AddCreditCardProvider(configuration, vaultClient);
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
@@ -777,6 +838,44 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .HandleTransientHttpError()
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
+        }
+
+
+        private static IServiceCollection AddCreditCardProvider(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        {
+            var creditCardProvider = configuration.GetValue<CreditCardProviderTypes>("CreditCardProvider");
+            if (creditCardProvider == CreditCardProviderTypes.Vcc)
+            {
+                var vccServiceOptions = vaultClient.Get("edo/vcc-service-options").GetAwaiter().GetResult();
+                services.AddVccService(options =>
+                {
+                    options.VccEndpoint = vccServiceOptions["vccEndpoint"];
+                    options.IdentityEndpoint = vccServiceOptions["identityEndpoint"];
+                    options.IdentityClient = vccServiceOptions["identityClient"];
+                    options.IdentitySecret = vccServiceOptions["identitySecret"];
+                });
+                services.AddTransient<ICreditCardProvider, VirtualCreditCardProvider>();
+            }
+            else if (creditCardProvider == CreditCardProviderTypes.Actual)
+            {
+                services.AddTransient<ICreditCardProvider, ActualCreditCardProvider>();
+                var actualCreditCardOptions = vaultClient.Get("edo/actual-credit-cards/AED").GetAwaiter().GetResult();
+                services.Configure<ActualCreditCardOptions>(o =>
+                {
+                    // Only AED card is supported for now
+                    var card = new HappyTravel.Edo.CreditCards.Models.CreditCardInfo(Number: actualCreditCardOptions["number"],
+                        ExpiryDate: DateTime.Parse(actualCreditCardOptions["expiry"], CultureInfo.InvariantCulture),
+                        HolderName: actualCreditCardOptions["holder"],
+                        SecurityCode: actualCreditCardOptions["code"]);
+
+                    o.Cards = new Dictionary<Currencies, HappyTravel.Edo.CreditCards.Models.CreditCardInfo>()
+                    {
+                        {Currencies.AED, card}
+                    };
+                });
+            }
+
+            return services;
         }
         
         

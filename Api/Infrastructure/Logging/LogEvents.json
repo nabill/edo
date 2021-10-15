@@ -64,6 +64,7 @@
     {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "template": "Sending event to elasticsearch failed"},
     {"id": 1601, "name": "MapperClientException", "level": "Error", "template": "Mapper client exception"},
     {"id": 1602, "name": "MapperClientErrorResponse", "level": "Error", "template": "Request to mapper failed: {Message}:{StatusCode}. Requested HtIds {HtIds}", "argumentTypes": ["string","int", "string[]"]},
+    {"id": 1603, "name": "MapperManagementClientException", "level": "Error", "template": "Mapper management client exception"},
     {"id": 1701, "name": "CounterpartyAccountAddedNotificationFailure", "level": "Error", "template": "Counterparty {CounterpartyId} account added notification failed with error {Error}", "argumentTypes": ["int","string"]},
     {"id": 1702, "name": "AgentRegistrationNotificationFailure", "level": "Error", "template": "Agent registration notification failure with error {Error}", "argumentTypes": ["string"]},
     {"id": 1703, "name": "ChildAgencyRegistrationNotificationFailure", "level": "Error", "template": "Child agency registration notification failed"},
@@ -76,5 +77,14 @@
     {"id": 1800, "name": "SendConfirmationEmailFailure", "level": "Error", "template": "Error sending booking confirmation email to property owner. Received empty list of email addresses from mapper. Reference code {ReferenceCode}", "argumentTypes": [ "string" ]},
     {"id": 1801, "name": "ConnectorClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from connector. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
     {"id": 1802, "name": "MapperClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from mapper. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
-    {"id": 1803, "name": "MapperClientRequestTimeout", "level": "Warning", "template":  "Request to mapper failed with timeout"}
+    {"id": 1803, "name": "MapperClientRequestTimeout", "level": "Warning", "template":  "Request to mapper failed with timeout"},
+    {"id": 1804, "name": "MapperManagementClientUnexpectedResponse", "level": "Error", "template":  "Unexpected response received from a mapper management endpoint. StatusCode: `{StatusCode}`, request uri: `{Uri}`, response: {Response}", "argumentTypes": [ "System.Net.HttpStatusCode", "System.Uri", "string" ]},
+    {"id": 1806, "name": "MapperManagementClientRequestTimeout", "level": "Warning", "template":  "Request to a mapper management endpoint failed with timeout"},
+    {"Id": 1090, "name": "MarkupPolicyStorageRefreshed", "level": "Debug", "template": "MarkupPolicyStorage refreshed. Was set {Count} entities", "argumentTypes": ["int"]},
+    {"Id": 1091, "name": "MarkupPolicyStorageUpdateCompleted", "level": "Debug", "template": "Markup policy storage update completed"},
+    {"Id": 1092, "name": "MarkupPolicyStorageUpdateFailed", "level": "Error", "template": "Markup policy storage update failed"},
+    {"Id": 1093, "name": "CurrencyConversionFailed", "level": "Error", "template": "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`", "argumentTypes": ["HappyTravel.Money.Enums.Currencies", "HappyTravel.Money.Enums.Currencies", "string"]},
+    {"Id": 1095, "name": "NGeniusWebhookProcessingStarted", "level": "Information", "template": "NGenius webhook processing started"},
+    {"Id": 1096, "name": "NGeniusWebhookPaymentUpdate", "level": "Information", "template": "Started updating payment by NGenius webhook"},
+    {"Id": 1097, "name": "NGeniusWebhookPaymentLinkUpdate", "level": "Information", "template": "Started updating payment link by NGenius webhook"}
 ]

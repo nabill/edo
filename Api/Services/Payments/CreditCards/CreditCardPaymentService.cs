@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             {
                 Amount = paymentResult.Amount,
                 AccountNumber = paymentResult.CardNumber,
-                Currency = moneyAmount.Currency.ToString(),
+                Currency = moneyAmount.Currency,
                 Created = now,
                 Modified = now,
                 Status = paymentResult.Status.ToPaymentStatus(),
@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 var (_, _, serviceBuyer, _) = await paymentCallbackService.GetServiceBuyer(payment.ReferenceCode);
                 
                 var (_, isProcessFailure, processResult, processError) = await _moneyAuthorizationService.ProcessPaymentResponse(paymentResponse,
-                    Enum.Parse<Currencies>(payment.Currency),
+                    payment.Currency,
                     serviceBuyer.AgentId);
                 
                 if (isProcessFailure)
@@ -288,10 +288,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return paymentResult.ToPaymentResponse();
             }
 
+
             async Task<Result<Payment>> GetPaymentForResponse(CreditCardPaymentResult paymentResponse)
             {
-                var payment = await _context.Payments
-                    .SingleOrDefaultAsync(p => p.ReferenceCode == paymentResponse.ReferenceCode);
+                var cardPaymentsForRefcode = await _context.Payments
+                    .Where(p => p.PaymentMethod == PaymentTypes.CreditCard)
+                    .Where(p => p.ReferenceCode == paymentResponse.ReferenceCode)
+                    .ToListAsync();
+
+                var payment = cardPaymentsForRefcode
+                    .SingleOrDefault(p => JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data).ExternalId == paymentResponse.ExternalCode);
 
                 if (payment == default)
                     return Result.Failure<Payment>($"Could not find a payment record with the reference code {paymentResponse.ReferenceCode}");
@@ -339,8 +345,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _captureService.Capture(request,
                     paymentInfo,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
-                    Enum.Parse<Currencies>(payment.Currency),
+                    payment.Currency,
                     apiCaller,
                     buyerInfo.AgentId);
             }
@@ -349,6 +356,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task StoreCaptureResults(CreditCardCaptureResult captureResult)
             {
                 payment.Status = PaymentStatuses.Captured;
+                payment.CaptureId = captureResult.CaptureId;
                 _context.Payments.Update(payment);
                 await _context.SaveChangesAsync();
                 await paymentCallbackService.ProcessPaymentChanges(payment);
@@ -363,9 +371,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         public async Task<Result> VoidMoney(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService)
         {
-            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
-            if (payment.PaymentMethod != PaymentTypes.CreditCard)
-                return Result.Failure<string>($"Invalid payment method: {payment.PaymentMethod}");
+            var payment = await _context.Payments
+                .SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode && p.Status == PaymentStatuses.Authorized);
+            
+            if (payment == default)
+                return Result.Failure<string>($"Could not find payment by reference code {referenceCode}");
 
             return await Void()
                 .Tap(StoreVoidResults);
@@ -382,8 +392,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _captureService.Void(request,
                     info,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
-                    new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
+                    new MoneyAmount(payment.Amount, payment.Currency),
                     payment.ReferenceCode,
                     apiCaller,
                     buyerInfo.AgentId);
@@ -401,9 +412,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public async Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTime operationDate,  IPaymentCallbackService paymentCallbackService)
         {
-            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
-            if (payment.PaymentMethod != PaymentTypes.CreditCard)
-                return Result.Failure<string>($"Invalid payment method: {payment.PaymentMethod}");
+            var payment = await _context.Payments
+                .SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode && p.Status == PaymentStatuses.Captured);
+            
+            if (payment == default)
+                return Result.Failure<string>($"Could not find payment by reference code {referenceCode}");
 
             return await GetRefundableAmount()
                 .Bind(Refund)
@@ -428,8 +441,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return await _refundService.Refund(request,
                     info,
+                    payment.PaymentProcessor,
                     payment.AccountNumber,
                     payment.ReferenceCode,
+                    payment.Id,
                     apiCaller,
                     buyerInfo.AgentId);
             }

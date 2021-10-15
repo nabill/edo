@@ -33,26 +33,26 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
 
 
         [Fact]
-        void Percent_in_cancellation_policies_should_be_equal()
+        void Percent_in_cancellation_policies_should_be_rounded()
         {
             var sourceContractSet = GetRoomContractSet();
             var resultContractSet = sourceContractSet.ToRoomContractSet(null, isDirectContract: false);
 
             // totalAmount = 3818
             // 5 jan - ((279 * 50) + (3483 * 50)) / 3818 = 49.2666317444
-            Assert.True(IsEqual(49.2666317444, resultContractSet.Deadline.Policies[0].Percentage));
+            Assert.True(IsEqual(49.27, resultContractSet.Deadline.Policies[0].Percentage));
             
             // 10 jan - ((279 * 75) + (3483 * 70)) / 3818 = 69.3386589838
-            Assert.True(IsEqual(69.3386589838, resultContractSet.Deadline.Policies[1].Percentage));
+            Assert.True(IsEqual(69.34, resultContractSet.Deadline.Policies[1].Percentage));
             
             // 15 jan - ((279 * 90) + (3483 * 90)) / 3818 = 88.6799371399
-            Assert.True(IsEqual(88.6799371399, resultContractSet.Deadline.Policies[2].Percentage));
+            Assert.True(IsEqual(88.68, resultContractSet.Deadline.Policies[2].Percentage));
             
             // 20 jan - ((279 * 90) + (3483 * 100)) / 3818 = 97.8025144054
-            Assert.True(IsEqual(97.8025144054, resultContractSet.Deadline.Policies[3].Percentage));
+            Assert.True(IsEqual(97.80, resultContractSet.Deadline.Policies[3].Percentage));
             
             // 25 jan - ((279 * 100) + (3483 * 100)) / 3818 = 98.5332634887
-            Assert.True(IsEqual(98.5332634887, resultContractSet.Deadline.Policies[4].Percentage));
+            Assert.True(IsEqual(98.53, resultContractSet.Deadline.Policies[4].Percentage));
 
 
             static bool IsEqual(double expected, double actual) 
@@ -85,7 +85,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 default,
                 roomContracts,
                 new List<string>(),
-                false);
+                false,
+                isPackageRate: default,
+                isAdvancePurchaseRate: default);
         }
 
 

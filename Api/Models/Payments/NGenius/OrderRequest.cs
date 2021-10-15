@@ -1,11 +1,14 @@
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
+
 namespace HappyTravel.Edo.Api.Models.Payments.NGenius
 {
     public readonly struct OrderRequest
     {
-        public Order Order { get; init; }
-        public NGeniusBillingAddress BillingAddress { get; init; }
-        public Payment? Payment { get; init; }
-        public SavedCard? SavedCard { get; init; } 
+        public string Action { get; init; }
         public string MerchantOrderReference { get; init; }
+        public NGeniusAmount Amount { get; init; }
+        public string EmailAddress { get; init; }
+        public NGeniusBillingAddress BillingAddress { get; init; }
+        public MerchantAttributes MerchantAttributes { get; init; }
     }
 }

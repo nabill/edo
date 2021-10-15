@@ -1,5 +1,6 @@
 ﻿using HappyTravel.Edo.Common.Enums;
 using System;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Payments
 {
@@ -10,7 +11,7 @@ namespace HappyTravel.Edo.Data.Payments
         public decimal RefundedAmount { get; set; }
         public string ReferenceCode { get; set; }
         public int? AccountId { get; set; }
-        public string Currency { get; set; }
+        public Currencies Currency { get; set; }
         public string AccountNumber { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
@@ -18,5 +19,6 @@ namespace HappyTravel.Edo.Data.Payments
         public PaymentTypes PaymentMethod { get; set; }
         public PaymentProcessors PaymentProcessor { get; set; }
         public string Data { get; set; }
+        public string CaptureId { get; set; }
     }
 }

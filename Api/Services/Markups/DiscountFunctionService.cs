@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -23,13 +24,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public async ValueTask<PriceProcessFunction> Get(MarkupPolicy policy, AgentContext agent)
+        public async ValueTask<PriceProcessFunction> Get(MarkupPolicy policy, MarkupSubjectInfo subject)
         {
             // Discounts are only supported for global markups for now
             if (policy.ScopeType != MarkupPolicyScopeType.Global)
                 return (price => new ValueTask<MoneyAmount>(price));
 
-            var discountsKey = GetKey(policy, agent);
+            var discountsKey = GetKey(policy, subject);
             var applicableDiscounts = await _flow.GetOrSetAsync(discountsKey, 
                 GetAgentDiscounts,
                 DiscountCacheLifeTime);
@@ -50,14 +51,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
             
             
-            string GetKey(MarkupPolicy markupPolicy, AgentContext agentContext) 
-                => _flow.BuildKey(nameof(DiscountFunctionService), nameof(GetAgentDiscounts), agentContext.AgencyId.ToString(), agentContext.AgentId.ToString(), markupPolicy.Id.ToString());
+            string GetKey(MarkupPolicy markupPolicy, MarkupSubjectInfo subject) 
+                => _flow.BuildKey(nameof(DiscountFunctionService), nameof(GetAgentDiscounts), subject.AgencyId.ToString(), subject.AgentId.ToString(), markupPolicy.Id.ToString());
 
             
             Task<List<Discount>> GetAgentDiscounts()
                 => _context.Discounts
                     .Where(d => d.TargetPolicyId == policy.Id)
-                    .Where(d => d.TargetAgencyId == agent.AgencyId)
+                    .Where(d => d.TargetAgencyId == subject.AgencyId)
                     .Where(d => d.IsActive)
                     .ToListAsync();
         }

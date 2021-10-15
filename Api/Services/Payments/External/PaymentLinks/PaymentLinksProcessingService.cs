@@ -6,7 +6,9 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
+using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.PaymentLinks;
@@ -23,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
             IPaymentLinkNotificationService notificationService,
-            IEntityLocker locker)
+            IEntityLocker locker,
+            INGeniusClient nGeniusClient)
         {
             _payfortService = payfortService;
             _payfortResponseParser = payfortResponseParser;
@@ -32,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             _notificationService = notificationService;
             _locker = locker;
             _payfortOptions = payfortOptions.Value;
+            _nGeniusClient = nGeniusClient;
         }
 
 
@@ -40,9 +44,62 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             return GetLink(code)
                 .Bind(link => ProcessPay(link, code, token, ip, languageCode));
         }
+        
+        
+        public async Task<Result<NGeniusPaymentResponse>> Pay(string code, NGeniusPayByLinkRequest request, string ip, string languageCode)
+        {
+            var (_, isFailure, link, error) = await _storage.Get(code);
+            if (isFailure)
+                return Result.Failure<NGeniusPaymentResponse>(error);
+
+            return await _nGeniusClient.CreateOrder(orderType: OrderTypes.Sale,
+                    referenceCode: link.ReferenceCode,
+                    currency: link.Currency,
+                    price: link.Amount,
+                    email: request.EmailAddress,
+                    billingAddress: request.BillingAddress)
+                .Bind(SaveExternalId);
 
 
-        public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
+            async Task<Result<NGeniusPaymentResponse>> SaveExternalId(NGeniusPaymentResponse response)
+            {
+                await _storage.SetExternalId(code, response.OrderReference);
+                return response;
+            }
+        }
+        
+        
+        public async Task<Result<StatusResponse>> RefreshStatus(string code)
+        {
+            return await GetLink(code)
+                .Bind(GetStatus)
+                .Bind(StorePaymentResult);
+            
+            // TODO: add sending confirmation
+
+
+            Task<Result<PaymentStatuses>> GetStatus(PaymentLink paymentLink)
+            {
+                return _nGeniusClient.GetStatus(paymentLink.ExternalId, paymentLink.Currency);
+            }
+
+
+            async Task<Result<StatusResponse>> StorePaymentResult(PaymentStatuses status)
+            {
+                var creditCardPaymentStatus = status == PaymentStatuses.Captured
+                    ? CreditCardPaymentStatuses.Success
+                    : CreditCardPaymentStatuses.Failed;
+                
+                await _storage.UpdatePaymentStatus(code, new PaymentResponse(string.Empty, 
+                    creditCardPaymentStatus, 
+                    string.Empty));
+                
+                return new StatusResponse(creditCardPaymentStatus);
+            }
+        }
+
+
+        public Task<Result<PaymentResponse>> ProcessPayfortWebhook(string code, JObject response)
         {
             return Result.Success()
                 .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()
@@ -52,6 +109,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
 
             Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, response);
+        }
+
+
+        public Task<Result<PaymentResponse>> ProcessNGeniusWebhook(string code, CreditCardPaymentStatuses status)
+        {
+            return Result.Success()
+                .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()
+                    .Bind(GetLink)
+                    .Bind(ProcessResponse));
+
+            Task<Result<PaymentLink>> GetLink() 
+                => this.GetLink(code);
+
+            Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, status);
         }
 
 
@@ -158,6 +229,43 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 return paymentResponse;
             }
         }
+        
+        
+        private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, CreditCardPaymentStatuses status)
+        {
+            return GenerateResponse()
+                .TapIf(ShouldSendReceipt, parsedResponse => SendReceipt())
+                .Map(StorePaymentResult);
+            
+            
+            Result<PaymentResponse> GenerateResponse()
+            {
+                return Result.Success(new PaymentResponse(string.Empty,
+                    status,
+                    string.Empty));
+            }
+
+
+            bool ShouldSendReceipt(PaymentResponse parsedResponse)
+            {
+                return status == CreditCardPaymentStatuses.Success &&
+                    IsNotAlreadyPaid(link);
+
+                static bool IsNotAlreadyPaid(PaymentLinkData link) 
+                    => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
+            }
+
+
+            Task SendReceipt() 
+                => SendConfirmation(link);
+
+
+            async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
+            {
+                await _storage.UpdatePaymentStatus(code, paymentResponse);
+                return paymentResponse;
+            }
+        }
 
 
         private Task<Result> SendConfirmation(PaymentLinkData link) => _notificationService.SendPaymentConfirmation(link);
@@ -168,10 +276,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IPaymentLinksStorage _storage;
         private readonly IEntityLocker _locker;
         private readonly PayfortOptions _payfortOptions;
-
         private readonly IPayfortService _payfortService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
         private readonly IPaymentLinkNotificationService _notificationService;
+        private readonly INGeniusClient _nGeniusClient;
     }
 }

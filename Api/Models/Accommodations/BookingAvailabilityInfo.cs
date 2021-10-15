@@ -13,29 +13,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct BookingAvailabilityInfo
     {
         [JsonConstructor]
-        public BookingAvailabilityInfo(
-            string accommodationId,
-            string accommodationName,
-            AccommodationInfo accommodationInfo,
-            RoomContractSet roomContractSet,
-            string zoneName,
-            string localityName,
-            string countryName,
-            string countryCode,
-            string address,
-            GeoPoint coordinates,
-            DateTime checkInDate,
-            DateTime checkOutDate,
-            int numberOfNights,
-            Suppliers supplier,
-            List<AppliedMarkup> appliedMarkups,
-            MoneyAmount convertedSupplierPrice,
-            MoneyAmount originalSupplierPrice,
-            string availabilityId,
-            string htId,
-            List<PaymentTypes> availablePaymentTypes,
-            bool isDirectContract, 
-            Deadline supplierDeadline)
+        public BookingAvailabilityInfo(string accommodationId, string accommodationName, AccommodationInfo accommodationInfo,
+            RoomContractSet roomContractSet, string zoneName, string localityName, string countryName,
+            string countryCode, string address, GeoPoint coordinates, DateTime checkInDate,
+            DateTime checkOutDate, int numberOfNights, Suppliers supplier, List<AppliedMarkup> appliedMarkups,
+            MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, string availabilityId,
+            string htId, List<PaymentTypes> availablePaymentTypes, bool isDirectContract, Deadline agentDeadline, Deadline supplierDeadline,
+            CreditCardRequirement? cardRequirement)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -58,7 +42,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             HtId = htId;
             AvailablePaymentTypes = availablePaymentTypes;
             IsDirectContract = isDirectContract;
+            AgentDeadline = agentDeadline;
             SupplierDeadline = supplierDeadline;
+            CardRequirement = cardRequirement;
         }
 
 
@@ -83,7 +69,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string HtId { get; }
         public List<PaymentTypes> AvailablePaymentTypes { get; }
         public bool IsDirectContract { get; }
+        public Deadline AgentDeadline { get; }
         public Deadline SupplierDeadline { get; }
+        public CreditCardRequirement? CardRequirement { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)

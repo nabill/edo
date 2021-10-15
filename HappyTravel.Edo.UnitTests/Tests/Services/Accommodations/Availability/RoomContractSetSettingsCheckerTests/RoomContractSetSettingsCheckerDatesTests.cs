@@ -178,11 +178,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         private RoomContractSet GetRoomContractSet(Deadline deadline, bool isApr)
-            => new RoomContractSet(default, default, deadline, default, isApr, default, default, default);
+            => new RoomContractSet(default, default, deadline, default, isApr, default, default, default, default);
 
 
         private AccommodationBookingSettings GetSettings(AprMode aprMode, PassedDeadlineOffersMode deadlineMode)
-            => new AccommodationBookingSettings(default, aprMode, deadlineMode, default, default, default, default, default);
+            => new AccommodationBookingSettings(default, aprMode, deadlineMode, default, default, default, default);
 
 
         private IDateTimeProvider GetProvider(DateTime tomorrow)

@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
+            IWideAvailabilitySearchStateStorage stateStorage,
             IBookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient)
         {
@@ -36,13 +37,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _bookingAnalyticsService = bookingAnalyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _mapperClient = mapperClient;
+            _stateStorage = stateStorage;
         }
 
 
         public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, string htId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            var results = await _wideAvailabilityStorage.GetStates(searchId, settings.EnabledConnectors);
+            var results = await _stateStorage.GetStates(searchId, settings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
@@ -86,10 +88,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(taskResult => taskResult.Value)
                 .SelectMany(MapToRoomContractSets)
                 .Where(SettingsFilter)
+                .OrderBy(r => r.Rate.FinalPrice.Amount)
                 .ToList();
 
 
-            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -97,7 +100,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId, htId, source, result.SupplierAccommodationCode, result.AvailabilityId, searchSettings, agent, languageCode);
+                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplier: source, supplierAccommodationCode: result.SupplierAccommodationCode, 
+                        availabilityId: result.AvailabilityId, settings: searchSettings, agent: agent, languageCode: languageCode,
+                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId);
             }
             
 
@@ -114,20 +119,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSet> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSet> MapToRoomContractSets(SingleAccommodationAvailability accommodationAvailability)
             {
-                return accommodationAvailability.Data.RoomContractSets
-                    .Select(rs =>
-                    {
-                        var supplier = searchSettings.IsSupplierVisible
-                            ? accommodationAvailability.Source
-                            : (Suppliers?) null;
-
-                        var isDirectContractFlag = searchSettings.IsDirectContractFlagVisible && rs.IsDirectContract;
-
-                        return rs.ToRoomContractSet(supplier, isDirectContractFlag);
-                    })
-                    .OrderBy(rs => rs.Rate.FinalPrice.Amount);
+                return accommodationAvailability.RoomContractSets
+                    .Select(rs => rs.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible));
             }
 
 
@@ -152,5 +147,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
+        private readonly IWideAvailabilitySearchStateStorage _stateStorage;
     }
 }

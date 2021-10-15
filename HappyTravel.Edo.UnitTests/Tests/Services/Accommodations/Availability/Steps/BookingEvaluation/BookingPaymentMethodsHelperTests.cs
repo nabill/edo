@@ -222,22 +222,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
 
 
         private static AccommodationBookingSettings CreateSettings(AprMode aprMode = default, PassedDeadlineOffersMode deadlineOffersMode = default)
-            => new(default, aprMode, deadlineOffersMode, isMarkupDisabled: default, 
-                isSupplierVisible: default, default, isDirectContractFlagVisible: default, default);
+            => new(default, aprMode, deadlineOffersMode, isSupplierVisible: default, default, isDirectContractFlagVisible: default, default);
 
 
         private static RoomContractSetAvailability CreateAvailability(bool isApr = false, DateTime? checkInDate = null, DateTime? deadlineDate = null)
         {
             var deadline = new Deadline(deadlineDate);
             var roomContractSetWithApr = new RoomContractSet(default, default, deadline, default,
-                default, default, isAdvancePurchaseRate: isApr);
+                default, default, isAdvancePurchaseRate: isApr, default);
 
             return new RoomContractSetAvailability(availabilityId: default,
                 accommodationId: default,
                 checkInDate: checkInDate ?? default,
                 checkOutDate: default,
                 numberOfNights: default, 
-                roomContractSetWithApr);
+                roomContractSetWithApr,
+                creditCardRequirement: null);
         }
     }
 }

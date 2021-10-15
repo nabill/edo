@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -93,6 +94,9 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
         public virtual DbSet<BookingConfirmationHistoryEntry> BookingConfirmationHistory { get; set; }
+        public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
+        public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
+        public virtual DbSet<AgencyMarkupBonusesAccount> AgencyMarkupBonusesAccounts { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -246,6 +250,8 @@ namespace HappyTravel.Edo.Data
             BuildNotificationOptions(builder);
             BuildDefaultNotificationOptions(builder);
             BuildBookingConfirmationHistory(builder);
+            BuildNGeniusRefund(builder);
+            BuildAgencyMarkupBonusesAccounts(builder);
         }
 
 
@@ -582,7 +588,7 @@ namespace HappyTravel.Edo.Data
                     payment.Property(p => p.Data).HasColumnType("jsonb").IsRequired();
                     payment.Property(p => p.AccountNumber).IsRequired();
                     payment.Property(p => p.Amount).IsRequired();
-                    payment.Property(p => p.Currency).IsRequired();
+                    payment.Property(p => p.Currency).IsRequired().HasConversion<string>();
                     payment.Property(p => p.Created).IsRequired();
                     payment.Property(p => p.Status).IsRequired();
                 });
@@ -886,6 +892,28 @@ namespace HappyTravel.Edo.Data
                 e.Property(hche => hche.Initiator).IsRequired();
                 e.HasIndex(hche => hche.CreatedAt);
                 e.ToTable("BookingConfirmationHistory");
+            });
+        }
+
+
+        private static void BuildNGeniusRefund(ModelBuilder builder)
+        {
+            builder.Entity<NGeniusRefund>(e =>
+            {
+                e.HasKey(r => r.Id);
+                e.HasIndex(r => r.PlannedDate);
+                e.ToTable("NGeniusRefunds");
+            });
+        }
+
+
+        private static void BuildAgencyMarkupBonusesAccounts(ModelBuilder builder)
+        {
+            builder.Entity<AgencyMarkupBonusesAccount>(b =>
+            {
+                b.HasKey(a => a.Id);
+                b.HasIndex(a => a.AgencyId);
+                b.ToTable("AgencyMarkupBonusesAccounts");
             });
         }
 

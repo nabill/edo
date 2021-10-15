@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -7,6 +8,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
+using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -31,11 +33,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public async Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc, 
+        public async Task<TDetails> ApplyMarkups<TDetails>(MarkupSubjectInfo subject, MarkupObjectInfo objectInfo, TDetails details,
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var policies = await _markupPolicyService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(subject, objectInfo, MarkupPolicyTarget.AccommodationAvailability);
             var currentData = details;
             foreach (var policy in policies)
             {
@@ -44,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var markupFunction = GetPriceProcessFunction(policy);
                 currentData = await priceProcessFunc(currentData, markupFunction);
 
-                var discountFunction = await _discountFunctionService.Get(policy, agent);
+                var discountFunction = await _discountFunctionService.Get(policy, subject);
                 currentData = await priceProcessFunc(currentData, discountFunction);;
 
                 logAction?.Invoke(new MarkupApplicationResult<TDetails>(detailsBefore, policy, currentData));

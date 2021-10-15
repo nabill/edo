@@ -126,6 +126,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
+        public Task<Result> SetExternalId(string code, string externalId)
+        {
+            return Get(code)
+                .Bind(UpdateExternalId);
+
+
+            async Task<Result> UpdateExternalId(PaymentLink paymentLink)
+            {
+                paymentLink.ExternalId = externalId;
+                _context.Update(paymentLink);
+                await _context.SaveChangesAsync();
+
+                return Result.Success();
+            }
+        }
+
+
         private const string LinkDestinationCode = "LNK";
 
         private static readonly int CodeLength = Base64UrlEncoder.Encode(Guid.Empty.ToByteArray()).Length;

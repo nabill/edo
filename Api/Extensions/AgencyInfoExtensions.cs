@@ -22,7 +22,10 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.PostalCode,
                 agency.Website,
                 agency.VatNumber,
-                BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind));
+                BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
+                agency.CountryHtId,
+                agency.LocalityHtId,
+                agency.Ancestors);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
@@ -19,16 +20,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 {
     public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
-        public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
-            IBookingNotificationService bookingNotificationService,
-            IBookingRequestExecutor requestExecutor,
-            IBookingEvaluationStorage evaluationStorage,
-            IBookingCreditCardPaymentService creditCardPaymentService,
-            IBookingDocumentsService documentsService,
-            IBookingInfoService bookingInfoService,
-            IDateTimeProvider dateTimeProvider,
-            IBookingRegistrationService registrationService,
-            ILogger<BankCreditCardBookingFlow> logger)
+        public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage, IBookingNotificationService bookingNotificationService,
+            IBookingRequestExecutor requestExecutor, IBookingEvaluationStorage evaluationStorage,
+            IBookingCreditCardPaymentService creditCardPaymentService, IBookingDocumentsService documentsService,
+            IBookingInfoService bookingInfoService, IDateTimeProvider dateTimeProvider, IBookingRegistrationService registrationService,
+            IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
             _bookingNotificationService = bookingNotificationService;
@@ -39,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
             _registrationService = registrationService;
+            _bookingConfirmationService = bookingConfirmationService;
             _logger = logger;
         }
         
@@ -47,10 +44,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         {
             Baggage.SetSearchId(bookingRequest.SearchId);
             
-            return await GetCachedAvailability(bookingRequest)
+            var (_, isFailure, booking, error) = await GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
-                .Map(Register);
+                .Map(Register)
+                .Check(SendEmailToPropertyOwner);
 
+            if (isFailure)
+                return Result.Failure<string>(error);
+
+            return booking.ReferenceCode;
 
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
                 => await _evaluationStorage.Get(bookingRequest.SearchId, bookingRequest.HtId, bookingRequest.RoomContractSetId);
@@ -60,12 +62,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.CreditCard);
 
 
-            async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
-            {
-                var booking = await _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
-                await _requestStorage.Set(booking.ReferenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
-                return booking.ReferenceCode;
-            }
+            Task<Booking> Register(BookingAvailabilityInfo bookingAvailability) 
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
+
+
+            async Task<Result> SendEmailToPropertyOwner(Booking booking)
+                => await _bookingConfirmationService.SendConfirmationEmail(booking);
 
 
             // TODO NIJO-1135: Revert logging in further refactoring steps
@@ -117,10 +119,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 if(isFailure)
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
                 
-                var (request, availabilityId) = requestInfo;
+                var (request, availabilityInfo) = requestInfo;
                 Baggage.SetSearchId(request.SearchId);
 
-                return await _requestExecutor.Execute(request, availabilityId, booking, agentContext, languageCode);
+                return await _requestExecutor.Execute(booking, agentContext, languageCode);
             }
 
             
@@ -149,6 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRegistrationService _registrationService;
+        private readonly IBookingConfirmationService _bookingConfirmationService;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }
 }

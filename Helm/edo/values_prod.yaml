@@ -44,6 +44,7 @@ ingress:
     ingress.kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ingress.allow-http: "false"
     kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
   hosts:
     - host: edo.happytravel.com
       paths:
@@ -75,17 +76,17 @@ affinity:
           values:
           - edo
       topologyKey: "kubernetes.io/hostname"
+
 metrics:
-  enabled: false
-  serviceMonitor:
-    enabled: false
+  enabled: true
   podMonitor:
-    enabled: false
+    enabled: true
+
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
   HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://db23cc3a191649f39a8d9087ded431f6@sentry1.happytravel.com/2"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
-  HTDC_REDIS_HOST: "redis-edo"
+  HTDC_REDIS_HOST: "redis-edo-master"
   CONSUL_HTTP_ADDR: "https://consul.happytravel.com/"
