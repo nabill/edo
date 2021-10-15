@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -149,8 +150,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<string> GetAgentMarkupFormula(int agentId, int agencyId)
         {
+            var agentScopeId = AgentInAgencyId.Create(agentId, agencyId).ToString();
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgentId == agentId && p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agent)
+                .Where(p => p.AgentScopeId == agentScopeId && p.AgentScopeType == AgentMarkupScopeTypes.Agent)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -163,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetAgencyMarkupFormula(int agencyId)
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgencyId == agencyId && p.ScopeType == MarkupPolicyScopeType.Agency)
+                .Where(p => p.AgentScopeId == agencyId.ToString() && p.AgentScopeType == AgentMarkupScopeTypes.Agency)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -176,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetCounterpartyMarkupFormula(int counterpartyId)
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.CounterpartyId == counterpartyId && p.ScopeType == MarkupPolicyScopeType.Counterparty)
+                .Where(p => p.AgentScopeId == counterpartyId.ToString() && p.AgentScopeType == AgentMarkupScopeTypes.Counterparty)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -189,7 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetGlobalMarkupFormula()
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Global)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 

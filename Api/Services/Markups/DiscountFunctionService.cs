@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -27,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async ValueTask<PriceProcessFunction> Get(MarkupPolicy policy, MarkupSubjectInfo subject)
         {
             // Discounts are only supported for global markups for now
-            if (policy.ScopeType != MarkupPolicyScopeType.Global)
+            if (policy.AgentScopeType != AgentMarkupScopeTypes.Global)
                 return (price => new ValueTask<MoneyAmount>(price));
 
             var discountsKey = GetKey(policy, subject);
