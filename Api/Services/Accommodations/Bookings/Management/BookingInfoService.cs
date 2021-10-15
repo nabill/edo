@@ -216,7 +216,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     numberOfPassengers: passengerNumber,
                     cancellationPolicies: booking.CancellationPolicies,
                     created: booking.Created,
-                    propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode);
+                    propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
+                    isAdvancePurchaseRate: booking.IsAdvancePurchaseRate);
             }
             
             

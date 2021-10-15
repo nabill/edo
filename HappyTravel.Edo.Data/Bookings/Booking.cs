@@ -53,5 +53,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public List<CancellationPolicy> CancellationPolicies { get; set; }
         public string PropertyOwnerConfirmationCode { get; set; }
         public DateTime? Cancelled { get; set; }
+        public bool IsAdvancePurchaseRate { get; set; }
+        public bool IsPackage { get; set; }
     }
 }
