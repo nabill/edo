@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType,
-            List<int> ancestors)
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
+            PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors)
         {
             Name = name;
             Id = id;
@@ -26,6 +26,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Website = website;
             VatNumber = vatNumber;
             DefaultPaymentType = defaultPaymentType;
+            CountryHtId = countryHtId;
+            LocalityHtId = localityHtId;
             Ancestors = ancestors;
         }
 
@@ -109,7 +111,16 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// </summary>
         public List<int> Ancestors { get; }
 
+        /// <summary>
+        /// Country of agency
+        /// </summary>
+        public string CountryHtId { get; }
 
+        /// <summary>
+        /// Locality of agency
+        /// </summary>
+        public string LocalityHtId { get; }
+        
         public override int GetHashCode()
             => (Name, Id, CounterpartyId).GetHashCode();
 

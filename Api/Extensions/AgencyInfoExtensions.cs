@@ -23,6 +23,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Website,
                 agency.VatNumber,
                 BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
+                agency.CountryHtId,
+                agency.LocalityHtId,
                 agency.Ancestors);
 
 
