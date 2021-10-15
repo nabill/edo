@@ -14,67 +14,34 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupPolicyService : IMarkupPolicyService
     {
-        public MarkupPolicyService(IMarkupPolicyStorage markupPolicyStorage, EdoContext context, IDoubleFlow flow)
+        public MarkupPolicyService(IMarkupPolicyStorage markupPolicyStorage)
         {
             _markupPolicyStorage = markupPolicyStorage;
-            _context = context;
-            _flow = flow;
         }
 
 
-        public async Task<List<MarkupPolicy>> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
+        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget, List<int> agencyTreeIds)
         {
-            return await GetAgentPolicies(subjectInfo, policyTarget);
+            var agentId = subjectInfo.AgentId;
+            var counterpartyId = subjectInfo.CounterpartyId;
+            var agencyId = subjectInfo.AgencyId;
+            
+            var policies = _markupPolicyStorage.Get(p =>
+                    p.Target == policyTarget &&
+                    p.ScopeType == MarkupPolicyScopeType.Global ||
+                    p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
+                    p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
+                    p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId
+                )
+                .ToList();
+
+            return policies
+                .OrderBy(p => p.ScopeType)
+                .ThenBy(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId.HasValue ? agencyTreeIds.IndexOf(p.AgencyId.Value) : 0)
+                .ThenBy(p => p.Order)
+                .ToList();
         }
-
-
-        private Task<List<MarkupPolicy>> GetAgentPolicies(MarkupSubjectInfo subject, MarkupPolicyTarget policyTarget)
-        {
-            var agentId = subject.AgentId;
-            var counterpartyId = subject.CounterpartyId;
-            var agencyId = subject.AgencyId;
-
-            return _flow.GetOrSetAsync(BuildKey(),
-                GetOrderedPolicies,
-                AgentPoliciesCachingTime);
-
-
-            string BuildKey()
-                => _flow.BuildKey(nameof(MarkupPolicyService),
-                    nameof(GetAgentPolicies),
-                    agentId.ToString());
-
-
-            async Task<List<MarkupPolicy>> GetOrderedPolicies()
-            {
-                var agencyTreeIds = await _context.Agencies
-                    .Where(a => a.Id == agencyId)
-                    .Select(a => a.Ancestors)
-                    .SingleOrDefaultAsync() ?? new List<int>();
-                
-                agencyTreeIds.Add(agencyId);
-
-                var policies = _markupPolicyStorage.Get(p =>
-                        p.Target == policyTarget &&
-                        p.ScopeType == MarkupPolicyScopeType.Global ||
-                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
-                        p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
-                        p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId
-                    )
-                    .ToList();
-
-                return policies
-                    .OrderBy(p => p.ScopeType)
-                    .ThenBy(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId.HasValue ? agencyTreeIds.IndexOf(p.AgencyId.Value) : 0)
-                    .ThenBy(p => p.Order)
-                    .ToList();
-            }
-        }
-
-        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
 
         private readonly IMarkupPolicyStorage _markupPolicyStorage;
-        private readonly EdoContext _context;
-        private readonly IDoubleFlow _flow;
     }
 }
