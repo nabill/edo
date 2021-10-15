@@ -33,8 +33,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             _edoContextMock = edoContextMock;
             _mockedEdoContext = edoContextMock.Object;
 
-            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, 
-                Mock.Of<IManagementAuditService>(), Mock.Of<IAccountBalanceAuditService>(), Mock.Of<ICounterpartyBillingNotificationService>());
+            _agencyAccountService = new AgencyAccountService(_mockedEdoContext, entityLockerMock.Object, 
+                Mock.Of<IManagementAuditService>(), Mock.Of<IAccountBalanceAuditService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
+            var (_, isFailure, error) = await _agencyAccountService.Subtract(
                 1, new PaymentData(1, Currencies.EUR, "test"), _apiCaller);
             
             Assert.True(isFailure);
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
+            var (_, isFailure, error) = await _agencyAccountService.Subtract(
                 1, new PaymentData(-1, Currencies.USD, "test"), _apiCaller);
             
             Assert.True(isFailure);
@@ -70,9 +70,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         public async Task Subtract_money_from_suitable_account_should_decrease_balance()
         {
             SetupInitialData();
-            var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
+            var affectedAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 1);
 
-            var (isSuccess, _, error) = await _counterpartyAccountService.SubtractMoney(
+            var (isSuccess, _, error) = await _agencyAccountService.Subtract(
                 1, new PaymentData(1, Currencies.USD, "test"), _apiCaller);
 
             Assert.True(isSuccess);
@@ -82,21 +82,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
         private void SetupInitialData()
         {
-            _edoContextMock
-                .Setup(c => c.Counterparties)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
-                {
-                    new Counterparty
-                    {
-                        Id = 1
-                    },
-                    // Having more than one element for predicates to be tested too
-                    new Counterparty
-                    {
-                        Id = 2
-                    },
-                }));
-
             _edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
@@ -122,39 +107,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
                     new AgencyAccount
                     {
                         Id = 1,
-                        Balance = 0,
+                        Balance = 1000,
                         Currency = Currencies.USD,
                         AgencyId = 2,
                         IsActive = true
                     },
                     new AgencyAccount
                     {
-                        Id = 1,
-                        Balance = 0,
-                        Currency = Currencies.USD,
-                        AgencyId = 2,
-                        IsActive = true
-                    }
-                }));
-
-            _edoContextMock
-                .Setup(c => c.CounterpartyAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<CounterpartyAccount>
-                {
-                    new CounterpartyAccount
-                    {
-                        Id = 1,
-                        Balance = 1000,
-                        Currency = Currencies.USD,
-                        CounterpartyId = 1,
-                        IsActive = true
-                    },
-                    new CounterpartyAccount
-                    {
                         Id = 2,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 2,
+                        AgencyId = 2,
                         IsActive = true
                     }
                 }));
@@ -163,6 +126,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         private readonly Mock<EdoContext> _edoContextMock;
         private readonly EdoContext _mockedEdoContext;
         private readonly ApiCaller _apiCaller = new ApiCaller(1, ApiCallerTypes.Admin);
-        private readonly ICounterpartyAccountService _counterpartyAccountService;
+        private readonly IAgencyAccountService _agencyAccountService;
     }
 }
