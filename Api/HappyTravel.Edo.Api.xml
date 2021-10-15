@@ -207,7 +207,7 @@
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
                 Gets balance for a agency account
             </summary>
@@ -2386,6 +2386,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Ancestors">
             <summary>
             List of ancestors ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CountryHtId">
+            <summary>
+            Country of agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.LocalityHtId">
+            <summary>
+            Locality of agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
