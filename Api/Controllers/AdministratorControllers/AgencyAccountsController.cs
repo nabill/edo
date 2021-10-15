@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agencies/{agencyId}/accounts/{currency}/balance")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
-        public async Task<IActionResult> GetCounterpartyBalance(int counterpartyId, Currencies currency)
-            => Ok(await _agencyAccountService.Get(counterpartyId, currency));
+        public async Task<IActionResult> GetAgencyBalance(int agencyId, Currencies currency)
+            => Ok(await _agencyAccountService.Get(agencyId, currency));
 
 
         /// <summary>
