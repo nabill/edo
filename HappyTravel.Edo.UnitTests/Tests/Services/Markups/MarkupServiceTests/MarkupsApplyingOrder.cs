@@ -62,9 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public void Policies_should_be_ordered_by_scope()
         {
-            var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(MarkupSubject.AgencyId);
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability, agencyTreeIds);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].ScopeType, policies[i + 1].ScopeType));
@@ -101,9 +99,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public void Policies_in_scope_should_be_ordered_by_order()
         {
-            var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(MarkupSubject.AgencyId);
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability, agencyTreeIds);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
@@ -129,14 +125,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public void Agencies_policies_should_be_ordered_by_agency_tree()
         {
-            var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(MarkupSubject.AgencyId);
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability, agencyTreeIds);
+            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
             var agencyPolicies = policies.Where(p => p.ScopeType == MarkupPolicyScopeType.Agency).ToList();
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
             {
-                Assert.True(agencyPolicies[i].AgencyId == agencyTreeIds[i]);
+                Assert.True(agencyPolicies[i].AgencyId == MarkupSubject.AgencyAncestors[i]);
             }
         }
     
@@ -146,11 +140,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 11988602.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var agencyTreeIds = _agencies[0].Ancestors;
-            agencyTreeIds.Add(MarkupSubject.AgencyId);
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject, default, agencyTreeIds, data, TestStructureUnderMarkup.Apply);
+            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject, default, data, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, dataWithMarkup.Price.Amount);
         }
@@ -291,7 +283,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             AgentId = 1,
             AgencyId = 1,
-            CounterpartyId = 1
+            CounterpartyId = 1,
+            AgencyAncestors = new List<int>{ 2000, 1000 }
         };
 
         private readonly MarkupPolicyService _markupPolicyService;
