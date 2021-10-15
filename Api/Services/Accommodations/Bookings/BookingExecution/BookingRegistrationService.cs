@@ -79,21 +79,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             async Task<Booking> Create((string itn, string referenceCode) tags)
             {
                 var createdBooking = BookingRegistrationService.Create(
-                    _dateTimeProvider.UtcNow(),
-                    agentContext,
-                    tags.itn,
-                    tags.referenceCode,
-                    availabilityInfo,
-                    paymentMethod,
-                    bookingRequest,
-                    languageCode,
-                    availabilityInfo.Supplier,
-                    availabilityInfo.RoomContractSet.Deadline.Date,
-                    availabilityInfo.CheckInDate,
-                    availabilityInfo.CheckOutDate,
-                    availabilityInfo.HtId,
-                    availabilityInfo.RoomContractSet.Tags,
-                    availabilityInfo.IsDirectContract);
+                    created: _dateTimeProvider.UtcNow(),
+                    agentContext: agentContext,
+                    itineraryNumber: tags.itn,
+                    referenceCode: tags.referenceCode,
+                    availabilityInfo: availabilityInfo,
+                    paymentMethod: paymentMethod,
+                    bookingRequest: bookingRequest,
+                    languageCode: languageCode);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -141,8 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
-            in AccommodationBookingRequest bookingRequest, string languageCode, Suppliers supplier,
-            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate, string htId, List<string> tags, bool isDirectContract)
+            in AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
             {
@@ -152,15 +144,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 Status = BookingStatuses.Created,
                 PaymentType = paymentMethod,
                 LanguageCode = languageCode,
-                Supplier = supplier,
+                Supplier = availabilityInfo.Supplier,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                DeadlineDate = deadlineDate,
-                CheckInDate = checkInDate,
-                CheckOutDate = checkOutDate,
-                HtId = htId,
-                Tags = tags,
-                IsDirectContract = isDirectContract,
+                DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date,
+                CheckInDate = availabilityInfo.CheckInDate,
+                CheckOutDate = availabilityInfo.CheckOutDate,
+                HtId = availabilityInfo.HtId,
+                Tags = availabilityInfo.RoomContractSet.Tags,
+                IsDirectContract = availabilityInfo.RoomContractSet.IsDirectContract,
                 CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies,
+                IsAdvancePurchaseRate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate,
+                IsPackage = availabilityInfo.RoomContractSet.IsPackageRate
             };
             
             AddRequestInfo(bookingRequest);
