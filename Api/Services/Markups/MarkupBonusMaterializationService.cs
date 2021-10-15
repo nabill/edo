@@ -12,9 +12,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -39,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null &&
-                    SupportedPolicyScopeTypes.Contains(policy.ScopeType)
+                    SupportedPolicyScopeTypes.Contains(policy.AgentScopeType)
                 select appliedMarkup.Id;
 
             return query.ToListAsync();
@@ -74,18 +72,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 where 
                     markupsForMaterialization.Contains(appliedMarkup.Id) &&
                     appliedMarkup.Paid == null &&
-                    policy.AgencyId != null
+                    policy.AgentScopeType == AgentMarkupScopeTypes.Agency
                 select new MaterializationData
                 {
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    AgencyId = policy.AgencyId.Value,
+                    AgencyId = policy.AgentScopeId,
                     Amount = new MoneyAmount
                     {
                         Amount = appliedMarkup.Amount,
                         Currency = appliedMarkup.Currency
                     },
-                    ScopeType = policy.ScopeType
+                    ScopeType = policy.AgentScopeType
                 };
 
             return query.ToListAsync();
@@ -96,8 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var applyBonusTask = data.ScopeType switch
             {
-                MarkupPolicyScopeType.Agency => ApplyAgencyScopeBonus(),
-                MarkupPolicyScopeType.Agent => ApplyAgentScopeBonus(),
+                AgentMarkupScopeTypes.Agency => ApplyAgencyScopeBonus(),
+                AgentMarkupScopeTypes.Agent => ApplyAgentScopeBonus(),
                 _ => Task.FromResult(Result.Failure($"MarkupPolicyScopeType {data.ScopeType} is not supported"))
             };
 
@@ -111,22 +109,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result> ApplyAgencyScopeBonus()
             {
                 var parentAgencyId = await _context.Agencies
-                    .Where(a => a.Id == data.AgencyId)
+                    .Where(a => a.Id.ToString() == data.AgencyId)
                     .Select(a => a.ParentId)
                     .SingleOrDefaultAsync();
                 
                 if (parentAgencyId is null)
                     return Result.Failure($"Cannot retrieve parent agency for agency id '{data.AgencyId}'");
                 
-                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value, data.Amount);
+                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value.ToString(), data.Amount);
             }
         }
 
 
-        private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, MoneyAmount amount)
+        private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, string agencyId, MoneyAmount amount)
         {
             var bonusAgencyAccount = await _context.AgencyMarkupBonusesAccounts
-                .SingleOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == amount.Currency);
+                .SingleOrDefaultAsync(a => a.AgencyId.ToString() == agencyId && a.Currency == amount.Currency);
 
             if (bonusAgencyAccount is null)
                 return Result.Failure($"Markup bonus account for agency '{agencyId}' with currency {amount.Currency} not found");
@@ -177,8 +175,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private static readonly HashSet<MarkupPolicyScopeType> SupportedPolicyScopeTypes 
-            = new() {MarkupPolicyScopeType.Agent, MarkupPolicyScopeType.Agency};
+        private static readonly HashSet<AgentMarkupScopeTypes> SupportedPolicyScopeTypes 
+            = new() {AgentMarkupScopeTypes.Agent, AgentMarkupScopeTypes.Agency};
 
 
         private readonly EdoContext _context;
