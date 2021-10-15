@@ -38,15 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             Func<TDetails, MarkupObjectInfo> getMarkupObjectFunc = null,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgentId = agent.AgentId,
-                AgencyId = agent.AgencyId,
-                CounterpartyId = agent.CounterpartyId
-            };
-            // TODO: Implement getting markup object for all models used with this function (TDetails)
-            // https://github.com/happy-travel/agent-app-project/issues/696
-            var markupObject = getMarkupObjectFunc?.Invoke(details) ?? default;
             var (_, isFailure, agency, error) = await _agencyService.Get(agent);
             if (isFailure)
                 throw new Exception(error);
@@ -54,7 +45,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var agencyTreeIds = agency.Ancestors;
             agencyTreeIds.Add(agent.AgencyId);
             
-            return await _markupService.ApplyMarkups(markupSubject, markupObject, agencyTreeIds, details, priceProcessFunc, logAction);
+            var markupSubject = new MarkupSubjectInfo
+            {
+                AgentId = agent.AgentId,
+                AgencyId = agent.AgencyId,
+                CounterpartyId = agent.CounterpartyId,
+                AgencyTreeIds = agencyTreeIds
+            };
+            // TODO: Implement getting markup object for all models used with this function (TDetails)
+            // https://github.com/happy-travel/agent-app-project/issues/696
+            var markupObject = getMarkupObjectFunc?.Invoke(details) ?? default;
+
+            return await _markupService.ApplyMarkups(markupSubject, markupObject, details, priceProcessFunc, logAction);
         }
 
 
