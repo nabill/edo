@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
@@ -55,26 +56,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var (type, counterpartyId, agencyId, agentId, agentScopeId) = policyData.Scope;
                 var settings = policyData.Settings;
                 
-                // TODO remove after completing migration to new markups
-                var scopeType = type switch 
-                {
-                    AgentMarkupScopeTypes.Agency => MarkupPolicyScopeType.Agency,
-                    AgentMarkupScopeTypes.Agent => MarkupPolicyScopeType.Agent,
-                    AgentMarkupScopeTypes.Counterparty => MarkupPolicyScopeType.Counterparty,
-                    AgentMarkupScopeTypes.Global => MarkupPolicyScopeType.Global,
-                    _ => MarkupPolicyScopeType.NotSpecified
-                };
-
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
                     Order = settings.Order,
                     Target = policyData.Target,
                     TemplateSettings = settings.TemplateSettings,
-                    ScopeType = scopeType,
-                    CounterpartyId = counterpartyId,
-                    AgencyId = agencyId,
-                    AgentId = agentId,
                     Currency = settings.Currency,
                     Created = now,
                     Modified = now,
@@ -147,9 +134,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             async Task<Result> DiscountsDontExceedMarkups()
             {
+                // This check is only applicable to agency scope markups
+                if (policy.AgentScopeType != AgentMarkupScopeTypes.Agency)
+                    return Result.Success();
+
+                var agencyId = int.Parse(policy.AgentScopeId);
+                
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.IsActive)
-                    .Where(x => x.TargetAgencyId == policy.AgencyId)
+                    .Where(x => x.TargetAgencyId == agencyId)
                     .Where(x => x.TargetPolicyId == policy.Id)
                     .Select(x => x.DiscountPercent)
                     .ToListAsync();
@@ -338,9 +331,24 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
+            int? counterpartyId = null, agencyId = null, agentId = null;
+            
+            if (policy.AgentScopeType == AgentMarkupScopeTypes.Counterparty)
+                counterpartyId = int.Parse(policy.AgentScopeId);
+            
+            if (policy.AgentScopeType == AgentMarkupScopeTypes.Agency)
+                agencyId = int.Parse(policy.AgentScopeId);
+
+            if (policy.AgentScopeType == AgentMarkupScopeTypes.Agency)
+            {
+                var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                agencyId = agentInAgencyId.AgencyId;
+                agentId = agentInAgencyId.AgentId;
+            }
+
             return new MarkupPolicyData(policy.Target,
                 new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
-                new MarkupPolicyScope(policy.AgentScopeType, policy.CounterpartyId, policy.AgencyId, policy.AgentId));
+                new MarkupPolicyScope(policy.AgentScopeType, counterpartyId, agencyId, agentId));
         }
 
 
@@ -402,18 +410,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
-            return policy.ScopeType switch
+            return policy.AgentScopeType switch
             {
-                MarkupPolicyScopeType.Agent when policy.AgentId.HasValue && policy.AgencyId.HasValue
-                    => _displayedMarkupFormulaService.UpdateAgentFormula(policy.AgentId.Value, policy.AgencyId.Value),
+                AgentMarkupScopeTypes.Agent
+                    => _displayedMarkupFormulaService.UpdateAgentFormula(AgentInAgencyId.Create(policy.AgentScopeId).AgentId, AgentInAgencyId.Create(policy.AgentScopeId).AgencyId),
                 
-                MarkupPolicyScopeType.Agency when policy.AgencyId.HasValue
-                    => _displayedMarkupFormulaService.UpdateAgencyFormula(policy.AgencyId.Value),
+                AgentMarkupScopeTypes.Agency
+                    => _displayedMarkupFormulaService.UpdateAgencyFormula(int.Parse(policy.AgentScopeId)),
                 
-                MarkupPolicyScopeType.Counterparty when policy.CounterpartyId.HasValue
-                    => _displayedMarkupFormulaService.UpdateCounterpartyFormula(policy.CounterpartyId.Value),
+                AgentMarkupScopeTypes.Counterparty
+                    => _displayedMarkupFormulaService.UpdateCounterpartyFormula(int.Parse(policy.AgentScopeId)),
                 
-                MarkupPolicyScopeType.Global
+                AgentMarkupScopeTypes.Global
                     => _displayedMarkupFormulaService.UpdateGlobalFormula(),
 
                 _ => Task.FromResult(Result.Success())
@@ -425,20 +433,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
             
-            var writeLogTask = (policy.ScopeType, type) switch
+            var writeLogTask = (policy.AgentScopeType, type) switch
             {
-                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Created) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupCreated),
-                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Modified) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupUpdated),
-                (MarkupPolicyScopeType.Agent, MarkupPolicyEventOperationType.Deleted) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupDeleted),
-                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Created) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupCreated),
-                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Modified) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupUpdated),
-                (MarkupPolicyScopeType.Agency, MarkupPolicyEventOperationType.Deleted) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupDeleted),
-                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Created) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupCreated),
-                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Modified) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupUpdated),
-                (MarkupPolicyScopeType.Counterparty, MarkupPolicyEventOperationType.Deleted) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupDeleted),
-                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Created) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupCreated),
-                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Modified) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupUpdated),
-                (MarkupPolicyScopeType.Global, MarkupPolicyEventOperationType.Deleted) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupDeleted),
+                (AgentMarkupScopeTypes.Agent, MarkupPolicyEventOperationType.Created) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupCreated),
+                (AgentMarkupScopeTypes.Agent, MarkupPolicyEventOperationType.Modified) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupUpdated),
+                (AgentMarkupScopeTypes.Agent, MarkupPolicyEventOperationType.Deleted) => WriteAgentLog(MarkupPolicyEventType.AgentMarkupDeleted),
+                (AgentMarkupScopeTypes.Agency, MarkupPolicyEventOperationType.Created) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupCreated),
+                (AgentMarkupScopeTypes.Agency, MarkupPolicyEventOperationType.Modified) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupUpdated),
+                (AgentMarkupScopeTypes.Agency, MarkupPolicyEventOperationType.Deleted) => WriteAgencyLog(MarkupPolicyEventType.AgencyMarkupDeleted),
+                (AgentMarkupScopeTypes.Counterparty, MarkupPolicyEventOperationType.Created) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupCreated),
+                (AgentMarkupScopeTypes.Counterparty, MarkupPolicyEventOperationType.Modified) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupUpdated),
+                (AgentMarkupScopeTypes.Counterparty, MarkupPolicyEventOperationType.Deleted) => WriteCounterpartyLog(MarkupPolicyEventType.CounterpartyMarkupDeleted),
+                (AgentMarkupScopeTypes.Global, MarkupPolicyEventOperationType.Created) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupCreated),
+                (AgentMarkupScopeTypes.Global, MarkupPolicyEventOperationType.Modified) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupUpdated),
+                (AgentMarkupScopeTypes.Global, MarkupPolicyEventOperationType.Deleted) => WriteGlobalLog(MarkupPolicyEventType.GlobalMarkupDeleted),
                 _ => Task.CompletedTask
             };
 
@@ -446,15 +454,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             
             Task WriteAgentLog(MarkupPolicyEventType eventType)
-                => _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value), administrator.ToApiCaller());
+            {
+                var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                return _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, agentInAgencyId.AgentId, agentInAgencyId.AgencyId), administrator.ToApiCaller());
+            }
 
 
             Task WriteAgencyLog(MarkupPolicyEventType eventType) 
-                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value), administrator.ToApiCaller());
+                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId)), administrator.ToApiCaller());
 
 
             Task WriteCounterpartyLog(MarkupPolicyEventType eventType) 
-                => _markupPolicyAuditService.Write(eventType, new CounterpartyMarkupPolicyData(policy.Id, policy.CounterpartyId.Value), administrator.ToApiCaller());
+                => _markupPolicyAuditService.Write(eventType, new CounterpartyMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId)), administrator.ToApiCaller());
 
 
             Task WriteGlobalLog(MarkupPolicyEventType eventType) 
