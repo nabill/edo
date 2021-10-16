@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Reflection;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Data;
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.DirectApi
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
             
             services.AddProblemDetailsErrorHandling();
-            
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -74,9 +76,30 @@ namespace HappyTravel.Edo.DirectApi
                 options.ReportApiVersions = true;
             });
             
+            services.AddVersionedApiExplorer(options =>
+            {
+                options.SubstitutionFormat = "V.v";
+                options.SubstituteApiVersionInUrl = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+            
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "HappyTravel.Edo.DirectApi", Version = "v1"});
+                c.DocInclusionPredicate((_, apiDesc) =>
+                {
+                    // Hide apis from other assemblies
+                    var apiName = apiDesc.ActionDescriptor.DisplayName;
+                    var currentName = typeof(Startup).Assembly.GetName().Name;
+                    return apiName.StartsWith(currentName);
+                });
+                c.SwaggerDoc("direct-api", new OpenApiInfo
+                {
+                    Title = "HappyTravel Api",
+                    Description = "HappyTravel API for searching and booking hotels"
+                });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath, true);
             });
         }
 
@@ -84,11 +107,19 @@ namespace HappyTravel.Edo.DirectApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsLocal())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HappyTravel.Edo.DirectApi v1"));
+                app.UseReDoc(c =>
+                {
+                    c.SpecUrl = "/swagger/direct-api/swagger.json";
+                    c.RoutePrefix = string.Empty;
+                    c.DocumentTitle = "HappyTravel Direct API";
+                    c.DisableSearch();
+                    c.HideDownloadButton();
+                    c.ExpandResponses("");
+                });
             }
             
             var logger = loggerFactory.CreateLogger<Startup>();
