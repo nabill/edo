@@ -72,6 +72,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.HotelBeds,
                     new SupplierConnector(Suppliers.HotelBeds, connectorClient, _options.HotelBeds, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Roibos,
+                    new SupplierConnector(Suppliers.Roibos, connectorClient, _options.Roibos, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
