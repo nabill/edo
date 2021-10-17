@@ -8,6 +8,7 @@ using HappyTravel.CurrencyConverter;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -201,8 +202,15 @@ namespace HappyTravel.Edo.DirectApi
 
             services.AddTransient<WideSearchService>();
             
-            // override Edo service
-            services.AddTransient<IWideAvailabilityStorage, DirectApiRedisWideAvailabilityStorage>();
+            // override Edo wide availability storage services
+            var isUseMongoDbStorage = Configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (isUseMongoDbStorage)
+            {
+                services.AddMongoDbStorage(Configuration, vaultClient);
+                services.AddTransient<IWideAvailabilityStorage, DirectApiMongoDbWideAvailabilityStorage>();
+            }
+            else
+                services.AddTransient<IWideAvailabilityStorage, DirectApiRedisWideAvailabilityStorage>();
         }
 
 
