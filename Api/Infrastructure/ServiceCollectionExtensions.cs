@@ -106,6 +106,7 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -128,7 +129,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();

@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 supplierConnectorManager: serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 dateTimeProvider: serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 logger: serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
-                hubContext: serviceProvider.GetRequiredService<IHubContext<SearchHub, ISearchHub>>(),
+                hubContext: serviceProvider.GetService<IHubContext<SearchHub, ISearchHub>>(),
                 stateStorage: serviceProvider.GetRequiredService<IWideAvailabilitySearchStateStorage>());
 
 
@@ -156,8 +156,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 => _storage.SaveResults(searchId, supplier, results);
 
 
-            Task NotifyClient() 
-                => _hubContext.Clients.Group(agent.AgentId.ToString()).SearchStateChanged(new SearchStateChangedMessage(searchId));
+            Task NotifyClient()
+            {
+                return _hubContext is not null
+                    ? _hubContext.Clients.Group(agent.AgentId.ToString()).SearchStateChanged(new SearchStateChangedMessage(searchId))
+                    : Task.CompletedTask;
+            }
 
 
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
