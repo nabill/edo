@@ -2,13 +2,16 @@ using System;
 using HappyTravel.CurrencyConverter;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Management;
@@ -65,6 +68,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureCurrencyConversion(Configuration, HostEnvironment, vaultClient);
             services.ConfigureCache(Configuration);
             services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
+            services.ConfigureUserEventLogging(Configuration, vaultClient);
             services.Configure<SupplierOptions>(Configuration.GetSection("Suppliers"));
             services.AddTransient<IAgentContextService, HttpBasedAgentContextService>();
             services.AddTransient<ITokenInfoAccessor, TokenInfoAccessor>();
@@ -95,7 +99,13 @@ namespace HappyTravel.Edo.DirectApi
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<IRoomSelectionService, RoomSelectionService>();
+            services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
+            services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
+            services.AddTransient<IRoomSelectionPriceProcessor, RoomSelectionPriceProcessor>();
+            services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
             services.AddTransient<WideSearchService>();
+            services.AddTransient<AccommodationAvailabilitiesService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 

@@ -12,39 +12,7 @@ namespace HappyTravel.Edo.DirectApi.Extensions
 
         private static WideAvailabilityResult MapFromEdoModel(this Api.Models.Accommodations.WideAvailabilityResult result)
         {
-            return new WideAvailabilityResult(roomContractSets: result.RoomContractSets
-                .Select(rcs => new RoomContractSet(id: rcs.Id,
-                    rate: rcs.Rate.MapFromEdoModel(),
-                    deadline: rcs.Deadline,
-                    rooms: rcs.Rooms
-                        .Select(r => new RoomContract(boardBasis: r.BoardBasis, 
-                            mealPlan: r.MealPlan, 
-                            contractTypeCode: r.ContractTypeCode, 
-                            isAvailableImmediately: r.IsAvailableImmediately,
-                            isDynamic: r.IsDynamic, 
-                            contractDescription: r.ContractDescription, 
-                            remarks: r.Remarks, 
-                            dailyRoomRates: r.DailyRoomRates
-                                .Select(dr => new DailyRate(fromDate: dr.FromDate,
-                                    toDate: dr.ToDate,
-                                    finalPrice: dr.FinalPrice,
-                                    gross: dr.Gross,
-                                    type: dr.Type,
-                                    description: dr.Description)).ToList(), 
-                            rate: r.Rate.MapFromEdoModel(), 
-                            adultsNumber: r.AdultsNumber, 
-                            childrenAges: r.ChildrenAges,
-                            type: r.Type, 
-                            isExtraBedNeeded: r.IsExtraBedNeeded, 
-                            deadline: r.Deadline, 
-                            isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
-                        .ToList(),
-                    isAdvancePurchaseRate: rcs.IsAdvancePurchaseRate,
-                    supplier: rcs.Supplier,
-                    tags: rcs.Tags,
-                    isDirectContract: rcs.IsDirectContract,
-                    isPackageRate: rcs.IsPackageRate))
-                .ToList(),
+            return new WideAvailabilityResult(roomContractSets: result.RoomContractSets.MapFromEdoModels(),
                 minPrice: result.MinPrice,
                 maxPrice: result.MaxPrice,
                 checkInDate: result.CheckInDate,
