@@ -21,34 +21,23 @@ namespace HappyTravel.Edo.DirectApi.Services
     {
         public WideSearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
             IWideAvailabilitySearchStateStorage stateStorage, IServiceScopeFactory serviceScopeFactory, 
-            IAvailabilitySearchAreaService searchAreaService, IWideAvailabilityStorage availabilityStorage)
+            IWideAvailabilitySearchService wideAvailabilitySearchService, IWideAvailabilityStorage availabilityStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _stateStorage = stateStorage;
             _serviceScopeFactory = serviceScopeFactory;
-            _searchAreaService = searchAreaService;
+            _wideAvailabilitySearchService = wideAvailabilitySearchService;
             _availabilityStorage = availabilityStorage;
         }
 
 
         public async Task<Result<StartSearchResponse>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
-            if (!request.HtIds.Any())
-                return Result.Failure<StartSearchResponse>($"{nameof(request.HtIds)} must not be empty");
-            
-            if (request.CheckInDate.Date < DateTime.UtcNow.Date)
-                return Result.Failure<StartSearchResponse>("Check in date must not be in the past");
-            
-            var searchId = Guid.NewGuid();
+            var (_, isFailure, searchId, error) = await _wideAvailabilitySearchService.StartSearch(request.ToEdoModel(), agent, "en");
 
-            var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
-            if (isFailure)
-                return Result.Failure<StartSearchResponse>(error);
-            
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
-
-            return new StartSearchResponse(searchId);
+            return isFailure
+                ? Result.Failure<StartSearchResponse>(error)
+                : new StartSearchResponse(searchId); 
         }
 
 
@@ -107,7 +96,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IAvailabilitySearchAreaService _searchAreaService;
+        private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }
