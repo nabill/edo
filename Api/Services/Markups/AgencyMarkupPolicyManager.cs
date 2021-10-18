@@ -48,10 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     Description = settings.Description,
                     Order = settings.Order,
-                    ScopeType = MarkupPolicyScopeType.Agency,
+                    AgentScopeType = AgentMarkupScopeTypes.Agency,
+                    AgentScopeId = agencyId.ToString(),
                     Target = MarkupPolicyTarget.AccommodationAvailability,
-                    AgencyId = agencyId,
-                    CounterpartyId = null,
                     TemplateSettings = settings.TemplateSettings,
                     Currency = settings.Currency,
                     Created = now,
@@ -67,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupCreated,
-                    new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
+                    new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId)),
                     agent.ToApiCaller());
         }
 
@@ -90,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupDeleted,
-                    new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
+                    new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId)),
                     agent.ToApiCaller());
         }
 
@@ -120,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgencyMarkupUpdated,
-                    new AgencyMarkupPolicyData(policy.Id, policy.AgencyId.Value),
+                    new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId)),
                     agent.ToApiCaller());
         }
 
@@ -168,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private Task<List<MarkupPolicy>> GetAgencyPolicies(int agencyId)
         {
             return _context.MarkupPolicies
-                .Where(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId == agencyId)
+                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId == agencyId.ToString())
                 .OrderBy(p => p.Order)
                 .ToListAsync();
         }
@@ -177,14 +176,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<Result<MarkupPolicy>> GetAgencyPolicy(int agencyId, int policyId)
         {
             var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.Id == policyId && p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId == agencyId);
+                .SingleOrDefaultAsync(p => p.Id == policyId && p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId == agencyId.ToString());
 
             return policy ?? Result.Failure<MarkupPolicy>("Could not find agency policy");
         }
         
         
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
-            => _displayedMarkupFormulaService.UpdateAgencyFormula(policy.AgencyId.Value);
+            => _displayedMarkupFormulaService.UpdateAgencyFormula(int.Parse(policy.AgentScopeId));
         
         
         private readonly IMarkupPolicyTemplateService _templateService;
