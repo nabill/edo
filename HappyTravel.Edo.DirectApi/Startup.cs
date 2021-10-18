@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
+using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -69,6 +70,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureCache(Configuration);
             services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
             services.ConfigureUserEventLogging(Configuration, vaultClient);
+            services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             services.Configure<SupplierOptions>(Configuration.GetSection("Suppliers"));
             services.AddTransient<IAgentContextService, HttpBasedAgentContextService>();
             services.AddTransient<ITokenInfoAccessor, TokenInfoAccessor>();
@@ -95,7 +97,11 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
             services.AddTransient<IManagementAuditService, ManagementAuditService>();
             services.AddTransient<IAdministratorContext, HttpBasedAdministratorContext>();
+            services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
+            services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
+            services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
             services.AddTransient<IConnectorClient, ConnectorClient>();
+            services.AddTransient<IWideAvailabilityAccommodationsStorage, WideAvailabilityAccommodationsStorage>();
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
