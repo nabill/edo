@@ -232,7 +232,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 Id = 7,
                 Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.Agency,
                 AgentScopeType = AgentMarkupScopeTypes.Agency,
                 AgentScopeId = $"{MarkupSubject.AgencyId}",
                 TemplateId = 1,
