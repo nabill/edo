@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
                 .Union(_agencyPolicies)
+                .Union(_agencyLocalityPolicies)
                 .ToList();
 
             var edoContextMock = MockEdoContextFactory.Create();
@@ -91,6 +92,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                             secondScope != AgentMarkupScopeTypes.Counterparty &&
                             secondScope != AgentMarkupScopeTypes.Agency;
                     }
+                    case AgentMarkupScopeTypes.Location:
+                    {
+                        return secondScope != AgentMarkupScopeTypes.Global &&
+                            secondScope != AgentMarkupScopeTypes.Counterparty &&
+                            secondScope != AgentMarkupScopeTypes.Agency &&
+                            secondScope != AgentMarkupScopeTypes.Agent;
+                    }
                     default: throw new AssertionFailedException("Unexpected scope type");
                 }
             }
@@ -135,9 +143,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         }
     
         [Theory]
-        [InlineData(100, Currencies.EUR, 4206528602)]
-        [InlineData(240.5, Currencies.USD, 10107528602.0)]
-        [InlineData(0.13, Currencies.USD, 11988602.00)]
+        [InlineData(100, Currencies.EUR, 4206528645)]
+        [InlineData(240.5, Currencies.USD, 10107528645.0)]
+        [InlineData(0.13, Currencies.USD, 11988645.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
@@ -250,27 +258,54 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             },
         };
-        
-        
+
+        private readonly IEnumerable<MarkupPolicy> _agencyLocalityPolicies = new[]
+        {
+            new MarkupPolicy
+            {
+                Id = 12,
+                Order = 1,
+                Target = MarkupPolicyTarget.AccommodationAvailability,
+                AgentScopeType = AgentMarkupScopeTypes.Location,
+                AgentScopeId = "Locality_01",
+                TemplateId = 1,
+                TemplateSettings = new Dictionary<string, decimal> { { "factor", 100 } },
+            },
+            new MarkupPolicy
+            {
+                Id = 13,
+                Order = 2,
+                Target = MarkupPolicyTarget.AccommodationAvailability,
+                AgentScopeType = AgentMarkupScopeTypes.Location,
+                AgentScopeId = "Country_01",
+                TemplateId = 2,
+                TemplateSettings = new Dictionary<string, decimal> {{"addition", 43}},
+            },
+        };
+
+
         private readonly List<Agency> _agencies = new()
         {
             new Agency
             {
                 Id = MarkupSubject.AgencyId,
                 Name = "Child agency",
-                Ancestors = new List<int> {2000, 1000}
+                Ancestors = new List<int> {2000, 1000},
+                LocalityHtId = "Locality_01"
             },
             new Agency
             {
                 Id = 1000,
                 Name = "Parent agency",
-                Ancestors = new List<int>{2000}
+                Ancestors = new List<int>{2000},
+                LocalityHtId = "Locality_02"
             },
             new Agency
             {
                 Id = 2000,
                 Name = "Root agency",
-                Ancestors = new()
+                Ancestors = new(),
+                LocalityHtId = default
             }
         };
 
@@ -282,7 +317,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             AgentId = 1,
             AgencyId = 1,
             CounterpartyId = 1,
-            AgencyAncestors = new List<int>{ 2000, 1000 }
+            AgencyAncestors = new List<int>{ 2000, 1000 },
+            CountryHtId = "Country_01"
         };
 
         private readonly MarkupPolicyService _markupPolicyService;
