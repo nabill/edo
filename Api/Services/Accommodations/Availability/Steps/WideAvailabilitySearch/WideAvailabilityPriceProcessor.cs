@@ -116,8 +116,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private static MarkupObjectInfo GetMarkupObjectInfo(AccommodationAvailabilityResult availability) 
-            => new (availability.CountryHtId, availability.LocalityHtId, availability.HtId);
+        private static MarkupObjectInfo GetMarkupObjectInfo(AccommodationAvailabilityResult availability)
+            => new ()
+            {
+                CountryHtId = availability.CountryHtId,
+                LocalityHtId = availability.LocalityHtId,
+                AccommodationHtId = availability.HtId
+            };
 
 
         private readonly IPriceProcessor _priceProcessor;
