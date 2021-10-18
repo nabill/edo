@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
             
             return isSuccess
                 ? result
-                : BadRequest(error);
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
         /// <summary>
