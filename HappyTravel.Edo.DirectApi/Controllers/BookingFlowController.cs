@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
@@ -56,7 +57,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
 
             return isSuccess
                 ? searchResponse
-                : BadRequest(error);
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
 
             return isSuccess
                 ? result
-                : BadRequest(error);
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
         /// <summary>
