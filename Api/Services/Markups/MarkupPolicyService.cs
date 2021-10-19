@@ -1,14 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using FloxDc.CacheFlow;
-using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Common.Enums.Markup;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
@@ -25,8 +20,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agentId = subjectInfo.AgentId;
             var counterpartyId = subjectInfo.CounterpartyId;
             var agencyId = subjectInfo.AgencyId;
+            var agentInAgencyId = AgentInAgencyId.Create(agentId, agencyId).ToString();
             var agencyTreeIds = subjectInfo.AgencyAncestors;
-            
             agencyTreeIds.Add(agencyId);
             
             var policies = _markupPolicyStorage.Get(p =>

@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211018125814_AlignContextSnapshot")]
+    partial class AlignContextSnapshot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1049,10 +1051,19 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<int?>("AgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("AgentScopeId")
                         .HasColumnType("text");
 
                     b.Property<int>("AgentScopeType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
@@ -1073,6 +1084,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ScopeType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Target")
                         .HasColumnType("integer");
 
@@ -1085,11 +1099,13 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgentScopeId");
+                    b.HasIndex("AgencyId");
 
-                    b.HasIndex("AgentScopeType");
+                    b.HasIndex("AgentId");
 
-                    b.HasIndex("DestinationScopeId");
+                    b.HasIndex("CounterpartyId");
+
+                    b.HasIndex("ScopeType");
 
                     b.HasIndex("Target");
 
