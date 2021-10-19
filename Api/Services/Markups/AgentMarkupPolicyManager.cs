@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task WriteAuditLog(MarkupPolicy policy)
                 => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupDeleted,
-                    new AgentMarkupPolicyData(policy.Id, int.Parse(policy.AgentScopeId), agent.AgencyId),
+                    new AgentMarkupPolicyData(policy.Id, agentId, agent.AgencyId),
                     agent.ToApiCaller());
         }
 

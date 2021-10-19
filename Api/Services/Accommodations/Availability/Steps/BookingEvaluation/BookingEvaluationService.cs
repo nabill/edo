@@ -148,7 +148,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     switch (appliedMarkup.Policy.AgentScopeType)
                     {
                         case AgentMarkupScopeTypes.Agent:
-                            agentId = int.Parse(policy.AgentScopeId);
+                            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                            agentId = agentInAgencyId.AgentId;
+                            agencyId = agentInAgencyId.AgencyId;
                             break;
                         case AgentMarkupScopeTypes.Agency:
                             agencyId = int.Parse(policy.AgentScopeId);
