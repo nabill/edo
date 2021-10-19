@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     || p.AgentScopeType == AgentMarkupScopeTypes.Counterparty && p.AgentScopeId == counterpartyId.ToString()
                     || p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId == subjectInfo.AgencyId.ToString()
                     || p.AgentScopeType == AgentMarkupScopeTypes.Agency && agencyTreeIds.Contains(int.Parse(p.AgentScopeId))
-                    || p.AgentScopeType == AgentMarkupScopeTypes.Agent && p.AgentScopeId == $"{agentId}-{agencyId}")
+                    || p.AgentScopeType == AgentMarkupScopeTypes.Agent && p.AgentScopeId == agentInAgencyId) 
             );
 
             return policies

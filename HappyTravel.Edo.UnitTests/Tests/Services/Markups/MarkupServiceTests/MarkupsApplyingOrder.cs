@@ -177,17 +177,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}}
             },
-            new MarkupPolicy
-            {
-                Id = 3,
-                AgentScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
-                Order = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                AgentScopeType = AgentMarkupScopeTypes.Agent,
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 1}},
-                DestinationScopeId = "Accommodation_01"
-            }
         };
         
         private readonly IEnumerable<MarkupPolicy> _counterpartyPolicies = new[]
@@ -212,17 +201,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 21}},
             },
-            new MarkupPolicy
-            {
-                Id = 6,
-                AgentScopeId = $"{MarkupSubject.CounterpartyId}",
-                Order = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                AgentScopeType = AgentMarkupScopeTypes.Counterparty,
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 2}},
-                DestinationScopeId = "Country_02"
-            },
         };
         
         private readonly IEnumerable<MarkupPolicy> _globalPolicies = new[]
@@ -245,16 +223,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             },
-            new MarkupPolicy
-            {
-                Id = 9,
-                Order = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                AgentScopeType = AgentMarkupScopeTypes.Global,
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 3}},
-                DestinationScopeId = "Locality_02"
-            }
         };
         
         private readonly IEnumerable<MarkupPolicy> _agencyPolicies = new[]
