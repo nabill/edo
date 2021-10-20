@@ -201,6 +201,30 @@
             </summary>
             <param name="agencyId">Id of the agency.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest)">
+            <summary>
+                Sets agency verified read only.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.VerifyFullAccess(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest)">
+            <summary>
+                Sets agency fully verified.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyDeclinedVerificationRequest)">
+            <summary>
+                Sets agency declined verification.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
@@ -3547,6 +3571,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.IsActive">
             <summary>
             Flag of administrator activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyDeclinedVerificationRequest.Reason">
+            <summary>
+                Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.ContractKind">
+            <summary>
+            Contract type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.Reason">
+            <summary>
+            Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest.Reason">
+            <summary>
+                Verify reason.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
