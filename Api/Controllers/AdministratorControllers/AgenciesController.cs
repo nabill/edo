@@ -23,11 +23,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
             IAgentService agentService,
-            IAdminAgencyManagementService agencyManagementService)
+            IAdminAgencyManagementService agencyManagementService,
+            IAgencyVerificationService agencyVerificationService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
             _agencyManagementService = agencyManagementService;
+            _agencyVerificationService = agencyVerificationService;
         }
 
 
@@ -165,8 +167,69 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => OkOrBadRequest(await _agencyManagementService.Get(agencyId, LanguageCode));
 
 
+        /// <summary>
+        ///     Sets agency verified read only.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="request">Verification details.</param>
+        /// <returns></returns>
+        [HttpPost("{agencyId}/verify-read-only")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        public async Task<IActionResult> VerifyReadOnly(int counterpartyId, [FromBody] AgencyReadOnlyVerificationRequest request)
+        {
+            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsReadOnly(counterpartyId, request.Reason);
+
+            return isSuccess
+                ? (IActionResult)NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Sets agency fully verified.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="request">Verification details.</param>
+        /// <returns></returns>
+        [HttpPost("{agencyId}/verify-full-access")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] AgencyFullAccessVerificationRequest request)
+        {
+            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractKind, request.Reason);
+
+            return isSuccess
+                ? (IActionResult)NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Sets agency declined verification.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="request">Verification details.</param>
+        /// <returns></returns>
+        [HttpPost("{agencyId}/decline-verification")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        public async Task<IActionResult> DeclineVerification(int counterpartyId, [FromBody] AgencyDeclinedVerificationRequest request)
+        {
+            var (isSuccess, _, error) = await _agencyVerificationService.DeclineVerification(counterpartyId, request.Reason);
+
+            return isSuccess
+                ? (IActionResult)NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
+        private readonly IAgencyVerificationService _agencyVerificationService;
     }
 }
