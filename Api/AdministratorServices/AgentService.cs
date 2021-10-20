@@ -55,6 +55,47 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public async Task<Result> BindDirectApiClient(int agentId, string clientId)
+        {
+            var isClientIdAlreadyUsed = await _context.Agents
+                .AnyAsync(a => a.Id != agentId && a.DirectApiClientId == clientId);
+            
+            if (isClientIdAlreadyUsed)
+                return Result.Failure($"Client with Id {clientId} already bounded to another agent");
+            
+            var agent = await _context.Agents
+                .SingleOrDefaultAsync(a => a.Id == agentId);
+            
+            if (agent is null)
+                return Result.Failure($"Agent with Id `{agentId}` not found");
+            
+            if (!string.IsNullOrEmpty(agent.DirectApiClientId) && agent.DirectApiClientId != clientId)
+                return Result.Failure($"Agent with Id `{agentId}` already bounded to another direct api client");
+            
+            if (agent.DirectApiClientId == clientId)
+                return Result.Success();
+
+            agent.DirectApiClientId = clientId;
+            _context.Update(agent);
+            await _context.SaveChangesAsync();
+            return Result.Success();
+        }
+
+
+        public async Task<Result> UnbindDirectApiClient(int agentId, string clientId)
+        {
+            var agent = await _context.Agents
+                .SingleOrDefaultAsync(a => a.Id == agentId && a.DirectApiClientId == clientId);
+            
+            if (agent is null)
+                return Result.Failure($"Agent with Id `{agentId}` and direct api client id `{clientId}` not found");
+
+            agent.DirectApiClientId = null;
+            _context.Update(agent);
+            await _context.SaveChangesAsync();
+            return Result.Success();
+        }
+
         private readonly EdoContext _context;
     }
 }
