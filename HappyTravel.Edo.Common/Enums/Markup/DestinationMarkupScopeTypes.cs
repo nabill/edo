@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         NotSpecified = 0,
         Global = 1,
         Country = 2,
-        City = 3,
+        Locality = 3,
         Accommodation = 4
     }
 }

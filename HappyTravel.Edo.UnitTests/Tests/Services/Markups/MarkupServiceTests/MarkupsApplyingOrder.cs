@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
@@ -74,15 +71,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 {
                     AgentMarkupScopeTypes.Global => true,
                     AgentMarkupScopeTypes.Country => secondScope is not AgentMarkupScopeTypes.Global,
-                    AgentMarkupScopeTypes.City => secondScope is not AgentMarkupScopeTypes.Global 
+                    AgentMarkupScopeTypes.Locality => secondScope is not AgentMarkupScopeTypes.Global 
                         and not AgentMarkupScopeTypes.Country,
                     AgentMarkupScopeTypes.Counterparty => secondScope is not AgentMarkupScopeTypes.Global 
-                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.City,
+                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.Locality,
                     AgentMarkupScopeTypes.Agency => secondScope is not AgentMarkupScopeTypes.Global 
-                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.City 
+                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.Locality 
                         and not AgentMarkupScopeTypes.Counterparty,
                     AgentMarkupScopeTypes.Agent => secondScope is not AgentMarkupScopeTypes.Global 
-                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.City 
+                        and not AgentMarkupScopeTypes.Country and not AgentMarkupScopeTypes.Locality 
                         and not AgentMarkupScopeTypes.Counterparty and not AgentMarkupScopeTypes.Agency,
                     _ => throw new AssertionFailedException("Unexpected scope type")
                 };

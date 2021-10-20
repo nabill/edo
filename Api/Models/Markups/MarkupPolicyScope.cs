@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     .WithMessage("AgentId is required");
                 
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Country || t.Type == AgentMarkupScopeTypes.City)
+                    .When(t => t.Type == AgentMarkupScopeTypes.Country || t.Type == AgentMarkupScopeTypes.Locality)
                     .WithMessage("LocationId is required");
 
                 v.RuleFor(s => s.CounterpartyId).Empty()

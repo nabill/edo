@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 AgentMarkupScopeTypes.Global => true,
                 AgentMarkupScopeTypes.Country => policy.AgentScopeId == info.CountryHtId,
-                AgentMarkupScopeTypes.City => policy.AgentScopeId == info.LocalityHtId,
+                AgentMarkupScopeTypes.Locality => policy.AgentScopeId == info.LocalityHtId,
                 AgentMarkupScopeTypes.Counterparty => policy.AgentScopeId == info.CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => policy.AgentScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.AgentScopeId)),
