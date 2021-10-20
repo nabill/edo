@@ -434,7 +434,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (!value.Any())
                 return Result.Failure<DestinationMarkupScopeTypes>("Provided destination scope id does not exist");
 
-            return value.First().Location.Type switch
+            return value.Single().Location.Type switch
             {
                 MapperLocationTypes.Country => DestinationMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => DestinationMarkupScopeTypes.City,
