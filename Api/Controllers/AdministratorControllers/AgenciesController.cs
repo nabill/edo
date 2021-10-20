@@ -177,9 +177,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyReadOnly(int counterpartyId, [FromBody] AgencyReadOnlyVerificationRequest request)
+        public async Task<IActionResult> VerifyReadOnly(int agencyId, [FromBody] AgencyReadOnlyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsReadOnly(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsReadOnly(agencyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult)NoContent()
@@ -197,9 +197,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] AgencyFullAccessVerificationRequest request)
+        public async Task<IActionResult> VerifyFullAccess(int agencyId, [FromBody] AgencyFullAccessVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractKind, request.Reason);
+            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(agencyId, request.ContractKind, request.Reason);
 
             return isSuccess
                 ? (IActionResult)NoContent()
@@ -217,9 +217,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> DeclineVerification(int counterpartyId, [FromBody] AgencyDeclinedVerificationRequest request)
+        public async Task<IActionResult> DeclineVerification(int agencyId, [FromBody] AgencyDeclinedVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _agencyVerificationService.DeclineVerification(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _agencyVerificationService.DeclineVerification(agencyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult)NoContent()
