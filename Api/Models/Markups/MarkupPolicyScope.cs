@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyScope
     {
         [JsonConstructor]
-        public MarkupPolicyScope(AgentMarkupScopeTypes? type = null, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
+        public MarkupPolicyScope(AgentMarkupScopeTypes type, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
         {
             Type = type;
             CounterpartyId = counterpartyId;
@@ -61,14 +61,13 @@ namespace HappyTravel.Edo.Api.Models.Markups
         public void Deconstruct(out AgentMarkupScopeTypes type, out int? counterpartyId, out int? agencyId, out int? agentId, out string agentScopeId)
         {
             type = Type;
-            agentScopeId = type switch
+            agentScopeId = Type switch
             {
                 AgentMarkupScopeTypes.Global => "",
                 AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
                 AgentMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
-                //AgentMarkupScopeTypes.Location => LocationId,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Wrong AgentMarkupScopeType")
+                _ => throw new ArgumentOutOfRangeException(nameof(type), Type, "Wrong AgentMarkupScopeType")
             };
             counterpartyId = CounterpartyId;
             agencyId = AgencyId;
@@ -79,7 +78,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Scope type.
         /// </summary>
-        public AgentMarkupScopeTypes? Type { get; }
+        public AgentMarkupScopeTypes Type { get; }
 
         /// <summary>
         ///     Counterparty id for counterparty scope type
