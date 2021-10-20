@@ -2,6 +2,7 @@ using System;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.Markup;
 using Newtonsoft.Json;
 
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                 AgentMarkupScopeTypes.Global => "",
                 AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
-                AgentMarkupScopeTypes.Agent => $"{AgencyId}-{AgentId}",
+                AgentMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
                 //AgentMarkupScopeTypes.Location => LocationId,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Wrong AgentMarkupScopeType")
             };
