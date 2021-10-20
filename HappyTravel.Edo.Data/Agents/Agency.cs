@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
@@ -21,10 +22,14 @@ namespace HappyTravel.Edo.Data.Agents
         public string Website { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public DateTime Verified { get; set; }
         public int? ParentId { get; set; }
         public bool IsActive { get; set; }
         public List<int> Ancestors { get; init; } = new();
         public string CountryHtId { get; init; }
         public string LocalityHtId { get; init; }
+        public CounterpartyContractKind? ContractKind { get; set; }
+        public string VerificationReason { get; set; }
+        public CounterpartyStates VerificationState { get; set; }
     }
 }
