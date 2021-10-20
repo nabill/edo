@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.MapperContracts.Internal.Mappings.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         public async Task<Result> Add(MarkupPolicyData policyData)
         {
+            // if (!string.IsNullOrWhiteSpace(policyData.Settings.LocationScopeId))
+            //
+            //     var agentMarkupScopeType = await GetDestinationScopeType(policyData.Settings.DestinationScopeId);
+            
             // TODO load proper agent scope type if locationId is passed https://github.com/happy-travel/agent-app-project/issues/739
             var destinationScopeType = await GetDestinationScopeType(policyData.Settings.DestinationScopeId);
             if (destinationScopeType.IsFailure)
@@ -281,7 +286,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<List<MarkupInfo>> GetLocationPolicies()
         {
             return _context.MarkupPolicies
-                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Location)
+                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Country || p.AgentScopeType == AgentMarkupScopeTypes.City)
                 .OrderBy(p => p.Order)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
@@ -291,7 +296,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<Result> AddLocationPolicy(MarkupPolicySettings settings)
         {
             return Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
-                new MarkupPolicyScope(AgentMarkupScopeTypes.Location, locationId: settings.LocationScopeId)));
+                new MarkupPolicyScope(locationId: settings.LocationScopeId)));
         }
 
 
@@ -299,7 +304,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var isLocationPolicy = await _context.MarkupPolicies
                 .AnyAsync(p =>
-                    p.AgentScopeType == AgentMarkupScopeTypes.Location &&
+                    (p.AgentScopeType == AgentMarkupScopeTypes.Country || p.AgentScopeType == AgentMarkupScopeTypes.City) &&
                     p.Id == policyId);
             
             return isLocationPolicy
@@ -312,7 +317,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var isLocationPolicy = await _context.MarkupPolicies
                 .AnyAsync(p =>
-                    p.AgentScopeType == AgentMarkupScopeTypes.Location &&
+                    (p.AgentScopeType == AgentMarkupScopeTypes.Country || p.AgentScopeType == AgentMarkupScopeTypes.City) &&
                     p.Id == policyId);
             
             return isLocationPolicy
@@ -329,6 +334,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 AgentMarkupScopeTypes.Global => _context.MarkupPolicies
                     .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Global)
                     .ToListAsync(),
+                AgentMarkupScopeTypes.Country
                 AgentMarkupScopeTypes.Counterparty => _context.MarkupPolicies
                     .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Counterparty && p.AgentScopeId == agentScopeId)
                     .ToListAsync(),
@@ -419,6 +425,25 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return !isSameOrderPolicyExist;
             }
         }
+        
+        
+        // private async Task<Result<AgentMarkupScopeTypes>> GetAgentMarkupScopeType(string locationId)
+        // {
+        //     var (_, isFailure, value, error) = await _mapperClient.GetMappings(new List<string> { destinationScopeId }, "en");
+        //     
+        //     if (isFailure)
+        //         return Result.Failure<AgentMarkupScopeTypes>(error.Detail);
+        //
+        //     if (!value.Any())
+        //         return Result.Failure<AgentMarkupScopeTypes>("Provided location scope id does not exist");
+        //
+        //     return value.First().Location.Type switch
+        //     {
+        //         MapperLocationTypes.Country => AgentMarkupScopeTypes.Country,
+        //         MapperLocationTypes.Locality => AgentMarkupScopeTypes.City,
+        //         _ => throw new ArgumentOutOfRangeException("Wrong agent location scope type")
+        //     };
+        // }
         
         
         private async Task<Result<DestinationMarkupScopeTypes>> GetDestinationScopeType(string destinationScopeId)

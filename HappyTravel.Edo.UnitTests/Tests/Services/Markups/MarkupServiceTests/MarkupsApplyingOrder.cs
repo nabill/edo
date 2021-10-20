@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
                 .Union(_agencyPolicies)
-                .Union(_agencyLocalityPolicies)
+                // .Union(_agencyLocalityPolicies)
                 .ToList();
 
             var edoContextMock = MockEdoContextFactory.Create();
@@ -92,13 +92,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                             secondScope != AgentMarkupScopeTypes.Counterparty &&
                             secondScope != AgentMarkupScopeTypes.Agency;
                     }
-                    case AgentMarkupScopeTypes.Location:
-                    {
-                        return secondScope != AgentMarkupScopeTypes.Global &&
-                            secondScope != AgentMarkupScopeTypes.Counterparty &&
-                            secondScope != AgentMarkupScopeTypes.Agency &&
-                            secondScope != AgentMarkupScopeTypes.Agent;
-                    }
+                    // case AgentMarkupScopeTypes.Location:
+                    // {
+                    //     return secondScope != AgentMarkupScopeTypes.Global &&
+                    //         secondScope != AgentMarkupScopeTypes.Counterparty &&
+                    //         secondScope != AgentMarkupScopeTypes.Agency &&
+                    //         secondScope != AgentMarkupScopeTypes.Agent;
+                    // }
                     default: throw new AssertionFailedException("Unexpected scope type");
                 }
             }
@@ -259,29 +259,29 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             },
         };
 
-        private readonly IEnumerable<MarkupPolicy> _agencyLocalityPolicies = new[]
-        {
-            new MarkupPolicy
-            {
-                Id = 12,
-                Order = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                AgentScopeType = AgentMarkupScopeTypes.Location,
-                AgentScopeId = "Locality_01",
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> { { "factor", 100 } },
-            },
-            new MarkupPolicy
-            {
-                Id = 13,
-                Order = 2,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                AgentScopeType = AgentMarkupScopeTypes.Location,
-                AgentScopeId = "Country_01",
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 43}},
-            },
-        };
+        // private readonly IEnumerable<MarkupPolicy> _agencyLocalityPolicies = new[]
+        // {
+        //     new MarkupPolicy
+        //     {
+        //         Id = 12,
+        //         Order = 1,
+        //         Target = MarkupPolicyTarget.AccommodationAvailability,
+        //         AgentScopeType = AgentMarkupScopeTypes.Location,
+        //         AgentScopeId = "Locality_01",
+        //         TemplateId = 1,
+        //         TemplateSettings = new Dictionary<string, decimal> { { "factor", 100 } },
+        //     },
+        //     new MarkupPolicy
+        //     {
+        //         Id = 13,
+        //         Order = 2,
+        //         Target = MarkupPolicyTarget.AccommodationAvailability,
+        //         AgentScopeType = AgentMarkupScopeTypes.Location,
+        //         AgentScopeId = "Country_01",
+        //         TemplateId = 2,
+        //         TemplateSettings = new Dictionary<string, decimal> {{"addition", 43}},
+        //     },
+        // };
 
 
         private readonly List<Agency> _agencies = new()

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyScope
     {
         [JsonConstructor]
-        public MarkupPolicyScope(AgentMarkupScopeTypes type, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
+        public MarkupPolicyScope(AgentMarkupScopeTypes? type = null, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
         {
             Type = type;
             CounterpartyId = counterpartyId;
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     .WithMessage("AgentId is required");
                 
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Location)
+                    .When(t => t.Type == AgentMarkupScopeTypes.Country || t.Type == AgentMarkupScopeTypes.City)
                     .WithMessage("LocationId is required");
 
                 v.RuleFor(s => s.CounterpartyId).Empty()
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                 AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
                 AgentMarkupScopeTypes.Agent => $"{AgencyId}-{AgentId}",
-                AgentMarkupScopeTypes.Location => LocationId,
+                //AgentMarkupScopeTypes.Location => LocationId,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Wrong AgentMarkupScopeType")
             };
             counterpartyId = CounterpartyId;
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Scope type.
         /// </summary>
-        public AgentMarkupScopeTypes Type { get; }
+        public AgentMarkupScopeTypes? Type { get; }
 
         /// <summary>
         ///     Counterparty id for counterparty scope type
