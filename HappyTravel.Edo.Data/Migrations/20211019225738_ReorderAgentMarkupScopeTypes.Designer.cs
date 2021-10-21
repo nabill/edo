@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211019225738_ReorderAgentMarkupScopeTypes")]
+    partial class ReorderAgentMarkupScopeTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,9 +49,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int?>("ContractKind")
-                        .HasColumnType("integer");
 
                     b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
@@ -97,17 +96,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
-
-                    b.Property<string>("VerificationReason")
-                        .HasColumnType("text");
-
-                    b.Property<int>("VerificationState")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("Verified")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Website")
                         .HasColumnType("text");

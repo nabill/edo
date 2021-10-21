@@ -2667,6 +2667,16 @@
             List of ancestors ids
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CountryHtId">
+            <summary>
+            Country of agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.LocalityHtId">
+            <summary>
+            Locality of agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
             <summary>
             Agency id
