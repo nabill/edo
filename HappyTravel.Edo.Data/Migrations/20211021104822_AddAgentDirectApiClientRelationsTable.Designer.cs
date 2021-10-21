@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20211020121815_AddDirectApiClientIdToAgents")]
-    partial class AddDirectApiClientIdToAgents
+    [Migration("20211021104822_AddAgentDirectApiClientRelationsTable")]
+    partial class AddAgentDirectApiClientRelationsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -138,9 +138,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("DirectApiClientId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -193,6 +190,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "AgencyId");
 
                     b.ToTable("AgentAgencyRelations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentDirectApiClientRelation", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DirectApiClientId")
+                        .HasColumnType("text");
+
+                    b.HasKey("AgentId", "DirectApiClientId");
+
+                    b.ToTable("AgentDirectApiClientRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>

@@ -56,9 +56,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType((int) StatusCodes.Status201Created)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Create([FromBody] DirectApiClient client)
+        public async Task<IActionResult> Create([FromBody] CreateDirectApiClientRequest request)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.Create(client));
+            return OkOrBadRequest(await _directApiClientManagementService.Create(request));
         }
 
         

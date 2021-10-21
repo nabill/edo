@@ -136,9 +136,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("DirectApiClientId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -191,6 +188,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "AgencyId");
 
                     b.ToTable("AgentAgencyRelations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentDirectApiClientRelation", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DirectApiClientId")
+                        .HasColumnType("text");
+
+                    b.HasKey("AgentId", "DirectApiClientId");
+
+                    b.ToTable("AgentDirectApiClientRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>

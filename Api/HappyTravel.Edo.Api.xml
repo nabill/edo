@@ -668,6 +668,61 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.GetAllClients">
+            <summary>
+            Returns all existed direct api clients
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.GetClient(System.String)">
+            <summary>
+            Returns direct api client by id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.Create(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
+            <summary>
+            Creates new direct api client in identity service
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.Delete(System.String)">
+            <summary>
+            Deletes direct api client from identity service
+            </summary>
+            <param name="clientId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.Activate(System.String)">
+            <summary>
+            Activates direct api client in identity service
+            </summary>
+            <param name="clientId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.Deactivate(System.String)">
+            <summary>
+            Deactivates direct api client in identity service
+            </summary>
+            <param name="clientId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.BindToAgent(System.String,System.Int32)">
+            <summary>
+            Bind direct api client to agent entity
+            </summary>
+            <param name="clientId"></param>
+            <param name="agentId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.UnbindFromAgent(System.String,System.Int32)">
+            <summary>
+            Unbind direct api client from agent entity
+            </summary>
+            <param name="clientId"></param>
+            <param name="agentId"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetPolicies">
             <summary>
             Gets global markup policies

@@ -15,44 +15,43 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             _httpClientFactory = httpClientFactory;
             _agentService = agentService;
-
         }
 
 
-        public async Task<List<DirectApiClient>> GetAllClients()
+        public async Task<List<DirectApiClientSlim>> GetAllClients()
         {
             using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
             var response = await client.GetAsync("direct-api-clients");
 
             return response.IsSuccessStatusCode
-                ? await response.Content.ReadFromJsonAsync<List<DirectApiClient>>()
-                : new List<DirectApiClient>(0);
+                ? await response.Content.ReadFromJsonAsync<List<DirectApiClientSlim>>()
+                : new List<DirectApiClientSlim>(0);
         }
 
 
-        public async Task<Result<DirectApiClient>> GetById(string clientId)
+        public async Task<Result<DirectApiClientSlim>> GetById(string clientId)
         {
             using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
             var response = await client.GetAsync($"direct-api-clients/{clientId}");
 
             if (response.IsSuccessStatusCode)
-                return await response.Content.ReadFromJsonAsync<DirectApiClient>();
+                return await response.Content.ReadFromJsonAsync<DirectApiClientSlim>();
 
             var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClient>(error.Detail);
+            return Result.Failure<DirectApiClientSlim>(error.Detail);
         }
 
 
-        public async Task<Result> Create(DirectApiClient apiClient)
+        public async Task<Result> Create(CreateDirectApiClientRequest request)
         {
             using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.PostAsJsonAsync("direct-api-clients", apiClient);
+            var response = await client.PostAsJsonAsync("direct-api-clients", request);
 
             if (response.IsSuccessStatusCode)
                 return Result.Success();
 
             var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClient>(error.Detail);
+            return Result.Failure<DirectApiClientSlim>(error.Detail);
         }
 
 
@@ -65,7 +64,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Success();
 
             var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClient>(error.Detail);
+            return Result.Failure<DirectApiClientSlim>(error.Detail);
         }
 
 
@@ -78,7 +77,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Success();
 
             var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClient>(error.Detail);
+            return Result.Failure<DirectApiClientSlim>(error.Detail);
         }
 
 
@@ -91,7 +90,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Success();
 
             var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClient>(error.Detail);
+            return Result.Failure<DirectApiClientSlim>(error.Detail);
         }
 
 

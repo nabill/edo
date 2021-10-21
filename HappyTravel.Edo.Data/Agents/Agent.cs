@@ -14,6 +14,5 @@ namespace HappyTravel.Edo.Data.Agents
         public string AppSettings { get; set; }
         public string UserSettings { get; set; }
         public DateTime Created { get; set; }
-        public string DirectApiClientId { get; set; }
     }
 }

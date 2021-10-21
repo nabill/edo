@@ -7,11 +7,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IDirectApiClientManagementService
     {
-        Task<List<DirectApiClient>> GetAllClients();
+        Task<List<DirectApiClientSlim>> GetAllClients();
 
-        Task<Result<DirectApiClient>> GetById(string clientId);
+        Task<Result<DirectApiClientSlim>> GetById(string clientId);
 
-        Task<Result> Create(DirectApiClient client);
+        Task<Result> Create(CreateDirectApiClientRequest request);
 
         Task<Result> Delete(string clientId);
 
