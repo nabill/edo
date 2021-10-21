@@ -10,9 +10,11 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +40,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationRecordListService agentInvitationRecordListService,
             IAgentInvitationCreateService agentInvitationCreateService,
             IIdentityUserInfoService identityUserInfoService,
-            IAgentRolesAssignmentService rolesAssignmentService)
+            IAgentRolesAssignmentService rolesAssignmentService,
+            IMappingInfoService mappingInfoService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -53,6 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationCreateService = agentInvitationCreateService;
             _identityUserInfoService = identityUserInfoService;
             _rolesAssignmentService = rolesAssignmentService;
+            _mappingInfoService = mappingInfoService;
         }
 
 
@@ -74,8 +78,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
+            var localityId = request.Counterparty.CounterpartyInfo.Locality;
+            // Assigning default values before changes on frontend are made
+            var mappingLocalityInfo = new SlimMappingLocalityInfo
+            {
+                Country = "", CountryHtId = "", Locality = "", LocalityHtId = ""
+            };
+            if (!string.IsNullOrWhiteSpace(localityId))
+            {
+                var (_, isFailure, value, _) = await _mappingInfoService.GetSlimMappingLocalityInfo(localityId);
+                if (isFailure)
+                    return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
+
+                mappingLocalityInfo = value;
+            }
+
             var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
-                externalIdentity, email);
+                externalIdentity, email, mappingLocalityInfo);
 
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
@@ -467,5 +486,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgentRolesAssignmentService _rolesAssignmentService;
+        private readonly IMappingInfoService _mappingInfoService;
     }
 }

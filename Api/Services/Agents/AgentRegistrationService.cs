@@ -12,9 +12,11 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Models.Locations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,12 +42,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData, string externalIdentity,
-            string email)
+            string email, SlimMappingLocalityInfo mappingLocalityInfo)
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
+                    .Bind(AddLocalityData)
                     .Bind(CreateAgent)
                     .Tap(AddMasterAgentAgencyRelation))
                 .Bind(LogSuccess)
@@ -66,6 +69,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return isFailure
                     ? Result.Failure<(SlimCounterpartyInfo, Agent)>(error)
                     : Result.Success((counterparty1: counterparty, agent));
+            }
+
+
+            async Task<Result<SlimCounterpartyInfo>> AddLocalityData(SlimCounterpartyInfo counterpartyInfo)
+            {
+                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
+                
+                rootAgency.CountryHtId = mappingLocalityInfo.CountryHtId;
+                rootAgency.LocalityHtId = mappingLocalityInfo.LocalityHtId;
+                rootAgency.City = mappingLocalityInfo.Locality;
+                _context.Agencies.Add(rootAgency);
+
+                return counterpartyInfo;
             }
 
 

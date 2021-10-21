@@ -23,8 +23,8 @@ namespace HappyTravel.Edo.Data.Agents
         public DateTime Modified { get; set; }
         public int? ParentId { get; set; }
         public bool IsActive { get; set; }
-        public List<int> Ancestors { get; init; } = new();
-        public string CountryHtId { get; init; }
-        public string LocalityHtId { get; init; }
+        public List<int> Ancestors { get; set; } = new();
+        public string CountryHtId { get; set; }
+        public string LocalityHtId { get; set; }
     }
 }

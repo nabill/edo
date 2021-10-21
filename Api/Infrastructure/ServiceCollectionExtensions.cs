@@ -789,6 +789,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<IMappingInfoService, MappingInfoService>();
 
             services.AddCreditCardProvider(configuration, vaultClient);
 
