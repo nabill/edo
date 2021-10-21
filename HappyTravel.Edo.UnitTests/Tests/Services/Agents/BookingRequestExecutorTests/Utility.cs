@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
 
 
         public static AccommodationBookingRequest CreateAccommodationBookingRequest(Guid roomContractSetId, bool rejectIfUnavailable)
-            => new(default, default, default, default, default, default, default, roomContractSetId, string.Empty, rejectIfUnavailable);
+            => new(default, default, default, default, default, default, default, roomContractSetId, string.Empty, default, rejectIfUnavailable);
 
         public static BookingAvailabilityInfo CreateAvailabilityInfo(string availabilityId)
             => new(default, default, default, default, default, default, default, default, default, default, default,

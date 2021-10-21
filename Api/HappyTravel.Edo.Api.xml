@@ -2192,6 +2192,11 @@
             Locality of accommodation
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.EvaluationToken">
+            <summary>
+            Token to use between 3-rd step and booking to avoid double bookings
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
@@ -3356,6 +3361,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomContractSetId">
             <summary>
                 Identifier of chosen room contract set.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.EvaluationToken">
+            <summary>
+            Token from third step availability search to disallow double bookings
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.MainPassengerName">
