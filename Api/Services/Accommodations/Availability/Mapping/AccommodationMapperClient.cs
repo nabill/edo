@@ -12,6 +12,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
@@ -76,6 +77,39 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             {
                 _logger.LogMapperClientException(ex);
                 return ProblemDetailsBuilder.Fail<List<LocationMapping>>(ex.Message);
+            }
+        }
+        
+        
+        public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimDescription(string htId, CancellationToken cancellationToken = default)
+        {
+            using var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+            try
+            {
+                using var response = await client.GetAsync($"api/1.0/locations/{htId}/slim-description", cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<SlimLocationDescription>(cancellationToken: cancellationToken);
+
+                ProblemDetails error;
+
+                try
+                {
+                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken);
+                }
+                catch (JsonException)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                    _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
+                    error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                }
+
+                return Result.Failure<SlimLocationDescription, ProblemDetails>(error);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperClientException(ex);
+                return ProblemDetailsBuilder.Fail<SlimLocationDescription>(ex.Message);
             }
         }
         

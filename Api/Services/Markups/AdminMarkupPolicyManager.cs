@@ -413,15 +413,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task<Result<AgentMarkupScopeTypes>> GetAgentMarkupScopeType(string locationId)
         {
-            var (_, isFailure, value, error) = await _mapperClient.GetMappings(new List<string> { locationId }, "en");
-            
+            var (_, isFailure, value, error) = await _mapperClient.GetSlimDescription(locationId);
             if (isFailure)
                 return Result.Failure<AgentMarkupScopeTypes>(error.Detail);
         
-            if (!value.Any())
-                return Result.Failure<AgentMarkupScopeTypes>("Provided location scope id does not exist");
-        
-            return value.Single().Location.Type switch
+            return value.Type switch
             {
                 MapperLocationTypes.Country => AgentMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => AgentMarkupScopeTypes.Locality,
@@ -432,18 +428,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task<Result<DestinationMarkupScopeTypes>> GetDestinationScopeType(string destinationScopeId)
         {
+            // if destinationScopeId is not provided, treat it as Global
             if (string.IsNullOrWhiteSpace(destinationScopeId))
                 return DestinationMarkupScopeTypes.Global;
-            
-            var (_, isFailure, value, error) = await _mapperClient.GetMappings(new List<string> { destinationScopeId }, "en");
-            
+
+            var (_, isFailure, value, error) = await _mapperClient.GetSlimDescription(destinationScopeId);
             if (isFailure)
                 return Result.Failure<DestinationMarkupScopeTypes>(error.Detail);
 
-            if (!value.Any())
-                return Result.Failure<DestinationMarkupScopeTypes>("Provided destination scope id does not exist");
-
-            return value.Single().Location.Type switch
+            return value.Type switch
             {
                 MapperLocationTypes.Country => DestinationMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => DestinationMarkupScopeTypes.Locality,
