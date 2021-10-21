@@ -18,6 +18,8 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using shortid;
+using shortid.Configuration;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -123,7 +125,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation, result.CountryHtId, result.LocalityHtId);
+                var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
+                return availabilityData.ToRoomContractSetAvailability(supplier: result.Supplier,
+                    paymentMethods: paymentMethods,
+                    accommodation: slimAccommodation,
+                    countryHtId: result.CountryHtId,
+                    localityHtId: result.LocalityHtId,
+                    evaluationToken: evaluationToken);
             }
             
 
@@ -242,8 +250,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     roomContractSet: roomContractSet,
                     availablePaymentMethods: availability.AvailablePaymentMethods,
                     countryHtId: availability.CountryHtId,
-                    localityHtId: availability.LocalityHtId
-                    );
+                    localityHtId: availability.LocalityHtId,
+                    evaluationToken: availability.EvaluationToken);
             }
 
 
