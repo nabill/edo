@@ -287,6 +287,46 @@
             Indicates that rates must be sold as a package
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.AvailabilityId">
+            <summary>
+                The availability ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CheckInDate">
+            <summary>
+                The check-in date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CheckOutDate">
+            <summary>
+                The check-out date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.NumberOfNights">
+            <summary>
+                The number of nights to stay.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.RoomContractSet">
+            <summary>
+                Information about a selected room contract set.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.AvailablePaymentMethods">
+            <summary>
+            List of available payment methods
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CountryHtId">
+            <summary>
+            Country of accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.LocalityHtId">
+            <summary>
+            Locality of accommodation
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.MinPrice">
             <summary>
             Minimal room contract set price
