@@ -8,26 +8,26 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 0 
-                WHERE ""AgentMarkupScopeType"" = 5
+                SET ""AgentScopeType"" = 0 
+                WHERE ""AgentScopeType"" = 5
             ");
             
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 6 
-                WHERE ""AgentMarkupScopeType"" = 4
+                SET ""AgentScopeType"" = 6 
+                WHERE ""AgentScopeType"" = 4
             ");
             
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 5 
-                WHERE ""AgentMarkupScopeType"" = 3
+                SET ""AgentScopeType"" = 5 
+                WHERE ""AgentScopeType"" = 3
             ");
             
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 4 
-                WHERE ""AgentMarkupScopeType"" = 2
+                SET ""AgentScopeType"" = 4 
+                WHERE ""AgentScopeType"" = 2
             ");
         }
 
@@ -35,20 +35,20 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 2 
-                WHERE ""AgentMarkupScopeType"" = 4
+                SET ""AgentScopeType"" = 2 
+                WHERE ""AgentScopeType"" = 4
             ");
             
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 3 
-                WHERE ""AgentMarkupScopeType"" = 5
+                SET ""AgentScopeType"" = 3 
+                WHERE ""AgentScopeType"" = 5
             ");
             
             migrationBuilder.Sql(@"
                 UPDATE ""MarkupPolicies""
-                SET ""AgentMarkupScopeType"" = 4 
-                WHERE ""AgentMarkupScopeType"" = 6
+                SET ""AgentScopeType"" = 4 
+                WHERE ""AgentScopeType"" = 6
             ");
         }
     }
