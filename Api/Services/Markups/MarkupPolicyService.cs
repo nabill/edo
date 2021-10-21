@@ -22,12 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agencyTreeIds = subjectInfo.AgencyAncestors;
             agencyTreeIds.Add(agencyId);
             
-            var policies = _markupPolicyStorage.Get(p =>
-                IsApplicableBySubject(p, subjectInfo) && IsApplicableByObject(p, objectInfo)
+            var policies = _markupPolicyStorage.Get(policy =>
+                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, objectInfo)
             );
 
             return policies
                 .OrderBy(p => p.AgentScopeType)
+                .ThenBy(p => p.DestinationScopeType)
                 .ThenBy(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.AgentScopeId)) : 0)
                 .ThenBy(p => p.Order)
                 .ToList();
@@ -35,7 +36,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.AgentScopeType switch
             {
                 AgentMarkupScopeTypes.Global => true,
-                AgentMarkupScopeTypes.Location => policy.AgentScopeId == info.CountryHtId || policy.AgentScopeId == info.LocalityHtId,
+                AgentMarkupScopeTypes.Country => policy.AgentScopeId == info.CountryHtId,
+                AgentMarkupScopeTypes.Locality => policy.AgentScopeId == info.LocalityHtId,
                 AgentMarkupScopeTypes.Counterparty => policy.AgentScopeId == info.CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => policy.AgentScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.AgentScopeId)),
