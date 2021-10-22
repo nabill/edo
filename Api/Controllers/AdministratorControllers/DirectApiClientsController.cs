@@ -18,34 +18,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             _directApiClientManagementService = directApiClientManagementService;
         }
-
-
-        /// <summary>
-        /// Returns all existed direct api clients
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> GetAllClients()
-        {
-            return OkOrBadRequest(await _directApiClientManagementService.GetAllClients());
-        }
-        
-        
-        /// <summary>
-        /// Returns direct api client by id
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("{clientId}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> GetClient(string clientId)
-        {
-            return OkOrBadRequest(await _directApiClientManagementService.GetById(clientId));
-        }
         
         
         /// <summary>
@@ -54,89 +26,42 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
+        [ProducesResponseType((int) StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Create([FromBody] CreateDirectApiClientRequest request)
+        public async Task<IActionResult> AddApiClient([FromBody] CreateDirectApiClientRequest request)
         {
-            return NoContentOrBadRequest(await _directApiClientManagementService.Create(request));
+            return NoContentOrBadRequest(await _directApiClientManagementService.AddApiClient(request));
         }
 
-        
-        
+
         /// <summary>
         /// Deletes direct api client from identity service
         /// </summary>
-        /// <param name="clientId"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        [HttpDelete("{clientId}")]
+        [HttpDelete]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
+        [ProducesResponseType((int) StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Delete(string clientId)
+        public async Task<IActionResult> Delete([FromBody] RemoveDirectApiClientRequest request)
         {
-            return NoContentOrBadRequest(await _directApiClientManagementService.Delete(clientId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.RemoveApiClient(request));
         }
 
 
         /// <summary>
-        /// Activates direct api client in identity service
+        /// Changes password for direct api client
         /// </summary>
         /// <param name="clientId"></param>
+        /// <param name="password"></param>
         /// <returns></returns>
-        [HttpPost("{clientId}/activate")]
+        [HttpPut("{clientId}/change-password")]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
+        [ProducesResponseType((int) StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Activate(string clientId)
+        public async Task<IActionResult> ChangePassword(string clientId, [FromBody] string password)
         {
-            return NoContentOrBadRequest(await _directApiClientManagementService.Activate(clientId));
-        }
-
-
-        /// <summary>
-        /// Deactivates direct api client in identity service
-        /// </summary>
-        /// <param name="clientId"></param>
-        /// <returns></returns>
-        [HttpPost("{clientId}/deactivate")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Deactivate(string clientId)
-        {
-            return NoContentOrBadRequest(await _directApiClientManagementService.Deactivate(clientId));
-        }
-
-
-        /// <summary>
-        /// Bind direct api client to agent entity
-        /// </summary>
-        /// <param name="clientId"></param>
-        /// <param name="agentId"></param>
-        /// <returns></returns>
-        [HttpPost("{clientId}/bind/{agentId}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> BindToAgent(string clientId, int agentId)
-        {
-            return NoContentOrBadRequest(await _directApiClientManagementService.BindToAgent(clientId, agentId));
-        }
-
-
-        /// <summary>
-        /// Unbind direct api client from agent entity
-        /// </summary>
-        /// <param name="clientId"></param>
-        /// <param name="agentId"></param>
-        /// <returns></returns>
-        [HttpPost("{clientId}/unbind/{agentId}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType((int) StatusCodes.Status201Created)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> UnbindFromAgent(string clientId, int agentId)
-        {
-            return NoContentOrBadRequest(await _directApiClientManagementService.UnbindFromAgent(clientId, agentId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.ChangePassword(clientId, password));
         }
 
 

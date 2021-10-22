@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -54,44 +53,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             return await agents.ToListAsync();
         }
-
-
-        public async Task<Result> BindDirectApiClient(int agentId, string clientId)
-        {
-            var agentHasRelation = await _context.AgentDirectApiClientRelations
-                .AnyAsync(r => r.AgentId == agentId);
-            
-            if (agentHasRelation)
-                return Result.Failure($"Agent `{agentId}` already bounded");
-
-            var dacHasRelation = await _context.AgentDirectApiClientRelations
-                .AnyAsync(r => r.DirectApiClientId == clientId);
-            
-            if (dacHasRelation)
-                return Result.Failure($"Direct api client {clientId} already bounded");
-            
-            _context.AgentDirectApiClientRelations.Add(new AgentDirectApiClientRelation
-            {
-                AgentId = agentId,
-                DirectApiClientId = clientId
-            });
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        }
-
-
-        public async Task<Result> UnbindDirectApiClient(int agentId, string clientId)
-        {
-            var relation = await _context.AgentDirectApiClientRelations
-                .SingleOrDefaultAsync(r => r.AgentId == agentId && r.DirectApiClientId == clientId);
-            
-            if (relation is null)
-                return Result.Failure($"Binding between agent `{agentId}` and `{clientId}` not found");
-            
-            _context.Remove(relation);
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        }
+        
 
         private readonly EdoContext _context;
     }
