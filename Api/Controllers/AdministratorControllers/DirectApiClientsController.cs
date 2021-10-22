@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetAllClients()
         {
-            return Ok(await _directApiClientManagementService.GetAllClients());
+            return OkOrBadRequest(await _directApiClientManagementService.GetAllClients());
         }
         
         
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Create([FromBody] CreateDirectApiClientRequest request)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.Create(request));
+            return NoContentOrBadRequest(await _directApiClientManagementService.Create(request));
         }
 
         
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Delete(string clientId)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.Delete(clientId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.Delete(clientId));
         }
 
 
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Activate(string clientId)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.Activate(clientId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.Activate(clientId));
         }
 
 
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> Deactivate(string clientId)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.Deactivate(clientId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.Deactivate(clientId));
         }
 
 
@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> BindToAgent(string clientId, int agentId)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.BindToAgent(clientId, agentId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.BindToAgent(clientId, agentId));
         }
 
 
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> UnbindFromAgent(string clientId, int agentId)
         {
-            return OkOrBadRequest(await _directApiClientManagementService.UnbindFromAgent(clientId, agentId));
+            return NoContentOrBadRequest(await _directApiClientManagementService.UnbindFromAgent(clientId, agentId));
         }
 
 

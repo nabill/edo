@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agents;
 using Microsoft.AspNetCore.Mvc;
@@ -18,80 +21,33 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<List<DirectApiClientSlim>> GetAllClients()
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.GetAsync("direct-api-clients");
+        public Task<Result<List<DirectApiClientSlim>, ProblemDetails>> GetAllClients() 
+            => Send<List<DirectApiClientSlim>>(new HttpRequestMessage(HttpMethod.Get, "api/direct-api-clients"));
 
-            return response.IsSuccessStatusCode
-                ? await response.Content.ReadFromJsonAsync<List<DirectApiClientSlim>>()
-                : new List<DirectApiClientSlim>(0);
+
+        public Task<Result<DirectApiClientSlim, ProblemDetails>> GetById(string clientId) 
+            => Send<DirectApiClientSlim>(new HttpRequestMessage(HttpMethod.Get, $"api/direct-api-clients/{clientId}"));
+
+
+        public Task<Result<Unit, ProblemDetails>> Create(CreateDirectApiClientRequest request)
+        {
+            return Send<Unit>(new HttpRequestMessage(HttpMethod.Post, "api/direct-api-clients")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            });
         }
 
 
-        public async Task<Result<DirectApiClientSlim>> GetById(string clientId)
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.GetAsync($"direct-api-clients/{clientId}");
-
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadFromJsonAsync<DirectApiClientSlim>();
-
-            var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClientSlim>(error.Detail);
-        }
+        public Task<Result<Unit, ProblemDetails>> Delete(string clientId) 
+            => Send<Unit>(new HttpRequestMessage(HttpMethod.Delete, $"api/direct-api-clients/{clientId}"));
 
 
-        public async Task<Result> Create(CreateDirectApiClientRequest request)
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.PostAsJsonAsync("direct-api-clients", request);
-
-            if (response.IsSuccessStatusCode)
-                return Result.Success();
-
-            var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClientSlim>(error.Detail);
-        }
+        public Task<Result<Unit, ProblemDetails>> Activate(string clientId) 
+            => Send<Unit>(new HttpRequestMessage(HttpMethod.Post, $"api/direct-api-clients/{clientId}/activate"));
 
 
-        public async Task<Result> Delete(string clientId)
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.DeleteAsync($"direct-api-clients/{clientId}");
-
-            if (response.IsSuccessStatusCode)
-                return Result.Success();
-
-            var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClientSlim>(error.Detail);
-        }
-
-
-        public async Task<Result> Activate(string clientId)
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.PostAsync($"direct-api-clients/{clientId}/activate", null);
-
-            if (response.IsSuccessStatusCode)
-                return Result.Success();
-
-            var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClientSlim>(error.Detail);
-        }
-
-
-        public async Task<Result> Deactivate(string clientId)
-        {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.PostAsync($"direct-api-clients/{clientId}/deactivate", null);
-
-            if (response.IsSuccessStatusCode)
-                return Result.Success();
-
-            var error = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            return Result.Failure<DirectApiClientSlim>(error.Detail);
-        }
+        public Task<Result<Unit, ProblemDetails>> Deactivate(string clientId) 
+            => Send<Unit>(new HttpRequestMessage(HttpMethod.Post, $"api/direct-api-clients/{clientId}/deactivate"));
 
 
         public async Task<Result> BindToAgent(string clientId, int agentId)
@@ -118,12 +74,46 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private async Task<Result> IsDacExists(string clientId)
         {
-            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
-            var response = await client.GetAsync($"direct-api-clients/{clientId}");
+            var response = await Send<Unit>(new HttpRequestMessage(HttpMethod.Get, $"api/direct-api-clients/{clientId}"));
 
-            return response.IsSuccessStatusCode
+            return response.IsSuccess
                 ? Result.Success()
                 : Result.Failure($"Direct api client with Id `{clientId}` not found");
+        }
+
+
+        private async Task<Result<T, ProblemDetails>> Send<T>(HttpRequestMessage request)
+        {
+            using var client = _httpClientFactory.CreateClient(HttpClientNames.DacManagementClient);
+            HttpResponseMessage response = null;
+
+            try
+            {
+                response = await client.SendAsync(request);
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return typeof(T) == typeof(Unit)
+                        ? default
+                        : await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+                }
+                
+                return await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
+
+            }
+            catch (JsonException ex)
+            {
+                var content = await response?.Content?.ReadAsStringAsync() ?? string.Empty;
+                return ProblemDetailsBuilder.Fail<T>($"Cannot deserialize response with error: `{ex.Message}`. Response: {content}");
+            }
+            catch (Exception ex)
+            {
+                return ProblemDetailsBuilder.Fail<T>($"Request failed with error: `{ex.Message}`");
+            }
         }
 
 

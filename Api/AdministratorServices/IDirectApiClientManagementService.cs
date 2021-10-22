@@ -1,23 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IDirectApiClientManagementService
     {
-        Task<List<DirectApiClientSlim>> GetAllClients();
+        Task<Result<List<DirectApiClientSlim>, ProblemDetails>> GetAllClients();
 
-        Task<Result<DirectApiClientSlim>> GetById(string clientId);
+        Task<Result<DirectApiClientSlim, ProblemDetails>> GetById(string clientId);
 
-        Task<Result> Create(CreateDirectApiClientRequest request);
+        Task<Result<Unit, ProblemDetails>> Create(CreateDirectApiClientRequest request);
 
-        Task<Result> Delete(string clientId);
+        Task<Result<Unit, ProblemDetails>> Delete(string clientId);
 
-        Task<Result> Activate(string clientId);
+        Task<Result<Unit, ProblemDetails>> Activate(string clientId);
 
-        Task<Result> Deactivate(string clientId);
+        Task<Result<Unit, ProblemDetails>> Deactivate(string clientId);
 
         Task<Result> BindToAgent(string clientId, int agentId);
 

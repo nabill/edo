@@ -1,17 +1,20 @@
-﻿namespace HappyTravel.Edo.Api.Models.Agents
+﻿using System.Text.Json.Serialization;
+
+namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct DirectApiClientSlim
     {
-        public DirectApiClientSlim(string clientId, string name, string isActive)
+        [JsonConstructor]
+        public DirectApiClientSlim(string id, string name, bool isActive)
         {
-            ClientId = clientId;
+            Id = id;
             Name = name;
             IsActive = isActive;
         }
 
 
-        public string ClientId { get; }
+        public string Id { get; }
         public string Name { get; }
-        public string IsActive { get; }
+        public bool IsActive { get; }
     }
 }
