@@ -421,7 +421,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 MapperLocationTypes.Country => AgentMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => AgentMarkupScopeTypes.Locality,
-                _ => Result.Failure<AgentMarkupScopeTypes>("Not implemented location type for provided location scope id")
+                _ => Result.Failure<AgentMarkupScopeTypes>($"Type {value.Type} is not suitable")
             };
         }
         
@@ -441,7 +441,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 MapperLocationTypes.Country => DestinationMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => DestinationMarkupScopeTypes.Locality,
                 MapperLocationTypes.Accommodation => DestinationMarkupScopeTypes.Accommodation,
-                _ => Result.Failure<DestinationMarkupScopeTypes>("Not implemented destination type for provided destination scope id")
+                _ => Result.Failure<DestinationMarkupScopeTypes>($"Type {value.Type} is not suitable")
             };
         }
         
