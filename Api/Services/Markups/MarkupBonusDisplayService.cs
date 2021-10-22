@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +20,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id
-                join agentAgency in _context.AgentAgencyRelations on markupPolicy.AgentId equals agentAgency.AgentId
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
-                where agentAgency.AgencyId == agentContext.AgencyId
+                where markupPolicy.AgentScopeId == agentContext.AgencyId.ToString() && markupPolicy.AgentScopeType == AgentMarkupScopeTypes.Agency
                 select new Bonus
                 {
                     ReferenceCode = appliedMarkup.ReferenceCode,
@@ -36,9 +36,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var query = from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id
-                join agentAgency in _context.AgentAgencyRelations on markupPolicy.AgentId equals agentAgency.AgentId
-                where agentAgency.AgencyId == agentContext.AgencyId
+                where markupPolicy.AgentScopeId == agentContext.AgencyId.ToString() && markupPolicy.AgentScopeType == AgentMarkupScopeTypes.Agency 
                 select new {appliedMarkup.Paid, appliedMarkup.Amount, markupPolicy.Currency};
+            
 
             if (filter.From is not null)
                 query = query.Where(x => x.Paid >= filter.From.Value);
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .GroupBy(x => x.Currency)
                 .Select(x => new MoneyAmount (x.Sum(g => g.Amount), x.Key))
                 .ToListAsync();
-            
+
             return new BonusSummary { Summary = summary };
         }
 

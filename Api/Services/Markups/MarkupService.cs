@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -36,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var policies = await _markupPolicyService.Get(subject, objectInfo, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(subject, objectInfo, MarkupPolicyTarget.AccommodationAvailability);
             var currentData = details;
             foreach (var policy in policies)
             {

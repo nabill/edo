@@ -305,11 +305,12 @@ namespace HappyTravel.Edo.Data
                 agency.HasIndex(a => a.CounterpartyId);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
-                agency.Property(c => c.Address).IsRequired();
-                agency.Property(c => c.City).IsRequired();
-                agency.Property(c => c.CountryCode).IsRequired();
-                agency.Property(c => c.Phone).IsRequired();
-                agency.Property(c => c.PreferredCurrency).IsRequired();
+                agency.Property(a => a.Address).IsRequired();
+                agency.Property(a => a.City).IsRequired();
+                agency.Property(a => a.CountryCode).IsRequired();
+                agency.Property(a => a.Phone).IsRequired();
+                agency.Property(a => a.PreferredCurrency).IsRequired();
+                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(CounterpartyStates.PendingVerification);
             });
         }
 
@@ -320,7 +321,6 @@ namespace HappyTravel.Edo.Data
             {
                 policy.HasKey(l => l.Id);
                 policy.Property(l => l.Order).IsRequired();
-                policy.Property(l => l.ScopeType).IsRequired();
                 policy.Property(l => l.Target).IsRequired();
 
                 policy.Property(l => l.Created).IsRequired();
@@ -331,11 +331,10 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
 
-                policy.HasIndex(b => b.ScopeType);
+                policy.HasIndex(b => b.AgentScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.CounterpartyId);
-                policy.HasIndex(b => b.AgentId);
-                policy.HasIndex(b => b.AgencyId);
+                policy.HasIndex(b => b.AgentScopeId);
+                policy.HasIndex(b => b.DestinationScopeId);
             });
         }
 

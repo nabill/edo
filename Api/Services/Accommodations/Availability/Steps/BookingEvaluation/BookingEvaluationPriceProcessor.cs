@@ -37,7 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 accommodation: value.Accommodation,
                 availablePaymentMethods: value.AvailablePaymentMethods,
                 countryHtId: value.CountryHtId,
-                localityHtId: value.LocalityHtId);
+                localityHtId: value.LocalityHtId,
+                evaluationToken: value.EvaluationToken);
         }
 
 
@@ -53,12 +54,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 accommodation: value.Accommodation,
                 availablePaymentMethods: value.AvailablePaymentMethods,
                 countryHtId: value.CountryHtId,
-                localityHtId: value.LocalityHtId);
+                localityHtId: value.LocalityHtId,
+                evaluationToken: value.EvaluationToken);
         }
 
 
         private static MarkupObjectInfo GetMarkupObjectInfo(RoomContractSetAvailability availability)
-            => new(availability.CountryHtId, availability.LocalityHtId, availability.Accommodation.HtId);
+            => new()
+            {
+                AccommodationHtId = availability.Accommodation.HtId,
+                CountryHtId = availability.CountryHtId,
+                LocalityHtId = availability.LocalityHtId
+            };
 
 
         private static Currencies? GetCurrency(RoomContractSetAvailability availabilityDetails)

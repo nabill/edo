@@ -13,10 +13,13 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using shortid;
+using shortid.Configuration;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -122,7 +125,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation, result.CountryHtId, result.LocalityHtId);
+                var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
+                return availabilityData.ToRoomContractSetAvailability(supplier: result.Supplier,
+                    paymentMethods: paymentMethods,
+                    accommodation: slimAccommodation,
+                    countryHtId: result.CountryHtId,
+                    localityHtId: result.LocalityHtId,
+                    evaluationToken: evaluationToken);
             }
             
 
@@ -143,8 +152,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 {
                     var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
+                    int? agentId = null, agencyId = null, counterpartyId = null;
+                    switch (appliedMarkup.Policy.AgentScopeType)
+                    {
+                        case AgentMarkupScopeTypes.Agent:
+                            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                            agentId = agentInAgencyId.AgentId;
+                            agencyId = agentInAgencyId.AgencyId;
+                            break;
+                        case AgentMarkupScopeTypes.Agency:
+                            agencyId = int.Parse(policy.AgentScopeId);
+                            break;
+                        case AgentMarkupScopeTypes.Counterparty:
+                            counterpartyId = int.Parse(policy.AgentScopeId);
+                            break;
+                    }
+                    
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.AgentScopeType, policy.CounterpartyId, policy.AgencyId, policy.AgentId),
+                        scope: new MarkupPolicyScope(policy.AgentScopeType, counterpartyId, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));
@@ -225,8 +250,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     roomContractSet: roomContractSet,
                     availablePaymentMethods: availability.AvailablePaymentMethods,
                     countryHtId: availability.CountryHtId,
-                    localityHtId: availability.LocalityHtId
-                    );
+                    localityHtId: availability.LocalityHtId,
+                    evaluationToken: availability.EvaluationToken);
             }
 
 

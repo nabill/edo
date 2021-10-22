@@ -1,80 +1,59 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using FloxDc.CacheFlow;
-using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Common.Enums.Markup;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupPolicyService : IMarkupPolicyService
     {
-        public MarkupPolicyService(IMarkupPolicyStorage markupPolicyStorage, EdoContext context, IDoubleFlow flow)
+        public MarkupPolicyService(IMarkupPolicyStorage markupPolicyStorage)
         {
             _markupPolicyStorage = markupPolicyStorage;
-            _context = context;
-            _flow = flow;
         }
 
 
-        public async Task<List<MarkupPolicy>> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
+        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
         {
-            return await GetAgentPolicies(subjectInfo, policyTarget);
-        }
+            var agencyId = subjectInfo.AgencyId;
+            var agencyTreeIds = subjectInfo.AgencyAncestors;
+            agencyTreeIds.Add(agencyId);
+            
+            var policies = _markupPolicyStorage.Get(policy =>
+                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, objectInfo)
+            );
 
-
-        private Task<List<MarkupPolicy>> GetAgentPolicies(MarkupSubjectInfo subject, MarkupPolicyTarget policyTarget)
-        {
-            var agentId = subject.AgentId;
-            var counterpartyId = subject.CounterpartyId;
-            var agencyId = subject.AgencyId;
-
-            return _flow.GetOrSetAsync(BuildKey(),
-                GetOrderedPolicies,
-                AgentPoliciesCachingTime);
-
-
-            string BuildKey()
-                => _flow.BuildKey(nameof(MarkupPolicyService),
-                    nameof(GetAgentPolicies),
-                    agentId.ToString());
-
-
-            async Task<List<MarkupPolicy>> GetOrderedPolicies()
+            return policies
+                .OrderBy(p => p.AgentScopeType)
+                .ThenBy(p => p.DestinationScopeType)
+                .ThenBy(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.AgentScopeId)) : 0)
+                .ThenBy(p => p.Order)
+                .ToList();
+            
+            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.AgentScopeType switch
             {
-                var agencyTreeIds = await _context.Agencies
-                    .Where(a => a.Id == agencyId)
-                    .Select(a => a.Ancestors)
-                    .SingleOrDefaultAsync() ?? new List<int>();
-                
-                agencyTreeIds.Add(agencyId);
+                AgentMarkupScopeTypes.Global => true,
+                AgentMarkupScopeTypes.Country => policy.AgentScopeId == info.CountryHtId,
+                AgentMarkupScopeTypes.Locality => policy.AgentScopeId == info.LocalityHtId,
+                AgentMarkupScopeTypes.Counterparty => policy.AgentScopeId == info.CounterpartyId.ToString(),
+                AgentMarkupScopeTypes.Agency => policy.AgentScopeId == info.AgencyId.ToString()
+                    || info.AgencyAncestors.Contains(int.Parse(policy.AgentScopeId)),
+                AgentMarkupScopeTypes.Agent => policy.AgentScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
-                var policies = _markupPolicyStorage.Get(p =>
-                        p.Target == policyTarget &&
-                        p.ScopeType == MarkupPolicyScopeType.Global ||
-                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
-                        p.ScopeType == MarkupPolicyScopeType.Agency && (p.AgencyId == agencyId || agencyTreeIds.Contains(p.AgencyId.Value)) ||
-                        p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId && p.AgencyId == agencyId
-                    )
-                    .ToList();
 
-                return policies
-                    .OrderBy(p => p.ScopeType)
-                    .ThenBy(p => p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId.HasValue ? agencyTreeIds.IndexOf(p.AgencyId.Value) : 0)
-                    .ThenBy(p => p.Order)
-                    .ToList();
+            static bool IsApplicableByObject(MarkupPolicy policy, MarkupObjectInfo info)
+            {
+                var destinationScopeId = policy.DestinationScopeId;
+                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.CountryHtId
+                    || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;
             }
         }
 
-        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
-
         private readonly IMarkupPolicyStorage _markupPolicyStorage;
-        private readonly EdoContext _context;
-        private readonly IDoubleFlow _flow;
     }
 }

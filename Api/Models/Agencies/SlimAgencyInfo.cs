@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
@@ -8,7 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public SlimAgencyInfo(string name, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType)
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, 
+            string vatNumber, PaymentTypes defaultPaymentType, List<int> ancestors, string countryHtId, string localityHtId)
         {
             Name = name;
             Address = address;
@@ -22,6 +24,9 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Website = website;
             VatNumber = vatNumber;
             DefaultPaymentType = defaultPaymentType;
+            Ancestors = ancestors;
+            CountryHtId = countryHtId;
+            LocalityHtId = localityHtId;
         }
 
 
@@ -88,5 +93,20 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Default payment type
         /// </summary>
         public PaymentTypes DefaultPaymentType { get; }
+        
+        /// <summary>
+        /// List of ancestors ids
+        /// </summary>
+        public List<int> Ancestors { get; }
+        
+        /// <summary>
+        /// Country of agency
+        /// </summary>
+        public string CountryHtId { get; }
+        
+        /// <summary>
+        /// Locality of agency
+        /// </summary>
+        public string LocalityHtId { get; }
     }
 }
