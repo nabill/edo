@@ -201,6 +201,30 @@
             </summary>
             <param name="agencyId">Id of the agency.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest)">
+            <summary>
+                Sets agency verified read only.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.VerifyFullAccess(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest)">
+            <summary>
+                Sets agency fully verified.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.AgencyDeclinedVerificationRequest)">
+            <summary>
+                Sets agency declined verification.
+            </summary>
+            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
@@ -2189,6 +2213,11 @@
             Locality of accommodation
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.EvaluationToken">
+            <summary>
+            Token to use between 3-rd step and booking to avoid double bookings
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
@@ -2662,6 +2691,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Ancestors">
             <summary>
             List of ancestors ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CountryHtId">
+            <summary>
+            Country of agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.LocalityHtId">
+            <summary>
+            Locality of agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -3345,6 +3384,11 @@
                 Identifier of chosen room contract set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.EvaluationToken">
+            <summary>
+            Token from third step availability search to disallow double bookings
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.MainPassengerName">
             <summary>
                 The full name of main passenger (buyer).
@@ -3568,6 +3612,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.RichAdministratorInfo.IsActive">
             <summary>
             Flag of administrator activity state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyDeclinedVerificationRequest.Reason">
+            <summary>
+                Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.ContractKind">
+            <summary>
+            Contract type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.Reason">
+            <summary>
+            Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest.Reason">
+            <summary>
+                Verify reason.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">

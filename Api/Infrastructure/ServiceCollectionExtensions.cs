@@ -544,12 +544,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICounterpartyService, CounterpartyService>();
             services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
             services.AddTransient<ICounterpartyVerificationService, CounterpartyVerificationService>();
+            services.AddTransient<IAgencyVerificationService, AgencyVerificationService>();
             
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
             services.AddTransient<IAgentRolesService, AgentRolesService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
-            services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
             services.AddTransient<ICounterpartyBillingNotificationService, CounterpartyBillingNotificationService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();

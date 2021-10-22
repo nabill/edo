@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
             Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
-            bool rejectIfUnavailable = true)
+            string evaluationToken, bool rejectIfUnavailable = true)
         {
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             SearchId = searchId;
             HtId = htId;
             RoomContractSetId = roomContractSetId;
+            EvaluationToken = evaluationToken;
             MainPassengerName = mainPassengerName.Trim();
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
@@ -66,6 +67,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public Guid RoomContractSetId { get; }
+
+        /// <summary>
+        /// Token from third step availability search to disallow double bookings
+        /// </summary>
+        public string EvaluationToken { get; }
 
         /// <summary>
         ///     The full name of main passenger (buyer).
