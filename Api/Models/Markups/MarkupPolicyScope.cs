@@ -64,6 +64,8 @@ namespace HappyTravel.Edo.Api.Models.Markups
             agentScopeId = Type switch
             {
                 AgentMarkupScopeTypes.Global => "",
+                AgentMarkupScopeTypes.Country => LocationId,
+                AgentMarkupScopeTypes.Locality => LocationId,
                 AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
                 AgentMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
