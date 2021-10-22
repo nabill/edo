@@ -413,7 +413,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task<Result<AgentMarkupScopeTypes>> GetAgentMarkupScopeType(string locationId)
         {
-            var (_, isFailure, value, error) = await _mapperClient.GetSlimDescription(locationId);
+            var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(locationId);
             if (isFailure)
                 return Result.Failure<AgentMarkupScopeTypes>(error.Detail);
         
@@ -428,11 +428,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task<Result<DestinationMarkupScopeTypes>> GetDestinationScopeType(string destinationScopeId)
         {
-            // if destinationScopeId is not provided, treat it as Global
+            // If destinationScopeId is not provided, treat it as Global
             if (string.IsNullOrWhiteSpace(destinationScopeId))
                 return DestinationMarkupScopeTypes.Global;
 
-            var (_, isFailure, value, error) = await _mapperClient.GetSlimDescription(destinationScopeId);
+            var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(destinationScopeId);
             if (isFailure)
                 return Result.Failure<DestinationMarkupScopeTypes>(error.Detail);
 
@@ -441,7 +441,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 MapperLocationTypes.Country => DestinationMarkupScopeTypes.Country,
                 MapperLocationTypes.Locality => DestinationMarkupScopeTypes.Locality,
                 MapperLocationTypes.Accommodation => DestinationMarkupScopeTypes.Accommodation,
-                _ => Result.Failure<DestinationMarkupScopeTypes>("Not implemented destination type for provided destinatio scope id")
+                _ => Result.Failure<DestinationMarkupScopeTypes>("Not implemented destination type for provided destination scope id")
             };
         }
         

@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
     public interface IAccommodationMapperClient
     {
         Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode, CancellationToken cancellationToken = default);
-        Task<Result<SlimLocationDescription,ProblemDetails>> GetSlimDescription(string htId, CancellationToken cancellationToken = default);
+        Task<Result<SlimLocationDescription,ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default);
         Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode, CancellationToken cancellationToken = default);
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default);
         Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode, CancellationToken cancellationToken = default);
