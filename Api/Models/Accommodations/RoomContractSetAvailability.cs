@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -11,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         [JsonConstructor]
         public RoomContractSetAvailability(string availabilityId, DateTime checkInDate, DateTime checkOutDate, int numberOfNights,
             in SlimAccommodation accommodation, in RoomContractSet roomContractSet, List<PaymentTypes> availablePaymentMethods, 
-            string countryHtId, string localityHtId)
+            string countryHtId, string localityHtId, string evaluationToken)
         {
             AvailabilityId = availabilityId;
             CheckInDate = checkInDate;
@@ -22,6 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AvailablePaymentMethods = availablePaymentMethods;
             CountryHtId = countryHtId;
             LocalityHtId = localityHtId;
+            EvaluationToken = evaluationToken;
         }
         
         /// <summary>
@@ -68,5 +68,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Locality of accommodation
         /// </summary>
         public string LocalityHtId { get; }
+
+        /// <summary>
+        /// Token to use between 3-rd step and booking to avoid double bookings
+        /// </summary>
+        public string EvaluationToken { get; }
     }
 }
