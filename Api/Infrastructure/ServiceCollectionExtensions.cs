@@ -170,6 +170,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["vccScope"]
                 });
+                
+                options.Client.Clients.Add(HttpClientNames.DacIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["dacManagementScope"]
+                });
             });
             
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
@@ -185,6 +193,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+            });
+
+            services.AddClientAccessTokenClient(HttpClientNames.DacManagementClient, HttpClientNames.DacIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(authorityUrl);
             });
             
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
@@ -537,7 +550,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRolesService, AgentRolesService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
-            services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
             services.AddTransient<ICounterpartyBillingNotificationService, CounterpartyBillingNotificationService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
@@ -790,6 +802,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
 
             services.AddCreditCardProvider(configuration, vaultClient);
 
