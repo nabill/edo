@@ -521,30 +521,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyReadOnlyVerificationRequest)">
-            <summary>
-                Sets counterparty verified read only.
-            </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
-            <param name="request">Verification details.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyFullAccess(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest)">
-            <summary>
-                Sets counterparty fully verified.
-            </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
-            <param name="request">Verification details.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest)">
-            <summary>
-                Sets counterparty declined verification.
-            </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
-            <param name="request">Verification details.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetAgencies(System.Int32)">
             <summary>
                 Gets all agencies of a counterparty.
@@ -2422,6 +2398,16 @@
             Locality of agency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationState">
+            <summary>
+            Verification state of the counterparty
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationDate">
+            <summary>
+            Counterparty verification date
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -2665,6 +2651,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Ancestors">
             <summary>
             List of ancestors ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationState">
+            <summary>
+            Verification state of the counterparty
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationDate">
+            <summary>
+            Counterparty verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -3057,19 +3053,9 @@
             True if contract is loaded to counterparty
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationState">
-            <summary>
-            Verification state of the counterparty
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.MarkupFormula">
             <summary>
             Displayed markup formula
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VerificationDate">
-            <summary>
-            Counterparty verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsActive">
@@ -3202,19 +3188,9 @@
             True if contract is loaded to counterparty
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.VerificationState">
-            <summary>
-            Verification state of the counterparty
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.MarkupFormula">
             <summary>
             Displayed markup formula
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.VerificationDate">
-            <summary>
-            Counterparty verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.IsActive">
@@ -3589,26 +3565,6 @@
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest.Reason">
-            <summary>
-                Verify reason.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
-            <summary>
-                Verify reason.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest.ContractKind">
-            <summary>
-            Contract type
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest.Reason">
-            <summary>
-            Verify reason.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyReadOnlyVerificationRequest.Reason">
             <summary>
                 Verify reason.
             </summary>

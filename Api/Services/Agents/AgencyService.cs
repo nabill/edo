@@ -39,7 +39,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     a.Website,
                     a.VatNumber,
                     a.DefaultPaymentType,
-                    a.Ancestors));
+                    a.Ancestors,
+                    a.VerificationState,
+                    a.VerificationDate));
         }
 
 
@@ -84,7 +86,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
             Task<Result<SlimAgencyInfo>> GetUpdatedAgencyInfo()
                 => Get(agent, languageCode);
         }
-
 
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;

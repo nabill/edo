@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
@@ -9,7 +10,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public SlimAgencyInfo(string name, string address, string billingEmail, string city,
-            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes defaultPaymentType, List<int> ancestors)
+            string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
+            PaymentTypes defaultPaymentType, List<int> ancestors, CounterpartyStates verificationState, DateTime? verificationDate)
         {
             Name = name;
             Address = address;
@@ -24,6 +26,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             VatNumber = vatNumber;
             DefaultPaymentType = defaultPaymentType;
             Ancestors = ancestors;
+            VerificationState = verificationState;
+            VerificationDate = verificationDate;
         }
 
 
@@ -95,5 +99,15 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// List of ancestors ids
         /// </summary>
         public List<int> Ancestors { get; }
+
+        /// <summary>
+        /// Verification state of the counterparty
+        /// </summary>
+        public CounterpartyStates VerificationState { get; }
+
+        /// <summary>
+        /// Counterparty verification date
+        /// </summary>
+        public DateTime? VerificationDate { get; }
     }
 }

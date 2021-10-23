@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentCounterpartyId)
+        public async Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentAgencyId)
         {
             return new()
             {
@@ -28,8 +28,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<TimeSpan> GetPolicyDateShift()
             {
-                var contractKind = await _context.Counterparties
-                    .Where(c => c.Id == agentCounterpartyId)
+                var contractKind = await _context.Agencies
+                    .Where(c => c.Id == agentAgencyId)
+                    .Join(_context.Agencies,
+                        a => a.Ancestors.Any()
+                            ? a.Ancestors[0]
+                            : a.Id,
+                        ra => ra.Id,
+                        (agency, rootAgency) => rootAgency)
                     .Select(c => c.ContractKind)
                     .SingleOrDefaultAsync();
 

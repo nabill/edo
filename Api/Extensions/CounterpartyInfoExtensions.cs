@@ -22,8 +22,6 @@ namespace HappyTravel.Edo.Api.Extensions
                 vatNumber: counterparty.VatNumber,
                 preferredPaymentMethod: counterparty.PreferredPaymentMethod,
                 isContractUploaded: counterparty.IsContractUploaded,
-                verificationState: counterparty.State,
-                verificationDate: counterparty.Verified,
                 isActive: counterparty.IsActive,
                 markupFormula: markupFormula);
     }
