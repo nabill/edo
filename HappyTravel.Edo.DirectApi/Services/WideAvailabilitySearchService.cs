@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Extensions;
 using HappyTravel.Edo.DirectApi.Models;
-using HappyTravel.SuppliersCatalog;
-using Microsoft.Extensions.DependencyInjection;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services
@@ -40,7 +34,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        public async Task<Result<WideSearchResult>> GetResult(Guid searchId, AgentContext agent)
+        public async Task<Result<WideSearchResult>> GetResult(Guid searchId, AgentContext agent, string languageCode)
         {
             var isComplete = await IsComplete(searchId, agent);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
@@ -48,13 +42,13 @@ namespace HappyTravel.Edo.DirectApi.Services
                 filters: null, 
                 searchSettings: searchSettings, 
                 suppliers: searchSettings.EnabledConnectors,
-                languageCode: "en");
+                languageCode: languageCode);
             
             return new WideSearchResult(searchId, isComplete, result.MapFromEdoModels());
         }
 
 
-         private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
+        private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
