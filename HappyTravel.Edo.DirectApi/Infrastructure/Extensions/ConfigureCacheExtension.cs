@@ -24,8 +24,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                         AsyncTimeout = 15000, // set to 15 seconds before we stop storing large objects in Redis
                     };
                 })
-                .AddDoubleFlow()
-                .AddCacheFlowJsonSerialization();
+                .AddDoubleFlow();
         }
     }
 }
