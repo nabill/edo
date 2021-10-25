@@ -84,10 +84,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join ag in _context.Agencies on c.Id equals ag.CounterpartyId
                     join ar in _context.AgentAgencyRelations on ag.Id equals ar.AgencyId
                     join a in _context.Agents on ar.AgentId equals a.Id
-                    where c.IsActive
+                    join ra in _context.Agencies on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
+                where c.IsActive
                         && ar.IsActive
                         && ar.Type == AgentAgencyRelationTypes.Master
-                        && ag.VerificationState == CounterpartyStates.FullAccess
+                        && ra.VerificationState == AgencyVerificationStates.FullAccess
                         && !string.IsNullOrEmpty(c.Name) && c.Name.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.FirstName) && a.FirstName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.LastName) && a.LastName.ToLower().StartsWith(query.ToLower())

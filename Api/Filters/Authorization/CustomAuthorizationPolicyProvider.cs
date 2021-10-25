@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
@@ -44,11 +44,11 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
                     .Build());
             }
 
-            if (policyName.StartsWith(MinCounterpartyStateAttribute.PolicyPrefix)
-                && Enum.TryParse(policyName.Substring(MinCounterpartyStateAttribute.PolicyPrefix.Length), out CounterpartyStates counterpartyState))
+            if (policyName.StartsWith(MinAgencyVerificationStateAttribute.PolicyPrefix)
+                && Enum.TryParse(policyName.Substring(MinAgencyVerificationStateAttribute.PolicyPrefix.Length), out AgencyVerificationStates agencyVerificationState))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new MinCounterpartyStateAuthorizationRequirement(counterpartyState))
+                    .AddRequirements(new MinAgencyVerificationStateAuthorizationRequirement(agencyVerificationState))
                     .Build());
             }
             

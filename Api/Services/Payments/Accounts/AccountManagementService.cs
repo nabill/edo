@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isFailure)
                     return Result.Failure(error);
 
-                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(verificationState)
+                return new[] {AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess}.Contains(verificationState)
                     ? Result.Success()
                     : Result.Failure("Account creation is only available for verified agencies");
             }
@@ -97,16 +97,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency)
         {
             return await Result.Success()
-                .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
+                .Ensure(IsAgencyVerified, "Account creation is only available for verified agencies")
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            async Task<bool> IsCounterpartyVerified()
+            async Task<bool> IsAgencyVerified()
             {
                 var rootAgency = await _context.Agencies.Where(a => a.CounterpartyId == counterparty.Id && a.ParentId == null).SingleAsync();
-                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(rootAgency.VerificationState);
+                return new[] {AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess}.Contains(rootAgency.VerificationState);
             }
 
 
