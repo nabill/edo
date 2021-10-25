@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     where c.IsActive
                         && ar.IsActive
                         && ar.Type == AgentAgencyRelationTypes.Master
-                        && c.State == CounterpartyStates.FullAccess
+                        && ag.VerificationState == CounterpartyStates.FullAccess
                         && !string.IsNullOrEmpty(c.Name) && c.Name.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.FirstName) && a.FirstName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.LastName) && a.LastName.ToLower().StartsWith(query.ToLower())
@@ -103,7 +103,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 join c in _context.Countries on a.CountryCode equals c.Code
                 join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                 where a.CounterpartyId == counterpartyId
-                select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
+                join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
+                select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
             .ToListAsync();
 
 
@@ -140,20 +141,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
-
-                if (counterpartyToUpdate.State == CounterpartyStates.PendingVerification || counterpartyToUpdate.State == CounterpartyStates.ReadOnly)
-                {
-                    counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
-                    counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
-                    counterpartyToUpdate.City = changedCounterpartyInfo.City;
-                    counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
-                    counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
-                    counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
-                    counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                    counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
-                    counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
-                }
-
+                counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
+                counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
+                counterpartyToUpdate.City = changedCounterpartyInfo.City;
+                counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
+                counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
+                counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
+                counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
+                
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
@@ -273,8 +270,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterparty.LegalAddress,
                 counterparty.PreferredPaymentMethod,
                 counterparty.IsContractUploaded,
-                counterparty.State,
-                counterparty.Verified,
                 counterparty.IsActive,
                 markupFormula);
 

@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Management
 {
-    public readonly struct CounterpartyFullAccessVerificationRequest
+    public readonly struct AgencyFullAccessVerificationRequest
     {
         [JsonConstructor]
-        public CounterpartyFullAccessVerificationRequest(CounterpartyContractKind contractKind, string reason)
+        public AgencyFullAccessVerificationRequest(CounterpartyContractKind contractKind, string reason)
         {
             ContractKind = contractKind;
             Reason = reason;

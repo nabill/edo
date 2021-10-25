@@ -48,6 +48,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("ContractKind")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
@@ -94,6 +97,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
+
+                    b.Property<string>("VerificationReason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("VerificationState")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("Verified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Website")
                         .HasColumnType("text");
@@ -188,6 +202,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "AgencyId");
 
                     b.ToTable("AgentAgencyRelations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentDirectApiClientRelation", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DirectApiClientId")
+                        .HasColumnType("text");
+
+                    b.HasKey("AgentId", "DirectApiClientId");
+
+                    b.ToTable("AgentDirectApiClientRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>
@@ -1066,6 +1093,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("DestinationScopeId")
                         .HasColumnType("text");
+
+                    b.Property<int>("DestinationScopeType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");

@@ -52,7 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         private static MarkupObjectInfo GetMarkupObjectInfo(SingleAccommodationAvailability availability)
-            => new(availability.CountryHtId, availability.LocalityHtId, availability.HtId);
+            => new()
+            {
+                AccommodationHtId = availability.HtId,
+                CountryHtId = availability.CountryHtId,
+                LocalityHtId = availability.LocalityHtId
+            };
 
 
         private static Currencies? GetCurrency(SingleAccommodationAvailability availabilityDetails)
