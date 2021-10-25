@@ -9,7 +9,7 @@ using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -315,10 +315,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
             
-            var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
+            var agencyVerificationChangedId = mailSettings[configuration["Edo:Email:AgencyVerificationChangedTemplateId"]];
             services.Configure<CounterpartyManagementMailingOptions>(options =>
             {
-                options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
+                options.AgencyVerificationChangedTemplateId = agencyVerificationChangedId;
             });
 
             var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
@@ -669,7 +669,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, MinAgencyVerificationStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, ServiceAccountRequiredAuthorizationHandler>();

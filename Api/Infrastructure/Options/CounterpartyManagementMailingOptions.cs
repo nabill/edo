@@ -2,6 +2,6 @@
 {
     public class CounterpartyManagementMailingOptions
     {
-        public string CounterpartyVerificationChangedTemplateId { get; set; }
+        public string AgencyVerificationChangedTemplateId { get; set; }
     }
 }

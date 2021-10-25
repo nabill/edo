@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 CounterpartyId = 1,
-                VerificationState = CounterpartyStates.PendingVerification,
+                VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName",
                 CountryCode = "AF",
                 IsActive = true
@@ -294,7 +294,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 3,
                 CounterpartyId = 2,
-                VerificationState = CounterpartyStates.PendingVerification,
+                VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName3",
                 CountryCode = "AF",
                 IsActive = false
@@ -323,7 +323,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 14,
                 CounterpartyId = 14,
-                VerificationState = CounterpartyStates.FullAccess,
+                VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions",
                 BillingEmail = "predictionsExample@mail.com",
                 CountryCode = "AF",
@@ -333,7 +333,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 15,
                 CounterpartyId = 15,
-                VerificationState = CounterpartyStates.FullAccess,
+                VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions1",
                 CountryCode = "AF",
                 IsActive = true
@@ -342,7 +342,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 20,
                 CounterpartyId = 3,
-                VerificationState = CounterpartyStates.ReadOnly,
+                VerificationState = AgencyVerificationStates.ReadOnly,
                 Name = "RootAgencyForCounterparty3",
                 CountryCode = "AF",
                 IsActive = true

@@ -205,7 +205,7 @@
             <summary>
                 Sets agency verified read only.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -213,7 +213,7 @@
             <summary>
                 Sets agency fully verified.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -221,7 +221,7 @@
             <summary>
                 Sets agency declined verification.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -2346,12 +2346,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationState">
             <summary>
-            Verification state of the counterparty
+            Verification state of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationDate">
             <summary>
-            Counterparty verification date
+            Agency verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
@@ -2611,12 +2611,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationState">
             <summary>
-            Verification state of the counterparty
+            Verification state of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationDate">
             <summary>
-            Counterparty verification date
+            Agency verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -2689,7 +2689,7 @@
                 List of permissions in current counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.CounterpartyState">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyVerificationState">
             <summary>
             State of the counterparty
             </summary>

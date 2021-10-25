@@ -24,8 +24,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
             string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId);
         
-        Task<Result<CounterpartyContractKind>> GetContractKind(int agencyId);
+        Task<Result<ContractKind>> GetContractKind(int agencyId);
 
-        Task<Result<CounterpartyStates>> GetVerificationState(int agencyId);
+        Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
     }
 }
