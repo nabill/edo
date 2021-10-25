@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
     public enum AdministratorPermissions
     {
         AdministratorInvitation = 1,
-        CounterpartyVerification = 2,
+        AgencyVerification = 2,
         AccountReplenish = 4,
         MarkupManagement = 8,
         OfflinePayment = 16,

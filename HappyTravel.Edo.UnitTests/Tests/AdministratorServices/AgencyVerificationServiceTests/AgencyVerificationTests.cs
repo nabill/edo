@@ -8,11 +8,11 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.UnitTests.Utility;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyManagementServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificationServiceTests
 {
-    public class CounterpartyVerificationTests : IDisposable
+    public class AgencyVerificationTests : IDisposable
     {
-        public CounterpartyVerificationTests()
+        public AgencyVerificationTests()
         {
             _administratorServicesMockCreationHelper = new AdministratorServicesMockCreationHelper();
         }
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, error) = await agencyVerificationService.VerifyAsFullyAccessed(7, CounterpartyContractKind.CashPayments, "Test reason");
+            var (_, isFailure, error) = await agencyVerificationService.VerifyAsFullyAccessed(7, ContractKind.CashPayments, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -48,11 +48,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(20, CounterpartyContractKind.CashPayments, "Test reason");
+            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(20, ContractKind.CashPayments, "Test reason");
 
             var agency = context.Agencies.Single(c => c.Id == 20);
             Assert.False(isFailure);
-            Assert.True(agency.VerificationState == CounterpartyStates.FullAccess && agency.VerificationReason.Contains("Test reason"));
+            Assert.True(agency.VerificationState == AgencyVerificationStates.FullAccess && agency.VerificationReason.Contains("Test reason"));
         }
         
         
@@ -62,11 +62,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(3, CounterpartyContractKind.CashPayments, "Test reason");
+            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(3, ContractKind.CashPayments, "Test reason");
 
             var agency = context.Agencies.Single(c => c.Id == 3);
             Assert.True(isFailure);
-            Assert.True(agency.VerificationState == CounterpartyStates.PendingVerification);
+            Assert.True(agency.VerificationState == AgencyVerificationStates.PendingVerification);
         }
         
         
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
             var agency = context.Agencies.Single(c => c.Id == 14);
             Assert.True(isFailure);
-            Assert.True(agency.VerificationState == CounterpartyStates.FullAccess);
+            Assert.True(agency.VerificationState == AgencyVerificationStates.FullAccess);
         }
 
 
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
             var agency = context.Agencies.Single(c => c.Id == 1);
             Assert.False(isFailure);
-            Assert.True(agency.VerificationState == CounterpartyStates.ReadOnly && agency.VerificationReason.Contains("Test reason"));
+            Assert.True(agency.VerificationState == AgencyVerificationStates.ReadOnly && agency.VerificationReason.Contains("Test reason"));
         }
 
 
@@ -126,9 +126,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         [Theory]
-        [InlineData(CounterpartyContractKind.CashPayments)]
-        [InlineData(CounterpartyContractKind.CreditPayments)]
-        public async Task Full_access_verification_must_set_contract_type(CounterpartyContractKind contractKind)
+        [InlineData(ContractKind.CashPayments)]
+        [InlineData(ContractKind.CreditPayments)]
+        public async Task Full_access_verification_must_set_contract_type(ContractKind contractKind)
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);

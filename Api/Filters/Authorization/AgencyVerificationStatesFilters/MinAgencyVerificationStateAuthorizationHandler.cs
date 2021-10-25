@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
+namespace HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters
 {
-    public class MinCounterpartyStateAuthorizationHandler : AuthorizationHandler<MinCounterpartyStateAuthorizationRequirement>
+    public class MinAgencyVerificationStateAuthorizationHandler : AuthorizationHandler<MinAgencyVerificationStateAuthorizationRequirement>
     {
-        public MinCounterpartyStateAuthorizationHandler(IAgentContextInternal agentContextInternal, IDoubleFlow flow,
-            EdoContext context, ILogger<MinCounterpartyStateAuthorizationHandler> logger)
+        public MinAgencyVerificationStateAuthorizationHandler(IAgentContextInternal agentContextInternal, IDoubleFlow flow,
+            EdoContext context, ILogger<MinAgencyVerificationStateAuthorizationHandler> logger)
         {
             _agentContextInternal = agentContextInternal;
             _flow = flow;
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
         }
 
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MinCounterpartyStateAuthorizationRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MinAgencyVerificationStateAuthorizationRequirement requirement)
         {
             var (_, isAgentFailure, agent, agentError) = await _agentContextInternal.GetAgentInfo();
             if (isAgentFailure)
@@ -41,35 +41,35 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
 
             switch (rootAgencyState)
             {
-                case CounterpartyStates.FullAccess:
+                case AgencyVerificationStates.FullAccess:
                     context.Succeed(requirement);
-                    _logger.LogCounterpartyStateAuthorizationSuccess(agent.Email);
+                    _logger.LogAgencyVerificationStateAuthorizationSuccess(agent.Email);
                     return;
                 
-                case CounterpartyStates.ReadOnly:
-                    if (requirement.CounterpartyState == CounterpartyStates.ReadOnly)
+                case AgencyVerificationStates.ReadOnly:
+                    if (requirement.AgencyVerificationState == AgencyVerificationStates.ReadOnly)
                     {
                         context.Succeed(requirement);
-                        _logger.LogCounterpartyStateAuthorizationSuccess(agent.Email);
+                        _logger.LogAgencyVerificationStateAuthorizationSuccess(agent.Email);
                     }
                     else
                     {
-                        _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, rootAgencyState);
+                        _logger.LogAgencyVerificationStateAuthorizationFailure(agent.Email, rootAgencyState);
                         context.Fail();
                     }
 
                     return;
 
                 default:
-                    _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, rootAgencyState);
+                    _logger.LogAgencyVerificationStateAuthorizationFailure(agent.Email, rootAgencyState);
                     context.Fail();
                     return;
             }
 
 
-            Task<CounterpartyStates> GetRootAgencyState(int agencyId)
+            Task<AgencyVerificationStates> GetRootAgencyState(int agencyId)
             {
-                var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetRootAgencyState), agencyId.ToString());
+                var cacheKey = _flow.BuildKey(nameof(MinAgencyVerificationStateAuthorizationHandler), nameof(GetRootAgencyState), agencyId.ToString());
                 return _flow.GetOrSetAsync(cacheKey, ()
                         => _context.Agencies
                             .Where(a => a.Id == agencyId)
@@ -81,14 +81,14 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                                 (agency, rootAgency) => rootAgency)
                             .Select(ra => ra.VerificationState)
                             .SingleOrDefaultAsync(),
-                    CounterpartyStateCacheTtl);
+                    AgencyVerificationStateCacheTtl);
             }
         }
 
 
-        private static readonly TimeSpan CounterpartyStateCacheTtl = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AgencyVerificationStateCacheTtl = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
-        private readonly ILogger<MinCounterpartyStateAuthorizationHandler> _logger;
+        private readonly ILogger<MinAgencyVerificationStateAuthorizationHandler> _logger;
         private readonly IAgentContextInternal _agentContextInternal;
         private readonly IDoubleFlow _flow;
     }

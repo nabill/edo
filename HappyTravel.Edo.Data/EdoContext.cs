@@ -312,7 +312,7 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.CountryCode).IsRequired();
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
-                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(CounterpartyStates.PendingVerification);
+                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
             });
         }
 

@@ -10,8 +10,8 @@ namespace HappyTravel.Edo.Api.Extensions
 {
     public static class AgencyInfoExtensions
     {
-        public static AgencyInfo ToAgencyInfo(this Agency agency, CounterpartyContractKind? contractKind,
-            CounterpartyStates verificationState, DateTime? verificationDate, string countryNames, string languageCode)
+        public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
+            AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode)
             => new AgencyInfo(
                 agency.Name,
                 agency.Id,
