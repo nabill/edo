@@ -13,7 +13,7 @@ using MongoDB.Driver.Linq;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
-    internal class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
+    public class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
         public DirectApiMongoDbWideAvailabilityStorage(IMongoDbStorage<AccommodationAvailabilityResult> availabilityStorage)
         {
