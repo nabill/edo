@@ -43,21 +43,7 @@ namespace HappyTravel.Edo.DirectApi.Services
             return availabilities
                 .OrderBy(a => a.Created)
                 .ThenBy(a => a.HtId)
-                .ToList()
-                .Select(a =>
-                {
-                    return new WideAvailabilityResult(default,
-                        a.RoomContractSets.Select(r=> r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
-                        a.MinPrice,
-                        a.MaxPrice,
-                        a.CheckInDate,
-                        a.CheckOutDate,
-                        searchSettings.IsSupplierVisible
-                            ? a.Supplier
-                            : (Suppliers?)null,
-                        a.HtId);
-                })
-                .ToList();
+                .ToWideAvailabilityResults(searchSettings);
         }
 
 
