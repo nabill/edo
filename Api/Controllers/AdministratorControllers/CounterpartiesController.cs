@@ -23,12 +23,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class CounterpartiesController : BaseController
     {
         public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService,
-            IContractFileManagementService contractFileManagementService,
-            ICounterpartyVerificationService counterpartyVerificationService)
+            IContractFileManagementService contractFileManagementService)
         {
             _counterpartyManagementService = counterpartyManagementService;
             _contractFileManagementService = contractFileManagementService;
-            _counterpartyVerificationService = counterpartyVerificationService;
         }
 
 
@@ -60,66 +58,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> Get() => Ok(await _counterpartyManagementService.Get());
-
-
-        /// <summary>
-        ///     Sets counterparty verified read only.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify-read-only")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyReadOnly(int counterpartyId, [FromBody] CounterpartyReadOnlyVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsReadOnly(counterpartyId, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
-
-
-        /// <summary>
-        ///     Sets counterparty fully verified.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify-full-access")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] CounterpartyFullAccessVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractKind, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
-
-
-        /// <summary>
-        ///     Sets counterparty declined verification.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/decline-verification")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> DeclineVerification(int counterpartyId, [FromBody] CounterpartyDeclinedVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyVerificationService.DeclineVerification(counterpartyId, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
 
 
         /// <summary>
@@ -251,6 +189,5 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IContractFileManagementService _contractFileManagementService;
-        private readonly ICounterpartyVerificationService _counterpartyVerificationService;
     }
 }

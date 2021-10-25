@@ -26,11 +26,24 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public Task<Result<SlimAgencyInfo>> Get(AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             return _adminAgencyManagementService.Get(agent.AgencyId, languageCode)
-                .Map(a => new SlimAgencyInfo(name: a.Name, address: a.Address, billingEmail: a.BillingEmail,
-                    city: a.City, countryCode: a.CountryCode, countryName: a.CountryName, fax: a.Fax,
-                    phone: a.Phone, postalCode: a.PostalCode, website: a.Website, vatNumber: a.VatNumber,
-                    defaultPaymentType: a.DefaultPaymentType, ancestors: a.Ancestors, countryHtId: a.CountryHtId,
-                    localityHtId: a.LocalityHtId));
+                .Map(a => new SlimAgencyInfo(
+                    name: a.Name,
+                    address: a.Address,
+                    billingEmail: a.BillingEmail,
+                    city: a.City,
+                    countryCode: a.CountryCode,
+                    countryName: a.CountryName,
+                    fax: a.Fax,
+                    phone: a.Phone,
+                    postalCode: a.PostalCode,
+                    website: a.Website,
+                    vatNumber: a.VatNumber,
+                    defaultPaymentType: a.DefaultPaymentType,
+                    ancestors: a.Ancestors,
+                    countryHtId: a.CountryHtId,
+                    localityHtId: a.LocalityHtId,
+                    verificationState: a.VerificationState,
+                    verificationDate: a.VerificationDate));
         }
 
 

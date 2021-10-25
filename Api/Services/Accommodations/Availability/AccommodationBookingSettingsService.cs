@@ -7,7 +7,6 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
@@ -43,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
                 var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
-                var counterpartySettings = await _counterpartySystemSettingsService.GetAccommodationBookingSettings(agent.CounterpartyId);
+                var counterpartySettings = await _counterpartySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
 
                 return MergeSettings(agentSettings, agencySettings, counterpartySettings);
             }, SettingsCacheLifetime);

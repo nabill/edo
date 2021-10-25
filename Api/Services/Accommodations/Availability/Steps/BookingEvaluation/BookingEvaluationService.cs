@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -32,8 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            ICounterpartyService counterpartyService,
             IAccommodationService accommodationService,
+            IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
@@ -42,8 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _counterpartyService = counterpartyService;
             _accommodationService = accommodationService;
+            _adminAgencyManagementService = adminAgencyManagementService;
             _logger = logger;
         }
         
@@ -69,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             var originalSupplierPrice = connectorEvaluationResult.Value.Value.RoomContractSet.Rate.FinalPrice;
             
-            var (_, isContractFailure, contractKind, contractError) = await _counterpartyService.GetContractKind(agent.CounterpartyId);
+            var (_, isContractFailure, contractKind, contractError) = await _adminAgencyManagementService.GetContractKind(agent.AgencyId);
             if (isContractFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(contractError);
 
@@ -256,7 +257,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-                in CounterpartyContractKind contractKind)
+                in ContractKind contractKind)
                 => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
 
 
@@ -285,8 +286,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
-        private readonly ICounterpartyService _counterpartyService;
         private readonly IAccommodationService _accommodationService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly ILogger<BookingEvaluationService> _logger;
     }
 }

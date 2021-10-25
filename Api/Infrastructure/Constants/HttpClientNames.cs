@@ -14,5 +14,7 @@
         public const string VccApi = "Vcc";
         public const string VccApiIdentity = "VccIdentity";
         public const string NGenius = "NGenius";
+        public const string DacManagementClient = "DirectApiClientsManagementClient";
+        public const string DacIdentityClient = "DirectApiClientsIdentityClient";
     }
 }

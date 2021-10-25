@@ -97,6 +97,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
         public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
         public virtual DbSet<AgencyMarkupBonusesAccount> AgencyMarkupBonusesAccounts { get; set; }
+        public DbSet<AgentDirectApiClientRelation> AgentDirectApiClientRelations { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -252,6 +253,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingConfirmationHistory(builder);
             BuildNGeniusRefund(builder);
             BuildAgencyMarkupBonusesAccounts(builder);
+            BuildAgentDirectApiClientRelations(builder);
         }
 
 
@@ -310,7 +312,7 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.CountryCode).IsRequired();
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
-                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(CounterpartyStates.PendingVerification);
+                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
             });
         }
 
@@ -479,7 +481,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.CountryCode).IsRequired();
                 counterparty.Property(c => c.Phone).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
-                counterparty.Property(c => c.State).IsRequired();
                 counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
@@ -913,6 +914,15 @@ namespace HappyTravel.Edo.Data
                 b.HasKey(a => a.Id);
                 b.HasIndex(a => a.AgencyId);
                 b.ToTable("AgencyMarkupBonusesAccounts");
+            });
+        }
+
+
+        private static void BuildAgentDirectApiClientRelations(ModelBuilder builder)
+        {
+            builder.Entity<AgentDirectApiClientRelation>(b =>
+            {
+                b.HasKey(a => new { a.AgentId, a.DirectApiClientId });
             });
         }
 

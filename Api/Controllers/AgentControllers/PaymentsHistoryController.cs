@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [AgentRequired]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [HttpGet("agent/payments-history")]
         // TODO: uncomment after implementation pagination in fronted
         // [EnablePaginatedQuery(MaxTop = 100)]
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [HttpGet("agency/payments-history")]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.ObservePaymentHistory)]
         // TODO: uncomment after implementation pagination in fronted
         // [EnablePaginatedQuery(MaxTop = 100)]

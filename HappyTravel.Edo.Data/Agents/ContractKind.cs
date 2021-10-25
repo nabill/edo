@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Data.Agents
 {
-    public enum CounterpartyContractKind
+    public enum ContractKind
     {
         CashPayments = 1,
         CreditPayments = 2,

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -21,5 +23,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
             string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId);
+        
+        Task<Result<ContractKind>> GetContractKind(int agencyId);
+
+        Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
     }
 }

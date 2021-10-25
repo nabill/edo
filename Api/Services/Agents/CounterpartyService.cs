@@ -50,7 +50,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 {
                     Name = request.CounterpartyInfo.Name?.Trim(),
                     PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
-                    State = CounterpartyStates.PendingVerification,
                     LegalAddress = request.CounterpartyInfo.LegalAddress?.Trim(),
                     Address = request.RootAgencyInfo.Address?.Trim(),
                     BillingEmail = request.RootAgencyInfo.BillingEmail?.Trim(),
@@ -155,12 +154,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<CounterpartyContractKind>> GetContractKind(int counterpartyId)
-            => GetCounterpartyRecord(counterpartyId)
-                .Ensure(cp => cp.ContractKind.HasValue, "Counterparty contract kind unknown")
-                .Map(cp => cp.ContractKind.Value);
-
-
         private Task<Result<SlimCounterpartyInfo>> GetCounterpartyInfo(int counterpartyId)
             => GetCounterpartyRecord(counterpartyId)
                 .Map(c => new SlimCounterpartyInfo(
@@ -169,8 +162,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     c.LegalAddress,
                     c.PreferredPaymentMethod,
                     c.IsContractUploaded,
-                    c.State,
-                    c.Verified,
                     c.IsActive));
 
 
