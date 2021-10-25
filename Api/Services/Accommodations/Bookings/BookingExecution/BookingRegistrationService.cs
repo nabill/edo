@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 if (string.IsNullOrWhiteSpace(evaluationToken))
                     return Result.Failure("Evaluation token cannot be empty");
                 
-                var (_, isFailure, _) = await _distributedLocker.TryAcquireLock(evaluationToken, TimeSpan.FromMinutes(10));
+                var (_, isFailure, _) = await _distributedLocker.TryAcquireLock(evaluationToken, BookingLockDuration);
                 return isFailure
                     ? Result.Failure("Booking is already in process")
                     : Result.Success();
@@ -239,7 +239,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
 
+        private static readonly TimeSpan BookingLockDuration = TimeSpan.FromMinutes(10);
 
+        
         private readonly EdoContext _context;
         private readonly ITagProcessor _tagProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -248,5 +250,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestStorage _requestStorage;
         private readonly IDistributedLocker _distributedLocker;
+        
     }
 }
