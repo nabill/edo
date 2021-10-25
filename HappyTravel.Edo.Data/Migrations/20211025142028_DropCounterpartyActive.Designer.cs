@@ -14,7 +14,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20211025122232_DropCounterpartyActive")]
+    [Migration("20211025142028_DropCounterpartyActive")]
     partial class DropCounterpartyActive
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -6,6 +6,11 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Deactivate agencies with deactivated counterparty
+            migrationBuilder.Sql("UPDATE \"Agencies\" a " +
+                "SET \"IsActive\" = (SELECT \"IsActive\" FROM \"Counterparties\" c WHERE a.\"CounterpartyId\" = C.\"Id\") " +
+                "WHERE a.\"IsActive\" = TRUE");
+
             migrationBuilder.DropColumn(
                 name: "IsActive",
                 table: "Counterparties");
