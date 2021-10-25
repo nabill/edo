@@ -48,6 +48,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("ContractKind")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
@@ -94,6 +97,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
+
+                    b.Property<string>("VerificationReason")
+                        .HasColumnType("text");
+
+                    b.Property<int>("VerificationState")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("Verified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Website")
                         .HasColumnType("text");
@@ -188,6 +202,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "AgencyId");
 
                     b.ToTable("AgentAgencyRelations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentDirectApiClientRelation", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DirectApiClientId")
+                        .HasColumnType("text");
+
+                    b.HasKey("AgentId", "DirectApiClientId");
+
+                    b.ToTable("AgentDirectApiClientRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>
@@ -295,9 +322,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ContractKind")
-                        .HasColumnType("integer");
-
                     b.Property<string>("CountryCode")
                         .IsRequired()
                         .HasColumnType("text");
@@ -334,20 +358,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("PreferredPaymentMethod")
                         .HasColumnType("integer");
 
-                    b.Property<int>("State")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Updated")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
-
-                    b.Property<string>("VerificationReason")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Verified")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Website")
                         .HasColumnType("text");
@@ -471,7 +486,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("HtId")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsAdvancePurchaseRate")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsDirectContract")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPackage")
                         .HasColumnType("boolean");
 
                     b.Property<string>("ItineraryNumber")
@@ -1043,19 +1064,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<int?>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AgentId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("AgentScopeId")
                         .HasColumnType("text");
 
                     b.Property<int>("AgentScopeType")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
@@ -1070,13 +1082,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("DestinationScopeId")
                         .HasColumnType("text");
 
+                    b.Property<int>("DestinationScopeType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ScopeType")
                         .HasColumnType("integer");
 
                     b.Property<int>("Target")
@@ -1091,13 +1103,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgencyId");
+                    b.HasIndex("AgentScopeId");
 
-                    b.HasIndex("AgentId");
+                    b.HasIndex("AgentScopeType");
 
-                    b.HasIndex("CounterpartyId");
-
-                    b.HasIndex("ScopeType");
+                    b.HasIndex("DestinationScopeId");
 
                     b.HasIndex("Target");
 

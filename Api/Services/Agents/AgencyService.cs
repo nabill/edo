@@ -27,19 +27,23 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return _adminAgencyManagementService.Get(agent.AgencyId, languageCode)
                 .Map(a => new SlimAgencyInfo(
-                    a.Name,
-                    a.Address,
-                    a.BillingEmail,
-                    a.City,
-                    a.CountryCode,
-                    a.CountryName,
-                    a.Fax,
-                    a.Phone,
-                    a.PostalCode,
-                    a.Website,
-                    a.VatNumber,
-                    a.DefaultPaymentType,
-                    a.Ancestors));
+                    name: a.Name,
+                    address: a.Address,
+                    billingEmail: a.BillingEmail,
+                    city: a.City,
+                    countryCode: a.CountryCode,
+                    countryName: a.CountryName,
+                    fax: a.Fax,
+                    phone: a.Phone,
+                    postalCode: a.PostalCode,
+                    website: a.Website,
+                    vatNumber: a.VatNumber,
+                    defaultPaymentType: a.DefaultPaymentType,
+                    ancestors: a.Ancestors,
+                    countryHtId: a.CountryHtId,
+                    localityHtId: a.LocalityHtId,
+                    verificationState: a.VerificationState,
+                    verificationDate: a.VerificationDate));
         }
 
 

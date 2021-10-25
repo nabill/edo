@@ -3,14 +3,15 @@ using Newtonsoft.Json.Converters;
 
 namespace HappyTravel.Edo.Common.Enums.Markup
 {
-    [JsonConverter((typeof(StringEnumConverter)))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum AgentMarkupScopeTypes
     {
         NotSpecified = 0,
         Global = 1,
-        Counterparty = 2,
-        Agency = 3,
-        Agent = 4,
-        Location = 5
+        Country = 2,
+        Locality = 3,
+        Counterparty = 4,
+        Agency = 5,
+        Agent = 6
     }
 }

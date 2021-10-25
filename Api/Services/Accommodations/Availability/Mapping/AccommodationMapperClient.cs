@@ -12,6 +12,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
@@ -35,51 +36,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 Converters = { new JsonStringEnumConverter() }
             };
         }
-        
-        
-        public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
-        {
-            if (!htIds.Any())
-                return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Could not get mapping for an empty ids list");
-                    
-            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
-            try
-            {
-                var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
-                using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}", cancellationToken);
 
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<LocationMapping>>(_options, cancellationToken);
-                
-                ProblemDetails error;
 
-                try
-                {
-                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken);
-                }
-                catch (JsonException)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-                    _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
-                    error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-                }
-
-                return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
-            }
-            // This is timeout exception
-            catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
-            {
-                _logger.LogMapperClientRequestTimeout(ex);
-                return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Static data request failure");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMapperClientException(ex);
-                return ProblemDetailsBuilder.Fail<List<LocationMapping>>(ex.Message);
-            }
-        }
-        
-        
         public async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
         {
             if (htIds.Any())
@@ -121,75 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             return new List<SlimAccommodation>();
         }
 
-
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default)
-        {
-            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
-            try
-            {
-                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options, cancellationToken);
-                
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
-                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-
-                return Result.Failure<Accommodation, ProblemDetails>(error);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMapperClientException(ex);
-                return ProblemDetailsBuilder.Fail<Accommodation>(ex.Message);
-            }
-        }
-        
-        
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode, CancellationToken cancellationToken = default)
-        {
-            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
-            try
-            {
-                using var response = await client.GetAsync($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<Accommodation>(_options, cancellationToken);
-                
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
-                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-
-                return Result.Failure<Accommodation, ProblemDetails>(error);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMapperClientException(ex);
-                return ProblemDetailsBuilder.Fail<Accommodation>(ex.Message);
-            }
-        }
-
-
-        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default)
-        {
-            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
-            try
-            {
-                using var response = await client.GetAsync($"api/1.0/accommodations/{htId}/email-addresses", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadFromJsonAsync<List<string>>(_options, cancellationToken);
-
-                var error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken) ??
-                    ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-
-                return Result.Failure<List<string>, ProblemDetails>(error);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogMapperClientException(ex);
-                return ProblemDetailsBuilder.Fail<List<string>>(ex.Message);
-            }
-        }
-        
         
         public async Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings, CancellationToken cancellationToken = default)
         {
@@ -211,8 +100,73 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 return new List<string>(0);
             }
         }
+        
+        
+        public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
+        {
+            if (!htIds.Any())
+                return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Could not get mapping for an empty ids list");
+            
+            var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
+            return await Get<List<LocationMapping>>($"api/1.0/location-mappings?{htIdQuery}", cancellationToken);
+        }
+
+        
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default) 
+            => await Get<Accommodation>($"api/1.0/accommodations/{htId}", cancellationToken);
 
 
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Suppliers supplier, string accommodationId, string languageCode, CancellationToken cancellationToken = default) 
+            => await Get<Accommodation>($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}", cancellationToken);
+
+        
+        public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default) 
+            => await Get<SlimLocationDescription>($"api/1.0/locations/{htId}/slim-description", cancellationToken);
+
+        
+        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default) 
+            => await Get<List<string>>($"api/1.0/accommodations/{htId}/email-addresses", cancellationToken);
+
+
+        private async Task<Result<TResponse, ProblemDetails>> Get<TResponse>(string url, CancellationToken cancellationToken) 
+        {
+            var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
+            try
+            {
+                using var response = await client.GetAsync(url, cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadFromJsonAsync<TResponse>(_options, cancellationToken);
+                
+                ProblemDetails error;
+
+                try
+                {
+                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(_options, cancellationToken);
+                }
+                catch (JsonException)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                    _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
+                    error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                }
+                
+                return Result.Failure<TResponse, ProblemDetails>(error);
+            }
+            // This is timeout exception
+            catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
+            {
+                _logger.LogMapperClientRequestTimeout(ex);
+                return ProblemDetailsBuilder.Fail<TResponse>("Static data request failure");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperClientException(ex);
+                return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
+            }
+        }
+
+        
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;
         private readonly JsonSerializerOptions _options;

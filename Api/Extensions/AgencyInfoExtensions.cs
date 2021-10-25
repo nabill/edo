@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
     public static class AgencyInfoExtensions
     {
-        public static AgencyInfo ToAgencyInfo(this Agency agency, CounterpartyContractKind? contractKind, string countryNames, string languageCode)
+        public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
+            AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode)
             => new AgencyInfo(
                 agency.Name,
                 agency.Id,
@@ -26,7 +29,9 @@ namespace HappyTravel.Edo.Api.Extensions
                 BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
                 agency.CountryHtId,
                 agency.LocalityHtId,
-                agency.Ancestors ?? new List<int>());
+                agency.Ancestors ?? new List<int>(),
+                verificationState,
+                verificationDate);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)

@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Management
 {
-    public readonly struct CounterpartyReadOnlyVerificationRequest
+    public readonly struct AgencyReadOnlyVerificationRequest
     {
         [JsonConstructor]
-        public CounterpartyReadOnlyVerificationRequest(string reason)
+        public AgencyReadOnlyVerificationRequest(string reason)
         {
             Reason = reason;
         }
