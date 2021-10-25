@@ -10,7 +10,7 @@ using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
-    internal class DirectApiRedisWideAvailabilityStorage : IWideAvailabilityStorage
+    public class DirectApiRedisWideAvailabilityStorage : IWideAvailabilityStorage
     {
         public DirectApiRedisWideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage)
         {
