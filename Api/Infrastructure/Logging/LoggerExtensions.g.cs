@@ -359,6 +359,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1097, "NGeniusWebhookPaymentLinkUpdate"),
                 "Started updating payment link by NGenius webhook");
             
+            BookingExceededTimeLimit = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId(1098, "BookingExceededTimeLimit"),
+                "Booking {ReferenceCode} exceeded time limit");
+            
         }
     
                 
@@ -625,6 +629,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogNGeniusWebhookPaymentLinkUpdate(this ILogger logger, Exception exception = null)
             => NGeniusWebhookPaymentLinkUpdate(logger, exception);
+                
+         public static void LogBookingExceededTimeLimit(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => BookingExceededTimeLimit(logger, ReferenceCode, exception);
     
     
         
@@ -803,5 +810,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentUpdate;
         
         private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentLinkUpdate;
+        
+        private static readonly Action<ILogger, string, Exception> BookingExceededTimeLimit;
     }
 }
