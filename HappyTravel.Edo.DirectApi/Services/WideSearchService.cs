@@ -20,12 +20,11 @@ namespace HappyTravel.Edo.DirectApi.Services
     public class WideSearchService
     {
         public WideSearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            IWideAvailabilitySearchStateStorage stateStorage, IServiceScopeFactory serviceScopeFactory, 
-            IWideAvailabilitySearchService wideAvailabilitySearchService, IWideAvailabilityStorage availabilityStorage)
+            IWideAvailabilitySearchStateStorage stateStorage, IWideAvailabilitySearchService wideAvailabilitySearchService, 
+            IWideAvailabilityStorage availabilityStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _stateStorage = stateStorage;
-            _serviceScopeFactory = serviceScopeFactory;
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
             _availabilityStorage = availabilityStorage;
         }
@@ -33,7 +32,7 @@ namespace HappyTravel.Edo.DirectApi.Services
 
         public async Task<Result<StartSearchResponse>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
-            var (_, isFailure, searchId, error) = await _wideAvailabilitySearchService.StartSearch(request.ToEdoModel(), agent, "en");
+            var (_, isFailure, searchId, error) = await _wideAvailabilitySearchService.StartSearch(request.ToEdoModel(), agent, languageCode);
 
             return isFailure
                 ? Result.Failure<StartSearchResponse>(error)
@@ -55,36 +54,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
-        {
-            foreach (var supplier in searchSettings.EnabledConnectors)
-            {
-                if (!accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
-                {
-                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
-                    continue;
-                }
-                
-                // Starting search tasks in a separate thread
-                StartSearchTask(supplier, supplierCodeMappings);
-            }
-
-
-            void StartSearchTask(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
-            {
-                Task.Run(async () =>
-                {
-                    using var scope = _serviceScopeFactory.CreateScope();
-                    
-                    await WideAvailabilitySearchTask
-                        .Create(scope.ServiceProvider)
-                        .Start(searchId, request.ToEdoModel(), supplierCodeMappings, supplier, agent, languageCode, searchSettings);
-                });
-            }
-        }
-
-
-        private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
+         private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
@@ -95,7 +65,6 @@ namespace HappyTravel.Edo.DirectApi.Services
 
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
     }
