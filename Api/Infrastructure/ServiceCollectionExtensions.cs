@@ -582,6 +582,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddScoped<IEntityLocker, EntityLocker>();
+            services.AddScoped<IDistributedLocker, RedisDistributedLocker>();
             services.AddTransient<IAccountPaymentProcessingService, AccountPaymentProcessingService>();
 
             services.AddTransient<IPayfortService, PayfortService>();

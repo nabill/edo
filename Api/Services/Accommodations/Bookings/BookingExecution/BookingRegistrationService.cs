@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
@@ -24,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage, IDistributedLocker distributedLocker)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -33,13 +32,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
             _requestStorage = requestStorage;
+            _distributedLocker = distributedLocker;
         }
         
         
         public async Task<Booking> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
         {
-            var (_, _, booking, _) = await Result.Success()
+            var (_, _, booking, _) = await CheckForDuplicateRequest(bookingRequest.EvaluationToken)
                 .Map(GetTags)
                 .Map(Create)
                 .Tap(SaveRequestInfo)
@@ -48,6 +48,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Tap(CreateSupplierOrder); 
 
             return booking;
+            
+            
+            async Task<Result> CheckForDuplicateRequest(string evaluationToken)
+            {
+                if (string.IsNullOrWhiteSpace(evaluationToken))
+                    return Result.Failure("Evaluation token cannot be empty");
+                
+                var (_, isFailure, _) = await _distributedLocker.TryAcquireLock(evaluationToken, TimeSpan.FromMinutes(10));
+                return isFailure
+                    ? Result.Failure("Booking is already in process")
+                    : Result.Success();
+            }
 
 
             async Task<(string itn, string referenceCode)> GetTags()
@@ -235,5 +247,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestStorage _requestStorage;
+        private readonly IDistributedLocker _distributedLocker;
     }
 }
