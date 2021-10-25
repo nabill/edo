@@ -17,9 +17,9 @@ using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
-    public class WideSearchService
+    public class WideAvailabilitySearchService
     {
-        public WideSearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
+        public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
             IWideAvailabilitySearchStateStorage stateStorage, IWideAvailabilitySearchService wideAvailabilitySearchService, 
             IWideAvailabilityStorage availabilityStorage)
         {

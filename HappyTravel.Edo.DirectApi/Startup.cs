@@ -28,6 +28,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi
 {
@@ -96,7 +97,7 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
             services.AddTransient<IManagementAuditService, ManagementAuditService>();
             services.AddTransient<IAdministratorContext, HttpBasedAdministratorContext>();
-            services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
+            services.AddTransient<IWideAvailabilitySearchService, Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchService>();
             services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
             services.AddTransient<IConnectorClient, ConnectorClient>();
@@ -104,7 +105,7 @@ namespace HappyTravel.Edo.DirectApi
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
-            services.AddTransient<WideSearchService>();
+            services.AddTransient<WideAvailabilitySearchService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 
