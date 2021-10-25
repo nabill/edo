@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -25,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             ILogger<AccountManagementService> logger,
             IAdministratorContext administratorContext,
             IManagementAuditService managementAuditService,
+            IAdminAgencyManagementService adminAgencyManagementService,
             IEntityLocker locker)
         {
             _context = context;
@@ -32,23 +34,28 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             _logger = logger;
             _administratorContext = administratorContext;
             _managementAuditService = managementAuditService;
+            _adminAgencyManagementService = adminAgencyManagementService;
             _locker = locker;
         }
 
 
         public async Task<Result> CreateForAgency(Agency agency, Currencies currency)
         {
-            return await Result.Success()
-                .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
+            return await CheckAgencyVerified()
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            async Task<bool> IsCounterpartyVerified()
+            async Task<Result> CheckAgencyVerified()
             {
-                var counterparty = await _context.Counterparties.Where(c => c.Id == agency.CounterpartyId).SingleAsync();
-                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(counterparty.State);
+                var (_, isFailure, verificationState, error) = await _adminAgencyManagementService.GetVerificationState(agency.Id);
+                if (isFailure)
+                    return Result.Failure(error);
+
+                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(verificationState)
+                    ? Result.Success()
+                    : Result.Failure("Account creation is only available for verified agencies");
             }
 
 
@@ -95,7 +102,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
-            bool IsCounterpartyVerified() => new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(counterparty.State);
+
+            async Task<bool> IsCounterpartyVerified()
+            {
+                var rootAgency = await _context.Agencies.Where(a => a.CounterpartyId == counterparty.Id && a.ParentId == null).SingleAsync();
+                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(rootAgency.VerificationState);
+            }
 
 
             async Task<CounterpartyAccount> CreateAccount()
@@ -142,5 +154,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IEntityLocker _locker;
         private readonly ILogger<AccountManagementService> _logger;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
     }
 }

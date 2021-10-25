@@ -159,6 +159,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     on cr.AgencyId equals ag.Id
                 join co in _context.Counterparties
                     on ag.CounterpartyId equals co.Id
+                join ra in _context.Agencies
+                    on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
                 where ag.IsActive && co.IsActive && cr.AgentId == agent.AgentId
                 select new AgentAgencyRelationInfo(
                     co.Id,
@@ -166,9 +168,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
-                    GetActualPermissions(co.State, cr.AgentRoleIds, roles), 
-                    co.State,
-                    BookingPaymentTypesHelper.GetDefaultPaymentType(co.ContractKind)))
+                    GetActualPermissions(ra.VerificationState, cr.AgentRoleIds, roles), 
+                    ra.VerificationState,
+                    BookingPaymentTypesHelper.GetDefaultPaymentType(ra.ContractKind)))
                 .ToListAsync();
         }
 

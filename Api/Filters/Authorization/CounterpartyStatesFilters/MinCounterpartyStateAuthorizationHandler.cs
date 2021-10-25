@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.Runtime;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
@@ -36,9 +37,9 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                 return;
             }
             
-            var counterpartyState = await GetCounterpartyState(agent.CounterpartyId);
+            var rootAgencyState = await GetRootAgencyState(agent.AgencyId);
 
-            switch (counterpartyState)
+            switch (rootAgencyState)
             {
                 case CounterpartyStates.FullAccess:
                     context.Succeed(requirement);
@@ -53,26 +54,32 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                     }
                     else
                     {
-                        _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, counterpartyState);
+                        _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, rootAgencyState);
                         context.Fail();
                     }
 
                     return;
 
                 default:
-                    _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, counterpartyState);
+                    _logger.LogCounterpartyStateAuthorizationFailure(agent.Email, rootAgencyState);
                     context.Fail();
                     return;
             }
 
 
-            Task<CounterpartyStates> GetCounterpartyState(int counterpartyId)
+            Task<CounterpartyStates> GetRootAgencyState(int agencyId)
             {
-                var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetCounterpartyState), counterpartyId.ToString());
+                var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetRootAgencyState), agencyId.ToString());
                 return _flow.GetOrSetAsync(cacheKey, ()
-                        => _context.Counterparties
-                            .Where(c => c.Id == counterpartyId)
-                            .Select(c => c.State)
+                        => _context.Agencies
+                            .Where(a => a.Id == agencyId)
+                            .Join(_context.Agencies,
+                                a => a.Ancestors.Any()
+                                    ? a.Ancestors[0]
+                                    : a.Id,
+                                ra => ra.Id,
+                                (agency, rootAgency) => rootAgency)
+                            .Select(ra => ra.VerificationState)
                             .SingleOrDefaultAsync(),
                     CounterpartyStateCacheTtl);
             }

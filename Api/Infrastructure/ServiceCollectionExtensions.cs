@@ -543,7 +543,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICounterpartyService, CounterpartyService>();
             services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
-            services.AddTransient<ICounterpartyVerificationService, CounterpartyVerificationService>();
             services.AddTransient<IAgencyVerificationService, AgencyVerificationService>();
             
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
