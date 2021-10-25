@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     on ag.CounterpartyId equals co.Id
                 join ra in _context.Agencies
                     on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
-                where ag.IsActive && co.IsActive && cr.AgentId == agent.AgentId
+                where ag.IsActive && cr.AgentId == agent.AgentId
                 select new AgentAgencyRelationInfo(
                     co.Id,
                     co.Name,

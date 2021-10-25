@@ -95,48 +95,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///  Deactivates specified counterparty
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty.</param>
-        /// <param name="request">Request data for deactivation.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/deactivate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> DeactivateCounterparty(int counterpartyId, ActivityStatusChangeRequest request)
-        {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty(counterpartyId, request.Reason);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-
-
-        /// <summary>
-        ///  Activates specified counterparty
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty.</param>
-        /// <param name="request">Request data for Activation.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/activate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> ActivateCounterparty(int counterpartyId, ActivityStatusChangeRequest request)
-        {
-            var (_, isFailure, error) = await _counterpartyManagementService.ActivateCounterparty(counterpartyId, request.Reason);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-
-
-        /// <summary>
         ///  Returns counterparties predictions when searching
         /// </summary>
         /// <param name="query">The search query text.</param>

@@ -159,8 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     c.Name,
                     c.LegalAddress,
                     c.PreferredPaymentMethod,
-                    c.IsContractUploaded,
-                    c.IsActive));
+                    c.IsContractUploaded));
 
 
         private async Task<Result<Counterparty>> GetCounterpartyRecord(int counterpartyId)
