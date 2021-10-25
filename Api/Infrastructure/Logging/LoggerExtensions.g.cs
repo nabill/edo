@@ -195,13 +195,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1145, "SupplierAvailabilitySearchException"),
                 "Supplier availability search exception on supplier '{Supplier}'");
             
-            CounterpartyStateAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
-                new EventId(1150, "CounterpartyStateAuthorizationSuccess"),
-                "Successfully checked counterparty state for agent {Email}");
+            AgencyVerificationStateAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId(1150, "AgencyVerificationStateAuthorizationSuccess"),
+                "Successfully checked agency verification state for agent {Email}");
             
-            CounterpartyStateAuthorizationFailure = LoggerMessage.Define<string, HappyTravel.Edo.Common.Enums.CounterpartyStates>(LogLevel.Warning,
-                new EventId(1151, "CounterpartyStateAuthorizationFailure"),
-                "Counterparty of agent '{Email}' has wrong state {State}");
+            AgencyVerificationStateAuthorizationFailure = LoggerMessage.Define<string, HappyTravel.Edo.Common.Enums.AgencyVerificationStates>(LogLevel.Warning,
+                new EventId(1151, "AgencyVerificationStateAuthorizationFailure"),
+                "Agency of agent '{Email}' has wrong verification state {State}");
             
             DefaultLanguageKeyIsMissingInFieldOfLocationsTable = LoggerMessage.Define(LogLevel.Warning,
                 new EventId(1200, "DefaultLanguageKeyIsMissingInFieldOfLocationsTable"),
@@ -503,11 +503,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogSupplierAvailabilitySearchException(this ILogger logger, HappyTravel.SuppliersCatalog.Suppliers Supplier, Exception exception = null)
             => SupplierAvailabilitySearchException(logger, Supplier, exception);
                 
-         public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
-            => CounterpartyStateAuthorizationSuccess(logger, Email, exception);
+         public static void LogAgencyVerificationStateAuthorizationSuccess(this ILogger logger, string Email, Exception exception = null)
+            => AgencyVerificationStateAuthorizationSuccess(logger, Email, exception);
                 
-         public static void LogCounterpartyStateAuthorizationFailure(this ILogger logger, string Email, HappyTravel.Edo.Common.Enums.CounterpartyStates State, Exception exception = null)
-            => CounterpartyStateAuthorizationFailure(logger, Email, State, exception);
+         public static void LogAgencyVerificationStateAuthorizationFailure(this ILogger logger, string Email, HappyTravel.Edo.Common.Enums.AgencyVerificationStates State, Exception exception = null)
+            => AgencyVerificationStateAuthorizationFailure(logger, Email, State, exception);
                 
          public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, Exception exception = null)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, exception);
@@ -722,9 +722,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, HappyTravel.SuppliersCatalog.Suppliers, Exception> SupplierAvailabilitySearchException;
         
-        private static readonly Action<ILogger, string, Exception> CounterpartyStateAuthorizationSuccess;
+        private static readonly Action<ILogger, string, Exception> AgencyVerificationStateAuthorizationSuccess;
         
-        private static readonly Action<ILogger, string, HappyTravel.Edo.Common.Enums.CounterpartyStates, Exception> CounterpartyStateAuthorizationFailure;
+        private static readonly Action<ILogger, string, HappyTravel.Edo.Common.Enums.AgencyVerificationStates, Exception> AgencyVerificationStateAuthorizationFailure;
         
         private static readonly Action<ILogger, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTable;
         

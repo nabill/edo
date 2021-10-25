@@ -170,13 +170,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency verified read only.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/verify-read-only")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> VerifyReadOnly(int agencyId, [FromBody] AgencyReadOnlyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsReadOnly(agencyId, request.Reason);
@@ -190,13 +190,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency fully verified.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/verify-full-access")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> VerifyFullAccess(int agencyId, [FromBody] AgencyFullAccessVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(agencyId, request.ContractKind, request.Reason);
@@ -210,13 +210,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency declined verification.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/decline-verification")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> DeclineVerification(int agencyId, [FromBody] AgencyDeclinedVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.DeclineVerification(agencyId, request.Reason);

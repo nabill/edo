@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         ExternalPaymentLinks = 25,
         PaymentLinkPaidNotification = 26,
         CounterpartyActivityChanged = 27,
-        CounterpartyVerificationChanged = 28,
+        AgencyVerificationChanged = 28,
         CounterpartyAccountBalanceSubtracted = 29,
         CounterpartyAccountBalanceIncreasedManually = 30,
         CounterpartyAccountBalanceDecreasedManually = 31,

@@ -4,7 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("book-by-account")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("book-for-offline")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> BookByOffline([FromBody] AccommodationBookingRequest request)
         {
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("{referenceCode}/finalize")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("{bookingId}/refresh-status")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("{bookingId}/cancel")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("refcode/{referenceCode}/cancel")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode)
         {
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
@@ -225,7 +225,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
@@ -245,7 +245,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("refcode/{referenceCode}/pay-with-credit-card")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> PayWithCreditCard(string referenceCode)
         {
@@ -265,7 +265,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("{bookingId}/cancellation-penalty")]
         [ProducesResponseType(typeof(MoneyAmount), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingCancellationPenalty(int bookingId)
         {
@@ -286,7 +286,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>List of slim booking data.</returns>
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [HttpGet("agent")]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         [EnableQuery]
         public async Task<ActionResult<IQueryable<SlimAccommodationBookingInfo>>> GetAgentBookings()
@@ -301,7 +301,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>List of slim booking data.</returns>
         [ProducesResponseType(typeof(List<AgentBoundedData<SlimAccommodationBookingInfo>>), (int) HttpStatusCode.OK)]
         [HttpGet("agency")]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AgencyBookingsManagement)]
         [EnableQuery]
         public async Task<ActionResult<IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>>>> GetAgencyBookings()
@@ -318,7 +318,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("{bookingId}/status-history")]
         [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingStatusHistory(int bookingId)
@@ -342,7 +342,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("reference-code/{referenceCode}/confirmation-history")]
         [ProducesResponseType(typeof(List<BookingConfirmationHistoryEntry>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)

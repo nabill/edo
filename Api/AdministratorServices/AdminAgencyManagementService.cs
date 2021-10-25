@@ -184,13 +184,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result<CounterpartyContractKind>> GetContractKind(int agencyId)
+        public Task<Result<ContractKind>> GetContractKind(int agencyId)
             => GetRootAgency(agencyId)
                 .Ensure(a => a.ContractKind.HasValue, "Agency contract kind unknown")
                 .Map(a => a.ContractKind.Value);
 
 
-        public Task<Result<CounterpartyStates>> GetVerificationState(int agencyId)
+        public Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId)
             => GetRootAgency(agencyId)
                 .Map(a => a.VerificationState);
 

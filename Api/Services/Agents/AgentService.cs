@@ -175,32 +175,32 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, InAgencyPermissions inAgencyPermissions)
+        private static List<InAgencyPermissions> GetActualPermissions(AgencyVerificationStates agencyVerificationState, InAgencyPermissions inAgencyPermissions)
         {
             const InAgencyPermissions readOnlyPermissions = InAgencyPermissions.AccommodationAvailabilitySearch |
                 InAgencyPermissions.AgentInvitation |
                 InAgencyPermissions.PermissionManagement |
                 InAgencyPermissions.ObserveAgents;
                 
-            switch (counterpartyState)
+            switch (agencyVerificationState)
             {
-                case CounterpartyStates.DeclinedVerification: 
-                case CounterpartyStates.PendingVerification:
+                case AgencyVerificationStates.DeclinedVerification: 
+                case AgencyVerificationStates.PendingVerification:
                     return new List<InAgencyPermissions>(0);
-                case CounterpartyStates.ReadOnly:
+                case AgencyVerificationStates.ReadOnly:
                     return (inAgencyPermissions & readOnlyPermissions).ToList();
-                case CounterpartyStates.FullAccess:
+                case AgencyVerificationStates.FullAccess:
                     return inAgencyPermissions.ToList();
                 default:
-                    throw new ArgumentException($"Invalid counterparty state {counterpartyState}");
+                    throw new ArgumentException($"Invalid agency verification state {agencyVerificationState}");
             }
         }
 
 
-        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, int[] roleIds, List<AgentRole> roles)
+        private static List<InAgencyPermissions> GetActualPermissions(AgencyVerificationStates agencyVerificationState, int[] roleIds, List<AgentRole> roles)
         {
             var permissions = GetInAgencyPermissions(roleIds, roles);
-            return GetActualPermissions(counterpartyState, permissions);
+            return GetActualPermissions(agencyVerificationState, permissions);
         }
 
 
