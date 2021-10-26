@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public SlimCounterpartyInfo(int id, string name, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, bool isActive,
+            bool isContractUploaded,
             string markupFormula = null)
         {
             Id = id;
@@ -18,7 +18,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             MarkupFormula = markupFormula;
-            IsActive = isActive;
         }
 
         /// <summary>
@@ -52,10 +51,5 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// Displayed markup formula
         /// </summary>
         public string MarkupFormula { get; }
-
-        /// <summary>
-        /// Activity state
-        /// </summary>
-        public bool IsActive { get; }
     }
 }

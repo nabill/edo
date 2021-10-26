@@ -51,8 +51,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
             return new(context,
                 Mock.Of<IManagementAuditService>(),
-                Mock.Of<INotificationService>(),
-                mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
 
@@ -228,7 +226,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 Name = "Test",
-                IsActive = true,
                 Address = "Test address",
                 City = "Test city",
                 CountryCode = "AF",
@@ -238,7 +235,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 2,
                 Name = "Test1",
-                IsActive = false,
                 Address = "Test address 2",
                 City = "Test city 2",
                 CountryCode = "AF",
@@ -248,7 +244,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 3,
                 Name = "Test",
-                IsActive = true,
                 Address = "Test address 3",
                 City = "Test city 3",
                 CountryCode = "AF",
@@ -258,7 +253,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 14,
                 Name = "CounterpartyWithBillingEmail",
-                IsActive = true,
                 Address = "Test address 4",
                 City = "Test city 4",
                 CountryCode = "AF",
@@ -268,7 +262,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 15,
                 Name = "CounterpartyWithoutBillingEmail",
-                IsActive = true,
                 Address = "Test address 5",
                 City = "Test city 5",
                 CountryCode = "AF",

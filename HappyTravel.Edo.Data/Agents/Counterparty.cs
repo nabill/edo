@@ -11,7 +11,6 @@ namespace HappyTravel.Edo.Data.Agents
         public PaymentTypes PreferredPaymentMethod { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
-        public bool IsActive { get; set; }
         public bool IsContractUploaded { get; set; }
         public string Address { get; set; }
         public string CountryCode { get; set; }
