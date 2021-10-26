@@ -7,7 +7,6 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
-using HappyTravel.Edo.DirectApi.Extensions;
 using HappyTravel.Edo.DirectApi.Models;
 
 namespace HappyTravel.Edo.DirectApi.Services

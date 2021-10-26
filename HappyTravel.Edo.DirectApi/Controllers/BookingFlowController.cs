@@ -35,7 +35,8 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingFlowController : ControllerBase
     {
-        public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService)
+        public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService,
+            AccommodationAvailabilitiesService accommodationAvailabilitiesService)
         {
             _agentContextService = agentContextService;
             _wideSearchService = wideSearchService;

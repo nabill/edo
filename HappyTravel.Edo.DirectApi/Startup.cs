@@ -98,7 +98,6 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<IAdminAgencyManagementService, AdminAgencyManagementService>();
             services.AddTransient<IManagementAuditService, ManagementAuditService>();
             services.AddTransient<IAdministratorContext, HttpBasedAdministratorContext>();
-            services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IWideAvailabilitySearchService, Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchService>();
             services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
