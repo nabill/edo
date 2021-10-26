@@ -37,20 +37,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> VerifyAsFullyAccessed(int agencyId, CounterpartyContractKind contractKind, string verificationReason)
+        public async Task<Result> VerifyAsFullyAccessed(int agencyId, ContractKind contractKind, string verificationReason)
         {
             return await GetAgency(agencyId)
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
-                .Ensure(a => a.VerificationState == CounterpartyStates.ReadOnly,
+                .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
                 .Ensure(IsContractTypeValid, "Invalid contract type")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
+                .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
                 .Tap(SetContractType)
-                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, CounterpartyStates.FullAccess));
+                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
             
             
             bool IsContractTypeValid(Agency _) 
-                => !contractKind.Equals(default(CounterpartyContractKind));
+                => !contractKind.Equals(default(ContractKind));
             
             
             async Task SetContractType(Agency agency)
@@ -65,16 +65,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return GetAgency(agencyId)
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
-                .Ensure(a => a.VerificationState == CounterpartyStates.PendingVerification,
+                .Ensure(a => a.VerificationState == AgencyVerificationStates.PendingVerification,
                     "Verification as read-only is only available for agencies that are in pending verification step")
                 .BindWithTransaction(_context, agency => SetReadOnlyVerificationState(agency)
                     .Bind(CreateAccountsForAgencies))
-                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, CounterpartyStates.ReadOnly));
+                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.ReadOnly));
 
 
             async Task<Result<Agency>> SetReadOnlyVerificationState(Agency agency)
             {
-                await SetVerificationState(agency, CounterpartyStates.ReadOnly, verificationReason);
+                await SetVerificationState(agency, AgencyVerificationStates.ReadOnly, verificationReason);
                 return agency;
             }
 
@@ -103,14 +103,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await GetAgency(agencyId)
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
-                .Ensure(a => a.VerificationState == CounterpartyStates.PendingVerification,
+                .Ensure(a => a.VerificationState == AgencyVerificationStates.PendingVerification,
                     "Verification failure is only available for agencies that are in a pending state")
-                .Tap(a => SetVerificationState(a, CounterpartyStates.DeclinedVerification, verificationReason))
-                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, CounterpartyStates.DeclinedVerification));
+                .Tap(a => SetVerificationState(a, AgencyVerificationStates.DeclinedVerification, verificationReason))
+                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.DeclinedVerification));
         }
 
 
-        private async Task SetVerificationState(Agency agency, CounterpartyStates state, string verificationReason)
+        private async Task SetVerificationState(Agency agency, AgencyVerificationStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
@@ -135,23 +135,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (isFailure)
                     return Result.Failure(error);
 
-                var messageData = new CounterpartyVerificationStateChangedData
+                var messageData = new AgencyVerificationStateChangedData
                 {
                     AgentName = $"{master.FirstName} {master.LastName}",
-                    CounterpartyName = agency.Name,
+                    AgencyName = agency.Name,
                     State = EnumFormatters.FromDescription(state),
                 };
 
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
                     messageData: messageData,
-                    notificationType: NotificationTypes.CounterpartyVerificationChanged,
+                    notificationType: NotificationTypes.AgencyVerificationChanged,
                     email: master.Email,
-                    templateId: _mailingOptions.CounterpartyVerificationChangedTemplateId);
+                    templateId: _mailingOptions.AgencyVerificationChangedTemplateId);
             }
         }
 
 
-        private Task WriteVerificationToAuditLog(int agencyId, string verificationReason, CounterpartyStates verificationState)
+        private Task WriteVerificationToAuditLog(int agencyId, string verificationReason, AgencyVerificationStates verificationState)
             => _managementAuditService.Write(ManagementEventType.AgencyVerification,
                 new AgencyVerifiedEventData(agencyId, verificationReason, verificationState));
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using FloxDc.CacheFlow;
@@ -9,7 +10,7 @@ using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -314,13 +315,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
-
-            var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
-            var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
+            
+            var agencyVerificationChangedId = mailSettings[configuration["Edo:Email:AgencyVerificationChangedTemplateId"]];
             services.Configure<CounterpartyManagementMailingOptions>(options =>
             {
-                options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
-                options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
+                options.AgencyVerificationChangedTemplateId = agencyVerificationChangedId;
             });
 
             var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
@@ -671,7 +670,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, MinAgencyVerificationStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, ServiceAccountRequiredAuthorizationHandler>();
@@ -849,6 +848,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.ServiceUnavailable)
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }

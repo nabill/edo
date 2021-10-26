@@ -205,7 +205,7 @@
             <summary>
                 Sets agency verified read only.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -213,7 +213,7 @@
             <summary>
                 Sets agency fully verified.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -221,7 +221,7 @@
             <summary>
                 Sets agency declined verification.
             </summary>
-            <param name="counterpartyId">Id of the agency to verify.</param>
+            <param name="agencyId">Id of the agency to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
@@ -534,22 +534,6 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
             <param name="updateCounterpartyRequest">New counterparty information.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
-            <summary>
-             Deactivates specified counterparty
-            </summary>
-            <param name="counterpartyId">Id of the counterparty.</param>
-            <param name="request">Request data for deactivation.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
-            <summary>
-             Activates specified counterparty
-            </summary>
-            <param name="counterpartyId">Id of the counterparty.</param>
-            <param name="request">Request data for Activation.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
@@ -2362,12 +2346,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationState">
             <summary>
-            Verification state of the counterparty
+            Verification state of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.VerificationDate">
             <summary>
-            Counterparty verification date
+            Agency verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
@@ -2627,12 +2611,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationState">
             <summary>
-            Verification state of the counterparty
+            Verification state of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationDate">
             <summary>
-            Counterparty verification date
+            Agency verification date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -2705,7 +2689,7 @@
                 List of permissions in current counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.CounterpartyState">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyVerificationState">
             <summary>
             State of the counterparty
             </summary>
@@ -3030,11 +3014,6 @@
             Displayed markup formula
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsActive">
-            <summary>
-            Activity state
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.
@@ -3163,11 +3142,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.MarkupFormula">
             <summary>
             Displayed markup formula
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.IsActive">
-            <summary>
-            Activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.CounterpartyName">

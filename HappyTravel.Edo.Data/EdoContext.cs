@@ -312,7 +312,7 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.CountryCode).IsRequired();
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
-                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(CounterpartyStates.PendingVerification);
+                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
             });
         }
 
@@ -481,7 +481,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.CountryCode).IsRequired();
                 counterparty.Property(c => c.Phone).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
-                counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 

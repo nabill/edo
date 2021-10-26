@@ -9,31 +9,21 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
-using HappyTravel.Edo.Api.Models.Mailing;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Infrastructure.Options;
-using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.DataFormatters;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
         public CounterpartyManagementService(EdoContext context, IManagementAuditService managementAuditService, 
-            INotificationService notificationService, IOptions<CounterpartyManagementMailingOptions> mailingOptions, 
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _managementAuditService = managementAuditService;
-            _notificationService = notificationService;
-            _mailingOptions = mailingOptions.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -84,10 +74,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join ag in _context.Agencies on c.Id equals ag.CounterpartyId
                     join ar in _context.AgentAgencyRelations on ag.Id equals ar.AgencyId
                     join a in _context.Agents on ar.AgentId equals a.Id
-                    where c.IsActive
-                        && ar.IsActive
+                    join ra in _context.Agencies on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
+                where ar.IsActive
                         && ar.Type == AgentAgencyRelationTypes.Master
-                        && ag.VerificationState == CounterpartyStates.FullAccess
+                        && ra.VerificationState == AgencyVerificationStates.FullAccess
                         && !string.IsNullOrEmpty(c.Name) && c.Name.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.FirstName) && a.FirstName.ToLower().StartsWith(query.ToLower())
                             || !string.IsNullOrEmpty(a.LastName) && a.LastName.ToLower().StartsWith(query.ToLower())
@@ -176,111 +166,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> DeactivateCounterparty(int counterpartyId, string reason, MasterAgentContext displacedMaster = default)
-            => GetCounterparty(counterpartyId)
-                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive, displacedMaster)
-                    .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
-
-
-        public Task<Result> ActivateCounterparty(int counterpartyId, string reason)
-            => GetCounterparty(counterpartyId)
-                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.Active)
-                    .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
-
-
-        private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status, MasterAgentContext displacedMaster = default)
-        {
-            var convertedStatus = ConvertToDbStatus(status);
-            if (convertedStatus == counterparty.IsActive)
-                return Task.FromResult(Result.Success());
-
-            return ChangeCounterpartyActivityStatus()
-                .Tap(ChangeCounterpartyAccountsActivityStatus)
-                .Bind(SendNotificationToMaster);
-
-
-            async Task<Result> ChangeCounterpartyActivityStatus()
-            {
-                counterparty.IsActive = convertedStatus;
-                counterparty.Updated = _dateTimeProvider.UtcNow();
-
-                _context.Update(counterparty);
-                await _context.SaveChangesAsync();
-                return Result.Success();
-            }
-
-
-            async Task ChangeCounterpartyAccountsActivityStatus()
-            {
-                var counterpartyAccounts = await _context.CounterpartyAccounts
-                    .Where(c => c.CounterpartyId == counterparty.Id)
-                    .ToListAsync();
-
-                foreach (var account in counterpartyAccounts)
-                    account.IsActive = convertedStatus;
-
-                _context.UpdateRange(counterpartyAccounts);
-                await _context.SaveChangesAsync();
-            }
-
-
-            async Task<Result> SendNotificationToMaster()
-            {
-                MasterAgentContext master = displacedMaster;
-                if (displacedMaster == default)
-                {
-                    var (_, isFailure, currentMaster, error) = await GetRootAgencyMasterAgent(counterparty.Id);
-                    if (isFailure)
-                        return Result.Failure(error);
-
-                    master = currentMaster;
-                }
-
-                var messageData = new CounterpartyIsActiveStatusChangedData
-                {
-                    AgentName = master.FullName,
-                    CounterpartyName = counterparty.Name,
-                    Status = EnumFormatters.FromDescription<ActivityStatus>(status)
-                };
-
-                return await _notificationService.Send(agent: new SlimAgentContext(master.AgentId, master.AgencyId),
-                    messageData: messageData,
-                    notificationType: NotificationTypes.CounterpartyActivityChanged,
-                    email: master.Email,
-                    templateId: _mailingOptions.CounterpartyActivityChangedTemplateId);
-            }
-        }
-
-
-        private Task WriteCounterpartyDeactivationToAuditLog(int counterpartyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
-                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
-
-
-        private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
-                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
-
-
         private static SlimCounterpartyInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.LegalAddress,
                 counterparty.PreferredPaymentMethod,
                 counterparty.IsContractUploaded,
-                counterparty.IsActive,
                 markupFormula);
-
-
-        private static bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
         
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
-        private readonly INotificationService _notificationService;
-        private readonly CounterpartyManagementMailingOptions _mailingOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Api.Models.Management.AuditEvents
 {
     public readonly struct AgencyVerifiedEventData
     {
-        public AgencyVerifiedEventData(int agencyId, string reason, CounterpartyStates verificationState)
+        public AgencyVerifiedEventData(int agencyId, string reason, AgencyVerificationStates verificationState)
         {
             AgencyId = agencyId;
             Reason = reason;
@@ -14,6 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Management.AuditEvents
 
         public int AgencyId { get; }
         public string Reason { get; }
-        public CounterpartyStates VerificationState { get; }
+        public AgencyVerificationStates VerificationState { get; }
     }
 }

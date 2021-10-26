@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public SlimAgencyInfo(string name, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, 
             string vatNumber, PaymentTypes defaultPaymentType, List<int> ancestors, string countryHtId, string localityHtId,
-            CounterpartyStates verificationState, DateTime? verificationDate)
+            AgencyVerificationStates verificationState, DateTime? verificationDate)
         {
             Name = name;
             Address = address;
@@ -114,12 +114,12 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public string LocalityHtId { get; }
 
         /// <summary>
-        /// Verification state of the counterparty
+        /// Verification state of the agency
         /// </summary>
-        public CounterpartyStates VerificationState { get; }
+        public AgencyVerificationStates VerificationState { get; }
 
         /// <summary>
-        /// Counterparty verification date
+        /// Agency verification date
         /// </summary>
         public DateTime? VerificationDate { get; }
     }

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         [JsonConstructor]
         public CounterpartyInfo(int id, string name, string legalAddress, string address, string billingEmail, string city, string countryCode, string countryName, 
             string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, bool isActive,
+            bool isContractUploaded,
             string markupFormula = null)
         {
             Id = id;
@@ -29,7 +29,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             MarkupFormula = markupFormula;
-            IsActive = isActive;
         }
 
         /// <summary>
@@ -117,10 +116,5 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// Displayed markup formula
         /// </summary>
         public string MarkupFormula { get; }
-
-        /// <summary>
-        /// Activity state
-        /// </summary>
-        public bool IsActive { get; }
     }
 }

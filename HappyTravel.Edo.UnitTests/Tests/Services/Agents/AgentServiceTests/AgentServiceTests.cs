@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 CounterpartyId = 1,
                 Name = "agencyName",
                 ParentId = null,
-                VerificationState = CounterpartyStates.FullAccess
+                VerificationState = AgencyVerificationStates.FullAccess
             },
             new Agency
             {
