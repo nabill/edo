@@ -69,17 +69,12 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         public Task<Result<Booking, ProblemDetails>> Book(BookingRequest request, string languageCode)
         {
-            return TimeObserver.Execute(observedFunc: () => ExecuteWithLogging(Counters.Booking, 
-                () => _connectorClient.Post<BookingRequest, Booking>(new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute), request, languageCode)),
-                notifyFunc: Notify, 
-                notifyAfter: TimeSpan.FromSeconds(60));
-
-
-            Task Notify()
+            return ExecuteWithLogging(Counters.Booking, () =>
             {
-                _logger.LogBookingExceededTimeLimit(request.ReferenceCode);
-                return Task.CompletedTask;
-            }
+                return _connectorClient.Post<BookingRequest, Booking>(
+                    new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute),
+                    request, languageCode);
+            });
         }
 
 

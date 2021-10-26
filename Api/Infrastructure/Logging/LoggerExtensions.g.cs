@@ -359,7 +359,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1097, "NGeniusWebhookPaymentLinkUpdate"),
                 "Started updating payment link by NGenius webhook");
             
-            BookingExceededTimeLimit = LoggerMessage.Define<string>(LogLevel.Warning,
+            BookingExceededTimeLimit = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1098, "BookingExceededTimeLimit"),
                 "Booking {ReferenceCode} exceeded time limit");
             

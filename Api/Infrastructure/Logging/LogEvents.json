@@ -87,5 +87,5 @@
     {"Id": 1095, "name": "NGeniusWebhookProcessingStarted", "level": "Information", "template": "NGenius webhook processing started"},
     {"Id": 1096, "name": "NGeniusWebhookPaymentUpdate", "level": "Information", "template": "Started updating payment by NGenius webhook"},
     {"Id": 1097, "name": "NGeniusWebhookPaymentLinkUpdate", "level": "Information", "template": "Started updating payment link by NGenius webhook"},
-    {"Id": 1098, "name": "BookingExceededTimeLimit", "level": "Warning", "template": "Booking {ReferenceCode} exceeded time limit", "argumentTypes": ["string"]}
+    {"Id": 1098, "name": "BookingExceededTimeLimit", "level": "Error", "template": "Booking {ReferenceCode} exceeded time limit", "argumentTypes": ["string"]}
 ]
