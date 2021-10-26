@@ -8,12 +8,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct RegistrationCounterpartyInfo
     {
         [JsonConstructor]
-        public RegistrationCounterpartyInfo(string name, string legalAddress, PaymentTypes preferredPaymentMethod, string locality = null)
+        public RegistrationCounterpartyInfo(string name, string legalAddress, PaymentTypes preferredPaymentMethod, string localityHtId = null)
         {
             Name = name;
             LegalAddress = legalAddress;
             PreferredPaymentMethod = preferredPaymentMethod;
-            Locality = locality;
+            LocalityHtId = localityHtId;
         }
 
         /// <summary>
@@ -37,6 +37,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         /// Locality of counterparty
         /// </summary>
-        public string Locality { get; }
+        public string LocalityHtId { get; }
     }
 }

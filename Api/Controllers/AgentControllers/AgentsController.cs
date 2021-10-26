@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationCreateService agentInvitationCreateService,
             IIdentityUserInfoService identityUserInfoService,
             IAgentRolesAssignmentService rolesAssignmentService,
-            IMappingInfoService mappingInfoService)
+            ILocalityInfoService localityInfoService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationCreateService = agentInvitationCreateService;
             _identityUserInfoService = identityUserInfoService;
             _rolesAssignmentService = rolesAssignmentService;
-            _mappingInfoService = mappingInfoService;
+            _localityInfoService = localityInfoService;
         }
 
 
@@ -78,23 +78,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
-            var localityId = request.Counterparty.CounterpartyInfo.Locality;
+            var localityId = request.Counterparty.CounterpartyInfo.LocalityHtId;
             // Assigning default values before changes on frontend are made
-            var mappingLocalityInfo = new SlimMappingLocalityInfo
+            var localityInfo = new LocalityInfo
             {
-                Country = "", CountryHtId = "", Locality = "", LocalityHtId = ""
+                CountryName = "", CountryHtId = "", LocalityName = "", LocalityHtId = ""
             };
             if (!string.IsNullOrWhiteSpace(localityId))
             {
-                var (_, isFailure, value, _) = await _mappingInfoService.GetSlimMappingLocalityInfo(localityId);
+                var (_, isFailure, value, _) = await _localityInfoService.GetLocalityInfo(localityId);
                 if (isFailure)
                     return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
 
-                mappingLocalityInfo = value;
+                localityInfo = value;
             }
 
             var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
-                externalIdentity, email, mappingLocalityInfo);
+                externalIdentity, email, localityInfo);
 
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
@@ -486,6 +486,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgentRolesAssignmentService _rolesAssignmentService;
-        private readonly IMappingInfoService _mappingInfoService;
+        private readonly ILocalityInfoService _localityInfoService;
     }
 }

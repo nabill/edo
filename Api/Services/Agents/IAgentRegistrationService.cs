@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public interface IAgentRegistrationService
     {
         Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData,
-            string externalIdentity, string email, SlimMappingLocalityInfo mappingLocalityInfo);
+            string externalIdentity, string email, LocalityInfo localityInfo);
     }
 }

@@ -42,13 +42,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData, string externalIdentity,
-            string email, SlimMappingLocalityInfo mappingLocalityInfo)
+            string email, LocalityInfo localityInfo)
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
-                    .Bind(AddLocalityData)
+                    .Bind(AddLocalityInfo)
                     .Bind(CreateAgent)
                     .Tap(AddMasterAgentAgencyRelation))
                 .Bind(LogSuccess)
@@ -72,13 +72,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<Result<SlimCounterpartyInfo>> AddLocalityData(SlimCounterpartyInfo counterpartyInfo)
+            async Task<Result<SlimCounterpartyInfo>> AddLocalityInfo(SlimCounterpartyInfo counterpartyInfo)
             {
-                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
+                // TODO to make it compatible with current registration flow
+                // can be removed after changes of frontend
+                if (string.IsNullOrEmpty(localityInfo.CountryIsoCode))
+                    return counterpartyInfo;
                 
-                rootAgency.CountryHtId = mappingLocalityInfo.CountryHtId;
-                rootAgency.LocalityHtId = mappingLocalityInfo.LocalityHtId;
-                rootAgency.City = mappingLocalityInfo.Locality;
+                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
+
+                rootAgency.CountryCode = localityInfo.CountryIsoCode;
+                rootAgency.CountryHtId = localityInfo.CountryHtId;
+                rootAgency.City = localityInfo.LocalityName;
+                rootAgency.LocalityHtId = localityInfo.LocalityHtId;
+                
                 _context.Agencies.Add(rootAgency);
 
                 return counterpartyInfo;

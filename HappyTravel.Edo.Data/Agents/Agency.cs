@@ -28,7 +28,6 @@ namespace HappyTravel.Edo.Data.Agents
         public List<int> Ancestors { get; set; } = new();
         public string CountryHtId { get; set; }
         public string LocalityHtId { get; set; }
-        public CounterpartyContractKind? ContractKind { get; set; }
         public ContractKind? ContractKind { get; set; }
         public string VerificationReason { get; set; }
         public AgencyVerificationStates VerificationState { get; set; }

@@ -4,8 +4,8 @@ using HappyTravel.Edo.Api.Models.Locations;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
-    public interface IMappingInfoService
+    public interface ILocalityInfoService
     {
-        Task<Result<SlimMappingLocalityInfo>> GetSlimMappingLocalityInfo(string id);
+        Task<Result<LocalityInfo>> GetLocalityInfo(string id);
     }
 }
