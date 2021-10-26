@@ -52,7 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Select(p => p.Modified)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (_lastCheckingDate is null || lastModifiedDate > _lastCheckingDate)
+            var lastRecordsCount = await context.MarkupPolicies.CountAsync(cancellationToken);
+
+            if (_lastCheckingDate is null || lastModifiedDate > _lastCheckingDate || lastRecordsCount != _lastRecordsCount )
             {
                 var markupPolicies = await context.MarkupPolicies
                     .ToListAsync(cancellationToken);
@@ -62,12 +64,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
                     
             _lastCheckingDate = dateTimeProvider.UtcNow();
+            _lastRecordsCount = lastRecordsCount;
             logger.LogMarkupPolicyStorageUpdateCompleted();
         }
 
 
         private readonly TimeSpan _delay = TimeSpan.FromMinutes(2);
         private DateTime? _lastCheckingDate;
+        private int? _lastRecordsCount;
 
 
         private readonly IServiceScopeFactory _scopeFactory;
