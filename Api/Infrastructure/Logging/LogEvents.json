@@ -86,5 +86,6 @@
     {"Id": 1093, "name": "CurrencyConversionFailed", "level": "Error", "template": "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`", "argumentTypes": ["HappyTravel.Money.Enums.Currencies", "HappyTravel.Money.Enums.Currencies", "string"]},
     {"Id": 1095, "name": "NGeniusWebhookProcessingStarted", "level": "Information", "template": "NGenius webhook processing started"},
     {"Id": 1096, "name": "NGeniusWebhookPaymentUpdate", "level": "Information", "template": "Started updating payment by NGenius webhook"},
-    {"Id": 1097, "name": "NGeniusWebhookPaymentLinkUpdate", "level": "Information", "template": "Started updating payment link by NGenius webhook"}
+    {"Id": 1097, "name": "NGeniusWebhookPaymentLinkUpdate", "level": "Information", "template": "Started updating payment link by NGenius webhook"},
+    {"Id": 1098, "name": "BookingExceededTimeLimit", "level": "Error", "template": "Booking {ReferenceCode} exceeded time limit", "argumentTypes": ["string"]}
 ]

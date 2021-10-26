@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId && c.IsActive)
+                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     where agentAgencyRelation.IsActive && agent.IdentityHash == identityHash
                     select new AgentContext(agent.Id,
                         agent.FirstName,
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from apiClient in _context.ApiClients.Where(a=> a.Name == name && a.PasswordHash == passwordHash)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId && c.IsActive)
+                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
                     select new AgentContext(agent.Id,
                         agent.FirstName,
