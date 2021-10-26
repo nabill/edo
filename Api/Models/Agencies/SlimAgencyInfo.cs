@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public SlimAgencyInfo(string name, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, 
             string vatNumber, PaymentTypes defaultPaymentType, List<int> ancestors, string countryHtId, string localityHtId,
-            AgencyVerificationStates verificationState, DateTime? verificationDate)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, bool isContractUploaded)
         {
             Name = name;
             Address = address;
@@ -31,6 +31,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             LocalityHtId = localityHtId;
             VerificationState = verificationState;
             VerificationDate = verificationDate;
+            IsContractUploaded = isContractUploaded;
         }
 
 
@@ -122,5 +123,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Agency verification date
         /// </summary>
         public DateTime? VerificationDate { get; }
+
+        /// <summary>
+        /// True if contract is loaded to agency
+        /// </summary>
+        public bool IsContractUploaded { get; }
     }
 }

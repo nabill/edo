@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Ancestors ?? new List<int>(),
                 verificationState,
                 verificationDate,
-                agency.IsActive);
+                agency.IsActive,
+                agency.IsContractUploaded);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)

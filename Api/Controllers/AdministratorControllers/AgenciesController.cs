@@ -10,7 +10,9 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Settings;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -24,12 +26,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
             IAgentService agentService,
             IAdminAgencyManagementService agencyManagementService,
-            IAgencyVerificationService agencyVerificationService)
+            IAgencyVerificationService agencyVerificationService,
+            IContractFileManagementService contractFileManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
             _agencyManagementService = agencyManagementService;
             _agencyVerificationService = agencyVerificationService;
+            _contractFileManagementService = contractFileManagementService;
         }
 
 
@@ -227,9 +231,46 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        /// Uploads a contract pdf file
+        /// </summary>
+        /// <param name="agencyId">Id of the agency to save the contract file for</param>
+        /// <param name="file">A pdf file of the contract with the given agency</param>
+        [HttpPut("{agencyId}/contract-file")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> AddContractFile(int agencyId, [FromForm] IFormFile file)
+        {
+            var result = await _contractFileManagementService.Add(agencyId, file);
+
+            return OkOrBadRequest(result);
+        }
+
+
+        /// <summary>
+        /// Downloads a contract pdf file
+        /// </summary>
+        /// <param name="agencyId">Id of the agency to load the contract file for</param>
+        [HttpGet("{agencyId}/contract-file")]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetContractFile(int agencyId)
+        {
+            var (_, isFailure, (stream, contentType), error) = await _contractFileManagementService.Get(agencyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return File(stream, contentType);
+        }
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly IAgencyVerificationService _agencyVerificationService;
+        private readonly IContractFileManagementService _contractFileManagementService;
     }
 }

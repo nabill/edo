@@ -43,7 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     countryHtId: a.CountryHtId,
                     localityHtId: a.LocalityHtId,
                     verificationState: a.VerificationState,
-                    verificationDate: a.VerificationDate));
+                    verificationDate: a.VerificationDate,
+                    isContractUploaded: a.IsContractUploaded));
         }
 
 

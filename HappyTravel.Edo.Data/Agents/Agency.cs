@@ -31,5 +31,6 @@ namespace HappyTravel.Edo.Data.Agents
         public ContractKind? ContractKind { get; set; }
         public string VerificationReason { get; set; }
         public AgencyVerificationStates VerificationState { get; set; }
+        public bool IsContractUploaded { get; set; }
     }
 }

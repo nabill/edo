@@ -225,6 +225,19 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Uploads a contract pdf file
+            </summary>
+            <param name="agencyId">Id of the agency to save the contract file for</param>
+            <param name="file">A pdf file of the contract with the given agency</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetContractFile(System.Int32)">
+            <summary>
+            Downloads a contract pdf file
+            </summary>
+            <param name="agencyId">Id of the agency to load the contract file for</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
@@ -543,18 +556,10 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ReuploadToAgencies">
             <summary>
-            Uploads a contract pdf file
+            Reuploads counterparty contracts to agency contracts
             </summary>
-            <param name="counterpartyId">Id of the counterparty to save the contract file for</param>
-            <param name="file">A pdf file of the contract with the given counterparty</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetContractFile(System.Int32)">
-            <summary>
-            Downloads a contract pdf file
-            </summary>
-            <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
             <summary>
@@ -2359,6 +2364,11 @@
             Activity status
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.IsContractUploaded">
+            <summary>
+            True if contract is loaded to agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -2622,6 +2632,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.VerificationDate">
             <summary>
             Agency verification date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.IsContractUploaded">
+            <summary>
+            True if contract is loaded to agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
