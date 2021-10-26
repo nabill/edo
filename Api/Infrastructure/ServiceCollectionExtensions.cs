@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using FloxDc.CacheFlow;
@@ -106,6 +107,7 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -128,7 +130,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
@@ -314,12 +316,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
-
-            var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
+            
             var agencyVerificationChangedId = mailSettings[configuration["Edo:Email:AgencyVerificationChangedTemplateId"]];
             services.Configure<CounterpartyManagementMailingOptions>(options =>
             {
-                options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
                 options.AgencyVerificationChangedTemplateId = agencyVerificationChangedId;
             });
 
@@ -850,6 +850,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.ServiceUnavailable)
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }

@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
@@ -25,9 +31,17 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingFlowController : ControllerBase
     {
+        public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService)
+        {
+            _agentContextService = agentContextService;
+            _wideSearchService = wideSearchService;
+        }
+
+
         /// <summary>
         /// Starting search
         /// </summary>
@@ -35,9 +49,14 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Starting wide availability search for search all available accommodations on predefined parameters.
         /// </remarks>
         [HttpPost("searches")]
-        public async Task<ActionResult<StartSearchResponse>> StartSearch(CancellationToken cancellationToken)
+        public async Task<ActionResult<StartSearchResponse>> StartSearch([FromBody] AvailabilityRequest request, CancellationToken cancellationToken)
         {
-            return new StartSearchResponse(Guid.NewGuid());
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, searchResponse, error) = await _wideSearchService.StartSearch(request, agent, "en");
+
+            return isSuccess
+                ? searchResponse
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
         /// <summary>
@@ -49,7 +68,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         [HttpGet("searches/{searchId}")]
         public async Task<ActionResult<WideSearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
         {
-            return new WideSearchResult(searchId, false, new List<WideAvailabilityResult>());
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent, "en");
+
+            return isSuccess
+                ? result
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
         /// <summary>
@@ -87,5 +111,9 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         {
             return Ok();
         }
+        
+        
+        private readonly IAgentContextService _agentContextService;
+        private readonly WideAvailabilitySearchService _wideSearchService;
     }
 }

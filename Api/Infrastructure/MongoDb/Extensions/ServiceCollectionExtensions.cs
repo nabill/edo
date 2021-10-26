@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Infrastructure.MongoDb.Options;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Serializers;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Services;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.VaultClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
@@ -11,7 +12,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMongoDbStorage(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        public static IServiceCollection AddMongoDbStorage(this IServiceCollection services, IConfiguration configuration, IVaultClient vaultClient)
         {
             BsonSerializer.RegisterSerializationProvider(new SerializationProvider());
 

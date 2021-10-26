@@ -481,7 +481,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.CountryCode).IsRequired();
                 counterparty.Property(c => c.Phone).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
-                counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 

@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .Check(_ => UpdateAgencyRelation())
                 .Check(_ => WriteLog())
                 .Check(_ => DeactivateAgencyIfNeeded())
-                .Check(DeactivateCounterpartyIfNeeded)
                 .Check(_ => CreateNewMasterIfNeeded());
 
 
@@ -108,19 +107,6 @@ namespace HappyTravel.Edo.Api.Services.Management
                     return Result.Success();
 
                 return await _adminAgencyManagementService.DeactivateAgency(sourceAgencyId, "There are no agents in the agency");
-            }
-
-
-            async Task<Result> DeactivateCounterpartyIfNeeded(MasterAgentContext masterAgentContext)
-            {
-                var sourceAgency = await _edoContext.Agencies.SingleOrDefaultAsync(a => a.Id == sourceAgencyId);
-
-                var isActiveAgencyExists = await _edoContext.Agencies.AnyAsync(a => a.CounterpartyId == sourceAgency.CounterpartyId && a.IsActive);
-                if (isActiveAgencyExists)
-                    return Result.Success();
-
-                return await _counterpartyManagementService.DeactivateCounterparty(sourceAgency.CounterpartyId, 
-                    "There are no active agencies in the counterparty", masterAgentContext);
             }
 
 
