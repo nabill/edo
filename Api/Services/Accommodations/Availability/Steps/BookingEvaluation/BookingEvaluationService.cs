@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -13,10 +14,13 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using shortid;
+using shortid.Configuration;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -29,8 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            ICounterpartyService counterpartyService,
             IAccommodationService accommodationService,
+            IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
@@ -39,8 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _counterpartyService = counterpartyService;
             _accommodationService = accommodationService;
+            _adminAgencyManagementService = adminAgencyManagementService;
             _logger = logger;
         }
         
@@ -66,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             var originalSupplierPrice = connectorEvaluationResult.Value.Value.RoomContractSet.Rate.FinalPrice;
             
-            var (_, isContractFailure, contractKind, contractError) = await _counterpartyService.GetContractKind(agent.CounterpartyId);
+            var (_, isContractFailure, contractKind, contractError) = await _adminAgencyManagementService.GetContractKind(agent.AgencyId);
             if (isContractFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(contractError);
 
@@ -122,7 +126,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                return availabilityData.ToRoomContractSetAvailability(result.Supplier, paymentMethods, slimAccommodation, result.CountryHtId, result.LocalityHtId);
+                var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
+                return availabilityData.ToRoomContractSetAvailability(supplier: result.Supplier,
+                    paymentMethods: paymentMethods,
+                    accommodation: slimAccommodation,
+                    countryHtId: result.CountryHtId,
+                    localityHtId: result.LocalityHtId,
+                    evaluationToken: evaluationToken);
             }
             
 
@@ -143,8 +153,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 {
                     var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
+                    int? agentId = null, agencyId = null, counterpartyId = null;
+                    switch (appliedMarkup.Policy.AgentScopeType)
+                    {
+                        case AgentMarkupScopeTypes.Agent:
+                            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                            agentId = agentInAgencyId.AgentId;
+                            agencyId = agentInAgencyId.AgencyId;
+                            break;
+                        case AgentMarkupScopeTypes.Agency:
+                            agencyId = int.Parse(policy.AgentScopeId);
+                            break;
+                        case AgentMarkupScopeTypes.Counterparty:
+                            counterpartyId = int.Parse(policy.AgentScopeId);
+                            break;
+                    }
+                    
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.AgentScopeType, policy.CounterpartyId, policy.AgencyId, policy.AgentId),
+                        scope: new MarkupPolicyScope(policy.AgentScopeType, counterpartyId, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));
@@ -225,13 +251,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     roomContractSet: roomContractSet,
                     availablePaymentMethods: availability.AvailablePaymentMethods,
                     countryHtId: availability.CountryHtId,
-                    localityHtId: availability.LocalityHtId
-                    );
+                    localityHtId: availability.LocalityHtId,
+                    evaluationToken: availability.EvaluationToken);
             }
 
 
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-                in CounterpartyContractKind contractKind)
+                in ContractKind contractKind)
                 => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
 
 
@@ -260,8 +286,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
-        private readonly ICounterpartyService _counterpartyService;
         private readonly IAccommodationService _accommodationService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly ILogger<BookingEvaluationService> _logger;
     }
 }

@@ -11,6 +11,7 @@ using HappyTravel.Edo.DirectApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
@@ -34,8 +35,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingFlowController : ControllerBase
     {
-        public BookingFlowController(IAgentContextService agentContextService, WideSearchService wideSearchService, 
-            AccommodationAvailabilitiesService accommodationAvailabilitiesService)
+        public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService)
         {
             _agentContextService = agentContextService;
             _wideSearchService = wideSearchService;
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         public async Task<ActionResult<WideSearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent);
+            var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent, "en");
 
             return isSuccess
                 ? result
@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         
         
         private readonly IAgentContextService _agentContextService;
-        private readonly WideSearchService _wideSearchService;
+        private readonly WideAvailabilitySearchService _wideSearchService;
         private readonly AccommodationAvailabilitiesService _accommodationAvailabilitiesService;
     }
 }

@@ -50,8 +50,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
+                    join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
                     where a.Id == agencyId
-                    select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -65,8 +66,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
+                    join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
                     where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(cp.ContractKind, c.Names, languageCode))
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
                 .ToListAsync();
 
 
@@ -182,6 +184,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public Task<Result<ContractKind>> GetContractKind(int agencyId)
+            => GetRootAgency(agencyId)
+                .Ensure(a => a.ContractKind.HasValue, "Agency contract kind unknown")
+                .Map(a => a.ContractKind.Value);
+
+
+        public Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId)
+            => GetRootAgency(agencyId)
+                .Map(a => a.VerificationState);
+
+
         private async Task<Result<Agency>> GetAgency(int agencyId)
         {
             var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
@@ -189,6 +202,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Failure<Agency>("Could not find agency with specified id");
 
             return Result.Success(agency);
+        }
+
+
+        private Task<Result<Agency>> GetRootAgency(int agencyId)
+        {
+            return GetAgency(agencyId)
+                .Map(GetRootAgency);
+
+
+            Task<Agency> GetRootAgency(Agency currentAgency)
+            {
+                var rootAgencyId = currentAgency.Ancestors.Any() 
+                    ? currentAgency.Ancestors.First() 
+                    : currentAgency.Id;
+                return _context.Agencies.SingleAsync(ra => ra.Id == rootAgencyId);
+            }
         }
 
 

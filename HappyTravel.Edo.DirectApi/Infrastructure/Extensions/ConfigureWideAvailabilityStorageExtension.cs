@@ -20,7 +20,9 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                 collection.AddTransient<IWideAvailabilityStorage, DirectApiMongoDbWideAvailabilityStorage>();
             }
             else
+            {
                 collection.AddTransient<IWideAvailabilityStorage, DirectApiRedisWideAvailabilityStorage>();
+            }
 
             return collection;
         }

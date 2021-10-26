@@ -13,7 +13,7 @@ using MongoDB.Driver.Linq;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
-    internal class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
+    public class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
         public DirectApiMongoDbWideAvailabilityStorage(IMongoDbStorage<AccommodationAvailabilityResult> availabilityStorage)
         {
@@ -55,35 +55,11 @@ namespace HappyTravel.Edo.DirectApi.Services
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
                 query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= DateTime.UtcNow));
 
-            var results = await query
-                .OrderBy(r => r.Created)
-                .ThenBy(r => r.HtId)
-                .ToListAsync();
-            
-            return results
-                .Select(a =>
-                {
-                    var roomContractSets = a.RoomContractSets
-                        .Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible))
-                        .ToList();
-
-                    if (searchSettings.AprMode == AprMode.Hide)
-                        roomContractSets = roomContractSets.Where(r => !r.IsAdvancePurchaseRate).ToList();
-
-                    if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                        roomContractSets = roomContractSets.Where(r => r.Deadline.Date == null || r.Deadline.Date >= DateTime.UtcNow).ToList();
-
-                    return new WideAvailabilityResult(default,
-                        roomContractSets,
-                        a.MinPrice,
-                        a.MaxPrice,
-                        a.CheckInDate,
-                        a.CheckOutDate,
-                        searchSettings.IsSupplierVisible
-                            ? a.Supplier
-                            : null,
-                        a.HtId);
-                }).ToList();
+            return (await query
+                    .OrderBy(r => r.Created)
+                    .ThenBy(r => r.HtId)
+                    .ToListAsync())
+                .ToWideAvailabilityResults(searchSettings);
         }
 
 

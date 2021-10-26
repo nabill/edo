@@ -4,6 +4,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface ICounterpartySystemSettingsService
     {
-        Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentCounterpartyId);
+        Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentAgencyId);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.Markup;
 using Newtonsoft.Json;
 
@@ -39,7 +40,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     .WithMessage("AgentId is required");
                 
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Location)
+                    .When(t => t.Type == AgentMarkupScopeTypes.Country || t.Type == AgentMarkupScopeTypes.Locality)
                     .WithMessage("LocationId is required");
 
                 v.RuleFor(s => s.CounterpartyId).Empty()
@@ -60,14 +61,15 @@ namespace HappyTravel.Edo.Api.Models.Markups
         public void Deconstruct(out AgentMarkupScopeTypes type, out int? counterpartyId, out int? agencyId, out int? agentId, out string agentScopeId)
         {
             type = Type;
-            agentScopeId = type switch
+            agentScopeId = Type switch
             {
                 AgentMarkupScopeTypes.Global => "",
+                AgentMarkupScopeTypes.Country => LocationId,
+                AgentMarkupScopeTypes.Locality => LocationId,
                 AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
                 AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
-                AgentMarkupScopeTypes.Agent => $"{AgencyId}-{AgentId}",
-                AgentMarkupScopeTypes.Location => LocationId,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Wrong AgentMarkupScopeType")
+                AgentMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), Type, "Wrong AgentMarkupScopeType")
             };
             counterpartyId = CounterpartyId;
             agencyId = AgencyId;

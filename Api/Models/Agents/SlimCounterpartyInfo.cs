@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public SlimCounterpartyInfo(int id, string name, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, CounterpartyStates verificationState, DateTime? verificationDate, bool isActive,
+            bool isContractUploaded,
             string markupFormula = null)
         {
             Id = id;
@@ -17,10 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             LegalAddress = legalAddress;
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
-            VerificationState = verificationState;
             MarkupFormula = markupFormula;
-            VerificationDate = verificationDate;
-            IsActive = isActive;
         }
 
         /// <summary>
@@ -51,23 +48,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public bool IsContractUploaded { get; }
 
         /// <summary>
-        /// Verification state of the counterparty
-        /// </summary>
-        public CounterpartyStates VerificationState { get; }
-
-        /// <summary>
         /// Displayed markup formula
         /// </summary>
         public string MarkupFormula { get; }
-
-        /// <summary>
-        /// Counterparty verification date
-        /// </summary>
-        public DateTime? VerificationDate { get; }
-
-        /// <summary>
-        /// Activity state
-        /// </summary>
-        public bool IsActive { get; }
     }
 }

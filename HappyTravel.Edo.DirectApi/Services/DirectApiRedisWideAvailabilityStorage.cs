@@ -10,7 +10,7 @@ using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
-    internal class DirectApiRedisWideAvailabilityStorage : IWideAvailabilityStorage
+    public class DirectApiRedisWideAvailabilityStorage : IWideAvailabilityStorage
     {
         public DirectApiRedisWideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage)
         {
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         
         public async Task<List<(Suppliers SupplierKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> suppliers)
         {
-            return  (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
+            return (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
                 .Where(t => t.Result != default)
                 .ToList();
         }
@@ -43,21 +43,7 @@ namespace HappyTravel.Edo.DirectApi.Services
             return availabilities
                 .OrderBy(a => a.Created)
                 .ThenBy(a => a.HtId)
-                .ToList()
-                .Select(a =>
-                {
-                    return new WideAvailabilityResult(default,
-                        a.RoomContractSets.Select(r=> r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible)).ToList(),
-                        a.MinPrice,
-                        a.MaxPrice,
-                        a.CheckInDate,
-                        a.CheckOutDate,
-                        searchSettings.IsSupplierVisible
-                            ? a.Supplier
-                            : (Suppliers?)null,
-                        a.HtId);
-                })
-                .ToList();
+                .ToWideAvailabilityResults(searchSettings);
         }
 
 

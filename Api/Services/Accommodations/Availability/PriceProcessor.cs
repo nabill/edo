@@ -47,7 +47,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 AgentId = agent.AgentId,
                 AgencyId = agent.AgencyId,
                 CounterpartyId = agent.CounterpartyId,
-                AgencyAncestors = agency.Ancestors
+                AgencyAncestors = agency.Ancestors,
+                CountryHtId = agency.CountryHtId,
+                LocalityHtId = agency.LocalityHtId
             };
             // TODO: Implement getting markup object for all models used with this function (TDetails)
             // https://github.com/happy-travel/agent-app-project/issues/696

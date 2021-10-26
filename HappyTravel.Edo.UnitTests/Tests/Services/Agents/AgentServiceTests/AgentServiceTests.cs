@@ -153,7 +153,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             {
                 Id = 1,
                 Name = "comName",
-                State = CounterpartyStates.FullAccess
             }
         };
 
@@ -165,6 +164,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 CounterpartyId = 1,
                 Name = "agencyName",
                 ParentId = null,
+                VerificationState = AgencyVerificationStates.FullAccess
             },
             new Agency
             {

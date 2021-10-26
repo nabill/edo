@@ -159,46 +159,48 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     on cr.AgencyId equals ag.Id
                 join co in _context.Counterparties
                     on ag.CounterpartyId equals co.Id
-                where ag.IsActive && co.IsActive && cr.AgentId == agent.AgentId
+                join ra in _context.Agencies
+                    on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
+                where ag.IsActive && cr.AgentId == agent.AgentId
                 select new AgentAgencyRelationInfo(
                     co.Id,
                     co.Name,
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
-                    GetActualPermissions(co.State, cr.AgentRoleIds, roles), 
-                    co.State,
-                    BookingPaymentTypesHelper.GetDefaultPaymentType(co.ContractKind)))
+                    GetActualPermissions(ra.VerificationState, cr.AgentRoleIds, roles), 
+                    ra.VerificationState,
+                    BookingPaymentTypesHelper.GetDefaultPaymentType(ra.ContractKind)))
                 .ToListAsync();
         }
 
 
-        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, InAgencyPermissions inAgencyPermissions)
+        private static List<InAgencyPermissions> GetActualPermissions(AgencyVerificationStates agencyVerificationState, InAgencyPermissions inAgencyPermissions)
         {
             const InAgencyPermissions readOnlyPermissions = InAgencyPermissions.AccommodationAvailabilitySearch |
                 InAgencyPermissions.AgentInvitation |
                 InAgencyPermissions.PermissionManagement |
                 InAgencyPermissions.ObserveAgents;
                 
-            switch (counterpartyState)
+            switch (agencyVerificationState)
             {
-                case CounterpartyStates.DeclinedVerification: 
-                case CounterpartyStates.PendingVerification:
+                case AgencyVerificationStates.DeclinedVerification: 
+                case AgencyVerificationStates.PendingVerification:
                     return new List<InAgencyPermissions>(0);
-                case CounterpartyStates.ReadOnly:
+                case AgencyVerificationStates.ReadOnly:
                     return (inAgencyPermissions & readOnlyPermissions).ToList();
-                case CounterpartyStates.FullAccess:
+                case AgencyVerificationStates.FullAccess:
                     return inAgencyPermissions.ToList();
                 default:
-                    throw new ArgumentException($"Invalid counterparty state {counterpartyState}");
+                    throw new ArgumentException($"Invalid agency verification state {agencyVerificationState}");
             }
         }
 
 
-        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, int[] roleIds, List<AgentRole> roles)
+        private static List<InAgencyPermissions> GetActualPermissions(AgencyVerificationStates agencyVerificationState, int[] roleIds, List<AgentRole> roles)
         {
             var permissions = GetInAgencyPermissions(roleIds, roles);
-            return GetActualPermissions(counterpartyState, permissions);
+            return GetActualPermissions(agencyVerificationState, permissions);
         }
 
 

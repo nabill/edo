@@ -9,11 +9,7 @@ namespace HappyTravel.Edo.Data.Markup
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public int? AgentId { get; set; }
-        public int? CounterpartyId { get; set; }
-        public int? AgencyId { get; set; }
         public int Order { get; set; }
-        public MarkupPolicyScopeType ScopeType { get; set; }
         public MarkupPolicyTarget Target { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
@@ -22,6 +18,7 @@ namespace HappyTravel.Edo.Data.Markup
         public Currencies Currency { get; set; }
         public AgentMarkupScopeTypes AgentScopeType { get; set; }
         public string AgentScopeId { get; set; }
+        public DestinationMarkupScopeTypes DestinationScopeType { get; set; }
         public string DestinationScopeId { get; set; }
     }
 }
