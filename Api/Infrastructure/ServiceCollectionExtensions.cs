@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using FloxDc.CacheFlow;
@@ -847,6 +848,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.ServiceUnavailable)
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
