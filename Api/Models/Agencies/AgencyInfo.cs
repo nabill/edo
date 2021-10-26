@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
-            AgencyVerificationStates verificationState, DateTime? verificationDate)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive)
         {
             Name = name;
             Id = id;
@@ -33,6 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Ancestors = ancestors;
             VerificationState = verificationState;
             VerificationDate = verificationDate;
+            IsActive = isActive;
         }
 
 
@@ -134,6 +135,12 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Agency verification date
         /// </summary>
         public DateTime? VerificationDate { get; }
+
+        /// <summary>
+        /// Activity status
+        /// </summary>
+        public bool IsActive { get; }
+
 
         public override int GetHashCode()
             => (Name, Id, CounterpartyId).GetHashCode();
