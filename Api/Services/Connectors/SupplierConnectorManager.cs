@@ -76,6 +76,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.Roibos,
                     new SupplierConnector(Suppliers.Roibos, connectorClient, _options.Roibos, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.Bronevik,
+                    new SupplierConnector(Suppliers.Bronevik, connectorClient, _options.Bronevik, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
