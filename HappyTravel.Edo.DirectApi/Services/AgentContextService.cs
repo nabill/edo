@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.DirectApi.Services
                 position: data.Position,
                 counterpartyId: data.CounterpartyId,
                 counterpartyName: data.CounterpartyName,
-                agencyId: data.AgentId,
+                agencyId: data.AgencyId,
                 isMaster: data.IsMaster,
                 inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds));
         }
