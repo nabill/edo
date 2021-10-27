@@ -106,6 +106,7 @@ namespace HappyTravel.Edo.DirectApi
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
             services.AddTransient<WideAvailabilitySearchService>();
+            services.AddTransient<AccommodationService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 
