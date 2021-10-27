@@ -12,15 +12,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
         [Fact]
         public void Markups_for_hotel_country_should_be_returned()
         {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1, 
-                AgentId = 1, 
-                CounterpartyId = 1, 
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
+            var markupSubject = GetDummyMarkupSubject();
 
             var markupObject = new MarkupObjectInfo
             {
@@ -35,25 +27,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
-                    DestinationScopeId = "UAE",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "UAE"
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
-                    DestinationScopeId = "Russia",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "Russia"
                 }
             };
             
@@ -62,22 +46,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             var policies = service.Get(markupSubject, markupObject, default);
             
             Assert.Single(policies);
-            Assert.Equal("UAE", policies[0].DestinationScopeId);
+            Assert.Equal(1, policies[0].Id);
         }
 
 
         [Fact]
         public void Markups_for_hotel_locality_should_be_returned()
         {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1,
-                AgentId = 1,
-                CounterpartyId = 1,
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
+            var markupSubject = GetDummyMarkupSubject();
 
             var markupObject = new MarkupObjectInfo
             {
@@ -92,25 +68,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Locality,
-                    DestinationScopeId = "Dubai",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "Dubai"
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Locality,
-                    DestinationScopeId = "London",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "London"
                 }
             };
 
@@ -119,22 +87,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             var policies = service.Get(markupSubject, markupObject, default);
             
             Assert.Single(policies);
-            Assert.Equal("Dubai", policies[0].DestinationScopeId);
+            Assert.Equal(1, policies[0].Id);
         }
 
         
         [Fact]
         public void Markups_for_specific_hotel_should_be_returned()
         {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1,
-                AgentId = 1,
-                CounterpartyId = 1,
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
+            var markupSubject = GetDummyMarkupSubject();
 
             var markupObject = new MarkupObjectInfo
             {
@@ -149,25 +109,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
-                    DestinationScopeId = "President Hotel",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "President Hotel"
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    Target = default,
                     AgentScopeType = AgentMarkupScopeTypes.Global,
-                    AgentScopeId = null,
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
-                    DestinationScopeId = "Hilton",
-                    TemplateId = default,
-                    TemplateSettings = default
+                    DestinationScopeId = "Hilton"
                 }
             };
 
@@ -176,7 +128,19 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             var policies = service.Get(markupSubject, markupObject, default);
             
             Assert.Single(policies);
-            Assert.Equal("President Hotel", policies[0].DestinationScopeId);
+            Assert.Equal(1, policies[0].Id);
         }
-   }
+
+
+        private MarkupSubjectInfo GetDummyMarkupSubject()
+            => new()
+            {
+                AgencyAncestors = new List<int>(),
+                AgencyId = 1,
+                AgentId = 1,
+                CounterpartyId = 1,
+                CountryHtId = "Russia",
+                LocalityHtId = "Moscow"
+            };
+    }
 }
