@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Files
 {
     public class OldContractFileManagementService : IOldContractFileManagementService
     {
+        // TODO: remove this service when old contracts are transferred to agencies. https://github.com/happy-travel/agent-app-project/issues/786
         public OldContractFileManagementService(IAmazonS3ClientService amazonS3ClientService,
             EdoContext context,
             IOptions<ContractFileServiceOptions> options,

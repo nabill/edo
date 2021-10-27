@@ -240,7 +240,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> AddContractFile(int agencyId, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadContractFile(int agencyId, [FromForm] IFormFile file)
         {
             var result = await _contractFileManagementService.Add(agencyId, file);
 
