@@ -24,9 +24,6 @@ namespace HappyTravel.Edo.DirectApi.Services
 
         public async ValueTask<AgentContext> GetAgent()
         {
-            if (!_tokenInfoAccessor.HasScope("dac.api"))
-                return default;
-
             var clientId = _tokenInfoAccessor.GetClientId();
             var key = GetKey(clientId);
 

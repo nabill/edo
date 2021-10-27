@@ -9,7 +9,5 @@ namespace HappyTravel.Edo.Api.Infrastructure
         string GetClientId();
 
         Task<string> GetAccessToken();
-
-        bool HasScope(string value);
     }
 }

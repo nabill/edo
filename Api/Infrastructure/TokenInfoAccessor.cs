@@ -23,15 +23,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             => await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
 
-        public bool HasScope(string value)
-        {
-            return _httpContextAccessor?.HttpContext?
-                .User
-                .Claims
-                .Any(c => c.Type == "scope" && c.Value == value) ?? false;
-        }
-
-
         private string GetClaimValue(string claimType)
             => _httpContextAccessor.HttpContext
                 .User
