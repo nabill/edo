@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async ValueTask<AgentContext> GetAgentContextByDirectApiClientId(string clientId)
         {
             var data =  await (from agent in _context.Agents
-                    from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a=> a.AgentId == agent.Id && a.DirectApiClientId == clientId)
+                    from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agent.Id && a.DirectApiClientId == clientId)
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
