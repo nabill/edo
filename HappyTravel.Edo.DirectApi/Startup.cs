@@ -19,6 +19,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
+using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
 using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.VaultClient;
@@ -137,6 +138,7 @@ namespace HappyTravel.Edo.DirectApi
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseClientRequestLogging();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
