@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
 
             Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails) 
-                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
+                => _priceProcessor.ConvertCurrencies(availabilityDetails);
 
             
             RoomContractSetAvailability ProcessPolicies(RoomContractSetAvailability availabilityDetails) 
