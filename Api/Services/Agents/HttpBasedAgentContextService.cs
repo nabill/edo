@@ -172,44 +172,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<AgentContext> GetAgentContextByDirectApiClientId(string clientId)
-        {
-            var data =  await (from agent in _context.Agents
-                    from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agent.Id && a.DirectApiClientId == clientId)
-                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
-                    select new {
-                        AgentId = agent.Id,
-                        FirstName = agent.FirstName,
-                        LastName = agent.LastName,
-                        Email = agent.Email,
-                        Title = agent.Title,
-                        Position = agent.Position,
-                        CounterpartyId = counterparty.Id,
-                        CounterpartyName = counterparty.Name,
-                        AgencyId = agency.Id,
-                        IsMaster = agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        agentAgencyRelation.AgentRoleIds})
-                .SingleOrDefaultAsync();
-
-            if (data is null)
-                return default;
-
-            return new AgentContext(agentId: data.AgentId,
-                firstName: data.FirstName,
-                lastName: data.LastName,
-                email: data.Email,
-                title: data.Title,
-                position: data.Position,
-                counterpartyId: data.CounterpartyId,
-                counterpartyName: data.CounterpartyName,
-                agencyId: data.AgentId,
-                isMaster: data.IsMaster,
-                inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds));
-        }
-
-
         private async Task<InAgencyPermissions> GetInAgencyPermissionsByIdentityHash(string identityHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
