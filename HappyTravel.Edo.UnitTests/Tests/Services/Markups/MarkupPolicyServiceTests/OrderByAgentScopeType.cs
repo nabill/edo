@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Markup;
+using HappyTravel.Edo.UnitTests.Tests.Services.Markups.Mocks;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -109,8 +110,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                     TemplateSettings = default
                 }
             };
-            
-            var service = CreateMarkupPolicyService(markupPolicies);
+
+            var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
             var policies = service.Get(markupSubject, markupObject, default);
             
@@ -120,16 +121,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             Assert.Equal(AgentMarkupScopeTypes.Counterparty, policies[3].AgentScopeType);
             Assert.Equal(AgentMarkupScopeTypes.Agency, policies[4].AgentScopeType);
             Assert.Equal(AgentMarkupScopeTypes.Agent, policies[5].AgentScopeType);
-        }
-        
-        
-        private MarkupPolicyService CreateMarkupPolicyService(List<MarkupPolicy> markupPolicies)
-        {
-            var monitor = Mock.Of<IOptionsMonitor<MarkupPolicyStorageOptions>>(_ => _.CurrentValue ==
-                new MarkupPolicyStorageOptions { Timeout = TimeSpan.FromMilliseconds(1) });
-            var markupPolicyStorage = new MarkupPolicyStorage(monitor);
-            markupPolicyStorage.Set(markupPolicies);
-            return new MarkupPolicyService(markupPolicyStorage);
         }
     }
 }
