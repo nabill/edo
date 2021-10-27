@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Middlewares
         }
         
         
-        public Task InvokeAsync(HttpContext context, ITokenInfoAccessor tokenInfoAccessor)
+        public async Task InvokeAsync(HttpContext context, ITokenInfoAccessor tokenInfoAccessor)
         {
             var scopedData = new Dictionary<string, object>
             {
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Middlewares
             };
                 
             using var disposable = _logger.BeginScope(scopedData);
-            return _next(context);
+            await _next(context);
         }
         
         
