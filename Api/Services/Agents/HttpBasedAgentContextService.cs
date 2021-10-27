@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -63,13 +60,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private async Task<AgentContext> GetAgentContext()
         {
-            var clientId = _tokenInfoAccessor.GetClientId();
-            
-            return clientId switch
+            return _tokenInfoAccessor.GetClientId() switch
             {
                 FrontendClientName => await GetForFrontendClient(),
                 TravelGateConnectorClientName => await GetForApiClient(),
-                _ when _tokenInfoAccessor.HasScope("dac.api") => await GetForDirectApiClient(clientId),
                 _ => default
             };
 
@@ -107,17 +101,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return await _flow.GetOrSetAsync(
                     key: key,
                     getValueFunction: async () => await GetAgentInfoByIdentityHash(identityHash),
-                    AgentContextCacheLifeTime);
-            }
-
-
-            async Task<AgentContext> GetForDirectApiClient(string clientId)
-            {
-                var key = GetKey(clientId);
-
-                return await _flow.GetOrSetAsync(
-                    key: key,
-                    getValueFunction: async () => await GetAgentContextByDirectApiClientId(clientId),
                     AgentContextCacheLifeTime);
             }
         }
