@@ -22,14 +22,16 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        public async Task<Result<RoomSelectionResult>> Get(Guid searchId, string htId, AgentContext agent)
+        public async Task<Result<RoomSelectionResult>> Get(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
-            var isComplete = await IsComplete(searchId, agent);
-            var (_, isFailure, result, error) = await _roomSelectionService.Get(searchId, htId, agent, "en");
+            while (!await IsComplete(searchId, agent))
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            
+            var (_, isFailure, result, error) = await _roomSelectionService.Get(searchId, htId, agent, languageCode);
 
             return isFailure 
                 ? Result.Failure<RoomSelectionResult>(error) 
-                : new RoomSelectionResult(searchId, htId, isComplete, result.MapFromEdoModels());
+                : new RoomSelectionResult(searchId, htId, result.MapFromEdoModels());
         }
         
         

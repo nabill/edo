@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         public async Task<ActionResult<RoomSelectionResult>> GetAvailabilityForAccommodation(Guid searchId, string htId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, result, error) = await _accommodationAvailabilitiesService.Get(searchId, htId, agent);
+            var (isSuccess, _, result, error) = await _accommodationAvailabilitiesService.Get(searchId, htId, agent, "en");
             
             return isSuccess
                 ? result
