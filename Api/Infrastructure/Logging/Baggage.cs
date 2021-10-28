@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Logging
 {
@@ -6,7 +7,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
     {
         public static void SetSearchId(Guid searchId)
         {
-            OpenTelemetry.Baggage.Current.SetBaggage("SearchId", searchId.ToString());
+            Activity.Current?.AddBaggage("SearchId", searchId.ToString());
         }
     }
 }
