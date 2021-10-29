@@ -114,6 +114,7 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
             services.AddTransient<AccommodationAvailabilitiesService>();
             services.AddTransient<WideAvailabilitySearchService>();
+            services.AddTransient<AccommodationService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 
