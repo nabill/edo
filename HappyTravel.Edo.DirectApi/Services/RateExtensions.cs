@@ -1,6 +1,6 @@
 ﻿using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Extensions
+namespace HappyTravel.Edo.DirectApi.Services
 {
     internal static class RateExtensions
     {
