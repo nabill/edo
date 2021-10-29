@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
             var getCurrencyFunc = new Func<object, Currencies?>(o => null);
             var service = new CurrencyConverterService(null, null);
 
-            var result = await service.ConvertPricesInData(new AgentContext(), new object(), null, getCurrencyFunc);
+            var result = await service.ConvertPricesInData(new object(), null, getCurrencyFunc);
 
             Assert.True(result.IsSuccess);
         }
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
             var getCurrencyFunc = new Func<object, Currencies?>(o => CurrencyConverterService.TargetCurrency);
             var service = new CurrencyConverterService(null, null);
 
-            var result = await service.ConvertPricesInData(new AgentContext(), new object(), null, getCurrencyFunc);
+            var result = await service.ConvertPricesInData(new object(), null, getCurrencyFunc);
 
             Assert.True(result.IsSuccess);
         }
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
             var getCurrencyFunc = new Func<object, Currencies?>(o => Currencies.NotSpecified);
             var service = new CurrencyConverterService(null, null);
 
-            var result = await service.ConvertPricesInData(new AgentContext(), new object(), null, getCurrencyFunc);
+            var result = await service.ConvertPricesInData(new object(), null, getCurrencyFunc);
 
             Assert.True(result.IsFailure);
         }
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
                 .Returns(new ValueTask<Result<decimal>>(Result.Failure<decimal>("error")));
             var service = new CurrencyConverterService(rateServiceMock.Object, null);
 
-            var result = await service.ConvertPricesInData(new AgentContext(), new object(), null, GetCurrencyFunc);
+            var result = await service.ConvertPricesInData(new object(), null, GetCurrencyFunc);
 
             Assert.True(result.IsFailure);
         }
@@ -82,8 +82,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.CurrencyConversion.CurrencyCo
                 Currency = Currencies.AED
             };
 
-            var (_, _, resultingPrice, _) = await currencyConverter.ConvertPricesInData(default,
-                originalPrice,
+            var (_, _, resultingPrice, _) = await currencyConverter.ConvertPricesInData(originalPrice,
                 (amount, function) => function(amount), 
                 d => d.Currency);
 

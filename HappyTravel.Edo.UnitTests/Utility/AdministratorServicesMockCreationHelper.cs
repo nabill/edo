@@ -225,47 +225,27 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Counterparty
             {
                 Id = 1,
-                Name = "Test",
-                Address = "Test address",
-                City = "Test city",
-                CountryCode = "AF",
-                Phone = "+7 111 1111111"
+                Name = "Test"
             },
             new Counterparty
             {
                 Id = 2,
-                Name = "Test1",
-                Address = "Test address 2",
-                City = "Test city 2",
-                CountryCode = "AF",
-                Phone = "+7 222 2222222"
+                Name = "Test1"
             },
             new Counterparty
             {
                 Id = 3,
-                Name = "Test",
-                Address = "Test address 3",
-                City = "Test city 3",
-                CountryCode = "AF",
-                Phone = "+7 333 3333333"
+                Name = "Test"
             },
             new Counterparty
             {
                 Id = 14,
-                Name = "CounterpartyWithBillingEmail",
-                Address = "Test address 4",
-                City = "Test city 4",
-                CountryCode = "AF",
-                Phone = "+7 444 4444444"
+                Name = "CounterpartyWithBillingEmail"
             },
             new Counterparty
             {
                 Id = 15,
-                Name = "CounterpartyWithoutBillingEmail",
-                Address = "Test address 5",
-                City = "Test city 5",
-                CountryCode = "AF",
-                Phone = "+7 555 5555555"
+                Name = "CounterpartyWithoutBillingEmail"
             }
         };
 

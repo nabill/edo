@@ -46,8 +46,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCancellation()
-            => Ok(await _bookingsProcessingService.GetForCancellation());
+        public async Task<IActionResult> GetBookingsForCancellation([FromQuery]DateTime? date)
+        {
+            if (date is null)
+                return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
+            
+            return Ok(await _bookingsProcessingService.GetForCancellation(date.Value));
+        }
 
 
         /// <summary>
@@ -76,8 +81,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingsForCapture([FromQuery]DateTime? date)
         {
-            if (!date.HasValue)
-                return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
+            if (date is null)
+                return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
             
             return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
         }
