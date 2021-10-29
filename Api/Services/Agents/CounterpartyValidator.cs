@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return GenericValidator<RegistrationCounterpartyInfo>.Validate(v =>
             {
-                v.RuleFor(c => c.LegalAddress).NotEmpty();
+                v.RuleFor(c => c.Name).NotEmpty();
             }, counterpartyInfo);
         }
     }
