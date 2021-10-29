@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             var searchId = Guid.NewGuid();
             
-            Baggage.SetSearchId(searchId);
+            Baggage.AddSearchId(searchId);
             _logger.LogMultiSupplierAvailabilitySearchStarted(request.CheckInDate.ToShortDateString(), request.CheckOutDate.ToShortDateString(),
                 request.HtIds.ToArray(), request.Nationality, request.RoomDetails.Count);
 
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, AgentContext agent, string languageCode)
         {
-            Baggage.SetSearchId(searchId);
+            Baggage.AddSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
