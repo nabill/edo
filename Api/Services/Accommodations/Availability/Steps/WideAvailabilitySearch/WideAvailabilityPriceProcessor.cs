@@ -28,8 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
                     slimAccommodationAvailability,
                     ProcessPrices,
-                    GetMarkupObjectInfo
-                    );
+                    GetMarkupObjectInfo);
 
                 convertedResults.Add(convertedAccommodationAvailability);
             }
@@ -38,14 +37,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> results, AgentContext agent)
+        public async Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> results)
         {
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var slimAccommodationAvailability in results)
             {
                 // Currency can differ in different results
-                var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent,
-                    slimAccommodationAvailability,
+                var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(slimAccommodationAvailability,
                     ProcessPrices,
                     GetCurrency);
 
