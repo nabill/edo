@@ -477,10 +477,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.HasKey(c => c.Id);
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
-                counterparty.Property(c => c.Address).IsRequired();
-                counterparty.Property(c => c.City).IsRequired();
-                counterparty.Property(c => c.CountryCode).IsRequired();
-                counterparty.Property(c => c.Phone).IsRequired();
             });
         }
 

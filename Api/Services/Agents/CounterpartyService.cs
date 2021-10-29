@@ -46,18 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var now = _dateTimeProvider.UtcNow();
                 var createdCounterparty = new Counterparty
                 {
-                    Name = request.CounterpartyInfo.Name?.Trim(),
-                    Address = request.RootAgencyInfo.Address?.Trim(),
-                    BillingEmail = request.RootAgencyInfo.BillingEmail?.Trim(),
-                    City = request.RootAgencyInfo.City?.Trim(),
-                    CountryCode = request.RootAgencyInfo.CountryCode?.Trim(),
-                    Fax = request.RootAgencyInfo.Fax?.Trim(),
-                    Phone = request.RootAgencyInfo.Phone?.Trim(),
-                    PostalCode = request.RootAgencyInfo.PostalCode?.Trim(),
-                    Website = request.RootAgencyInfo.Website?.Trim(),
-                    VatNumber = request.RootAgencyInfo.VatNumber?.Trim(),
-                    Created = now,
-                    Updated = now
+                    Name = request.CounterpartyInfo.Name?.Trim()
                 };
 
                 _context.Counterparties.Add(createdCounterparty);
