@@ -97,14 +97,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Counterparty = new RegistrationDataForAdmin.CounterpartyRegistrationMailData
                     {
                         Name = counterpartyInfo.Name,
-                        Address = counterpartyInfo.LegalAddress,
                         CountryCode = agency.CountryCode,
                         City = agency.City,
                         Phone = agency.Phone,
                         PostalCode = agency.PostalCode,
                         Fax = agency.Fax,
                         PreferredCurrency = EnumFormatters.FromDescription(agency.PreferredCurrency),
-                        PreferredPaymentMethod = EnumFormatters.FromDescription(counterpartyInfo.PreferredPaymentMethod),
                         Website = agency.Website
                     },
                     AgentEmail = email,
