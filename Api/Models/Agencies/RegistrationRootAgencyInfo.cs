@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -6,8 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct RegistrationRootAgencyInfo
     {
         [JsonConstructor]
-        public RegistrationRootAgencyInfo(string address, string billingEmail, string city,
-            string countryCode, string fax, string phone, string postalCode, string website, string vatNumber)
+        public RegistrationRootAgencyInfo(string address, string billingEmail, string city, string countryCode, string fax,
+            string phone, string postalCode, string website, string vatNumber, string legalAddress, PaymentTypes preferredPaymentMethod)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -18,6 +19,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
+            LegalAddress = legalAddress;
+            PreferredPaymentMethod = preferredPaymentMethod;
         }
 
 
@@ -69,5 +72,16 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
+
+        /// <summary>
+        ///     Agency address.
+        /// </summary>
+        [Required]
+        public string LegalAddress { get; }
+
+        /// <summary>
+        ///     Preferable way to do payments.
+        /// </summary>
+        public PaymentTypes PreferredPaymentMethod { get; }
     }
 }

@@ -129,7 +129,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return Result.Failure<CounterpartyInfo>("Name must not be empty");
                 
                 counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
-                counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
                 counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
                 counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
@@ -169,8 +168,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private static SlimCounterpartyInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
-                counterparty.LegalAddress,
-                counterparty.PreferredPaymentMethod,
                 counterparty.IsContractUploaded,
                 markupFormula);
         

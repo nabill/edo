@@ -80,8 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
                 phone: "+7 111 3333333",
                 postalCode: "345100",
                 website: "www.testsite.org",
-                vatNumber: "changed vatNumber",
-                preferredPaymentMethod: PaymentTypes.Offline
+                vatNumber: "changed vatNumber"
             );
 
             var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);

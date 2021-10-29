@@ -8,14 +8,13 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct CounterpartyInfo
     {
         [JsonConstructor]
-        public CounterpartyInfo(int id, string name, string legalAddress, string address, string billingEmail, string city, string countryCode, string countryName, 
-            string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes preferredPaymentMethod,
+        public CounterpartyInfo(int id, string name, string address, string billingEmail, string city, string countryCode, string countryName, 
+            string fax, string phone, string postalCode, string website, string vatNumber,
             bool isContractUploaded,
             string markupFormula = null)
         {
             Id = id;
             Name = name;
-            LegalAddress = legalAddress;
             Address = address;
             BillingEmail = billingEmail;
             City = city;
@@ -26,7 +25,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             MarkupFormula = markupFormula;
         }
@@ -41,12 +39,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Counterparty name.
         /// </summary>
         public string Name { get; }
-
-        /// <summary>
-        ///     Agency address.
-        /// </summary>
-        [Required]
-        public string LegalAddress { get; }
 
         /// <summary>
         ///     Counterparty address.
@@ -100,11 +92,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        ///     Preferable way to do payments.
-        /// </summary>
-        public PaymentTypes PreferredPaymentMethod { get; }
 
         /// <summary>
         /// True if contract is loaded to counterparty

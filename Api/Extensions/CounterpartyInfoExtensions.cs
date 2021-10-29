@@ -9,7 +9,6 @@ namespace HappyTravel.Edo.Api.Extensions
         public static CounterpartyInfo ToCounterpartyInfo(this Counterparty counterparty, string countryNames, string languageCode, string markupFormula = null)
             => new (id: counterparty.Id,
                 name: counterparty.Name,
-                legalAddress: counterparty.LegalAddress,
                 address: counterparty.Address,
                 billingEmail: counterparty.BillingEmail,
                 city: counterparty.City,
@@ -20,7 +19,6 @@ namespace HappyTravel.Edo.Api.Extensions
                 postalCode: counterparty.PostalCode,
                 website: counterparty.Website,
                 vatNumber: counterparty.VatNumber,
-                preferredPaymentMethod: counterparty.PreferredPaymentMethod,
                 isContractUploaded: counterparty.IsContractUploaded,
                 markupFormula: markupFormula);
     }

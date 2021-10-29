@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public CounterpartyEditRequest(string name, string address, string billingEmail, string city, string countryCode,
-            string fax, string phone, string postalCode, string website, string vatNumber, PaymentTypes preferredPaymentMethod)
+            string fax, string phone, string postalCode, string website, string vatNumber)
         {
             Name = name;
             Address = address;
@@ -20,7 +20,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            PreferredPaymentMethod = preferredPaymentMethod;
         }
 
 
@@ -77,11 +76,5 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        ///     Preferable way to do payments.
-        /// </summary>
-        [Required]
-        public PaymentTypes PreferredPaymentMethod { get; }
     }
 }

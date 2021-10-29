@@ -47,8 +47,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var createdCounterparty = new Counterparty
                 {
                     Name = request.CounterpartyInfo.Name?.Trim(),
-                    PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
-                    LegalAddress = request.CounterpartyInfo.LegalAddress?.Trim(),
                     Address = request.RootAgencyInfo.Address?.Trim(),
                     BillingEmail = request.RootAgencyInfo.BillingEmail?.Trim(),
                     City = request.RootAgencyInfo.City?.Trim(),
@@ -157,8 +155,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Map(c => new SlimCounterpartyInfo(
                     c.Id,
                     c.Name,
-                    c.LegalAddress,
-                    c.PreferredPaymentMethod,
                     c.IsContractUploaded));
 
 

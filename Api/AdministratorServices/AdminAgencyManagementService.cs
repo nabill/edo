@@ -137,11 +137,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<AgencyInfo> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
             => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.City,
-                agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber, parentAgencyId);
+                agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod);
         
         
         public async Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
-            string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId)
+            string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
+            PaymentTypes preferredPaymentMethod)
         {
             var ancestors = new List<int>();
 
@@ -175,7 +177,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 VatNumber = vatNumber,
                 // Hardcode because we only support USD
                 PreferredCurrency = Currencies.USD,
-                Ancestors = ancestors
+                Ancestors = ancestors,
+                LegalAddress = legalAddress,
+                PreferredPaymentMethod = preferredPaymentMethod
             };
             _context.Agencies.Add(agency);
 
