@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureUserEventLogging(Configuration, vaultClient);
             services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             services.Configure<SupplierOptions>(Configuration.GetSection("Suppliers"));
-            services.AddTransient<IAgentContextService, HttpBasedAgentContextService>();
+            services.AddTransient<IAgentContextService, AgentContextService>();
             services.AddTransient<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
