@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.CurrencyConverter;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
@@ -19,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         }
 
 
-        public async Task<Result<TData>> ConvertPricesInData<TData>(AgentContext agent, TData data,
+        public async Task<Result<TData>> ConvertPricesInData<TData>(TData data,
             Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies?> getCurrencyFunc)
         {
             var currentCurrency = getCurrencyFunc(data);

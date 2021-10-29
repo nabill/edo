@@ -72,6 +72,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("LegalAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("LocalityHtId")
                         .HasColumnType("text");
 
@@ -93,6 +97,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("PreferredCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreferredPaymentMethod")
                         .HasColumnType("integer");
 
                     b.Property<string>("VatNumber")
@@ -311,55 +318,11 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Fax")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsContractUploaded")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LegalAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PreferredPaymentMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("VatNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Website")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
