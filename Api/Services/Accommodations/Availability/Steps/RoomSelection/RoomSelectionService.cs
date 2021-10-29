@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
-            Baggage.SetSearchId(searchId);
+            Baggage.AddSearchId(searchId);
 
             var accommodation = await _mapperClient.GetAccommodation(htId, languageCode);
             if (accommodation.IsFailure)
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
-            Baggage.SetSearchId(searchId);
+            Baggage.AddSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, htId, agent);

@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureUserEventLogging(Configuration, vaultClient);
             services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             services.Configure<SupplierOptions>(Configuration.GetSection("Suppliers"));
-            services.AddTransient<IAgentContextService, HttpBasedAgentContextService>();
+            services.AddTransient<IAgentContextService, AgentContextService>();
             services.AddTransient<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
@@ -106,6 +107,12 @@ namespace HappyTravel.Edo.DirectApi
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<IRoomSelectionService, RoomSelectionService>();
+            services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
+            services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
+            services.AddTransient<IRoomSelectionPriceProcessor, RoomSelectionPriceProcessor>();
+            services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
+            services.AddTransient<AccommodationAvailabilitiesService>();
             services.AddTransient<WideAvailabilitySearchService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
