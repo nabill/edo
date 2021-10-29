@@ -187,10 +187,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public Task<List<int>> GetForCancellation()
+        public Task<List<int>> GetForCancellation(DateTime date)
         {
+            date = date.Date;
             return _context.Bookings
                 .Where(IsBookingValidForCancelPredicate)
+                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date)
                 .Select(booking => booking.Id)
                 .ToListAsync();
         }

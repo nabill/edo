@@ -43,7 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     countryHtId: a.CountryHtId,
                     localityHtId: a.LocalityHtId,
                     verificationState: a.VerificationState,
-                    verificationDate: a.VerificationDate));
+                    verificationDate: a.VerificationDate,
+                    legalAddress: a.LegalAddress,
+                    preferredPaymentMethod: a.PreferredPaymentMethod));
         }
 
 
@@ -77,6 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.Website = editAgencyRequest.Website;
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
                 agencyRecord.VatNumber = editAgencyRequest.VatNumber;
+                agencyRecord.PreferredPaymentMethod = editAgencyRequest.PreferredPaymentMethod;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 
