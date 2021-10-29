@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Accommodation list
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<Accommodation>>> GetAccommodationsList(int top = 100, int skip = 0)
+        public async Task<ActionResult<List<Accommodation>>> GetAccommodationsList([Range(1, 500)]int top = 100, int skip = 0)
         {
             var (isSuccess, _, accommodations, error) = await _accommodationService.GetAccommodationList(top, skip, "en");
 
