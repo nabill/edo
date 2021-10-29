@@ -8,14 +8,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct SlimCounterpartyInfo
     {
         [JsonConstructor]
-        public SlimCounterpartyInfo(int id, string name, string legalAddress, PaymentTypes preferredPaymentMethod,
+        public SlimCounterpartyInfo(int id, string name,
             bool isContractUploaded,
             string markupFormula = null)
         {
             Id = id;
             Name = name;
-            LegalAddress = legalAddress;
-            PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             MarkupFormula = markupFormula;
         }
@@ -30,17 +28,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Counterparty name.
         /// </summary>
         public string Name { get; }
-
-        /// <summary>
-        ///     Agency address.
-        /// </summary>
-        [Required]
-        public string LegalAddress { get; }
-
-        /// <summary>
-        ///     Preferable way to do payments.
-        /// </summary>
-        public PaymentTypes PreferredPaymentMethod { get; }
 
         /// <summary>
         /// True if contract is loaded to counterparty
