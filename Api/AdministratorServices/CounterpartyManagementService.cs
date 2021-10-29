@@ -32,9 +32,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             var counterpartyInfo = await 
                 (from cp in _context.Counterparties
-                join c in _context.Countries on cp.CountryCode equals c.Code
                 where cp.Id == counterpartyId
-                select cp.ToCounterpartyInfo(c.Names, languageCode, null))
+                select cp.ToCounterpartyInfo(null))
                     .SingleOrDefaultAsync();
 
             if (counterpartyInfo.Id == default)
@@ -129,17 +128,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return Result.Failure<CounterpartyInfo>("Name must not be empty");
                 
                 counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
-                counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
-                counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
-                counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
-                counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
-                counterpartyToUpdate.City = changedCounterpartyInfo.City;
-                counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
-                counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
-                counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
-                counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
-                counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
                 
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
@@ -169,8 +157,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private static SlimCounterpartyInfo ToCounterpartySlimInfo(Counterparty counterparty, string markupFormula = null)
             => new (counterparty.Id,
                 counterparty.Name,
-                counterparty.LegalAddress,
-                counterparty.PreferredPaymentMethod,
                 counterparty.IsContractUploaded,
                 markupFormula);
         

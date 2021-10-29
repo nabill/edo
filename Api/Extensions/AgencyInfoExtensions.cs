@@ -32,7 +32,9 @@ namespace HappyTravel.Edo.Api.Extensions
                 agency.Ancestors ?? new List<int>(),
                 verificationState,
                 verificationDate,
-                agency.IsActive);
+                agency.IsActive,
+                agency.LegalAddress,
+                agency.PreferredPaymentMethod);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
@@ -46,6 +48,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 info.Phone,
                 info.PostalCode,
                 info.Website,
-                info.VatNumber);
+                info.VatNumber,
+                info.LegalAddress,
+                info.PreferredPaymentMethod);
     }
 }
