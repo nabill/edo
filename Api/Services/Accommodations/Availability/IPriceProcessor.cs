@@ -11,8 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IPriceProcessor
     {
-        Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentContext agent, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc);
+        Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc);
 
 
         Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,

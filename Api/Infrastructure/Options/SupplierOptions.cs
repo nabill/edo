@@ -18,6 +18,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Yalago { get; set; }
         public string HotelBeds { get; set; }
         public string Roibos { get; set; }
+        public string Bronevik { get; set; }
+        public string HotelbookPro { get; set; }
         public List<Suppliers> EnabledSuppliers { get; set; }
     }
 }
