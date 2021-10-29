@@ -71,17 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         public async Task Counterparty_update_should_pass()
         {
             var counterpartyToUpdate = new CounterpartyEditRequest(
-                name: "RenamedName",
-                address: "New address",
-                billingEmail: "new_test@test.org",
-                city: "new city",
-                countryCode: "AF",
-                fax: "+7 111 2222222",
-                phone: "+7 111 3333333",
-                postalCode: "345100",
-                website: "www.testsite.org",
-                vatNumber: "changed vatNumber",
-                preferredPaymentMethod: PaymentTypes.Offline
+                name: "RenamedName"
             );
 
             var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);

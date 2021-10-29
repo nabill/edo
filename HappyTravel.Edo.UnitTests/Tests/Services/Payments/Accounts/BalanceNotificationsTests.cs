@@ -87,14 +87,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     new Counterparty
                     {
                         Id = 1,
-                        Name = "Name1",
-                        CountryCode = "en"
+                        Name = "Name1"
                     },
                     new Counterparty
                     {
                         Id = 2,
-                        Name = "Name2",
-                        CountryCode = "en"
+                        Name = "Name2"
                     }
                 }));
 
