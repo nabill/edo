@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> availabilityDetails) 
-                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
+                => _priceProcessor.ConvertCurrencies(availabilityDetails);
 
 
             Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> response) 

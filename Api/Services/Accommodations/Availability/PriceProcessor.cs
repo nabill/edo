@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentContext agent, TDetails details,
+        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
         {
             return _currencyConverter
-                .ConvertPricesInData(agent, details, changePricesFunc, getCurrencyFunc)
+                .ConvertPricesInData(details, changePricesFunc, getCurrencyFunc)
                 .ToResultWithProblemDetails();
         }
 
