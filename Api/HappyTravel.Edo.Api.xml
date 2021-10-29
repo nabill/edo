@@ -1359,7 +1359,7 @@
                 NGenius webhook
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation(System.Nullable{System.DateTime})">
             <summary>
                 Gets bookings for cancellation
             </summary>
