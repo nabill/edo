@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (isContractFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(contractError);
 
-            var accommodationResult = await _accommodationService.Get(result.htId, languageCode);
+            var accommodationResult = await GetAccommodation(result.htId, languageCode);
             if (accommodationResult.IsFailure)
             {
                 _logger.LogGetAccommodationByHtIdFailed(result.htId, accommodationResult.Error.Detail);
@@ -259,24 +259,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in ContractKind contractKind)
                 => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
+        }
+        
+        
+        protected virtual Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode)
+            => _accommodationService.Get(htId, languageCode);
 
 
-            static SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
-            {
-                var location = accommodation.Location;
-                return new SlimAccommodation(location: new SlimLocationInfo(address: location.Address,
-                        country: location.Country,
-                        countryCode: location.CountryCode,
-                        locality: location.Locality,
-                        localityZone: location.LocalityZone,
-                        coordinates: location.Coordinates),
-                    name: accommodation.Name,
-                    photo: accommodation.Photos.FirstOrDefault(),
-                    rating: accommodation.Rating,
-                    propertyType: accommodation.Type,
-                    htId: accommodation.HtId,
-                    hotelChain: accommodation.HotelChain);
-            }
+        protected virtual SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
+        {
+            var location = accommodation.Location;
+            return new SlimAccommodation(location: new SlimLocationInfo(address: location.Address,
+                    country: location.Country,
+                    countryCode: location.CountryCode,
+                    locality: location.Locality,
+                    localityZone: location.LocalityZone,
+                    coordinates: location.Coordinates),
+                name: accommodation.Name,
+                photo: accommodation.Photos.FirstOrDefault(),
+                rating: accommodation.Rating,
+                propertyType: accommodation.Type,
+                htId: accommodation.HtId,
+                hotelChain: accommodation.HotelChain);
         }
         
         

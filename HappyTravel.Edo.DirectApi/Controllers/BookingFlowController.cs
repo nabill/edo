@@ -36,11 +36,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     public class BookingFlowController : ControllerBase
     {
         public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService,
-            AccommodationAvailabilitiesService accommodationAvailabilitiesService)
+            AccommodationAvailabilitiesService accommodationAvailabilitiesService, ValuationService valuationService)
         {
             _agentContextService = agentContextService;
             _wideSearchService = wideSearchService;
             _accommodationAvailabilitiesService = accommodationAvailabilitiesService;
+            _valuationService = valuationService;
         }
 
 
@@ -104,7 +105,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         [HttpGet("searches/{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
         public async Task<ActionResult<RoomContractSetAvailability>> GetExactAvailability(Guid searchId, string htId, Guid roomContractSetId, CancellationToken cancellationToken)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, result, error) = await _valuationService.Get(searchId, htId, roomContractSetId, agent, "en");
+            
+            return isSuccess
+                ? result
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
         /// <summary>
@@ -123,5 +129,6 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         private readonly IAgentContextService _agentContextService;
         private readonly WideAvailabilitySearchService _wideSearchService;
         private readonly AccommodationAvailabilitiesService _accommodationAvailabilitiesService;
+        private readonly ValuationService _valuationService;
     }
 }

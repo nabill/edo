@@ -7,8 +7,10 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -30,6 +32,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using AccommodationService = HappyTravel.Edo.DirectApi.Services.AccommodationService;
 using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi
@@ -115,6 +118,11 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<AccommodationAvailabilitiesService>();
             services.AddTransient<WideAvailabilitySearchService>();
             services.AddTransient<AccommodationService>();
+            services.AddTransient<ValuationService>();
+            services.AddTransient<IBookingEvaluationService, DirectApiBookingEvaluationService>();
+            services.AddTransient<IBookingEvaluationPriceProcessor, BookingEvaluationPriceProcessor>();
+            services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
+            services.AddTransient<IAccommodationService, EdoDummyAccommodationService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 
