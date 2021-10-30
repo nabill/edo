@@ -9,13 +9,13 @@ namespace HappyTravel.Edo.DirectApi.Models
     public readonly struct Accommodation
     {
         [JsonConstructor]
-        public Accommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
+        public Accommodation(string htId, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
             string category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
-            in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, string htId = "",
+            in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type,
             UniqueAccommodationCodes? uniqueCodes = null,
             string hotelChain = null, DateTime? modified = null)
         {
-            Id = id;
+            Id = htId;
             AccommodationAmenities = accommodationAmenities ?? new List<string>(0);
             AdditionalInfo = additionalInfo ?? new Dictionary<string, string>(0);
             Category = category;
@@ -27,7 +27,6 @@ namespace HappyTravel.Edo.DirectApi.Models
             Schedule = schedule;
             TextualDescriptions = textualDescriptions ?? new List<TextualDescription>(0);
             Type = type;
-            HtId = htId;
             UniqueCodes = uniqueCodes;
             HotelChain = hotelChain;
             Modified = modified;
@@ -93,11 +92,6 @@ namespace HappyTravel.Edo.DirectApi.Models
         ///     Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
         /// </summary>
         public string HotelChain { get; }
-
-        /// <summary>
-        ///     The Happytravel.com unique accommodation correlation ID.
-        /// </summary>
-        public string HtId { get; }
 
         /// <summary>
         ///     The dictionary of amenities available in an accommodation.
