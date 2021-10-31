@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.DirectApi.Services
             => list.Select(rcs => rcs.MapFromEdoModel()).ToList();
 
         
-        private static RoomContractSet MapFromEdoModel(this Api.Models.Accommodations.RoomContractSet rcs)
+        public static RoomContractSet MapFromEdoModel(this Api.Models.Accommodations.RoomContractSet rcs)
         {
             return new RoomContractSet(id: rcs.Id,
                 rate: rcs.Rate.MapFromEdoModel(),
