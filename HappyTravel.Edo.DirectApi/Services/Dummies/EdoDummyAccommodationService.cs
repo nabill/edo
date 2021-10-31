@@ -4,11 +4,11 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Dummies
 {
     public class EdoDummyAccommodationService : IAccommodationService
     {
-        public async Task<Result<Accommodation, ProblemDetails>> Get(string htId, string languageCode) 
-            => throw new System.NotImplementedException();
+        public Task<Result<Accommodation, ProblemDetails>> Get(string htId, string languageCode) 
+            => Task.FromResult(Result.Success<Accommodation, ProblemDetails>(default));
     }
 }
