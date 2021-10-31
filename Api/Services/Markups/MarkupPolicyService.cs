@@ -16,14 +16,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
+        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo, MarkupPolicyTarget policyTarget)
         {
             var agencyId = subjectInfo.AgencyId;
             var agencyTreeIds = subjectInfo.AgencyAncestors;
             agencyTreeIds.Add(agencyId);
             
             var policies = _markupPolicyStorage.Get(policy =>
-                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, objectInfo)
+                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, destinationInfo)
             );
 
             return policies
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
 
 
-            static bool IsApplicableByObject(MarkupPolicy policy, MarkupObjectInfo info)
+            static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
             {
                 var destinationScopeId = policy.DestinationScopeId;
                 return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.CountryHtId

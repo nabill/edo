@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
                     slimAccommodationAvailability,
                     ProcessPrices,
-                    GetMarkupObjectInfo);
+                    GetMarkupDestinationInfo);
 
                 convertedResults.Add(convertedAccommodationAvailability);
             }
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private static MarkupObjectInfo GetMarkupObjectInfo(AccommodationAvailabilityResult availability)
+        private static MarkupDestinationInfo GetMarkupDestinationInfo(AccommodationAvailabilityResult availability)
             => new ()
             {
                 CountryHtId = availability.CountryHtId,

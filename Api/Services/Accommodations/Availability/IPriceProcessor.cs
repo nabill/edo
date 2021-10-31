@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
-            Func<TDetails, MarkupObjectInfo> getMarkupObjectFunc = null,
+            Func<TDetails, MarkupDestinationInfo> getMarkupDestinationFunc = null,
             Action<MarkupApplicationResult<TDetails>> logAction = null);
     }
 }

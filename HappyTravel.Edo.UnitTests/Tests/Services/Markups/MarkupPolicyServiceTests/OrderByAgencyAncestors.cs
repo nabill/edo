@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Equal("3", policies[0].SubjectScopeId);
             Assert.Equal("2", policies[1].SubjectScopeId);

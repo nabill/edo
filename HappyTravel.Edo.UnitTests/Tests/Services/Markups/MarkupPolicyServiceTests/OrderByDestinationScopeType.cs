@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
     public class OrderByDestinationScopeType
     {
         [Fact]
-        public void Ordering_by_agent_scope_type()
+        public void Ordering_by_subject_scope_type()
         {
             var markupSubject = new MarkupSubjectInfo
             {
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Equal(DestinationMarkupScopeTypes.Global, policies[0].DestinationScopeType);
             Assert.Equal(DestinationMarkupScopeTypes.Country, policies[1].DestinationScopeType);

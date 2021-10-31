@@ -8,7 +8,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTests
 {
-    public class FilterByObjectAndSubject
+    public class FilterBySubjectAndDestination
     {
         [Fact]
         public void Global_markups_should_be_returned()
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -255,7 +255,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
