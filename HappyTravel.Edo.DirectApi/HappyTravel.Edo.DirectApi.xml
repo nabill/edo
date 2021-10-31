@@ -131,11 +131,6 @@
                 Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.HtId">
-            <summary>
-                The Happytravel.com unique accommodation correlation ID.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.AccommodationAmenities">
             <summary>
                 The dictionary of amenities available in an accommodation.

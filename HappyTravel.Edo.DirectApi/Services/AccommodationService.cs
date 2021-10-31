@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         {
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var endpoint = $"api/1.0/accommodations?top={top}&skip={skip}{string.Join("&suppliers=", searchSettings.EnabledConnectors)}";
+            var endpoint = $"api/1.0/accommodations?top={top}&skip={skip}&suppliers={string.Join("&suppliers=", searchSettings.EnabledConnectors)}";
             return await Send<List<Accommodation>>(endpoint, languageCode);
         }
 
