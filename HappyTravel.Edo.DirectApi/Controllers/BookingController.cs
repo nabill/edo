@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +25,14 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingController : ControllerBase
     {
+        public BookingController(IAgentContextService agentContextService, BookingCancellationService bookingCancellationService)
+        {
+            _agentContextService = agentContextService;
+            _bookingCancellationService = bookingCancellationService;
+        }
+        
+        
+        
         /// <summary>
         /// Creating booking.
         /// </summary>
@@ -54,10 +66,19 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Cancel booking
         /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> Cancel()
+        [HttpPost("{referenceCode}/cancel")]
+        public async Task<IActionResult> Cancel(string referenceCode)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, error) = await _bookingCancellationService.Cancel(referenceCode, agent);
+            
+            return isSuccess
+                ? NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
+        
+        
+        private readonly IAgentContextService _agentContextService;
+        private readonly BookingCancellationService _bookingCancellationService;
     }
 }
