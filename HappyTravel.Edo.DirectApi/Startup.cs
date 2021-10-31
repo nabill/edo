@@ -74,6 +74,7 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<INotificationService, EdoDummyNotificationService>();
             services.AddTransient<ValuationService>();
             services.AddTransient<WideAvailabilitySearchService>();
+            services.AddTransient<BookingInfoService>();
             services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
         }
 
