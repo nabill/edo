@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (targetMarkup is null)
                     return Result.Failure($"Could not find markup policy with id {createDiscountRequest.TargetMarkupId}");
                 
-                if (targetMarkup.AgentScopeType != AgentMarkupScopeTypes.Global)
+                if (targetMarkup.SubjectScopeType != SubjectMarkupScopeTypes.Global)
                     return Result.Failure("Cannot apply discount to non-global markup policy");
 
                 return Result.Success();

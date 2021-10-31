@@ -58,8 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Description = settings.Description,
                     Order = settings.Order,
                     Target = MarkupPolicyTarget.AccommodationAvailability,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = agentInAgencyId.ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = agentInAgencyId.ToString(),
                     DestinationScopeType = destinationScopeType,
                     DestinationScopeId = settings.DestinationScopeId,
                     TemplateSettings = settings.TemplateSettings,
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var agentInAgencyId = AgentInAgencyId.Create(agentId: agentId, agencyId: agencyId).ToString();
             return _context.MarkupPolicies
-                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Agent && p.AgentScopeId == agentInAgencyId)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agent && p.SubjectScopeId == agentInAgencyId)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
         }
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var agentInAgencyId = AgentInAgencyId.Create(agentId: relation.AgentId, agencyId: relation.AgencyId).ToString();
             var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.Id == policyId && p.AgentScopeType == AgentMarkupScopeTypes.Agent && p.AgentScopeId == agentInAgencyId);
+                .SingleOrDefaultAsync(p => p.Id == policyId && p.SubjectScopeType == SubjectMarkupScopeTypes.Agent && p.SubjectScopeId == agentInAgencyId);
 
             return policy ?? Result.Failure<MarkupPolicy>("Could not find agent policy");
         }
@@ -210,7 +210,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
-            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+            var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
             return _displayedMarkupFormulaService.UpdateAgentFormula(agentInAgencyId.AgentId, agentInAgencyId.AgencyId);
         }
         

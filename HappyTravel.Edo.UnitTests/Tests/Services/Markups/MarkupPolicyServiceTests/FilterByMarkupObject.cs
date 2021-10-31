@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UAE"
                 },
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "Russia"
                 }
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Locality,
                     DestinationScopeId = "Dubai"
                 },
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Locality,
                     DestinationScopeId = "London"
                 }
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "President Hotel"
                 },
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "Hilton"
                 }

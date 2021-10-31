@@ -27,21 +27,21 @@ namespace HappyTravel.Edo.Api.Services.Markups
             );
 
             return policies
-                .OrderBy(p => p.AgentScopeType)
+                .OrderBy(p => p.SubjectScopeType)
                 .ThenBy(p => p.DestinationScopeType)
-                .ThenBy(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.AgentScopeId)) : 0)
+                .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
                 .ThenBy(p => p.Order)
                 .ToList();
             
-            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.AgentScopeType switch
+            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
             {
-                AgentMarkupScopeTypes.Global => true,
-                AgentMarkupScopeTypes.Country => policy.AgentScopeId == info.CountryHtId,
-                AgentMarkupScopeTypes.Locality => policy.AgentScopeId == info.LocalityHtId,
-                AgentMarkupScopeTypes.Counterparty => policy.AgentScopeId == info.CounterpartyId.ToString(),
-                AgentMarkupScopeTypes.Agency => policy.AgentScopeId == info.AgencyId.ToString()
-                    || info.AgencyAncestors.Contains(int.Parse(policy.AgentScopeId)),
-                AgentMarkupScopeTypes.Agent => policy.AgentScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+                SubjectMarkupScopeTypes.Global => true,
+                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryHtId,
+                SubjectMarkupScopeTypes.Locality => policy.SubjectScopeId == info.LocalityHtId,
+                SubjectMarkupScopeTypes.Counterparty => policy.SubjectScopeId == info.CounterpartyId.ToString(),
+                SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
+                    || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
+                SubjectMarkupScopeTypes.Agent => policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

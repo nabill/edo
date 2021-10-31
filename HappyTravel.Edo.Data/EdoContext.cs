@@ -335,9 +335,9 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
 
-                policy.HasIndex(b => b.AgentScopeType);
+                policy.HasIndex(b => b.SubjectScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.AgentScopeId);
+                policy.HasIndex(b => b.SubjectScopeId);
                 policy.HasIndex(b => b.DestinationScopeId);
             });
         }

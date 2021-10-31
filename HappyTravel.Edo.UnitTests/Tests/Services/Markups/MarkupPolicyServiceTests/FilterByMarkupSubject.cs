@@ -31,16 +31,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Russia",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Russia",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Ukraine",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Ukraine",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
@@ -75,16 +75,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Locality,
-                    AgentScopeId = "Moscow",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+                    SubjectScopeId = "Moscow",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Locality,
-                    AgentScopeId = "Ufa",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+                    SubjectScopeId = "Ufa",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
@@ -119,16 +119,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "2",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "2",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
@@ -163,24 +163,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Global,
                 },
                 new()
                 {
                     Id = 3,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 2).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 2).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
@@ -215,32 +215,32 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "2",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "2",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 3,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "3",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "3",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 4,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "4",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "4",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };

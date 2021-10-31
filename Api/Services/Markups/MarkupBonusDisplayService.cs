@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
-                where markupPolicy.AgentScopeId == agentContext.AgencyId.ToString() && markupPolicy.AgentScopeType == AgentMarkupScopeTypes.Agency
+                where markupPolicy.SubjectScopeId == agentContext.AgencyId.ToString() && markupPolicy.SubjectScopeType == SubjectMarkupScopeTypes.Agency
                 select new Bonus
                 {
                     ReferenceCode = appliedMarkup.ReferenceCode,
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var query = from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id
-                where markupPolicy.AgentScopeId == agentContext.AgencyId.ToString() && markupPolicy.AgentScopeType == AgentMarkupScopeTypes.Agency 
+                where markupPolicy.SubjectScopeId == agentContext.AgencyId.ToString() && markupPolicy.SubjectScopeType == SubjectMarkupScopeTypes.Agency 
                 select new {appliedMarkup.Paid, appliedMarkup.Amount, markupPolicy.Currency};
             
 
