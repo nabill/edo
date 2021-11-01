@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>> GetAgencyBookingsInfo(AgentContext agentContext);
         
         Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
+
+        Task<List<Booking>> GetAgentBookings(DateTime from, DateTime to, AgentContext agentContext);
 
         Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId);
 

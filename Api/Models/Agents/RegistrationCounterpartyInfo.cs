@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
@@ -8,11 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct RegistrationCounterpartyInfo
     {
         [JsonConstructor]
-        public RegistrationCounterpartyInfo(string name, string legalAddress, PaymentTypes preferredPaymentMethod)
+        public RegistrationCounterpartyInfo(string name, string localityHtId = null)
         {
             Name = name;
-            LegalAddress = legalAddress;
-            PreferredPaymentMethod = preferredPaymentMethod;
+            LocalityHtId = localityHtId;
         }
 
         /// <summary>
@@ -22,15 +19,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Name { get; }
 
         /// <summary>
-        ///     Agency address.
+        /// Locality of counterparty
         /// </summary>
-        [Required]
-        public string LegalAddress { get; }
-
-        /// <summary>
-        ///     Preferable way to do payments.
-        /// </summary>
-        [Required]
-        public PaymentTypes PreferredPaymentMethod { get; }
+        public string LocalityHtId { get; }
     }
 }

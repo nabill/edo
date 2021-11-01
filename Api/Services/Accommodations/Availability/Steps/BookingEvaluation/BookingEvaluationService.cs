@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            Baggage.SetSearchId(searchId);
+            Baggage.AddSearchId(searchId);
             var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (isContractFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(contractError);
 
-            var accommodationResult = await _accommodationService.Get(result.htId, languageCode);
+            var accommodationResult = await GetAccommodation(result.htId, languageCode);
             if (accommodationResult.IsFailure)
             {
                 _logger.LogGetAccommodationByHtIdFailed(result.htId, accommodationResult.Error.Detail);
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
 
             Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails) 
-                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
+                => _priceProcessor.ConvertCurrencies(availabilityDetails);
 
             
             RoomContractSetAvailability ProcessPolicies(RoomContractSetAvailability availabilityDetails) 
@@ -154,23 +154,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
                     int? agentId = null, agencyId = null, counterpartyId = null;
-                    switch (appliedMarkup.Policy.AgentScopeType)
+                    switch (appliedMarkup.Policy.SubjectScopeType)
                     {
-                        case AgentMarkupScopeTypes.Agent:
-                            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Agent:
+                            var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
                             agentId = agentInAgencyId.AgentId;
                             agencyId = agentInAgencyId.AgencyId;
                             break;
-                        case AgentMarkupScopeTypes.Agency:
-                            agencyId = int.Parse(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Agency:
+                            agencyId = int.Parse(policy.SubjectScopeId);
                             break;
-                        case AgentMarkupScopeTypes.Counterparty:
-                            counterpartyId = int.Parse(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Counterparty:
+                            counterpartyId = int.Parse(policy.SubjectScopeId);
                             break;
                     }
                     
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.AgentScopeType, counterpartyId, agencyId, agentId),
+                        scope: new MarkupPolicyScope(policy.SubjectScopeType, counterpartyId, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));
@@ -259,24 +259,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
                 in ContractKind contractKind)
                 => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
+        }
+        
+        
+        protected virtual Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode)
+            => _accommodationService.Get(htId, languageCode);
 
 
-            static SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
-            {
-                var location = accommodation.Location;
-                return new SlimAccommodation(location: new SlimLocationInfo(address: location.Address,
-                        country: location.Country,
-                        countryCode: location.CountryCode,
-                        locality: location.Locality,
-                        localityZone: location.LocalityZone,
-                        coordinates: location.Coordinates),
-                    name: accommodation.Name,
-                    photo: accommodation.Photos.FirstOrDefault(),
-                    rating: accommodation.Rating,
-                    propertyType: accommodation.Type,
-                    htId: accommodation.HtId,
-                    hotelChain: accommodation.HotelChain);
-            }
+        protected virtual SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
+        {
+            var location = accommodation.Location;
+            return new SlimAccommodation(location: new SlimLocationInfo(address: location.Address,
+                    country: location.Country,
+                    countryCode: location.CountryCode,
+                    locality: location.Locality,
+                    localityZone: location.LocalityZone,
+                    coordinates: location.Coordinates),
+                name: accommodation.Name,
+                photo: accommodation.Photos.FirstOrDefault(),
+                rating: accommodation.Rating,
+                propertyType: accommodation.Type,
+                htId: accommodation.HtId,
+                hotelChain: accommodation.HotelChain);
         }
         
         

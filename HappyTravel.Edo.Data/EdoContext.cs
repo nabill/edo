@@ -313,6 +313,8 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
                 agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
+                agency.Property(a => a.PreferredPaymentMethod).IsRequired();
+                agency.Property(a => a.LegalAddress).IsRequired();
             });
         }
 
@@ -333,9 +335,9 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
 
-                policy.HasIndex(b => b.AgentScopeType);
+                policy.HasIndex(b => b.SubjectScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.AgentScopeId);
+                policy.HasIndex(b => b.SubjectScopeId);
                 policy.HasIndex(b => b.DestinationScopeId);
             });
         }
@@ -475,12 +477,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.HasKey(c => c.Id);
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
-                counterparty.Property(c => c.LegalAddress).IsRequired();
-                counterparty.Property(c => c.Address).IsRequired();
-                counterparty.Property(c => c.City).IsRequired();
-                counterparty.Property(c => c.CountryCode).IsRequired();
-                counterparty.Property(c => c.Phone).IsRequired();
-                counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
             });
         }
 
@@ -547,6 +543,7 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValueSql("'[]'::jsonb");
 
                 booking.HasIndex(b => b.IsDirectContract);
+                booking.HasIndex(b => b.ClientReferenceCode);
             });
         }
 

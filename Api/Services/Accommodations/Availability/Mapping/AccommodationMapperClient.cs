@@ -123,6 +123,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default) 
             => await Get<SlimLocationDescription>($"api/1.0/locations/{htId}/slim-description", cancellationToken);
 
+        public async Task<Result<LocalityInfo, ProblemDetails>> GetLocalityInfo(string localityHtId, CancellationToken cancellationToken = default) 
+            => await Get<LocalityInfo>($"api/1.0/localities/{localityHtId}", cancellationToken);
         
         public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default) 
             => await Get<List<string>>($"api/1.0/accommodations/{htId}/email-addresses", cancellationToken);

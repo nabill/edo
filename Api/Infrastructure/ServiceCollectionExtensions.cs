@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, string apiName, string authorityUrl)
+            IHostEnvironment environment, string apiName, string authorityUrl)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
@@ -232,7 +232,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static IServiceCollection ConfigureServiceOptions(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, VaultClient.VaultClient vaultClient)
+            IHostEnvironment environment, VaultClient.VaultClient vaultClient)
         {
             #region mailing setting
 
@@ -802,6 +802,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
 
             services.AddCreditCardProvider(configuration, vaultClient);

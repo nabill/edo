@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Services.Markups.Abstractions
 {
-    public readonly struct MarkupObjectInfo
+    public readonly struct MarkupDestinationInfo
     {
         public string CountryHtId { get; init; }
         public string LocalityHtId { get; init; }

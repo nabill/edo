@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IMarkupPolicyService
     {
-        List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget);
+        List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo, MarkupPolicyTarget policyTarget);
     }
 }

@@ -5,6 +5,8 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -46,20 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var now = _dateTimeProvider.UtcNow();
                 var createdCounterparty = new Counterparty
                 {
-                    Name = request.CounterpartyInfo.Name?.Trim(),
-                    PreferredPaymentMethod = request.CounterpartyInfo.PreferredPaymentMethod,
-                    LegalAddress = request.CounterpartyInfo.LegalAddress?.Trim(),
-                    Address = request.RootAgencyInfo.Address?.Trim(),
-                    BillingEmail = request.RootAgencyInfo.BillingEmail?.Trim(),
-                    City = request.RootAgencyInfo.City?.Trim(),
-                    CountryCode = request.RootAgencyInfo.CountryCode?.Trim(),
-                    Fax = request.RootAgencyInfo.Fax?.Trim(),
-                    Phone = request.RootAgencyInfo.Phone?.Trim(),
-                    PostalCode = request.RootAgencyInfo.PostalCode?.Trim(),
-                    Website = request.RootAgencyInfo.Website?.Trim(),
-                    VatNumber = request.RootAgencyInfo.VatNumber?.Trim(),
-                    Created = now,
-                    Updated = now
+                    Name = request.CounterpartyInfo.Name?.Trim()
                 };
 
                 _context.Counterparties.Add(createdCounterparty);
@@ -157,8 +146,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Map(c => new SlimCounterpartyInfo(
                     c.Id,
                     c.Name,
-                    c.LegalAddress,
-                    c.PreferredPaymentMethod,
                     c.IsContractUploaded));
 
 

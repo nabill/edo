@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null &&
-                    SupportedPolicyScopeTypes.Contains(policy.AgentScopeType)
+                    SupportedPolicyScopeTypes.Contains(policy.SubjectScopeType)
                 select appliedMarkup.Id;
 
             return query.ToListAsync();
@@ -72,18 +72,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 where 
                     markupsForMaterialization.Contains(appliedMarkup.Id) &&
                     appliedMarkup.Paid == null &&
-                    policy.AgentScopeType == AgentMarkupScopeTypes.Agency
+                    policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency
                 select new MaterializationData
                 {
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    AgencyId = policy.AgentScopeId,
+                    AgencyId = policy.SubjectScopeId,
                     Amount = new MoneyAmount
                     {
                         Amount = appliedMarkup.Amount,
                         Currency = appliedMarkup.Currency
                     },
-                    ScopeType = policy.AgentScopeType
+                    ScopeType = policy.SubjectScopeType
                 };
 
             return query.ToListAsync();
@@ -94,8 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var applyBonusTask = data.ScopeType switch
             {
-                AgentMarkupScopeTypes.Agency => ApplyAgencyScopeBonus(),
-                AgentMarkupScopeTypes.Agent => ApplyAgentScopeBonus(),
+                SubjectMarkupScopeTypes.Agency => ApplyAgencyScopeBonus(),
+                SubjectMarkupScopeTypes.Agent => ApplyAgentScopeBonus(),
                 _ => Task.FromResult(Result.Failure($"MarkupPolicyScopeType {data.ScopeType} is not supported"))
             };
 
@@ -175,8 +175,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private static readonly HashSet<AgentMarkupScopeTypes> SupportedPolicyScopeTypes 
-            = new() {AgentMarkupScopeTypes.Agent, AgentMarkupScopeTypes.Agency};
+        private static readonly HashSet<SubjectMarkupScopeTypes> SupportedPolicyScopeTypes 
+            = new() {SubjectMarkupScopeTypes.Agent, SubjectMarkupScopeTypes.Agency};
 
 
         private readonly EdoContext _context;

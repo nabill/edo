@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,6 +69,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             return await _bookingRecordManager.Get(referenceCode)
                 .CheckPermissions(agentContext);
+        }
+
+
+        public async Task<List<Booking>> GetAgentBookings(DateTime fromDateTime, DateTime toDateTime, AgentContext agentContext)
+        {
+            var query = from booking in _context.Bookings
+                where booking.AgentId == agentContext.AgentId &&
+                    booking.AgencyId == agentContext.AgencyId &&
+                    booking.Created >= fromDateTime &&
+                    booking.Created <= toDateTime
+                select booking;
+
+            return await query.ToListAsync();
         }
 
 

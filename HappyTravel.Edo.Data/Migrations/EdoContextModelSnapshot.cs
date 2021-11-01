@@ -72,6 +72,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("LegalAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsContractUploaded")
                         .HasColumnType("boolean");
 
@@ -96,6 +100,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("PreferredCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreferredPaymentMethod")
                         .HasColumnType("integer");
 
                     b.Property<string>("VatNumber")
@@ -314,55 +321,11 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BillingEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Fax")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsContractUploaded")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LegalAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PreferredPaymentMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("VatNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Website")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -466,6 +429,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("ClientReferenceCode")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -552,6 +518,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AgentId");
+
+                    b.HasIndex("ClientReferenceCode");
 
                     b.HasIndex("CounterpartyId");
 
@@ -1062,12 +1030,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("AgentScopeId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AgentScopeType")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1089,6 +1051,12 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SubjectScopeId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SubjectScopeType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Target")
                         .HasColumnType("integer");
 
@@ -1101,11 +1069,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgentScopeId");
-
-                    b.HasIndex("AgentScopeType");
-
                     b.HasIndex("DestinationScopeId");
+
+                    b.HasIndex("SubjectScopeId");
+
+                    b.HasIndex("SubjectScopeType");
 
                     b.HasIndex("Target");
 

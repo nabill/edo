@@ -25,12 +25,14 @@ namespace HappyTravel.Edo.Data.Agents
         public DateTime? Verified { get; set; }
         public int? ParentId { get; set; }
         public bool IsActive { get; set; }
-        public List<int> Ancestors { get; init; } = new();
-        public string CountryHtId { get; init; }
-        public string LocalityHtId { get; init; }
+        public List<int> Ancestors { get; set; } = new();
+        public string CountryHtId { get; set; }
+        public string LocalityHtId { get; set; }
         public ContractKind? ContractKind { get; set; }
         public string VerificationReason { get; set; }
         public AgencyVerificationStates VerificationState { get; set; }
+        public string LegalAddress { get; set; }
+        public PaymentTypes PreferredPaymentMethod { get; set; }
         public bool IsContractUploaded { get; set; }
     }
 }

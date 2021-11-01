@@ -12,7 +12,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, bool isContractUploaded)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
+            bool isContractUploaded)
         {
             Name = name;
             Id = id;
@@ -34,6 +35,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             VerificationState = verificationState;
             VerificationDate = verificationDate;
             IsActive = isActive;
+            LegalAddress = legalAddress;
+            PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
         }
 
@@ -141,6 +144,17 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Activity status
         /// </summary>
         public bool IsActive { get; }
+
+        /// <summary>
+        ///     Agency address.
+        /// </summary>
+        [Required]
+        public string LegalAddress { get; }
+
+        /// <summary>
+        ///     Preferable way to do payments.
+        /// </summary>
+        public PaymentTypes PreferredPaymentMethod { get; }
 
         /// <summary>
         /// True if contract is loaded to agency

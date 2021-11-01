@@ -33,6 +33,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 verificationState,
                 verificationDate,
                 agency.IsActive,
+                agency.LegalAddress,
+                agency.PreferredPaymentMethod,
                 agency.IsContractUploaded);
 
 
@@ -47,6 +49,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 info.Phone,
                 info.PostalCode,
                 info.Website,
-                info.VatNumber);
+                info.VatNumber,
+                info.LegalAddress,
+                info.PreferredPaymentMethod);
     }
 }

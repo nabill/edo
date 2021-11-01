@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = authorityOptions["authorityUrl"];
-                    options.ApiName = authorityOptions["apiName"];
+                    options.ApiName = "direct_api";
                     options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });

@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async ValueTask<PriceProcessFunction> Get(MarkupPolicy policy, MarkupSubjectInfo subject)
         {
             // Discounts are only supported for global markups for now
-            if (policy.AgentScopeType != AgentMarkupScopeTypes.Global)
+            if (policy.SubjectScopeType != SubjectMarkupScopeTypes.Global)
                 return (price => new ValueTask<MoneyAmount>(price));
 
             var discountsKey = GetKey(policy, subject);

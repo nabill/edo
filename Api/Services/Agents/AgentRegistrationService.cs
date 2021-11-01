@@ -12,9 +12,11 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Models.Locations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,12 +42,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData, string externalIdentity,
-            string email)
+            string email, LocalityInfo localityInfo)
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
+                    .Bind(AddLocalityInfo)
                     .Bind(CreateAgent)
                     .Tap(AddMasterAgentAgencyRelation))
                 .Bind(LogSuccess)
@@ -66,6 +69,26 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return isFailure
                     ? Result.Failure<(SlimCounterpartyInfo, Agent)>(error)
                     : Result.Success((counterparty1: counterparty, agent));
+            }
+
+
+            async Task<Result<SlimCounterpartyInfo>> AddLocalityInfo(SlimCounterpartyInfo counterpartyInfo)
+            {
+                // TODO to make it compatible with current registration flow
+                // can be removed after changes of frontend
+                if (string.IsNullOrEmpty(localityInfo.CountryIsoCode))
+                    return counterpartyInfo;
+                
+                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
+
+                rootAgency.CountryCode = localityInfo.CountryIsoCode;
+                rootAgency.CountryHtId = localityInfo.CountryHtId;
+                rootAgency.City = localityInfo.LocalityName;
+                rootAgency.LocalityHtId = localityInfo.LocalityHtId;
+                
+                _context.Agencies.Add(rootAgency);
+
+                return counterpartyInfo;
             }
 
 
@@ -97,14 +120,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Counterparty = new RegistrationDataForAdmin.CounterpartyRegistrationMailData
                     {
                         Name = counterpartyInfo.Name,
-                        Address = counterpartyInfo.LegalAddress,
                         CountryCode = agency.CountryCode,
                         City = agency.City,
                         Phone = agency.Phone,
                         PostalCode = agency.PostalCode,
                         Fax = agency.Fax,
                         PreferredCurrency = EnumFormatters.FromDescription(agency.PreferredCurrency),
-                        PreferredPaymentMethod = EnumFormatters.FromDescription(counterpartyInfo.PreferredPaymentMethod),
                         Website = agency.Website
                     },
                     AgentEmail = email,
