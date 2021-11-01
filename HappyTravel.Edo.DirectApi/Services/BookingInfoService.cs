@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -21,6 +23,13 @@ namespace HappyTravel.Edo.DirectApi.Services
             return isSuccess
                 ? booking.FromEdoModels()
                 : Result.Failure<Booking>(error);
+        }
+
+
+        public async Task<List<Booking>> Get(DateTime from, DateTime to, AgentContext agent)
+        {
+            var result = await _bookingInfoService.GetAgentBookings(from, to, agent);
+            return result.FromEdoModels();
         }
 
 

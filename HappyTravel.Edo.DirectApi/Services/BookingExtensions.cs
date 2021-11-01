@@ -1,10 +1,16 @@
-﻿using HappyTravel.Edo.DirectApi.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Money.Extensions;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
     public static class BookingExtensions
     {
+        public static List<Booking> FromEdoModels(this IEnumerable<Data.Bookings.Booking> bookings) 
+            => bookings.Select(b => b.FromEdoModels()).ToList();
+
+
         public static Booking FromEdoModels(this Data.Bookings.Booking booking)
         {
             return new Booking(referenceCode: booking.ReferenceCode,
