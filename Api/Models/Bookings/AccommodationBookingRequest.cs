@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
-            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
+            string clientReferenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
             Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
             string evaluationToken, bool rejectIfUnavailable = true)
         {
@@ -24,6 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RoomContractSetId = roomContractSetId;
             EvaluationToken = evaluationToken;
             MainPassengerName = mainPassengerName.Trim();
+            ClientReferenceCode = clientReferenceCode;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -83,5 +84,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         ///     Itinerary number to combine several orders in one pack.
         /// </summary>
         public string ItineraryNumber { get; }
+        
+        
+        /// <summary>
+        ///     Client booking reference code
+        /// </summary>
+        public string ClientReferenceCode { get; }
     }
 }
