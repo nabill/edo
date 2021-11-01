@@ -63,12 +63,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private async Task<AgentContext> GetAgentContext()
         {
-            return _tokenInfoAccessor.GetClientId() switch
-            {
-                FrontendClientName => await GetForFrontendClient(),
-                TravelGateConnectorClientName => await GetForApiClient(),
-                _ => default
-            };
+            var clientId = _tokenInfoAccessor.GetClientId();
+
+            if (clientId is FrontendClientName or AdminAppName)
+                return await GetForFrontendClient();
+
+            if (clientId == TravelGateConnectorClientName)
+                return await GetForApiClient();
+
+            return default;
 
 
             async Task<AgentContext> GetForApiClient()
@@ -86,9 +89,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     key,
                     async () => await GetAgentInfoByApiClientCredentials(name, passwordHash),
                     AgentContextCacheLifeTime);
-                
-                string GetHeaderValue(string header)
-                    => _httpContextAccessor.HttpContext?.Request.Headers[header];
+
+                string GetHeaderValue(string header) => _httpContextAccessor.HttpContext?.Request.Headers[header];
             }
 
 
@@ -109,8 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private string GetKey(string name) 
-            => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
+        private string GetKey(string name) => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
 
         public async ValueTask<AgentContext> GetAgent()
@@ -148,15 +149,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         inAgencyPermissions))
                 .SingleOrDefaultAsync();
         }
-        
-        
+
+
         private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
         {
             // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByApiClientCredentials(name, passwordHash);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from apiClient in _context.ApiClients.Where(a=> a.Name == name && a.PasswordHash == passwordHash)
+                    from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
@@ -182,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     where agent.IdentityHash == identityHash
                     select agentAgencyRelation.AgentRoleIds)
                 .SingleOrDefaultAsync();
-            
+
             return await GetAggregateInAgencyPermissions(agentRoleIds);
         }
 
@@ -205,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             if (agentRoleIds is null || !agentRoleIds.Any())
                 return 0;
-            
+
             var permissionList = await (from agentRole in _context.AgentRoles
                     where agentRoleIds.Contains(agentRole.Id)
                     select agentRole.Permissions)
@@ -216,10 +217,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private const string FrontendClientName = "matsumoto";
+        private const string AdminAppName = "ueda";
         private const string TravelGateConnectorClientName = "travelgate_channel";
 
         private static readonly TimeSpan AgentContextCacheLifeTime = TimeSpan.FromMinutes(2);
-        
+
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
