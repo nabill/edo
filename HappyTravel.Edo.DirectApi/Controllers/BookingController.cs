@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get booking info
         /// </summary>
         [HttpGet("{referenceCode}")]
-        public async Task<IActionResult> Get(string referenceCode)
+        public async Task<ActionResult<Booking>> Get(string referenceCode)
         {
             var agent = await _agentContextService.GetAgent();
             var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, agent);
@@ -63,9 +64,10 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get bookings
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetList(DateTime from, DateTime to)
+        public async Task<ActionResult<List<Booking>>> GetList(DateTime from, DateTime to)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            return await _bookingInfoService.Get(from, to, agent);
         }
 
 
