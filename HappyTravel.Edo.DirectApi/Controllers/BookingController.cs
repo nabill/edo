@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get booking info
         /// </summary>
-        [HttpGet("{referenceCode}")]
+        [HttpGet]
         public async Task<ActionResult<Booking>> Get([FromQuery] BookingIdentifier bookingIdentifier)
         {
             var agent = await _agentContextService.GetAgent();
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get bookings
         /// </summary>
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<ActionResult<List<Booking>>> GetList(DateTime from, DateTime to)
         {
             var agent = await _agentContextService.GetAgent();

@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.DirectApi.Services
             async Task<Result<Booking>> GetBooking()
             {
                 var query = _context.Bookings
-                    .Where(b => b.AgentId == agent.AgentId && b.AgentId == agent.AgencyId);
+                    .Where(b => b.AgentId == agent.AgentId && b.AgencyId == agent.AgencyId);
 
                 if (!string.IsNullOrWhiteSpace(bookingIdentifier.ClientReferenceCode))
                     query = query.Where(b => b.ClientReferenceCode == bookingIdentifier.ClientReferenceCode);
