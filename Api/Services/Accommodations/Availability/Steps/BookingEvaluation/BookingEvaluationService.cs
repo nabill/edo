@@ -154,23 +154,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
                     int? agentId = null, agencyId = null, counterpartyId = null;
-                    switch (appliedMarkup.Policy.AgentScopeType)
+                    switch (appliedMarkup.Policy.SubjectScopeType)
                     {
-                        case AgentMarkupScopeTypes.Agent:
-                            var agentInAgencyId = AgentInAgencyId.Create(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Agent:
+                            var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
                             agentId = agentInAgencyId.AgentId;
                             agencyId = agentInAgencyId.AgencyId;
                             break;
-                        case AgentMarkupScopeTypes.Agency:
-                            agencyId = int.Parse(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Agency:
+                            agencyId = int.Parse(policy.SubjectScopeId);
                             break;
-                        case AgentMarkupScopeTypes.Counterparty:
-                            counterpartyId = int.Parse(policy.AgentScopeId);
+                        case SubjectMarkupScopeTypes.Counterparty:
+                            counterpartyId = int.Parse(policy.SubjectScopeId);
                             break;
                     }
                     
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.AgentScopeType, counterpartyId, agencyId, agentId),
+                        scope: new MarkupPolicyScope(policy.SubjectScopeType, counterpartyId, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));

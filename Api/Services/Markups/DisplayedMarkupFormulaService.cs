@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var agentScopeId = AgentInAgencyId.Create(agentId, agencyId).ToString();
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgentScopeId == agentScopeId && p.AgentScopeType == AgentMarkupScopeTypes.Agent)
+                .Where(p => p.SubjectScopeId == agentScopeId && p.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetAgencyMarkupFormula(int agencyId)
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgentScopeId == agencyId.ToString() && p.AgentScopeType == AgentMarkupScopeTypes.Agency)
+                .Where(p => p.SubjectScopeId == agencyId.ToString() && p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetCounterpartyMarkupFormula(int counterpartyId)
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgentScopeId == counterpartyId.ToString() && p.AgentScopeType == AgentMarkupScopeTypes.Counterparty)
+                .Where(p => p.SubjectScopeId == counterpartyId.ToString() && p.SubjectScopeType == SubjectMarkupScopeTypes.Counterparty)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 
@@ -191,7 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<string> GetGlobalMarkupFormula()
         {
             var policies = await _context.MarkupPolicies
-                .Where(p => p.AgentScopeType == AgentMarkupScopeTypes.Global)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 

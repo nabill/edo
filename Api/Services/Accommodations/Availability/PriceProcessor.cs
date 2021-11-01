@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public async Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
-            Func<TDetails, MarkupObjectInfo> getMarkupObjectFunc,
+            Func<TDetails, MarkupDestinationInfo> getMarkupDestinationFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
             var (_, isFailure, agency, error) = await _agencyService.Get(agent);
@@ -50,9 +50,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 CountryHtId = agency.CountryHtId,
                 LocalityHtId = agency.LocalityHtId
             };
-            var markupObject = getMarkupObjectFunc(details);
+            var markupDestination = getMarkupDestinationFunc(details);
 
-            return await _markupService.ApplyMarkups(markupSubject, markupObject, details, priceProcessFunc, logAction);
+            return await _markupService.ApplyMarkups(markupSubject, markupDestination, details, priceProcessFunc, logAction);
         }
 
 

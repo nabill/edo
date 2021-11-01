@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -35,35 +35,35 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 9,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 7,
                     Order = 4,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "2",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "2",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 5,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "3",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "3",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
             };
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
-            Assert.Equal("3", policies[0].AgentScopeId);
-            Assert.Equal("2", policies[1].AgentScopeId);
-            Assert.Equal("1", policies[2].AgentScopeId);
+            Assert.Equal("3", policies[0].SubjectScopeId);
+            Assert.Equal("2", policies[1].SubjectScopeId);
+            Assert.Equal("1", policies[2].SubjectScopeId);
         }
     }
 }

@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211031231203_RenameAgentScopeType")]
+    partial class RenameAgentScopeType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -426,9 +428,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("ClientReferenceCode")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -515,8 +514,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AgentId");
-
-                    b.HasIndex("ClientReferenceCode");
 
                     b.HasIndex("CounterpartyId");
 

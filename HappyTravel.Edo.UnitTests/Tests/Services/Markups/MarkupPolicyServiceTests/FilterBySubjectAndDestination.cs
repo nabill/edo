@@ -8,7 +8,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTests
 {
-    public class FilterByObjectAndSubject
+    public class FilterBySubjectAndDestination
     {
         [Fact]
         public void Global_markups_should_be_returned()
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -36,22 +36,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Locality,
-                    AgentScopeId = "Kiev",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+                    SubjectScopeId = "Kiev",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -84,8 +84,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Russia",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Russia",
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UAE"
                 },
@@ -93,8 +93,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Ukraine",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Ukraine",
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UK"
                 }
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -135,8 +135,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Russia",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Russia",
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "President Hotel"
                 },
@@ -144,8 +144,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Ukraine",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Ukraine",
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "Hilton"
                 }
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -186,8 +186,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UAE"
                 },
@@ -195,8 +195,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UK"
                 }
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
@@ -237,8 +237,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "President Hotel"
                 },
@@ -246,8 +246,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "President Hotel"
                 }
@@ -255,7 +255,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);

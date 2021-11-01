@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         public Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
-            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, GetMarkupObjectInfo);
+            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, GetMarkupDestinationInfo);
 
 
         public SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability source)
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private static MarkupObjectInfo GetMarkupObjectInfo(SingleAccommodationAvailability availability)
+        private static MarkupDestinationInfo GetMarkupDestinationInfo(SingleAccommodationAvailability availability)
             => new()
             {
                 AccommodationHtId = availability.HtId,

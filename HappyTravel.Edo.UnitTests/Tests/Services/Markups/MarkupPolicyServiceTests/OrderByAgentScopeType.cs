@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
     public class OrderByAgentScopeType
     {
         [Fact]
-        public void Ordering_by_agent_scope_type()
+        public void Ordering_by_subject_scope_type()
         {
             var markupSubject = new MarkupSubjectInfo
             {
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 LocalityHtId = "Moscow"
             };
 
-            var markupObject = new MarkupObjectInfo
+            var markupDestination = new MarkupDestinationInfo
             {
                 AccommodationHtId = "President Hotel", 
                 CountryHtId = "UAE", 
@@ -36,39 +36,39 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 9,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Agent,
-                    AgentScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 7,
                     Order = 4,
-                    AgentScopeType = AgentMarkupScopeTypes.Global,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 5,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Country,
-                    AgentScopeId = "Russia",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "Russia",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Agency,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Agency,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 1,
                     Order = 1,
-                    AgentScopeType = AgentMarkupScopeTypes.Counterparty,
-                    AgentScopeId = "1",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Counterparty,
+                    SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global,
                     DestinationScopeId = "UAE"
                 },
@@ -76,22 +76,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 8,
                     Order = 2,
-                    AgentScopeType = AgentMarkupScopeTypes.Locality,
-                    AgentScopeId = "Moscow",
+                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+                    SubjectScopeId = "Moscow",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
             };
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupObject, default);
+            var policies = service.Get(markupSubject, markupDestination, default);
             
-            Assert.Equal(AgentMarkupScopeTypes.Global, policies[0].AgentScopeType);
-            Assert.Equal(AgentMarkupScopeTypes.Country, policies[1].AgentScopeType);
-            Assert.Equal(AgentMarkupScopeTypes.Locality, policies[2].AgentScopeType);
-            Assert.Equal(AgentMarkupScopeTypes.Counterparty, policies[3].AgentScopeType);
-            Assert.Equal(AgentMarkupScopeTypes.Agency, policies[4].AgentScopeType);
-            Assert.Equal(AgentMarkupScopeTypes.Agent, policies[5].AgentScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Global, policies[0].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Country, policies[1].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Locality, policies[2].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Counterparty, policies[3].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Agency, policies[4].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Agent, policies[5].SubjectScopeType);
         }
     }
 }
