@@ -83,6 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     agentContext: agentContext,
                     itineraryNumber: tags.itn,
                     referenceCode: tags.referenceCode,
+                    clientReferenceCode: bookingRequest.ClientReferenceCode,
                     availabilityInfo: availabilityInfo,
                     paymentMethod: paymentMethod,
                     bookingRequest: bookingRequest,
@@ -133,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
 
         private static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
-            string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
+            string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             in AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
@@ -141,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 Created = created,
                 ItineraryNumber = itineraryNumber,
                 ReferenceCode = referenceCode,
+                ClientReferenceCode = clientReferenceCode,
                 Status = BookingStatuses.Created,
                 PaymentType = paymentMethod,
                 LanguageCode = languageCode,
