@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -25,10 +26,11 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingController : ControllerBase
     {
-        public BookingController(IAgentContextService agentContextService, BookingCancellationService bookingCancellationService)
+        public BookingController(IAgentContextService agentContextService, BookingCancellationService bookingCancellationService, BookingInfoService bookingInfoService)
         {
             _agentContextService = agentContextService;
             _bookingCancellationService = bookingCancellationService;
+            _bookingInfoService = bookingInfoService;
         }
         
         
@@ -47,9 +49,14 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get booking info
         /// </summary>
         [HttpGet("{referenceCode}")]
-        public async Task<IActionResult> Get(string referenceCode)
+        public async Task<ActionResult<Booking>> Get(string referenceCode)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, agent);
+            
+            return isSuccess
+                ? Ok(booking)
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
@@ -57,9 +64,10 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get bookings
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetList(DateTime from, DateTime to)
+        public async Task<ActionResult<List<Booking>>> GetList(DateTime from, DateTime to)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            return await _bookingInfoService.Get(from, to, agent);
         }
 
 
@@ -80,5 +88,6 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         
         private readonly IAgentContextService _agentContextService;
         private readonly BookingCancellationService _bookingCancellationService;
+        private readonly BookingInfoService _bookingInfoService;
     }
 }
