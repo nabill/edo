@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Services;
@@ -27,20 +25,21 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ApiController]
     [Authorize]
     [ApiVersion("1.0")]
-    [Route("api/{version:apiVersion}")]
+    [Route("api/{version:apiVersion}/searches")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public class BookingFlowController : ControllerBase
+    public class SearchController : ControllerBase
     {
-        public BookingFlowController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService,
-            AccommodationAvailabilitiesService accommodationAvailabilitiesService)
+        public SearchController(IAgentContextService agentContextService, WideAvailabilitySearchService wideSearchService,
+            AccommodationAvailabilitiesService accommodationAvailabilitiesService, ValuationService valuationService)
         {
             _agentContextService = agentContextService;
             _wideSearchService = wideSearchService;
             _accommodationAvailabilitiesService = accommodationAvailabilitiesService;
+            _valuationService = valuationService;
         }
 
 
@@ -50,7 +49,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Starting wide availability search for search all available accommodations on predefined parameters.
         /// </remarks>
-        [HttpPost("searches")]
+        [HttpPost]
         public async Task<ActionResult<StartSearchResponse>> StartSearch([FromBody] AvailabilityRequest request, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
@@ -67,7 +66,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Returns all available accommodations for provided searchId
         /// </remarks>
-        [HttpGet("searches/{searchId}")]
+        [HttpGet("{searchId}")]
         public async Task<ActionResult<WideSearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
@@ -84,7 +83,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Returns room contract sets for getting a specific contract from a selected accommodation.
         /// </remarks>
-        [HttpGet("searches/{searchId}/results/{htId}")]
+        [HttpGet("{searchId}/results/{htId}")]
         public async Task<ActionResult<RoomSelectionResult>> GetAvailabilityForAccommodation(Guid searchId, string htId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
@@ -101,27 +100,21 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Booking evaluation to ensure no one book a contract you want when you make a decision and fill out passenger data.
         /// </remarks>
-        [HttpGet("searches/{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
+        [HttpGet("{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
         public async Task<ActionResult<RoomContractSetAvailability>> GetExactAvailability(Guid searchId, string htId, Guid roomContractSetId, CancellationToken cancellationToken)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+            var (isSuccess, _, result, error) = await _valuationService.Get(searchId, htId, roomContractSetId, agent, "en");
+            
+            return isSuccess
+                ? result
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
-        /// <summary>
-        /// Creating booking.
-        /// </summary>
-        /// <remarks>
-        /// Booking selected contract
-        /// </remarks>
-        [HttpPost("book")]
-        public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
-        {
-            return Ok();
-        }
-        
-        
+
+
         private readonly IAgentContextService _agentContextService;
         private readonly WideAvailabilitySearchService _wideSearchService;
         private readonly AccommodationAvailabilitiesService _accommodationAvailabilitiesService;
+        private readonly ValuationService _valuationService;
     }
 }

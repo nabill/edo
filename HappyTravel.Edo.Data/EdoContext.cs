@@ -543,6 +543,7 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValueSql("'[]'::jsonb");
 
                 booking.HasIndex(b => b.IsDirectContract);
+                booking.HasIndex(b => b.ClientReferenceCode);
             });
         }
 

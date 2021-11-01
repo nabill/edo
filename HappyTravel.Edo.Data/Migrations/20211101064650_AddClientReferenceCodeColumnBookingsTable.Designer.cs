@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211101064650_AddClientReferenceCodeColumnBookingsTable")]
+    partial class AddClientReferenceCodeColumnBookingsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1027,6 +1029,12 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<string>("AgentScopeId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AgentScopeType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -1048,12 +1056,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SubjectScopeId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("SubjectScopeType")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Target")
                         .HasColumnType("integer");
 
@@ -1066,11 +1068,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AgentScopeId");
+
+                    b.HasIndex("AgentScopeType");
+
                     b.HasIndex("DestinationScopeId");
-
-                    b.HasIndex("SubjectScopeId");
-
-                    b.HasIndex("SubjectScopeType");
 
                     b.HasIndex("Target");
 

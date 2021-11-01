@@ -20,7 +20,32 @@
             Accommodation by id
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController">
+        <member name="T:HappyTravel.Edo.DirectApi.Controllers.BookingController">
+            <summary>
+            <h2>Booking management</h2>
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Book(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
+            <summary>
+            Creating booking.
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String)">
+            <summary>
+            Get booking info
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(System.DateTime,System.DateTime)">
+            <summary>
+            Get bookings
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Cancel(System.String)">
+            <summary>
+            Cancel booking
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.DirectApi.Controllers.SearchController">
             <summary>
             <h2>The booking flow contains four following steps:</h2>
             <ul>
@@ -31,7 +56,7 @@
             </ul>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.StartSearch(HappyTravel.Edo.DirectApi.Models.AvailabilityRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.StartSearch(HappyTravel.Edo.DirectApi.Models.AvailabilityRequest,System.Threading.CancellationToken)">
             <summary>
             Starting search
             </summary>
@@ -39,7 +64,7 @@
             Starting wide availability search for search all available accommodations on predefined parameters.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetSearchResult(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetSearchResult(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Getting accommodations
             </summary>
@@ -47,7 +72,7 @@
             Returns all available accommodations for provided searchId
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetAvailabilityForAccommodation(System.Guid,System.String,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetAvailabilityForAccommodation(System.Guid,System.String,System.Threading.CancellationToken)">
             <summary>
             Room selection
             </summary>
@@ -55,20 +80,12 @@
             Returns room contract sets for getting a specific contract from a selected accommodation.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetExactAvailability(System.Guid,System.String,System.Guid,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetExactAvailability(System.Guid,System.String,System.Guid,System.Threading.CancellationToken)">
             <summary>
             Booking evaluation
             </summary>
             <remarks>
             Booking evaluation to ensure no one book a contract you want when you make a decision and fill out passenger data.
-            </remarks>
-        </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.Book(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
-            <summary>
-            Creating booking.
-            </summary>
-            <remarks>
-            Booking selected contract
             </remarks>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Id">
@@ -129,11 +146,6 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.HotelChain">
             <summary>
                 Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.HtId">
-            <summary>
-                The Happytravel.com unique accommodation correlation ID.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.AccommodationAmenities">

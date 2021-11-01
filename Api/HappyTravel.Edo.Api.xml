@@ -2994,6 +2994,11 @@
                 Counterparty name.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.LocalityHtId">
+            <summary>
+            Locality of counterparty
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
             <summary>
                 Regular agent personal information.
@@ -3203,6 +3208,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
             <summary>
                 Itinerary number to combine several orders in one pack.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ClientReferenceCode">
+            <summary>
+                Client booking reference code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BatchOperationResult.Message">
@@ -4094,6 +4104,13 @@
             This is temporary implementation based on the agent.
             Must be replaced with more valid implementation.
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Locations.LocalityInfoService.GetLocalityInfo(System.String)">
+            <summary>
+            Receives information about locality
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupObjectInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
             <summary>
