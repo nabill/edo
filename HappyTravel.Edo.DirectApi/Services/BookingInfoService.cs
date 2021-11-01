@@ -1,38 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
     public class BookingInfoService
     {
-        public BookingInfoService(IBookingInfoService bookingInfoService)
+        public BookingInfoService(EdoContext context)
         {
-            _bookingInfoService = bookingInfoService;
+            _context = context;
         }
 
 
-        public async Task<Result<Booking>> Get(string referenceCode, AgentContext agent)
+        public async Task<Result<Booking>> Get(BookingIdentifier bookingIdentifier, AgentContext agent)
         {
-            var (isSuccess, _, booking, error) = await _bookingInfoService.GetAgentsBooking(referenceCode, agent);
+            return await Validate()
+                .Bind(GetBooking);
+            
 
-            return isSuccess
-                ? booking.FromEdoModels()
-                : Result.Failure<Booking>(error);
+            Result Validate()
+            {
+                var validator = new InlineValidator<BookingIdentifier>();
+                validator.RuleFor(i => i.ClientReferenceCode).NotEmpty().When(i => string.IsNullOrWhiteSpace(i.SupplierReferenceCode));
+                validator.RuleFor(i => i.SupplierReferenceCode).NotEmpty().When(i => string.IsNullOrWhiteSpace(i.ClientReferenceCode));
+
+                var result = validator.Validate(bookingIdentifier);
+                return result.IsValid
+                    ? Result.Success()
+                    : Result.Failure(result.ToString("; "));
+            }
+
+
+            async Task<Result<Booking>> GetBooking()
+            {
+                var query = _context.Bookings
+                    .Where(b => b.AgentId == agent.AgentId && b.AgentId == agent.AgencyId);
+
+                if (!string.IsNullOrWhiteSpace(bookingIdentifier.ClientReferenceCode))
+                    query = query.Where(b => b.ClientReferenceCode == bookingIdentifier.ClientReferenceCode);
+
+                if (!string.IsNullOrWhiteSpace(bookingIdentifier.SupplierReferenceCode))
+                    query = query.Where(b => b.ReferenceCode == bookingIdentifier.SupplierReferenceCode);
+
+                var booking = await query.SingleOrDefaultAsync();
+                return booking?.FromEdoModels() ?? Result.Failure<Booking>("Booking not found");
+            }
         }
 
 
-        public async Task<List<Booking>> Get(DateTime from, DateTime to, AgentContext agent)
+        public async Task<List<Booking>> Get(DateTime fromDateTime, DateTime toDateTime, AgentContext agent)
         {
-            var result = await _bookingInfoService.GetAgentBookings(from, to, agent);
-            return result.FromEdoModels();
+            var query = from booking in _context.Bookings
+                where booking.AgentId == agent.AgentId &&
+                    booking.AgencyId == agent.AgencyId &&
+                    booking.Created >= fromDateTime &&
+                    booking.Created <= toDateTime
+                select booking;
+
+            var bookings = await query.ToListAsync();
+            return bookings.FromEdoModels();
         }
 
 
-        private readonly IBookingInfoService _bookingInfoService;
+        private readonly EdoContext _context;
     }
 }

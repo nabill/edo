@@ -8,11 +8,11 @@ namespace HappyTravel.Edo.DirectApi.Models
 {
     public readonly struct Booking
     {
-        public Booking(string referenceCode, DateTime created, DateTime checkInDate, DateTime checkOutDate, DateTime deadlineDate, MoneyAmount totalPrice, 
+        public Booking(BookingIdentifier bookingIdentifier, DateTime created, DateTime checkInDate, DateTime checkOutDate, DateTime deadlineDate, MoneyAmount totalPrice, 
             BookingStatuses status, List<BookedRoom> rooms, string accommodationId, List<CancellationPolicy> cancellationPolicies, 
             DateTime? cancelled, bool isAdvancePurchaseRate, bool isPackage)
         {
-            ReferenceCode = referenceCode;
+            BookingIdentifier = bookingIdentifier;
             Created = created;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         }
 
 
-        public string ReferenceCode { get; }
+        public BookingIdentifier BookingIdentifier { get; }
         public DateTime Created { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }

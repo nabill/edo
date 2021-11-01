@@ -4112,12 +4112,12 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupObjectInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
+        <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupDestinationInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
             <summary>
             Applies markups to given data
             </summary>
             <param name="subject">Markups subject. An agent or api client</param>
-            <param name="objectInfo">To what markup is applied. E.g. accommodation</param>
+            <param name="destinationInfo">To what markup is applied. E.g. accommodation</param>
             <param name="details">Data to apply markups</param>
             <param name="priceProcessFunc">Function to change prices in Data</param>
             <param name="logAction">Action to execute after each applied markup policy</param>
