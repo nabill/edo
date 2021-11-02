@@ -30,7 +30,7 @@
             Creating booking.
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(HappyTravel.Edo.DirectApi.Models.BookingIdentifier)">
             <summary>
             Get booking info
             </summary>

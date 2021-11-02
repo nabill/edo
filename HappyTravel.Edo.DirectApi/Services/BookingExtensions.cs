@@ -13,7 +13,8 @@ namespace HappyTravel.Edo.DirectApi.Services
 
         public static Booking FromEdoModels(this Data.Bookings.Booking booking)
         {
-            return new Booking(referenceCode: booking.ReferenceCode,
+            return new Booking(referenceCode: booking.ClientReferenceCode,
+                supplierReferenceCode: booking.ReferenceCode,
                 created: booking.Created,
                 checkInDate: booking.CheckInDate,
                 checkOutDate: booking.CheckOutDate,
