@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Creating booking.
         /// </summary>
-        [HttpPost("book")]
+        [HttpPost]
         public async Task<ActionResult<AccommodationBookingInfo>> Book([FromBody] AccommodationBookingRequest request)
         {
             var agent = await _agentContextService.GetAgent();

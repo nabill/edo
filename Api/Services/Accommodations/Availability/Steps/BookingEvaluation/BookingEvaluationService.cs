@@ -205,6 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 
                 return _bookingEvaluationStorage.Set(searchId: searchId,
                     roomContractSetId: finalRoomContractSet.Id, 
+                    htId: htId,
                     availability: dataWithMarkup, 
                     agentDeadline: agentDeadline,
                     supplierDeadline: supplierDeadline,

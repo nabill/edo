@@ -58,9 +58,12 @@ namespace HappyTravel.Edo.DirectApi.Models
                 CounterpartyName = counterpartyName;
                 AgentEmail = agentEmail;
             }
+
+
             public string AgentName { get; }
             public string AgencyName { get; }
             public string CounterpartyName { get; }
             public string AgentEmail { get; }
         }
+    }
 }

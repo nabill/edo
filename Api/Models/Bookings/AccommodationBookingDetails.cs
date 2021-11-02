@@ -12,13 +12,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatuses status, int numberOfNights,
+        public AccommodationBookingDetails(string referenceCode, string clientReferenceCode, string agentReference, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
             string propertyOwnerConfirmationCode, bool isAdvancePurchaseRate)
         {
             ReferenceCode = referenceCode;
+            ClientReferenceCode = clientReferenceCode;
             AgentReference = agentReference;
             Status = status;
             NumberOfNights = numberOfNights;
@@ -52,6 +53,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public string ReferenceCode { get; }
+        public string ClientReferenceCode { get; }
         public string AgentReference { get; }
         public BookingStatuses Status { get; }
         public int NumberOfNights { get; }

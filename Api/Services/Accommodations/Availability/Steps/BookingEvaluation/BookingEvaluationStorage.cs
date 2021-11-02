@@ -18,11 +18,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public Task Set(Guid searchId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
+        public Task Set(Guid searchId, Guid roomContractSetId, string htId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
             Deadline supplierDeadline, CreditCardRequirement? cardRequirement, string supplierAccommodationCode)
         {
             var accommodation = availability.Data.Accommodation;
-            var key = BuildKey(searchId, accommodation.HtId, roomContractSetId);
+            var key = BuildKey(searchId, htId, roomContractSetId);
             var roomSetAvailability = availability.Data;
             
             var location = accommodation.Location;

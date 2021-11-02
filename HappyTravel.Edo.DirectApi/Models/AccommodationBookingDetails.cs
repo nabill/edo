@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.DirectApi.Models
@@ -8,14 +9,14 @@ namespace HappyTravel.Edo.DirectApi.Models
      public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatuses status, int numberOfNights,
+        public AccommodationBookingDetails(string referenceCode, string supplierReferenceCode, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
-            string propertyOwnerConfirmationCode, bool isAdvancePurchaseRate)
+            string propertyOwnerConfirmationCode)
         {
             ReferenceCode = referenceCode;
-            AgentReference = agentReference;
+            SupplierReferenceCode = supplierReferenceCode;
             Status = status;
             NumberOfNights = numberOfNights;
             CheckInDate = checkInDate;
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.DirectApi.Models
 
 
         public string ReferenceCode { get; }
-        public string AgentReference { get; }
+        public string SupplierReferenceCode { get; }
         public BookingStatuses Status { get; }
         public int NumberOfNights { get; }
         public DateTime CheckInDate { get; }
