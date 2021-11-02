@@ -90,7 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     async () => await GetAgentInfoByApiClientCredentials(name, passwordHash),
                     AgentContextCacheLifeTime);
 
-                string GetHeaderValue(string header) => _httpContextAccessor.HttpContext?.Request.Headers[header];
+                string GetHeaderValue(string header) 
+                    => _httpContextAccessor.HttpContext?.Request.Headers[header];
             }
 
 
@@ -111,7 +112,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private string GetKey(string name) => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
+        private string GetKey(string name) 
+            => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
 
         public async ValueTask<AgentContext> GetAgent()
