@@ -1,38 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
     public class BookingInfoService
     {
-        public BookingInfoService(IBookingInfoService bookingInfoService)
+        public BookingInfoService(EdoContext context)
         {
-            _bookingInfoService = bookingInfoService;
+            _context = context;
         }
 
 
-        public async Task<Result<Booking>> Get(string referenceCode, AgentContext agent)
+        public async Task<Result<Booking>> Get(string? referenceCode, string? supplierReferenceCode, AgentContext agent)
         {
-            var (isSuccess, _, booking, error) = await _bookingInfoService.GetAgentsBooking(referenceCode, agent);
+            return await Validate()
+                .Bind(GetBooking);
+            
 
-            return isSuccess
-                ? booking.FromEdoModels()
-                : Result.Failure<Booking>(error);
+            Result Validate()
+            {
+                return string.IsNullOrWhiteSpace(referenceCode) && string.IsNullOrWhiteSpace(supplierReferenceCode)
+                    ? Result.Failure("Reference code or supplier reference code must be set")
+                    : Result.Success();
+            }
+
+
+            async Task<Result<Booking>> GetBooking()
+            {
+                var query = _context.Bookings
+                    .Where(b => b.AgentId == agent.AgentId && b.AgencyId == agent.AgencyId);
+
+                if (!string.IsNullOrWhiteSpace(referenceCode))
+                    query = query.Where(b => b.ClientReferenceCode == referenceCode);
+
+                if (!string.IsNullOrWhiteSpace(supplierReferenceCode))
+                    query = query.Where(b => b.ReferenceCode == supplierReferenceCode);
+
+                var booking = await query.SingleOrDefaultAsync();
+                return booking?.FromEdoModels() ?? Result.Failure<Booking>("Booking not found");
+            }
         }
 
 
-        public async Task<List<Booking>> Get(DateTime from, DateTime to, AgentContext agent)
+        public async Task<List<Booking>> Get(DateTime fromDateTime, DateTime toDateTime, AgentContext agent)
         {
-            var result = await _bookingInfoService.GetAgentBookings(from, to, agent);
-            return result.FromEdoModels();
+            var query = from booking in _context.Bookings
+                where booking.AgentId == agent.AgentId &&
+                    booking.AgencyId == agent.AgencyId &&
+                    booking.Created >= fromDateTime &&
+                    booking.Created <= toDateTime
+                select booking;
+
+            var bookings = await query.ToListAsync();
+            return bookings.FromEdoModels();
         }
 
 
-        private readonly IBookingInfoService _bookingInfoService;
+        private readonly EdoContext _context;
     }
 }

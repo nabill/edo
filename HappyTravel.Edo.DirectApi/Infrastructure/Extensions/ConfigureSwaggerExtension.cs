@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.CustomSchemaIds(x => x.FullName);
                 c.IncludeXmlComments(xmlPath, true);
             });
         }

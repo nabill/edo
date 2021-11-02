@@ -48,11 +48,11 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get booking info
         /// </summary>
-        [HttpGet("{referenceCode}")]
-        public async Task<ActionResult<Booking>> Get(string referenceCode)
+        [HttpGet]
+        public async Task<ActionResult<Booking>> Get(string? referenceCode, string? supplierReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, agent);
+            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, supplierReferenceCode, agent);
             
             return isSuccess
                 ? Ok(booking)
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get bookings
         /// </summary>
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<ActionResult<List<Booking>>> GetList(DateTime from, DateTime to)
         {
             var agent = await _agentContextService.GetAgent();
