@@ -45,7 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     verificationState: a.VerificationState,
                     verificationDate: a.VerificationDate,
                     legalAddress: a.LegalAddress,
-                    preferredPaymentMethod: a.PreferredPaymentMethod));
+                    preferredPaymentMethod: a.PreferredPaymentMethod,
+                    isContractUploaded: a.IsContractUploaded));
         }
 
 

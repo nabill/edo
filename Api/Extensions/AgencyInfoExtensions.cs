@@ -34,7 +34,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 verificationDate,
                 agency.IsActive,
                 agency.LegalAddress,
-                agency.PreferredPaymentMethod);
+                agency.PreferredPaymentMethod,
+                agency.IsContractUploaded);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)

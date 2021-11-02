@@ -77,21 +77,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
+            
+            var localityId = request.Counterparty.RootAgencyInfo.LocalityHtId;
+            if (string.IsNullOrWhiteSpace(localityId))
+                return BadRequest(ProblemDetailsBuilder.Build("Locality id is required"));
 
-            var localityId = request.Counterparty.CounterpartyInfo.LocalityHtId;
-            // Assigning default values before changes on frontend are made
-            var localityInfo = new LocalityInfo
-            {
-                CountryName = "", CountryHtId = "", LocalityName = "", LocalityHtId = ""
-            };
-            if (!string.IsNullOrWhiteSpace(localityId))
-            {
-                var (_, isFailure, value, _) = await _localityInfoService.GetLocalityInfo(localityId);
-                if (isFailure)
-                    return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
-
-                localityInfo = value;
-            }
+            var (_, isFailure, localityInfo, _) = await _localityInfoService.GetLocalityInfo(localityId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
 
             var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
                 externalIdentity, email, localityInfo);
