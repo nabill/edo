@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Services.Files
 {
     public interface IContractFileManagementService
     {
-        Task<Result> Add(int counterpartyId, IFormFile file);
+        Task<Result> Add(int agencyId, IFormFile file);
 
-        Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId);
+        Task<Result<(Stream stream, string contentType)>> Get(int agencyId);
     }
 }

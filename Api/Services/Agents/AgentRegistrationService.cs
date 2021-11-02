@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
-                    .Bind(AddLocalityInfo)
+                    .Tap(AddLocalityInfo)
                     .Bind(CreateAgent)
                     .Tap(AddMasterAgentAgencyRelation))
                 .Bind(LogSuccess)
@@ -72,13 +72,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<Result<SlimCounterpartyInfo>> AddLocalityInfo(SlimCounterpartyInfo counterpartyInfo)
+            async Task<SlimCounterpartyInfo> AddLocalityInfo(SlimCounterpartyInfo counterpartyInfo)
             {
-                // TODO to make it compatible with current registration flow
-                // can be removed after changes of frontend
-                if (string.IsNullOrEmpty(localityInfo.CountryIsoCode))
-                    return counterpartyInfo;
-                
                 var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
 
                 rootAgency.CountryCode = localityInfo.CountryIsoCode;
