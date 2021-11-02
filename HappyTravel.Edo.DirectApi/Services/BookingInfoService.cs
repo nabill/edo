@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Models;
@@ -19,7 +18,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        public async Task<Result<Booking>> Get(BookingIdentifier bookingIdentifier, AgentContext agent)
+        public async Task<Result<Booking>> Get(string? referenceCode, string? supplierReferenceCode, AgentContext agent)
         {
             return await Validate()
                 .Bind(GetBooking);
@@ -27,14 +26,9 @@ namespace HappyTravel.Edo.DirectApi.Services
 
             Result Validate()
             {
-                var validator = new InlineValidator<BookingIdentifier>();
-                validator.RuleFor(i => i.ClientReferenceCode).NotEmpty().When(i => string.IsNullOrWhiteSpace(i.SupplierReferenceCode));
-                validator.RuleFor(i => i.SupplierReferenceCode).NotEmpty().When(i => string.IsNullOrWhiteSpace(i.ClientReferenceCode));
-
-                var result = validator.Validate(bookingIdentifier);
-                return result.IsValid
-                    ? Result.Success()
-                    : Result.Failure(result.ToString("; "));
+                return string.IsNullOrWhiteSpace(referenceCode) && string.IsNullOrWhiteSpace(supplierReferenceCode)
+                    ? Result.Failure("Reference code or supplier reference code must be set")
+                    : Result.Success();
             }
 
 
@@ -43,11 +37,11 @@ namespace HappyTravel.Edo.DirectApi.Services
                 var query = _context.Bookings
                     .Where(b => b.AgentId == agent.AgentId && b.AgencyId == agent.AgencyId);
 
-                if (!string.IsNullOrWhiteSpace(bookingIdentifier.ClientReferenceCode))
-                    query = query.Where(b => b.ClientReferenceCode == bookingIdentifier.ClientReferenceCode);
+                if (!string.IsNullOrWhiteSpace(referenceCode))
+                    query = query.Where(b => b.ClientReferenceCode == referenceCode);
 
-                if (!string.IsNullOrWhiteSpace(bookingIdentifier.SupplierReferenceCode))
-                    query = query.Where(b => b.ReferenceCode == bookingIdentifier.SupplierReferenceCode);
+                if (!string.IsNullOrWhiteSpace(supplierReferenceCode))
+                    query = query.Where(b => b.ReferenceCode == supplierReferenceCode);
 
                 var booking = await query.SingleOrDefaultAsync();
                 return booking?.FromEdoModels() ?? Result.Failure<Booking>("Booking not found");

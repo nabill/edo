@@ -49,10 +49,10 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get booking info
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<Booking>> Get([FromQuery] BookingIdentifier bookingIdentifier)
+        public async Task<ActionResult<Booking>> Get(string? referenceCode, string? supplierReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(bookingIdentifier, agent);
+            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, supplierReferenceCode, agent);
             
             return isSuccess
                 ? Ok(booking)
