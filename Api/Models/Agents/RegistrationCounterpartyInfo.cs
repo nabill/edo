@@ -6,10 +6,9 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct RegistrationCounterpartyInfo
     {
         [JsonConstructor]
-        public RegistrationCounterpartyInfo(string name, string localityHtId = null)
+        public RegistrationCounterpartyInfo(string name)
         {
             Name = name;
-            LocalityHtId = localityHtId;
         }
 
         /// <summary>
@@ -17,10 +16,5 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// </summary>
         [Required]
         public string Name { get; }
-
-        /// <summary>
-        /// Locality of counterparty
-        /// </summary>
-        public string LocalityHtId { get; }
     }
 }

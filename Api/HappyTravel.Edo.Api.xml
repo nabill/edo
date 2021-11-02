@@ -2584,6 +2584,11 @@
                 Preferable way to do payments.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.LocalityHtId">
+            <summary>
+            Agency locality id
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -3007,11 +3012,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.Name">
             <summary>
                 Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.LocalityHtId">
-            <summary>
-            Locality of counterparty
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
