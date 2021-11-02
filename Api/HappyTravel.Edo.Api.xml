@@ -225,7 +225,7 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.UploadContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Uploads a contract pdf file
             </summary>
@@ -2374,6 +2374,11 @@
                 Preferable way to do payments.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.IsContractUploaded">
+            <summary>
+            True if contract is loaded to agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -2579,6 +2584,11 @@
                 Preferable way to do payments.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.LocalityHtId">
+            <summary>
+            Agency locality id
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -2672,6 +2682,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.PreferredPaymentMethod">
             <summary>
                 Preferable way to do payments.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.IsContractUploaded">
+            <summary>
+            True if contract is loaded to agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">
@@ -2997,11 +3012,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.Name">
             <summary>
                 Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.LocalityHtId">
-            <summary>
-            Locality of counterparty
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
@@ -4117,12 +4127,12 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupObjectInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
+        <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupDestinationInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
             <summary>
             Applies markups to given data
             </summary>
             <param name="subject">Markups subject. An agent or api client</param>
-            <param name="objectInfo">To what markup is applied. E.g. accommodation</param>
+            <param name="destinationInfo">To what markup is applied. E.g. accommodation</param>
             <param name="details">Data to apply markups</param>
             <param name="priceProcessFunc">Function to change prices in Data</param>
             <param name="logAction">Action to execute after each applied markup policy</param>
