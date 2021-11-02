@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.DirectApi
                     var consulHttpAddr = Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set");
                     var consulHttpToken = Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set");
 
-                    config.AddConsulKeyValueClient(consulHttpAddr, "direct-api", consulHttpToken, environment.EnvironmentName, optional: environment.IsLocal());
+                    config.AddConsulKeyValueClient(consulHttpAddr, "edo", consulHttpToken, environment.EnvironmentName, optional: environment.IsLocal());
                     
                     config.AddEnvironmentVariables();
                 })

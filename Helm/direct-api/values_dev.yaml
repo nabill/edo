@@ -1,0 +1,90 @@
+replicaCount: 1
+
+jaeger:
+  sidecar: jaeger-dev
+  collector_host: dns:///jaeger-dev-collector-headless.observability:14250
+
+image:
+  repository: registry.happytravel.com/direct-api
+  tag: latest
+  pullPolicy: Always
+imagePullSecrets:
+  - name: travel-registry
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+  hosts:
+    - host: api-dev.happytravel.com
+      paths:
+        - /
+  tls:
+   - secretName: happytravel-tls
+     hosts:
+       - api-dev.happytravel.com
+
+resources:
+  limits:
+    cpu: 1
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - edo
+      topologyKey: "kubernetes.io/hostname"
+metrics:
+  enabled: true
+  podMonitor:
+    enabled: true
+env:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
+  HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://db23cc3a191649f39a8d9087ded431f6@sentry1.happytravel.com/2"
+  JAEGER_AGENT_HOST: "localhost"
+  JAEGER_AGENT_PORT: "6831"
+  HTDC_REDIS_HOST: "redis-edo"
+  CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"

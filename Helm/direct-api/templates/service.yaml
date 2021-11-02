@@ -1,0 +1,16 @@
+{{- $fullName := include "direct-api.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "direct-api.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http-nginx
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "direct-api.selectorLabels" . | nindent 4 }}

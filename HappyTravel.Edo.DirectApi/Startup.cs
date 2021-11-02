@@ -47,8 +47,7 @@ namespace HappyTravel.Edo.DirectApi
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
-                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
-                .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
+                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             
             services.ConfigureAuthentication(authorityOptions);
             services.AddControllers().AddNewtonsoftJson();
