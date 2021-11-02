@@ -26,11 +26,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public class BookingController : ControllerBase
     {
-        public BookingController(IAgentContextService agentContextService, BookingCancellationService bookingCancellationService, BookingInfoService bookingInfoService)
+        public BookingController(IAgentContextService agentContextService, BookingCancellationService bookingCancellationService, BookingInfoService bookingInfoService, BookingCreationService bookingCreationService)
         {
             _agentContextService = agentContextService;
             _bookingCancellationService = bookingCancellationService;
             _bookingInfoService = bookingInfoService;
+            _bookingCreationService = bookingCreationService;
         }
         
         
@@ -39,9 +40,15 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Creating booking.
         /// </summary>
         [HttpPost("book")]
-        public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
+        public async Task<ActionResult<AccommodationBookingInfo>> Book([FromBody] AccommodationBookingRequest request)
         {
-            return Ok();
+            var agent = await _agentContextService.GetAgent();
+
+            var (isSuccess, _, response, error) = await _bookingCreationService.Book(request, agent, "lang");
+            
+            return isSuccess
+                ? Ok(response)
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
@@ -89,5 +96,6 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         private readonly IAgentContextService _agentContextService;
         private readonly BookingCancellationService _bookingCancellationService;
         private readonly BookingInfoService _bookingInfoService;
+        private readonly BookingCreationService _bookingCreationService;
     }
 }
