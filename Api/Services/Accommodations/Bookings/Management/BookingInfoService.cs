@@ -72,19 +72,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<List<Booking>> GetAgentBookings(DateTime fromDateTime, DateTime toDateTime, AgentContext agentContext)
-        {
-            var query = from booking in _context.Bookings
-                where booking.AgentId == agentContext.AgentId &&
-                    booking.AgencyId == agentContext.AgencyId &&
-                    booking.Created >= fromDateTime &&
-                    booking.Created <= toDateTime
-                select booking;
-
-            return await query.ToListAsync();
-        }
-
-
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
             var bookingDataResult = await _bookingRecordManager.Get(bookingId)
