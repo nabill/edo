@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -59,7 +60,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
         {
             return new(context,
                 Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>());
+                Mock.Of<IManagementAuditService>(),
+                Mock.Of<ILocalityInfoService>());
         }
 
 

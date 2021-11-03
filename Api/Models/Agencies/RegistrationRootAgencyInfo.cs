@@ -7,14 +7,12 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct RegistrationRootAgencyInfo
     {
         [JsonConstructor]
-        public RegistrationRootAgencyInfo(string address, string billingEmail, string city, string countryCode, string fax,
+        public RegistrationRootAgencyInfo(string address, string billingEmail, string fax,
             string phone, string postalCode, string website, string vatNumber, string legalAddress, PaymentTypes preferredPaymentMethod,
             string localityHtId)
         {
             Address = address;
             BillingEmail = billingEmail;
-            City = city;
-            CountryCode = countryCode;
             Fax = fax;
             Phone = phone;
             PostalCode = postalCode;
@@ -31,18 +29,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// </summary>
         [Required]
         public string Address { get; }
-
-        /// <summary>
-        ///     Two-letter international country code.
-        /// </summary>
-        [Required]
-        public string CountryCode { get; }
-
-        /// <summary>
-        ///     City name.
-        /// </summary>
-        [Required]
-        public string City { get; }
 
         /// <summary>
         ///     Phone number. Only digits, length between 3 and 30.

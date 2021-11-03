@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -18,15 +19,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
+    // TODO: Remove agency creation logic from this class https://github.com/happy-travel/agent-app-project/issues/812
     public class AdminAgencyManagementService : IAdminAgencyManagementService
     {
         public AdminAgencyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService,
+            ILocalityInfoService localityInfoService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
+            _localityInfoService = localityInfoService;
         }
 
 
@@ -135,17 +139,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<AgencyInfo> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
-            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.City,
-                agencyInfo.CountryCode, agencyInfo.Fax, agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
-                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod);
-        
-        
-        public async Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
-            string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
-            PaymentTypes preferredPaymentMethod)
+        public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
+            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax, 
+                agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
+
+
+        private async Task<Result<AgencyInfo>> Create(string name, int counterpartyId, string address, string billingEmail, string fax, string phone,
+            string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
+            PaymentTypes preferredPaymentMethod, string localityHtId)
         {
             var ancestors = new List<int>();
+            var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
+            if (isFailure)
+                return Result.Failure<AgencyInfo>(error);
 
             if (parentAgencyId is not null)
             {
@@ -168,8 +175,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 ParentId = parentAgencyId,
                 Address = address,
                 BillingEmail = billingEmail,
-                City = city,
-                CountryCode = countryCode,
                 Fax = fax,
                 Phone = phone,
                 PostalCode = postalCode,
@@ -179,7 +184,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 PreferredCurrency = Currencies.USD,
                 Ancestors = ancestors,
                 LegalAddress = legalAddress,
-                PreferredPaymentMethod = preferredPaymentMethod
+                PreferredPaymentMethod = preferredPaymentMethod,
+                LocalityHtId = localityHtId,
+                City = localityInfo.LocalityName,
+                CountryCode = localityInfo.CountryIsoCode,
+                CountryHtId = localityInfo.CountryHtId
             };
             _context.Agencies.Add(agency);
 
@@ -239,6 +248,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IManagementAuditService _managementAuditService;
+        private readonly ILocalityInfoService _localityInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
     }

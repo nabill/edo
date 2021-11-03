@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Data;
@@ -223,7 +224,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     BalanceManagementNotificationTemplateId = "templateId"
                 }),
                 new BalanceNotificationsManagementService(_mockedEdoContext),
-                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>())
+                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<ILocalityInfoService>())
             );
 
 
