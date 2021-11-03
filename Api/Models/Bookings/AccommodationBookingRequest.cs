@@ -72,7 +72,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         /// Token from third step availability search to disallow double bookings
         /// </summary>
-        [Required]
         public string EvaluationToken { get; }
 
         /// <summary>
