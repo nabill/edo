@@ -37,7 +37,8 @@ namespace HappyTravel.Edo.DirectApi.Services
                 numberOfPassengers: bookingDetails.NumberOfPassengers,
                 cancellationPolicies: bookingDetails.CancellationPolicies,
                 created: bookingDetails.Created,
-                propertyOwnerConfirmationCode: bookingDetails.PropertyOwnerConfirmationCode);
+                propertyOwnerConfirmationCode: bookingDetails.PropertyOwnerConfirmationCode,
+                isAdvancePurchaseRate: bookingDetails.IsAdvancePurchaseRate);
         }
 
 

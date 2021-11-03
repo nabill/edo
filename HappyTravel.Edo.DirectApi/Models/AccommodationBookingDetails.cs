@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.DirectApi.Models
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
-            string propertyOwnerConfirmationCode)
+            string propertyOwnerConfirmationCode, bool isAdvancePurchaseRate)
         {
             ReferenceCode = referenceCode;
             SupplierReferenceCode = supplierReferenceCode;
@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.DirectApi.Models
             Created = created;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
             PropertyOwnerConfirmationCode = propertyOwnerConfirmationCode;
+            IsAdvancePurchaseRate = isAdvancePurchaseRate;
         }
         
 
@@ -65,5 +66,6 @@ namespace HappyTravel.Edo.DirectApi.Models
         public DateTime Created { get; }
         public List<BookedRoom> RoomDetails { get; }
         public string PropertyOwnerConfirmationCode { get; }
+        private bool IsAdvancePurchaseRate { get; }
     }
 }
