@@ -8,22 +8,31 @@ namespace HappyTravel.Edo.DirectApi.Services
 {
     public class BookingCreationService
     {
-        public BookingCreationService(IFinancialAccountBookingFlow bookingFlow)
+        public BookingCreationService(IFinancialAccountBookingFlow bookingFlow, ClientReferenceCodeValidationService validationService)
         {
             _bookingFlow = bookingFlow;
+            _validationService = validationService;
         }
 
 
         public async Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest request, AgentContext agent, string languageCode)
         {
-            var (isSuccess, _, result, error) = await _bookingFlow.BookByAccount(request.ToEdoModel(), agent, languageCode, string.Empty);
+            return await _validationService.Validate(request.ReferenceCode, agent)
+                .Bind(CreateBooking);
 
-            return isSuccess
-                ? result.FromEdoModel()
-                : Result.Failure<AccommodationBookingInfo>(error);
+
+            async Task<Result<AccommodationBookingInfo>> CreateBooking()
+            {
+                var (isSuccess, _, result, error) = await _bookingFlow.BookByAccount(request.ToEdoModel(), agent, languageCode, string.Empty);
+
+                return isSuccess
+                    ? result.FromEdoModel()
+                    : Result.Failure<AccommodationBookingInfo>(error);
+            }
         }
 
 
         private readonly IFinancialAccountBookingFlow _bookingFlow;
+        private readonly ClientReferenceCodeValidationService _validationService;
     }
 }
