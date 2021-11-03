@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,13 +28,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAgentService agentService,
             IAdminAgencyManagementService agencyManagementService,
             IAgencyVerificationService agencyVerificationService,
-            IContractFileManagementService contractFileManagementService)
+            IContractFileManagementService contractFileManagementService,
+            ILocalityInfoService localityInfoService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
             _agencyManagementService = agencyManagementService;
             _agencyVerificationService = agencyVerificationService;
             _contractFileManagementService = contractFileManagementService;
+            _localityInfoService = localityInfoService;
         }
 
 
@@ -267,10 +270,34 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        [HttpPut("{agencyId}")]
+        [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> EditSelfAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
+        {
+            var localityId = request.LocalityHtId;
+            if (string.IsNullOrWhiteSpace(localityId))
+                return BadRequest(ProblemDetailsBuilder.Build("Locality id is required"));
+
+            var (_, isLocalityFailure, localityInfo, _) = await _localityInfoService.GetLocalityInfo(request.LocalityHtId);
+            if (isLocalityFailure)
+                return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
+
+            var (_, isFailure, agency, error) = await _agencyManagementService.Edit(agencyId, request, localityInfo, LanguageCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(agency);
+        }
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly IAgencyVerificationService _agencyVerificationService;
         private readonly IContractFileManagementService _contractFileManagementService;
+        private readonly ILocalityInfoService _localityInfoService;
     }
 }

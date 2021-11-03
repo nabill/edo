@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 
@@ -24,5 +25,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result<ContractKind>> GetContractKind(int agencyId);
 
         Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
+
+
+        Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
+            string languageCode = LocalizationHelper.DefaultLanguageCode);
     }
 }

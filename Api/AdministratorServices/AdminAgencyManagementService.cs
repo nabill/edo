@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Locations;
@@ -201,6 +202,53 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => GetRootAgency(agencyId)
                 .Ensure(a => a.ContractKind.HasValue, "Agency contract kind unknown")
                 .Map(a => a.ContractKind.Value);
+
+
+        public async Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
+            string languageCode = LocalizationHelper.DefaultLanguageCode)
+        {
+            return await GetAgency(agencyId)
+                .Tap(Edit)
+                .Tap(AddLocalityInfo)
+                .Tap(SaveChanges)
+                .Bind(GetUpdatedAgencyInfo);
+
+
+            void Edit(Agency agency)
+            {
+                agency.Address = request.Address;
+                agency.Phone = request.Phone;
+                agency.Fax = request.Fax;
+                agency.PostalCode = request.PostalCode;
+                agency.Website = request.Website;
+                agency.BillingEmail = request.BillingEmail;
+                agency.VatNumber = request.VatNumber;
+                agency.PreferredPaymentMethod = request.PreferredPaymentMethod;
+                agency.LegalAddress = request.LegalAddress;
+
+                agency.Modified = _dateTimeProvider.UtcNow();
+            }
+
+
+            void AddLocalityInfo(Agency agency)
+            {
+                agency.CountryCode = localityInfo.CountryIsoCode;
+                agency.CountryHtId = localityInfo.CountryHtId;
+                agency.City = localityInfo.LocalityName;
+                agency.LocalityHtId = localityInfo.LocalityHtId;
+            }
+
+
+            Task SaveChanges(Agency agency)
+            {
+                _context.Update(agency);
+                return _context.SaveChangesAsync();
+            }
+
+
+            Task<Result<AgencyInfo>> GetUpdatedAgencyInfo(Agency _)
+                => Get(agencyId, languageCode);
+        }
 
 
         public Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId)
