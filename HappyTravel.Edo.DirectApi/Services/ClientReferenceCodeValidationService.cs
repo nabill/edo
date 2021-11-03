@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.DirectApi.Services
                 return Result.Failure("ClientReferenceCode is required");
             
             var lockResult = await _locker.TryAcquireLock($"{nameof(ClientReferenceCodeValidationService)}::{clientReferenceCode}", TimeSpan.FromSeconds(LockDurationSeconds));
-            if(lockResult.IsFailure)
+            if (lockResult.IsFailure)
                 return lockResult;
 
             var isExists = await _context.Bookings
