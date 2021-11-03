@@ -1,15 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct RegistrationRootAgencyInfo
+    public readonly struct ManagementEditAgencyRequest
     {
         [JsonConstructor]
-        public RegistrationRootAgencyInfo(string address, string billingEmail, string fax,
-            string phone, string postalCode, string website, string vatNumber, string legalAddress, PaymentTypes preferredPaymentMethod,
-            string localityHtId)
+        public ManagementEditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber,
+            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -18,8 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            LegalAddress = legalAddress;
             PreferredPaymentMethod = preferredPaymentMethod;
+            LegalAddress = legalAddress;
             LocalityHtId = localityHtId;
         }
 
@@ -27,13 +25,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     Agency address.
         /// </summary>
-        [Required]
         public string Address { get; }
 
         /// <summary>
         ///     Phone number. Only digits, length between 3 and 30.
         /// </summary>
-        [Required]
         public string Phone { get; }
 
         /// <summary>
@@ -57,20 +53,19 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public string BillingEmail { get; }
 
         /// <summary>
-        /// Value added tax identification number
+        ///     Vat number of an agency
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        ///     Agency address.
-        /// </summary>
-        [Required]
-        public string LegalAddress { get; }
 
         /// <summary>
         ///     Preferable way to do payments.
         /// </summary>
         public PaymentTypes PreferredPaymentMethod { get; }
+
+        /// <summary>
+        ///     Agency address.
+        /// </summary>
+        public string LegalAddress { get; }
 
         /// <summary>
         /// Agency locality id
