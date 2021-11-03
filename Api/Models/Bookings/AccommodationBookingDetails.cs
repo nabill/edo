@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Created = created;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
             PropertyOwnerConfirmationCode = propertyOwnerConfirmationCode;
+            IsAdvancePurchaseRate = isAdvancePurchaseRate;
         }
         
 
@@ -70,5 +71,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime Created { get; }
         public List<BookedRoom> RoomDetails { get; }
         public string PropertyOwnerConfirmationCode { get; }
+        public bool IsAdvancePurchaseRate { get; }
     }
 }
