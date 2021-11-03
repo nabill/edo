@@ -108,6 +108,7 @@ using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -532,6 +533,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration)));
+            services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();
 
             services.AddTransient<IConnectorClient, ConnectorClient>();
             services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
