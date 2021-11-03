@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.DirectApi.Models
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
-            string clientReferenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
+            string referenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
             Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
             string evaluationToken, bool rejectIfUnavailable = true)
         {
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.DirectApi.Models
             RoomContractSetId = roomContractSetId;
             EvaluationToken = evaluationToken;
             MainPassengerName = mainPassengerName.Trim();
-            ClientReferenceCode = clientReferenceCode;
+            ReferenceCode = referenceCode;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -87,6 +87,6 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         ///     Client booking reference code
         /// </summary>
-        public string ClientReferenceCode { get; }
+        public string ReferenceCode { get; }
     }
 }
