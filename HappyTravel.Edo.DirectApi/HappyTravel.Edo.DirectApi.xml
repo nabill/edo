@@ -209,7 +209,7 @@
                 Itinerary number to combine several orders in one pack.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ClientReferenceCode">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ReferenceCode">
             <summary>
                 Client booking reference code
             </summary>

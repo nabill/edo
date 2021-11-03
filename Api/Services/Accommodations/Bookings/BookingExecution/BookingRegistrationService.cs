@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
@@ -78,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             async Task<Booking> Create((string itn, string referenceCode) tags)
             {
-                var createdBooking = BookingRegistrationService.Create(
+                var createdBooking = await CreateBooking(
                     created: _dateTimeProvider.UtcNow(),
                     agentContext: agentContext,
                     itineraryNumber: tags.itn,
@@ -133,9 +132,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
+        private async Task<Booking> CreateBooking(DateTime created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
-            in AccommodationBookingRequest bookingRequest, string languageCode)
+            AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
             {
@@ -163,6 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             AddServiceDetails();
             AddAgentInfo();
             AddRooms(availabilityInfo.RoomContractSet.Rooms, bookingRequest.RoomDetails);
+            booking = await AddStaticData(booking, availabilityInfo);
 
             return booking;
 
@@ -179,21 +179,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 var rate = availabilityInfo.RoomContractSet.Rate;
                 booking.TotalPrice = rate.FinalPrice.Amount;
                 booking.Currency = rate.Currency;
-                booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
-                    availabilityInfo.LocalityName,
-                    availabilityInfo.ZoneName,
-                    availabilityInfo.Address,
-                    availabilityInfo.Coordinates);
-
-                booking.AccommodationId = availabilityInfo.AccommodationId;
-                
-                // Direct api doesnt have static info
-                booking.AccommodationName = availabilityInfo.AccommodationName ?? string.Empty;
-                if (!availabilityInfo.AccommodationInfo.Equals(default))
-                {
-                    booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                        new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
-                }
             }
 
             void AddAgentInfo()
@@ -227,6 +212,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         .Select(p => new Passenger(p.Title, p.LastName.Trim(), p.FirstName.Trim(), p.IsLeader, p.Age))
                         .ToList();
             }
+        }
+
+
+        protected virtual Task<Booking> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
+        {
+            booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
+                availabilityInfo.LocalityName,
+                availabilityInfo.ZoneName,
+                availabilityInfo.Address,
+                availabilityInfo.Coordinates);
+
+            booking.AccommodationId = availabilityInfo.AccommodationId;
+            booking.AccommodationName = availabilityInfo.AccommodationName ?? string.Empty;
+            booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
+
+            return Task.FromResult(booking);
         }
 
 
