@@ -2529,16 +2529,6 @@
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.CountryCode">
-            <summary>
-                Two-letter international country code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.City">
-            <summary>
-                City name.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Phone">
             <summary>
                 Phone number. Only digits, length between 3 and 30.
@@ -2582,16 +2572,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Address">
             <summary>
                 Agency address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.CountryCode">
-            <summary>
-                Two-letter international country code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.City">
-            <summary>
-                City name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Phone">
@@ -3310,19 +3290,9 @@
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryCode">
-            <summary>
-                Two-letter international country code.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.CountryName">
             <summary>
             Country name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.City">
-            <summary>
-                City name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.Phone">
@@ -3353,6 +3323,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.VatNumber">
             <summary>
             Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.LocalityHtId">
+            <summary>
+            Agency locality ht id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.CreateChildAgencyInvitationRequest.UserRegistrationInfo">
