@@ -40,8 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentInvitationRecordListService agentInvitationRecordListService,
             IAgentInvitationCreateService agentInvitationCreateService,
             IIdentityUserInfoService identityUserInfoService,
-            IAgentRolesAssignmentService rolesAssignmentService,
-            ILocalityInfoService localityInfoService)
+            IAgentRolesAssignmentService rolesAssignmentService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -56,7 +55,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentInvitationCreateService = agentInvitationCreateService;
             _identityUserInfoService = identityUserInfoService;
             _rolesAssignmentService = rolesAssignmentService;
-            _localityInfoService = localityInfoService;
         }
 
 
@@ -78,16 +76,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
             
-            var localityId = request.Counterparty.RootAgencyInfo.LocalityHtId;
-            if (string.IsNullOrWhiteSpace(localityId))
-                return BadRequest(ProblemDetailsBuilder.Build("Locality id is required"));
-
-            var (_, isFailure, localityInfo, _) = await _localityInfoService.GetLocalityInfo(localityId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
-
             var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
-                externalIdentity, email, localityInfo);
+                externalIdentity, email);
 
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
@@ -479,6 +469,5 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgentRolesAssignmentService _rolesAssignmentService;
-        private readonly ILocalityInfoService _localityInfoService;
     }
 }

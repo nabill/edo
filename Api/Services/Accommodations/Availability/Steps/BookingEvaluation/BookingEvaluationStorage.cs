@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 convertedSupplierPrice: availability.ConvertedSupplierPrice,
                 originalSupplierPrice: availability.OriginalSupplierPrice,
                 availabilityId: roomSetAvailability.AvailabilityId,
-                htId: roomSetAvailability.Accommodation.HtId,
+                htId: htId,
                 availablePaymentTypes: roomSetAvailability.AvailablePaymentMethods,
                 isDirectContract: roomSetAvailability.RoomContractSet.IsDirectContract,
                 agentDeadline: agentDeadline,

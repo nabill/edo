@@ -43,14 +43,13 @@ namespace HappyTravel.Edo.Api.Extensions
                 name,
                 info.Address,
                 info.BillingEmail,
-                info.City,
-                info.CountryCode,
                 info.Fax,
                 info.Phone,
                 info.PostalCode,
                 info.Website,
                 info.VatNumber,
                 info.LegalAddress,
-                info.PreferredPaymentMethod);
+                info.PreferredPaymentMethod,
+                info.LocalityHtId);
     }
 }
