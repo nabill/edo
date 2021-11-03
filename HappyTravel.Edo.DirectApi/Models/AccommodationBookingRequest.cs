@@ -9,9 +9,9 @@ namespace HappyTravel.Edo.DirectApi.Models
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
-            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
+            string referenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
             Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
-            bool rejectIfUnavailable = true)
+            string evaluationToken, bool rejectIfUnavailable = true)
         {
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
@@ -20,9 +20,12 @@ namespace HappyTravel.Edo.DirectApi.Models
             SearchId = searchId;
             HtId = htId;
             RoomContractSetId = roomContractSetId;
+            EvaluationToken = evaluationToken;
             MainPassengerName = mainPassengerName.Trim();
-            RoomDetails = roomDetails;
-            Features = features;
+            ReferenceCode = referenceCode;
+
+            RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
+            Features = features ?? new List<AccommodationFeature>(0);
         }
 
 
@@ -65,6 +68,11 @@ namespace HappyTravel.Edo.DirectApi.Models
         public Guid RoomContractSetId { get; }
 
         /// <summary>
+        /// Token from third step availability search to disallow double bookings
+        /// </summary>
+        public string EvaluationToken { get; }
+
+        /// <summary>
         ///     The full name of main passenger (buyer).
         /// </summary>
         [Required]
@@ -74,5 +82,11 @@ namespace HappyTravel.Edo.DirectApi.Models
         ///     Itinerary number to combine several orders in one pack.
         /// </summary>
         public string ItineraryNumber { get; }
+        
+        
+        /// <summary>
+        ///     Client booking reference code
+        /// </summary>
+        public string ReferenceCode { get; }
     }
 }
