@@ -529,7 +529,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
@@ -705,7 +705,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
             if (isUseMongoDbStorage)
             {
-                services.AddMongoDbStorage(configuration, vaultClient);
+                services.AddMongoDbStorage(environment, configuration, vaultClient);
                 services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
             }
             else

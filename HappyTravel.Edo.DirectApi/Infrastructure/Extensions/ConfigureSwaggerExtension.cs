@@ -10,6 +10,8 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
     {
         public static IServiceCollection ConfigureSwagger(this IServiceCollection collection)
         {
+            collection.AddSwaggerGenNewtonsoftSupport();
+            
             return collection.AddSwaggerGen(c =>
             {
                 c.DocInclusionPredicate((_, apiDesc) =>

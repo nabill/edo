@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient, authorityUrl)
                 .ConfigureAuthentication(Configuration, HostingEnvironment, apiName, authorityUrl)
-                .AddServices(Configuration, vaultClient);
+                .AddServices(HostingEnvironment, Configuration, vaultClient);
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
