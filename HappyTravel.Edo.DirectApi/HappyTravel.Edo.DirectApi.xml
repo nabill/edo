@@ -194,6 +194,11 @@
                 Identifier of chosen room contract set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.EvaluationToken">
+            <summary>
+            Token from third step availability search to disallow double bookings
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.MainPassengerName">
             <summary>
                 The full name of main passenger (buyer).
@@ -202,6 +207,11 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ItineraryNumber">
             <summary>
                 Itinerary number to combine several orders in one pack.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ClientReferenceCode">
+            <summary>
+                Client booking reference code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckInDate">

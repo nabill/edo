@@ -186,9 +186,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     availabilityInfo.Coordinates);
 
                 booking.AccommodationId = availabilityInfo.AccommodationId;
-                booking.AccommodationName = availabilityInfo.AccommodationName;
-                booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                    new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
+                
+                // Direct api doesnt have static info
+                booking.AccommodationName = availabilityInfo.AccommodationName ?? string.Empty;
+                if (!availabilityInfo.AccommodationInfo.Equals(default))
+                {
+                    booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                        new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
+                }
             }
 
             void AddAgentInfo()
