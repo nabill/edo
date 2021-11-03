@@ -4,19 +4,20 @@ using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.VaultClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
 {
     internal static class ConfigureWideAvailabilityStorageExtension
     {
-        public static IServiceCollection ConfigureWideAvailabilityStorage(this IServiceCollection collection, IConfiguration configuration, IVaultClient vaultClient)
+        public static IServiceCollection ConfigureWideAvailabilityStorage(this IServiceCollection collection, IHostEnvironment hostEnvironment, IConfiguration configuration, IVaultClient vaultClient)
         {
             // using overridden wide availability storage services because static accommodation information is not needed in direct api
             
             var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
             if (isUseMongoDbStorage)
             {
-                collection.AddMongoDbStorage(configuration, vaultClient);
+                collection.AddMongoDbStorage(hostEnvironment, configuration, vaultClient);
                 collection.AddTransient<IWideAvailabilityStorage, DirectApiMongoDbWideAvailabilityStorage>();
             }
             else

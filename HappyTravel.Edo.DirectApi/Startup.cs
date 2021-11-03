@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
             services.ConfigureServiceOptions(Configuration, HostEnvironment, vaultClient);
             services.ConfigureUserEventLogging(Configuration, vaultClient);
-            services.AddServices(Configuration, vaultClient);
+            services.AddServices(HostEnvironment, Configuration, vaultClient);
             services.AddSignalR().AddStackExchangeRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
 
             // override services
