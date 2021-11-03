@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
@@ -60,7 +61,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
             services.ConfigureServiceOptions(Configuration, HostEnvironment, vaultClient);
             services.ConfigureUserEventLogging(Configuration, vaultClient);
-            services.AddServices(Configuration, vaultClient);
+            services.AddServices(HostEnvironment, Configuration, vaultClient);
             services.AddSignalR().AddStackExchangeRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
 
             // override services
@@ -69,12 +70,13 @@ namespace HappyTravel.Edo.DirectApi
             services.AddTransient<IAgentContextService, AgentContextService>();
             services.AddTransient<BookingCancellationService>();
             services.AddTransient<IBookingEvaluationService, DirectApiBookingEvaluationService>();
-            services.AddTransient<IAccommodationService, EdoDummyAccommodationService>();
             services.AddTransient<INotificationService, EdoDummyNotificationService>();
             services.AddTransient<ValuationService>();
             services.AddTransient<WideAvailabilitySearchService>();
             services.AddTransient<BookingInfoService>();
-            services.ConfigureWideAvailabilityStorage(Configuration, vaultClient);
+            services.AddTransient<BookingCreationService>();
+            services.AddTransient<IBookingRegistrationService, DirectApiBookingRegistrationService>();
+            services.ConfigureWideAvailabilityStorage(HostEnvironment, Configuration, vaultClient);
         }
 
 

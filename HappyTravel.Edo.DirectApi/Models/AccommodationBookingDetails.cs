@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using Newtonsoft.Json;
-using AccommodationInfo = HappyTravel.Edo.Data.Bookings.AccommodationInfo;
-using CancellationPolicy = HappyTravel.Edo.Data.Bookings.CancellationPolicy;
 
-namespace HappyTravel.Edo.Api.Models.Bookings
+namespace HappyTravel.Edo.DirectApi.Models
 {
-    public readonly struct AccommodationBookingDetails
+     public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public AccommodationBookingDetails(string referenceCode, string clientReferenceCode, string agentReference, BookingStatuses status, int numberOfNights,
+        public AccommodationBookingDetails(string referenceCode, string supplierReferenceCode, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, AccommodationInfo accommodationInfo, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers, List<CancellationPolicy> cancellationPolicies, DateTime created,
             string propertyOwnerConfirmationCode, bool isAdvancePurchaseRate)
         {
             ReferenceCode = referenceCode;
-            ClientReferenceCode = clientReferenceCode;
-            AgentReference = agentReference;
+            SupplierReferenceCode = supplierReferenceCode;
             Status = status;
             NumberOfNights = numberOfNights;
             CheckInDate = checkInDate;
@@ -54,8 +50,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public string ReferenceCode { get; }
-        public string ClientReferenceCode { get; }
-        public string AgentReference { get; }
+        public string SupplierReferenceCode { get; }
         public BookingStatuses Status { get; }
         public int NumberOfNights { get; }
         public DateTime CheckInDate { get; }
@@ -71,6 +66,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime Created { get; }
         public List<BookedRoom> RoomDetails { get; }
         public string PropertyOwnerConfirmationCode { get; }
-        public bool IsAdvancePurchaseRate { get; }
+        private bool IsAdvancePurchaseRate { get; }
     }
 }

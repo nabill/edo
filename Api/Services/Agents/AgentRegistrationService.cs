@@ -42,13 +42,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<Result> RegisterWithCounterparty(UserDescriptionInfo agentData, CounterpartyCreateRequest counterpartyData, string externalIdentity,
-            string email, LocalityInfo localityInfo)
+            string email)
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
-                    .Tap(AddLocalityInfo)
                     .Bind(CreateAgent)
                     .Tap(AddMasterAgentAgencyRelation))
                 .Bind(LogSuccess)
@@ -69,21 +68,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return isFailure
                     ? Result.Failure<(SlimCounterpartyInfo, Agent)>(error)
                     : Result.Success((counterparty1: counterparty, agent));
-            }
-
-
-            async Task<SlimCounterpartyInfo> AddLocalityInfo(SlimCounterpartyInfo counterpartyInfo)
-            {
-                var rootAgency = await _counterpartyService.GetRootAgency(counterpartyInfo.Id);
-
-                rootAgency.CountryCode = localityInfo.CountryIsoCode;
-                rootAgency.CountryHtId = localityInfo.CountryHtId;
-                rootAgency.City = localityInfo.LocalityName;
-                rootAgency.LocalityHtId = localityInfo.LocalityHtId;
-                
-                _context.Agencies.Add(rootAgency);
-
-                return counterpartyInfo;
             }
 
 
