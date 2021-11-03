@@ -10,7 +10,10 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Settings;
+using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -24,12 +27,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
             IAgentService agentService,
             IAdminAgencyManagementService agencyManagementService,
-            IAgencyVerificationService agencyVerificationService)
+            IAgencyVerificationService agencyVerificationService,
+            IContractFileManagementService contractFileManagementService,
+            ILocalityInfoService localityInfoService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
             _agencyManagementService = agencyManagementService;
             _agencyVerificationService = agencyVerificationService;
+            _contractFileManagementService = contractFileManagementService;
+            _localityInfoService = localityInfoService;
         }
 
 
@@ -170,13 +177,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency verified read only.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/verify-read-only")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> VerifyReadOnly(int agencyId, [FromBody] AgencyReadOnlyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsReadOnly(agencyId, request.Reason);
@@ -190,13 +197,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency fully verified.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/verify-full-access")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> VerifyFullAccess(int agencyId, [FromBody] AgencyFullAccessVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(agencyId, request.ContractKind, request.Reason);
@@ -210,13 +217,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Sets agency declined verification.
         /// </summary>
-        /// <param name="counterpartyId">Id of the agency to verify.</param>
+        /// <param name="agencyId">Id of the agency to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/decline-verification")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> DeclineVerification(int agencyId, [FromBody] AgencyDeclinedVerificationRequest request)
         {
             var (isSuccess, _, error) = await _agencyVerificationService.DeclineVerification(agencyId, request.Reason);
@@ -227,9 +234,70 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        /// Uploads a contract pdf file
+        /// </summary>
+        /// <param name="agencyId">Id of the agency to save the contract file for</param>
+        /// <param name="file">A pdf file of the contract with the given agency</param>
+        [HttpPut("{agencyId}/contract-file")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> UploadContractFile(int agencyId, [FromForm] IFormFile file)
+        {
+            var result = await _contractFileManagementService.Add(agencyId, file);
+
+            return OkOrBadRequest(result);
+        }
+
+
+        /// <summary>
+        /// Downloads a contract pdf file
+        /// </summary>
+        /// <param name="agencyId">Id of the agency to load the contract file for</param>
+        [HttpGet("{agencyId}/contract-file")]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetContractFile(int agencyId)
+        {
+            var (_, isFailure, (stream, contentType), error) = await _contractFileManagementService.Get(agencyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return File(stream, contentType);
+        }
+
+
+        [HttpPut("{agencyId}")]
+        [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> EditSelfAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
+        {
+            var localityId = request.LocalityHtId;
+            if (string.IsNullOrWhiteSpace(localityId))
+                return BadRequest(ProblemDetailsBuilder.Build("Locality id is required"));
+
+            var (_, isLocalityFailure, localityInfo, _) = await _localityInfoService.GetLocalityInfo(request.LocalityHtId);
+            if (isLocalityFailure)
+                return BadRequest(ProblemDetailsBuilder.Build("Locality doesn't exist"));
+
+            var (_, isFailure, agency, error) = await _agencyManagementService.Edit(agencyId, request, localityInfo, LanguageCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(agency);
+        }
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly IAgencyVerificationService _agencyVerificationService;
+        private readonly IContractFileManagementService _contractFileManagementService;
+        private readonly ILocalityInfoService _localityInfoService;
     }
 }

@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -17,9 +20,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
-        Task<AgencyInfo> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId);
+        Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId);
+        
+        Task<Result<ContractKind>> GetContractKind(int agencyId);
 
-        Task<AgencyInfo> Create(string name, int counterpartyId, string address, string billingEmail, string city, string countryCode,
-            string fax, string phone, string postalCode, string website, string vatNumber, int? parentAgencyId);
+        Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
+
+
+        Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
+            string languageCode = LocalizationHelper.DefaultLanguageCode);
     }
 }

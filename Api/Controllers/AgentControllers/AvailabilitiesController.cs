@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Search id</returns>
         [HttpPost("searches")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Search state</returns>
         [HttpGet("searches/{searchId}/state")]
         [ProducesResponseType(typeof(WideAvailabilitySearchState), (int) HttpStatusCode.OK)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("searches/{searchId}")]
         [ProducesResponseType(typeof(IEnumerable<WideAvailabilityResult>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] AvailabilitySearchFilter options)
         {
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </remarks>
         [HttpGet("searches/{searchId}/results/{htId}/state")]
         [ProducesResponseType(typeof(AvailabilitySearchTaskState), (int) HttpStatusCode.OK)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] string htId)
         {
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("searches/{searchId}/results/{htId}")]
         [ProducesResponseType(typeof(IEnumerable<RoomContractSet>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] Guid searchId, [FromRoute] string htId)
         {
@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("searches/{searchId}/results/{htId}/accommodation")]
         [ProducesResponseType(typeof(Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAccommodation([FromRoute] Guid searchId, [FromRoute] string htId)
         {
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("searches/{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
         [ProducesResponseType(typeof(RoomContractSetAvailability?), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] Guid searchId, [FromRoute] string htId, [FromRoute] Guid roomContractSetId)
         {
@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("searches/{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}/deadline")]
         [ProducesResponseType(typeof(Deadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetDeadline([FromRoute] Guid searchId, [FromRoute] string htId, [FromRoute] Guid roomContractSetId)
         {

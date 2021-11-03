@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public static class BookingPaymentTypesHelper
     {
         public static List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-            AccommodationBookingSettings settings, CounterpartyContractKind contractKind, DateTime date)
+            AccommodationBookingSettings settings, ContractKind contractKind, DateTime date)
             => AllAvailablePaymentTypes
                 .Intersect(GetAprPaymentTypes(availability, settings))
                 .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, date))
@@ -18,12 +18,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .ToList();
 
 
-        public static PaymentTypes GetDefaultPaymentType(CounterpartyContractKind? contractKind)
+        public static PaymentTypes GetDefaultPaymentType(ContractKind? contractKind)
             => contractKind switch
             {
-                CounterpartyContractKind.CashPayments => PaymentTypes.Offline,
-                CounterpartyContractKind.CreditCardPayments => PaymentTypes.CreditCard,
-                CounterpartyContractKind.CreditPayments => PaymentTypes.VirtualAccount,
+                ContractKind.CashPayments => PaymentTypes.Offline,
+                ContractKind.CreditCardPayments => PaymentTypes.CreditCard,
+                ContractKind.CreditPayments => PaymentTypes.VirtualAccount,
                 _ => PaymentTypes.None
             };
 
@@ -67,13 +67,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        private static List<PaymentTypes> GetContractKindPaymentTypes(CounterpartyContractKind contractKind)
+        private static List<PaymentTypes> GetContractKindPaymentTypes(ContractKind contractKind)
         {
             return contractKind switch
             {
-                CounterpartyContractKind.CashPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
-                CounterpartyContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
-                CounterpartyContractKind.CreditPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
+                ContractKind.CashPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                ContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                ContractKind.CreditPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
                 _ => throw new ArgumentOutOfRangeException(nameof(contractKind), $"Invalid value {contractKind}")
             };
         }

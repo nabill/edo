@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -51,8 +52,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
             return new(context,
                 Mock.Of<IManagementAuditService>(),
-                Mock.Of<INotificationService>(),
-                mockOptions.Object,
                 Mock.Of<IDateTimeProvider>());
         }
 
@@ -61,11 +60,12 @@ namespace HappyTravel.Edo.UnitTests.Utility
         {
             return new(context,
                 Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>());
+                Mock.Of<IManagementAuditService>(),
+                Mock.Of<ILocalityInfoService>());
         }
 
 
-        public CounterpartyVerificationService GetCounterpartyVerificationService(EdoContext context)
+        public AgencyVerificationService GetAgencyVerificationService(EdoContext context)
         {
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
             accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
@@ -95,13 +95,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
             var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
             mockOptions.Setup(o => o.Value).Returns(options);
 
-            return new CounterpartyVerificationService(context, 
+            var agentService = new Api.Services.Agents.AgentService(context, Mock.Of<IDateTimeProvider>());
+
+            return new AgencyVerificationService(context, 
                 accountManagementServiceMock.Object,
-                counterpartyManagementServiceMock,
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
                 mockOptions.Object,
-                Mock.Of<IDateTimeProvider>());
+                Mock.Of<IDateTimeProvider>(),
+                agentService);
         }
 
 
@@ -225,57 +227,27 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Counterparty
             {
                 Id = 1,
-                Name = "Test",
-                IsActive = true,
-                State = CounterpartyStates.PendingVerification,
-                Address = "Test address",
-                City = "Test city",
-                CountryCode = "AF",
-                Phone = "+7 111 1111111"
+                Name = "Test"
             },
             new Counterparty
             {
                 Id = 2,
-                Name = "Test1",
-                IsActive = false,
-                State = CounterpartyStates.PendingVerification,
-                Address = "Test address 2",
-                City = "Test city 2",
-                CountryCode = "AF",
-                Phone = "+7 222 2222222"
+                Name = "Test1"
             },
             new Counterparty
             {
                 Id = 3,
-                Name = "Test",
-                IsActive = true,
-                State = CounterpartyStates.ReadOnly,
-                Address = "Test address 3",
-                City = "Test city 3",
-                CountryCode = "AF",
-                Phone = "+7 333 3333333"
+                Name = "Test"
             },
             new Counterparty
             {
                 Id = 14,
-                Name = "CounterpartyWithBillingEmail",
-                State = CounterpartyStates.FullAccess,
-                IsActive = true,
-                Address = "Test address 4",
-                City = "Test city 4",
-                CountryCode = "AF",
-                Phone = "+7 444 4444444"
+                Name = "CounterpartyWithBillingEmail"
             },
             new Counterparty
             {
                 Id = 15,
-                Name = "CounterpartyWithoutBillingEmail",
-                State = CounterpartyStates.FullAccess,
-                IsActive = true,
-                Address = "Test address 5",
-                City = "Test city 5",
-                CountryCode = "AF",
-                Phone = "+7 555 5555555"
+                Name = "CounterpartyWithoutBillingEmail"
             }
         };
 
@@ -285,6 +257,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 CounterpartyId = 1,
+                VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName",
                 CountryCode = "AF",
                 IsActive = true
@@ -296,12 +269,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Name = "agencyName2",
                 CountryCode = "AF",
                 ParentId = 1,
-                IsActive = true
+                IsActive = true,
+                Ancestors = new List<int>{1},
             },
             new Agency
             {
                 Id = 3,
                 CounterpartyId = 2,
+                VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName3",
                 CountryCode = "AF",
                 IsActive = false
@@ -313,7 +288,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Name = "childAgency",
                 CountryCode = "AF",
                 IsActive = false,
-                ParentId = 3
+                ParentId = 3,
+                Ancestors = new List<int>{3},
             },
             new Agency
             {
@@ -322,12 +298,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Name = "childAgency",
                 CountryCode = "AF",
                 ParentId = 1,
-                IsActive = true
+                IsActive = true,
+                Ancestors = new List<int>{1},
             },
             new Agency
             {
                 Id = 14,
                 CounterpartyId = 14,
+                VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions",
                 BillingEmail = "predictionsExample@mail.com",
                 CountryCode = "AF",
@@ -337,6 +315,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 15,
                 CounterpartyId = 15,
+                VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions1",
                 CountryCode = "AF",
                 IsActive = true
@@ -345,6 +324,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 20,
                 CounterpartyId = 3,
+                VerificationState = AgencyVerificationStates.ReadOnly,
                 Name = "RootAgencyForCounterparty3",
                 CountryCode = "AF",
                 IsActive = true

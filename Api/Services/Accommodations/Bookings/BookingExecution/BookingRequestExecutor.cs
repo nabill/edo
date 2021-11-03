@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -49,6 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         public async Task<Result<Booking>> Execute(Data.Bookings.Booking booking, AgentContext agent, string languageCode)
         {
+            Baggage.AddBookingReferenceCode(booking.ReferenceCode);
+            
             var requestInfoResult = await _requestStorage.Get(booking.ReferenceCode);
             if (requestInfoResult.IsFailure)
                 return Result.Failure<Booking>(requestInfoResult.Error);
@@ -88,9 +91,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                 try
                 {
-                    var (isSuccess, _, bookingResult, error) = await _supplierConnectorManager
+                    var (isSuccess, _, bookingResult, error) = await TimeObserver.Execute(observedFunc: () => _supplierConnectorManager
                         .Get(booking.Supplier)
-                        .Book(innerRequest, languageCode);
+                        .Book(innerRequest, languageCode),
+                        notifyFunc: Notify,
+                        notifyAfter: TimeSpan.FromSeconds(BookExecutionTimeLimitInSeconds));
 
                     if (isSuccess)
                         return bookingResult;
@@ -115,6 +120,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         // We do not know whether booking was registered on supplier
                         _ => GetStubDetails(booking)
                     };
+                    
+                    
+                    Task Notify()
+                    {
+                        _logger.LogBookingExceededTimeLimit(innerRequest.ReferenceCode);
+                        return Task.CompletedTask;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -169,6 +181,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 supplier: availabilityInfo.Supplier,
                 accommodationName: availabilityInfo.AccommodationName);
         }
+
+
+        private const int BookExecutionTimeLimitInSeconds = 30;
 
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;

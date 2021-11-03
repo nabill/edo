@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
@@ -10,7 +11,9 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         [JsonConstructor]
         public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
-            PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors)
+            PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
+            AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
+            bool isContractUploaded)
         {
             Name = name;
             Id = id;
@@ -29,6 +32,12 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             CountryHtId = countryHtId;
             LocalityHtId = localityHtId;
             Ancestors = ancestors;
+            VerificationState = verificationState;
+            VerificationDate = verificationDate;
+            IsActive = isActive;
+            LegalAddress = legalAddress;
+            PreferredPaymentMethod = preferredPaymentMethod;
+            IsContractUploaded = isContractUploaded;
         }
 
 
@@ -120,7 +129,39 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Locality of agency
         /// </summary>
         public string LocalityHtId { get; }
-        
+
+        /// <summary>
+        /// Verification state of the agency
+        /// </summary>
+        public AgencyVerificationStates VerificationState { get; }
+
+        /// <summary>
+        /// Agency verification date
+        /// </summary>
+        public DateTime? VerificationDate { get; }
+
+        /// <summary>
+        /// Activity status
+        /// </summary>
+        public bool IsActive { get; }
+
+        /// <summary>
+        ///     Agency address.
+        /// </summary>
+        [Required]
+        public string LegalAddress { get; }
+
+        /// <summary>
+        ///     Preferable way to do payments.
+        /// </summary>
+        public PaymentTypes PreferredPaymentMethod { get; }
+
+        /// <summary>
+        /// True if contract is loaded to agency
+        /// </summary>
+        public bool IsContractUploaded { get; }
+
+
         public override int GetHashCode()
             => (Name, Id, CounterpartyId).GetHashCode();
 

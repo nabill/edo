@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     { (int)NotificationTypes.ExternalPaymentLinks, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
                     { (int)NotificationTypes.PaymentLinkPaidNotification, (int)ProtocolTypes.Email, true, (int)ReceiverTypes.AgentApp },
                     { (int)NotificationTypes.CounterpartyActivityChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
-                    { (int)NotificationTypes.CounterpartyVerificationChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
+                    { (int)NotificationTypes.AgencyVerificationChanged, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp },
                     { (int)NotificationTypes.CounterpartyAccountBalanceSubtracted, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
                     { (int)NotificationTypes.CounterpartyAccountBalanceIncreasedManually, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp },
                     { (int)NotificationTypes.CounterpartyAccountBalanceDecreasedManually, (int)(ProtocolTypes.Email | ProtocolTypes.WebSocket), false, (int)ReceiverTypes.AgentApp }

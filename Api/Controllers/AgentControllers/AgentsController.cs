@@ -4,15 +4,17 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var email = await _identityUserInfoService.GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
-
+            
             var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
                 externalIdentity, email);
 
@@ -120,7 +122,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("agent/invitations/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
@@ -142,7 +144,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("agent/invitations/{invitationCodeHash}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> Resend(string invitationCodeHash)
         {
@@ -310,7 +312,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agency/agents")]
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
         [EnableQuery]
         public async Task<ActionResult<IQueryable<SlimAgentInfo>>> GetAgents()
@@ -325,7 +327,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("agency/agents/{agentId}")]
         [ProducesResponseType(typeof(AgentInfoInAgency), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> GetAgentInfo(int agentId)
         {
@@ -343,7 +345,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPut("agency/agents/{agentId}/roles")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> SetRolesInAgency(int agentId, [FromBody] List<int> newRoles)
         {
@@ -428,7 +430,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns> Array of all permission names </returns>
         [HttpGet("all-permissions-list")]
         [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
 
 

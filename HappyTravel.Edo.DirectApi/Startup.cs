@@ -1,21 +1,27 @@
 using System;
-using System.IO;
-using System.Reflection;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
+using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
+using HappyTravel.Edo.DirectApi.Services;
+using HappyTravel.Edo.DirectApi.Services.Dummies;
 using HappyTravel.ErrorHandling.Extensions;
-using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+using AccommodationService = HappyTravel.Edo.DirectApi.Services.AccommodationService;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi
 {
@@ -39,75 +45,45 @@ namespace HappyTravel.Edo.DirectApi
             vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).GetAwaiter().GetResult();
             
             var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).GetAwaiter().GetResult();
-            
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = authorityOptions["authorityUrl"];
-                    options.ApiName = authorityOptions["apiName"];
-                    options.RequireHttpsMetadata = true;
-                    options.SupportedTokens = SupportedTokens.Jwt;
-                });
-            
-            services.AddControllers();
-            services.AddResponseCompression();
-            services.AddTracing(Configuration, options =>
-            {
-                options.ServiceName = $"{HostEnvironment.ApplicationName}-{HostEnvironment.EnvironmentName}";
-                options.JaegerHost = HostEnvironment.IsLocal()
-                    ? Configuration.GetValue<string>("Jaeger:AgentHost")
-                    : Configuration.GetValue<string>(Configuration.GetValue<string>("Jaeger:AgentHost"));
-                options.JaegerPort = HostEnvironment.IsLocal()
-                    ? Configuration.GetValue<int>("Jaeger:AgentPort")
-                    : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
-                options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
-            });
+
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
-                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
-                .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
+                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             
+            services.ConfigureAuthentication(authorityOptions);
+            services.AddControllers().AddNewtonsoftJson();
+            services.AddResponseCompression();
+            services.ConfigureTracing(Configuration, HostEnvironment);
             services.AddProblemDetailsErrorHandling();
+            services.ConfigureApiVersioning();
+            services.ConfigureSwagger();
+            services.ConfigureCache(Configuration);
+            services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
+            services.ConfigureServiceOptions(Configuration, HostEnvironment, vaultClient);
+            services.ConfigureUserEventLogging(Configuration, vaultClient);
+            services.AddServices(HostEnvironment, Configuration, vaultClient);
+            services.AddSignalR().AddStackExchangeRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
 
-            services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.ReportApiVersions = true;
-            });
-            
-            services.AddVersionedApiExplorer(options =>
-            {
-                options.SubstitutionFormat = "V.v";
-                options.SubstituteApiVersionInUrl = true;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-            });
-            
-            services.AddSwaggerGen(c =>
-            {
-                c.DocInclusionPredicate((_, apiDesc) =>
-                {
-                    // Hide apis from other assemblies
-                    var apiName = apiDesc.ActionDescriptor.DisplayName;
-                    var currentName = typeof(Startup).Assembly.GetName().Name;
-                    return apiName.StartsWith(currentName);
-                });
-                c.SwaggerDoc("direct-api", new OpenApiInfo
-                {
-                    Title = "HappyTravel Api",
-                    Description = "HappyTravel API for searching and booking hotels"
-                });
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath, true);
-            });
+            // override services
+            services.AddTransient<AccommodationAvailabilitiesService>();
+            services.AddTransient<AccommodationService>();
+            services.AddTransient<IAgentContextService, AgentContextService>();
+            services.AddTransient<BookingCancellationService>();
+            services.AddTransient<IBookingEvaluationService, DirectApiBookingEvaluationService>();
+            services.AddTransient<INotificationService, EdoDummyNotificationService>();
+            services.AddTransient<ValuationService>();
+            services.AddTransient<WideAvailabilitySearchService>();
+            services.AddTransient<BookingInfoService>();
+            services.AddTransient<BookingCreationService>();
+            services.AddTransient<IBookingRegistrationService, DirectApiBookingRegistrationService>();
+            services.ConfigureWideAvailabilityStorage(HostEnvironment, Configuration, vaultClient);
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment() || env.IsLocal())
+            if (!env.IsProduction())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
@@ -129,7 +105,9 @@ namespace HappyTravel.Edo.DirectApi
             app.UseHttpsRedirection();
             app.UseHealthChecks("/health");
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseClientRequestLogging();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 

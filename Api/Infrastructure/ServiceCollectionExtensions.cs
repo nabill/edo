@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using FloxDc.CacheFlow;
@@ -9,7 +10,7 @@ using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -106,13 +107,14 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, string apiName, string authorityUrl)
+            IHostEnvironment environment, string apiName, string authorityUrl)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
@@ -128,7 +130,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
@@ -170,6 +172,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["vccScope"]
                 });
+                
+                options.Client.Clients.Add(HttpClientNames.DacIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["dacManagementScope"]
+                });
             });
             
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
@@ -185,6 +195,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+            });
+
+            services.AddClientAccessTokenClient(HttpClientNames.DacManagementClient, HttpClientNames.DacIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(authorityUrl);
             });
             
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
@@ -217,7 +232,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static IServiceCollection ConfigureServiceOptions(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, VaultClient.VaultClient vaultClient)
+            IHostEnvironment environment, VaultClient.VaultClient vaultClient)
         {
             #region mailing setting
 
@@ -301,13 +316,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
             });
-
-            var counterpartyActivityChangedId = mailSettings[configuration["Edo:Email:CounterpartyActivityChangedTemplateId"]];
-            var counterpartyVerificationChangedId = mailSettings[configuration["Edo:Email:CounterpartyVerificationChangedTemplateId"]];
+            
+            var agencyVerificationChangedId = mailSettings[configuration["Edo:Email:AgencyVerificationChangedTemplateId"]];
             services.Configure<CounterpartyManagementMailingOptions>(options =>
             {
-                options.CounterpartyActivityChangedTemplateId = counterpartyActivityChangedId;
-                options.CounterpartyVerificationChangedTemplateId = counterpartyVerificationChangedId;
+                options.AgencyVerificationChangedTemplateId = agencyVerificationChangedId;
             });
 
             var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
@@ -516,7 +529,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
+        public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
@@ -530,14 +543,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICounterpartyService, CounterpartyService>();
             services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
-            services.AddTransient<ICounterpartyVerificationService, CounterpartyVerificationService>();
             services.AddTransient<IAgencyVerificationService, AgencyVerificationService>();
             
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
             services.AddTransient<IAgentRolesService, AgentRolesService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
-            services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
             services.AddTransient<ICounterpartyBillingNotificationService, CounterpartyBillingNotificationService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
@@ -661,7 +672,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, MinAgencyVerificationStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, ServiceAccountRequiredAuthorizationHandler>();
@@ -695,7 +706,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
             if (isUseMongoDbStorage)
             {
-                services.AddMongoDbStorage(configuration, vaultClient);
+                services.AddMongoDbStorage(environment, configuration, vaultClient);
                 services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
             }
             else
@@ -723,6 +734,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
 
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
+            services.AddTransient<IOldContractFileManagementService, OldContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
 
@@ -791,6 +803,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddTransient<ILocalityInfoService, LocalityInfoService>();
+            services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
 
             services.AddCreditCardProvider(configuration, vaultClient);
 
@@ -838,6 +852,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.ServiceUnavailable)
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }

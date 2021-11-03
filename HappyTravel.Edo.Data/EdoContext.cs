@@ -97,6 +97,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<BalanceNotificationSetting> BalanceNotificationSettings { get; set; }
         public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
         public virtual DbSet<AgencyMarkupBonusesAccount> AgencyMarkupBonusesAccounts { get; set; }
+        public DbSet<AgentDirectApiClientRelation> AgentDirectApiClientRelations { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -252,6 +253,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingConfirmationHistory(builder);
             BuildNGeniusRefund(builder);
             BuildAgencyMarkupBonusesAccounts(builder);
+            BuildAgentDirectApiClientRelations(builder);
         }
 
 
@@ -310,7 +312,9 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.CountryCode).IsRequired();
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
-                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(CounterpartyStates.PendingVerification);
+                agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
+                agency.Property(a => a.PreferredPaymentMethod).IsRequired();
+                agency.Property(a => a.LegalAddress).IsRequired();
             });
         }
 
@@ -331,9 +335,9 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
 
-                policy.HasIndex(b => b.AgentScopeType);
+                policy.HasIndex(b => b.SubjectScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.AgentScopeId);
+                policy.HasIndex(b => b.SubjectScopeId);
                 policy.HasIndex(b => b.DestinationScopeId);
             });
         }
@@ -473,14 +477,6 @@ namespace HappyTravel.Edo.Data
                 counterparty.HasKey(c => c.Id);
                 counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
                 counterparty.Property(c => c.Name).IsRequired();
-                counterparty.Property(c => c.LegalAddress).IsRequired();
-                counterparty.Property(c => c.Address).IsRequired();
-                counterparty.Property(c => c.City).IsRequired();
-                counterparty.Property(c => c.CountryCode).IsRequired();
-                counterparty.Property(c => c.Phone).IsRequired();
-                counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
-                counterparty.Property(c => c.State).IsRequired();
-                counterparty.Property(c => c.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 
@@ -547,6 +543,7 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValueSql("'[]'::jsonb");
 
                 booking.HasIndex(b => b.IsDirectContract);
+                booking.HasIndex(b => b.ClientReferenceCode);
             });
         }
 
@@ -913,6 +910,15 @@ namespace HappyTravel.Edo.Data
                 b.HasKey(a => a.Id);
                 b.HasIndex(a => a.AgencyId);
                 b.ToTable("AgencyMarkupBonusesAccounts");
+            });
+        }
+
+
+        private static void BuildAgentDirectApiClientRelations(ModelBuilder builder)
+        {
+            builder.Entity<AgentDirectApiClientRelation>(b =>
+            {
+                b.HasKey(a => new { a.AgentId, a.DirectApiClientId });
             });
         }
 

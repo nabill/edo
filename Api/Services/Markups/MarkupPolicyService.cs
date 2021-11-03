@@ -16,37 +16,37 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupObjectInfo objectInfo, MarkupPolicyTarget policyTarget)
+        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo, MarkupPolicyTarget policyTarget)
         {
             var agencyId = subjectInfo.AgencyId;
             var agencyTreeIds = subjectInfo.AgencyAncestors;
             agencyTreeIds.Add(agencyId);
             
             var policies = _markupPolicyStorage.Get(policy =>
-                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, objectInfo)
+                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, destinationInfo)
             );
 
             return policies
-                .OrderBy(p => p.AgentScopeType)
+                .OrderBy(p => p.SubjectScopeType)
                 .ThenBy(p => p.DestinationScopeType)
-                .ThenBy(p => p.AgentScopeType == AgentMarkupScopeTypes.Agency && p.AgentScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.AgentScopeId)) : 0)
+                .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
                 .ThenBy(p => p.Order)
                 .ToList();
             
-            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.AgentScopeType switch
+            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
             {
-                AgentMarkupScopeTypes.Global => true,
-                AgentMarkupScopeTypes.Country => policy.AgentScopeId == info.CountryHtId,
-                AgentMarkupScopeTypes.Locality => policy.AgentScopeId == info.LocalityHtId,
-                AgentMarkupScopeTypes.Counterparty => policy.AgentScopeId == info.CounterpartyId.ToString(),
-                AgentMarkupScopeTypes.Agency => policy.AgentScopeId == info.AgencyId.ToString()
-                    || info.AgencyAncestors.Contains(int.Parse(policy.AgentScopeId)),
-                AgentMarkupScopeTypes.Agent => policy.AgentScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+                SubjectMarkupScopeTypes.Global => true,
+                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryHtId,
+                SubjectMarkupScopeTypes.Locality => policy.SubjectScopeId == info.LocalityHtId,
+                SubjectMarkupScopeTypes.Counterparty => policy.SubjectScopeId == info.CounterpartyId.ToString(),
+                SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
+                    || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
+                SubjectMarkupScopeTypes.Agent => policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
 
-            static bool IsApplicableByObject(MarkupPolicy policy, MarkupObjectInfo info)
+            static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
             {
                 var destinationScopeId = policy.DestinationScopeId;
                 return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.CountryHtId

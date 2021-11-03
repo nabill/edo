@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyScope
     {
         [JsonConstructor]
-        public MarkupPolicyScope(AgentMarkupScopeTypes type, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
+        public MarkupPolicyScope(SubjectMarkupScopeTypes type, int? counterpartyId = null, int? agencyId = null, int? agentId = null, string locationId = "")
         {
             Type = type;
             CounterpartyId = counterpartyId;
@@ -26,47 +26,49 @@ namespace HappyTravel.Edo.Api.Models.Markups
             return GenericValidator<MarkupPolicyScope>.Validate(v =>
             {
                 v.RuleFor(s => s.CounterpartyId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Counterparty)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Counterparty)
                     .WithMessage("CounterpartyId is required");
                 v.RuleFor(s => s.AgencyId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Agency)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Agency)
                     .WithMessage("AgencyId is required");
                 
                 v.RuleFor(s => s.AgencyId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Agent)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgencyId is required");
                 v.RuleFor(s => s.AgentId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Agent)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgentId is required");
                 
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == AgentMarkupScopeTypes.Country || t.Type == AgentMarkupScopeTypes.Locality)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Country || t.Type == SubjectMarkupScopeTypes.Locality)
                     .WithMessage("LocationId is required");
 
                 v.RuleFor(s => s.CounterpartyId).Empty()
-                    .When(t => t.Type != AgentMarkupScopeTypes.Counterparty)
+                    .When(t => t.Type != SubjectMarkupScopeTypes.Counterparty)
                     .WithMessage("CounterpartyId must be empty");
                 
                 v.RuleFor(s => s.AgencyId).Empty()
-                    .When(t => t.Type != AgentMarkupScopeTypes.Agency && t.Type != AgentMarkupScopeTypes.Agent)
+                    .When(t => t.Type != SubjectMarkupScopeTypes.Agency && t.Type != SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgencyId must be empty");
                 
                 v.RuleFor(s => s.AgentId).Empty()
-                    .When(t => t.Type != AgentMarkupScopeTypes.Agent)
+                    .When(t => t.Type != SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgentId must be empty");
             }, this);
         }
 
 
-        public void Deconstruct(out AgentMarkupScopeTypes type, out int? counterpartyId, out int? agencyId, out int? agentId, out string agentScopeId)
+        public void Deconstruct(out SubjectMarkupScopeTypes type, out int? counterpartyId, out int? agencyId, out int? agentId, out string agentScopeId)
         {
             type = Type;
             agentScopeId = Type switch
             {
-                AgentMarkupScopeTypes.Global => "",
-                AgentMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
-                AgentMarkupScopeTypes.Agency => AgencyId.ToString(),
-                AgentMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
+                SubjectMarkupScopeTypes.Global => "",
+                SubjectMarkupScopeTypes.Country => LocationId,
+                SubjectMarkupScopeTypes.Locality => LocationId,
+                SubjectMarkupScopeTypes.Counterparty => CounterpartyId.ToString(),
+                SubjectMarkupScopeTypes.Agency => AgencyId.ToString(),
+                SubjectMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), Type, "Wrong AgentMarkupScopeType")
             };
             counterpartyId = CounterpartyId;
@@ -78,7 +80,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Scope type.
         /// </summary>
-        public AgentMarkupScopeTypes Type { get; }
+        public SubjectMarkupScopeTypes Type { get; }
 
         /// <summary>
         ///     Counterparty id for counterparty scope type

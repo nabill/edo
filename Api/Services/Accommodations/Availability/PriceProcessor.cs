@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -24,18 +23,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentContext agent, TDetails details,
+        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
         {
             return _currencyConverter
-                .ConvertPricesInData(agent, details, changePricesFunc, getCurrencyFunc)
+                .ConvertPricesInData(details, changePricesFunc, getCurrencyFunc)
                 .ToResultWithProblemDetails();
         }
 
 
         public async Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
-            Func<TDetails, MarkupObjectInfo> getMarkupObjectFunc = null,
+            Func<TDetails, MarkupDestinationInfo> getMarkupDestinationFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
             var (_, isFailure, agency, error) = await _agencyService.Get(agent);
@@ -51,11 +50,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 CountryHtId = agency.CountryHtId,
                 LocalityHtId = agency.LocalityHtId
             };
-            // TODO: Implement getting markup object for all models used with this function (TDetails)
-            // https://github.com/happy-travel/agent-app-project/issues/696
-            var markupObject = getMarkupObjectFunc?.Invoke(details) ?? default;
+            var markupDestination = getMarkupDestinationFunc(details);
 
-            return await _markupService.ApplyMarkups(markupSubject, markupObject, details, priceProcessFunc, logAction);
+            return await _markupService.ApplyMarkups(markupSubject, markupDestination, details, priceProcessFunc, logAction);
         }
 
 

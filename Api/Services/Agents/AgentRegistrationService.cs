@@ -12,9 +12,11 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Models.Locations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,14 +99,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Counterparty = new RegistrationDataForAdmin.CounterpartyRegistrationMailData
                     {
                         Name = counterpartyInfo.Name,
-                        Address = counterpartyInfo.LegalAddress,
                         CountryCode = agency.CountryCode,
                         City = agency.City,
                         Phone = agency.Phone,
                         PostalCode = agency.PostalCode,
                         Fax = agency.Fax,
                         PreferredCurrency = EnumFormatters.FromDescription(agency.PreferredCurrency),
-                        PreferredPaymentMethod = EnumFormatters.FromDescription(counterpartyInfo.PreferredPaymentMethod),
                         Website = agency.Website
                     },
                     AgentEmail = email,

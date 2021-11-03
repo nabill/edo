@@ -24,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<Result> Add(int counterpartyId, IFormFile file)
+        public async Task<Result> Add(int agencyId, IFormFile file)
         {
             return await ValidateFile()
-                .Bind(() => GetCounterpartyRecord(counterpartyId))
+                .Bind(() => GetAgencyRecord(agencyId))
                 .Check(Upload)
-                .Bind(UpdateCounterparty);
+                .Bind(UpdateAgency);
 
 
             Result ValidateFile() =>
@@ -39,33 +39,33 @@ namespace HappyTravel.Edo.Api.Services.Files
                     .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == PdfFileExtension, $"The file must have extension '{PdfFileExtension}'");
 
 
-            async Task<Result> Upload(Counterparty _)
+            async Task<Result> Upload(Agency _)
             {
                 await using var stream = file.OpenReadStream();
-                return await _amazonS3ClientService.Add(_bucketName, GetKey(counterpartyId), stream, S3CannedACL.Private);
+                return await _amazonS3ClientService.Add(_bucketName, GetKey(agencyId), stream, S3CannedACL.Private);
             }
 
 
-            async Task<Result> UpdateCounterparty(Counterparty counterparty)
+            async Task<Result> UpdateAgency(Agency agency)
             {
-                counterparty.IsContractUploaded = true;
-                _context.Entry(counterparty).Property(i => i.IsContractUploaded).IsModified = true;
+                agency.IsContractUploaded = true;
+                _context.Entry(agency).Property(i => i.IsContractUploaded).IsModified = true;
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
         }
 
 
-        public Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId)
+        public Task<Result<(Stream stream, string contentType)>> Get(int agencyId)
         {
-            return GetCounterpartyRecord(counterpartyId)
-                .Ensure(c => c.IsContractUploaded, "No contract file was uploaded")
+            return GetAgencyRecord(agencyId)
+                .Ensure(a => a.IsContractUploaded, "No contract file was uploaded")
                 .Bind(GetContractFileStream);
 
 
-            async Task<Result<(Stream stream, string contentType)>> GetContractFileStream(Counterparty _)
+            async Task<Result<(Stream stream, string contentType)>> GetContractFileStream(Agency _)
             {
-                var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(counterpartyId));
+                var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(agencyId));
 
                 if (isFailure)
                     return Result.Failure<(Stream, string)>("Couldn't get a contract file");
@@ -75,17 +75,17 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        private string GetKey(int counterpartyId) 
-            => $"{_s3FolderName}/{counterpartyId}.pdf";
+        private string GetKey(int agencyId) 
+            => $"{_s3FolderName}/{agencyId}.pdf";
 
 
-        private async Task<Result<Counterparty>> GetCounterpartyRecord(int counterpartyId)
+        private async Task<Result<Agency>> GetAgencyRecord(int agencyId)
         {
-            var counterparty = await _context.Counterparties.FindAsync(counterpartyId);
-            if (counterparty is null)
-                return Result.Failure<Counterparty>($"Could not find counterparty with id {counterpartyId}");
+            var agency = await _context.Agencies.FindAsync(agencyId);
+            if (agency is null)
+                return Result.Failure<Agency>($"Could not find agency with id {agencyId}");
 
-            return counterparty;
+            return agency;
         }
 
 

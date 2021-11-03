@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Models.Markups
         public string ReferenceCode { get; init; }
         public string AgencyId { get; init; }
         public MoneyAmount Amount { get; init; }
-        public AgentMarkupScopeTypes ScopeType { get; init; }
+        public SubjectMarkupScopeTypes ScopeType { get; init; }
     }
 }

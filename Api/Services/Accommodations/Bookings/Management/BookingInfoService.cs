@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -201,6 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;
                 return new AccommodationBookingDetails(
                     referenceCode: booking.ReferenceCode,
+                    clientReferenceCode: booking.ClientReferenceCode,
                     agentReference: booking.SupplierReferenceCode,
                     status: booking.Status,
                     numberOfNights: numberOfNights,

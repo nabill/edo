@@ -90,11 +90,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             async Task<Booking> Create((string itn, string referenceCode) tags)
             {
-                var createdBooking = BookingRegistrationService.Create(
+                var createdBooking = await CreateBooking(
                     created: _dateTimeProvider.UtcNow(),
                     agentContext: agentContext,
                     itineraryNumber: tags.itn,
                     referenceCode: tags.referenceCode,
+                    clientReferenceCode: bookingRequest.ClientReferenceCode,
                     availabilityInfo: availabilityInfo,
                     paymentMethod: paymentMethod,
                     bookingRequest: bookingRequest,
@@ -144,15 +145,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
-            string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
-            in AccommodationBookingRequest bookingRequest, string languageCode)
+        private async Task<Booking> CreateBooking(DateTime created, AgentContext agentContext, string itineraryNumber,
+            string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
+            AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
             {
                 Created = created,
                 ItineraryNumber = itineraryNumber,
                 ReferenceCode = referenceCode,
+                ClientReferenceCode = clientReferenceCode,
                 Status = BookingStatuses.Created,
                 PaymentType = paymentMethod,
                 LanguageCode = languageCode,
@@ -173,6 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             AddServiceDetails();
             AddAgentInfo();
             AddRooms(availabilityInfo.RoomContractSet.Rooms, bookingRequest.RoomDetails);
+            booking = await AddStaticData(booking, availabilityInfo);
 
             return booking;
 
@@ -189,16 +192,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 var rate = availabilityInfo.RoomContractSet.Rate;
                 booking.TotalPrice = rate.FinalPrice.Amount;
                 booking.Currency = rate.Currency;
-                booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
-                    availabilityInfo.LocalityName,
-                    availabilityInfo.ZoneName,
-                    availabilityInfo.Address,
-                    availabilityInfo.Coordinates);
-
-                booking.AccommodationId = availabilityInfo.AccommodationId;
-                booking.AccommodationName = availabilityInfo.AccommodationName;
-                booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                    new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
             }
 
             void AddAgentInfo()
@@ -232,6 +225,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         .Select(p => new Passenger(p.Title, p.LastName.Trim(), p.FirstName.Trim(), p.IsLeader, p.Age))
                         .ToList();
             }
+        }
+
+
+        protected virtual Task<Booking> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
+        {
+            booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
+                availabilityInfo.LocalityName,
+                availabilityInfo.ZoneName,
+                availabilityInfo.Address,
+                availabilityInfo.Coordinates);
+
+            booking.AccommodationId = availabilityInfo.AccommodationId;
+            booking.AccommodationName = availabilityInfo.AccommodationName ?? string.Empty;
+            booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
+
+            return Task.FromResult(booking);
         }
 
 

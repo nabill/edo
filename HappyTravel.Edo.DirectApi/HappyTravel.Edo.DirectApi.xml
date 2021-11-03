@@ -4,7 +4,48 @@
         <name>HappyTravel.Edo.DirectApi</name>
     </assembly>
     <members>
-        <member name="T:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController">
+        <member name="T:HappyTravel.Edo.DirectApi.Controllers.AccommodationsController">
+            <summary>
+            <h2>Accommodations</h2>
+            Accommodations static data
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.AccommodationsController.GetAccommodationsList(System.Int32,System.Int32)">
+            <summary>
+            Accommodation list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.AccommodationsController.GetAccommodation(System.String)">
+            <summary>
+            Accommodation by id
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.DirectApi.Controllers.BookingController">
+            <summary>
+            <h2>Booking management</h2>
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Book(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
+            <summary>
+            Creating booking.
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String,System.String)">
+            <summary>
+            Get booking info
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(System.DateTime,System.DateTime)">
+            <summary>
+            Get bookings
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Cancel(System.String)">
+            <summary>
+            Cancel booking
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.DirectApi.Controllers.SearchController">
             <summary>
             <h2>The booking flow contains four following steps:</h2>
             <ul>
@@ -15,7 +56,7 @@
             </ul>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.StartSearch(System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.StartSearch(HappyTravel.Edo.DirectApi.Models.AvailabilityRequest,System.Threading.CancellationToken)">
             <summary>
             Starting search
             </summary>
@@ -23,7 +64,7 @@
             Starting wide availability search for search all available accommodations on predefined parameters.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetSearchResult(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetSearchResult(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Getting accommodations
             </summary>
@@ -31,7 +72,7 @@
             Returns all available accommodations for provided searchId
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetAvailabilityForAccommodation(System.Guid,System.String,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetAvailabilityForAccommodation(System.Guid,System.String,System.Threading.CancellationToken)">
             <summary>
             Room selection
             </summary>
@@ -39,7 +80,7 @@
             Returns room contract sets for getting a specific contract from a selected accommodation.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.GetExactAvailability(System.Guid,System.String,System.Guid,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.SearchController.GetExactAvailability(System.Guid,System.String,System.Guid,System.Threading.CancellationToken)">
             <summary>
             Booking evaluation
             </summary>
@@ -47,13 +88,80 @@
             Booking evaluation to ensure no one book a contract you want when you make a decision and fill out passenger data.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingFlowController.Book(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Id">
             <summary>
-            Creating booking.
+                The accommodation ID.
             </summary>
-            <remarks>
-            Booking selected contract
-            </remarks>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Name">
+            <summary>
+                The accommodation name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Category">
+            <summary>
+                The accommodation category.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Contacts">
+            <summary>
+                Contact info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Location">
+            <summary>
+                Location info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Photos">
+            <summary>
+                Accommodation pictures and their descriptions.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Rating">
+            <summary>
+                The accommodation rating.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Schedule">
+            <summary>
+                The schedule of accommodation services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.TextualDescriptions">
+            <summary>
+                Textual descriptions of an accommodation and its zones.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Type">
+            <summary>
+                The type of a property.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.UniqueCodes">
+            <summary>
+                Unique codes in external accommodation mapping services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.HotelChain">
+            <summary>
+                Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.AccommodationAmenities">
+            <summary>
+                The dictionary of amenities available in an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.AdditionalInfo">
+            <summary>
+                The dictionary of all other accommodation stats.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.Modified">
+            <summary>
+                The Modification date of accommodation data
+            </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Nationality">
             <summary>
@@ -86,6 +194,11 @@
                 Identifier of chosen room contract set.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.EvaluationToken">
+            <summary>
+            Token from third step availability search to disallow double bookings
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.MainPassengerName">
             <summary>
                 The full name of main passenger (buyer).
@@ -96,6 +209,56 @@
                 Itinerary number to combine several orders in one pack.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ReferenceCode">
+            <summary>
+                Client booking reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckInDate">
+            <summary>
+                Required. Check-in date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckOutDate">
+            <summary>
+                Required. Check-out date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Filters">
+            <summary>
+                One ore several filters to order a response data.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Nationality">
+            <summary>
+                Required. Alpha-2 nationality code for a lead passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.PropertyType">
+            <summary>
+                Desirable property type for an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Ratings">
+            <summary>
+                Accommodation rating.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Residency">
+            <summary>
+                Required. Alpha-2 residency code for a lead passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.RoomDetails">
+            <summary>
+                Required. Desirable room details.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.HtIds">
+            <summary>
+            Prediction's HtIds
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.BookingRoomDetails.IsExtraBedNeeded">
             <summary>
                 Indicates if extra child bed needed.
@@ -104,6 +267,26 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.BookingRoomDetails.IsCotNeededNeeded">
             <summary>
                 Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.ContactInfo.Emails">
+            <summary>
+                The accommodation email.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.ContactInfo.Faxes">
+            <summary>
+                The accommodation fax number.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.ContactInfo.Phones">
+            <summary>
+                The accommodation phone.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.ContactInfo.WebSites">
+            <summary>
+                The accommodation web site.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.DailyRate.FromDate">
@@ -139,6 +322,66 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.DailyRate.Type">
             <summary>
                 The price type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.Address">
+            <summary>
+                The location address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.Coordinates">
+            <summary>
+                Location coordinates.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryCode">
+            <summary>
+                The country code in the ISO 3166-1 Alpha-2 format.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryHtId">
+            <summary>
+            Happy Travel country Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.Country">
+            <summary>
+                The location country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.IsHistoricalBuilding">
+            <summary>
+                Indicates if a location a historical place.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityHtId">
+            <summary>
+            Happy Travel localityId
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.Locality">
+            <summary>
+                The locality name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZoneHtId">
+            <summary>
+            Happy Travel locality zone Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZone">
+            <summary>
+                The locality zone name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocationDescriptionCode">
+            <summary>
+                The description of a location.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.PointsOfInterests">
+            <summary>
+                The list of transportation facility or POI.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Rate.Currency">
