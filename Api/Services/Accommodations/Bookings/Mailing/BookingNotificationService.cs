@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 =>  _notificationService.Send(messageData: data,
                     notificationType: NotificationTypes.CreditCardPaymentReceivedAdministrator,
                     emails: _options.CcNotificationAddresses,
-                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
+                    templateId: _options.AdminCreditCardPaymentConfirmationTemplateId);
 
 
             async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
