@@ -21,10 +21,12 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                     var currentName = typeof(Startup).Assembly.GetName().Name;
                     return apiName.StartsWith(currentName);
                 });
+
+                var description = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "readme.md"));
                 c.SwaggerDoc("direct-api", new OpenApiInfo
                 {
                     Title = "HappyTravel Api",
-                    Description = "HappyTravel API for searching and booking hotels"
+                    Description = description
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
