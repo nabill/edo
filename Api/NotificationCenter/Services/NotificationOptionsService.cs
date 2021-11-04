@@ -184,7 +184,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return Result.Failure<SlimNotificationOptions>($"Cannot find notification options for the type '{type}'");
 
             return options.EnabledReceivers.HasFlag(receiver)
-                ? new SlimNotificationOptions(options.EnabledProtocols, options.IsMandatory, options.EnabledReceivers)
+                ? new SlimNotificationOptions(enabledProtocols: options.EnabledProtocols, 
+                    isMandatory: options.IsMandatory, 
+                    enabledReceivers: options.EnabledReceivers, 
+                    emailTemplateId: options.EmailTemplateId)
                 : Result.Failure<SlimNotificationOptions>($"Cannot find notification options for the type '{type}' and the receiver '{receiver}'");
 
 
@@ -202,7 +205,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private async Task<Dictionary<NotificationTypes, SlimNotificationOptions>> GetDefaultOptions(ReceiverTypes receiver)
             => await _context.DefaultNotificationOptions
                 .Where(o => o.EnabledReceivers.HasFlag(receiver))
-                .ToDictionaryAsync(o => o.Type, o => new SlimNotificationOptions(o.EnabledProtocols, o.IsMandatory, o.EnabledReceivers));
+                .ToDictionaryAsync(o => o.Type, o => new SlimNotificationOptions(o.EnabledProtocols, o.IsMandatory, o.EnabledReceivers, o.EmailTemplateId));
 
 
         private readonly EdoContext _context;
