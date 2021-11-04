@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.UpdateData(table, keyColumn, 19, column, "d-b320c2ae698e4ffaba882afb023d9a10"); // BookingAdministratorPaymentsSummary
             migrationBuilder.UpdateData(table, keyColumn, 20, column, "d-378dbbbe87194aa1bb7dfa1338169739"); // BookingCancelledToReservations
             migrationBuilder.UpdateData(table, keyColumn, 21, column, "d-9addc6e97b154ce9afdec1305e5eeddf"); // BookingFinalizedToReservations
-            migrationBuilder.UpdateData(table, keyColumn, 22, column, "d-bbcc2c6cd2234441a6153da4b25a691f"); // CreditCardPaymentReceivedAdministrator TODO: Need clarify
+            migrationBuilder.UpdateData(table, keyColumn, 22, column, "d-689036bb7f324423808cf2dead06f7f4"); // CreditCardPaymentReceivedAdministrator
             migrationBuilder.UpdateData(table, keyColumn, 23, column, "d-e7e15134934a4824b04b20d175ca90c8"); // BookingManualCorrectionNeeded
             migrationBuilder.UpdateData(table, keyColumn, 24, column, "d-6c99ec77db8d47ada2c60477e901116b"); // BookingSummaryReportForAgent
             migrationBuilder.UpdateData(table, keyColumn, 25, column, "d-e48c6cc90bbe4b5599aba10c4384c799"); // ExternalPaymentLinks
