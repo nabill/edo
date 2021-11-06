@@ -17,14 +17,14 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.2.2" />
+      <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.2.3" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="HappyTravel.Edo.DirectApi.xml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="readme.md">
+        <None Update="README.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
