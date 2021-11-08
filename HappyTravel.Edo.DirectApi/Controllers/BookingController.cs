@@ -37,17 +37,33 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         
         
         /// <summary>
-        /// Creating booking.
+        /// Register booking.
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<AccommodationBookingInfo>> Book([FromBody] AccommodationBookingRequest request)
+        public async Task<ActionResult<Booking>> Register([FromBody] AccommodationBookingRequest request)
         {
             var agent = await _agentContextService.GetAgent();
 
-            var (isSuccess, _, response, error) = await _bookingCreationService.Book(request, agent, "lang");
+            var (isSuccess, _, booking, error) = await _bookingCreationService.Register(request, agent, "en");
             
             return isSuccess
-                ? Ok(response)
+                ? Ok(booking)
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        /// Finalize booking
+        /// </summary>>
+        [HttpPost("finalize")]
+        public async Task<ActionResult<Booking>> Finalize([FromBody] BookingFinalizationRequest request)
+        {
+            var agent = await _agentContextService.GetAgent();
+
+            var (isSuccess, _, booking, error) = await _bookingCreationService.Finalize(request, agent, "en");
+            
+            return isSuccess
+                ? Ok(booking)
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
@@ -62,7 +78,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
             var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, supplierReferenceCode, agent);
             
             return isSuccess
-                ? Ok(booking)
+                ? Ok(booking.FromEdoModels())
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 

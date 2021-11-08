@@ -1,38 +1,103 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.DirectApi.Models;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
     public class BookingCreationService
     {
-        public BookingCreationService(IFinancialAccountBookingFlow bookingFlow, ClientReferenceCodeValidationService validationService)
+        public BookingCreationService(ClientReferenceCodeValidationService validationService, 
+            IBookingRegistrationService bookingRegistrationService, IBookingEvaluationStorage bookingEvaluationStorage,
+            BookingInfoService bookingInfoService, IBookingDocumentsService documentsService, IDateTimeProvider dateTimeProvider, 
+            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor)
         {
-            _bookingFlow = bookingFlow;
             _validationService = validationService;
+            _bookingRegistrationService = bookingRegistrationService;
+            _bookingEvaluationStorage = bookingEvaluationStorage;
+            _bookingInfoService = bookingInfoService;
+            _documentsService = documentsService;
+            _dateTimeProvider = dateTimeProvider;
+            _accountPaymentService = accountPaymentService;
+            _requestExecutor = requestExecutor;
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Register(AccommodationBookingRequest request, AgentContext agent, string languageCode)
         {
             return await _validationService.Validate(request.ReferenceCode, agent)
-                .Bind(CreateBooking);
+                .Bind(GetCachedAvailability)
+                .Bind(RegisterBooking);
+            
+            
+            async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability()
+                => await _bookingEvaluationStorage.Get(request.SearchId,
+                    request.HtId,
+                    request.RoomContractSetId);
 
 
-            async Task<Result<AccommodationBookingInfo>> CreateBooking()
+            async Task<Result<Booking>> RegisterBooking(BookingAvailabilityInfo availabilityInfo)
             {
-                var (isSuccess, _, result, error) = await _bookingFlow.BookByAccount(request.ToEdoModel(), agent, languageCode, string.Empty);
+                var booking =  await _bookingRegistrationService.Register(bookingRequest: request.ToEdoModel(), 
+                    availabilityInfo: availabilityInfo, 
+                    paymentMethod: PaymentTypes.VirtualAccount, 
+                    agentContext: agent, 
+                    languageCode: languageCode);
 
-                return isSuccess
-                    ? result.FromEdoModel()
-                    : Result.Failure<AccommodationBookingInfo>(error);
+                return booking.FromEdoModels();
             }
         }
 
 
-        private readonly IFinancialAccountBookingFlow _bookingFlow;
+        public async Task<Result<Booking>> Finalize(BookingFinalizationRequest request, AgentContext agent, string languageCode)
+        {
+            return await _bookingInfoService.Get(request.ReferenceCode, request.SupplierReferenceCode, agent)
+                .Check(GenerateInvoice)
+                .CheckIf(IsDeadlinePassed, ChargeMoney)
+                .Bind(SendSupplierRequest);
+            
+            
+            Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
+                => _documentsService.GenerateInvoice(booking);
+            
+            
+            bool IsDeadlinePassed(Data.Bookings.Booking booking)
+                => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
+            
+            
+            async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
+                => await _accountPaymentService.Charge(booking, agent.ToApiCaller());
+            
+            
+            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
+            { 
+                var result =  await _requestExecutor.Execute(booking, agent, languageCode);
+                if (result.IsFailure)
+                    return Result.Failure<Booking>(result.Error);
+
+                var refreshedBooking = await _bookingInfoService.Get(request.ReferenceCode, request.SupplierReferenceCode, agent);
+                return refreshedBooking.Value.FromEdoModels();
+            }
+        }
+
+        
         private readonly ClientReferenceCodeValidationService _validationService;
+        private readonly IBookingRegistrationService _bookingRegistrationService;
+        private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
+        private readonly BookingInfoService _bookingInfoService;
+        private readonly IBookingDocumentsService _documentsService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingAccountPaymentService _accountPaymentService;
+        private readonly IBookingRequestExecutor _requestExecutor;
     }
 }
