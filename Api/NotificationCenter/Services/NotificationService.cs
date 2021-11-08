@@ -40,24 +40,24 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-            => await Send(apiCaller, messageData, notificationType, new List<string> { email }, templateId);
+        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
+            => await Send(apiCaller, messageData, notificationType, new List<string> { email });
 
 
-        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        public async Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
         {
             if (apiCaller.Type == ApiCallerTypes.Agent)
             {
                 var agent = await _agentContextService.GetAgent();
 
-                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), messageData, notificationType, emails, templateId);
+                return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), messageData, notificationType, emails);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails, templateId);
+                return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails);
             else if (apiCaller.Type == ApiCallerTypes.PropertyOwner)
             {
                 return await _notificationOptionsService.GetNotificationOptions(NoUserId, apiCaller.Type, NoAgencyId, notificationType)
-                    .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                    .Map(notificationOptions => BuildSettings(notificationOptions, emails))
                     .Tap(sendingSettings => _internalNotificationService.AddPropertyOwnerNotification(messageData, notificationType, sendingSettings));
             }
             else
@@ -67,44 +67,44 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType)
             => await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, NoAgencyId, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
+                .Map(notificationOptions => BuildSettings(notificationOptions, null))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, message, notificationType, sendingSettings));
 
 
-        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-            => await Send(admin, messageData, notificationType, new List<string> { email }, templateId);
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
+            => await Send(admin, messageData, notificationType, new List<string> { email });
 
 
-        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
         {
             return await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, NoAgencyId, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails))
                 .Tap(sendingSettings => _internalNotificationService.AddAdminNotification(admin, messageData, notificationType, sendingSettings));
         }
 
 
         public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType)
             => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, null, string.Empty))
+                .Map(notificationOptions => BuildSettings(notificationOptions, null))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, message, notificationType, sendingSettings));
 
 
-        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-            => await Send(agent, messageData, notificationType, new List<string> { email }, templateId);
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
+            => await Send(agent, messageData, notificationType, new List<string> { email });
 
 
-        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
             => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
-                .Map(notificationOptions => BuildSettings(notificationOptions, emails, templateId))
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
 
 
-        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId)
-            => await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email }, templateId);
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
+            => await Send(new SlimAgentContext(agentId: 0, agencyId: 0), messageData, notificationType, new List<string> { email });
 
 
-        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId)
-            => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails, templateId);
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
+            => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails);
 
 
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await _internalNotificationService.Get(ReceiverTypes.AdminPanel, admin.AdminId, null, skip, top);
 
 
-        private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails, string templateId)
+        private static Dictionary<ProtocolTypes, object> BuildSettings(SlimNotificationOptions notificationOptions, List<string> emails)
         {
             var sendingSettings = new Dictionary<ProtocolTypes, object>();
 
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
             if ((notificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = emails ?? new(0), TemplateId = templateId });
+                sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = emails ?? new(0), TemplateId = notificationOptions.EmailTemplateId });
 
             return sendingSettings;
         }

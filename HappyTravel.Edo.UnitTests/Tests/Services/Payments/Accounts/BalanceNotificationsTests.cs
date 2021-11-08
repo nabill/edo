@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             await service.SendNotificationIfRequired(account, chargeAmount);
 
             _notificationServiceMock.Verify(
-                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()));
+                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()));
         }
 
         
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             await service.SendNotificationIfRequired(account, chargeAmount);
 
             _notificationServiceMock.Verify(
-                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()),
+                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()),
                 Times.Never);
         }
 
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
 
             void SaveMailData()
                 => _notificationServiceMock
-                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()))
                     .Callback<DataWithCompanyInfo, NotificationTypes, string, string>((data, _, _, _)
                         => actualMailData = (AccountBalanceManagementNotificationData)data);
         }
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
 
             void SaveMailData()
                 => _notificationServiceMock
-                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()))
                     .Callback<DataWithCompanyInfo, NotificationTypes, string, string>((data, _, _, _)
                         => actualMailData = (AccountBalanceManagementNotificationData) data);
         }

@@ -1,17 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.DataFormatters;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -20,14 +18,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public CounterpartyBillingNotificationService(INotificationService notificationService,
             Services.Agents.IAgentService agentService,
             ICounterpartyService counterpartyService,
-            ILogger<CounterpartyBillingNotificationService> logger,
-            IOptions<CounterpartyBillingNotificationServiceOptions> options)
+            ILogger<CounterpartyBillingNotificationService> logger)
         {
             _notificationService = notificationService;
             _agentService = agentService;
             _counterpartyService = counterpartyService;
             _logger = logger;
-            _options = options.Value;
         }
 
 
@@ -100,20 +96,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 Amount = MoneyFormatter.ToCurrencyString(paymentData.Amount, paymentData.Currency)
             };
             var (email, agent) = receiver;
-            string templateId = notificationType switch
-            {
-                NotificationTypes.CounterpartyAccountBalanceReplenished => _options.CounterpartyAccountAddedTemplateId,
-                NotificationTypes.CounterpartyAccountBalanceSubtracted => _options.CounterpartyAccountSubtractedTemplateId,
-                NotificationTypes.CounterpartyAccountBalanceIncreasedManually => _options.CounterpartyAccountIncreasedManuallyTemplateId,
-                NotificationTypes.CounterpartyAccountBalanceDecreasedManually => _options.CounterpartyAccountDecreasedManuallyTemplateId,
-                _ => throw new NotImplementedException()
-            };
 
             return await _notificationService.Send(agent: agent,
                 messageData: payload,
                 notificationType: notificationType,
-                email: email,
-                templateId: templateId);
+                email: email);
         }
 
 
@@ -121,6 +108,5 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly Services.Agents.IAgentService _agentService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly ILogger<CounterpartyBillingNotificationService> _logger;
-        private readonly CounterpartyBillingNotificationServiceOptions _options;
     }
 }

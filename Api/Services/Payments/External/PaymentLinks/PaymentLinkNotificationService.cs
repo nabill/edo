@@ -1,23 +1,18 @@
-using System;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
-using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {
     public class PaymentLinkNotificationService : IPaymentLinkNotificationService
     {
-        public PaymentLinkNotificationService(IOptions<PaymentLinkOptions> options, INotificationService notificationService)
+        public PaymentLinkNotificationService(INotificationService notificationService)
         {
-            _options = options.Value;
             _notificationService = notificationService;
         }
 
@@ -35,8 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             return _notificationService.Send(messageData: payload,
                 notificationType: NotificationTypes.ExternalPaymentLinks,
-                email: link.Email,
-                templateId: _options.LinkMailTemplateId);
+                email: link.Email);
         }
 
 
@@ -52,12 +46,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             return _notificationService.Send(messageData: payload,
                 notificationType: NotificationTypes.PaymentLinkPaidNotification,
-                email: link.Email,
-                templateId: _options.PaymentConfirmationMailTemplateId);
+                email: link.Email);
         }
         
         
-        private readonly PaymentLinkOptions _options;
         private readonly INotificationService _notificationService;
     }
 }

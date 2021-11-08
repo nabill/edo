@@ -92,8 +92,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             var counterpartyManagementServiceMock = GetCounterpartyManagementService(context);
 
             var options = new CounterpartyManagementMailingOptions();
-            var mockOptions = new Mock<IOptions<CounterpartyManagementMailingOptions>>();
-            mockOptions.Setup(o => o.Value).Returns(options);
 
             var agentService = new Api.Services.Agents.AgentService(context, Mock.Of<IDateTimeProvider>());
 
@@ -101,7 +99,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 accountManagementServiceMock.Object,
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
-                mockOptions.Object,
                 Mock.Of<IDateTimeProvider>(),
                 agentService);
         }
