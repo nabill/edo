@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -19,19 +20,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public DeadlineService(IWideAvailabilityStorage availabilityStorage, 
             IRoomSelectionStorage roomSelectionStorage,
             ISupplierConnectorManager supplierConnectorManager,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService, 
+            ILogger<DeadlineService> logger)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
             _supplierConnectorManager = supplierConnectorManager;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _logger = logger;
         }
 
 
         public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
-            Baggage.AddSearchId(searchId);
+            using var _ = _logger.AddSearchIdScope(searchId);
             var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
@@ -99,5 +102,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
+        private readonly ILogger<DeadlineService> _logger;
     }
 }
