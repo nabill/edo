@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
-            using var _ = _logger.BeginScope(new Dictionary<string, object> {{"SearchId", searchId}});
+            using var _ = _logger.AddSearchIdScope(searchId);
             var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
