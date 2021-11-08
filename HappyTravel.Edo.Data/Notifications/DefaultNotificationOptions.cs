@@ -8,5 +8,6 @@ namespace HappyTravel.Edo.Data.Notifications
         public ProtocolTypes EnabledProtocols { get; set; }
         public bool IsMandatory { get; set; }
         public ReceiverTypes EnabledReceivers { get; set; }
+        public string EmailTemplateId { get; set; }
     }
 }
