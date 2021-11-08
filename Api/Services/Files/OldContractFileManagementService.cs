@@ -58,8 +58,11 @@ namespace HappyTravel.Edo.Api.Services.Files
                         continue;
                     }
 
+                    await using var contractMemoryStream = new MemoryStream();
+                    await contractStream.CopyToAsync(contractMemoryStream);
+
                     // Upload to a new place
-                    var fileToUpload = new FormFile(contractStream, 0, contractStream.Length, "Contract.pdf", "Contract.pdf");
+                    var fileToUpload = new FormFile(contractMemoryStream, 0, contractMemoryStream.Length, "Contract.pdf", "Contract.pdf");
                     var (_, isUploadFailure, uploadError) = await _contractFileManagementService.Add(rootAgency.Id, fileToUpload);
                     if (isUploadFailure)
                     {

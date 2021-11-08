@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -12,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -23,7 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
-            IBookingRequestExecutor requestExecutor)
+            IBookingRequestExecutor requestExecutor, 
+            ILogger<FinancialAccountBookingFlow> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
+            _logger = logger;
         }
         
         
@@ -39,8 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
-            Baggage.AddSearchId(bookingRequest.SearchId);
-
+            using var _ = _logger.AddSearchIdScope(bookingRequest.SearchId);
+            
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Map(RegisterBooking)
@@ -105,5 +107,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
+        private readonly ILogger<FinancialAccountBookingFlow> _logger;
     }
 }
