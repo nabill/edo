@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
                 
                 var (request, availabilityInfo) = requestInfo;
-                using var _ = _logger.BeginScope(new Dictionary<string, object> {{"SearchId", request.SearchId}});
+                using var _ = _logger.AddSearchIdScope(request.SearchId);
                 Baggage.AddBookingReferenceCode(booking.ReferenceCode);
 
                 return await _requestExecutor.Execute(booking, agentContext, languageCode);
