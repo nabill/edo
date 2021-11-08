@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -21,7 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
-            IBookingRequestExecutor requestExecutor)
+            IBookingRequestExecutor requestExecutor, 
+            ILogger<OfflinePaymentBookingFlow> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -29,13 +32,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
+            _logger = logger;
         }
         
 
         public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
-            Baggage.AddSearchId(bookingRequest.SearchId);
+            using var _ = _logger.BeginScope(new Dictionary<string, object> {{"SearchId", bookingRequest.SearchId}});
 
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
@@ -102,5 +106,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
+        private readonly ILogger<OfflinePaymentBookingFlow> _logger;
     }
 }
