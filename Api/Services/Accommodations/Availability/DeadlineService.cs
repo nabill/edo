@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
-            using var _ = _logger.AddSearchIdScope(searchId);
+            Baggage.AddSearchId(searchId);
             var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
