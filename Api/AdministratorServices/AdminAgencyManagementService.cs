@@ -66,6 +66,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    where a.ParentId == null
+                    select a.ToAgencyInfo(a.ContractKind, a.VerificationState, a.Verified, c.Names, languageCode))
+                .ToListAsync();
+
+
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (
                     from a in _context.Agencies
