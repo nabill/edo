@@ -46,9 +46,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var dailyRates = new List<DailyRate>(room.DailyRoomRates.Count);
                 foreach (var dailyRate in room.DailyRoomRates)
                 {
-                    var roomGross = ChangeProportionally(dailyRate.Gross);
-                    var roomFinalPrice = ChangeProportionally(dailyRate.FinalPrice);
-
+                    var roomGross = MoneyRounder.Ceil(ChangeProportionally(dailyRate.Gross));
+                    var roomFinalPrice = MoneyRounder.Ceil(ChangeProportionally(dailyRate.FinalPrice));
+                    
                     dailyRates.Add(BuildDailyPrice(dailyRate, roomFinalPrice, roomGross));
                 }
                 
