@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 .Select(s => s.BookingId)
                 .ToList();
 
-            return await _context.Bookings
+            var result = await _context.Bookings
                 .Where(b =>
                     !excludedIds.Contains(b.Id) &&
                     b.CheckInDate > now &&
@@ -121,6 +121,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     !disabledSuppliers.Contains(b.Supplier))
                 .Select(b => b.Id)
                 .ToListAsync();
+
+            return result;
         }
 
 

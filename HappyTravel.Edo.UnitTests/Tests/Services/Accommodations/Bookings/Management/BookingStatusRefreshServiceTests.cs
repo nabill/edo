@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         [InlineData(2, Suppliers.Jumeirah)]
         [InlineData(2, Suppliers.Etg)]
         [InlineData(1, Suppliers.Etg, Suppliers.Jumeirah)]
-        public async Task Should_filter_bookings_with_disabled_suppliers(int expectedCount, params Suppliers[] disabledSuppliers)
+        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params Suppliers[] disabledSuppliers)
         {
             var flowMock = new Mock<IDistributedFlow>();
             flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
@@ -87,6 +87,20 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             var result = await bookingStatusRefreshService.GetBookingsToRefresh();
 
             Assert.Equal(expectedCount, result.Count);
+        }
+
+
+        [Fact]
+        public async Task Should_filter_bookings_with_checkin_in_past()
+        {
+            var flowMock = new Mock<IDistributedFlow>();
+            flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
+                .ReturnsAsync(new List<BookingStatusRefreshState>(0));
+
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(flowMock.Object, Mock.Of<ISupplierBookingManagementService>());
+            var result = await bookingStatusRefreshService.GetBookingsToRefresh();
+
+            Assert.Equal(3, result.Count);
         }
 
         
@@ -148,21 +162,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
                 Id = 1,
                 Status = BookingStatuses.Pending,
                 Supplier = Suppliers.Jumeirah,
-                CheckInDate = DateTime.UtcNow.AddDays(10)
+                CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 2,
                 Status = BookingStatuses.Pending,
                 Supplier = Suppliers.Etg,
-                CheckInDate = DateTime.UtcNow.AddDays(10)
+                CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 3,
                 Status = BookingStatuses.Pending,
                 Supplier = Suppliers.Darina,
-                CheckInDate = DateTime.UtcNow.AddDays(10)
+                CheckInDate = DateTimeNow.AddDays(10)
+            },
+            new Booking
+            {
+                Id = 4,
+                Status = BookingStatuses.Pending,
+                Supplier = Suppliers.Bronevik,
+                CheckInDate = DateTimeNow.AddDays(-10)
             }
         };
 
