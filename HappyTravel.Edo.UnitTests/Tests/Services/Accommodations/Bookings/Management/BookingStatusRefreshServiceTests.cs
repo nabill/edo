@@ -157,9 +157,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
                 Supplier = Suppliers.Etg,
                 CheckInDate = DateTime.UtcNow.AddDays(10)
             },
-            new Booking()
+            new Booking
             {
-                Id = 2,
+                Id = 3,
                 Status = BookingStatuses.Pending,
                 Supplier = Suppliers.Darina,
                 CheckInDate = DateTime.UtcNow.AddDays(10)
