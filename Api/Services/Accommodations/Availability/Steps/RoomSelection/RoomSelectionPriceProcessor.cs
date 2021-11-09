@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -18,12 +18,50 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public Task<Result<SingleAccommodationAvailability, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailability availabilityDetails)
-            => _priceProcessor.ConvertCurrencies(availabilityDetails, ProcessPrices, GetCurrency);
+        public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailability availabilityDetails)
+        {
+            var convertedRoomContractSets = new List<RoomContractSet>(availabilityDetails.RoomContractSets.Count);
+            foreach (var roomContractSet in availabilityDetails.RoomContractSets)
+            {
+                var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
+                    ProcessPrices,
+                    GetCurrency);
+                    
+                if (isFailure)
+                    return Result.Failure<SingleAccommodationAvailability, ProblemDetails>(error);
+                    
+                convertedRoomContractSets.Add(convertedRoomContractSet);
+            }
+
+            return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId,
+                checkInDate: availabilityDetails.CheckInDate,
+                roomContractSets: convertedRoomContractSets,
+                htId: availabilityDetails.HtId,
+                countryHtId: availabilityDetails.CountryHtId,
+                localityHtId: availabilityDetails.LocalityHtId);
+        }
 
 
-        public Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
-            => _priceProcessor.ApplyMarkups(agent, response, ProcessPrices, GetMarkupDestinationInfo);
+        public async Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
+        {
+            var convertedRoomContractSets = new List<RoomContractSet>(response.RoomContractSets.Count);
+            foreach (var roomContractSet in response.RoomContractSets)
+            {
+                var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
+                    roomContractSet,
+                    ProcessPrices,
+                    _ => GetMarkupDestinationInfo(response));
+
+                convertedRoomContractSets.Add(convertedRoomContractSet);
+            }
+
+            return new SingleAccommodationAvailability(availabilityId: response.AvailabilityId,
+                checkInDate: response.CheckInDate,
+                roomContractSets: convertedRoomContractSets,
+                htId: response.HtId,
+                countryHtId: response.CountryHtId,
+                localityHtId: response.LocalityHtId);
+        }
 
 
         public SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability source)
@@ -36,19 +74,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 countryHtId: source.CountryHtId,
                 localityHtId: source.LocalityHtId);
         }
-
-
-        private static async ValueTask<SingleAccommodationAvailability> ProcessPrices(SingleAccommodationAvailability source,
-            PriceProcessFunction processFunction)
-        {
-            var roomContractSets = await RoomContractSetPriceProcessor.ProcessPrices(source.RoomContractSets, processFunction);
-            return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
-                checkInDate: source.CheckInDate,
-                roomContractSets: roomContractSets,
-                htId: source.HtId,
-                countryHtId: source.CountryHtId,
-                localityHtId: source.LocalityHtId);
-        }
+        
+        
+        private static async ValueTask<RoomContractSet> ProcessPrices(RoomContractSet roomContractSet, PriceProcessFunction function) 
+            => await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, function);
 
 
         private static MarkupDestinationInfo GetMarkupDestinationInfo(SingleAccommodationAvailability availability)
@@ -60,14 +89,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             };
 
 
-        private static Currencies? GetCurrency(SingleAccommodationAvailability availabilityDetails)
+        private static Currencies? GetCurrency(RoomContractSet roomContractSet)
         {
-            if (!availabilityDetails.RoomContractSets.Any())
-                return null;
-            
-            return availabilityDetails.RoomContractSets
-                .Select(a => a.Rate.Currency)
-                .First();
+            return roomContractSet.Rate.Currency == Currencies.NotSpecified
+                ? null
+                : roomContractSet.Rate.Currency;
         }
         
         
