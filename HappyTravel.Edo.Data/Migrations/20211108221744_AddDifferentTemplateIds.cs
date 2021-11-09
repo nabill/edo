@@ -30,8 +30,8 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.UpdateData(table, keyColumn, 2, "AdminEmailTemplateId", "d-9baff8dd811749e0afc1ffb80f0c9f1d"); // BookingInvoice
             migrationBuilder.UpdateData(table, keyColumn, 4, "AdminEmailTemplateId", "d-646b7c9a3b61442c9327b43ec77d9ac5"); // SuccessfulPaymentReceipt
 
-            migrationBuilder.UpdateData(table, keyColumn, 6, "AdminEmailTemplateId", "d-da2c6d74ecb0466283f2b5a8116fba0f"); // BookingCancelled
-            migrationBuilder.UpdateData(table, keyColumn, 7, "AdminEmailTemplateId", "d-ebfa965b92cd431494258bd6b5a8f078"); // BookingFinalized
+            migrationBuilder.UpdateData(table, keyColumn, 6, "AdminEmailTemplateId", "d-378dbbbe87194aa1bb7dfa1338169739"); // BookingCancelled
+            migrationBuilder.UpdateData(table, keyColumn, 7, "AdminEmailTemplateId", "d-9addc6e97b154ce9afdec1305e5eeddf"); // BookingFinalized
 
 
             migrationBuilder.UpdateData(table, keyColumn, 9, column, "d-bbcc2c6cd2234441a6153da4b25a691f"); // CreditCardPaymentReceived
@@ -46,8 +46,8 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.UpdateData(table, keyColumn, 18, column, "d-0e0a051dfa62481aa54e3e3bc2ee7d0b"); // BookingsAdministratorSummaryNotification
             migrationBuilder.UpdateData(table, keyColumn, 19, column, "d-b320c2ae698e4ffaba882afb023d9a10"); // BookingAdministratorPaymentsSummary
             
-            migrationBuilder.UpdateData(table, keyColumn, 20, column, "d-378dbbbe87194aa1bb7dfa1338169739"); // BookingCancelledToReservations
-            migrationBuilder.UpdateData(table, keyColumn, 21, column, "d-9addc6e97b154ce9afdec1305e5eeddf"); // BookingFinalizedToReservations
+            migrationBuilder.UpdateData(table, keyColumn, 20, "AgentEmailTemplateId", null); // BookingCancelledToReservations
+            migrationBuilder.UpdateData(table, keyColumn, 21, "AgentEmailTemplateId", null); // BookingFinalizedToReservations
 
             migrationBuilder.UpdateData(table, keyColumn, 22, column, "d-689036bb7f324423808cf2dead06f7f4"); // CreditCardPaymentReceivedAdministrator
             migrationBuilder.UpdateData(table, keyColumn, 23, column, "d-e7e15134934a4824b04b20d175ca90c8"); // BookingManualCorrectionNeeded
