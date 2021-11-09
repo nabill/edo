@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         public BookingStatusRefreshService(IDistributedFlow flow,
             IDateTimeProvider dateTimeProvider, ISupplierBookingManagementService supplierBookingManagement,
-            EdoContext context, IOptionsMonitor<BookingStatusUpdate> statusUpdateOptionsMonitor)
+            EdoContext context, IOptionsMonitor<BookingStatusUpdateOptions> statusUpdateOptionsMonitor)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
@@ -235,6 +235,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ISupplierBookingManagementService _supplierBookingManagement;
         private readonly EdoContext _context;
-        private readonly IOptionsMonitor<BookingStatusUpdate> _statusUpdateOptionsMonitor;
+        private readonly IOptionsMonitor<BookingStatusUpdateOptions> _statusUpdateOptionsMonitor;
     }
 }

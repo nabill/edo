@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         {
             var context = CreateContext();
             var dateTimeProvider = new DateTimeProviderMock(DateTimeNow);
-            var monitor = Mock.Of<IOptionsMonitor<BookingStatusUpdate>>(_ => _.CurrentValue == new BookingStatusUpdate
+            var monitor = Mock.Of<IOptionsMonitor<BookingStatusUpdateOptions>>(_ => _.CurrentValue == new BookingStatusUpdateOptions
             {
                 DisabledSuppliers = disabledSuppliers ?? new List<Suppliers>()
             });
