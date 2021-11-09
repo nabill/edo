@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Roibos { get; set; }
         public string Bronevik { get; set; }
         public string HotelbookPro { get; set; }
+        public string BookMe { get; set; }
         public List<Suppliers> EnabledSuppliers { get; set; }
     }
 }
