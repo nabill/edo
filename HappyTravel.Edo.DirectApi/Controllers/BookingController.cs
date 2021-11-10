@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -55,12 +56,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Finalize booking
         /// </summary>>
-        [HttpPost("finalize")]
-        public async Task<ActionResult<Booking>> Finalize([FromBody] BookingFinalizationRequest request)
+        [HttpPost("{supplierReferenceCode}/finalize")]
+        public async Task<ActionResult<Booking>> Finalize([Required] string supplierReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
 
-            var (isSuccess, _, booking, error) = await _bookingCreationService.Finalize(request, agent, "en");
+            var (isSuccess, _, booking, error) = await _bookingCreationService.Finalize(supplierReferenceCode, agent, "en");
             
             return isSuccess
                 ? Ok(booking)

@@ -59,9 +59,9 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        public async Task<Result<Booking>> Finalize(BookingFinalizationRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Finalize(string supplierReferenceCode, AgentContext agent, string languageCode)
         {
-            return await _bookingInfoService.Get(request.ReferenceCode, request.SupplierReferenceCode, agent)
+            return await _bookingInfoService.Get(null, supplierReferenceCode, agent)
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest);
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.DirectApi.Services
                 if (result.IsFailure)
                     return Result.Failure<Booking>(result.Error);
 
-                var refreshedBooking = await _bookingInfoService.Get(request.ReferenceCode, request.SupplierReferenceCode, agent);
+                var refreshedBooking = await _bookingInfoService.Get(null, supplierReferenceCode, agent);
                 return refreshedBooking.Value.FromEdoModels();
             }
         }
