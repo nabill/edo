@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
             AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded)
+            bool isContractUploaded, string markupDisplayFormula)
         {
             Name = name;
             Id = id;
@@ -38,6 +38,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             LegalAddress = legalAddress;
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
+            MarkupDisplayFormula = markupDisplayFormula;
         }
 
 
@@ -160,6 +161,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// True if contract is loaded to agency
         /// </summary>
         public bool IsContractUploaded { get; }
+
+        /// <summary>
+        /// Calculated with all markups formula
+        /// </summary>
+        public string MarkupDisplayFormula { get; }
 
 
         public override int GetHashCode()

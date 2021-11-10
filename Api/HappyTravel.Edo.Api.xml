@@ -2384,6 +2384,11 @@
             True if contract is loaded to agency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.MarkupFormula">
+            <summary>
+            Calculated with all markups formula
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -3328,11 +3333,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.VatNumber">
             <summary>
             Value added tax identification number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.LocalityHtId">
-            <summary>
-            Agency locality ht id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.CreateChildAgencyInvitationRequest.UserRegistrationInfo">

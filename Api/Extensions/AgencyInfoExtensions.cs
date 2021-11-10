@@ -11,31 +11,31 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AgencyInfoExtensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode)
-            => new AgencyInfo(
-                agency.Name,
-                agency.Id,
-                agency.CounterpartyId,
-                agency.Address,
-                agency.BillingEmail,
-                agency.City,
-                agency.CountryCode,
-                LocalizationHelper.GetValueFromSerializedString(countryNames, languageCode),
-                agency.Fax,
-                agency.Phone,
-                agency.PostalCode,
-                agency.Website,
-                agency.VatNumber,
-                BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
-                agency.CountryHtId,
-                agency.LocalityHtId,
-                agency.Ancestors ?? new List<int>(),
-                verificationState,
-                verificationDate,
-                agency.IsActive,
-                agency.LegalAddress,
-                agency.PreferredPaymentMethod,
-                agency.IsContractUploaded);
+            AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode, string markupFormula)
+            => new AgencyInfo(name: agency.Name,
+                id: agency.Id,
+                counterpartyId: agency.CounterpartyId,
+                address: agency.Address,
+                billingEmail: agency.BillingEmail,
+                city: agency.City,
+                countryCode: agency.CountryCode,
+                countryName: LocalizationHelper.GetValueFromSerializedString(countryNames, languageCode),
+                fax: agency.Fax,
+                phone: agency.Phone,
+                postalCode: agency.PostalCode,
+                website: agency.Website,
+                vatNumber: agency.VatNumber,
+                defaultPaymentType: BookingPaymentTypesHelper.GetDefaultPaymentType(contractKind),
+                countryHtId: agency.CountryHtId,
+                localityHtId: agency.LocalityHtId,
+                ancestors: agency.Ancestors ?? new List<int>(),
+                verificationState: verificationState,
+                verificationDate: verificationDate,
+                isActive: agency.IsActive,
+                legalAddress: agency.LegalAddress,
+                preferredPaymentMethod: agency.PreferredPaymentMethod,
+                isContractUploaded: agency.IsContractUploaded,
+                markupDisplayFormula: markupFormula);
 
 
         public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)

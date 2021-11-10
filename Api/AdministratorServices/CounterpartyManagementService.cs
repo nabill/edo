@@ -93,7 +93,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                 where a.CounterpartyId == counterpartyId
                 join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
-                select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
+                join markupFormula in _context.DisplayMarkupFormulas on a.Id equals markupFormula.AgencyId
+                select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula.DisplayFormula))
             .ToListAsync();
 
 
