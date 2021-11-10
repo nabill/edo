@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 {
                     var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
                         roomContractSet,
-                        ProcessPrices,
+                        async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                         _ => GetMarkupDestinationInfo(slimAccommodationAvailability));
                     
                     convertedRoomContractSets.Add(convertedRoomContractSet);
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 foreach (var roomContractSet in slimAccommodationAvailability.RoomContractSets)
                 {
                     var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
-                        ProcessPrices,
+                        async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                         GetCurrency);
                     
                     if (isFailure)
@@ -123,10 +123,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 ? null
                 : roomContractSet.Rate.Currency;
         }
-        
-
-        private static async ValueTask<RoomContractSet> ProcessPrices(RoomContractSet roomContractSet, PriceProcessFunction function) 
-            => await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, function);
 
 
         private static MarkupDestinationInfo GetMarkupDestinationInfo(AccommodationAvailabilityResult availability)

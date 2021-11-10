@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             foreach (var roomContractSet in availabilityDetails.RoomContractSets)
             {
                 var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
-                    ProcessPrices,
+                    async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                     GetCurrency);
                     
                 if (isFailure)
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             {
                 var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
                     roomContractSet,
-                    ProcessPrices,
+                    async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                     _ => GetMarkupDestinationInfo(response));
 
                 convertedRoomContractSets.Add(convertedRoomContractSet);
@@ -74,10 +74,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 countryHtId: source.CountryHtId,
                 localityHtId: source.LocalityHtId);
         }
-        
-        
-        private static async ValueTask<RoomContractSet> ProcessPrices(RoomContractSet roomContractSet, PriceProcessFunction function) 
-            => await RoomContractSetPriceProcessor.ProcessPrices(roomContractSet, function);
 
 
         private static MarkupDestinationInfo GetMarkupDestinationInfo(SingleAccommodationAvailability availability)
