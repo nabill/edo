@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -13,6 +14,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -70,19 +72,53 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             Assert.Equal(DateTimeNow, capturedStates[0].LastRefreshDate);
         }
 
+
+        [Theory]
+        [InlineData(2, Suppliers.Jumeirah)]
+        [InlineData(2, Suppliers.Etg)]
+        [InlineData(1, Suppliers.Etg, Suppliers.Jumeirah)]
+        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params Suppliers[] disabledSuppliers)
+        {
+            var flowMock = new Mock<IDistributedFlow>();
+            flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
+                .ReturnsAsync(new List<BookingStatusRefreshState>(0));
+
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(flowMock.Object, Mock.Of<ISupplierBookingManagementService>(), disabledSuppliers.ToList());
+            var result = await bookingStatusRefreshService.GetBookingsToRefresh();
+
+            Assert.Equal(expectedCount, result.Count);
+        }
+
+
+        [Fact]
+        public async Task Should_filter_bookings_with_checkin_in_past()
+        {
+            var flowMock = new Mock<IDistributedFlow>();
+            flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
+                .ReturnsAsync(new List<BookingStatusRefreshState>(0));
+
+            var bookingStatusRefreshService = CreateBookingStatusRefreshService(flowMock.Object, Mock.Of<ISupplierBookingManagementService>());
+            var result = await bookingStatusRefreshService.GetBookingsToRefresh();
+
+            Assert.Equal(3, result.Count);
+        }
+
         
-        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService)
+        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService, List<Suppliers>? disabledSuppliers = null)
         {
             var context = CreateContext();
             var dateTimeProvider = new DateTimeProviderMock(DateTimeNow);
-            var bookingOptions = Mock.Of<IOptions<BookingOptions>>();
+            var monitor = Mock.Of<IOptionsMonitor<BookingStatusUpdateOptions>>(_ => _.CurrentValue == new BookingStatusUpdateOptions
+            {
+                DisabledSuppliers = disabledSuppliers ?? new List<Suppliers>()
+            });
             
             return new BookingStatusRefreshService(
                 flow,
                 dateTimeProvider,
                 supplierService,
                 context,
-                bookingOptions
+                monitor
             );
         }
 
@@ -124,7 +160,30 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             new Booking
             {
                 Id = 1,
-                Status = BookingStatuses.Pending
+                Status = BookingStatuses.Pending,
+                Supplier = Suppliers.Jumeirah,
+                CheckInDate = DateTimeNow.AddDays(10)
+            },
+            new Booking
+            {
+                Id = 2,
+                Status = BookingStatuses.Pending,
+                Supplier = Suppliers.Etg,
+                CheckInDate = DateTimeNow.AddDays(10)
+            },
+            new Booking
+            {
+                Id = 3,
+                Status = BookingStatuses.Pending,
+                Supplier = Suppliers.Darina,
+                CheckInDate = DateTimeNow.AddDays(10)
+            },
+            new Booking
+            {
+                Id = 4,
+                Status = BookingStatuses.Pending,
+                Supplier = Suppliers.Bronevik,
+                CheckInDate = DateTimeNow.AddDays(-10)
             }
         };
 
