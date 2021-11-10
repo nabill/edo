@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Invitations
     {
         [JsonConstructor]
         public ChildAgencyInvitationInfo(string name, string address, string billingEmail, string countryName, string fax, string phone,
-            string postalCode, string website, string vatNumber, string localityHtId)
+            string postalCode, string website, string vatNumber)
         {
             Name = name;
             Address = address;
@@ -18,7 +18,6 @@ namespace HappyTravel.Edo.Api.Models.Invitations
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            LocalityHtId = localityHtId;
         }
 
 
@@ -67,11 +66,5 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        /// Agency locality ht id
-        /// </summary>
-        [Required]
-        public string LocalityHtId { get; }
     }
 }

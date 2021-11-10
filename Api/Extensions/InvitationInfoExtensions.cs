@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     request.ChildAgencyRegistrationInfo.VatNumber,
                     string.Empty,
                     PaymentTypes.None,
-                    request.ChildAgencyRegistrationInfo.LocalityHtId),
+                    null),
                 roleIds);
 
         
