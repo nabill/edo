@@ -9,5 +9,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         {
             Activity.Current?.AddBaggage("ReferenceCode", referenceCode);
         }
+        
+        public static void AddSearchId(Guid searchId)
+        {
+            Activity.Current?.AddBaggage("SearchId", searchId.ToString());
+        }
     }
 }

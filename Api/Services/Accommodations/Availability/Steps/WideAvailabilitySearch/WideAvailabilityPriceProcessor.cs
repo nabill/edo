@@ -24,13 +24,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var slimAccommodationAvailability in results)
             {
-                // Currency can differ in different results
-                var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
-                    slimAccommodationAvailability,
-                    ProcessPrices,
-                    GetMarkupDestinationInfo);
-
-                convertedResults.Add(convertedAccommodationAvailability);
+                var convertedRoomContractSets = new List<RoomContractSet>(slimAccommodationAvailability.RoomContractSets.Count);
+                foreach (var roomContractSet in slimAccommodationAvailability.RoomContractSets)
+                {
+                    var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
+                        roomContractSet,
+                        async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
+                        _ => GetMarkupDestinationInfo(slimAccommodationAvailability));
+                    
+                    convertedRoomContractSets.Add(convertedRoomContractSet);
+                }
+                
+                convertedResults.Add(new AccommodationAvailabilityResult(searchId: slimAccommodationAvailability.SearchId,
+                    supplier: slimAccommodationAvailability.Supplier,
+                    created: slimAccommodationAvailability.Created,
+                    availabilityId: slimAccommodationAvailability.AvailabilityId,
+                    roomContractSets: convertedRoomContractSets,
+                    minPrice: slimAccommodationAvailability.MinPrice,
+                    maxPrice: slimAccommodationAvailability.MaxPrice,
+                    checkInDate: slimAccommodationAvailability.CheckInDate,
+                    checkOutDate: slimAccommodationAvailability.CheckOutDate,
+                    htId: slimAccommodationAvailability.HtId,
+                    supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
+                    countryHtId: slimAccommodationAvailability.CountryHtId,
+                    localityHtId: slimAccommodationAvailability.LocalityHtId));
             }
 
             return convertedResults;
@@ -42,15 +59,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var slimAccommodationAvailability in results)
             {
-                // Currency can differ in different results
-                var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(slimAccommodationAvailability,
-                    ProcessPrices,
-                    GetCurrency);
-
-                if (isFailure)
-                    return Result.Failure<List<AccommodationAvailabilityResult>, ProblemDetails>(error);
+                var convertedRoomContractSets = new List<RoomContractSet>(slimAccommodationAvailability.RoomContractSets.Count);
+                foreach (var roomContractSet in slimAccommodationAvailability.RoomContractSets)
+                {
+                    var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
+                        async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
+                        GetCurrency);
                     
-                convertedResults.Add(convertedAccommodationAvailability);
+                    if (isFailure)
+                        return Result.Failure<List<AccommodationAvailabilityResult>, ProblemDetails>(error);
+                    
+                    convertedRoomContractSets.Add(convertedRoomContractSet);
+                }
+
+                convertedResults.Add(new AccommodationAvailabilityResult(searchId: slimAccommodationAvailability.SearchId,
+                    supplier: slimAccommodationAvailability.Supplier,
+                    created: slimAccommodationAvailability.Created,
+                    availabilityId: slimAccommodationAvailability.AvailabilityId,
+                    roomContractSets: convertedRoomContractSets,
+                    minPrice: slimAccommodationAvailability.MinPrice,
+                    maxPrice: slimAccommodationAvailability.MaxPrice,
+                    checkInDate: slimAccommodationAvailability.CheckInDate,
+                    checkOutDate: slimAccommodationAvailability.CheckOutDate,
+                    htId: slimAccommodationAvailability.HtId,
+                    supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
+                    countryHtId: slimAccommodationAvailability.CountryHtId,
+                    localityHtId: slimAccommodationAvailability.LocalityHtId));
             }
 
             return convertedResults;
@@ -83,34 +117,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private static Currencies? GetCurrency(AccommodationAvailabilityResult accommodationAvailability)
+        private static Currencies? GetCurrency(RoomContractSet roomContractSet)
         {
-            if (!accommodationAvailability.RoomContractSets.Any())
-                return null;
-
-            return accommodationAvailability.RoomContractSets.First().Rate.Currency;
-        }
-        
-
-        private static async ValueTask<AccommodationAvailabilityResult> ProcessPrices(AccommodationAvailabilityResult accommodationAvailability, PriceProcessFunction function)
-        {
-            var supplierRoomContractSets = accommodationAvailability.RoomContractSets;
-            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessor.ProcessPrices(supplierRoomContractSets, function);
-            var convertedAccommodationAvailability = new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
-                supplier: accommodationAvailability.Supplier,
-                created: accommodationAvailability.Created,
-                availabilityId: accommodationAvailability.AvailabilityId,
-                roomContractSets: roomContractSetsWithMarkup,
-                minPrice: roomContractSetsWithMarkup.Min(rcs => rcs.Rate.FinalPrice.Amount),
-                maxPrice: roomContractSetsWithMarkup.Max(rcs => rcs.Rate.FinalPrice.Amount),
-                checkInDate: accommodationAvailability.CheckInDate,
-                checkOutDate: accommodationAvailability.CheckOutDate,
-                htId: accommodationAvailability.HtId,
-                supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
-                countryHtId: accommodationAvailability.CountryHtId,
-                localityHtId: accommodationAvailability.LocalityHtId);
-            
-            return convertedAccommodationAvailability;
+            return roomContractSet.Rate.Currency == Currencies.NotSpecified
+                ? null
+                : roomContractSet.Rate.Currency;
         }
 
 
