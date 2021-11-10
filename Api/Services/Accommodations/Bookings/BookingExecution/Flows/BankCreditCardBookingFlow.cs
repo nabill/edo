@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            using var _ = _logger.AddSearchIdScope(bookingRequest.SearchId);
+            Baggage.AddSearchId(bookingRequest.SearchId);
             
             var (_, isFailure, booking, error) = await GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
                 
                 var (request, availabilityInfo) = requestInfo;
-                using var _ = _logger.AddSearchIdScope(request.SearchId);
+                Baggage.AddSearchId(request.SearchId);
                 Baggage.AddBookingReferenceCode(booking.ReferenceCode);
 
                 return await _requestExecutor.Execute(booking, agentContext, languageCode);
