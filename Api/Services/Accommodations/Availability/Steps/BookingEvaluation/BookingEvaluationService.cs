@@ -164,13 +164,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                         case SubjectMarkupScopeTypes.Agency:
                             agencyId = int.Parse(policy.SubjectScopeId);
                             break;
-                        case SubjectMarkupScopeTypes.Counterparty:
-                            counterpartyId = int.Parse(policy.SubjectScopeId);
-                            break;
                     }
                     
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.SubjectScopeType, counterpartyId, agencyId, agentId),
+                        scope: new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));
