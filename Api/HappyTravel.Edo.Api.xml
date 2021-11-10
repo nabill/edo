@@ -238,6 +238,11 @@
             </summary>
             <param name="agencyId">Id of the agency to load the contract file for</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies">
+            <summary>
+            Gets a list of all root agencies
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list

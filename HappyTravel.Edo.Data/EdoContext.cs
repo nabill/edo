@@ -865,7 +865,7 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildDefaultNotificationOptions(ModelBuilder builder)
+        private static void BuildDefaultNotificationOptions(ModelBuilder builder)
         {
             builder.Entity<DefaultNotificationOptions>(e =>
             {
@@ -873,11 +873,12 @@ namespace HappyTravel.Edo.Data
                 e.Property(o => o.EnabledProtocols).IsRequired();
                 e.Property(o => o.IsMandatory).IsRequired();
                 e.Property(o => o.EnabledReceivers).IsRequired();
+                e.Property(o => o.EmailTemplateId);
             });
         }
 
 
-        private void BuildBookingConfirmationHistory(ModelBuilder builder)
+        private static void BuildBookingConfirmationHistory(ModelBuilder builder)
         {
             builder.Entity<BookingConfirmationHistoryEntry>(e =>
             {
