@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 return Result.Failure<Booking>(requestInfoResult.Error);
 
             var (bookingRequest, availabilityInfo) = requestInfoResult.Value;
-            var creditCardResult = await GetCreditCard(booking.ReferenceCode, availabilityInfo);
+            var creditCardResult = await GetCreditCard(booking, availabilityInfo);
             if (creditCardResult.IsFailure)
                 return Result.Failure<Booking>(creditCardResult.Error);
                     
@@ -169,17 +169,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private async ValueTask<Result<CreditCardInfo>> GetCreditCard(string referenceCode, BookingAvailabilityInfo availabilityInfo)
+        private async ValueTask<Result<CreditCardInfo>> GetCreditCard(Data.Bookings.Booking booking, BookingAvailabilityInfo availabilityInfo)
         {
             if (availabilityInfo.CardRequirement is null)
                 return null;
 
-            return await _creditCardProvider.Get(referenceCode: referenceCode,
+            return await _creditCardProvider.Get(referenceCode: booking.ReferenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
                 supplier: availabilityInfo.Supplier,
-                accommodationName: availabilityInfo.AccommodationName);
+                accommodationName: booking.AccommodationName);
         }
 
 
