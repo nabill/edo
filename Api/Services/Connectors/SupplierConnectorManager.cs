@@ -13,21 +13,20 @@ namespace HappyTravel.Edo.Api.Services.Connectors
     {
         public SupplierConnectorManager(IOptionsMonitor<SupplierOptions> options, IServiceProvider serviceProvider)
         {
-            _options = options;
             _serviceProvider = serviceProvider;
-            _options.OnChange(_ => UpdateConnectorClients());
+            options.OnChange(UpdateConnectorClients);
             
-            UpdateConnectorClients();
+            UpdateConnectorClients(options.CurrentValue);
         }
 
 
-        private void UpdateConnectorClients()
+        private void UpdateConnectorClients(SupplierOptions options)
         {
             var connectorClient = _serviceProvider.GetRequiredService<IConnectorClient>();
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierConnector>>();
             var suppliers = new Dictionary<Suppliers, ISupplierConnector>();
             
-            foreach (var (supplier, endpoint) in _options.CurrentValue.Endpoints)
+            foreach (var (supplier, endpoint) in options.Endpoints)
             {
                 suppliers.Add(supplier, new SupplierConnector(
                     supplier: supplier, 
@@ -44,9 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         
         private Dictionary<Suppliers, ISupplierConnector> _suppliers = new();
-        
-        
-        private readonly IOptionsMonitor<SupplierOptions> _options;
+
+
         private readonly IServiceProvider _serviceProvider;
     }
 }
