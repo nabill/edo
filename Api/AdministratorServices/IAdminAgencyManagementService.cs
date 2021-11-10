@@ -18,6 +18,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<AgencyInfo>> Get(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
+        Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode);
+
         Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
         Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId);
