@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 })
                 .SingleOrDefault();
 
-            if (payment is null || status != payment.Status)
+            if (payment is null || status == payment.Status || status == PaymentStatuses.Authorized && payment.Status == PaymentStatuses.Captured)
                 return;
 
             _logger.LogNGeniusWebhookPaymentUpdate();
