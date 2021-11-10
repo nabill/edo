@@ -2384,7 +2384,7 @@
             True if contract is loaded to agency
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.MarkupFormula">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.MarkupDisplayFormula">
             <summary>
             Calculated with all markups formula
             </summary>
