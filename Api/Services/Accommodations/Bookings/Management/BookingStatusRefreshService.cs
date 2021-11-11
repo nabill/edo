@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         public BookingStatusRefreshService(IDistributedFlow flow,
             IDateTimeProvider dateTimeProvider, ISupplierBookingManagementService supplierBookingManagement,
-            EdoContext context, IOptions<BookingOptions> bookingOptions)
+            EdoContext context, IOptionsMonitor<BookingStatusUpdateOptions> statusUpdateOptionsMonitor)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
             _supplierBookingManagement = supplierBookingManagement;
             _context = context;
-            _bookingOptions = bookingOptions.Value;
+            _statusUpdateOptionsMonitor = statusUpdateOptionsMonitor;
         }
 
 
@@ -105,6 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<List<int>> GetBookingsToRefresh()
         {
             var states = await GetStates();
+            var disabledSuppliers = _statusUpdateOptionsMonitor.CurrentValue.DisabledSuppliers;
             var now = _dateTimeProvider.UtcNow();
 
             var excludedIds = states
@@ -117,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     !excludedIds.Contains(b.Id) &&
                     b.CheckInDate > now &&
                     BookingStatusesForRefresh.Contains(b.Status) &&
-                    !_bookingOptions.DisableStatusUpdateForSuppliers.Contains(b.Supplier))
+                    !disabledSuppliers.Contains(b.Supplier))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -234,6 +235,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ISupplierBookingManagementService _supplierBookingManagement;
         private readonly EdoContext _context;
-        private readonly BookingOptions _bookingOptions;
+        private readonly IOptionsMonitor<BookingStatusUpdateOptions> _statusUpdateOptionsMonitor;
     }
 }

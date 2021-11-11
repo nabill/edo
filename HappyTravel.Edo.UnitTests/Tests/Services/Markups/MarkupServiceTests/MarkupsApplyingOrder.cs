@@ -28,7 +28,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         public MarkupsApplyingOrder()
         {
             var allPolicies = _agentPolicies
-                .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
                 .Union(_agencyPolicies)
                 .ToList();
@@ -73,14 +72,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                     SubjectMarkupScopeTypes.Country => secondScope is not SubjectMarkupScopeTypes.Global,
                     SubjectMarkupScopeTypes.Locality => secondScope is not SubjectMarkupScopeTypes.Global 
                         and not SubjectMarkupScopeTypes.Country,
-                    SubjectMarkupScopeTypes.Counterparty => secondScope is not SubjectMarkupScopeTypes.Global 
-                        and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality,
                     SubjectMarkupScopeTypes.Agency => secondScope is not SubjectMarkupScopeTypes.Global 
-                        and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality 
-                        and not SubjectMarkupScopeTypes.Counterparty,
+                        and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality,
                     SubjectMarkupScopeTypes.Agent => secondScope is not SubjectMarkupScopeTypes.Global 
                         and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality 
-                        and not SubjectMarkupScopeTypes.Counterparty and not SubjectMarkupScopeTypes.Agency,
+                        and not SubjectMarkupScopeTypes.Agency,
                     _ => throw new AssertionFailedException("Unexpected scope type")
                 };
             }
@@ -122,9 +118,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         }
     
         [Theory]
-        [InlineData(100, Currencies.EUR, 4206528602)]
-        [InlineData(240.5, Currencies.USD, 10107528602.0)]
-        [InlineData(0.13, Currencies.USD, 11988602.00)]
+        [InlineData(100, Currencies.EUR, 200288602)]
+        [InlineData(240.5, Currencies.USD, 481288602.0)]
+        [InlineData(0.13, Currencies.USD, 548602.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
             var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
@@ -155,30 +151,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}}
-            },
-        };
-        
-        private readonly IEnumerable<MarkupPolicy> _counterpartyPolicies = new[]
-        {
-            new MarkupPolicy
-            {
-                Id = 4,
-                SubjectScopeId = $"{MarkupSubject.CounterpartyId}",
-                Order = 21,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                SubjectScopeType = SubjectMarkupScopeTypes.Counterparty,
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 32}},
-            },
-            new MarkupPolicy
-            {
-                Id = 5,
-                SubjectScopeId = $"{MarkupSubject.CounterpartyId}",
-                Order = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
-                SubjectScopeType = SubjectMarkupScopeTypes.Counterparty,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 21}},
             },
         };
         
