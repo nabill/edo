@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.UnitTests.Mocks;
@@ -50,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     new BalanceNotificationSetting
                     {
                         AgencyAccountId = 1,
-                        Thresholds = new []{100, 200, 500}
+                        Thresholds = new[] { 100, 200, 500 }
                     },
                     new BalanceNotificationSetting
                     {
@@ -58,7 +59,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                         Thresholds = new int[0]
                     }
                 }));
-
 
             edoContextMock
                 .Setup(c => c.Agencies)
@@ -80,7 +80,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     }
                 }));
 
-
             edoContextMock
                 .Setup(c => c.Counterparties)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
@@ -97,7 +96,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     }
                 }));
 
-
             edoContextMock
                 .Setup(c => c.Countries)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Country>
@@ -109,7 +107,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                         RegionId = 1
                     }
                 }));
-
 
             edoContextMock
                 .Setup(c => c.AgencyAccounts)
@@ -128,6 +125,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                         Currency = Currencies.AED
                     }
                 }));
+
+            edoContextMock
+                .Setup(c => c.DisplayMarkupFormulas)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
         }
 
 
@@ -144,7 +145,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                 x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
-        
+
         [Theory]
         [InlineData(10000, 1000)]
         [InlineData(400, 100)]
@@ -182,6 +183,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
 
             Assert.Equal(expectedThreshold, actualMailData.Threshold);
 
+
             void SaveMailData()
                 => _notificationServiceMock
                     .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -207,13 +209,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             Assert.Equal(EnumFormatters.FromDescription(Currencies.USD), actualMailData.Currency);
             Assert.Equal(MoneyFormatter.ToCurrencyString(57, Currencies.USD), actualMailData.NewAmount);
 
+
             void SaveMailData()
                 => _notificationServiceMock
                     .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>(), It.IsAny<string>()))
                     .Callback<DataWithCompanyInfo, NotificationTypes, string, string>((data, _, _, _)
-                        => actualMailData = (AccountBalanceManagementNotificationData) data);
+                        => actualMailData = (AccountBalanceManagementNotificationData)data);
         }
-        
+
 
         private BalanceManagementNotificationsService CreateService()
             => new BalanceManagementNotificationsService(
@@ -224,7 +227,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     BalanceManagementNotificationTemplateId = "templateId"
                 }),
                 new BalanceNotificationsManagementService(_mockedEdoContext),
-                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<ILocalityInfoService>())
+                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(),
+                    Mock.Of<ILocalityInfoService>())
             );
 
 
@@ -232,12 +236,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             decimal chargeAmount,
             int agencyId,
             int accountId)
-            => (new AgencyAccount {AgencyId = agencyId, Balance = initialBalance, Id = accountId, Currency = Currencies.USD},
+            => (new AgencyAccount { AgencyId = agencyId, Balance = initialBalance, Id = accountId, Currency = Currencies.USD },
                 new MoneyAmount(chargeAmount, Currencies.USD));
 
 
-        private void InitializeMock()
-            => _notificationServiceMock = new Mock<INotificationService>();
+        private void InitializeMock() => _notificationServiceMock = new Mock<INotificationService>();
 
 
         private readonly EdoContext _mockedEdoContext;
