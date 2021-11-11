@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
 
 
-        public async Task<Result<Booking>> Get(string? referenceCode, string? supplierReferenceCode, AgentContext agent)
+        public async Task<Result<Edo.Data.Bookings.Booking>> Get(string? referenceCode, string? supplierReferenceCode, AgentContext agent)
         {
             return await Validate()
                 .Bind(GetBooking);
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.DirectApi.Services
             }
 
 
-            async Task<Result<Booking>> GetBooking()
+            async Task<Result<Edo.Data.Bookings.Booking>> GetBooking()
             {
                 var query = _context.Bookings
                     .Where(b => b.AgentId == agent.AgentId && b.AgencyId == agent.AgencyId);
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.DirectApi.Services
                     query = query.Where(b => b.ReferenceCode == supplierReferenceCode);
 
                 var booking = await query.SingleOrDefaultAsync();
-                return booking?.FromEdoModels() ?? Result.Failure<Booking>("Booking not found");
+                return booking ?? Result.Failure<Edo.Data.Bookings.Booking>("Booking not found");
             }
         }
 

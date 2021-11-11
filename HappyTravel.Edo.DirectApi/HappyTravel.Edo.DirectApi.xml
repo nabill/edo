@@ -25,10 +25,15 @@
             <h2>Booking management</h2>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Book(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Register(HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest)">
             <summary>
-            Creating booking.
+            Register booking.
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Finalize(HappyTravel.Edo.DirectApi.Models.BookingFinalizationRequest)">
+            <summary>
+            Finalize booking
+            </summary>>
         </member>
         <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String,System.String)">
             <summary>
