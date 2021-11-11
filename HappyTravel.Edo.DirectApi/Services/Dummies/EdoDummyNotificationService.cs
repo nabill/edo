@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.DirectApi.Services.Dummies
 {
@@ -17,11 +17,11 @@ namespace HappyTravel.Edo.DirectApi.Services.Dummies
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId) 
+        public Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email) 
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId) 
+        public Task<Result> Send(ApiCaller apiCaller, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails) 
             => Task.FromResult(Result.Success());
 
 
@@ -29,15 +29,15 @@ namespace HappyTravel.Edo.DirectApi.Services.Dummies
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId) 
+        public Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email) 
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId) 
+        public Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails) 
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId) 
+        public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails) 
             => Task.FromResult(Result.Success());
 
 
@@ -45,15 +45,15 @@ namespace HappyTravel.Edo.DirectApi.Services.Dummies
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId) 
+        public Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email) 
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, string templateId) 
+        public Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails) 
             => Task.FromResult(Result.Success());
 
 
-        public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, string templateId) 
+        public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email) 
             => Task.FromResult(Result.Success());
 
 

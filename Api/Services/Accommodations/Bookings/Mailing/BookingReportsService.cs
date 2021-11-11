@@ -145,8 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     var (_, isFailure, error) = await _notificationService.Send(agent: new SlimAgentContext(emailAndSetting.AgentId, emailAndSetting.AgencyId), 
                         messageData: data,
                         notificationType: NotificationTypes.BookingSummaryReportForAgent,
-                        email: emailAndSetting.Email,
-                        templateId: _options.BookingSummaryTemplateId);
+                        email: emailAndSetting.Email);
 
                     if (isFailure)
                     {
@@ -208,8 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
                 => _notificationService.Send(messageData: notificationData,
                     notificationType: NotificationTypes.BookingsAdministratorSummaryNotification,
-                    emails: _options.CcNotificationAddresses,
-                    templateId: _options.BookingAdministratorSummaryTemplateId);
+                    emails: _options.CcNotificationAddresses);
         }
 
 
@@ -262,8 +260,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
                 => _notificationService.Send(messageData: notificationData,
                     notificationType: NotificationTypes.BookingAdministratorPaymentsSummary,
-                    emails: _options.CcNotificationAddresses,
-                    templateId: _options.BookingAdministratorPaymentsSummaryTemplateId);
+                    emails: _options.CcNotificationAddresses);
         }
 
 

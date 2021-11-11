@@ -57,8 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             await _notificationService.Send(messageData: messageData,
                 notificationType: NotificationTypes.AccountBalanceManagementNotification,
-                email: _options.AccountsEmail,
-                templateId: _options.BalanceManagementNotificationTemplateId);
+                email: _options.AccountsEmail);
         }
 
         

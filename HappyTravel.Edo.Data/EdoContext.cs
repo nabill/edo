@@ -873,7 +873,9 @@ namespace HappyTravel.Edo.Data
                 e.Property(o => o.EnabledProtocols).IsRequired();
                 e.Property(o => o.IsMandatory).IsRequired();
                 e.Property(o => o.EnabledReceivers).IsRequired();
-                e.Property(o => o.EmailTemplateId);
+                e.Property(o => o.AgentEmailTemplateId);
+                e.Property(o => o.AdminEmailTemplateId);
+                e.Property(o => o.PropertyOwnerEmailTemplateId);
             });
         }
 

@@ -1,9 +1,6 @@
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.Enums;
@@ -12,19 +9,19 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgencyManagementService : IAgencyManagementService
     {
         public AgencyManagementService(EdoContext context, IAgentService agentService, INotificationService notificationService, 
-            IOptions<AgencyManagementMailingOptions> mailOptions, IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _agentService = agentService;
             _notificationService = notificationService;
-            _mailOptions = mailOptions.Value;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -98,8 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
                     messageData: messageData,
                     notificationType: NotificationTypes.AgencyActivityChanged,
-                    email: master.Email,
-                    templateId: _mailOptions.AgencyActivityChangedTemplateId);
+                    email: master.Email);
             }
         }
 
@@ -115,7 +111,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly IAgentService _agentService;
         private readonly INotificationService _notificationService;
-        private readonly AgencyManagementMailingOptions _mailOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
