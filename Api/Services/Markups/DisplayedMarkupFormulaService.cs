@@ -90,37 +90,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> UpdateCounterpartyFormula(int counterpartyId)
-        {
-            var isCounterpartyExists = await _context.Counterparties.AnyAsync(c => c.Id == counterpartyId);
-            if (!isCounterpartyExists)
-                return Result.Failure($"Counterparty with id '{counterpartyId}' not found");
-            
-            var formula = await GetCounterpartyMarkupFormula(counterpartyId);
-            var displayedMarkupFormula = await _context.DisplayMarkupFormulas
-                .SingleOrDefaultAsync(f => f.CounterpartyId == counterpartyId && f.AgencyId == null && f.AgentId == null);
-            
-            if (displayedMarkupFormula is null)
-            {
-                _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
-                {
-                    CounterpartyId = counterpartyId,
-                    AgencyId = null,
-                    AgentId = null,
-                    DisplayFormula = formula
-                });
-            }
-            else
-            {
-                displayedMarkupFormula.DisplayFormula = formula;
-                _context.DisplayMarkupFormulas.Update(displayedMarkupFormula);
-            }
-
-            await _context.SaveChangesAsync();
-            return Result.Success();
-        }
-
-
         public async Task<Result> UpdateGlobalFormula()
         {
             var displayedMarkupFormula = await _context.DisplayMarkupFormulas
@@ -166,19 +135,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeId == agencyId.ToString() && p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
-                .OrderBy(p => p.Order)
-                .ToListAsync();
-
-            return policies.Any()
-                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
-                : string.Empty;
-        }
-
-
-        private async Task<string> GetCounterpartyMarkupFormula(int counterpartyId)
-        {
-            var policies = await _context.MarkupPolicies
-                .Where(p => p.SubjectScopeId == counterpartyId.ToString() && p.SubjectScopeType == SubjectMarkupScopeTypes.Counterparty)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
 

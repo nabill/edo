@@ -38,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 SubjectMarkupScopeTypes.Global => true,
                 SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryHtId,
                 SubjectMarkupScopeTypes.Locality => policy.SubjectScopeId == info.LocalityHtId,
-                SubjectMarkupScopeTypes.Counterparty => policy.SubjectScopeId == info.CounterpartyId.ToString(),
                 SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
                 SubjectMarkupScopeTypes.Agent => policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
