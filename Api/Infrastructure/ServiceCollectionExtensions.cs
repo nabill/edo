@@ -240,7 +240,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
             var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
 
-
             var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
             services.Configure<SenderOptions>(options =>
@@ -250,32 +249,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
 
-            var agentInvitationTemplateId = mailSettings[configuration["Edo:Email:AgentInvitationTemplateId"]];
-            var childAgencyInvitationTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyInvitationTemplateId"]];
-            services.Configure<AgentInvitationMailOptions>(options =>
-            {
-                options.AgentInvitationTemplateId = agentInvitationTemplateId;
-                options.ChildAgencyInvitationTemplateId = childAgencyInvitationTemplateId;
-            });
-
-            var administratorInvitationTemplateId = mailSettings[configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             var edoManagementFrontendUrl = mailSettings[configuration["Edo:Email:EdoManagementFrontendUrl"]];
             services.Configure<AdminInvitationMailOptions>(options =>
             {
-                options.AdminInvitationTemplateId = administratorInvitationTemplateId;
                 options.FrontendBaseUrl = edoManagementFrontendUrl;
             });
 
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:Administrators"]]);
-            var masterAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:MasterAgentRegistrationTemplateId"]];
-            var regularAgentRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:RegularAgentRegistrationTemplateId"]];
-            var childAgencyRegistrationMailTemplateId = mailSettings[configuration["Edo:Email:ChildAgencyRegistrationMailTemplateId"]];
             services.Configure<AgentRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
-                options.MasterAgentMailTemplateId = masterAgentRegistrationMailTemplateId;
-                options.RegularAgentMailTemplateId = regularAgentRegistrationMailTemplateId;
-                options.ChildAgencyMailTemplateId = childAgencyRegistrationMailTemplateId;
             });
 
             var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];

@@ -25,7 +25,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
             var table = "DefaultNotificationOptions";
             var keyColumn = "Type";
-            var column = "AdminEmailTemplateId";
 
             migrationBuilder.UpdateData(table, keyColumn, 2, "AdminEmailTemplateId", "d-9baff8dd811749e0afc1ffb80f0c9f1d"); // BookingInvoice
             migrationBuilder.UpdateData(table, keyColumn, 4, "AdminEmailTemplateId", "d-646b7c9a3b61442c9327b43ec77d9ac5"); // SuccessfulPaymentReceipt
@@ -56,6 +55,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.UpdateData(table, keyColumn, 32, "AgentEmailTemplateId", null); // PropertyOwnerBookingConfirmation
             migrationBuilder.UpdateData(table, keyColumn, 32, "PropertyOwnerEmailTemplateId", "d-3e37e6678d264729954ed08d7d01f290"); // PropertyOwnerBookingConfirmation
         }
+
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
