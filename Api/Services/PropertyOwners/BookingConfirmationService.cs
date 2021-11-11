@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             return await _notificationService.Send(apiCaller: new Models.Users.ApiCaller(id: default, type: ApiCallerTypes.PropertyOwner),
                     messageData: bookingConfirmationData,
                     notificationType: NotificationTypes.PropertyOwnerBookingConfirmation,
-                    emails: new List<string> { emails[0], _options.ReservationsOfficeBackupEmail });
+                    emails: new List<string> { emails.First(), _options.ReservationsOfficeBackupEmail });
                     // We only use the first email because: 1) Hotel email from Columbus will be returned first;
                     // 2) In the current implementation of the mapper, we do not know which provider returns the second email address to us,
                     // so we cannot use it.

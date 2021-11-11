@@ -36,10 +36,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
-            var agentNotificationTemplate = _options.BookingCancelledTemplateId;
             await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingCancelled);
             
-            var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingCancelled);
         }
 
@@ -47,10 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         // TODO: hardcoded to be removed with UEDA-20
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
-            var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingFinalized);
             
-            var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
             await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingFinalized);
         }
 

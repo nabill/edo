@@ -221,7 +221,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                 Options.Create(new BalanceManagementNotificationsOptions
                 {
                     AccountsEmail = "accounts@email.com",
-                    BalanceManagementNotificationTemplateId = "templateId"
                 }),
                 new BalanceNotificationsManagementService(_mockedEdoContext),
                 new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<ILocalityInfoService>())

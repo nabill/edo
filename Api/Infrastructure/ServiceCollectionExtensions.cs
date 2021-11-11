@@ -261,78 +261,22 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AdministratorsEmails = administrators;
             });
 
-            var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];
-            var bookingInvoiceTemplateId = mailSettings[configuration["Edo:Email:BookingInvoiceTemplateId"]];
-            var bookingCancelledTemplateId = mailSettings[configuration["Edo:Email:BookingCancelledTemplateId"]];
-            var bookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:BookingFinalizedTemplateId"]];
-            var bookingDeadlineNotificationTemplateId = mailSettings[configuration["Edo:Email:BookingDeadlineNotificationTemplateId"]];
-            var bookingManualCorrectionNeededTemplateId = mailSettings[configuration["Edo:Email:BookingManualCorrectionNeededTemplateId"]];
-            var reservationsBookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingFinalizedTemplateId"]];
-            var reservationsBookingCancelledTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingCancelledTemplateId"]];
-            var bookingSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingSummaryTemplateId"]];
-            var bookingAdministratorSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorSummaryTemplateId"]];
-            var bookingPaymentsSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorPaymentsSummaryTemplateId"]];
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
-            var adminCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AdminCreditCardPaymentConfirmationTemplateId"]];
-            var agentCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AgentCreditCardPaymentConfirmationTemplateId"]];
-            var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
             services.Configure<BookingMailingOptions>(options =>
             {
-                options.VoucherTemplateId = bookingVoucherTemplateId;
-                options.InvoiceTemplateId = bookingInvoiceTemplateId;
-                options.BookingCancelledTemplateId = bookingCancelledTemplateId;
-                options.BookingFinalizedTemplateId = bookingFinalizedTemplateId;
-                options.BookingManualCorrectionNeededTemplateId = bookingManualCorrectionNeededTemplateId;
-                options.DeadlineNotificationTemplateId = bookingDeadlineNotificationTemplateId;
-                options.ReservationsBookingFinalizedTemplateId = reservationsBookingFinalizedTemplateId;
-                options.ReservationsBookingCancelledTemplateId = reservationsBookingCancelledTemplateId;
                 options.CcNotificationAddresses = ccNotificationAddresses;
-                options.BookingSummaryTemplateId = bookingSummaryTemplateId;
-                options.BookingAdministratorPaymentsSummaryTemplateId = bookingPaymentsSummaryTemplateId;
-                options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
-                options.AdminCreditCardPaymentConfirmationTemplateId = adminCreditCardPaymentConfirmationTemplateId;
-                options.AgentCreditCardPaymentConfirmationTemplateId = agentCreditCardPaymentConfirmationTemplateId;
-                options.BookingReceiptTemplateId = receiptTemplateId;
             });
 
-            var agencyActivityChangedId = mailSettings[configuration["Edo:Email:AgencyActivityChangedTemplateId"]];
-            services.Configure<AgencyManagementMailingOptions>(options =>
-            {
-                options.AgencyActivityChangedTemplateId = agencyActivityChangedId;
-            });
-            
-            var agencyVerificationChangedId = mailSettings[configuration["Edo:Email:AgencyVerificationChangedTemplateId"]];
-            services.Configure<CounterpartyManagementMailingOptions>(options =>
-            {
-                options.AgencyVerificationChangedTemplateId = agencyVerificationChangedId;
-            });
-
-            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
-            var counterpartyAccountSubtractedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountSubtractedTemplateId"]];
-            var counterpartyAccountIncreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountIncreasedManuallyTemplateId"]];
-            var counterpartyAccountDecreasedManuallyTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountDecreasedManuallyTemplateId"]];
-            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
-            { 
-                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId;
-                options.CounterpartyAccountSubtractedTemplateId = counterpartyAccountSubtractedTemplateId;
-                options.CounterpartyAccountIncreasedManuallyTemplateId = counterpartyAccountIncreasedManuallyTemplateId;
-                options.CounterpartyAccountDecreasedManuallyTemplateId = counterpartyAccountDecreasedManuallyTemplateId;
-            });
-
-            var bookingConfirmationTemplateId = mailSettings[configuration["Edo:Email:BookingConfirmationTemplateId"]];
             var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
             services.Configure<PropertyOwnerMailingOptions>(options => 
             {
-                options.BookingConfirmationTemplateId = bookingConfirmationTemplateId;
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
 
             var happyTravelAccountsEmail = mailSettings[configuration["Edo:Email:HappyTravelAccountsEmail"]];
-            var balanceManagementNotificationTemplateId = mailSettings[configuration["Edo:Email:BalanceManagementNotificationTemplateId"]];
             services.Configure<BalanceManagementNotificationsOptions>(options =>
             {
                 options.AccountsEmail = happyTravelAccountsEmail;
-                options.BalanceManagementNotificationTemplateId = balanceManagementNotificationTemplateId;
             });
             #endregion
 
@@ -419,8 +363,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var paymentLinksOptions = vaultClient.Get(configuration["PaymentLinks:Options"]).GetAwaiter().GetResult();
-            var externalPaymentLinksMailTemplateId = mailSettings[configuration["Edo:Email:ExternalPaymentsTemplateId"]];
-            var externalPaymentLinksConfirmationMailTemplateId = mailSettings[configuration["Edo:Email:PaymentLinkPaymentConfirmation"]];
             services.Configure<PaymentLinkOptions>(options =>
             {
                 options.ClientSettings = new ClientSettings
@@ -430,8 +372,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ServiceTypes = configuration.GetSection("PaymentLinks:ServiceTypes")
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
-                options.LinkMailTemplateId = externalPaymentLinksMailTemplateId;
-                options.PaymentConfirmationMailTemplateId = externalPaymentLinksConfirmationMailTemplateId;
                 options.SupportedVersions = new List<Version> { new Version(0, 2) };
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
