@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            using var _ = _logger.AddSearchIdScope(searchId);
+            Baggage.AddSearchId(searchId);
             var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
@@ -164,13 +164,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                         case SubjectMarkupScopeTypes.Agency:
                             agencyId = int.Parse(policy.SubjectScopeId);
                             break;
-                        case SubjectMarkupScopeTypes.Counterparty:
-                            counterpartyId = int.Parse(policy.SubjectScopeId);
-                            break;
                     }
                     
                     appliedMarkups.Add(new AppliedMarkup(
-                        scope: new MarkupPolicyScope(policy.SubjectScopeType, counterpartyId, agencyId, agentId),
+                        scope: new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId),
                         policyId: policy.Id,
                         amountChange: markupAmount
                     ));

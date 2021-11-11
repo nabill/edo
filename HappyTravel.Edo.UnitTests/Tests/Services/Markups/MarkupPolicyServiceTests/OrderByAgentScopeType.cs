@@ -65,15 +65,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 },
                 new()
                 {
-                    Id = 1,
-                    Order = 1,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Counterparty,
-                    SubjectScopeId = "1",
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global,
-                    DestinationScopeId = "UAE"
-                },
-                new()
-                {
                     Id = 8,
                     Order = 2,
                     SubjectScopeType = SubjectMarkupScopeTypes.Locality,
@@ -89,9 +80,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             Assert.Equal(SubjectMarkupScopeTypes.Global, policies[0].SubjectScopeType);
             Assert.Equal(SubjectMarkupScopeTypes.Country, policies[1].SubjectScopeType);
             Assert.Equal(SubjectMarkupScopeTypes.Locality, policies[2].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Counterparty, policies[3].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Agency, policies[4].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Agent, policies[5].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Agency, policies[3].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Agent, policies[4].SubjectScopeType);
         }
     }
 }

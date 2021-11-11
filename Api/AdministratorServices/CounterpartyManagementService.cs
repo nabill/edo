@@ -46,17 +46,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<List<SlimCounterpartyInfo>> Get()
         {
             var counterparties = await (from cp in _context.Counterparties
-                join formula in _context.DisplayMarkupFormulas on new
-                {
-                    Id = (int?) cp.Id,
-                    AgencyId = (int?) null,
-                    AgentId = (int?) null
-                } equals new
-                {
-                    Id = formula.CounterpartyId,
-                    formula.AgencyId,
-                    formula.AgentId
-                } into formulas
+                join formula in _context.DisplayMarkupFormulas on new { Id = (int?) cp.Id, } equals new { Id = formula.CounterpartyId, } into formulas
                 from markupFormula in formulas.DefaultIfEmpty()
                 select new
                 {
@@ -87,14 +77,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public Task<List<AgencyInfo>> GetAllCounterpartyAgencies(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
-        => (
-                from a in _context.Agencies
-                join c in _context.Countries on a.CountryCode equals c.Code
-                join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
-                where a.CounterpartyId == counterpartyId
-                join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
-                select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
-            .ToListAsync();
+            => (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
+                    where a.CounterpartyId == counterpartyId
+                    join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode,
+                        markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+                .ToListAsync();
 
 
         public async Task<Result<MasterAgentContext>> GetRootAgencyMasterAgent(int counterpartyId)

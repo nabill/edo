@@ -238,6 +238,11 @@
             </summary>
             <param name="agencyId">Id of the agency to load the contract file for</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies">
+            <summary>
+            Gets a list of all root agencies
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
                 Gets agency accounts list
@@ -560,38 +565,6 @@
             <summary>
             Reuploads counterparty contracts to agency contracts
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.GetCounterpartyPolicies(System.Int32)">
-            <summary>
-            Gets markup policies for a counterparty.
-            </summary>
-            <param name="counterpartyId">Counterparty id</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-            Creates counterparty markup policy.
-            </summary>
-            <param name="counterpartyId">Counterparty id</param>
-            <param name="settings">Markup settings</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.RemovePolicy(System.Int32,System.Int32)">
-            <summary>
-                Deletes counterparty policy.
-            </summary>
-            <param name="counterpartyId">Counterparty id</param>
-            <param name="policyId">Id of the policy to delete.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartyMarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-                Updates policy settings.
-            </summary>
-            <param name="counterpartyId">Counterparty id</param>
-            <param name="policyId">Id of the policy.</param>
-            <param name="policySettings">Updated settings.</param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
@@ -2379,6 +2352,11 @@
             True if contract is loaded to agency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.MarkupDisplayFormula">
+            <summary>
+            Calculated with all markups formula
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -3325,11 +3303,6 @@
             Value added tax identification number
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Invitations.ChildAgencyInvitationInfo.LocalityHtId">
-            <summary>
-            Agency locality ht id
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Invitations.CreateChildAgencyInvitationRequest.UserRegistrationInfo">
             <summary>
             Prefilled user registration info.
@@ -3543,11 +3516,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.Type">
             <summary>
                 Scope type.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.CounterpartyId">
-            <summary>
-                Counterparty id for counterparty scope type
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.AgencyId">

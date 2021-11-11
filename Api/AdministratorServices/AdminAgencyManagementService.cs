@@ -56,8 +56,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
                     where a.Id == agencyId
-                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -66,14 +67,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
+                    where a.ParentId == null
+                    select a.ToAgencyInfo(a.ContractKind, a.VerificationState, a.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+                .ToListAsync();
+
+
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
                     where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode))
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
                 .ToListAsync();
 
 
