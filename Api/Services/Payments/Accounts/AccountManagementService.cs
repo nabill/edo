@@ -94,51 +94,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency)
-        {
-            return await Result.Success()
-                .Ensure(IsAgencyVerified, "Account creation is only available for verified agencies")
-                .Map(CreateAccount)
-                .Tap(LogSuccess)
-                .OnFailure(LogFailure);
-
-
-            async Task<bool> IsAgencyVerified()
-            {
-                var rootAgency = await _context.Agencies.Where(a => a.CounterpartyId == counterparty.Id && a.ParentId == null).SingleAsync();
-                return new[] {AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess}.Contains(rootAgency.VerificationState);
-            }
-
-
-            async Task<CounterpartyAccount> CreateAccount()
-            {
-                var account = new CounterpartyAccount
-                {
-                    Balance = 0,
-                    CounterpartyId = counterparty.Id,
-                    Currency = Currencies.USD, // Only USD currency is supported
-                    Created = _dateTimeProvider.UtcNow()
-                };
-                _context.CounterpartyAccounts.Add(account);
-                await _context.SaveChangesAsync();
-
-                return account;
-            }
-
-
-            void LogSuccess(CounterpartyAccount account)
-            {
-                _logger.LogCounterpartyAccountCreationSuccess(counterparty.Id, account.Id);
-            }
-
-
-            void LogFailure(string error)
-            {
-                _logger.LogCounterpartyAccountCreationFailure(counterparty.Id, error);
-            }
-        }
-
-
         public async Task<Result<AgencyAccount>> Get(int agencyId, Currencies currency)
         {
             var account = await _context.AgencyAccounts.FirstOrDefaultAsync(a => a.IsActive && a.AgencyId == agencyId && a.Currency == currency);

@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211111151736_RemoveCounterpartyAccounts")]
+    partial class RemoveCounterpartyAccounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1134,10 +1136,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AdminEmailTemplateId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("AgentEmailTemplateId")
+                    b.Property<string>("EmailTemplateId")
                         .HasColumnType("text");
 
                     b.Property<int>("EnabledProtocols")
@@ -1148,9 +1147,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<bool>("IsMandatory")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("PropertyOwnerEmailTemplateId")
-                        .HasColumnType("text");
 
                     b.HasKey("Type");
 

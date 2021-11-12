@@ -200,29 +200,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountSer
                         IsActive = true
                     }
                 }));
-
-            edoContextMock
-                .Setup(c => c.CounterpartyAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<CounterpartyAccount>
-                {
-                    new CounterpartyAccount
-                    {
-                        Id = 1,
-                        Balance = 1000,
-                        Currency = Currencies.USD,
-                        CounterpartyId = 1,
-                        IsActive = true
-                    },
-                    new CounterpartyAccount
-                    {
-                        Id = 2,
-                        Balance = 1000,
-                        Currency = Currencies.USD,
-                        CounterpartyId = 2,
-                        IsActive = true
-                    }
-                }));
-
+            
             return edoContextMock.Object;
         }
 

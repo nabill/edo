@@ -30,7 +30,7 @@
             Register booking.
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Finalize(HappyTravel.Edo.DirectApi.Models.BookingFinalizationRequest)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Finalize(System.String)">
             <summary>
             Finalize booking
             </summary>>
