@@ -39,8 +39,6 @@ namespace HappyTravel.Edo.DirectApi.Services
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),
                 isAdvancePurchaseRate: rcs.IsAdvancePurchaseRate,
-                supplier: rcs.Supplier,
-                tags: rcs.Tags,
                 isDirectContract: rcs.IsDirectContract,
                 isPackageRate: rcs.IsPackageRate);
         }

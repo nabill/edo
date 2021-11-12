@@ -1,4 +1,5 @@
-﻿using HappyTravel.Edo.DirectApi.Models;
+﻿using HappyTravel.Edo.Api.Models.Availabilities;
+using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
@@ -6,15 +7,15 @@ namespace HappyTravel.Edo.DirectApi.Services
     {
         internal static Api.Models.Availabilities.AvailabilityRequest ToEdoModel(this AvailabilityRequest request)
         {
-            return new Api.Models.Availabilities.AvailabilityRequest(nationality: request.Nationality,
-                residency: request.Residency,
+            return new Api.Models.Availabilities.AvailabilityRequest(nationality: request.Nationality.ToUpper(),
+                residency: request.Residency.ToUpper(),
                 checkInDate: request.CheckInDate,
                 checkOutDate: request.CheckOutDate,
-                filters: request.Filters,
+                filters: ClientSearchFilters.AvailableOnly,
                 roomDetails: request.RoomDetails,
-                ratings: request.Ratings,
-                propertyTypes: request.PropertyType,
-                htIds: request.HtIds);
+                ratings: default,
+                propertyTypes: default,
+                htIds: request.Ids);
         }
     }
 }
