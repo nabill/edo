@@ -1,11 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
@@ -17,7 +13,9 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -25,13 +23,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AgencyVerificationService(EdoContext context, IAccountManagementService accountManagementService,
             IManagementAuditService managementAuditService, INotificationService notificationService,
-            IOptions<CounterpartyManagementMailingOptions> mailingOptions, IDateTimeProvider dateTimeProvider, Services.Agents.IAgentService agentService)
+            IDateTimeProvider dateTimeProvider, Services.Agents.IAgentService agentService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
-            _mailingOptions = mailingOptions.Value;
             _dateTimeProvider = dateTimeProvider;
             _agentService = agentService;
         }
@@ -145,8 +142,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return await _notificationService.Send(agent: new SlimAgentContext(master.Id, agency.Id),
                     messageData: messageData,
                     notificationType: NotificationTypes.AgencyVerificationChanged,
-                    email: master.Email,
-                    templateId: _mailingOptions.AgencyVerificationChangedTemplateId);
+                    email: master.Email);
             }
         }
 
@@ -173,7 +169,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly IAccountManagementService _accountManagementService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
-        private readonly CounterpartyManagementMailingOptions _mailingOptions;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly Services.Agents.IAgentService _agentService;
     }

@@ -58,8 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     return await _notificationsService.Send(agent: agent, 
                         messageData: voucherData, 
                         notificationType: NotificationTypes.BookingVoucher, 
-                        email: email, 
-                        templateId: _options.VoucherTemplateId);
+                        email: email);
                 });
         }
 
@@ -108,8 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     return await _notificationsService.Send(agent: agent,
                         messageData: invoiceData,
                         notificationType: NotificationTypes.BookingInvoice,
-                        emails: addresses,
-                        templateId: _options.InvoiceTemplateId);
+                        emails: addresses);
                 });
         }
         
@@ -149,8 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             return await _notificationsService.Send(apiCaller: apiCaller,
                         messageData: payload,
                         notificationType: NotificationTypes.SuccessfulPaymentReceipt,
-                        email: email,
-                        templateId: _options.BookingReceiptTemplateId);
+                        email: email);
         }
         
         
