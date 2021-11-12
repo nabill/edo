@@ -36,24 +36,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
-            var agentNotificationTemplate = _options.BookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
-                agent, NotificationTypes.BookingCancelled);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingCancelled);
             
-            var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate, NotificationTypes.BookingCancelled);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingCancelled);
         }
 
 
         // TODO: hardcoded to be removed with UEDA-20
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
-            var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate, 
-                agent, NotificationTypes.BookingFinalized);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingFinalized);
             
-            var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate, NotificationTypes.BookingFinalized);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingFinalized);
         }
 
 
@@ -83,8 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     return await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
                                 messageData: deadlineData,
                                 notificationType: NotificationTypes.DeadlineApproaching,
-                                email: email,
-                                templateId: _options.DeadlineNotificationTemplateId);
+                                email: email);
                 });
         }
 
@@ -129,8 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
                 =>  _notificationService.Send(messageData: data,
                     notificationType: NotificationTypes.CreditCardPaymentReceivedAdministrator,
-                    emails: _options.CcNotificationAddresses,
-                    templateId: _options.AdminCreditCardPaymentConfirmationTemplateId);
+                    emails: _options.CcNotificationAddresses);
 
 
             async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
@@ -140,8 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
                     messageData: data,
                     notificationType: NotificationTypes.CreditCardPaymentReceived,
-                    email: data.Email,
-                    templateId: _options.AgentCreditCardPaymentConfirmationTemplateId);
+                    email: data.Email);
             }
         }
 
@@ -158,13 +149,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             await _notificationService.Send(messageData: data,
                     notificationType: NotificationTypes.BookingManualCorrectionNeeded,
-                    emails: _options.CcNotificationAddresses,
-                    templateId: _options.BookingManualCorrectionNeededTemplateId);
+                    emails: _options.CcNotificationAddresses);
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate, 
-            SlimAgentContext agent, NotificationTypes notificationType)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, SlimAgentContext agent, 
+            NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
@@ -172,20 +162,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             return _notificationService.Send(agent: agent,
                 messageData: notificationData,
                 notificationType: notificationType,
-                email: recipient,
-                templateId: mailTemplate);
+                email: recipient);
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate, NotificationTypes notificationType)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
 
             return _notificationService.Send(messageData: notificationData,
                 notificationType: notificationType,
-                emails: recipients,
-                templateId: mailTemplate);
+                emails: recipients);
         }
 
 

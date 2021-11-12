@@ -71,7 +71,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
         public virtual DbSet<StaticData.StaticData> StaticData { get; set; }
-        public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
 
         public virtual DbSet<Invoice> Invoices { get; set; }
 
@@ -236,7 +235,6 @@ namespace HappyTravel.Edo.Data
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
             BuildStaticData(builder);
-            BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
             BuildReceipts(builder);
             BuildAgentSystemSettings(builder);
@@ -690,20 +688,6 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCounterpartyAccount(ModelBuilder builder)
-        {
-            builder.Entity<CounterpartyAccount>(acc =>
-            {
-                acc.HasKey(a => a.Id);
-                acc.Property(a => a.Currency).IsRequired();
-                acc.Property(a => a.CounterpartyId).IsRequired();
-                acc.Property(a => a.IsActive)
-                    .IsRequired()
-                    .HasDefaultValue(true);
-            });
-        }
-
-
         private void BuildInvoices(ModelBuilder builder)
         {
             builder.Entity<Invoice>(i =>
@@ -873,7 +857,9 @@ namespace HappyTravel.Edo.Data
                 e.Property(o => o.EnabledProtocols).IsRequired();
                 e.Property(o => o.IsMandatory).IsRequired();
                 e.Property(o => o.EnabledReceivers).IsRequired();
-                e.Property(o => o.EmailTemplateId);
+                e.Property(o => o.AgentEmailTemplateId);
+                e.Property(o => o.AdminEmailTemplateId);
+                e.Property(o => o.PropertyOwnerEmailTemplateId);
             });
         }
 

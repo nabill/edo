@@ -1,14 +1,10 @@
-﻿using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
@@ -18,27 +14,24 @@ using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Invitations
 {
     public class AgentInvitationCreateService : IAgentInvitationCreateService
     {
-        public AgentInvitationCreateService(EdoContext context,
-            IDateTimeProvider dateTimeProvider,
-            ILogger<AgentInvitationCreateService> logger,
-            INotificationService notificationService,
-            IOptions<AgentInvitationMailOptions> options,
-            IInvitationRecordService invitationRecordService,
-            IAdminAgencyManagementService agencyManagementService)
+        public AgentInvitationCreateService(EdoContext context, IDateTimeProvider dateTimeProvider,
+            ILogger<AgentInvitationCreateService> logger, INotificationService notificationService,
+            IInvitationRecordService invitationRecordService, IAdminAgencyManagementService agencyManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
             _notificationService = notificationService;
-            _options = options.Value;
             _invitationRecordService = invitationRecordService;
             _agencyManagementService = agencyManagementService;
         }
@@ -186,10 +179,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 UserName = $"{prefilledData.UserRegistrationInfo.FirstName} {prefilledData.UserRegistrationInfo.LastName}"
             };
 
-            var templateId = GetTemplateId();
-            if (string.IsNullOrWhiteSpace(templateId))
-                return Result.Failure("Could not find invitation mail template");
-
             var notificationType = invitationType switch
             {
                 UserInvitationTypes.Agent => NotificationTypes.AgentInvitation,
@@ -199,17 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             return await _notificationService.Send(messageData: messagePayload,
                 notificationType: notificationType,
-                email: prefilledData.UserRegistrationInfo.Email,
-                templateId: templateId);
-
-
-            string GetTemplateId()
-                => invitationType switch
-                {
-                    UserInvitationTypes.Agent => _options.AgentInvitationTemplateId,
-                    UserInvitationTypes.ChildAgency => _options.ChildAgencyInvitationTemplateId,
-                    _ => null
-                };
+                email: prefilledData.UserRegistrationInfo.Email);
         }
 
 
@@ -217,7 +196,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AgentInvitationCreateService> _logger;
         private readonly INotificationService _notificationService;
-        private readonly AgentInvitationMailOptions _options;
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
     }
