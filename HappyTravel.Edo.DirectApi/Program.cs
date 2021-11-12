@@ -25,6 +25,8 @@ namespace HappyTravel.Edo.DirectApi
                         .UseKestrel(options =>
                         {
                             options.Limits.MaxRequestBodySize = 10 * 1024; // 10kb
+                            options.Limits.MaxConcurrentConnections = 500;
+                            options.Limits.MaxRequestHeaderCount = 25;
                         })
                         .UseSentry(options =>
                         {
