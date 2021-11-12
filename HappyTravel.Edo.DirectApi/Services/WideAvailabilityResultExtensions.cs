@@ -12,13 +12,12 @@ namespace HappyTravel.Edo.DirectApi.Services
 
         private static WideAvailabilityResult MapFromEdoModel(this Api.Models.Accommodations.WideAvailabilityResult result)
         {
-            return new WideAvailabilityResult(roomContractSets: result.RoomContractSets.MapFromEdoModels(),
+            return new WideAvailabilityResult(accommodationId: result.HtId, 
+                roomContractSets: result.RoomContractSets.MapFromEdoModels(),
                 minPrice: result.MinPrice,
                 maxPrice: result.MaxPrice,
                 checkInDate: result.CheckInDate,
-                checkOutDate: result.CheckOutDate,
-                supplier: result.Supplier,
-                htId: result.HtId);
+                checkOutDate: result.CheckOutDate);
         }
     }
 }

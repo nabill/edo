@@ -1,19 +1,15 @@
-﻿using HappyTravel.Edo.DirectApi.Models;
+﻿using System;
+using HappyTravel.Edo.DirectApi.Models;
 
 namespace HappyTravel.Edo.DirectApi.Services
 {
     public static class RoomContractSetAvailabilityExtensions
     {
-        public static RoomContractSetAvailability MapFromEdoModels(this Api.Models.Accommodations.RoomContractSetAvailability availability)
+        public static RoomContractSetAvailability MapFromEdoModels(this Api.Models.Accommodations.RoomContractSetAvailability availability, Guid searchId, string accommodationId)
         {
-            return new RoomContractSetAvailability(availabilityId: availability.AvailabilityId,
-                checkInDate: availability.CheckInDate,
-                checkOutDate: availability.CheckOutDate,
-                numberOfNights: availability.NumberOfNights,
-                roomContractSet: availability.RoomContractSet.MapFromEdoModel(),
-                availablePaymentMethods: availability.AvailablePaymentMethods,
-                countryHtId: availability.CountryHtId,
-                localityHtId: availability.LocalityHtId);
+            return new RoomContractSetAvailability(searchId: searchId,
+                accommodationId: accommodationId,
+                roomContractSet: availability.RoomContractSet.MapFromEdoModel());
         }
     }
 }
