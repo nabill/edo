@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.DirectApi.Models;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public class WideAvailabilitySearchService
     {

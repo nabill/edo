@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Services;
+using HappyTravel.Edo.DirectApi.Services.Bookings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

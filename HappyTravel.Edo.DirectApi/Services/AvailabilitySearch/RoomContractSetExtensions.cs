@@ -2,7 +2,7 @@
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     internal static class RoomContractSetExtensions
     {

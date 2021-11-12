@@ -12,7 +12,9 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
 using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
 using HappyTravel.Edo.DirectApi.Services;
-using HappyTravel.Edo.DirectApi.Services.Dummies;
+using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
+using HappyTravel.Edo.DirectApi.Services.Bookings;
+using HappyTravel.Edo.DirectApi.Services.Overriden;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNetCore.Builder;
@@ -21,8 +23,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using AccommodationService = HappyTravel.Edo.DirectApi.Services.AccommodationService;
-using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
+using AccommodationService = HappyTravel.Edo.DirectApi.Services.Static.AccommodationService;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi
 {

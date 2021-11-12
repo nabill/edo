@@ -10,7 +10,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class AgentContextService : IAgentContextService
     {

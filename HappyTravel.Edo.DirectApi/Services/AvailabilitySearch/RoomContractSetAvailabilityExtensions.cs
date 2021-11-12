@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public static class RoomContractSetAvailabilityExtensions
     {
