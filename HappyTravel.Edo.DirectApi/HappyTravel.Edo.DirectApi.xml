@@ -216,7 +216,7 @@
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Ids">
             <summary>
-            Countries, Locations or Accommodations Ids
+            Countries, Localities or Accommodations Ids
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckInDate">
@@ -493,11 +493,6 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.Rooms">
             <summary>
                 The list of room contracts within a set.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.IsDirectContract">
-            <summary>
-            Direct contract flag
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.IsPackageRate">

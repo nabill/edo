@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         
         
         /// <summary>
-        /// Countries, Locations or Accommodations Ids
+        /// Countries, Localities or Accommodations Ids
         /// </summary>
         public List<string> Ids { get; }
 
