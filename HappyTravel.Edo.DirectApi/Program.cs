@@ -22,7 +22,10 @@ namespace HappyTravel.Edo.DirectApi
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()
-                        .UseKestrel()
+                        .UseKestrel(options =>
+                        {
+                            options.Limits.MaxRequestBodySize = 10 * 1024; // 10kb
+                        })
                         .UseSentry(options =>
                         {
                             options.Dsn = Environment.GetEnvironmentVariable("HTDC_EDO_SENTRY_ENDPOINT");
