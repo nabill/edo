@@ -11,7 +11,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class DirectApiBookingEvaluationService : BookingEvaluationService
     {

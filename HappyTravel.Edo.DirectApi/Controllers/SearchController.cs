@@ -6,10 +6,11 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Services;
+using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi.Controllers
 {

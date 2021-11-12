@@ -1,7 +1,7 @@
 ﻿using HappyTravel.Edo.Api.Models.Availabilities;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public static class AvailabilityRequestExtensions
     {

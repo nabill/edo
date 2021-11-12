@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using JsonException = System.Text.Json.JsonException;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Static
 {
     public class AccommodationService
     {
