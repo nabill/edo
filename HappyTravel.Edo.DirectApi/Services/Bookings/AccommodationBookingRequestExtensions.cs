@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
     public static class AccommodationBookingRequestExtensions
     {
         public static Edo.Api.Models.Bookings.AccommodationBookingRequest ToEdoModel(this AccommodationBookingRequest request)
         {
-            return new Edo.Api.Models.Bookings.AccommodationBookingRequest(itineraryNumber: request.Nationality,
+            return new Edo.Api.Models.Bookings.AccommodationBookingRequest(itineraryNumber: string.Empty,
                 nationality: request.Nationality,
                 residency: request.Residency,
                 clientReferenceCode: request.ReferenceCode,

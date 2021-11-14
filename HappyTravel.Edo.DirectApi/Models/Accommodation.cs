@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.DirectApi.Models
 {
@@ -27,7 +27,6 @@ namespace HappyTravel.Edo.DirectApi.Models
             Schedule = schedule;
             TextualDescriptions = textualDescriptions ?? new List<TextualDescription>(0);
             Type = type;
-            UniqueCodes = uniqueCodes;
             HotelChain = hotelChain;
             Modified = modified;
         }
@@ -82,11 +81,6 @@ namespace HappyTravel.Edo.DirectApi.Models
         ///     The type of a property.
         /// </summary>
         public PropertyTypes Type { get; }
-
-        /// <summary>
-        ///     Unique codes in external accommodation mapping services.
-        /// </summary>
-        public UniqueAccommodationCodes? UniqueCodes { get; }
 
         /// <summary>
         ///     Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
