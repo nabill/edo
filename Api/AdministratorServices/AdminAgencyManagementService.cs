@@ -25,13 +25,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AdminAgencyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService,
-            ILocalityInfoService localityInfoService)
+            IManagementAuditService managementAuditService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
-            _localityInfoService = localityInfoService;
         }
 
 
@@ -152,64 +150,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
-            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax, 
-                agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
-                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
-
-
-        private async Task<Result<AgencyInfo>> Create(string name, int counterpartyId, string address, string billingEmail, string fax, string phone,
-            string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
-            PaymentTypes preferredPaymentMethod, string localityHtId)
-        {
-            var ancestors = new List<int>();
-            var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
-            if (isFailure)
-                return Result.Failure<AgencyInfo>(error);
-
-            if (parentAgencyId is not null)
-            {
-                var parentAncestors = await _context.Agencies
-                    .Where(a => a.Id == parentAgencyId.Value)
-                    .Select(a => a.Ancestors ?? new List<int>(0))
-                    .SingleAsync();
-                
-                ancestors.AddRange(parentAncestors);
-                ancestors.Add(parentAgencyId.Value);
-            }
-            
-            var now = _dateTimeProvider.UtcNow();
-            var agency = new Agency
-            {
-                Name = name,
-                CounterpartyId = counterpartyId,
-                Created = now,
-                Modified = now,
-                ParentId = parentAgencyId,
-                Address = address,
-                BillingEmail = billingEmail,
-                Fax = fax,
-                Phone = phone,
-                PostalCode = postalCode,
-                Website = website,
-                VatNumber = vatNumber,
-                // Hardcode because we only support USD
-                PreferredCurrency = Currencies.USD,
-                Ancestors = ancestors,
-                LegalAddress = legalAddress,
-                PreferredPaymentMethod = preferredPaymentMethod,
-                LocalityHtId = localityHtId,
-                City = localityInfo.LocalityName,
-                CountryCode = localityInfo.CountryIsoCode,
-                CountryHtId = localityInfo.CountryHtId
-            };
-            _context.Agencies.Add(agency);
-
-            await _context.SaveChangesAsync();
-            return (await Get(agency.Id)).Value;
-        }
-
-
         public Task<Result<ContractKind>> GetContractKind(int agencyId)
             => GetRootAgency(agencyId)
                 .Ensure(a => a.ContractKind.HasValue, "Agency contract kind unknown")
@@ -308,7 +248,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IManagementAuditService _managementAuditService;
-        private readonly ILocalityInfoService _localityInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
     }

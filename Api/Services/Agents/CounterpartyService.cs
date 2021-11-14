@@ -5,8 +5,6 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +15,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public CounterpartyService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAdminAgencyManagementService agencyManagementService)
+            IAdminAgencyManagementService agencyManagementService,
+            IAgencyService agencyService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _agencyManagementService = agencyManagementService;
+            _agencyService = agencyService;
         }
 
 
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
             async Task<Result> CreateRootAgency(Counterparty newCounterparty)
-                => await _agencyManagementService.Create(registrationAgencyInfo, counterpartyId: newCounterparty.Id, parentAgencyId: null);
+                => await _agencyService.Create(registrationAgencyInfo, counterpartyId: newCounterparty.Id, parentAgencyId: null);
         }
 
 
@@ -165,5 +165,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAdminAgencyManagementService _agencyManagementService;
+        private readonly IAgencyService _agencyService;
     }
 }

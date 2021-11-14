@@ -25,13 +25,14 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         public AgentInvitationAcceptService(EdoContext context, INotificationService notificationService,
             ILogger<AgentInvitationAcceptService> logger, IAdminAgencyManagementService agencyManagementService,
             Agents.IAgentService agentService, IInvitationRecordService invitationRecordService,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService, IAgencyService agencyService)
         {
             _context = context;
             _notificationService = notificationService;
             _logger = logger;
             _agencyManagementService = agencyManagementService;
             _agentService = agentService;
+            _agencyService = agencyService;
             _invitationRecordService = invitationRecordService;
             _accountManagementService = accountManagementService;
         }
@@ -132,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 if (isValidationFailure)
                     return Result.Failure<AcceptPipeValues>(validationError);
 
-                var (_, isFailure, childAgency, error) = await _agencyManagementService.Create(
+                var (_, isFailure, childAgency, error) = await _agencyService.Create(
                     values.InvitationData.ChildAgencyRegistrationInfo,
                     counterpartyId: inviterAgency.CounterpartyId.Value,
                     parentAgencyId: inviterAgency.Id);
@@ -231,6 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
         private readonly ILogger<AgentInvitationAcceptService> _logger;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly Agents.IAgentService _agentService;
+        private readonly IAgencyService _agencyService;
         private readonly IInvitationRecordService _invitationRecordService;
         private readonly IAccountManagementService _accountManagementService;
     }
