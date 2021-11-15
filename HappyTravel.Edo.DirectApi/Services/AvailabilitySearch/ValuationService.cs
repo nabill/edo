@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public class ValuationService
     {
@@ -15,13 +15,13 @@ namespace HappyTravel.Edo.DirectApi.Services
         }
         
         
-        public async Task<Result<RoomContractSetAvailability>> Get(Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode)
+        public async Task<Result<RoomContractSetAvailability>> Get(Guid searchId, string accommodationId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            var (_, isFailure, availability, error) = await _bookingEvaluationService.GetExactAvailability(searchId, htId, roomContractSetId, agent, languageCode);
+            var (_, isFailure, availability, error) = await _bookingEvaluationService.GetExactAvailability(searchId, accommodationId, roomContractSetId, agent, languageCode);
 
             return isFailure
                 ? Result.Failure<RoomContractSetAvailability>(error.Detail)
-                : availability.Value.MapFromEdoModels();
+                : availability.Value.MapFromEdoModels(searchId, accommodationId);
         }
 
 

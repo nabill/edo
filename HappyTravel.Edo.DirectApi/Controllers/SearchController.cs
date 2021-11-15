@@ -6,10 +6,11 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Services;
+using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
@@ -25,7 +26,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
     [ApiController]
     [Authorize]
     [ApiVersion("1.0")]
-    [Route("api/{version:apiVersion}/searches")]
+    [Route("api/{version:apiVersion}/availabilities/searches")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -83,11 +84,11 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Returns room contract sets for getting a specific contract from a selected accommodation.
         /// </remarks>
-        [HttpGet("{searchId}/results/{htId}")]
-        public async Task<ActionResult<RoomSelectionResult>> GetAvailabilityForAccommodation(Guid searchId, string htId, CancellationToken cancellationToken)
+        [HttpGet("{searchId}/accommodations/{accommodationId}")]
+        public async Task<ActionResult<RoomSelectionResult>> GetAvailabilityForAccommodation(Guid searchId, string accommodationId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, result, error) = await _accommodationAvailabilitiesService.Get(searchId, htId, agent, "en");
+            var (isSuccess, _, result, error) = await _accommodationAvailabilitiesService.Get(searchId, accommodationId, agent, "en");
             
             return isSuccess
                 ? result
@@ -100,11 +101,11 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <remarks>
         /// Booking evaluation to ensure no one book a contract you want when you make a decision and fill out passenger data.
         /// </remarks>
-        [HttpGet("{searchId}/results/{htId}/room-contract-sets/{roomContractSetId}")]
-        public async Task<ActionResult<RoomContractSetAvailability>> GetExactAvailability(Guid searchId, string htId, Guid roomContractSetId, CancellationToken cancellationToken)
+        [HttpGet("{searchId}/accommodations/{accommodationId}/room-contract-sets/{roomContractSetId}")]
+        public async Task<ActionResult<RoomContractSetAvailability>> GetExactAvailability(Guid searchId, string accommodationId, Guid roomContractSetId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, result, error) = await _valuationService.Get(searchId, htId, roomContractSetId, agent, "en");
+            var (isSuccess, _, result, error) = await _valuationService.Get(searchId, accommodationId, roomContractSetId, agent, "en");
             
             return isSuccess
                 ? result

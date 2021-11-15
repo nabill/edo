@@ -2,7 +2,7 @@
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     internal static class RoomContractSetExtensions
     {
@@ -39,9 +39,6 @@ namespace HappyTravel.Edo.DirectApi.Services
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),
                 isAdvancePurchaseRate: rcs.IsAdvancePurchaseRate,
-                supplier: rcs.Supplier,
-                tags: rcs.Tags,
-                isDirectContract: rcs.IsDirectContract,
                 isPackageRate: rcs.IsPackageRate);
         }
     }

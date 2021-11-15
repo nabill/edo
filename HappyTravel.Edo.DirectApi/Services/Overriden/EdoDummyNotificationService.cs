@@ -1,15 +1,15 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace HappyTravel.Edo.DirectApi.Services.Dummies
+namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class EdoDummyNotificationService : INotificationService
     {

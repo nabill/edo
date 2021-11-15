@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.DirectApi.Models;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.DirectApi.Models;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
     public class BookingInfoService
     {

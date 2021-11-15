@@ -10,10 +10,9 @@ namespace HappyTravel.Edo.DirectApi.Models
     {
         [JsonConstructor]
         public Accommodation(string htId, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
-            string category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
+            string? category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
             in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type,
-            UniqueAccommodationCodes? uniqueCodes = null,
-            string hotelChain = null, DateTime? modified = null)
+            string? hotelChain, DateTime? modified)
         {
             Id = htId;
             AccommodationAmenities = accommodationAmenities ?? new List<string>(0);
@@ -27,7 +26,6 @@ namespace HappyTravel.Edo.DirectApi.Models
             Schedule = schedule;
             TextualDescriptions = textualDescriptions ?? new List<TextualDescription>(0);
             Type = type;
-            UniqueCodes = uniqueCodes;
             HotelChain = hotelChain;
             Modified = modified;
         }
@@ -46,7 +44,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         ///     The accommodation category.
         /// </summary>
-        public string Category { get; }
+        public string? Category { get; }
 
         /// <summary>
         ///     Contact info.
@@ -84,14 +82,9 @@ namespace HappyTravel.Edo.DirectApi.Models
         public PropertyTypes Type { get; }
 
         /// <summary>
-        ///     Unique codes in external accommodation mapping services.
-        /// </summary>
-        public UniqueAccommodationCodes? UniqueCodes { get; }
-
-        /// <summary>
         ///     Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
         /// </summary>
-        public string HotelChain { get; }
+        public string? HotelChain { get; }
 
         /// <summary>
         ///     The dictionary of amenities available in an accommodation.

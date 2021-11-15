@@ -36,7 +36,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.AgencyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_agencyAccounts));
-            edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
             edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
             edoContextMock.Setup(x => x.DisplayMarkupFormulas).Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
 
@@ -64,16 +63,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
         public AgencyVerificationService GetAgencyVerificationService(EdoContext context)
         {
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
-            accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
-                .Returns((Counterparty counterparty, Currencies currency) =>
-                {
-                    _counterpartyAccounts.Add(new CounterpartyAccount
-                    {
-                        CounterpartyId = counterparty.Id,
-                        Currency = currency
-                    });
-                    return Task.FromResult(Result.Success());
-                });
             accountManagementServiceMock.Setup(am => am.CreateForAgency(It.IsAny<Agency>(), It.IsAny<Currencies>()))
                 .Returns((Agency agency, Currencies currency) =>
                 {
@@ -96,25 +85,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Mock.Of<IDateTimeProvider>(),
                 agentService);
         }
-
-
-        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>()
-        {
-            new CounterpartyAccount
-            {
-                Id = 1,
-                CounterpartyId = 1,
-                Currency = Currencies.AED,
-                IsActive = true
-            },
-            new CounterpartyAccount
-            {
-                Id = 2,
-                CounterpartyId = 2,
-                Currency = Currencies.AED,
-                IsActive = false
-            }
-        };
 
         private readonly List<AgencyAccount> _agencyAccounts = new List<AgencyAccount>
         {

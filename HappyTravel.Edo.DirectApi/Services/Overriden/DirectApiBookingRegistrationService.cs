@@ -13,7 +13,7 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class DirectApiBookingRegistrationService : BookingRegistrationService
     {

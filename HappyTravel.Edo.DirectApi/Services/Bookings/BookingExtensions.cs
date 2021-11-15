@@ -3,7 +3,7 @@ using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Money.Extensions;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
     public static class BookingExtensions
     {
