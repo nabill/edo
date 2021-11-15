@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.DirectApi.Models
 {
@@ -10,10 +10,9 @@ namespace HappyTravel.Edo.DirectApi.Models
     {
         [JsonConstructor]
         public Accommodation(string htId, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
-            string category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
+            string? category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
             in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type,
-            UniqueAccommodationCodes? uniqueCodes = null,
-            string hotelChain = null, DateTime? modified = null)
+            string? hotelChain, DateTime? modified)
         {
             Id = htId;
             AccommodationAmenities = accommodationAmenities ?? new List<string>(0);
@@ -45,7 +44,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         ///     The accommodation category.
         /// </summary>
-        public string Category { get; }
+        public string? Category { get; }
 
         /// <summary>
         ///     Contact info.
@@ -85,7 +84,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         ///     Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
         /// </summary>
-        public string HotelChain { get; }
+        public string? HotelChain { get; }
 
         /// <summary>
         ///     The dictionary of amenities available in an accommodation.

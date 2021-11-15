@@ -324,7 +324,7 @@
                 The country code in the ISO 3166-1 Alpha-2 format.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryId">
             <summary>
             Happy Travel country Id
             </summary>
@@ -339,7 +339,7 @@
                 Indicates if a location a historical place.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityId">
             <summary>
             Happy Travel localityId
             </summary>
@@ -349,7 +349,7 @@
                 The locality name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZoneHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZoneId">
             <summary>
             Happy Travel locality zone Id
             </summary>
