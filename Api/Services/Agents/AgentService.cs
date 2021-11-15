@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private static InAgencyPermissions GetInAgencyPermissions(int[] roleIds, List<AgentRole> roles)
         {
-            if (roleIds.Length == 0)
+            if (roleIds == null || roleIds.Length == 0)
                 return 0;
             
             return roles
