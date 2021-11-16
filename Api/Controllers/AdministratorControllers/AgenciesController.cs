@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for deactivation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/deactivate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for activation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/activate")]
-        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)

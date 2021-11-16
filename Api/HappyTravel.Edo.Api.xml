@@ -4,26 +4,6 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
-        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.CounterpartyId">
-            <summary>
-            Counterparty Id.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.CounterpartyName">
-            <summary>
-            Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.MasterAgentName">
-            <summary>
-            Master agent name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.BillingEmail">
-            <summary>
-            Billing email of counterparty or email of master agent.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.SendAdminInvitationRequest.RegistrationInfo">
             <summary>
                Registration information
@@ -440,13 +420,6 @@
             <param name="agencyId">Agency Id</param>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetCounterpartyBookings(System.Int32)">
-            <summary>
-                Gets a list of all bookings made by the counterparty
-            </summary>
-            <param name="counterpartyId">Counterparty Id</param>
-            <returns>List of bookings</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
             <summary>
                 Gets a list of all bookings made by the agent
@@ -525,46 +498,6 @@
             </summary>
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
-            <summary>
-            Gets specified counterparty.
-            </summary>
-            <param name="counterpartyId">Id of counterparty to get</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get">
-            <summary>
-            Gets all counterparties
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetAgencies(System.Int32)">
-            <summary>
-                Gets all agencies of a counterparty.
-            </summary>
-            <param name="counterpartyId">Counterparty Id.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.UpdateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest)">
-            <summary>
-                Updates counterparty information.
-            </summary>
-            <param name="counterpartyId">Id of the counterparty.</param>
-            <param name="updateCounterpartyRequest">New counterparty information.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
-            <summary>
-             Returns counterparties predictions when searching
-            </summary>
-            <param name="query">The search query text.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ReuploadToAgencies">
-            <summary>
-            Reuploads counterparty contracts to agency contracts
-            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
@@ -795,6 +728,11 @@
             <param name="agencyId">Id of the agency.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetContractFile">
+            <summary>
+            Downloads a contract pdf file of the agency agent is currently using.
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
             <summary>
                 Transfers money from an agency account to a child agency account
@@ -944,9 +882,9 @@
             </summary>
             <returns>Agent roles</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithAgency(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithAgencyRequest)">
             <summary>
-                Registers master agent with related counterparty
+                Registers master agent with related agency
             </summary>
             <param name="request">Master agent registration request.</param>
             <returns></returns>
@@ -1292,17 +1230,6 @@
             </summary>
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetCounterparty">
-            <summary>
-                Gets counterparty information.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetContractFile">
-            <summary>
-            Downloads a contract pdf file of the counterparty agent is currently using.
-            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Get">
             <summary>
@@ -2247,11 +2174,6 @@
                 Id of the agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CounterpartyId">
-            <summary>
-                Id of the counterparty.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Address">
             <summary>
                 Agency address.
@@ -2355,6 +2277,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.MarkupDisplayFormula">
             <summary>
             Calculated with all markups formula
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.PreferredCurrency">
+            <summary>
+            Agency preferred currency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
@@ -2547,56 +2474,6 @@
                 Preferable way to do payments.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Address">
-            <summary>
-                Agency address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Phone">
-            <summary>
-                Phone number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Fax">
-            <summary>
-                Fax number. Only digits, length between 3 and 30.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.PostalCode">
-            <summary>
-                Postal code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.Website">
-            <summary>
-                Agency site url.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.BillingEmail">
-            <summary>
-            E-mail for billing operations
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.VatNumber">
-            <summary>
-            Value added tax identification number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.LegalAddress">
-            <summary>
-                Agency address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationRootAgencyInfo.LocalityHtId">
-            <summary>
-            Agency locality id
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -2737,19 +2614,9 @@
             DateTime when the image with this name was uploaded last time
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.Id">
-            <summary>
-                Id of the counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.Name">
-            <summary>
-                Name of the counterparty.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyId">
             <summary>
-                Id of the agency of the counterparty, to which the agent belongs.
+                Id of the agency, to which the agent belongs.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyName">
@@ -2759,17 +2626,17 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.IsMaster">
             <summary>
-                Flag indicating that agent is master in this counterparty.
+                Flag indicating that agent is master in this agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.InAgencyPermissions">
             <summary>
-                List of permissions in current counterparty.
+                List of permissions in current agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyVerificationState">
             <summary>
-            State of the counterparty
+            State of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.DefaultPaymentType">
@@ -2814,7 +2681,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Position">
             <summary>
-                Agent position in counterparty.
+                Agent position in agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
@@ -2842,16 +2709,6 @@
                 Agent e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.CounterpartyId">
-            <summary>
-                ID of the agent's counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.CounterpartyName">
-            <summary>
-                Name of the agent's counterparty.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgencyId">
             <summary>
                 ID of the agent's agency.
@@ -2874,7 +2731,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.Position">
             <summary>
-                Agent position in counterparty.
+                Agent position in agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.InAgencyRoleIds">
@@ -2947,49 +2804,14 @@
             Client password
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyCreateRequest.CounterpartyInfo">
-            <summary>
-            Information to create a new counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyCreateRequest.RootAgencyInfo">
-            <summary>
-            Information to create a root agency for newly created counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Name">
-            <summary>
-                Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Id">
-            <summary>
-            Counterparty Id.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Name">
-            <summary>
-                Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsContractUploaded">
-            <summary>
-            True if contract is loaded to counterparty
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.MarkupFormula">
-            <summary>
-            Displayed markup formula
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithAgencyRequest.Agent">
             <summary>
                 Agent personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Counterparty">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithAgencyRequest.Agency">
             <summary>
-                Agent affiliated counterparty information.
+                Agent affiliated agency information.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgencyRequest.RegistrationInfo">
@@ -3015,11 +2837,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgentRequest.InvitationCode">
             <summary>
                 Invitation code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.RegistrationCounterpartyInfo.Name">
-            <summary>
-                Counterparty name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
@@ -3070,26 +2887,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.IsActive">
             <summary>
             Activity state
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.Id">
-            <summary>
-            Counterparty Id.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.Name">
-            <summary>
-                Counterparty name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.IsContractUploaded">
-            <summary>
-            True if contract is loaded to counterparty
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimCounterpartyInfo.MarkupFormula">
-            <summary>
-            Displayed markup formula
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.CounterpartyName">

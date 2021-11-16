@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     return Result.Failure<AcceptPipeValues>(error);
 
                 var originalInvitationData = _invitationRecordService.GetInvitationData(invitation);
-                
+
                 return new AcceptPipeValues
                 {
                     Invitation = invitation,
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 => !string.IsNullOrWhiteSpace(identity);
 
 
-            bool IsInvitationTypeCorrect(AcceptPipeValues values) 
+            bool IsInvitationTypeCorrect(AcceptPipeValues values)
                 => values.Invitation.InvitationType is UserInvitationTypes.Agent or UserInvitationTypes.ChildAgency;
 
 
@@ -135,9 +135,9 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
                 var (_, isFailure, childAgency, error) = await _agencyService.Create(
                     values.InvitationData.ChildAgencyRegistrationInfo,
-                    counterpartyId: inviterAgency.CounterpartyId.Value,
+                    counterpartyId: 0,
                     parentAgencyId: inviterAgency.Id);
-                
+
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
 
@@ -194,7 +194,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     AgencyName = values.AgencyName
                 };
 
-                var (_, isNotificationFailure, notificationError) 
+                var (_, isNotificationFailure, notificationError)
                     = await _notificationService.Send(agent: new SlimAgentContext(master.Id, values.Invitation.InviterAgencyId.Value),
                         messageData: registrationData,
                         notificationType: values.NotificationType,

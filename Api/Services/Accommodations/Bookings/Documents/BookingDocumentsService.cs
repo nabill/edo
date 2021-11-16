@@ -5,16 +5,16 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -28,18 +28,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         public BookingDocumentsService(EdoContext context,
             IOptions<BankDetails> bankDetails, 
             IAccommodationService accommodationService,
-            ICounterpartyService counterpartyService,
             IInvoiceService invoiceService,
             IReceiptService receiptService,
-            IImageFileService imageFileService)
+            IImageFileService imageFileService,
+            IAdminAgencyManagementService adminAgencyManagementService)
         {
             _context = context;
             _bankDetails = bankDetails.Value;
             _accommodationService = accommodationService;
-            _counterpartyService = counterpartyService;
             _invoiceService = invoiceService;
             _receiptService = receiptService;
             _imageFileService = imageFileService;
+            _adminAgencyManagementService = adminAgencyManagementService;
         }
 
 
@@ -99,8 +99,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         public async Task<Result> GenerateInvoice(Data.Bookings.Booking booking)
         {
-            var rootAgency = await _counterpartyService.GetRootAgency(booking.CounterpartyId);
-
+            var (_, isRootFailure, rootAgency, rootError) = await _adminAgencyManagementService.GetRoot(booking.AgencyId);
+            if (isRootFailure)
+                return Result.Failure(rootError);
+            
             var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(rootAgency),
                 GetSellerDetails(booking, _bankDetails),
@@ -152,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 return sellerDetails;
             }
 
-            static BookingInvoiceData.BuyerInfo GetBuyerInfo(Agency agency) => new BookingInvoiceData.BuyerInfo(agency.Name, 
+            static BookingInvoiceData.BuyerInfo GetBuyerInfo(AgencyInfo agency) => new BookingInvoiceData.BuyerInfo(agency.Name, 
                 agency.Address,
                 agency.Phone,
                 agency.BillingEmail);
@@ -218,9 +220,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         private readonly EdoContext _context;
         private readonly BankDetails _bankDetails;
         private readonly IAccommodationService _accommodationService;
-        private readonly ICounterpartyService _counterpartyService;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
         private readonly IImageFileService _imageFileService;
+        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
     }
 }

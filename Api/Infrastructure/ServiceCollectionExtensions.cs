@@ -454,15 +454,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IVersionService, VersionService>();
 
             services.AddTransient<ILocationService, LocationService>();
-            services.AddTransient<ICounterpartyService, CounterpartyService>();
-            services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
             services.AddTransient<IAgencyVerificationService, AgencyVerificationService>();
             
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
             services.AddTransient<IAgentRolesService, AgentRolesService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
-            services.AddTransient<ICounterpartyBillingNotificationService, CounterpartyBillingNotificationService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingOfflinePaymentService, BookingOfflinePaymentService>();
@@ -646,7 +643,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
 
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
-            services.AddTransient<IOldContractFileManagementService, OldContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
 

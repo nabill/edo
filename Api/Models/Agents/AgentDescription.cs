@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Title { get; }
 
         /// <summary>
-        ///     Agent position in counterparty.
+        ///     Agent position in agency.
         /// </summary>
         public string Position { get; }
 

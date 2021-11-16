@@ -10,11 +10,9 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
-using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
@@ -59,14 +57,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Registers master agent with related counterparty
+        ///     Registers master agent with related agency
         /// </summary>
         /// <param name="request">Master agent registration request.</param>
         /// <returns></returns>
         [HttpPost("agent/register-master")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterAgentWithCounterparty([FromBody] RegisterAgentWithCounterpartyRequest request)
+        public async Task<IActionResult> RegisterAgentWithAgency([FromBody] RegisterAgentWithAgencyRequest request)
         {
             var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
@@ -76,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
             
-            var registerResult = await _agentRegistrationService.RegisterWithCounterparty(request.Agent, request.Counterparty,
+            var registerResult = await _agentRegistrationService.RegisterWithAgency(request.Agent, request.Agency,
                 externalIdentity, email);
 
             if (registerResult.IsFailure)

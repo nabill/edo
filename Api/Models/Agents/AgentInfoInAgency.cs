@@ -1,15 +1,10 @@
-using System.Collections.Generic;
-using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Common.Enums;
-
 namespace HappyTravel.Edo.Api.Models.Agents
 {
     // TODO: Replace with more appropriate model during NIJO-820
     public readonly struct AgentInfoInAgency
     {
         public AgentInfoInAgency(int agentId, string firstName, string lastName, string email,
-            string title, string position, int counterpartyId, string counterpartyName, int agencyId, string agencyName,
+            string title, string position, int agencyId, string agencyName,
             bool isMaster, int[] inAgencyRoleIds, bool isActive)
         {
             AgentId = agentId;
@@ -18,8 +13,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
             Email = email;
             Title = title;
             Position = position;
-            CounterpartyId = counterpartyId;
-            CounterpartyName = counterpartyName;
             AgencyId = agencyId;
             AgencyName = agencyName;
             IsMaster = isMaster;
@@ -49,16 +42,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Email { get; }
 
         /// <summary>
-        ///     ID of the agent's counterparty.
-        /// </summary>
-        public int CounterpartyId { get; }
-
-        /// <summary>
-        ///     Name of the agent's counterparty.
-        /// </summary>
-        public string CounterpartyName { get; }
-
-        /// <summary>
         ///     ID of the agent's agency.
         /// </summary>
         public int AgencyId { get; }
@@ -79,7 +62,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Title { get; }
 
         /// <summary>
-        ///     Agent position in counterparty.
+        ///     Agent position in agency.
         /// </summary>
         public string Position { get; }
 
