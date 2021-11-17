@@ -14,7 +14,6 @@ namespace HappyTravel.Edo.Api.Extensions
             AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode, string markupFormula)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
-                counterpartyId: agency.CounterpartyId,
                 address: agency.Address,
                 billingEmail: agency.BillingEmail,
                 city: agency.City,
@@ -35,21 +34,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 legalAddress: agency.LegalAddress,
                 preferredPaymentMethod: agency.PreferredPaymentMethod,
                 isContractUploaded: agency.IsContractUploaded,
-                markupDisplayFormula: markupFormula);
-
-
-        public static RegistrationAgencyInfo ToRegistrationAgencyInfo(this RegistrationRootAgencyInfo info, string name)
-            => new RegistrationAgencyInfo(
-                name,
-                info.Address,
-                info.BillingEmail,
-                info.Fax,
-                info.Phone,
-                info.PostalCode,
-                info.Website,
-                info.VatNumber,
-                info.LegalAddress,
-                info.PreferredPaymentMethod,
-                info.LocalityHtId);
+                markupDisplayFormula: markupFormula,
+                preferredCurrency: agency.PreferredCurrency);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -9,15 +10,14 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct AgencyInfo
     {
         [JsonConstructor]
-        public AgencyInfo(string name, int? id, int? counterpartyId, string address, string billingEmail, string city,
+        public AgencyInfo(string name, int? id, string address, string billingEmail, string city,
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
             AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, string markupDisplayFormula)
+            bool isContractUploaded, string markupDisplayFormula, Currencies preferredCurrency)
         {
             Name = name;
             Id = id;
-            CounterpartyId = counterpartyId;
             Address = address;
             BillingEmail = billingEmail;
             City = city;
@@ -39,6 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             MarkupDisplayFormula = markupDisplayFormula;
+            PreferredCurrency = preferredCurrency;
         }
 
 
@@ -52,11 +53,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Id of the agency.
         /// </summary>
         public int? Id { get; }
-
-        /// <summary>
-        ///     Id of the counterparty.
-        /// </summary>
-        public int? CounterpartyId { get; }
 
         /// <summary>
         ///     Agency address.
@@ -167,13 +163,18 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// </summary>
         public string MarkupDisplayFormula { get; }
 
+        /// <summary>
+        /// Agency preferred currency
+        /// </summary>
+        public Currencies PreferredCurrency { get; }
+
 
         public override int GetHashCode()
-            => (Name, Id, CounterpartyId).GetHashCode();
+            => (Name, Id).GetHashCode();
 
 
         public bool Equals(AgencyInfo other)
-            => (Name, Id, CounterpartyId) == (other.Name, other.Id, other.CounterpartyId);
+            => (Name, Id) == (other.Name, other.Id);
 
 
         public override bool Equals(object obj)

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Services;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             ITokenInfoAccessor tokenInfoAccessor,
             IAgencyService agencyService,
             IIdentityUserInfoService identityUserInfoService, 
-            IAgentRolesService agentRolesService)
+            IAgentRolesService agentRolesService,
+            IContractFileService contractFileService)
         {
             _childAgencyService = childAgencyService;
             _agentContextService = agentContextService;
@@ -42,6 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agencyService = agencyService;
             _identityUserInfoService = identityUserInfoService;
             _agentRolesService = agentRolesService;
+            _contractFileService = contractFileService;
         }
 
 
@@ -266,6 +269,26 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        /// <summary>
+        /// Downloads a contract pdf file of the agency agent is currently using.
+        /// </summary>
+        [HttpGet("agency/contract-file")]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveCounterpartyContract)]
+        public async Task<IActionResult> GetContractFile()
+        {
+            var agent = await _agentContextService.GetAgent();
+
+            var (_, isFailure, (stream, contentType), error) = await _contractFileService.Get(agent);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return File(stream, contentType);
+        }
+
+
         private readonly IChildAgencyService _childAgencyService;
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentInvitationCreateService _agentInvitationCreateService;
@@ -275,5 +298,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IIdentityUserInfoService _identityUserInfoService;
         private readonly IAgencyManagementService _agencyManagementService;
         private readonly IAgentRolesService _agentRolesService;
+        private readonly IContractFileService _contractFileService;
     }
 }

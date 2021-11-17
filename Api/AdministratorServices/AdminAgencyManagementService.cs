@@ -65,6 +65,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public Task<Result<AgencyInfo>> GetRoot(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => GetAgency(agencyId)
+                .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
+
+
         public Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (
                     from a in _context.Agencies

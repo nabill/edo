@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -15,11 +14,10 @@ namespace HappyTravel.Edo.Api.Services.Management
 {
     public class AgentMovementService : IAgentMovementService
     {
-        public AgentMovementService(EdoContext edoContext, ICounterpartyManagementService counterpartyManagementService,
+        public AgentMovementService(EdoContext edoContext,
             IAdminAgencyManagementService adminAgencyManagementService,  IManagementAuditService managementAuditService)
         {
             _edoContext = edoContext;
-            _counterpartyManagementService = counterpartyManagementService;
             _adminAgencyManagementService = adminAgencyManagementService;
             _managementAuditService = managementAuditService;
         }
@@ -29,11 +27,10 @@ namespace HappyTravel.Edo.Api.Services.Management
         {
             return await ValidateRequest()
                 .Ensure(AgentHasNoBookings, $"Agent {agentId} has bookings in agency {sourceAgencyId}")
-                .Bind(GetMasterAgent)
-                .Check(_ => UpdateAgencyRelation())
-                .Check(_ => WriteLog())
-                .Check(_ => DeactivateAgencyIfNeeded())
-                .Check(_ => CreateNewMasterIfNeeded());
+                .Bind(UpdateAgencyRelation)
+                .Bind(WriteLog)
+                .Bind(DeactivateAgencyIfNeeded)
+                .Bind(CreateNewMasterIfNeeded);
 
 
             async Task<Result> ValidateRequest()
@@ -52,18 +49,6 @@ namespace HappyTravel.Edo.Api.Services.Management
 
             async Task<bool> AgentHasNoBookings()
                 => !(await _edoContext.Bookings.AnyAsync(b => b.AgentId == agentId && b.AgencyId == sourceAgencyId));
-
-
-            async Task<Result<MasterAgentContext>> GetMasterAgent()
-            {
-                var sourceAgency = await _edoContext.Agencies.SingleOrDefaultAsync(a => a.Id == sourceAgencyId);
-
-                var (_, isFailure, master, error) = await _counterpartyManagementService.GetRootAgencyMasterAgent(sourceAgency.CounterpartyId);
-                if (isFailure)
-                    return Result.Failure<MasterAgentContext>(error);
-
-                return master;
-            }
 
 
             async Task<Result> UpdateAgencyRelation()
@@ -168,7 +153,6 @@ namespace HappyTravel.Edo.Api.Services.Management
 
 
         private readonly EdoContext _edoContext;
-        private readonly ICounterpartyManagementService _counterpartyManagementService;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly IManagementAuditService _managementAuditService;
     }

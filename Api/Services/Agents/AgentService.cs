@@ -135,8 +135,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         agent.Email,
                         agent.Title,
                         agent.Position,
-                        counterparty.Id,
-                        counterparty.Name,
                         cr.AgencyId,
                         agency.Name,
                         cr.Type == AgentAgencyRelationTypes.Master,
@@ -163,8 +161,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
                 where ag.IsActive && cr.AgentId == agent.AgentId
                 select new AgentAgencyRelationInfo(
-                    co.Id,
-                    co.Name,
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
