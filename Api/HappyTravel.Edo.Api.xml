@@ -1233,7 +1233,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Get">
             <summary>
-                Returns cards, available for current agent/counterparty
+                Returns cards, available for current agent/agency
             </summary>
             <returns>List of cards.</returns>
         </member>
@@ -2889,7 +2889,7 @@
             Activity state
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.CounterpartyName">
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.AgencyName">
             <summary>
             Agency name
             </summary>

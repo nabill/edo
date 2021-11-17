@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
             string language);
         public void LogAccommodationAvailabilityRequested(in Accommodation accommodation, Guid searchId, string htId, in AgentContext agent);
         public void LogBookingOccured(in AccommodationBookingRequest bookingRequest, Booking booking, in AgentContext agent);
-        public void LogBookingConfirmed(Booking booking, string counterpartyName);
-        public void LogBookingCancelled(Booking booking, string counterpartyName);
+        public void LogBookingConfirmed(Booking booking, string agencyName);
+        public void LogBookingCancelled(Booking booking, string agencyName);
     }
 }
