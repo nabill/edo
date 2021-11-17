@@ -121,16 +121,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
                         roomContractSets = roomContractSets.Where(r => r.Deadline.Date == null || r.Deadline.Date >= _dateTimeProvider.UtcNow()).ToList();
 
-                    return new WideAvailabilityResult(accommodation,
-                        roomContractSets,
-                        a.MinPrice,
-                        a.MaxPrice,
-                        a.CheckInDate,
-                        a.CheckOutDate,
-                        searchSettings.IsSupplierVisible
+                    return new WideAvailabilityResult(accommodation: accommodation,
+                        roomContractSets: roomContractSets,
+                        minPrice: roomContractSets.Min(r => r.Rate.FinalPrice.Amount),
+                        maxPrice: roomContractSets.Max(r => r.Rate.FinalPrice.Amount),
+                        checkInDate: a.CheckInDate,
+                        checkOutDate: a.CheckOutDate,
+                        supplier: searchSettings.IsSupplierVisible
                             ? a.Supplier
                             : null,
-                        a.HtId);
+                        htId: a.HtId);
                 }).ToList();
         }
 
