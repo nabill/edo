@@ -26,16 +26,16 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
                 roomContractSets = roomContractSets.Where(r => r.Deadline.Date == null || r.Deadline.Date >= DateTime.UtcNow).ToList();
 
-            return new WideAvailabilityResult(default,
-                roomContractSets,
-                result.MinPrice,
-                result.MaxPrice,
-                result.CheckInDate,
-                result.CheckOutDate,
-                searchSettings.IsSupplierVisible
+            return new WideAvailabilityResult(accommodation: default,
+                roomContractSets: roomContractSets,
+                minPrice: roomContractSets.Min(r => r.Rate.FinalPrice.Amount),
+                maxPrice: roomContractSets.Max(r => r.Rate.FinalPrice.Amount),
+                checkInDate: result.CheckInDate,
+                checkOutDate: result.CheckOutDate,
+                supplier: searchSettings.IsSupplierVisible
                     ? result.Supplier
                     : null,
-                result.HtId);
+                htId: result.HtId);
         }
     }
 }
