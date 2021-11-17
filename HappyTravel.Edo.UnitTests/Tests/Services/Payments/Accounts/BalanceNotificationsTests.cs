@@ -226,8 +226,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     AccountsEmail = "accounts@email.com",
                 }),
                 new BalanceNotificationsManagementService(_mockedEdoContext),
-                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(),
-                    Mock.Of<ILocalityInfoService>())
+                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>())
             );
 
 

@@ -1,8 +1,10 @@
 using System;
+using System.Reflection;
+using System.Text.Json.Serialization;
+using FluentValidation.AspNetCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -10,18 +12,19 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
 using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
 using HappyTravel.Edo.DirectApi.Services;
-using HappyTravel.Edo.DirectApi.Services.Dummies;
+using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
+using HappyTravel.Edo.DirectApi.Services.Bookings;
+using HappyTravel.Edo.DirectApi.Services.Overriden;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using AccommodationService = HappyTravel.Edo.DirectApi.Services.AccommodationService;
-using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.WideAvailabilitySearchService;
+using AccommodationService = HappyTravel.Edo.DirectApi.Services.Static.AccommodationService;
+using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
 namespace HappyTravel.Edo.DirectApi
 {
@@ -51,7 +54,16 @@ namespace HappyTravel.Edo.DirectApi
                 .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
             
             services.ConfigureAuthentication(authorityOptions);
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers()
+                .AddNewtonsoftJson(opts => opts.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter()))
+                .AddJsonOptions(opts => opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+                .AddFluentValidation(fv =>
+                {
+                    fv.DisableDataAnnotationsValidation = true;
+                    fv.ImplicitlyValidateRootCollectionElements = true;
+                    fv.ImplicitlyValidateChildProperties = true;
+                    fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+                });
             services.AddResponseCompression();
             services.ConfigureTracing(Configuration, HostEnvironment);
             services.AddProblemDetailsErrorHandling();

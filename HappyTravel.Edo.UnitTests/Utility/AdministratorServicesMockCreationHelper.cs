@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -16,7 +14,6 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Options;
 using Moq;
 
 namespace HappyTravel.Edo.UnitTests.Utility
@@ -36,7 +33,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.AgencyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_agencyAccounts));
-            edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
             edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
             edoContextMock.Setup(x => x.DisplayMarkupFormulas).Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
 
@@ -52,28 +48,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
-        {
-            return new(context,
-                Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>(),
-                Mock.Of<ILocalityInfoService>());
-        }
+        public AdminAgencyManagementService GetAgencyManagementService(EdoContext context) 
+            => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>());
 
 
         public AgencyVerificationService GetAgencyVerificationService(EdoContext context)
         {
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
-            accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
-                .Returns((Counterparty counterparty, Currencies currency) =>
-                {
-                    _counterpartyAccounts.Add(new CounterpartyAccount
-                    {
-                        CounterpartyId = counterparty.Id,
-                        Currency = currency
-                    });
-                    return Task.FromResult(Result.Success());
-                });
             accountManagementServiceMock.Setup(am => am.CreateForAgency(It.IsAny<Agency>(), It.IsAny<Currencies>()))
                 .Returns((Agency agency, Currencies currency) =>
                 {
@@ -96,25 +77,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Mock.Of<IDateTimeProvider>(),
                 agentService);
         }
-
-
-        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>()
-        {
-            new CounterpartyAccount
-            {
-                Id = 1,
-                CounterpartyId = 1,
-                Currency = Currencies.AED,
-                IsActive = true
-            },
-            new CounterpartyAccount
-            {
-                Id = 2,
-                CounterpartyId = 2,
-                Currency = Currencies.AED,
-                IsActive = false
-            }
-        };
 
         private readonly List<AgencyAccount> _agencyAccounts = new List<AgencyAccount>
         {

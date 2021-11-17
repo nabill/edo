@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -6,7 +8,11 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -15,11 +21,71 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public AgencyService(IAdminAgencyManagementService adminAgencyManagementService,
             IDateTimeProvider dateTimeProvider,
-            EdoContext edoContext)
+            ILocalityInfoService localityInfoService,
+            EdoContext context)
         {
             _adminAgencyManagementService = adminAgencyManagementService;
             _dateTimeProvider = dateTimeProvider;
-            _edoContext = edoContext;
+            _context = context;
+            _localityInfoService = localityInfoService;
+        }
+
+
+        public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
+            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
+                agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
+
+
+        private async Task<Result<AgencyInfo>> Create(string name, int counterpartyId, string address, string billingEmail, string fax, string phone,
+            string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
+            PaymentTypes preferredPaymentMethod, string localityHtId)
+        {
+            var ancestors = new List<int>();
+            var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
+            if (isFailure)
+                return Result.Failure<AgencyInfo>(error);
+
+            if (parentAgencyId is not null)
+            {
+                var parentAncestors = await _context.Agencies
+                    .Where(a => a.Id == parentAgencyId.Value)
+                    .Select(a => a.Ancestors ?? new List<int>(0))
+                    .SingleAsync();
+
+                ancestors.AddRange(parentAncestors);
+                ancestors.Add(parentAgencyId.Value);
+            }
+
+            var now = _dateTimeProvider.UtcNow();
+            var agency = new Agency
+            {
+                Name = name,
+                CounterpartyId = counterpartyId,
+                Created = now,
+                Modified = now,
+                ParentId = parentAgencyId,
+                Address = address,
+                BillingEmail = billingEmail,
+                Fax = fax,
+                Phone = phone,
+                PostalCode = postalCode,
+                Website = website,
+                VatNumber = vatNumber,
+                // Hardcode because we only support USD
+                PreferredCurrency = Currencies.USD,
+                Ancestors = ancestors,
+                LegalAddress = legalAddress,
+                PreferredPaymentMethod = preferredPaymentMethod,
+                LocalityHtId = localityHtId,
+                City = localityInfo.LocalityName,
+                CountryCode = localityInfo.CountryIsoCode,
+                CountryHtId = localityInfo.CountryHtId
+            };
+            _context.Agencies.Add(agency);
+
+            await _context.SaveChangesAsync();
+            return (await _adminAgencyManagementService.Get(agency.Id)).Value;
         }
 
 
@@ -71,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task UpdateAgencyRecord()
             {
-                var agencyRecord = await _edoContext.Agencies.SingleAsync(a => a.Id == agent.AgencyId);
+                var agencyRecord = await _context.Agencies.SingleAsync(a => a.Id == agent.AgencyId);
 
                 agencyRecord.Address = editAgencyRequest.Address;
                 agencyRecord.Phone = editAgencyRequest.Phone;
@@ -84,8 +150,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 
-                _edoContext.Update(agencyRecord);
-                await _edoContext.SaveChangesAsync();
+                _context.Update(agencyRecord);
+                await _context.SaveChangesAsync();
             }
 
 
@@ -94,8 +160,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        private readonly ILocalityInfoService _localityInfoService;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly EdoContext _edoContext;
+        private readonly EdoContext _context;
     }
 }

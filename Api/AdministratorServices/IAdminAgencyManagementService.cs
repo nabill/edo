@@ -21,8 +21,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode);
 
         Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
-
-        Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId);
         
         Task<Result<ContractKind>> GetContractKind(int agencyId);
 

@@ -9,16 +9,16 @@ namespace HappyTravel.Edo.DirectApi.Models
     public readonly struct LocationInfo
     {
         [JsonConstructor]
-        public LocationInfo(string countryCode, string countryHtId, string country, string localityHtId, string locality, string localityZoneHtId,
-            string localityZone, in GeoPoint coordinates, string address, LocationDescriptionCodes locationDescriptionCode, List<PoiInfo> pointsOfInterests,
+        public LocationInfo(string countryCode, string countryHtId, string country, string localityHtId, string locality, string? localityZoneHtId,
+            string? localityZone, in GeoPoint coordinates, string address, LocationDescriptionCodes locationDescriptionCode, List<PoiInfo>? pointsOfInterests,
             bool isHistoricalBuilding = false)
         {
             CountryCode = countryCode;
-            CountryHtId = countryHtId;
+            CountryId = countryHtId;
             Country = country;
             Locality = locality;
-            LocalityHtId = localityHtId;
-            LocalityZoneHtId = localityZoneHtId;
+            LocalityId = localityHtId;
+            LocalityZoneId = localityZoneHtId;
             LocalityZone = localityZone;
             Address = address;
             Coordinates = coordinates;
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         /// Happy Travel country Id
         /// </summary>
-        public string CountryHtId { get; }
+        public string CountryId { get; }
 
         /// <summary>
         ///     The location country name.
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         /// Happy Travel localityId
         /// </summary>
-        public string LocalityHtId { get; }
+        public string LocalityId { get; }
 
         /// <summary>
         ///     The locality name.
@@ -71,12 +71,12 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         /// Happy Travel locality zone Id
         /// </summary>
-        public string LocalityZoneHtId { get; }
+        public string? LocalityZoneId { get; }
 
         /// <summary>
         ///     The locality zone name.
         /// </summary>
-        public string LocalityZone { get; }
+        public string? LocalityZone { get; }
 
         /// <summary>
         ///     The description of a location.

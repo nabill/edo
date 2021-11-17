@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace HappyTravel.Edo.DirectApi.Models
 {
     public readonly struct RoomSelectionResult
     {
-        public RoomSelectionResult(Guid searchId, string htId, List<RoomContractSet> results)
+        [JsonConstructor]
+        public RoomSelectionResult(Guid searchId, string accommodationId, List<RoomContractSet> roomContractSets)
         {
             SearchId = searchId;
-            HtId = htId;
-            Results = results;
+            AccommodationId = accommodationId;
+            RoomContractSets = roomContractSets;
         }
 
         
         public Guid SearchId { get; }
-        public string HtId { get; }
-        public List<RoomContractSet> Results { get; }
+        public string AccommodationId { get; }
+        public List<RoomContractSet> RoomContractSets { get; }
     }
 }

@@ -30,7 +30,7 @@
             Register booking.
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Finalize(HappyTravel.Edo.DirectApi.Models.BookingFinalizationRequest)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Finalize(System.String)">
             <summary>
             Finalize booking
             </summary>>
@@ -143,11 +143,6 @@
                 The type of a property.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.UniqueCodes">
-            <summary>
-                Unique codes in external accommodation mapping services.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Accommodation.HotelChain">
             <summary>
                 Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
@@ -219,49 +214,34 @@
                 Client booking reference code
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Ids">
+            <summary>
+            Countries, Localities or Accommodations Ids
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckInDate">
             <summary>
-                Required. Check-in date.
+                Check-in date.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.CheckOutDate">
             <summary>
-                Required. Check-out date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Filters">
-            <summary>
-                One ore several filters to order a response data.
+                Check-out date.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Nationality">
             <summary>
-                Required. Alpha-2 nationality code for a lead passengers.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.PropertyType">
-            <summary>
-                Desirable property type for an accommodation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Ratings">
-            <summary>
-                Accommodation rating.
+                Alpha-2 nationality code for a lead passengers.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Residency">
             <summary>
-                Required. Alpha-2 residency code for a lead passengers.
+                Alpha-2 residency code for a lead passengers.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.RoomDetails">
             <summary>
-                Required. Desirable room details.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.HtIds">
-            <summary>
-            Prediction's HtIds
+                Desirable room details.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.BookingRoomDetails.IsExtraBedNeeded">
@@ -344,7 +324,7 @@
                 The country code in the ISO 3166-1 Alpha-2 format.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.CountryId">
             <summary>
             Happy Travel country Id
             </summary>
@@ -359,7 +339,7 @@
                 Indicates if a location a historical place.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityId">
             <summary>
             Happy Travel localityId
             </summary>
@@ -369,7 +349,7 @@
                 The locality name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZoneHtId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.LocationInfo.LocalityZoneId">
             <summary>
             Happy Travel locality zone Id
             </summary>
@@ -515,44 +495,9 @@
                 The list of room contracts within a set.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.Supplier">
-            <summary>
-            Supplier
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.Tags">
-            <summary>
-            System tags returned by connector, e.g. "DirectConnectivity"
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.IsDirectContract">
-            <summary>
-            Direct contract flag
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSet.IsPackageRate">
             <summary>
             Indicates that rates must be sold as a package
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.AvailabilityId">
-            <summary>
-                The availability ID.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CheckInDate">
-            <summary>
-                The check-in date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CheckOutDate">
-            <summary>
-                The check-out date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.NumberOfNights">
-            <summary>
-                The number of nights to stay.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.RoomContractSet">
@@ -560,19 +505,9 @@
                 Information about a selected room contract set.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.AvailablePaymentMethods">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.AccommodationId">
             <summary>
-            List of available payment methods
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.CountryHtId">
-            <summary>
-            Country of accommodation
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.RoomContractSetAvailability.LocalityHtId">
-            <summary>
-            Locality of accommodation
+            AccommodationId
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.MinPrice">
@@ -593,16 +528,6 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.CheckOutDate">
             <summary>
             Check out date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.Supplier">
-            <summary>
-            Temporarily added data supplier for filtering and testing purposes. 
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.HtId">
-            <summary>
-            HT id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.WideAvailabilityResult.RoomContractSets">

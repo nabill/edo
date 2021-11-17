@@ -7,11 +7,12 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
 using HappyTravel.SuppliersCatalog;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace HappyTravel.Edo.DirectApi.Services
+namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {

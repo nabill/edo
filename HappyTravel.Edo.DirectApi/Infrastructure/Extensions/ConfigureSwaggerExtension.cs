@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -10,9 +11,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
     {
         public static IServiceCollection ConfigureSwagger(this IServiceCollection collection)
         {
-            collection.AddSwaggerGenNewtonsoftSupport();
-            
-            return collection.AddSwaggerGen(c =>
+            collection.AddSwaggerGen(c =>
             {
                 c.DocInclusionPredicate((_, apiDesc) =>
                 {
@@ -33,6 +32,9 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
                 c.CustomSchemaIds(x => x.FullName);
                 c.IncludeXmlComments(xmlPath, true);
             });
+
+            collection.AddFluentValidationRulesToSwagger();
+            return collection;
         }
     }
 }
