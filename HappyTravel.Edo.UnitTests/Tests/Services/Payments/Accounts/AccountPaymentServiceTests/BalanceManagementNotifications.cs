@@ -123,6 +123,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private readonly EdoContext _mockedEdoContext;
         private readonly Mock<IBalanceManagementNotificationsService> _balanceManagementNotificationsServiceMock;
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", 1, true, InAgencyPermissions.All);
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All);
     }
 }

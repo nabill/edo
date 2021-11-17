@@ -163,9 +163,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
             {
-                var counterparty = await _context.Counterparties
-                    .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
-                _bookingAnalyticsService.LogBookingConfirmed(booking, counterparty.Name);
+                var agency = await _context.Agencies
+                    .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
+                _bookingAnalyticsService.LogBookingConfirmed(booking, agency.Name);
             }
 
 
@@ -198,10 +198,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             async Task LogAnalytics()
             {
-                var counterparty = await _context.Counterparties
-                    .SingleOrDefaultAsync(x => x.Id == booking.CounterpartyId);
+                var agency = await _context.Agencies
+                    .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
                 
-                _bookingAnalyticsService.LogBookingCancelled(booking, counterparty.Name);
+                _bookingAnalyticsService.LogBookingCancelled(booking, agency.Name);
             }
 
 

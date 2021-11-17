@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 AgentId = agent.AgentId,
                 AgencyId = agent.AgencyId,
-                CounterpartyId = agent.CounterpartyId,
+                CounterpartyId = 0,
                 AgencyAncestors = agency.Ancestors,
                 CountryHtId = agency.CountryHtId,
                 LocalityHtId = agency.LocalityHtId

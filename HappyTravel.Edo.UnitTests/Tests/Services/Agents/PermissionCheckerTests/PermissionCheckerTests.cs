@@ -75,8 +75,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.PermissionCheckerTests
             }
         };
 
-        private static readonly AgentContext AffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
-        private static readonly AgentContext NotAffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(100, 100, 100);
+        private static readonly AgentContext AffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1);
+        private static readonly AgentContext NotAffiliatedAgent = AgentContextFactory.CreateWithCounterpartyAndAgency(100, 100);
         private readonly IPermissionChecker _permissionChecker;
     }
 }

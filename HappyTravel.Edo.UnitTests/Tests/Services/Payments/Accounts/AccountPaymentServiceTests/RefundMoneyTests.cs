@@ -187,6 +187,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private static readonly DateTime CancellationDate = new DateTime(2020, 1, 1);
 
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", 1, true, InAgencyPermissions.All);
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All);
     }
 }

@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct AgentContext
     {
         public AgentContext(int agentId, string firstName, string lastName, string email,
-            string title, string position, int counterpartyId, string counterpartyName, int agencyId, bool isMaster,
+            string title, string position, int agencyId, string agencyName, bool isMaster,
             InAgencyPermissions inAgencyPermissions)
         {
             AgentId = agentId;
@@ -14,9 +14,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
             Email = email;
             Title = title;
             Position = position;
-            CounterpartyId = counterpartyId;
-            CounterpartyName = counterpartyName;
             AgencyId = agencyId;
+            AgencyName = agencyName;
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
         }
@@ -25,33 +24,32 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string AgentName => $"{Title}. {FirstName} {LastName}";
 
 
-        public void Deconstruct(out int agentId, out int counterpartyId, out int agencyId, out bool isMaster)
+        public void Deconstruct(out int agentId, out int agencyId, out string agencyName, out bool isMaster)
         {
             agentId = AgentId;
-            counterpartyId = CounterpartyId;
             agencyId = AgencyId;
+            agencyName = AgencyName;
             isMaster = IsMaster;
         }
 
 
         public bool Equals(AgentContext other)
-            => (AgentId, CounterpartyId: CounterpartyId, AgencyId, IsMaster)
-                == (other.AgentId, other.CounterpartyId, other.AgencyId, other.IsMaster);
+            => (AgentId, AgencyId, IsMaster)
+                == (other.AgentId, other.AgencyId, other.IsMaster);
 
 
         public override bool Equals(object obj) => obj is AgentContext other && Equals(other);
 
 
-        public override int GetHashCode() => (AgentId, CounterpartyId: CounterpartyId, AgencyId, IsMaster).GetHashCode();
+        public override int GetHashCode() => (AgentId, AgencyId, IsMaster).GetHashCode();
 
 
         public int AgentId { get; }
         public string FirstName { get; }
         public string LastName { get; }
         public string Email { get; }
-        public int CounterpartyId { get; }
-        public string CounterpartyName { get; }
         public int AgencyId { get; }
+        public string AgencyName { get; }
         public bool IsMaster { get; }
         public InAgencyPermissions InAgencyPermissions { get; }
         public string Title { get; }

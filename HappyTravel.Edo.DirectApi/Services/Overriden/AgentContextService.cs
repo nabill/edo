@@ -44,7 +44,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                     from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agent.Id && a.DirectApiClientId == clientId)
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     select new {
                         AgentId = agent.Id,
                         FirstName = agent.FirstName,
@@ -52,9 +51,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         Email = agent.Email,
                         Title = agent.Title,
                         Position = agent.Position,
-                        CounterpartyId = counterparty.Id,
-                        CounterpartyName = counterparty.Name,
                         AgencyId = agency.Id,
+                        AgencyName = agency.Name,
                         IsMaster = agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
                         agentAgencyRelation.AgentRoleIds})
                 .SingleOrDefaultAsync();
@@ -68,9 +66,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 email: data.Email,
                 title: data.Title,
                 position: data.Position,
-                counterpartyId: data.CounterpartyId,
-                counterpartyName: data.CounterpartyName,
                 agencyId: data.AgencyId,
+                agencyName: data.AgencyName,
                 isMaster: data.IsMaster,
                 inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds));
         }

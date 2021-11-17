@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
             var settings = await _bookingSettingsService.Get(agent);
             return new ApiClientInfo
             {
-                CounterpartyName = agent.CounterpartyName,
+                AgencyName = agent.AgencyName,
                 EnabledSuppliers = settings.EnabledConnectors,
                 HasDirectContractsFilter = settings.AdditionalSearchFilters.HasFlag(SearchFilters.DirectContractsOnly)
             };

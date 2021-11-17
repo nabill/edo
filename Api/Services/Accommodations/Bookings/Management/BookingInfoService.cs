@@ -245,11 +245,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 var agencyInfoQuery = from agent in _context.Agents
                     join relation in _context.AgentAgencyRelations on agent.Id equals relation.AgentId
                     join agency in _context.Agencies on relation.AgencyId equals agency.Id
-                    join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
                     where agent.Id == booking.AgentId && agency.Id == booking.AgencyId
                     let agentName = $"{agent.FirstName} {agent.LastName}"
                     select new AccommodationBookingInfo.BookingAgentInformation(agentName,
-                        agency.Name, counterparty.Name, agent.Email);
+                        agency.Name, string.Empty, agent.Email);
 
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }
