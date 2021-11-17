@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var counterpartyId = await (from agency in _context.Agencies
                 join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
                 where agency.Id == agencyId
-                select agency.CounterpartyId).SingleOrDefaultAsync();
+                select agency.CounterpartyId).SingleOrDefaultAsync(); 
             
             if (counterpartyId == default)
                 return Result.Failure($"Agency with id '{agencyId}' not found");
