@@ -15,14 +15,13 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
         CounterpartyToAgencyTransfer = 128,
         CounterpartyManagement = 256,
         PaymentLinkGeneration = 512,
-        AccommodationDuplicatesReportApproval = 1024,
+        AccommodationDuplicatesMerge = 1024,
         BookingManagement = 2048,
         AgentManagement = 4096,
         BalanceManualCorrection = 8192,
         BookingReportGeneration = 16384,
         AccountsReportGeneration = 32768,
         CompanyReportGeneration = 65536,
-        AdministratorManagement = 131072,
-        MapperAccommodationManagement = 33554432
+        AdministratorManagement = 131072
     }
 }
