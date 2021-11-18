@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentValidation;
 using HappyTravel.Edo.DirectApi.Models;
 
@@ -12,8 +13,8 @@ namespace HappyTravel.Edo.DirectApi.Validators
             RuleForEach(r => r.Ids).Must(IsValidHtId);
             RuleFor(r => r.CheckInDate).GreaterThan(DateTime.Now.Date);
             RuleFor(r => r.CheckOutDate).Must((request, _) => IsCheckInDateGreaterThanCheckOutDate(request));
-            RuleFor(r => r.Nationality).NotEmpty().Length(2);
-            RuleFor(r => r.Residency).NotEmpty().Length(2);
+            RuleFor(r => r.Nationality).Must(IsAlpha2String).WithMessage("Must be alpha-2 country code");
+            RuleFor(r => r.Residency).Must(IsAlpha2String).WithMessage("Must be alpha-2 country code");
             RuleFor(r => r.RoomDetails).NotEmpty();
         }
 
@@ -29,5 +30,17 @@ namespace HappyTravel.Edo.DirectApi.Validators
 
         private static bool IsCheckInDateGreaterThanCheckOutDate(AvailabilityRequest request) 
             => (request.CheckOutDate - request.CheckInDate).TotalDays > 0;
+
+
+        private static bool IsAlpha2String(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if (str.Length != 2)
+                return false;
+
+            return str.All(char.IsLetter);
+        }
     }
 }
