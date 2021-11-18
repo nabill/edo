@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             {
                 DateTime = date,
                 EventData = eventData,
-                Counterparty = agentAnalyticsInfo.CounterpartyName,
+                Agency = agentAnalyticsInfo.AgencyName,
                 Location = point.HasValue
                     ? GetElasticCoordinates(point.Value)
                     : null

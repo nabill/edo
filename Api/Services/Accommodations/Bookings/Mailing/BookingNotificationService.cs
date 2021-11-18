@@ -216,7 +216,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     SupplierReferenceCode = details.AgentReference,
                     ContactInfo = details.ContactInfo,
                 },
-                CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
                 AgencyName = bookingInfo.AgentInformation.AgencyName,
                 PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
                 Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
