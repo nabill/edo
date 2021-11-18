@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.ApiClients
@@ -9,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.ApiClients
         /// <summary>
         /// Agency name
         /// </summary>
-        public string CounterpartyName { get; init; }
+        public string AgencyName { get; init; }
         
         /// <summary>
         /// Suppliers enabled for the client

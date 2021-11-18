@@ -171,6 +171,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.TemplateSettings = settings.TemplateSettings;
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
+                policy.SubjectScopeId = settings.LocationScopeId;
+                // No SubjectScopeType here because changing its type is not allowed
                 policy.DestinationScopeId = settings.DestinationScopeId;
                 policy.DestinationScopeType = destinationScopeType.Value;
 
@@ -314,6 +316,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
             int? counterpartyId = null, agencyId = null, agentId = null;
+            string? locationId = null;
             
             if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
                 agencyId = int.Parse(policy.SubjectScopeId);
@@ -325,9 +328,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 agentId = agentInAgencyId.AgentId;
             }
 
+            if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
+                locationId = policy.SubjectScopeId;
+
             return new MarkupPolicyData(policy.Target,
                 new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
-                new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId));
+                new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
         }
 
 

@@ -52,7 +52,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var agencyInfo = await (
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
-                    join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
                     from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
                     where a.Id == agencyId
@@ -63,6 +62,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 ? Result.Failure<AgencyInfo>("Could not find specified agency")
                 : agencyInfo;
         }
+
+
+        public Task<Result<AgencyInfo>> GetRoot(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => GetAgency(agencyId)
+                .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
 
 
         public Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
@@ -79,7 +83,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => (
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
-                    join cp in _context.Counterparties on a.CounterpartyId equals cp.Id
                     join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
                     from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
                     where a.ParentId == parentAgencyId

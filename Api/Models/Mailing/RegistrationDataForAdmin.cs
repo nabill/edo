@@ -7,14 +7,14 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public class RegistrationDataForAdmin : DataWithCompanyInfo
     {
-        public CounterpartyRegistrationMailData Counterparty { get; set; }
+        public RootAgencyRegistrationMailData Agency { get; set; }
 
         public string AgentEmail { get; set; }
 
         public string AgentName { get; set; }
 
 
-        public struct CounterpartyRegistrationMailData
+        public struct RootAgencyRegistrationMailData
         {
             public string Name { get; set; }
 

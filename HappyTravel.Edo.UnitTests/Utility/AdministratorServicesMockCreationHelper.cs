@@ -40,14 +40,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
-        {
-            return new(context,
-                Mock.Of<IManagementAuditService>(),
-                Mock.Of<IDateTimeProvider>());
-        }
-
-
         public AdminAgencyManagementService GetAgencyManagementService(EdoContext context) 
             => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>());
 
@@ -65,8 +57,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     });
                     return Task.FromResult(Result.Success());
                 });
-
-            var counterpartyManagementServiceMock = GetCounterpartyManagementService(context);
 
             var agentService = new Api.Services.Agents.AgentService(context, Mock.Of<IDateTimeProvider>());
 

@@ -56,25 +56,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets a list of all bookings made by the counterparty
-        /// </summary>
-        /// <param name="counterpartyId">Counterparty Id</param>
-        /// <returns>List of bookings</returns>
-        [HttpGet("counterparties/{counterpartyId}/accommodations/bookings")]
-        [ProducesResponseType(typeof(List<Booking>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> GetCounterpartyBookings([FromRoute] int counterpartyId)
-        {
-            var (_, isFailure, bookings, error) = await _bookingService.GetCounterpartyBookings(counterpartyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookings);
-        }
-
-
-        /// <summary>
         ///     Gets a list of all bookings made by the agent
         /// </summary>
         /// <param name="agentId">Agent Id</param>

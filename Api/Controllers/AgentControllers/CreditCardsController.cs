@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Returns cards, available for current agent/counterparty
+        ///     Returns cards, available for current agent/agency
         /// </summary>
         /// <returns>List of cards.</returns>
         [HttpGet]

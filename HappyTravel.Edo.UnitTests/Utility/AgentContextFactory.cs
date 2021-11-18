@@ -7,13 +7,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
     {
         public static AgentContext CreateByAgentId(int agentId)
         {
-            return new(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, 0, string.Empty, default, true, InAgencyPermissions.All);
+            return new(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, 0, string.Empty, true, InAgencyPermissions.All);
         }
 
 
-        public static AgentContext CreateWithCounterpartyAndAgency(int agentId, int counterpartyId, int agencyId)
+        public static AgentContext CreateWithCounterpartyAndAgency(int agentId, int agencyId)
         {
-            return new(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, agencyId, true, InAgencyPermissions.All);
+            return new(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, agencyId, string.Empty, true, InAgencyPermissions.All);
         }
     }
 }

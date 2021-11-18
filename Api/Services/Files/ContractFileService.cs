@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -25,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Files
         {
             return await GetAgency()
                 .Ensure(agency => agency.ParentId == null, "Couldn't get a contract file")
-                .Bind(_ => _contractFileManagementService.Get(agentContext.CounterpartyId));
+                .Bind(_ => _contractFileManagementService.Get(agentContext.AgencyId));
 
 
             async Task<Result<Agency>> GetAgency() => await _edoContext.Agencies.SingleAsync(a => a.Id == agentContext.AgencyId && a.IsActive);

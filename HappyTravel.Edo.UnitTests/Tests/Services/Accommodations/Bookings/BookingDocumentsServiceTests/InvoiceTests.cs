@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
@@ -72,10 +73,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),
                 Mock.Of<IAccommodationService>(),
-                Mock.Of<ICounterpartyService>(),
                 invoiceServiceMock.Object,
                 Mock.Of<IReceiptService>(),
-                Mock.Of<IImageFileService>());
+                Mock.Of<IImageFileService>(),
+                Mock.Of<IAdminAgencyManagementService>());
         }
     }
 }

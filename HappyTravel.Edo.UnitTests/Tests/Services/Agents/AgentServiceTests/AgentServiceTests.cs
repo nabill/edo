@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         [Fact]
         public async Task Found_agent_must_match()
         {
-            var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
+            var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos",
                 1, "agencyName", true, new int[] {0}, true);
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, AgentContext);
@@ -67,8 +67,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             Assert.Equal(expectedAgent.Email, actualAgent.Email);
             Assert.Equal(expectedAgent.Title, actualAgent.Title);
             Assert.Equal(expectedAgent.Position, actualAgent.Position);
-            Assert.Equal(expectedAgent.CounterpartyId, actualAgent.CounterpartyId);
-            Assert.Equal(expectedAgent.CounterpartyName, actualAgent.CounterpartyName);
             Assert.Equal(expectedAgent.AgencyId, actualAgent.AgencyId);
             Assert.Equal(expectedAgent.AgencyName, actualAgent.AgencyName);
             Assert.Equal(expectedAgent.IsMaster, actualAgent.IsMaster);
@@ -211,7 +209,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             }
         };
 
-        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithCounterpartyAndAgency(3, 1, 1);
+        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithCounterpartyAndAgency(3, 1);
         private readonly AgentService _agentService;
 
         public void Dispose() { }

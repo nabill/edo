@@ -26,16 +26,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<List<Booking>>> GetCounterpartyBookings(int counterpartyId)
-        {
-            var counterparty = await _context.Counterparties.SingleOrDefaultAsync(counterparty => counterparty.Id == counterpartyId);
-            if (counterparty is null)
-                return Result.Failure<List<Booking>>($"Counterparty with ID {counterpartyId} not found");
-
-            return await _context.Bookings.Where(booking => booking.CounterpartyId == counterpartyId).ToListAsync();
-        }
-
-
         public async Task<Result<List<Booking>>> GetAgentBookings(int agentId)
         {
             var agent = await _context.Agents.SingleOrDefaultAsync(agent => agent.Id == agentId);

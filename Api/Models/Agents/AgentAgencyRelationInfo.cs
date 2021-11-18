@@ -5,11 +5,9 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct AgentAgencyRelationInfo
     {
-        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions,
+        public AgentAgencyRelationInfo(int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions,
             AgencyVerificationStates agencyVerificationState, PaymentTypes defaultPaymentType)
         {
-            Id = id;
-            Name = name;
             AgencyId = agencyId;
             AgencyName = agencyName;
             IsMaster = isMaster;
@@ -20,17 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
 
 
         /// <summary>
-        ///     Id of the counterparty.
-        /// </summary>
-        public int Id { get; }
-
-        /// <summary>
-        ///     Name of the counterparty.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        ///     Id of the agency of the counterparty, to which the agent belongs.
+        ///     Id of the agency, to which the agent belongs.
         /// </summary>
         public int AgencyId { get; }
 
@@ -40,17 +28,17 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string AgencyName { get; }
 
         /// <summary>
-        ///     Flag indicating that agent is master in this counterparty.
+        ///     Flag indicating that agent is master in this agency.
         /// </summary>
         public bool IsMaster { get; }
 
         /// <summary>
-        ///     List of permissions in current counterparty.
+        ///     List of permissions in current agency.
         /// </summary>
         public List<InAgencyPermissions> InAgencyPermissions { get; }
 
         /// <summary>
-        /// State of the counterparty
+        /// State of the agency
         /// </summary>
         public AgencyVerificationStates AgencyVerificationState { get; }
 

@@ -125,8 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         on cr.AgentId equals agent.Id
                     join agency in _context.Agencies
                         on cr.AgencyId equals agency.Id
-                    join counterparty in _context.Counterparties
-                        on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agentContext.AgencyId && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(
                         agent.Id,
@@ -135,8 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         agent.Email,
                         agent.Title,
                         agent.Position,
-                        counterparty.Id,
-                        counterparty.Name,
                         cr.AgencyId,
                         agency.Name,
                         cr.Type == AgentAgencyRelationTypes.Master,
@@ -157,14 +153,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return await (from cr in _context.AgentAgencyRelations
                 join ag in _context.Agencies
                     on cr.AgencyId equals ag.Id
-                join co in _context.Counterparties
-                    on ag.CounterpartyId equals co.Id
                 join ra in _context.Agencies
                     on ag.Ancestors.Any() ? ag.Ancestors[0] : ag.Id equals ra.Id
                 where ag.IsActive && cr.AgentId == agent.AgentId
                 select new AgentAgencyRelationInfo(
-                    co.Id,
-                    co.Name,
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,

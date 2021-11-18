@@ -14,11 +14,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 ? TimeSpan.Zero
                 : shiftValue;
 
+            if (deadline.Date == default(DateTime))
+                throw new ArgumentException($"Deadline date '{deadline.Date}' is invalid", nameof(deadline.Date));
+            
+            if (checkInDate == default(DateTime))
+                throw new ArgumentException($"Check in date '{checkInDate}' is invalid", nameof(checkInDate));
+                
             var shiftedDeadlineDate = ShiftDate(deadline.Date, checkInDate, shiftValue);
             List<CancellationPolicy> shiftedPolicies = new List<CancellationPolicy>();
             foreach (var policy in deadline.Policies)
             {
-                var shiftedPolicyDate = ShiftDate(policy.FromDate, policy.FromDate, shiftValue);
+                if (policy.FromDate == default)
+                    throw new ArgumentException($"Policy date '{policy.FromDate}' is invalid", nameof(policy.FromDate));
+                
+                var shiftedPolicyDate = ShiftDate(policy.FromDate, checkInDate, shiftValue);
                 var percentage = Math.Round(policy.Percentage, 2, MidpointRounding.AwayFromZero);
                 shiftedPolicies.Add(new CancellationPolicy(shiftedPolicyDate, percentage));
             }
