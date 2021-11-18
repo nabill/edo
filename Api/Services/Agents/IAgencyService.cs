@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgencyService
     {
-        Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId);
+        Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int? parentAgencyId);
         
         Task<Result<SlimAgencyInfo>> Get(AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode);
 

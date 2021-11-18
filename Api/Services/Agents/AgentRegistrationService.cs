@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
             Task<Result<AgencyInfo>> CreateRootAgency() 
-                => _agencyService.Create(registrationAgencyInfo, counterpartyId: 0, parentAgencyId: null);
+                => _agencyService.Create(registrationAgencyInfo, parentAgencyId: null);
 
 
             async Task<Result<(AgencyInfo, Agent)>> CreateAgent(AgencyInfo agency)

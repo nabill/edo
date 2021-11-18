@@ -22,14 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result> UpdateAgentFormula(int agentId, int agencyId)
         {
-            var counterpartyId = await (from relation in _context.AgentAgencyRelations
-                join agency in _context.Agencies on relation.AgencyId equals agency.Id
-                where relation.AgencyId == agencyId && relation.AgentId == agentId
-                select agency.CounterpartyId).SingleOrDefaultAsync();
-
-            if (counterpartyId == default)
-                return Result.Failure<Agent>($"Agent with id {agentId} not found in agency with id {agencyId}");
-
             var formula = await GetAgentMarkupFormula(agentId, agencyId);
             var displayedMarkupFormula = await _context.DisplayMarkupFormulas
                 .SingleOrDefaultAsync(f => f.AgencyId == agencyId && f.AgentId == agentId);
@@ -38,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
                 {
-                    CounterpartyId = counterpartyId,
+                    CounterpartyId = 0,
                     AgencyId = agencyId,
                     AgentId = agentId,
                     DisplayFormula = formula
@@ -57,14 +49,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         public async Task<Result> UpdateAgencyFormula(int agencyId)
         {
-            var counterpartyId = await (from agency in _context.Agencies
-                join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
-                where agency.Id == agencyId
-                select agency.CounterpartyId).SingleOrDefaultAsync(); 
-            
-            if (counterpartyId == default)
-                return Result.Failure($"Agency with id '{agencyId}' not found");
-            
             var formula = await GetAgencyMarkupFormula(agencyId);
             var displayedMarkupFormula = await _context.DisplayMarkupFormulas
                 .SingleOrDefaultAsync(f => f.AgencyId == agencyId && f.AgentId == null);
@@ -73,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
                 {
-                    CounterpartyId = counterpartyId,
+                    CounterpartyId = 0,
                     AgencyId = agencyId,
                     AgentId = null,
                     DisplayFormula = formula

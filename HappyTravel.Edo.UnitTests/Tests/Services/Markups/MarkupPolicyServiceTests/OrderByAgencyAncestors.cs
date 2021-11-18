@@ -17,7 +17,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>{3, 2},
                 AgencyId = 1, 
                 AgentId = 1, 
-                CounterpartyId = 1, 
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
