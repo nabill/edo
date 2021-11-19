@@ -15,7 +15,7 @@ using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServices
+namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices
 {
     public class MapperManagementClient : IMapperManagementClient
     {
@@ -26,11 +26,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServi
         }
         
         
-        public Task<Result<Unit, ProblemDetails>> CombineAccommodations(string baseHtAccommodationId, string combinedHtAccommodationId, CancellationToken cancellationToken = default)
+        public Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
-            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/combine?{nameof(baseHtAccommodationId)}={baseHtAccommodationId}&{nameof(combinedHtAccommodationId)}={combinedHtAccommodationId}";
+            var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
+            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/merge";
             
-            return Post(requestUri, null, cancellationToken);
+            return Post(requestUri, requestContent, cancellationToken);
         }
 
 
@@ -96,6 +97,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServi
             NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
             Converters = { new JsonStringEnumConverter() }
         };
+        
+        
         private readonly IHttpClientFactory _clientFactory;
         private readonly  ILogger<MapperManagementClient> _logger;
     }

@@ -2,12 +2,12 @@
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
-    public readonly struct CombineAccommodationsRequest
+    public readonly struct AccommodationsMergeRequest
     {
         [Required]
         public string BaseHtAccommodationId { get; init; } 
         
         [Required]
-        public string CombinedHtAccommodationId { get; init; }
+        public string HtAccommodationIdToMerge { get; init; }
     }
 }
