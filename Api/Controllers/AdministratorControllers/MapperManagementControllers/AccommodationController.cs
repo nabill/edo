@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)] 
         [AdministratorPermissions(AdministratorPermissions.AccommodationsMerge)]
-        public async Task<IActionResult> Merge([FromBody] MergeAccommodationsRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Merge([FromBody] AccommodationsMergeRequest request, CancellationToken cancellationToken = default)
             => NoContentOrBadRequest(await _mapperManagementClient.MergeAccommodations(request, cancellationToken));
 
         

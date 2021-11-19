@@ -26,9 +26,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
         
         
-        public Task<Result<Unit, ProblemDetails>> MergeAccommodations(MergeAccommodationsRequest mergeAccommodationsRequest, CancellationToken cancellationToken = default)
+        public Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
-            var requestContent = new StringContent(JsonSerializer.Serialize(mergeAccommodationsRequest), Encoding.UTF8, "application/json");
+            var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/AccommodationsManagement/accommodations/merge";
             
             return Post(requestUri, requestContent, cancellationToken);

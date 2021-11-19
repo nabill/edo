@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
 {
     public interface IMapperManagementClient
     {
-        Task<Result<Unit, ProblemDetails>> MergeAccommodations(MergeAccommodationsRequest mergeAccommodationsRequest, CancellationToken cancellationToken);
+        Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken);
 
         Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken);
 
