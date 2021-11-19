@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
         public string BaseHtAccommodationId { get; init; } 
         
         [Required]
-        public string MergedHtAccommodationId { get; init; }
+        public string HtAccommodationIdToMerge { get; init; }
     }
 }
