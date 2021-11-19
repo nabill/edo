@@ -2,11 +2,11 @@ namespace HappyTravel.Edo.Api.Models.Analytics
 {
     public readonly struct AgentAnalyticsInfo
     {
-        public AgentAnalyticsInfo(string counterpartyName)
+        public AgentAnalyticsInfo(string agencyName)
         {
-            CounterpartyName = counterpartyName;
+            AgencyName = agencyName;
         }
         
-        public string CounterpartyName { get; }
+        public string AgencyName { get; }
     }
 }
