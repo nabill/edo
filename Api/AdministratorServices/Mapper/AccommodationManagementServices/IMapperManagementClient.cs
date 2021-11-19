@@ -6,11 +6,11 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.AdministratorServices.AccommodationManagementServices
+namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices
 {
     public interface IMapperManagementClient
     {
-        Task<Result<Unit, ProblemDetails>> CombineAccommodations(string baseHtAccommodationId, string combinedHtAccommodationId, CancellationToken cancellationToken);
+        Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken);
 
         Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken);
 
