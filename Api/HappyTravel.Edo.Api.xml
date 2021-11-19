@@ -596,27 +596,10 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Combine(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.CombineAccommodationsRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MergeAccommodationsRequest,System.Threading.CancellationToken)">
             <summary>
             Combines two accommodations by htAccommodationId
             </summary>
-            <param name="request"></param>
-            <param name="cancellationToken"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.DeactivateBecauseOfInvalidMatching(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
-            <summary>
-            Deactivates accommodations by htId with the reason is invalid mapping 
-            </summary>
-            <param name="request"></param>
-            <param name="cancellationToken"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.RemoveSupplier(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.RemoveSupplierRequest,System.Threading.CancellationToken)">
-            <summary>
-            Removes a supplier from an accommodation
-            </summary>
-            <param name="htAccommodationId"></param>
             <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
