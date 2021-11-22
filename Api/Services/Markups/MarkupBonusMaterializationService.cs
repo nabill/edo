@@ -32,12 +32,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 from appliedMarkup in _context.AppliedBookingMarkups
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
+                let parentId = _context.Agencies
+                    .Where(a => policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && 
+                        a.Id.ToString() == policy.SubjectScopeId && 
+                        policy.Id == appliedMarkup.PolicyId)
+                    .Select(a => a.ParentId)
+                    .SingleOrDefault()
                 where 
                     booking.Status == BookingStatuses.Confirmed &&
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null &&
-                    SupportedPolicyScopeTypes.Contains(policy.SubjectScopeType)
+                    (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent ||
+                    policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && parentId != null)
                 select appliedMarkup.Id;
 
             return query.ToListAsync();
@@ -77,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    AgencyId = policy.SubjectScopeId,
+                    SubjectScopeId = policy.SubjectScopeId,
                     Amount = new MoneyAmount
                     {
                         Amount = appliedMarkup.Amount,
@@ -102,19 +109,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await applyBonusTask;
 
 
-            Task<Result> ApplyAgentScopeBonus() 
-                => ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, data.AgencyId, data.Amount);
+            Task<Result> ApplyAgentScopeBonus()
+            {
+                var agencyId = data.SubjectScopeId.Split("-").First();
+                return ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, agencyId, data.Amount);
+            }
 
 
             async Task<Result> ApplyAgencyScopeBonus()
             {
                 var parentAgencyId = await _context.Agencies
-                    .Where(a => a.Id.ToString() == data.AgencyId)
+                    .Where(a => a.Id.ToString() == data.SubjectScopeId)
                     .Select(a => a.ParentId)
                     .SingleOrDefaultAsync();
                 
                 if (parentAgencyId is null)
-                    return Result.Failure($"Cannot retrieve parent agency for agency id '{data.AgencyId}'");
+                    return Result.Failure($"Cannot retrieve parent agency for agency id '{data.SubjectScopeId}'");
                 
                 return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value.ToString(), data.Amount);
             }
