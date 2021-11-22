@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -111,8 +112,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task<Result> ApplyAgentScopeBonus()
             {
-                var agencyId = data.SubjectScopeId.Split("-").First();
-                return ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, agencyId, data.Amount);
+                var agentInAgency = AgentInAgencyId.Create(data.SubjectScopeId);
+                return ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, agentInAgency.AgencyId, data.Amount);
             }
 
 
@@ -126,15 +127,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 if (parentAgencyId is null)
                     return Result.Failure($"Cannot retrieve parent agency for agency id '{data.SubjectScopeId}'");
                 
-                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value.ToString(), data.Amount);
+                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value, data.Amount);
             }
         }
 
 
-        private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, string agencyId, MoneyAmount amount)
+        private async Task<Result> ApplyAgencyBonus(int policyId, string referenceCode, int agencyId, MoneyAmount amount)
         {
             var bonusAgencyAccount = await _context.AgencyMarkupBonusesAccounts
-                .SingleOrDefaultAsync(a => a.AgencyId.ToString() == agencyId && a.Currency == amount.Currency);
+                .SingleOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == amount.Currency);
 
             if (bonusAgencyAccount is null)
                 return Result.Failure($"Markup bonus account for agency '{agencyId}' with currency {amount.Currency} not found");
