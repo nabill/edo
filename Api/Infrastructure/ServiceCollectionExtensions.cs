@@ -623,7 +623,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 
-            services.AddTransient<ICounterpartySystemSettingsService, CounterpartySystemSettingsService>();
+            services.AddTransient<IRootAgencySystemSettingsService, RootAgencySystemSettingsService>();
 
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 

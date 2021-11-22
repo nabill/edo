@@ -135,7 +135,6 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
                 var (_, isFailure, childAgency, error) = await _agencyService.Create(
                     values.InvitationData.ChildAgencyRegistrationInfo,
-                    counterpartyId: 0,
                     parentAgencyId: inviterAgency.Id);
 
                 if (isFailure)

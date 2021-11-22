@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class CounterpartySystemSettingsService : ICounterpartySystemSettingsService
+    public class RootAgencySystemSettingsService : IRootAgencySystemSettingsService
     {
-        public CounterpartySystemSettingsService(EdoContext context)
+        public RootAgencySystemSettingsService(EdoContext context)
         {
             _context = context;
         }
 
 
-        public async Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentAgencyId)
+        public async Task<RootAgencyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentAgencyId)
         {
             return new()
             {

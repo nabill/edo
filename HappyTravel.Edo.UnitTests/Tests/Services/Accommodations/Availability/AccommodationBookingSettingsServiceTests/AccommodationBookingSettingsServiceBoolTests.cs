@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(CounterpartyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -62,9 +62,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(CounterpartyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -99,9 +99,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsSupplierVisible = expectedSupplierVisible,
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
-            var counterpartySettings = default(CounterpartyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -137,9 +137,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsSupplierVisible = agencySupplierVisible,
                     IsDirectContractFlagVisible = agencyDirectContractFlagVisible
                 });
-            var counterpartySettings = default(CounterpartyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -170,10 +170,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             return mock.Object;
         }
 
-        private (IAgentSystemSettingsService, IAgencySystemSettingsService, ICounterpartySystemSettingsService) GetSettingsServices(
+        private (IAgentSystemSettingsService, IAgencySystemSettingsService, IRootAgencySystemSettingsService) GetSettingsServices(
             Maybe<AgentAccommodationBookingSettings> agentSettings,
             Maybe<AgencyAccommodationBookingSettings> agencySettings,
-            CounterpartyAccommodationBookingSettings counterpartySettings)
+            RootAgencyAccommodationBookingSettings rootAgencySettings)
         {
             var agentMock = new Mock<IAgentSystemSettingsService>();
             agentMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<AgentContext>()))
@@ -183,9 +183,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             agencyMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<int>()))
                 .Returns(() => Task.FromResult(agencySettings));
             
-            var counterpartyMock = new Mock<ICounterpartySystemSettingsService>();
+            var counterpartyMock = new Mock<IRootAgencySystemSettingsService>();
             counterpartyMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<int>()))
-                .Returns(() => Task.FromResult(counterpartySettings));
+                .Returns(() => Task.FromResult(rootAgencySettings));
 
             return (agentMock.Object, agencyMock.Object, counterpartyMock.Object);
         }

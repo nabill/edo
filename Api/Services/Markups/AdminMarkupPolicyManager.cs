@@ -315,7 +315,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
-            int? counterpartyId = null, agencyId = null, agentId = null;
+            int? agencyId = null, agentId = null;
             string? locationId = null;
             
             if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)

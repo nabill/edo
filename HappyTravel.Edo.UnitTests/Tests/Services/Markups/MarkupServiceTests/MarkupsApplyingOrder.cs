@@ -244,7 +244,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         {
             AgentId = 1,
             AgencyId = 1,
-            CounterpartyId = 1,
             AgencyAncestors = new List<int>{ 2000, 1000 },
             CountryHtId = "Country_01"
         };

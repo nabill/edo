@@ -20,14 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
-            ICounterpartySystemSettingsService counterpartySystemSettingsService,
+            IRootAgencySystemSettingsService rootAgencySystemSettingsService,
             IOptions<SupplierOptions> supplierOptions)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
             _supplierOptions = supplierOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
-            _counterpartySystemSettingsService = counterpartySystemSettingsService;
+            _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
         }
 
 
@@ -42,15 +42,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
                 var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
-                var counterpartySettings = await _counterpartySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
+                var rootAgencySettings = await _rootAgencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
 
-                return MergeSettings(agentSettings, agencySettings, counterpartySettings);
+                return MergeSettings(agentSettings, agencySettings, rootAgencySettings);
             }, SettingsCacheLifetime);
         }
 
 
         private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
-            Maybe<AgencyAccommodationBookingSettings> agencySettings, CounterpartyAccommodationBookingSettings counterpartySettings)
+            Maybe<AgencyAccommodationBookingSettings> agencySettings, RootAgencyAccommodationBookingSettings rootAgencySettings)
         {
             var agentSettingsValue = agentSettings.HasValue 
                 ? agentSettings.Value
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             SearchFilters additionalSearchFilters = agentSettingsValue?.AdditionalSearchFilters ?? default;
 
-            var cancellationPolicyProcessSettings = counterpartySettings.CancellationPolicyProcessSettings;
+            var cancellationPolicyProcessSettings = rootAgencySettings.CancellationPolicyProcessSettings;
 
             if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
             {
@@ -99,6 +99,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly SupplierOptions _supplierOptions;
         
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
-        private readonly ICounterpartySystemSettingsService _counterpartySystemSettingsService;
+        private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;
     }
 }

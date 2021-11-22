@@ -18,7 +18,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>(),
                 AgencyId = 1, 
                 AgentId = 1, 
-                CounterpartyId = 1, 
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
@@ -66,7 +65,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>(),
                 AgencyId = 1, 
                 AgentId = 1, 
-                CounterpartyId = 1, 
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
@@ -117,7 +115,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>(),
                 AgencyId = 1,
                 AgentId = 1,
-                CounterpartyId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
@@ -168,7 +165,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>(),
                 AgencyId = 1,
                 AgentId = 1,
-                CounterpartyId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
@@ -219,7 +215,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgencyAncestors = new List<int>(),
                 AgencyId = 1,
                 AgentId = 1,
-                CounterpartyId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow"
             };
