@@ -27,9 +27,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -81,9 +81,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings{ AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -109,9 +109,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -146,9 +146,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -177,9 +177,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 

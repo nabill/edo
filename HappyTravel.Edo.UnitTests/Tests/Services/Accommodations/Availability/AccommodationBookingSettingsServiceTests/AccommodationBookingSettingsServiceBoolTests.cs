@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -62,9 +62,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -99,9 +99,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsSupplierVisible = expectedSupplierVisible,
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
@@ -137,9 +137,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsSupplierVisible = agencySupplierVisible,
                     IsDirectContractFlagVisible = agencyDirectContractFlagVisible
                 });
-            var counterpartySettings = default(RootAgencyAccommodationBookingSettings);
+            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
-            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, counterpartySettings);
+            var (agentSettingsService, agencySettingsService, counterpartySettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<Suppliers> { Suppliers.Unknown } });
             var flow = GetDoubleFlow();
 
