@@ -2,7 +2,6 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.NotificationCenter.Models;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
