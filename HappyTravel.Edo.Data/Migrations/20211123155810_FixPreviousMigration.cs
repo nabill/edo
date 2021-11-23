@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.UpdateData(table, keyColumn, 8, "AdminEmailTemplateId", null);
 
 
-            migrationBuilder.InsertData("DefaultNotificationOptions", new string[] { "Type", "EnabledProtocols", "IsMandatory", "EnabledReceivers", "AgentEmailTemplateId", "AdminEmailTemplateId", "PropertyOwnerEmailTemplateId" },
+            migrationBuilder.InsertData(table, new string[] { "Type", "EnabledProtocols", "IsMandatory", "EnabledReceivers", "AgentEmailTemplateId", "AdminEmailTemplateId", "PropertyOwnerEmailTemplateId" },
                 new object[,]
                 {
                     { (int)NotificationTypes.BookingStatusChangedToPendingOrWaitingForResponse, (int)(ProtocolTypes.Email), false, (int)ReceiverTypes.AdminPanel }
