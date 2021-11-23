@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Notifications.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -66,6 +67,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 role.Name = roleInfo.Name;
                 role.Permissions = roleInfo.Permissions.ToFlags();
+                role.NotificationTypes = roleInfo.NotificationTypes ?? Array.Empty<NotificationTypes>();
 
                 _context.Update(role);
                 return _context.SaveChangesAsync();
