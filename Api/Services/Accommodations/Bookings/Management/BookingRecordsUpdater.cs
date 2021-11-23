@@ -74,10 +74,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             // TODO: remove when we have appropriate admin panel booking monitoring
             if (status == BookingStatuses.Pending || status == BookingStatuses.WaitingForResponse)
             {
-                var bookingInfo = await GetBookingInfo(booking.ReferenceCode);
-
-                if (bookingInfo.IsSuccess)
-                    await _bookingNotificationService.NotifyAdminsStatusChanged(bookingInfo.Value, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+                var (isSuccess, _, bookingInfo, _) = await GetBookingInfo(booking.ReferenceCode);
+                if (isSuccess)
+                    await _bookingNotificationService.NotifyAdminsStatusChanged(bookingInfo);
             }
 
             await _bookingChangeLogService.Write(booking, status, date, apiCaller, reason);

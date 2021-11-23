@@ -17,6 +17,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         
         Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline);
 
-        Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
+        Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo);
     }
 }
