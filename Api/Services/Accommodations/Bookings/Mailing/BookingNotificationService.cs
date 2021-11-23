@@ -17,6 +17,7 @@ using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -148,8 +149,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             };
 
             await _notificationService.Send(messageData: data,
-                    notificationType: NotificationTypes.BookingManualCorrectionNeeded,
-                    emails: _options.CcNotificationAddresses);
+                notificationType: NotificationTypes.BookingManualCorrectionNeeded,
+                emails: _options.CcNotificationAddresses);
+        }
+
+
+        public async Task NotifyAdminsStatusChanged(BookingStatusChangeInfo message)
+        {
+            // TODO: remove when we have appropriate admin panel booking monitoring
+            var data = new BookingChangedStatusData
+            {
+                BookingId = message.BookingId,
+                ReferenceCode = message.ReferenceCode,
+                Status = message.Status,
+                ChangeTime = message.ChangeTime,
+                AccommodationName = message.AccommodationName,
+                AccommodationPhoto = message.AccommodationPhoto,
+                CheckInDate = message.CheckInDate,
+                CheckOutDate = message.CheckOutDate
+            };
+
+            await _notificationService.Send(messageData: data,
+                notificationType: NotificationTypes.BookingStatusChanged,
+                emails: _options.CcNotificationAddresses);
         }
 
 

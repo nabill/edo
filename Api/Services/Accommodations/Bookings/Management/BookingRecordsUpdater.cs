@@ -70,6 +70,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new(JsonSerializerDefaults.Web))), 
                 Notifications.Enums.NotificationTypes.BookingStatusChanged);
 
+            // Temporary hot-fix for notifying admins about bookings statuses changed to "Pending" or "Waiting for response"
+            // TODO: remove when we have appropriate admin panel booking monitoring
+            if (status == BookingStatuses.Pending || status == BookingStatuses.WaitingForResponse)
+                await _bookingNotificationService.NotifyAdminsStatusChanged(message);
+
             await _bookingChangeLogService.Write(booking, status, date, apiCaller, reason);
             
             return status switch
