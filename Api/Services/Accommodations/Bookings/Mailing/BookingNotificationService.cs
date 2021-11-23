@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -148,8 +147,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             };
 
             await _notificationService.Send(messageData: data,
-                    notificationType: NotificationTypes.BookingManualCorrectionNeeded,
-                    emails: _options.CcNotificationAddresses);
+                notificationType: NotificationTypes.BookingManualCorrectionNeeded,
+                emails: _options.CcNotificationAddresses);
+        }
+
+
+        public async Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
+        {
+            // TODO: remove when we have appropriate admin panel booking monitoring
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingStatusChanged);
         }
 
 

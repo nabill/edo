@@ -70,6 +70,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new(JsonSerializerDefaults.Web))), 
                 Notifications.Enums.NotificationTypes.BookingStatusChanged);
 
+            // Temporary hot-fix for notifying admins about bookings statuses changed to "Pending" or "Waiting for response"
+            // TODO: remove when we have appropriate admin panel booking monitoring
+            if (status == BookingStatuses.Pending || status == BookingStatuses.WaitingForResponse)
+            {
+                var bookingInfo = await GetBookingInfo(booking.ReferenceCode);
+
+                if (bookingInfo.IsSuccess)
+                    await _bookingNotificationService.NotifyAdminsStatusChanged(bookingInfo.Value, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+            }
+
             await _bookingChangeLogService.Write(booking, status, date, apiCaller, reason);
             
             return status switch
@@ -85,6 +95,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 BookingStatuses.Pending => Result.Success(),
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Invalid status value")
             };
+
+
+            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode = LocalizationHelper.DefaultLanguageCode)
+                => _infoService.GetAccommodationBookingInfo(referenceCode, languageCode);
         }
 
 
