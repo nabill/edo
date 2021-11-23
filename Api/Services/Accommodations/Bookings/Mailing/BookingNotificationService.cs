@@ -152,10 +152,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public async Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
+        public async Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo)
         {
             // TODO: remove when we have appropriate admin panel booking monitoring
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingStatusChanged);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, 
+                NotificationTypes.BookingStatusChangedToPendingOrWaitingForResponse);
         }
 
 
