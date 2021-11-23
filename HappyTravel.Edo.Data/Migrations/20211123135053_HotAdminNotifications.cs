@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql("update \"DefaultNotificationOptions\" " +
-                "set \"EnabledProtocols\" = 3, \"EnabledReceivers\" = 3, \"AdminEmailTemplateId\" = 'here will be template id' " +
+                "set \"EnabledProtocols\" = 3, \"EnabledReceivers\" = 3, \"AdminEmailTemplateId\" = 'd-4a5ae6b1ffe8437a95d211ac12c053f3' " +
                 "where \"Type\" = 8");
         }
 
