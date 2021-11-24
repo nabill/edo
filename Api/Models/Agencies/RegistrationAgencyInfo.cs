@@ -62,6 +62,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         /// E-mail for billing operations
         /// </summary>
+        [Required]
         public string BillingEmail { get; }
 
         /// <summary>

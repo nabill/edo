@@ -10,7 +10,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.DataFormatters;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Agencies;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -43,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
+                .Bind(Validate)
                 .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateRootAgency)
                     .Bind(CreateAgent)
@@ -53,6 +53,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
+
+            Result Validate()
+                => AgencyValidator.Validate(registrationAgencyInfo);
 
 
             Task<Result<AgencyInfo>> CreateRootAgency() 
