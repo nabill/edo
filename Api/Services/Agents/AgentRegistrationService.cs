@@ -92,6 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 {
                     Agency = new RegistrationDataForAdmin.RootAgencyRegistrationMailData
                     {
+                        Id = agency.Id.ToString(),
                         Name = agency.Name,
                         CountryCode = agency.CountryCode,
                         City = agency.City,
