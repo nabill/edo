@@ -65,15 +65,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var clientId = _tokenInfoAccessor.GetClientId();
 
-            if (clientId is FrontendClientName or AdminAppName)
-                return await GetForFrontendClient();
-
             if (clientId == TravelGateConnectorClientName)
                 return await GetForApiClient();
+            
+            return await GetForFrontendClient();
 
-            return default;
-
-
+            
             async Task<AgentContext> GetForApiClient()
             {
                 var name = GetHeaderValue("X-Api-Client-Name");
@@ -214,8 +211,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private const string FrontendClientName = "matsumoto";
-        private const string AdminAppName = "ueda";
         private const string TravelGateConnectorClientName = "travelgate_channel";
 
         private static readonly TimeSpan AgentContextCacheLifeTime = TimeSpan.FromMinutes(2);
