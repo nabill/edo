@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Gets markup policies for a child agency.
+        /// Gets markup policies for the agency.
         /// </summary>
         /// <param name="agencyId">Agency id</param>
         /// <returns></returns>
