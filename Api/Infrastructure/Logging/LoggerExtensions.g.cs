@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             
             BookingFinalizationSuccess = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1022, "BookingFinalizationSuccess"),
-                "Successfully booked using account. Reference code: '{ReferenceCode}'");
+                "The booking finalization successfully completed. Reference code: '{ReferenceCode}'");
             
             BookingFinalizationException = LoggerMessage.Define(LogLevel.Critical,
                 new EventId(1023, "BookingFinalizationException"),
@@ -103,17 +103,33 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1050, "BookingRegistrationSuccess"),
                 "Successfully registered a booking with reference code: '{ReferenceCode}");
             
-            BookingRegistrationFailure = LoggerMessage.Define<System.Guid, string, string, string>(LogLevel.Error,
+            BookingRegistrationFailure = LoggerMessage.Define<string, string, string, string>(LogLevel.Error,
                 new EventId(1051, "BookingRegistrationFailure"),
-                "Failed to register a booking. AvailabilityId: '{AvailabilityId}'. Itinerary number: {ItineraryNumber}. Passenger name: {MainPassengerName}. Error: {Error}");
+                "Failed to register a booking. HtId: {HtId}, Itinerary number: {ItineraryNumber}. Passenger name: {MainPassengerName}. Error: {Error}");
             
-            BookingByAccountSuccess = LoggerMessage.Define(LogLevel.Information,
+            BookingByAccountSuccess = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1060, "BookingByAccountSuccess"),
-                "Booking by account success");
+                "Successfully booked using account. Reference code: '{ReferenceCode}'}");
             
             BookingByAccountFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
                 new EventId(1061, "BookingByAccountFailure"),
-                "Failed to book using account. Reference code: '{ReferenceCode}'. Error: {Error}");
+                "Failed to book using account. HtId: '{HtId}'. Error: {Error}");
+            
+            BookingByAccountStarted = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1062, "BookingByAccountStarted"),
+                "Book using account started. HtId: '{HtId}'");
+            
+            BookingByOfflinePaymentSuccess = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1063, "BookingByOfflinePaymentSuccess"),
+                "Successfully booked using offline payment. Reference code: '{ReferenceCode}'}");
+            
+            BookingByOfflinePaymentFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
+                new EventId(1064, "BookingByOfflinePaymentFailure"),
+                "Failed to book using offline payment. HtId: '{HtId}'. Error: {Error}");
+            
+            BookingByOfflinePaymentStarted = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1065, "BookingByOfflinePaymentStarted"),
+                "Book using offline payment started. HtId: '{HtId}'");
             
             BookingRefreshStatusSuccess = LoggerMessage.Define<string, HappyTravel.Edo.Common.Enums.BookingStatuses, HappyTravel.EdoContracts.Accommodations.Enums.BookingStatusCodes>(LogLevel.Information,
                 new EventId(1070, "BookingRefreshStatusSuccess"),
@@ -211,13 +227,17 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1300, "ConnectorClientException"),
                 "Connector client exception, url {RequestUrl}, response: {Response}");
             
-            SupplierConnectorRequestError = LoggerMessage.Define<string, string, System.Nullable<int>>(LogLevel.Error,
+            SupplierConnectorRequestError = LoggerMessage.Define<string, string, string, System.Nullable<int>>(LogLevel.Error,
                 new EventId(1301, "SupplierConnectorRequestError"),
-                "Error executing connector request to {Url}: '{Error}', status code: '{Status}'");
+                "Error executing connector request to {Url}: '{Error}', operation: {OperationName}, status code: '{Status}'");
             
-            SupplierConnectorRequestDuration = LoggerMessage.Define<string, long>(LogLevel.Information,
-                new EventId(1302, "SupplierConnectorRequestDuration"),
-                "Request to {Url} finished at {ElapsedMilliseconds} ms.");
+            SupplierConnectorRequestSuccess = LoggerMessage.Define<string, string>(LogLevel.Information,
+                new EventId(1302, "SupplierConnectorRequestSuccess"),
+                "completed executing connector request to {Url}, operation {OperationName}");
+            
+            SupplierConnectorRequestStarted = LoggerMessage.Define<string, string>(LogLevel.Information,
+                new EventId(1303, "SupplierConnectorRequestStarted"),
+                "Started executing connector request to {Url}, operation {OperationName}");
             
             GetTokenForConnectorError = LoggerMessage.Define<string, string, System.DateTime>(LogLevel.Error,
                 new EventId(1310, "GetTokenForConnectorError"),
@@ -363,6 +383,78 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1098, "BookingExceededTimeLimit"),
                 "Booking {ReferenceCode} exceeded time limit");
             
+            InvoiceGenerated = LoggerMessage.Define<string, string>(LogLevel.Information,
+                new EventId(1100, "InvoiceGenerated"),
+                "Generated invoice number {InvoiceNumber} for booking {ReferenceCode}");
+            
+            CreditCardBookingFlowStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1103, "CreditCardBookingFlowStarted"),
+                "Сredit card booking flow started for htId {HtId}");
+            
+            VccIssueStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1104, "VccIssueStarted"),
+                "Vcc issue started for booking {ReferenceCode}");
+            
+            CreditCardAuthorizationStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1110, "CreditCardAuthorizationStarted"),
+                "Credit card authorization started. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1111, "CreditCardAuthorizationSuccess"),
+                "Credit card authorization success. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardAuthorizationFailure = LoggerMessage.Define<string, string>(LogLevel.Information,
+                new EventId(1112, "CreditCardAuthorizationFailure"),
+                "Credit card authorization failed. ReferenceCode: {ReferenceCode}, Error: {Error}");
+            
+            CreditCardCapturingStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1113, "CreditCardCapturingStarted"),
+                "Credit card capturing started. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardCapturingSuccess = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1114, "CreditCardCapturingSuccess"),
+                "Credit card capturing success. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardCapturingFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
+                new EventId(1115, "CreditCardCapturingFailure"),
+                "Credit card capturing failed. ReferenceCode: {ReferenceCode}, Error: {Error}");
+            
+            CreditCardVoidingStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1116, "CreditCardVoidingStarted"),
+                "Credit card voiding started. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardVoidingSuccess = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1117, "CreditCardVoidingSuccess"),
+                "Credit card voiding success. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardVoidingFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
+                new EventId(1118, "CreditCardVoidingFailure"),
+                "Credit card voiding failed. ReferenceCode: {ReferenceCode}, Error: {Error}");
+            
+            CreditCardRefundingStarted = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1119, "CreditCardRefundingStarted"),
+                "Credit card refunding started. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardRefundingSuccess = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1120, "CreditCardRefundingSuccess"),
+                "Credit card refunding success. ReferenceCode: {ReferenceCode}");
+            
+            CreditCardRefundingFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
+                new EventId(1121, "CreditCardRefundingFailure"),
+                "Credit card refunding failed. ReferenceCode: {ReferenceCode}, Error: {Error}");
+            
+            CreditCardProcessingPaymentStarted = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1122, "CreditCardProcessingPaymentStarted"),
+                "Credit card processing payment started");
+            
+            CreditCardProcessingPaymentSuccess = LoggerMessage.Define(LogLevel.Information,
+                new EventId(1123, "CreditCardProcessingPaymentSuccess"),
+                "Credit card processing payment success");
+            
+            CreditCardProcessingPaymentFailure = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1124, "CreditCardProcessingPaymentFailure"),
+                "Credit card processing payment failed. Error: {Error}");
+            
         }
     
                 
@@ -438,14 +530,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogBookingRegistrationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingRegistrationSuccess(logger, ReferenceCode, exception);
                 
-         public static void LogBookingRegistrationFailure(this ILogger logger, System.Guid AvailabilityId, string ItineraryNumber, string MainPassengerName, string Error, Exception exception = null)
-            => BookingRegistrationFailure(logger, AvailabilityId, ItineraryNumber, MainPassengerName, Error, exception);
+         public static void LogBookingRegistrationFailure(this ILogger logger, string HtId, string ItineraryNumber, string MainPassengerName, string Error, Exception exception = null)
+            => BookingRegistrationFailure(logger, HtId, ItineraryNumber, MainPassengerName, Error, exception);
                 
-         public static void LogBookingByAccountSuccess(this ILogger logger, Exception exception = null)
-            => BookingByAccountSuccess(logger, exception);
+         public static void LogBookingByAccountSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => BookingByAccountSuccess(logger, ReferenceCode, exception);
                 
-         public static void LogBookingByAccountFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
-            => BookingByAccountFailure(logger, ReferenceCode, Error, exception);
+         public static void LogBookingByAccountFailure(this ILogger logger, string HtId, string Error, Exception exception = null)
+            => BookingByAccountFailure(logger, HtId, Error, exception);
+                
+         public static void LogBookingByAccountStarted(this ILogger logger, string HtId, Exception exception = null)
+            => BookingByAccountStarted(logger, HtId, exception);
+                
+         public static void LogBookingByOfflinePaymentSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => BookingByOfflinePaymentSuccess(logger, ReferenceCode, exception);
+                
+         public static void LogBookingByOfflinePaymentFailure(this ILogger logger, string HtId, string Error, Exception exception = null)
+            => BookingByOfflinePaymentFailure(logger, HtId, Error, exception);
+                
+         public static void LogBookingByOfflinePaymentStarted(this ILogger logger, string HtId, Exception exception = null)
+            => BookingByOfflinePaymentStarted(logger, HtId, exception);
                 
          public static void LogBookingRefreshStatusSuccess(this ILogger logger, string ReferenceCode, HappyTravel.Edo.Common.Enums.BookingStatuses OldStatus, HappyTravel.EdoContracts.Accommodations.Enums.BookingStatusCodes Status, Exception exception = null)
             => BookingRefreshStatusSuccess(logger, ReferenceCode, OldStatus, Status, exception);
@@ -519,11 +623,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogConnectorClientException(this ILogger logger, string RequestUrl, string Response, Exception exception = null)
             => ConnectorClientException(logger, RequestUrl, Response, exception);
                 
-         public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, System.Nullable<int> Status, Exception exception = null)
-            => SupplierConnectorRequestError(logger, Url, Error, Status, exception);
+         public static void LogSupplierConnectorRequestError(this ILogger logger, string Url, string Error, string OperationName, System.Nullable<int> Status, Exception exception = null)
+            => SupplierConnectorRequestError(logger, Url, Error, OperationName, Status, exception);
                 
-         public static void LogSupplierConnectorRequestDuration(this ILogger logger, string Url, long ElapsedMilliseconds, Exception exception = null)
-            => SupplierConnectorRequestDuration(logger, Url, ElapsedMilliseconds, exception);
+         public static void LogSupplierConnectorRequestSuccess(this ILogger logger, string Url, string OperationName, Exception exception = null)
+            => SupplierConnectorRequestSuccess(logger, Url, OperationName, exception);
+                
+         public static void LogSupplierConnectorRequestStarted(this ILogger logger, string Url, string OperationName, Exception exception = null)
+            => SupplierConnectorRequestStarted(logger, Url, OperationName, exception);
                 
          public static void LogGetTokenForConnectorError(this ILogger logger, string Error, string Token, System.DateTime ExpiryDate, Exception exception = null)
             => GetTokenForConnectorError(logger, Error, Token, ExpiryDate, exception);
@@ -632,6 +739,60 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogBookingExceededTimeLimit(this ILogger logger, string ReferenceCode, Exception exception = null)
             => BookingExceededTimeLimit(logger, ReferenceCode, exception);
+                
+         public static void LogInvoiceGenerated(this ILogger logger, string InvoiceNumber, string ReferenceCode, Exception exception = null)
+            => InvoiceGenerated(logger, InvoiceNumber, ReferenceCode, exception);
+                
+         public static void LogCreditCardBookingFlowStarted(this ILogger logger, string HtId, Exception exception = null)
+            => CreditCardBookingFlowStarted(logger, HtId, exception);
+                
+         public static void LogVccIssueStarted(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => VccIssueStarted(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardAuthorizationStarted(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardAuthorizationStarted(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardAuthorizationSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardAuthorizationSuccess(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardAuthorizationFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+            => CreditCardAuthorizationFailure(logger, ReferenceCode, Error, exception);
+                
+         public static void LogCreditCardCapturingStarted(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardCapturingStarted(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardCapturingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardCapturingSuccess(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardCapturingFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+            => CreditCardCapturingFailure(logger, ReferenceCode, Error, exception);
+                
+         public static void LogCreditCardVoidingStarted(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardVoidingStarted(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardVoidingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardVoidingSuccess(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardVoidingFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+            => CreditCardVoidingFailure(logger, ReferenceCode, Error, exception);
+                
+         public static void LogCreditCardRefundingStarted(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardRefundingStarted(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardRefundingSuccess(this ILogger logger, string ReferenceCode, Exception exception = null)
+            => CreditCardRefundingSuccess(logger, ReferenceCode, exception);
+                
+         public static void LogCreditCardRefundingFailure(this ILogger logger, string ReferenceCode, string Error, Exception exception = null)
+            => CreditCardRefundingFailure(logger, ReferenceCode, Error, exception);
+                
+         public static void LogCreditCardProcessingPaymentStarted(this ILogger logger, Exception exception = null)
+            => CreditCardProcessingPaymentStarted(logger, exception);
+                
+         public static void LogCreditCardProcessingPaymentSuccess(this ILogger logger, Exception exception = null)
+            => CreditCardProcessingPaymentSuccess(logger, exception);
+                
+         public static void LogCreditCardProcessingPaymentFailure(this ILogger logger, string Error, Exception exception = null)
+            => CreditCardProcessingPaymentFailure(logger, Error, exception);
     
     
         
@@ -683,11 +844,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> BookingRegistrationSuccess;
         
-        private static readonly Action<ILogger, System.Guid, string, string, string, Exception> BookingRegistrationFailure;
+        private static readonly Action<ILogger, string, string, string, string, Exception> BookingRegistrationFailure;
         
-        private static readonly Action<ILogger, Exception> BookingByAccountSuccess;
+        private static readonly Action<ILogger, string, Exception> BookingByAccountSuccess;
         
         private static readonly Action<ILogger, string, string, Exception> BookingByAccountFailure;
+        
+        private static readonly Action<ILogger, string, Exception> BookingByAccountStarted;
+        
+        private static readonly Action<ILogger, string, Exception> BookingByOfflinePaymentSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> BookingByOfflinePaymentFailure;
+        
+        private static readonly Action<ILogger, string, Exception> BookingByOfflinePaymentStarted;
         
         private static readonly Action<ILogger, string, HappyTravel.Edo.Common.Enums.BookingStatuses, HappyTravel.EdoContracts.Accommodations.Enums.BookingStatusCodes, Exception> BookingRefreshStatusSuccess;
         
@@ -737,9 +906,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, string, Exception> ConnectorClientException;
         
-        private static readonly Action<ILogger, string, string, System.Nullable<int>, Exception> SupplierConnectorRequestError;
+        private static readonly Action<ILogger, string, string, string, System.Nullable<int>, Exception> SupplierConnectorRequestError;
         
-        private static readonly Action<ILogger, string, long, Exception> SupplierConnectorRequestDuration;
+        private static readonly Action<ILogger, string, string, Exception> SupplierConnectorRequestSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> SupplierConnectorRequestStarted;
         
         private static readonly Action<ILogger, string, string, System.DateTime, Exception> GetTokenForConnectorError;
         
@@ -812,5 +983,41 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> NGeniusWebhookPaymentLinkUpdate;
         
         private static readonly Action<ILogger, string, Exception> BookingExceededTimeLimit;
+        
+        private static readonly Action<ILogger, string, string, Exception> InvoiceGenerated;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardBookingFlowStarted;
+        
+        private static readonly Action<ILogger, string, Exception> VccIssueStarted;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardAuthorizationStarted;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardAuthorizationSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> CreditCardAuthorizationFailure;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardCapturingStarted;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardCapturingSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> CreditCardCapturingFailure;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardVoidingStarted;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardVoidingSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> CreditCardVoidingFailure;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardRefundingStarted;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardRefundingSuccess;
+        
+        private static readonly Action<ILogger, string, string, Exception> CreditCardRefundingFailure;
+        
+        private static readonly Action<ILogger, Exception> CreditCardProcessingPaymentStarted;
+        
+        private static readonly Action<ILogger, Exception> CreditCardProcessingPaymentSuccess;
+        
+        private static readonly Action<ILogger, string, Exception> CreditCardProcessingPaymentFailure;
     }
 }

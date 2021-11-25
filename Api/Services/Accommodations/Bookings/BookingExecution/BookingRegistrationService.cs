@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -16,6 +17,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
@@ -23,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage, ILogger<BookingRegistrationService> logger)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -32,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
             _requestStorage = requestStorage;
+            _logger = logger;
         }
         
         
@@ -46,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder); 
 
+            _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
             return booking;
 
 
@@ -246,6 +250,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestStorage _requestStorage;
-        
+        private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
