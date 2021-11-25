@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 v.RuleFor(c => c.Address).NotEmpty();
                 v.RuleFor(c => c.LegalAddress).NotEmpty();
                 v.RuleFor(c => c.Phone).NotEmpty();
-                v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
+                v.RuleFor(c => c.BillingEmail).NotEmpty().EmailAddress();
             }, agencyInfo);
         }
     }
