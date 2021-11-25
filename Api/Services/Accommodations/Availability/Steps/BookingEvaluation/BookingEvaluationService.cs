@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 {
                     var markupAmount = appliedMarkup.After.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
-                    int? agentId = null, agencyId = null, counterpartyId = null;
+                    int? agentId = null, agencyId = null;
                     switch (appliedMarkup.Policy.SubjectScopeType)
                     {
                         case SubjectMarkupScopeTypes.Agent:

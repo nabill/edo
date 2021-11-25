@@ -186,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
-                booking.CounterpartyId,
+                booking.AgencyId,
                 booking.PaymentStatus,
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
                 supplier,
@@ -248,7 +248,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     where agent.Id == booking.AgentId && agency.Id == booking.AgencyId
                     let agentName = $"{agent.FirstName} {agent.LastName}"
                     select new AccommodationBookingInfo.BookingAgentInformation(agentName,
-                        agency.Name, string.Empty, agent.Email);
+                        agency.Name, agent.Email);
 
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }

@@ -31,13 +31,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int counterpartyId, int? parentAgencyId)
-            => await Create(agencyInfo.Name, counterpartyId, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
+        public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int? parentAgencyId)
+            => await Create(agencyInfo.Name, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
                 agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
                 parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
 
 
-        private async Task<Result<AgencyInfo>> Create(string name, int counterpartyId, string address, string billingEmail, string fax, string phone,
+        private async Task<Result<AgencyInfo>> Create(string name, string address, string billingEmail, string fax, string phone,
             string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
             PaymentTypes preferredPaymentMethod, string localityHtId)
         {
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agency = new Agency
             {
                 Name = name,
-                CounterpartyId = counterpartyId,
+                CounterpartyId = 0,
                 Created = now,
                 Modified = now,
                 ParentId = parentAgencyId,

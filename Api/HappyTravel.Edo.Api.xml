@@ -596,7 +596,7 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MergeAccommodationsRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsMergeRequest,System.Threading.CancellationToken)">
             <summary>
             Combines two accommodations by htAccommodationId
             </summary>

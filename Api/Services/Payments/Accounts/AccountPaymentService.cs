@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .SingleOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agencyId && a.IsActive);
 
             return accountInfo == null
-                ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
+                ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current agency")
                 : Result.Success(new AccountBalanceInfo(accountInfo.Balance, accountInfo.Currency));
         }
 
