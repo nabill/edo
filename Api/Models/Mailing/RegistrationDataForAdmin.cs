@@ -16,6 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
         public struct RootAgencyRegistrationMailData
         {
+            public string Id { get; set; }
+
             public string Name { get; set; }
 
             public string Address { get; set; }
