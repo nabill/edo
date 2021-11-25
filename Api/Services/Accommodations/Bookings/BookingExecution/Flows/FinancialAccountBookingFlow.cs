@@ -43,14 +43,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             AgentContext agentContext, string languageCode, string clientIp)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
-            
+            _logger.LogBookingByAccountStarted(bookingRequest.HtId);
+
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Map(RegisterBooking)
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest)
-                .Bind(GetAccommodationBookingInfo);
+                .Bind(GetAccommodationBookingInfo)
+                .Finally(WriteLog);
 
 
             bool IsDeadlinePassed(Data.Bookings.Booking booking)
@@ -85,22 +87,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
                 => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
+
             
-            
-            // TODO NIJO-1135: Revert logging in further refactoring steps
-            // void WriteLogFailure(ProblemDetails problemDetails)
-            //     => _logger.LogBookingByAccountFailure(referenceCode, problemDetails.Detail);
-            //
-            //
-            // Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result)
-            //     => LoggerUtils.WriteLogByResult(result,
-            //         () => _logger.LogBookingFinalizationSuccess(booking.ReferenceCode),
-            //         () => _logger.LogBookingFinalizationFailure(
-            //             $"Failed to book using account. Reference code: '{booking.ReferenceCode}'. Error: {result.Error.Detail}"));
+            Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
+                => LoggerUtils.WriteLogByResult(result,
+                    () => _logger.LogBookingByAccountSuccess(result.Value.BookingDetails.ReferenceCode),
+                    () => _logger.LogBookingByAccountFailure(bookingRequest.HtId, result.Error));
         }
-        
-        
-        
+
+
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;

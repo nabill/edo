@@ -45,9 +45,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public async Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent)
         {
             var convertedRoomContractSets = new List<RoomContractSet>(response.RoomContractSets.Count);
+            var subjectInfo = agent.ToMarkupSubjectInfo();
             foreach (var roomContractSet in response.RoomContractSets)
             {
-                var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
+                var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(subjectInfo,
                     roomContractSet,
                     async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                     _ => GetMarkupDestinationInfo(response));

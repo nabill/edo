@@ -173,6 +173,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         {
             if (availabilityInfo.CardRequirement is null)
                 return null;
+            
+            _logger.LogVccIssueStarted(booking.ReferenceCode);
 
             return await _creditCardProvider.Get(referenceCode: booking.ReferenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,

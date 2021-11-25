@@ -77,7 +77,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
 
             var appliedPolicy = data.SupplierDeadline.Policies
                 .OrderBy(policy => policy.FromDate)
-                .Last(policy => policy.FromDate <= data.CancellationDate);
+                .LastOrDefault(policy => policy.FromDate <= data.CancellationDate);
+
+            if (appliedPolicy is null)
+                return data.SupplierPrice;
             
             var multiplier = (decimal) appliedPolicy.Percentage / 100;
             
