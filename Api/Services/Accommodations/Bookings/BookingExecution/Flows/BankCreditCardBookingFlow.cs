@@ -44,11 +44,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
-            
+            _logger.LogCreditCardBookingFlowStarted(bookingRequest.HtId);
+
             var (_, isFailure, booking, error) = await GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Map(Register)
-                .Check(SendEmailToPropertyOwner);
+                .Check(SendEmailToPropertyOwner)
+                .Finally(WriteLog);
 
             if (isFailure)
                 return Result.Failure<string>(error);
@@ -70,12 +72,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
                 => await _bookingConfirmationService.SendConfirmationEmail(booking);
 
-
-            // TODO NIJO-1135: Revert logging in further refactoring steps
-            // Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
-            //     => LoggerUtils.WriteLogByResult(result,
-            //         () => _logger.LogBookingRegistrationSuccess(result.Value),
-            //         () => _logger.LogBookingRegistrationFailure(availabilityId, bookingRequest.ItineraryNumber, bookingRequest.MainPassengerName, result.Error.Detail));
+            
+            Result<Booking> WriteLog(Result<Booking> result)
+                => LoggerUtils.WriteLogByResult(result,
+                    () => _logger.LogBookingRegistrationSuccess(result.Value.ReferenceCode),
+                    () => _logger.LogBookingRegistrationFailure(bookingRequest.HtId, bookingRequest.ItineraryNumber, bookingRequest.MainPassengerName, result.Error));
         }
         
         
@@ -87,7 +88,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(NotifyPaymentReceived)
-                .Bind(GetAccommodationBookingInfo);
+                .Bind(GetAccommodationBookingInfo)
+                .Finally(WriteLog);
 
             
             Task<Result<Booking>> GetBooking()
@@ -141,6 +143,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
                 => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
+            
+            
+            Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
+                => LoggerUtils.WriteLogByResult(result,
+                    () => _logger.LogBookingFinalizationSuccess(result.Value.BookingDetails.ReferenceCode),
+                    () => _logger.LogBookingFinalizationFailure(referenceCode, result.Error));
         }
         
         
