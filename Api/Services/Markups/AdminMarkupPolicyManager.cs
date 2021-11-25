@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -272,6 +271,47 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return Result.Failure($"It is not allowed change location to a new type");
             
             return await Modify(policyId, settings);
+        }
+
+
+        public Task<Result> AddAgencyPolicy(int agencyId, MarkupPolicySettings settings) 
+            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(SubjectMarkupScopeTypes.Agency, agencyId)));
+
+
+        public Task<List<MarkupInfo>> GetForAgency(int agencyId)
+        {
+            return _context.MarkupPolicies
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .OrderBy(p => p.Order)
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .ToListAsync();
+        }
+
+
+        public async Task<Result> RemoveAgencyPolicy(int agencyId, int policyId)
+        {
+            var isAgencyPolicy = await _context.MarkupPolicies
+                .AnyAsync(p =>
+                    p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
+                    p.SubjectScopeId == agencyId.ToString() &&
+                    p.Id == policyId);
+            
+            return isAgencyPolicy
+                ? await Remove(policyId)
+                : Result.Failure($"Policy '{policyId}' not found or not agency");
+        }
+
+
+        public async Task<Result> ModifyForAgency(int agencyId, int policyId, MarkupPolicySettings settings)
+        {
+            var policy = await _context.MarkupPolicies
+                .FirstOrDefaultAsync(p => p.Id == policyId && 
+                    p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
+                    p.SubjectScopeId == agencyId.ToString());
+
+            return policy is null 
+                ? Result.Failure($"Policy '{policyId}' not found") 
+                : await Modify(policyId, settings);
         }
 
 
