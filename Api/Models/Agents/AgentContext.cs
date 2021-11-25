@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agents
@@ -6,7 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         public AgentContext(int agentId, string firstName, string lastName, string email,
             string title, string position, int agencyId, string agencyName, bool isMaster,
-            InAgencyPermissions inAgencyPermissions)
+            InAgencyPermissions inAgencyPermissions, string countryHtId, string localityHtId,
+            List<int> agencyAncestors)
         {
             AgentId = agentId;
             FirstName = firstName;
@@ -18,6 +20,9 @@ namespace HappyTravel.Edo.Api.Models.Agents
             AgencyName = agencyName;
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
+            CountryHtId = countryHtId;
+            LocalityHtId = localityHtId;
+            AgencyAncestors = agencyAncestors;
         }
 
 
@@ -52,6 +57,9 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string AgencyName { get; }
         public bool IsMaster { get; }
         public InAgencyPermissions InAgencyPermissions { get; }
+        public string CountryHtId { get; }
+        public string LocalityHtId { get; }
+        public List<int> AgencyAncestors { get; }
         public string Title { get; }
         public string Position { get; }
     }
