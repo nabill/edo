@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
-using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,12 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
+            var subjectInfo = agent.ToMarkupSubjectInfo();
             foreach (var slimAccommodationAvailability in results)
             {
                 var convertedRoomContractSets = new List<RoomContractSet>(slimAccommodationAvailability.RoomContractSets.Count);
                 foreach (var roomContractSet in slimAccommodationAvailability.RoomContractSets)
                 {
-                    var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(agent,
+                    var convertedRoomContractSet = await _priceProcessor.ApplyMarkups(subjectInfo,
                         roomContractSet,
                         async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                         _ => GetMarkupDestinationInfo(slimAccommodationAvailability));
@@ -135,5 +136,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         private readonly IPriceProcessor _priceProcessor;
+        private readonly IAgencyService _agencyService;
     }
 }

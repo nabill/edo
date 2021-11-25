@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
@@ -24,8 +25,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IBookingChangeLogService changeLogService, 
             ISupplierOrderService supplierOrderService, 
             IBookingRequestStorage requestStorage, 
-            IAccommodationService accommodationService) 
-            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage)
+            IAccommodationService accommodationService,
+            ILogger<DirectApiBookingRegistrationService> logger) 
+            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, logger)
         {
             _accommodationService = accommodationService;
         }
