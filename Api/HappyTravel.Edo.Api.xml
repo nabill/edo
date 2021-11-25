@@ -2132,6 +2132,46 @@
             List of available room contracts sets
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Id">
+            <summary>
+                Id of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Name">
+            <summary>
+                Name of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.CountryName">
+            <summary>
+            Country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.VerificationState">
+            <summary>
+            Verification state of the agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.IsActive">
+            <summary>
+            Activity status
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManagerName">
+            <summary>
+            Name of the account manager
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Created">
+            <summary>
+            Agency creation date
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
             <summary>
             Account id

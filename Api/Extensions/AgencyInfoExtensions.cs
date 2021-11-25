@@ -36,5 +36,20 @@ namespace HappyTravel.Edo.Api.Extensions
                 isContractUploaded: agency.IsContractUploaded,
                 markupDisplayFormula: markupFormula,
                 preferredCurrency: agency.PreferredCurrency);
+
+
+        public static AdminViewAgencyInfo ToAdminViewAgencyInfo(this Agency agency, AgencyVerificationStates verificationState,
+            string accountManagerName, string countryNames, string languageCode)
+            => new AdminViewAgencyInfo()
+            {
+                Id = agency.Id,
+                Name = agency.Name,
+                City = agency.City,
+                CountryName = LocalizationHelper.GetValueFromSerializedString(countryNames, languageCode),
+                Created = agency.Created,
+                VerificationState = verificationState,
+                AccountManagerName = accountManagerName,
+                IsActive = agency.IsActive
+            };
     }
 }
