@@ -143,7 +143,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         agency.Id,
                         agency.Name,
                         agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        inAgencyPermissions))
+                        inAgencyPermissions,
+                        agency.CountryHtId,
+                        agency.LocalityHtId,
+                        agency.Ancestors))
                 .SingleOrDefaultAsync();
         }
 
@@ -166,7 +169,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         agency.Id,
                         agency.Name,
                         agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        inAgencyPermissions))
+                        inAgencyPermissions,
+                        agency.CountryHtId,
+                        agency.LocalityHtId,
+                        agency.Ancestors))
                 .SingleOrDefaultAsync();
         }
 

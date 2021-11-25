@@ -54,7 +54,11 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         AgencyId = agency.Id,
                         AgencyName = agency.Name,
                         IsMaster = agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        agentAgencyRelation.AgentRoleIds})
+                        agentAgencyRelation.AgentRoleIds,
+                        CountryHtId = agency.CountryHtId,
+                        LocalityHtId = agency.LocalityHtId,
+                        AgencyAncestors = agency.Ancestors
+                    })
                 .SingleOrDefaultAsync();
 
             if (data is null)
@@ -69,7 +73,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 agencyId: data.AgencyId,
                 agencyName: data.AgencyName,
                 isMaster: data.IsMaster,
-                inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds));
+                inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds),
+                countryHtId: data.CountryHtId,
+                localityHtId: data.LocalityHtId,
+                agencyAncestors: data.AgencyAncestors);
         }
         
         

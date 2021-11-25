@@ -15,11 +15,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class PriceProcessor : IPriceProcessor
     {
-        public PriceProcessor(IMarkupService markupService, ICurrencyConverterService currencyConverter, IAgencyService agencyService)
+        public PriceProcessor(IMarkupService markupService, ICurrencyConverterService currencyConverter)
         {
             _markupService = markupService;
             _currencyConverter = currencyConverter;
-            _agencyService = agencyService;
         }
 
 
@@ -32,31 +31,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<TDetails> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
+        public async Task<TDetails> ApplyMarkups<TDetails>(MarkupSubjectInfo subjectInfo, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Func<TDetails, MarkupDestinationInfo> getMarkupDestinationFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var (_, isFailure, agency, error) = await _agencyService.Get(agent);
-            if (isFailure)
-                throw new Exception(error);
-            
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgentId = agent.AgentId,
-                AgencyId = agent.AgencyId,
-                AgencyAncestors = agency.Ancestors,
-                CountryHtId = agency.CountryHtId,
-                LocalityHtId = agency.LocalityHtId
-            };
             var markupDestination = getMarkupDestinationFunc(details);
 
-            return await _markupService.ApplyMarkups(markupSubject, markupDestination, details, priceProcessFunc, logAction);
+            return await _markupService.ApplyMarkups(subjectInfo, markupDestination, details, priceProcessFunc, logAction);
         }
 
 
         private readonly IMarkupService _markupService;
         private readonly ICurrencyConverterService _currencyConverter;
-        private readonly IAgencyService _agencyService;
     }
 }

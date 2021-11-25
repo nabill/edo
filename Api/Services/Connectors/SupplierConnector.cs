@@ -110,6 +110,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(string step, Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {
+            _logger.LogSupplierConnectorRequestStarted(_baseUrl, step);
+            
             using var timer = Counters.SupplierRequestHistogram.WithLabels(step, _supplier.ToString()).NewTimer();
             var result = await funcToExecute();
             timer.Dispose();
@@ -119,9 +121,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                     _supplier.ToString(),
                     result.IsFailure ? result.Error.Status.ToString() : string.Empty)
                 .Inc();
-            
-            if (result.IsFailure)
-                _logger.LogSupplierConnectorRequestError(_baseUrl, result.Error.Detail, result.Error.Status);
+
+            LoggerUtils.WriteLogByResult(result,
+                () => _logger.LogSupplierConnectorRequestSuccess(_baseUrl, step),
+                () => _logger.LogSupplierConnectorRequestError(_baseUrl, result.Error.Detail, step, result.Error.Status));
 
             return result;
         }
