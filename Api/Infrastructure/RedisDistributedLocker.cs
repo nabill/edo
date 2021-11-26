@@ -20,6 +20,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 ? Result.Success()
                 : Result.Failure("Lock was already taken");
         }
+        
+        
+        public Task ReleaseLock(string key)
+        {
+            var redisKey = $"{nameof(RedisDistributedLocker)}::{key}";
+            return _redisDb.LockReleaseAsync(new RedisKey(redisKey), RedisValue.EmptyString);
+        }
 
 
         private readonly IDatabaseAsync _redisDb;
