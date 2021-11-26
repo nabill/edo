@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability()
                 => await _bookingEvaluationStorage.Get(request.SearchId,
-                    request.HtId,
+                    request.AccommodationId,
                     request.RoomContractSetId);
 
 

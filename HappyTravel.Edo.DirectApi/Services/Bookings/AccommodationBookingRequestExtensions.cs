@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
@@ -14,15 +15,13 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 roomDetails: request.RoomDetails
                     .Select(r => r.ToEdoModel())
                     .ToList(),
-                features: request.Features
-                    .Select(f => f.ToEdoModel())
-                    .ToList(),
+                features: new List<Api.Models.Accommodations.AccommodationFeature>(),
                 searchId: request.SearchId,
-                htId: request.HtId,
+                htId: request.AccommodationId,
                 roomContractSetId: request.RoomContractSetId,
-                mainPassengerName: request.MainPassengerName,
-                evaluationToken: request.EvaluationToken,
-                rejectIfUnavailable: request.RejectIfUnavailable);
+                mainPassengerName: GetMainPassengerName(request.RoomDetails),
+                evaluationToken: null,
+                rejectIfUnavailable: true);
         }
 
 
@@ -35,9 +34,12 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        private static Edo.Api.Models.Accommodations.AccommodationFeature ToEdoModel(this AccommodationFeature accommodationFeature)
+        private static string GetMainPassengerName(IEnumerable<BookingRoomDetails> roomDetail)
         {
-            return new Api.Models.Accommodations.AccommodationFeature(accommodationFeature.Type, accommodationFeature.Value);
+            return roomDetail.SelectMany(rd => rd.Passengers)
+                .Where(p => p.IsLeader)
+                .Select(p => $"{p.FirstName} {p.LastName}")
+                .Single();
         }
     }
 }

@@ -35,12 +35,12 @@
             Finalize booking
             </summary>>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String,System.String)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String)">
             <summary>
             Get booking info
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(HappyTravel.Edo.DirectApi.Models.BookingsListFilter)">
             <summary>
             Get bookings
             </summary>
@@ -163,30 +163,14 @@
                 The Modification date of accommodation data
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Nationality">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.AccommodationId">
             <summary>
-                The nationality of a main passenger.
+                Accommodation Id
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.RejectIfUnavailable">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.SearchId">
             <summary>
-                This indicates the system to reject the request when an accommodation has been booked by some one else between
-                availability and booking requests. Default is true.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Residency">
-            <summary>
-                The residency of a main passenger.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.RoomDetails">
-            <summary>
-                Room details from an availability response.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Features">
-            <summary>
-                The selected additional accommodation features, if any.
+                Search Id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.RoomContractSetId">
@@ -194,24 +178,24 @@
                 Identifier of chosen room contract set.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.EvaluationToken">
-            <summary>
-            Token from third step availability search to disallow double bookings
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.MainPassengerName">
-            <summary>
-                The full name of main passenger (buyer).
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ItineraryNumber">
-            <summary>
-                Itinerary number to combine several orders in one pack.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.ReferenceCode">
             <summary>
                 Client booking reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Nationality">
+            <summary>
+                Alpha-2 nationality code for a lead passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.Residency">
+            <summary>
+                Alpha-2 residency of a main passenger.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.AccommodationBookingRequest.RoomDetails">
+            <summary>
+                Room details from an availability response.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.AvailabilityRequest.Ids">
