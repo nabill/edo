@@ -311,7 +311,6 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.Phone).IsRequired();
                 agency.Property(a => a.PreferredCurrency).IsRequired();
                 agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
-                agency.Property(a => a.PreferredPaymentMethod).IsRequired();
                 agency.Property(a => a.LegalAddress).IsRequired();
             });
         }

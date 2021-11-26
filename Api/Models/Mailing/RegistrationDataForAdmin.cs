@@ -22,8 +22,6 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
             public string Address { get; set; }
 
-            public string PreferredPaymentMethod { get; set; }
-
             public string Website { get; set; }
 
             public string CountryCode { get; set; }
