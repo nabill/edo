@@ -2247,11 +2247,6 @@
                 Agency address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.IsContractUploaded">
             <summary>
             True if contract is loaded to agency
@@ -2327,11 +2322,6 @@
                 Vat number of an agency
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
             <summary>
             Account id
@@ -2392,11 +2382,6 @@
                 Vat number of an agency
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.LegalAddress">
             <summary>
                 Agency address.
@@ -2450,11 +2435,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.LegalAddress">
             <summary>
                 Agency address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
@@ -2545,11 +2525,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.LegalAddress">
             <summary>
                 Agency address.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.PreferredPaymentMethod">
-            <summary>
-                Preferable way to do payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.IsContractUploaded">
