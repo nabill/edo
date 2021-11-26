@@ -8,85 +8,51 @@ namespace HappyTravel.Edo.DirectApi.Models
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
-            string referenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
-            Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
-            string evaluationToken, bool rejectIfUnavailable = true)
+        public AccommodationBookingRequest(string accommodationId, string nationality, string residency, 
+            string referenceCode, List<BookingRoomDetails> roomDetails, Guid searchId, Guid roomContractSetId)
         {
-            ItineraryNumber = itineraryNumber;
+            AccommodationId = accommodationId;
             Nationality = nationality;
-            RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             SearchId = searchId;
-            HtId = htId;
             RoomContractSetId = roomContractSetId;
-            EvaluationToken = evaluationToken;
-            MainPassengerName = mainPassengerName.Trim();
             ReferenceCode = referenceCode;
-
-            RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
-            Features = features ?? new List<AccommodationFeature>(0);
+            RoomDetails = roomDetails;
         }
-
-
+        
         /// <summary>
-        ///     The nationality of a main passenger.
+        ///     Accommodation Id
         /// </summary>
-        [Required]
-        public string Nationality { get; }
-
+        public string AccommodationId { get; }
+        
         /// <summary>
-        ///     This indicates the system to reject the request when an accommodation has been booked by some one else between
-        ///     availability and booking requests. Default is true.
+        ///     Search Id
         /// </summary>
-        public bool RejectIfUnavailable { get; }
-
-
-        /// <summary>
-        ///     The residency of a main passenger.
-        /// </summary>
-        [Required]
-        public string Residency { get; }
-
         public Guid SearchId { get; }
-        public string HtId { get; }
-
-        /// <summary>
-        ///     Room details from an availability response.
-        /// </summary>
-        public List<BookingRoomDetails> RoomDetails { get; }
-
-        /// <summary>
-        ///     The selected additional accommodation features, if any.
-        /// </summary>
-        public List<AccommodationFeature> Features { get; }
-
+        
         /// <summary>
         ///     Identifier of chosen room contract set.
         /// </summary>
-        [Required]
         public Guid RoomContractSetId { get; }
-
-        /// <summary>
-        /// Token from third step availability search to disallow double bookings
-        /// </summary>
-        public string EvaluationToken { get; }
-
-        /// <summary>
-        ///     The full name of main passenger (buyer).
-        /// </summary>
-        [Required]
-        public string MainPassengerName { get; }
-
-        /// <summary>
-        ///     Itinerary number to combine several orders in one pack.
-        /// </summary>
-        public string ItineraryNumber { get; }
-        
         
         /// <summary>
         ///     Client booking reference code
         /// </summary>
         public string ReferenceCode { get; }
+        
+        /// <summary>
+        ///     Alpha-2 nationality code for a lead passengers.
+        /// </summary>
+        public string Nationality { get; }
+
+        /// <summary>
+        ///     Alpha-2 residency of a main passenger.
+        /// </summary>
+        public string Residency { get; }
+        
+        /// <summary>
+        ///     Room details from an availability response.
+        /// </summary>
+        public List<BookingRoomDetails> RoomDetails { get; }
     }
 }

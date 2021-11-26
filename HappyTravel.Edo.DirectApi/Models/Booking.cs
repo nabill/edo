@@ -8,16 +8,15 @@ namespace HappyTravel.Edo.DirectApi.Models
 {
     public readonly struct Booking
     {
-        public Booking(string clientReferenceCode, string referenceCode, DateTime created, DateTime checkInDate, DateTime checkOutDate, DateTime deadlineDate, 
-            MoneyAmount totalPrice, BookingStatuses status, List<BookedRoom> rooms, string accommodationId, List<CancellationPolicy> cancellationPolicies, 
-            DateTime? cancelled, bool isAdvancePurchaseRate, bool isPackage)
+        public Booking(string clientReferenceCode, string referenceCode, DateTime created, DateTime checkInDate, DateTime checkOutDate, MoneyAmount totalPrice,
+            BookingStatuses status, List<BookedRoom> rooms, string accommodationId, List<CancellationPolicy> cancellationPolicies, DateTime? cancelled,
+            bool isAdvancePurchaseRate, bool isPackage)
         {
             ClientReferenceCode = clientReferenceCode;
             ReferenceCode = referenceCode;
             Created = created;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            DeadlineDate = deadlineDate;
             TotalPrice = totalPrice;
             Status = status;
             Rooms = rooms;
@@ -31,14 +30,13 @@ namespace HappyTravel.Edo.DirectApi.Models
 
         public string ClientReferenceCode { get; }
         public string ReferenceCode { get; }
+        public string AccommodationId { get; }
         public DateTime Created { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
-        public DateTime DeadlineDate { get; }
         public MoneyAmount TotalPrice { get; }
         public BookingStatuses Status { get; }
         public List<BookedRoom> Rooms { get; }
-        public string AccommodationId { get; }
         public List<CancellationPolicy> CancellationPolicies { get; }
         public DateTime? Cancelled { get; }
         public bool IsAdvancePurchaseRate { get; }
