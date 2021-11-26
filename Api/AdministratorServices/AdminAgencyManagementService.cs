@@ -67,23 +67,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
 
 
-        public async Task<List<AdminViewAgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
-        {
-            var accountManagerRoleId = await _context.AgentRoles
-                .Where(a => a.Name == AccountManagerRoleName)
-                .Select(r => r.Id)
-                .SingleOrDefaultAsync();
-
-            return await (from a in _context.Agencies
+        public Task<List<AdminViewAgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => (from a in _context.Agencies
                 join c in _context.Countries on a.CountryCode equals c.Code
                 from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
-                from agentAccountManager in _context.AgentAgencyRelations.Where(r => r.AgencyId == a.Id && r.IsActive 
-                    && r.AgentRoleIds.Contains(accountManagerRoleId))
-                    .Join(_context.Agents, r => r.AgentId, ag => ag.Id, (r, ag) => ag).Take(1).DefaultIfEmpty()
                 where a.ParentId == null
-                select a.ToAdminViewAgencyInfo(a.VerificationState, $"{agentAccountManager.FirstName} {agentAccountManager.LastName}", c.Names, languageCode))
+                select a.ToAdminViewAgencyInfo(a.VerificationState, string.Empty, c.Names, languageCode))
                 .ToListAsync();
-        }
 
 
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
@@ -255,8 +245,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
-
-        private const string AccountManagerRoleName = "Accounts manager";
 
 
         private readonly IManagementAuditService _managementAuditService;
