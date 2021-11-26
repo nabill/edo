@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider,
+            IBookingEvaluationTokenService bookingEvaluationTokenService,
             IdempotentFunctionExecutor idempotentFunctionExecutor)
         {
             _financialAccountBookingFlow = financialAccountBookingFlow;
@@ -49,6 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _creditCardPaymentService = creditCardPaymentService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
+            _bookingEvaluationTokenService = bookingEvaluationTokenService;
             _idempotentFunctionExecutor = idempotentFunctionExecutor;
         }
 
@@ -88,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agentContext = await _agentContextService.GetAgent();
             var (_, isFailure, bookingInfo, error) = await _idempotentFunctionExecutor.Execute(executingFunction: () => _financialAccountBookingFlow.BookByAccount(request, agentContext, LanguageCode, ClientIp),
-                getResultFunction: () => _bookingInfoService.GetAccommodationBookingInfo(request.EvaluationToken, LanguageCode),
+                getResultFunction: () => _bookingEvaluationTokenService.GetByEvaluationToken(request.EvaluationToken, LanguageCode),
                 operationKey: request.EvaluationToken,
                 maximumDuration: TimeSpan.FromMinutes(2));
                 
@@ -113,7 +116,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agentContext = await _agentContextService.GetAgent();
             var (_, isFailure, bookingInfo, error) = await _idempotentFunctionExecutor.Execute(executingFunction: () => _offlinePaymentBookingFlow.Book(request, agentContext, LanguageCode, ClientIp),
-                getResultFunction: () => _bookingInfoService.GetAccommodationBookingInfo(request.EvaluationToken, LanguageCode),
+                getResultFunction: () => _bookingEvaluationTokenService.GetByEvaluationToken(request.EvaluationToken, LanguageCode),
                 operationKey: request.EvaluationToken,
                 maximumDuration: TimeSpan.FromMinutes(2));
             
@@ -372,6 +375,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingEvaluationTokenService _bookingEvaluationTokenService;
         private readonly IdempotentFunctionExecutor _idempotentFunctionExecutor;
     }
 }

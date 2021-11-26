@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage, ILogger<BookingRegistrationService> logger)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage, IBookingEvaluationTokenService bookingEvaluationTokenService,
+            ILogger<BookingRegistrationService> logger)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -34,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _changeLogService = changeLogService;
             _supplierOrderService = supplierOrderService;
             _requestStorage = requestStorage;
+            _bookingEvaluationTokenService = bookingEvaluationTokenService;
             _logger = logger;
         }
         
@@ -47,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder); 
+                .Tap(CreateSupplierOrder)
+                .Tap(SaveEvaluationTokenMapping); 
 
             _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
             return booking;
@@ -133,6 +136,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
                         ? booking.Created
                         : booking.CheckOutDate);
+
+
+            Task SaveEvaluationTokenMapping(Booking booking) 
+                => _bookingEvaluationTokenService.SaveEvaluationTokenMapping(bookingRequest.EvaluationToken, booking.ReferenceCode);
         }
 
 
@@ -250,6 +257,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingChangeLogService _changeLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestStorage _requestStorage;
+        private readonly IBookingEvaluationTokenService _bookingEvaluationTokenService;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
