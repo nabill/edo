@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public ManagementEditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber,
-            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId)
+            string legalAddress, string localityHtId)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -16,7 +16,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PostalCode = postalCode;
             Website = website;
             VatNumber = vatNumber;
-            PreferredPaymentMethod = preferredPaymentMethod;
             LegalAddress = legalAddress;
             LocalityHtId = localityHtId;
         }
@@ -56,11 +55,6 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Vat number of an agency
         /// </summary>
         public string VatNumber { get; }
-
-        /// <summary>
-        ///     Preferable way to do payments.
-        /// </summary>
-        public PaymentTypes PreferredPaymentMethod { get; }
 
         /// <summary>
         ///     Agency address.
