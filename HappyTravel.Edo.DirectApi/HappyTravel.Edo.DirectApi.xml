@@ -35,12 +35,12 @@
             Finalize booking
             </summary>>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String,System.String)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.Get(System.String)">
             <summary>
             Get booking info
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(System.DateTime,System.DateTime)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.BookingController.GetList(HappyTravel.Edo.DirectApi.Models.BookingsListFilter)">
             <summary>
             Get bookings
             </summary>
