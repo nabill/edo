@@ -99,14 +99,14 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Cancel booking
         /// </summary>
-        [HttpPost("{referenceCode}/cancel")]
-        public async Task<IActionResult> Cancel(string referenceCode)
+        [HttpPost("{clientReferenceCode}/cancel")]
+        public async Task<ActionResult<Booking>> Cancel(string clientReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, error) = await _bookingCancellationService.Cancel(referenceCode, agent);
+            var (isSuccess, _, booking, error) = await _bookingCancellationService.Cancel(clientReferenceCode, agent);
             
             return isSuccess
-                ? NoContent()
+                ? booking
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
