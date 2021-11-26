@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             return roomDetail.SelectMany(rd => rd.Passengers)
                 .Where(p => p.IsLeader)
                 .Select(p => $"{p.FirstName} {p.LastName}")
-                .Single();
+                .First();
         }
     }
 }
