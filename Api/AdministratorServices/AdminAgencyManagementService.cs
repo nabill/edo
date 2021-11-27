@@ -178,6 +178,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 agency.Website = request.Website;
                 agency.BillingEmail = request.BillingEmail;
                 agency.VatNumber = request.VatNumber;
+                agency.PreferredPaymentMethod = request.PreferredPaymentMethod;
                 agency.LegalAddress = request.LegalAddress;
 
                 agency.Modified = _dateTimeProvider.UtcNow();

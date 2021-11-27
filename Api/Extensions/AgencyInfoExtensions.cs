@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 verificationDate: verificationDate,
                 isActive: agency.IsActive,
                 legalAddress: agency.LegalAddress,
+                preferredPaymentMethod: agency.PreferredPaymentMethod,
                 isContractUploaded: agency.IsContractUploaded,
                 markupDisplayFormula: markupFormula,
                 preferredCurrency: agency.PreferredCurrency);
