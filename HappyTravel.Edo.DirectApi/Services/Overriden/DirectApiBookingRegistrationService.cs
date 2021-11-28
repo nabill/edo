@@ -26,9 +26,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             ISupplierOrderService supplierOrderService, 
             IBookingRequestStorage requestStorage, 
             IAccommodationService accommodationService,
-            IBookingEvaluationTokenService evaluationTokenService,
             ILogger<DirectApiBookingRegistrationService> logger) 
-            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, evaluationTokenService, logger)
+            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, logger)
         {
             _accommodationService = accommodationService;
         }
