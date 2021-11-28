@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Locking
             }
 
             // Waiting until lock is released to get the result
-            var attemptCount = Convert.ToInt32((maximumDuration + BufferStepDuration)/ StepDuration);
+            var attemptCount = Convert.ToInt32((maximumDuration + BufferStepDuration) / StepDuration);
             for (var i = 0; i < attemptCount; i++)
             {
                 await Task.Delay(StepDuration);
