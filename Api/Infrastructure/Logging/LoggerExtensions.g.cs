@@ -455,6 +455,18 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1124, "CreditCardProcessingPaymentFailure"),
                 "Credit card processing payment failed. Error: {Error}");
             
+            DiscountStorageRefreshed = LoggerMessage.Define<int>(LogLevel.Debug,
+                new EventId(1130, "DiscountStorageRefreshed"),
+                "Discount storage refreshed. Was set {Count} entities");
+            
+            DiscountStorageUpdateCompleted = LoggerMessage.Define(LogLevel.Debug,
+                new EventId(1131, "DiscountStorageUpdateCompleted"),
+                "Discount storage update completed");
+            
+            DiscountStorageUpdateFailed = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1132, "DiscountStorageUpdateFailed"),
+                "Discount storage update failed");
+            
         }
     
                 
@@ -793,6 +805,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogCreditCardProcessingPaymentFailure(this ILogger logger, string Error, Exception exception = null)
             => CreditCardProcessingPaymentFailure(logger, Error, exception);
+                
+         public static void LogDiscountStorageRefreshed(this ILogger logger, int Count, Exception exception = null)
+            => DiscountStorageRefreshed(logger, Count, exception);
+                
+         public static void LogDiscountStorageUpdateCompleted(this ILogger logger, Exception exception = null)
+            => DiscountStorageUpdateCompleted(logger, exception);
+                
+         public static void LogDiscountStorageUpdateFailed(this ILogger logger, Exception exception = null)
+            => DiscountStorageUpdateFailed(logger, exception);
     
     
         
@@ -1019,5 +1040,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> CreditCardProcessingPaymentSuccess;
         
         private static readonly Action<ILogger, string, Exception> CreditCardProcessingPaymentFailure;
+        
+        private static readonly Action<ILogger, int, Exception> DiscountStorageRefreshed;
+        
+        private static readonly Action<ILogger, Exception> DiscountStorageUpdateCompleted;
+        
+        private static readonly Action<ILogger, Exception> DiscountStorageUpdateFailed;
     }
 }

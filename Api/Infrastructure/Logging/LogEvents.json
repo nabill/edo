@@ -110,5 +110,8 @@
     {"Id": 1121, "name": "CreditCardRefundingFailure", "level": "Error", "template": "Credit card refunding failed. ReferenceCode: {ReferenceCode}, Error: {Error}", "argumentTypes": ["string", "string"]},
     {"Id": 1122, "name": "CreditCardProcessingPaymentStarted", "level": "Information", "template": "Credit card processing payment started"},
     {"Id": 1123, "name": "CreditCardProcessingPaymentSuccess", "level": "Information", "template": "Credit card processing payment success"},
-    {"Id": 1124, "name": "CreditCardProcessingPaymentFailure", "level": "Error", "template": "Credit card processing payment failed. Error: {Error}", "argumentTypes": ["string"]}
+    {"Id": 1124, "name": "CreditCardProcessingPaymentFailure", "level": "Error", "template": "Credit card processing payment failed. Error: {Error}", "argumentTypes": ["string"]},
+    {"Id": 1130, "name": "DiscountStorageRefreshed", "level": "Debug", "template": "Discount storage refreshed. Was set {Count} entities", "argumentTypes": ["int"]},
+    {"Id": 1131, "name": "DiscountStorageUpdateCompleted", "level": "Debug", "template": "Discount storage update completed"},
+    {"Id": 1132, "name": "DiscountStorageUpdateFailed", "level": "Error", "template": "Discount storage update failed"}
 ]
