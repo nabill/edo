@@ -24,7 +24,7 @@
     {"id": 1042, "name": "BookingAlreadyCancelled", "level": "Information", "template": "Skipping cancellation for a booking with reference code: '{ReferenceCode}'. Already cancelled.", "argumentTypes": ["string"]},
     {"id": 1050, "name": "BookingRegistrationSuccess", "level": "Information", "template": "Successfully registered a booking with reference code: '{ReferenceCode}", "argumentTypes": ["string"]},
     {"id": 1051, "name": "BookingRegistrationFailure", "level": "Error", "template": "Failed to register a booking. HtId: {HtId}, Itinerary number: {ItineraryNumber}. Passenger name: {MainPassengerName}. Error: {Error}", "argumentTypes": ["string", "string", "string", "string"]},
-    {"id": 1060, "name": "BookingByAccountSuccess", "level": "Information", "template": "Successfully booked using account. Reference code: '{ReferenceCode}'}", "argumentTypes": ["string"]},
+    {"id": 1060, "name": "BookingByAccountSuccess", "level": "Information", "template": "Successfully booked using account. Reference code: '{ReferenceCode}'", "argumentTypes": ["string"]},
     {"id": 1061, "name": "BookingByAccountFailure", "level": "Error", "template": "Failed to book using account. HtId: '{HtId}'. Error: {Error}", "argumentTypes": ["string", "string"]},
     {"id": 1062, "name": "BookingByAccountStarted", "level": "Error", "template": "Book using account started. HtId: '{HtId}'", "argumentTypes": ["string"]},
     {"id": 1063, "name": "BookingByOfflinePaymentSuccess", "level": "Information", "template": "Successfully booked using offline payment. Reference code: '{ReferenceCode}'}", "argumentTypes": ["string"]},

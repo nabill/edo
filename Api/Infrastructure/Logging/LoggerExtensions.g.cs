@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             
             BookingByAccountSuccess = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1060, "BookingByAccountSuccess"),
-                "Successfully booked using account. Reference code: '{ReferenceCode}'}");
+                "Successfully booked using account. Reference code: '{ReferenceCode}'");
             
             BookingByAccountFailure = LoggerMessage.Define<string, string>(LogLevel.Error,
                 new EventId(1061, "BookingByAccountFailure"),
