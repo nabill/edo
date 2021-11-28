@@ -34,12 +34,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int? parentAgencyId)
             => await Create(agencyInfo.Name, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
                 agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
-                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.LocalityHtId);
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
 
 
         private async Task<Result<AgencyInfo>> Create(string name, string address, string billingEmail, string fax, string phone,
             string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
-            string localityHtId)
+            PaymentTypes preferredPaymentMethod, string localityHtId)
         {
             var ancestors = new List<int>();
             var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
@@ -76,6 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 PreferredCurrency = Currencies.USD,
                 Ancestors = ancestors,
                 LegalAddress = legalAddress,
+                PreferredPaymentMethod = preferredPaymentMethod,
                 LocalityHtId = localityHtId,
                 City = localityInfo.LocalityName,
                 CountryCode = localityInfo.CountryIsoCode,
@@ -110,6 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     verificationState: a.VerificationState,
                     verificationDate: a.VerificationDate,
                     legalAddress: a.LegalAddress,
+                    preferredPaymentMethod: a.PreferredPaymentMethod,
                     isContractUploaded: a.IsContractUploaded));
         }
 
@@ -144,6 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.Website = editAgencyRequest.Website;
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
                 agencyRecord.VatNumber = editAgencyRequest.VatNumber;
+                agencyRecord.PreferredPaymentMethod = editAgencyRequest.PreferredPaymentMethod;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 
