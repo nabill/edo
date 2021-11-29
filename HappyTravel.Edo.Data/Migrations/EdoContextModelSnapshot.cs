@@ -102,6 +102,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("PreferredCurrency")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PreferredPaymentMethod")
+                        .HasColumnType("integer");
+
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
 
