@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services;
@@ -21,12 +22,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AgencyDiscountManagementService(EdoContext context,
             IManagementAuditService managementAuditService,
-            IMarkupPolicyTemplateService templateService
-            )
+            IMarkupPolicyTemplateService templateService, 
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _managementAuditService = managementAuditService;
             _templateService = templateService;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -112,13 +114,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task UpdateDiscount()
             {
+                var now = _dateTimeProvider.UtcNow();
+                
                 _context.Discounts.Add(new Discount
                 {
                     DiscountPercent = createDiscountRequest.DiscountPercent,
                     Description = createDiscountRequest.Description,
                     TargetPolicyId = createDiscountRequest.TargetMarkupId,
                     IsActive = true,
-                    TargetAgencyId = agencyId
+                    TargetAgencyId = agencyId,
+                    Created = now,
+                    Modified = now
                 });
                 return _context.SaveChangesAsync();
             }
@@ -254,6 +260,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private async Task Update(Discount discount, Action<Discount> updateAction)
         {
             updateAction(discount);
+            discount.Modified = _dateTimeProvider.UtcNow();
             _context.Update(discount);
             await _context.SaveChangesAsync();
         }
@@ -269,5 +276,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
         private readonly IMarkupPolicyTemplateService _templateService;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
