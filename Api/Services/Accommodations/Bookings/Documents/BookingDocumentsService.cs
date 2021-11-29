@@ -144,12 +144,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                     accountData = bankDetails.AccountDetails[Currencies.USD];
 
                 var sellerDetails = new BookingInvoiceData.SellerInfo(bankDetails.CompanyName,
-                    bankDetails.BankName, 
+                    accountData.BankName, 
                     bankDetails.BankAddress,
                     accountData.AccountNumber,
-                    accountData.Iban, 
-                    bankDetails.RoutingCode,
-                    bankDetails.SwiftCode);
+                    accountData.Iban,
+                    accountData.RoutingCode,
+                    accountData.SwiftCode);
                 
                 return sellerDetails;
             }

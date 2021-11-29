@@ -297,7 +297,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// Gets a list of all root agencies
         /// </summary>
         [HttpGet("root-agencies")]
-        [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetRootAgencies()
             => Ok(await _agencyManagementService.GetRootAgencies(LanguageCode));

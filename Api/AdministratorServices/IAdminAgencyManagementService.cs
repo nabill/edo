@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<AgencyInfo>> GetRoot(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 
-        Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode);
+        Task<List<AdminViewAgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode);
 
         Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
 

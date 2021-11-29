@@ -416,6 +416,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
             services.Configure<MarkupPolicyStorageOptions>(configuration.GetSection("MarkupPolicyStorageOptions"));
+            services.Configure<DiscountStorageOptions>(configuration.GetSection("DiscountStorageOptions"));
 
             #region Configure NGenius
 
@@ -713,7 +714,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
+            services.AddHostedService<DiscountStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
+            services.AddSingleton<IDiscountStorage, DiscountStorage>();
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
 

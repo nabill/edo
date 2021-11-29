@@ -2164,6 +2164,46 @@
             List of available room contracts sets
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Id">
+            <summary>
+                Id of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Name">
+            <summary>
+                Name of the agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.CountryName">
+            <summary>
+            Country name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.VerificationState">
+            <summary>
+            Verification state of the agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.IsActive">
+            <summary>
+            Activity status
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManagerName">
+            <summary>
+            Name of the account manager
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Created">
+            <summary>
+            Agency creation date
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyAccountInfo.Id">
             <summary>
             Account id
@@ -2279,6 +2319,11 @@
                 Agency address.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.IsContractUploaded">
             <summary>
             True if contract is loaded to agency
@@ -2354,6 +2399,11 @@
                 Vat number of an agency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
             <summary>
             Account id
@@ -2414,6 +2464,11 @@
                 Vat number of an agency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.LegalAddress">
             <summary>
                 Agency address.
@@ -2467,6 +2522,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.LegalAddress">
             <summary>
                 Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
@@ -2557,6 +2617,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.LegalAddress">
             <summary>
                 Agency address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.IsContractUploaded">
