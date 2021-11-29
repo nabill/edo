@@ -10,12 +10,10 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -69,13 +67,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
 
 
-        public Task<List<AgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
-            => (
-                    from a in _context.Agencies
-                    join c in _context.Countries on a.CountryCode equals c.Code
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
-                    where a.ParentId == null
-                    select a.ToAgencyInfo(a.ContractKind, a.VerificationState, a.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+        public Task<List<AdminViewAgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => (from a in _context.Agencies
+                join c in _context.Countries on a.CountryCode equals c.Code
+                from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
+                where a.ParentId == null
+                select a.ToAdminViewAgencyInfo(a.VerificationState, string.Empty, c.Names, languageCode))
                 .ToListAsync();
 
 
