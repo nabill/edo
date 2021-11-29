@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -175,7 +176,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.DestinationScopeId = settings.DestinationScopeId;
                 policy.DestinationScopeType = destinationScopeType.Value;
 
-                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), policy);
+                var policyData = GetPolicyData(policy);
+                if(policyData.IsFailure)
+                    return Result.Failure<MarkupPolicy>(policyData.Error);
+
+                var (_, isFailure, error) = await ValidatePolicy(policyData.Value, policy);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
@@ -190,6 +195,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return (await GetPoliciesForScope(scope))
                 .Select(GetPolicyData)
+                .Where(p => p.IsSuccess)
+                .Select(p => p.Value)
                 .ToList();
         }
 
@@ -353,27 +360,34 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
+        private static Result<MarkupPolicyData> GetPolicyData(MarkupPolicy policy)
         {
             int? agencyId = null, agentId = null;
             string? locationId = null;
-            
-            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
-                agencyId = int.Parse(policy.SubjectScopeId);
 
-            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
+            try
             {
-                var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
-                agencyId = agentInAgencyId.AgencyId;
-                agentId = agentInAgencyId.AgentId;
+                if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
+                    agencyId = int.Parse(policy.SubjectScopeId);
+
+                if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
+                {
+                    var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
+                    agencyId = agentInAgencyId.AgencyId;
+                    agentId = agentInAgencyId.AgentId;
+                }
+
+                if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
+                    locationId = policy.SubjectScopeId;
+
+                return new MarkupPolicyData(policy.Target,
+                    new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
+                    new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
             }
-
-            if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
-                locationId = policy.SubjectScopeId;
-
-            return new MarkupPolicyData(policy.Target,
-                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
-                new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
+            catch (Exception ex)
+            {
+                return Result.Failure<MarkupPolicyData>(ex.Message);
+            }
         }
 
 
