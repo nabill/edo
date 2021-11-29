@@ -13,20 +13,34 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
         public static Booking FromEdoModels(this Data.Bookings.Booking booking)
         {
-            return new Booking(referenceCode: booking.ClientReferenceCode,
-                supplierReferenceCode: booking.ReferenceCode,
+            return new Booking(clientReferenceCode: booking.ClientReferenceCode,
+                referenceCode: booking.ReferenceCode,
                 created: booking.Created,
                 checkInDate: booking.CheckInDate,
                 checkOutDate: booking.CheckOutDate,
-                deadlineDate: booking.DeadlineDate.Value,
                 totalPrice: booking.TotalPrice.ToMoneyAmount(booking.Currency),
                 status: booking.Status,
-                rooms: booking.Rooms,
+                rooms: booking.Rooms.FromEdoModel(),
                 accommodationId: booking.HtId,
                 cancellationPolicies: booking.CancellationPolicies,
                 cancelled: booking.Cancelled,
                 isAdvancePurchaseRate: booking.IsAdvancePurchaseRate,
                 isPackage: booking.IsPackage);
+        }
+
+
+        private static List<BookedRoom> FromEdoModel(this List<Data.Bookings.BookedRoom> bookedRooms)
+        {
+            return bookedRooms.Select(r => new BookedRoom(type: r.Type,
+                isExtraBedNeeded: r.IsExtraBedNeeded,
+                price: r.Price,
+                boardBasis: r.BoardBasis,
+                mealPlan: r.MealPlan,
+                deadlineDate: r.DeadlineDate,
+                contractDescription: r.ContractDescription,
+                remarks: r.Remarks,
+                deadlineDetails: r.DeadlineDetails,
+                passengers: r.Passengers)).ToList();
         }
     }
 }

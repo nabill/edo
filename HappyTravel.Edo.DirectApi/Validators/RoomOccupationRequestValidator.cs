@@ -8,6 +8,8 @@ namespace HappyTravel.Edo.DirectApi.Validators
         public RoomOccupationRequestValidator()
         {
             RuleFor(r => r.AdultsNumber).GreaterThan(0);
+            RuleFor(r => r.IsExtraBedNeeded).NotNull();
+            RuleFor(r => r.Type).NotEmpty().IsInEnum();
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+
 namespace HappyTravel.Edo.Data.Markup
 {
     public class Discount
@@ -8,5 +10,7 @@ namespace HappyTravel.Edo.Data.Markup
         public decimal DiscountPercent { get; set; }
         public bool IsActive { get; set; }
         public string Description { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Modified { get; set; }
     }
 }

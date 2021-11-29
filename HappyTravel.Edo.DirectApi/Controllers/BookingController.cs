@@ -57,12 +57,12 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Finalize booking
         /// </summary>>
-        [HttpPost("{supplierReferenceCode}/finalize")]
-        public async Task<ActionResult<Booking>> Finalize([Required] string supplierReferenceCode)
+        [HttpPost("{clientReferenceCode}/finalize")]
+        public async Task<ActionResult<Booking>> Finalize([Required] string clientReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
 
-            var (isSuccess, _, booking, error) = await _bookingCreationService.Finalize(supplierReferenceCode, agent, "en");
+            var (isSuccess, _, booking, error) = await _bookingCreationService.Finalize(clientReferenceCode, agent, "en");
             
             return isSuccess
                 ? Ok(booking)
@@ -73,11 +73,11 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get booking info
         /// </summary>
-        [HttpGet]
-        public async Task<ActionResult<Booking>> Get(string? referenceCode, string? supplierReferenceCode)
+        [HttpGet("{clientReferenceCode}")]
+        public async Task<ActionResult<Booking>> Get([Required] string clientReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(referenceCode, supplierReferenceCode, agent);
+            var (isSuccess, _, booking, error) = await _bookingInfoService.Get(clientReferenceCode, agent);
             
             return isSuccess
                 ? Ok(booking.FromEdoModels())
@@ -88,25 +88,25 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// <summary>
         /// Get bookings
         /// </summary>
-        [HttpGet("list")]
-        public async Task<ActionResult<List<Booking>>> GetList(DateTime from, DateTime to)
+        [HttpGet]
+        public async Task<ActionResult<List<Booking>>> GetList([FromQuery] BookingsListFilter filters)
         {
             var agent = await _agentContextService.GetAgent();
-            return await _bookingInfoService.Get(from, to, agent);
+            return await _bookingInfoService.Get(filters, agent);
         }
 
 
         /// <summary>
         /// Cancel booking
         /// </summary>
-        [HttpPost("{referenceCode}/cancel")]
-        public async Task<IActionResult> Cancel(string referenceCode)
+        [HttpPost("{clientReferenceCode}/cancel")]
+        public async Task<ActionResult<Booking>> Cancel(string clientReferenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, error) = await _bookingCancellationService.Cancel(referenceCode, agent);
+            var (isSuccess, _, booking, error) = await _bookingCancellationService.Cancel(clientReferenceCode, agent);
             
             return isSuccess
-                ? NoContent()
+                ? booking
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
