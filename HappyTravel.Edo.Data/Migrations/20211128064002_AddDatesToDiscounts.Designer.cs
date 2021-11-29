@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20211126082106_RemovePreferredPaymentMethod")]
-    partial class RemovePreferredPaymentMethod
+    [Migration("20211128064002_AddDatesToDiscounts")]
+    partial class AddDatesToDiscounts
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -977,6 +977,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -985,6 +988,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("TargetAgencyId")
                         .HasColumnType("integer");

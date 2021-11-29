@@ -102,6 +102,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("PreferredCurrency")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PreferredPaymentMethod")
+                        .HasColumnType("integer");
+
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");
 
@@ -975,6 +978,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -983,6 +989,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("TargetAgencyId")
                         .HasColumnType("integer");

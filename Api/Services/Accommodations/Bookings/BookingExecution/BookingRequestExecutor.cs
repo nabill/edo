@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     .ToList();
 
                 var creditCardInfo = creditCard is not null
-                    ? new CreditCard(creditCard.Number, creditCard.ExpiryDate, creditCard.HolderName, creditCard.SecurityCode, CreditCardTypes.AmericanExpress)
+                    ? new CreditCard(creditCard.Number, creditCard.ExpiryDate, creditCard.HolderName, creditCard.SecurityCode, CardVendor.AmericanExpress)
                     : (CreditCard?)null;
 
                 var innerRequest = new BookingRequest(availabilityId: availabilityId,
