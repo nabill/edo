@@ -49,9 +49,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 => _flow.BuildKey(nameof(IdempotentBookingExecutor), evaluationToken);
         }
         
-        
-        
-
 
         private static readonly TimeSpan MaximumBookingDuration = TimeSpan.FromMinutes(2);
         private static readonly TimeSpan EvaluationTokenMappingLifeTime = MaximumBookingDuration + TimeSpan.FromMinutes(1);

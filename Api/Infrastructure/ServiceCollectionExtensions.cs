@@ -445,6 +445,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             services.AddScoped<IdempotentFunctionExecutor>();
+            services.AddScoped<IdempotentBookingExecutor>();
             
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration)));
