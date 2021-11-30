@@ -21,7 +21,8 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 
             return isFailure
                 ? Result.Failure<RoomContractSetAvailability>(error.Detail)
-                : availability.Value.MapFromEdoModels(searchId, accommodationId);
+                : availability?.MapFromEdoModels(searchId, accommodationId) 
+                ?? new RoomContractSetAvailability(searchId, accommodationId, null);
         }
 
 
