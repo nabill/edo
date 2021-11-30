@@ -77,6 +77,7 @@ using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
@@ -443,6 +444,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
+            services.AddScoped<IdempotentFunctionExecutor>();
+            
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration)));
             services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();

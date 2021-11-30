@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,8 +8,10 @@ using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -35,7 +38,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingRecordManager bookingRecordManager,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingInfoService bookingInfoService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IdempotentBookingExecutor idempotentBookingExecutor)
         {
             _financialAccountBookingFlow = financialAccountBookingFlow;
             _bankCreditCardBookingFlow = bankCreditCardBookingFlow;
@@ -46,6 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _creditCardPaymentService = creditCardPaymentService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
+            _idempotentBookingExecutor = idempotentBookingExecutor;
         }
 
 
@@ -82,8 +87,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingInfo, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
-                LanguageCode, ClientIp);
+            var agentContext = await _agentContextService.GetAgent();
+            var (_, isFailure, bookingInfo, error) = await _idempotentBookingExecutor.Execute(request: request,
+                bookingFunction: () => _financialAccountBookingFlow.BookByAccount(request, agentContext, LanguageCode, ClientIp),
+                languageCode: LanguageCode);
+                
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -103,8 +111,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> BookByOffline([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingInfo, error) = await _offlinePaymentBookingFlow.Book(request, await _agentContextService.GetAgent(),
-                LanguageCode, ClientIp);
+            var agentContext = await _agentContextService.GetAgent();
+            var (_, isFailure, bookingInfo, error) = await _idempotentBookingExecutor.Execute(request: request,
+                bookingFunction: () => _offlinePaymentBookingFlow.Book(request, agentContext, LanguageCode, ClientIp),
+                languageCode: LanguageCode);
+            
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -360,5 +371,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IdempotentBookingExecutor _idempotentBookingExecutor;
     }
 }

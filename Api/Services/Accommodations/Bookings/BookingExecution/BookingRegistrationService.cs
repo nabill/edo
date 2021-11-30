@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
-            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage, ILogger<BookingRegistrationService> logger)
+            ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage,
+            ILogger<BookingRegistrationService> logger)
         {
             _context = context;
             _tagProcessor = tagProcessor;
