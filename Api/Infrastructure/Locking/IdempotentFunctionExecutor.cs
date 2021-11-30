@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Locking
             var attemptCount = Convert.ToInt32((maximumDuration + BufferStepDuration) / StepDuration);
             for (var i = 0; i < attemptCount; i++)
             {
-                var isOperationEnded = await AcquireLock(operationInProgressKey, TimeSpan.MinValue);
+                var isOperationEnded = await AcquireLock(operationInProgressKey, MinimumLockDuration);
                 if (isOperationEnded)
                     break;
                 
@@ -42,9 +42,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Locking
             return await getResultFunction();
 
 
-            async Task<bool> AcquireLock(string key, TimeSpan? duration)
+            async Task<bool> AcquireLock(string key, TimeSpan duration)
             {
-               var (isLockTaken, _, _) = await _locker.TryAcquireLock(key, duration ?? TimeSpan.MinValue);
+               var (isLockTaken, _, _) = await _locker.TryAcquireLock(key, duration);
                return isLockTaken;
             }
 
@@ -57,6 +57,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Locking
         private static readonly TimeSpan StepDuration = TimeSpan.FromMilliseconds(500);
         
         private static readonly TimeSpan BufferStepDuration = TimeSpan.FromMilliseconds(600);
+        
+        private static readonly TimeSpan MinimumLockDuration = TimeSpan.FromMilliseconds(50);
         
         private readonly IDistributedLocker _locker;
         
