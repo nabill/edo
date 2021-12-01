@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
@@ -103,7 +104,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     new Country
                     {
                         Code = "en",
-                        Names = "{\"en\": \"Russian Federation\"}",
+                        Names = JsonDocument.Parse("{\"en\": \"Russian Federation\"}"),
                         RegionId = 1
                     }
                 }));

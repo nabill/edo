@@ -1,13 +1,11 @@
-﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Data.Bookings;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using HappyTravel.Edo.Data.Bookings;
+using System.Linq;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IBookingService
     {
-        Task<Result<List<Booking>>> GetAgencyBookings(int agencyId);
-        Task<Result<List<Booking>>> GetAgentBookings(int agentId);
+        IQueryable<Booking> GetAgencyBookings(int agencyId);
+        IQueryable<Booking> GetAgentBookings(int agentId);
     }
 }
