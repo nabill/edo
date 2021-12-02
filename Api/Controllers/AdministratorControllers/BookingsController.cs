@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -44,11 +45,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns>List of bookings</returns>
         [HttpGet("agencies/{agencyId}/accommodations/bookings")]
-        [ProducesResponseType(typeof(List<Booking>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<Booking> GetAgencyBookings([FromRoute] int agencyId) 
+        public IQueryable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId) 
             => _bookingService.GetAgencyBookings(agencyId);
 
 
@@ -58,11 +59,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agentId">Agent Id</param>
         /// <returns>List of bookings</returns>
         [HttpGet("agents/{agentId}/accommodations/bookings")]
-        [ProducesResponseType(typeof(List<Booking>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<Booking> GetAgentBookings([FromRoute] int agentId) 
+        public IQueryable GetAgentBookings([FromRoute] int agentId) 
             => _bookingService.GetAgentBookings(agentId);
 
 
