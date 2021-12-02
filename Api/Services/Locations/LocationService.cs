@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public Task<List<Region>> GetRegions(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async ()
                 => (await _context.Regions.ToListAsync())
-                .Select(r => new Region(r.Id, LocalizationHelper.GetValueFromSerializedString(r.Names, languageCode))).ToList(), DefaultLocationCachingTime);
+                .Select(r => new Region(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString())).ToList(), DefaultLocationCachingTime);
 
 
         
