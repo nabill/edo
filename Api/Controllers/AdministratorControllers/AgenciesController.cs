@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -299,8 +300,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("root-agencies")]
         [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetRootAgencies()
-            => Ok(await _agencyManagementService.GetRootAgencies(LanguageCode));
+        [EnableQuery(PageSize = 500, MaxTop = 500)]
+        public IEnumerable<AdminViewAgencyInfo> GetRootAgencies()
+            => _agencyManagementService.GetRootAgencies(LanguageCode);
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;

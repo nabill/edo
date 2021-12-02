@@ -26,7 +26,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(List<AdministratorRoleInfo>), StatusCodes.Status200OK)]
-        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> GetAll()
             => Ok(await _administratorRolesManagementService.GetAll());
 
