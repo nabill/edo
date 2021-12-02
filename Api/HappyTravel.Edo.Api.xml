@@ -445,6 +445,12 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings">
+            <summary>
+                Gets all bookings
+            </summary>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
             <summary>
                 Gets a list of all bookings made by the agency
