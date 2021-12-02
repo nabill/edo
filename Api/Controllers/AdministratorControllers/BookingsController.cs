@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -37,6 +36,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _bookingInfoService = bookingInfoService;
             _fixHtIdService = fixHtIdService;
         }
+        
+        
+        /// <summary>
+        ///     Gets all bookings
+        /// </summary>
+        /// <returns>List of bookings</returns>
+        [HttpGet("accommodations/bookings")]
+        [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        [EnableQuery(PageSize = 500, MaxTop = 500)]
+        public IEnumerable<BookingSlim> GetAgencyBookings() 
+            => _bookingService.GetAllBookings();
 
 
         /// <summary>

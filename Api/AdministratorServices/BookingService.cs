@@ -1,10 +1,8 @@
 ﻿using System;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Bookings;
 using System.Linq;
 using System.Linq.Expressions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
-using Microsoft.AspNet.OData.Query;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -16,6 +14,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public IQueryable<BookingSlim> GetAllBookings() 
+            => GetBookings();
+
+
         public IQueryable<BookingSlim> GetAgencyBookings(int agencyId) 
             => GetBookings(booking => booking.AgencyId == agencyId);
 
@@ -24,8 +26,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => GetBookings(booking => booking.AgentId == agentId);
 
 
-        private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>> expression)
-            => _context.Bookings
+        private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>>? expression = null)
+        {
+            var query = _context.Bookings
                 .Select(b => new BookingSlim
                 {
                     Id = b.Id,
@@ -37,8 +40,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Currency = b.Currency,
                     PaymentStatus = b.PaymentStatus,
                     TotalPrice = b.TotalPrice
-                })
-                .Where(expression);
+                });
+
+            return expression == null
+                ? query
+                : query.Where(expression);
+        }
 
 
         private readonly EdoContext _context;
