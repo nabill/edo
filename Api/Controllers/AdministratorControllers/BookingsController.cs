@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -13,6 +14,7 @@ using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNet.OData;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -45,14 +47,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<Booking>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> GetAgencyBookings([FromRoute] int agencyId)
-        {
-            var (_, isFailure, bookings, error) = await _bookingService.GetAgencyBookings(agencyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookings);
-        }
+        [EnableQuery(PageSize = 500, MaxTop = 500)]
+        public IEnumerable<Booking> GetAgencyBookings([FromRoute] int agencyId) 
+            => _bookingService.GetAgencyBookings(agencyId);
 
 
         /// <summary>
@@ -64,16 +61,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<Booking>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> GetAgentBookings([FromRoute] int agentId)
-        {
-            var (_, isFailure, bookings, error) = await _bookingService.GetAgentBookings(agentId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
+        [EnableQuery(PageSize = 500, MaxTop = 500)]
+        public IEnumerable<Booking> GetAgentBookings([FromRoute] int agentId) 
+            => _bookingService.GetAgentBookings(agentId);
 
-            return Ok(bookings);
-        }
-        
-        
+
         /// <summary>
         ///     Gets booking data by reference code.
         /// </summary>
