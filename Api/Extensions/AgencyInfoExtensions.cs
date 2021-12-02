@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
@@ -11,14 +12,14 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AgencyInfoExtensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, string countryNames, string languageCode, string markupFormula)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, JsonDocument countryNames, string languageCode, string markupFormula)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
                 address: agency.Address,
                 billingEmail: agency.BillingEmail,
                 city: agency.City,
                 countryCode: agency.CountryCode,
-                countryName: LocalizationHelper.GetValueFromSerializedString(countryNames, languageCode),
+                countryName: countryNames.RootElement.GetProperty(languageCode).GetString(),
                 fax: agency.Fax,
                 phone: agency.Phone,
                 postalCode: agency.PostalCode,
@@ -36,20 +37,5 @@ namespace HappyTravel.Edo.Api.Extensions
                 isContractUploaded: agency.IsContractUploaded,
                 markupDisplayFormula: markupFormula,
                 preferredCurrency: agency.PreferredCurrency);
-
-
-        public static AdminViewAgencyInfo ToAdminViewAgencyInfo(this Agency agency, AgencyVerificationStates verificationState,
-            string accountManagerName, string countryNames, string languageCode)
-            => new AdminViewAgencyInfo()
-            {
-                Id = agency.Id,
-                Name = agency.Name,
-                City = agency.City,
-                CountryName = LocalizationHelper.GetValueFromSerializedString(countryNames, languageCode),
-                Created = agency.Created,
-                VerificationState = verificationState,
-                AccountManagerName = accountManagerName,
-                IsActive = agency.IsActive
-            };
     }
 }

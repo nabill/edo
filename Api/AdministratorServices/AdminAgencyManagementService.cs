@@ -67,13 +67,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
 
 
-        public Task<List<AdminViewAgencyInfo>> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
-            => (from a in _context.Agencies
+        public IQueryable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+            => from a in _context.Agencies
                 join c in _context.Countries on a.CountryCode equals c.Code
                 from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
                 where a.ParentId == null
-                select a.ToAdminViewAgencyInfo(a.VerificationState, string.Empty, c.Names, languageCode))
-                .ToListAsync();
+                select new AdminViewAgencyInfo
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    City = a.City,
+                    CountryName = c.Names.RootElement.GetProperty(languageCode).GetString(),
+                    Created = a.Created,
+                    VerificationState = a.VerificationState,
+                    AccountManagerName = string.Empty,
+                    IsActive = a.IsActive
+                };
 
 
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
