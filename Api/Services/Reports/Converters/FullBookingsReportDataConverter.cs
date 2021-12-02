@@ -40,10 +40,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             };
 
 
-        private string GetJsonProperty(string json, string property)
+        private string GetJsonProperty(JsonDocument jsonDocument, string property)
         {
-            return JsonDocument.Parse(json)
-                .RootElement
+            return jsonDocument.RootElement
                 .GetProperty(property)
                 .GetString();
         }
