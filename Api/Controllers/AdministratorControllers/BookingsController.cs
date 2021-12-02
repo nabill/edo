@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IQueryable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId) 
+        public IEnumerable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId) 
             => _bookingService.GetAgencyBookings(agencyId);
 
 
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IQueryable GetAgentBookings([FromRoute] int agentId) 
+        public IEnumerable<BookingSlim> GetAgentBookings([FromRoute] int agentId) 
             => _bookingService.GetAgentBookings(agentId);
 
 
