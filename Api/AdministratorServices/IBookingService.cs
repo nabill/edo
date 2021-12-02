@@ -1,11 +1,12 @@
-﻿using HappyTravel.Edo.Data.Bookings;
-using System.Linq;
+﻿using System.Linq;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IBookingService
     {
-        IQueryable<Booking> GetAgencyBookings(int agencyId);
-        IQueryable<Booking> GetAgentBookings(int agentId);
+        IQueryable<BookingSlim> GetAllBookings();
+        IQueryable<BookingSlim> GetAgencyBookings(int agencyId);
+        IQueryable<BookingSlim> GetAgentBookings(int agentId);
     }
 }
