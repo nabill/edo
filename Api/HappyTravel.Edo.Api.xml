@@ -493,6 +493,12 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingCancellationPenalty(System.Int32)">
+            <summary>
+                Gets cancellation penalty for cancelling booking
+            </summary>
+            <returns>Amount of penalty</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32)">
             <summary>
                 Cancel accommodation booking by admin.

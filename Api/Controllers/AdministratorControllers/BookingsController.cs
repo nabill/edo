@@ -9,12 +9,14 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNet.OData;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -28,13 +30,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IBookingService bookingService,
             IAdministratorBookingManagementService bookingManagementService,
             IBookingInfoService bookingInfoService,
-            IFixHtIdService fixHtIdService)
+            IFixHtIdService fixHtIdService,
+            IBookingRecordManager bookingRecordManager,
+            IDateTimeProvider dateTimeProvider)
         {
             _administratorContext = administratorContext;
             _bookingService = bookingService;
             _bookingManagementService = bookingManagementService;
             _bookingInfoService = bookingInfoService;
             _fixHtIdService = fixHtIdService;
+            _bookingRecordManager = bookingRecordManager;
+            _dateTimeProvider = dateTimeProvider;
         }
         
         
@@ -156,6 +162,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        ///     Gets cancellation penalty for cancelling booking
+        /// </summary>
+        /// <returns>Amount of penalty</returns>
+        [HttpGet("accommodations/bookings/{bookingId}/cancellation-penalty")]
+        [ProducesResponseType(typeof(MoneyAmount), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> GetBookingCancellationPenalty(int bookingId)
+        {
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(bookingId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()));
+        }
+
+
+        /// <summary>
         ///     Cancel accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
@@ -272,5 +297,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAdministratorBookingManagementService _bookingManagementService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IFixHtIdService _fixHtIdService;
+        private readonly IBookingRecordManager _bookingRecordManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
