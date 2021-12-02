@@ -28,19 +28,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>>? expression = null)
         {
-            var query = _context.Bookings
-                .Select(b => new BookingSlim
+            var query = from booking in _context.Bookings
+                join agent in _context.Agents on booking.AgentId equals agent.Id
+                join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                select new BookingSlim
                 {
-                    Id = b.Id,
-                    ReferenceCode = b.ReferenceCode,
-                    AccommodationName = b.AccommodationName,
-                    AgencyId = b.AgencyId,
-                    AgentId = b.AgentId,
-                    Created = b.Created,
-                    Currency = b.Currency,
-                    PaymentStatus = b.PaymentStatus,
-                    TotalPrice = b.TotalPrice
-                });
+                    Id = booking.Id,
+                    ReferenceCode = booking.ReferenceCode,
+                    AccommodationName = booking.AccommodationName,
+                    AgencyId = booking.AgencyId,
+                    AgentId = booking.AgentId,
+                    AgencyName = agency.Name,
+                    AgentName = $"{agent.FirstName} {agent.LastName}",
+                    Created = booking.Created,
+                    Currency = booking.Currency,
+                    PaymentStatus = booking.PaymentStatus,
+                    TotalPrice = booking.TotalPrice,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate
+                };
 
             return expression == null
                 ? query
