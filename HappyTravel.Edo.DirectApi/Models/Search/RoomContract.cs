@@ -4,12 +4,12 @@ using System.Text.Json.Serialization;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Search
 {
     public record RoomContract
     {
         [JsonConstructor]
-        public RoomContract(BoardBasisTypes boardBasis, string mealPlan, int contractTypeCode, bool isAvailableImmediately,
+        public RoomContract(BoardBasisTypes boardBasis, string mealPlan, string contractTypeCode, bool isAvailableImmediately,
             bool isDynamic, string contractDescription, List<KeyValuePair<string, string>> remarks, List<DailyRate> dailyRoomRates,
             Rate rate, int adultsNumber, List<int> childrenAges, RoomTypes type, bool isExtraBedNeeded, Deadline deadline,
             bool isAdvancePurchaseRate)
@@ -43,9 +43,9 @@ namespace HappyTravel.Edo.DirectApi.Models
         public string MealPlan { get; }
 
         /// <summary>
-        ///     The numerical code of a contract type.
+        ///     The code of a contract type.
         /// </summary>
-        public int ContractTypeCode { get; }
+        public string ContractTypeCode { get; }
 
         public bool IsAvailableImmediately { get; }
 

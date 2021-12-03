@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                 rooms: rcs.Rooms
                     .Select(r => new RoomContract(boardBasis: r.BoardBasis,
                         mealPlan: r.MealPlan,
-                        contractTypeCode: r.ContractTypeCode,
+                        contractTypeCode: r.ContractTypeCode.ToString(),
                         isAvailableImmediately: r.IsAvailableImmediately,
                         isDynamic: r.IsDynamic,
                         contractDescription: r.ContractDescription,
