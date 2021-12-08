@@ -6,7 +6,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
     public readonly struct AccommodationData
     {
-        public AccommodationData(string name, string category, ContactInfo contacts, LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating, ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, UniqueAccommodationCodes? uniqueCodes, string hotelChain, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo)
+        public AccommodationData(string name, string category, ContactInfo contacts, LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating, 
+            ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, UniqueAccommodationCodes? uniqueCodes, string hotelChain, 
+            List<string> accommodationAmenities, Dictionary<string, string> additionalInfo)
         {
             Name = name;
             Category = category;

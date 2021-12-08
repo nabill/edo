@@ -6,7 +6,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
     public readonly struct AccommodationSearchRequest
     {
-        public AccommodationSearchRequest(string nameQuery, int? countryId, int? localityId, int? localityZoneId, bool? isActive, List<AccommodationDeactivationReasons> deactivationReasons, string addressLineQuery, List<AccommodationRatings> ratings, List<Suppliers> suppliers, bool? hasDirectContract, int? skip, int? top)
+        public AccommodationSearchRequest(string nameQuery, int? countryId, int? localityId, int? localityZoneId, bool? isActive, 
+            List<AccommodationDeactivationReasons> deactivationReasons, string addressLineQuery, List<AccommodationRatings> ratings, 
+            List<Suppliers> suppliers, bool? hasDirectContract, int? skip, int? top)
         {
             NameQuery = nameQuery;
             CountryId = countryId;

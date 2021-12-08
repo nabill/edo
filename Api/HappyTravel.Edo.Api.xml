@@ -718,6 +718,12 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.SuppliersController.Get(System.Threading.CancellationToken)">
+            <summary>
+            Returns suppliers list
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>
                 Gets the notification history of the current administrator
