@@ -22,6 +22,8 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
         BookingReportGeneration = 16384,
         AccountsReportGeneration = 32768,
         CompanyReportGeneration = 65536,
-        AdministratorManagement = 131072
+        AdministratorManagement = 131072,
+        AccommodationsManagement = 262144,
+        LocationsManagement = 524288
     }
 }
