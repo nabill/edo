@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
-            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/merge";
+            var requestUri = "api/1.0/AccommodationsManagement/accommodations/merge";
             
             return Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
@@ -71,14 +71,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
 
 
-        public Task<Result<List<SlimAccommodationData>, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken)
+        public async Task<Result<List<SlimAccommodationData>, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"api/1.0/admin/accommodations/search")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             };
   
-            return Send<List<SlimAccommodationData>>(requestMessage, cancellationToken: cancellationToken);
+            return await Send<List<SlimAccommodationData>>(requestMessage, cancellationToken: cancellationToken);
         }
 
 
