@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("countries/search")]
-        [ProducesResponseType(typeof(List<CountryData>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<CountryData>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.LocationsManagement)]
         public async Task<IActionResult> SearchCountries([FromQuery] [Required] string query, CancellationToken cancellationToken)
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpGet("countries/{countryId}/localities/search")]
-        [ProducesResponseType(typeof(List<LocalityData>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<LocalityData>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.LocationsManagement)]
         public async Task<IActionResult> SearchLocalities([FromRoute] int countryId, [FromQuery] [Required] string query, CancellationToken cancellationToken)

@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <param name="cancellationToken"></param>
         /// <returns>Detailed accommodation</returns>
         [HttpGet("{accommodationHtId}/detailed-data")]
-        [ProducesResponseType(typeof(DetailedAccommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(DetailedAccommodation), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> GetDetailedAccommodationData([FromRoute] string accommodationHtId, CancellationToken cancellationToken)
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost("search")]
-        [ProducesResponseType(typeof(List<SlimAccommodationData>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<SlimAccommodationData>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> SearchAccommodations([FromBody] AccommodationSearchRequest searchRequest, CancellationToken cancellationToken) 
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// </summary>
         /// <returns></returns>
         [HttpGet("rating-types")]
-        [ProducesResponseType(typeof(Dictionary<int, string>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Dictionary<int, string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> GetRatingTypes(CancellationToken cancellationToken) 
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// </summary>
         /// <returns></returns>
         [HttpGet("deactivation-reason-types")]
-        [ProducesResponseType(typeof(Dictionary<int, string>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Dictionary<int, string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> GetDeactivationReasonTypes(CancellationToken cancellationToken) 

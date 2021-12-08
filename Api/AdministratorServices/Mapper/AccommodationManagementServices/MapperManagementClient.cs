@@ -113,6 +113,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             return Send<List<LocalityData>>(requestMessage, languageCode, cancellationToken);
         }
         
+        
+        public Task<Result<Dictionary<int, string>, ProblemDetails>> GetSuppliers(CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/suppliers");
+            
+            return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
+        }
+        
 
         private async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage requestMessage,
             string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
