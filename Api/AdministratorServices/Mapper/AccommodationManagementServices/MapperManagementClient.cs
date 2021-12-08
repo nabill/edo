@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
     {
         public MapperManagementClient(IHttpClientFactory clientFactory, ILogger<MapperManagementClient> logger)
         {
-            _clientFactory = clientFactory;
+            _httpClient = clientFactory.CreateClient(HttpClientNames.MapperManagement);
             _logger = logger;
         }
         
@@ -31,7 +32,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/AccommodationsManagement/accommodations/merge";
             
-            return Post(requestUri, requestContent, cancellationToken);
+            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
 
@@ -40,43 +41,118 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
             var requestUri = "api/1.0/AccommodationsManagement/accommodations/deactivate";
             
-            return Post(requestUri, requestContent, cancellationToken);
+            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
+        
+        public Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
+        {
+            var requestContent = new StringContent($@"""{nameof(DeactivationReasonDescription)}"" = ""{DeactivationReasonDescription}""", Encoding.UTF8, "application/json");
+            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/deactivate-manually";
+            
+            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
+        }
+        
 
         public Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/suppliers/remove";
             
-            return Post(requestUri, requestContent, cancellationToken);
+            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
 
-        private async Task<Result<Unit, ProblemDetails>> Post(string requestUri, HttpContent content, CancellationToken cancellationToken)
+        public Task<Result<DetailedAccommodation, ProblemDetails>> GetDetailedAccommodationData(string accommodationHtId, string languageCode, CancellationToken cancellationToken)
         {
-            var client = _clientFactory.CreateClient(HttpClientNames.MapperManagement);
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/accommodations/{accommodationHtId}/detailed-data");
+            
+            return Send<DetailedAccommodation>(requestMessage, languageCode, cancellationToken);
+        }
+
+
+        public Task<Result<List<SlimAccommodationData>, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"api/1.0/admin/accommodations/search")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            };
+  
+            return Send<List<SlimAccommodationData>>(requestMessage, cancellationToken: cancellationToken);
+        }
+
+
+        public Task<Result<Dictionary<int, string>, ProblemDetails>> GetDeactivationReasonTypes(CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/accommodations/deactivation-reason-types");
+            
+            return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
+        }
+
+
+        public Task<Result<Dictionary<int, string>, ProblemDetails>> GetRatingTypes(CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/accommodations/rating-types");
+            
+            return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
+        }
+
+
+        public Task<Result<List<CountryData>, ProblemDetails>> SearchCountries(string query, string languageCode, CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/locations/countries/search?{nameof(query)}={query}");
+            
+            return Send<List<CountryData>>(requestMessage, languageCode, cancellationToken);
+        }
+
+
+        public Task<Result<List<LocalityData>, ProblemDetails>> SearchLocalities(int countryId, string query, string languageCode, CancellationToken cancellationToken)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/locations/countries/{countryId}/localities/search?{nameof(query)}={query}");
+            
+            return Send<List<LocalityData>>(requestMessage, languageCode, cancellationToken);
+        }
+        
+
+        private async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage requestMessage,
+            string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
+        {
             try
             {
-                using var response = await client.PostAsync(requestUri, content, cancellationToken);
+                _httpClient.DefaultRequestHeaders.Add("Accept-Language", languageCode);
+                var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                    return (await response.Content.ReadFromJsonAsync<TResponse>(JsonSerializerOptions, cancellationToken))!;
+
+                return Result.Failure<TResponse, ProblemDetails>( await GetProblemDetails(response, cancellationToken));
+            }
+            catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
+            {
+                _logger.LogMapperManagementClientRequestTimeout(ex);
+                
+                return ProblemDetailsBuilder.Build("Request failure");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogMapperManagementClientException(ex);
+                
+                return ProblemDetailsBuilder.Build(ex.Message);
+            }
+        }
+        
+        
+        private async Task<Result<Unit, ProblemDetails>> Post(string requestUri, HttpContent content, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Add("Accept-Language", languageCode);
+                using var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
 
                 if (response.IsSuccessStatusCode)
                     return Result.Success<Unit, ProblemDetails>(Unit.Instance);
 
-                ProblemDetails error;
-
-                try
-                {
-                    error = await response.Content.ReadFromJsonAsync<ProblemDetails>(JsonSerializerOptions, cancellationToken);
-                }
-                catch (JsonException)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-                    _logger.LogMapperManagementClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
-                    error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
-                }
-
-                return Result.Failure<Unit, ProblemDetails>(error);
+                return Result.Failure<Unit, ProblemDetails>(await GetProblemDetails(response, cancellationToken));
             }
             catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
             {
@@ -91,6 +167,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
         
         
+        private async Task<ProblemDetails> GetProblemDetails(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
+        {
+            if (responseMessage.IsSuccessStatusCode)
+                return new ProblemDetails();
+            
+            ProblemDetails error;
+            try
+            {
+                error = await responseMessage.Content.ReadFromJsonAsync<ProblemDetails>(JsonSerializerOptions, cancellationToken);
+            }
+            catch (JsonException)
+            {
+                var responseBody = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogMapperManagementClientUnexpectedResponse(responseMessage.StatusCode, responseMessage.RequestMessage?.RequestUri, responseBody);
+                error = ProblemDetailsBuilder.Build(responseMessage.ReasonPhrase, responseMessage.StatusCode);
+            }
+
+            return error;
+        }
+        
+        
         private static readonly JsonSerializerOptions JsonSerializerOptions = new () 
         {
             PropertyNameCaseInsensitive = true,
@@ -99,7 +196,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         };
         
         
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly  ILogger<MapperManagementClient> _logger;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<MapperManagementClient> _logger;
     }
 }
