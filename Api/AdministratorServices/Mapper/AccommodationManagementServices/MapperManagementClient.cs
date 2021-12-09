@@ -27,39 +27,39 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
         
         
-        public Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
+        public async Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
             var requestUri = "api/1.0/AccommodationsManagement/accommodations/merge";
             
-            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
+            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
 
-        public Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
+        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
             var requestUri = "api/1.0/AccommodationsManagement/accommodations/deactivate";
             
-            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
+            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
         
-        public Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
+        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
         {
             using var requestContent = new StringContent($@"""{nameof(DeactivationReasonDescription)}"" = ""{DeactivationReasonDescription}""", Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/deactivate-manually";
             
-            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
+            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
         
 
-        public Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/suppliers/remove";
             
-            return Post(requestUri, requestContent, cancellationToken: cancellationToken);
+            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
 
