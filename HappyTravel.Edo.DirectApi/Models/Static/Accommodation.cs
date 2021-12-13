@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
     public readonly struct Accommodation
     {
         [JsonConstructor]
-        public Accommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
-            string? category, ContactInfo contacts, LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
-            in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type,
+        public Accommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string>? additionalInfo,
+            string? category, ContactInfo contacts, LocationInfo location, List<ImageInfo>? photos, AccommodationRatings rating,
+            in ScheduleInfo schedule, List<TextualDescription>? textualDescriptions, PropertyTypes type,
             string? hotelChain, DateTime? modified)
         {
             Id = id;
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
         /// <summary>
         ///     Accommodation pictures and their descriptions.
         /// </summary>
-        public List<ImageInfo> Photos { get; }
+        public List<ImageInfo>? Photos { get; }
 
         /// <summary>
         ///     The accommodation rating.
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
         /// <summary>
         ///     Textual descriptions of an accommodation and its zones.
         /// </summary>
-        public List<TextualDescription> TextualDescriptions { get; }
+        public List<TextualDescription>? TextualDescriptions { get; }
 
         /// <summary>
         ///     The type of a property.
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
         /// <summary>
         ///     The dictionary of all other accommodation stats.
         /// </summary>
-        public Dictionary<string, string> AdditionalInfo { get; }
+        public Dictionary<string, string>? AdditionalInfo { get; }
 
         /// <summary>
         ///     The Modification date of accommodation data
