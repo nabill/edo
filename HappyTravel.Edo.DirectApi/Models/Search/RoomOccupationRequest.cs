@@ -9,11 +9,10 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct RoomOccupationRequest
     {
         [JsonConstructor]
-        public RoomOccupationRequest(int adultsNumber, List<int>? childrenAges = null, RoomTypes type = RoomTypes.NotSpecified,
-            bool isExtraBedNeeded = false)
+        public RoomOccupationRequest(int adultsNumber, List<int> childrenAges, RoomTypes type = RoomTypes.NotSpecified)
         {
             AdultsNumber = adultsNumber;
-            ChildrenAges = childrenAges ?? new List<int>(0);
+            ChildrenAges = childrenAges;
             Type = type;
         }
 
