@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
@@ -22,12 +24,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public BookingInfoService(EdoContext context, 
             IBookingRecordManager bookingRecordManager,
             IAccommodationService accommodationService,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _dateTimeProvider = dateTimeProvider;
         }
         
         
@@ -184,16 +188,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var isDirectContract = GetDirectContractFlag(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
             
-            return new AccommodationBookingInfo(booking.Id,
-                bookingDetails,
-                booking.AgencyId,
-                booking.PaymentStatus,
-                new MoneyAmount(booking.TotalPrice, booking.Currency),
-                supplier,
-                agentInformation,
-                booking.PaymentType,
-                booking.Tags,
-                isDirectContract);
+            return new AccommodationBookingInfo(
+                bookingId: booking.Id,
+                bookingDetails: bookingDetails,
+                agencyId: booking.AgencyId,
+                paymentStatus: booking.PaymentStatus,
+                totalPrice: new MoneyAmount(booking.TotalPrice, booking.Currency),
+                cancellationPenalty: BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()),
+                supplier: supplier,
+                agentInformation: agentInformation,
+                paymentMethod: booking.PaymentType,
+                tags: booking.Tags,
+                isDirectContract: isDirectContract);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)
@@ -266,5 +272,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

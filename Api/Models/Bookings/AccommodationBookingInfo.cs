@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int agencyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? supplier,
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, Suppliers? supplier,
             BookingAgentInformation agentInformation, PaymentTypes paymentMethod, List<string> tags,
             bool? isDirectContract)
         {
@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AgencyId = agencyId;
             PaymentStatus = paymentStatus;
             TotalPrice = totalPrice;
+            CancellationPenalty = cancellationPenalty;
             Supplier = supplier;
             AgentInformation = agentInformation;
             PaymentMethod = paymentMethod;
@@ -43,6 +44,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public int AgencyId { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
+        public MoneyAmount CancellationPenalty { get; }
         public Suppliers? Supplier { get; }
         public BookingAgentInformation AgentInformation { get; }
         public PaymentTypes PaymentMethod { get; }
