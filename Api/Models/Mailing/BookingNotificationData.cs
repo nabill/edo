@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
@@ -11,6 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public Details BookingDetails { get; set; }
         public string PaymentStatus { get; set; }
         public string Price { get; set; }
+        public string CancellationPenalty { get; set; }
         public string Supplier { get; set; }
         public string AgencyName { get; set; }
 
