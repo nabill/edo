@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private async Task UpdateStorage(IServiceScope scope, ILogger<DiscountStorageUpdater> logger, CancellationToken cancellationToken)
         {
-            var context = scope.ServiceProvider.GetRequiredService<EdoContext>();
+            await using var context = scope.ServiceProvider.GetRequiredService<EdoContext>();
             var dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
 
             var lastModifiedDate = await context.Discounts

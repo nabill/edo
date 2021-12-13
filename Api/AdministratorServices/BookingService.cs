@@ -45,7 +45,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     PaymentStatus = booking.PaymentStatus,
                     TotalPrice = booking.TotalPrice,
                     CheckInDate = booking.CheckInDate,
-                    CheckOutDate = booking.CheckOutDate
+                    CheckOutDate = booking.CheckOutDate,
+                    Status = booking.Status
                 };
 
             return expression == null
