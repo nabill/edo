@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -25,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor, 
+            IBookingRecordManager recordManager,
             ILogger<FinancialAccountBookingFlow> logger)
         {
             _dateTimeProvider = dateTimeProvider;
@@ -34,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
+            _recordManager = recordManager;
             _logger = logger;
         }
         
@@ -51,6 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest)
+                .OnFailure(RefundMoney)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
 
@@ -75,6 +79,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
                 => await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
+
+
+            async Task<Result> RefundMoney()
+            {
+                var booking = await _recordManager.Get(bookingRequest.HtId);
+                return await _accountPaymentService.Refund(booking.Value, DateTime.Now, agentContext.ToApiCaller());
+            }
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -102,6 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRegistrationService _registrationService;
+        private readonly IBookingRecordManager _recordManager;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<FinancialAccountBookingFlow> _logger;
     }
