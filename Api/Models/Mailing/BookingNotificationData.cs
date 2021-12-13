@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public Details BookingDetails { get; set; }
         public string PaymentStatus { get; set; }
         public string Price { get; set; }
-        public MoneyAmount CancellationPenalty { get; set; }
+        public string CancellationPenalty { get; set; }
         public string Supplier { get; set; }
         public string AgencyName { get; set; }
 
