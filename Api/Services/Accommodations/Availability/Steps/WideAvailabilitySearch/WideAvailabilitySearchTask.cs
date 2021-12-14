@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
-            var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
+            var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings, Suppliers supplier);
             using var _ = Counters.WideAccommodationAvailabilitySearchTaskDuration.WithLabels(supplier.ToString()).NewTimer();
 
             try
@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         
         private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, List<SupplierCodeMapping> mappings,
-            AccommodationBookingSettings searchSettings)
+            AccommodationBookingSettings searchSettings, Suppliers supplier)
         {
             var roomDetails = request.RoomDetails
                 .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges, r.Type, r.IsExtraBedNeeded))
@@ -190,7 +190,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var searchFilters = Convert(request.Filters);
 
             var supplierAccommodationCodes = mappings.Select(m => m.SupplierCode).ToList();
+            var isMultiRoomAvailabilitiesHidden = !searchSettings.AllowedMultiRoomBookingSuppliers.Contains(supplier);
             
+            // TODO: Add isMultiRoomAvailabilitiesHidden to request after upgrading contracts library
             return new AvailabilityRequest(nationality: request.Nationality,
                 residency: request.Residency, 
                 checkInDate: request.CheckInDate,
