@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
-            var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings, Suppliers supplier);
+            var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings, supplier);
             using var _ = Counters.WideAccommodationAvailabilitySearchTaskDuration.WithLabels(supplier.ToString()).NewTimer();
 
             try
