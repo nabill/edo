@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
-using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -19,12 +18,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgencyService : IAgencyService
     {
-        public AgencyService(IAdminAgencyManagementService adminAgencyManagementService,
-            IDateTimeProvider dateTimeProvider,
+        public AgencyService(IDateTimeProvider dateTimeProvider,
             ILocalityInfoService localityInfoService,
             EdoContext context)
         {
-            _adminAgencyManagementService = adminAgencyManagementService;
             _dateTimeProvider = dateTimeProvider;
             _context = context;
             _localityInfoService = localityInfoService;
@@ -85,34 +82,33 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Agencies.Add(agency);
 
             await _context.SaveChangesAsync();
-            return (await _adminAgencyManagementService.Get(agency.Id)).Value;
+            return (await GetAgencyInfo(agency.Id)).Value;
         }
 
 
-        public Task<Result<SlimAgencyInfo>> Get(AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode)
+        public async Task<Result<SlimAgencyInfo>> Get(AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            return _adminAgencyManagementService.Get(agent.AgencyId, languageCode)
-                .Map(a => new SlimAgencyInfo(
-                    name: a.Name,
-                    address: a.Address,
-                    billingEmail: a.BillingEmail,
-                    city: a.City,
-                    countryCode: a.CountryCode,
-                    countryName: a.CountryName,
-                    fax: a.Fax,
-                    phone: a.Phone,
-                    postalCode: a.PostalCode,
-                    website: a.Website,
-                    vatNumber: a.VatNumber,
-                    defaultPaymentType: a.DefaultPaymentType,
-                    ancestors: a.Ancestors,
-                    countryHtId: a.CountryHtId,
-                    localityHtId: a.LocalityHtId,
-                    verificationState: a.VerificationState,
-                    verificationDate: a.VerificationDate,
-                    legalAddress: a.LegalAddress,
-                    preferredPaymentMethod: a.PreferredPaymentMethod,
-                    isContractUploaded: a.IsContractUploaded));
+            return await GetAgencyInfo(agent.AgencyId, languageCode)
+                .Map(agencyInfo => new SlimAgencyInfo(name: agencyInfo.Name,
+                    address: agencyInfo.Address,
+                    billingEmail: agencyInfo.BillingEmail,
+                    city: agencyInfo.City,
+                    countryCode: agencyInfo.CountryCode,
+                    countryName: agencyInfo.CountryName,
+                    fax: agencyInfo.Fax,
+                    phone: agencyInfo.Phone,
+                    postalCode: agencyInfo.PostalCode,
+                    website: agencyInfo.Website,
+                    vatNumber: agencyInfo.VatNumber,
+                    defaultPaymentType: agencyInfo.DefaultPaymentType,
+                    ancestors: agencyInfo.Ancestors,
+                    countryHtId: agencyInfo.CountryHtId,
+                    localityHtId: agencyInfo.LocalityHtId,
+                    verificationState: agencyInfo.VerificationState,
+                    verificationDate: agencyInfo.VerificationDate,
+                    legalAddress: agencyInfo.LegalAddress,
+                    preferredPaymentMethod: agencyInfo.PreferredPaymentMethod,
+                    isContractUploaded: agencyInfo.IsContractUploaded));
         }
 
 
@@ -160,8 +156,24 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        private async Task<Result<AgencyInfo>> GetAgencyInfo(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+        {
+            var agencyInfo = await (
+                    from a in _context.Agencies
+                    join c in _context.Countries on a.CountryCode equals c.Code
+                    join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
+                    where a.Id == agencyId
+                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+                .SingleOrDefaultAsync();
+
+            return agencyInfo.Equals(default) 
+                ? Result.Failure<AgencyInfo>("Could not find specified agency")
+                : agencyInfo;
+        }
+
+
         private readonly ILocalityInfoService _localityInfoService;
-        private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
     }
