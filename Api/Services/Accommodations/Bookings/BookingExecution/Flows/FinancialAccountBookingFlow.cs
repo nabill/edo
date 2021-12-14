@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
-            IBookingRequestExecutor requestExecutor, 
+            IBookingRequestExecutor requestExecutor,
             IBookingRecordManager recordManager,
             ILogger<FinancialAccountBookingFlow> logger)
         {
@@ -39,8 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _recordManager = recordManager;
             _logger = logger;
         }
-        
-        
+
 
         public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
@@ -54,7 +53,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest)
-                .OnFailure(RefundMoney)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
 
@@ -81,19 +79,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
 
 
-            async Task<Result> RefundMoney()
-            {
-                var booking = await _recordManager.Get(bookingRequest.HtId);
-                return await _accountPaymentService.Refund(booking.Value, DateTime.Now, agentContext.ToApiCaller());
-            }
-
-
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
                 => _documentsService.GenerateInvoice(booking);
 
 
-            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking) 
-                => await _requestExecutor.Execute(booking, agentContext, languageCode);
+            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
+            {
+                var refreshedBooking = await _recordManager.Get(booking.ReferenceCode);
+                return await _requestExecutor.Execute(refreshedBooking.Value, agentContext, languageCode);
+            }
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
