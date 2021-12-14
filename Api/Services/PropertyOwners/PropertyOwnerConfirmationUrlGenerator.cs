@@ -28,11 +28,10 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
         private string Decrypt(string encryptedString)
         {
-            var base64string = Uri.UnescapeDataString(encryptedString);
-
-            Span<byte> bytes = new byte[base64string.Length];
+            var base64String = Uri.UnescapeDataString(encryptedString);
+            Span<byte> bytes = new byte[base64String.Length];
             
-            if (Convert.TryFromBase64String(base64string, bytes, out int bytesWritten))
+            if (Convert.TryFromBase64String(base64String, bytes, out int bytesWritten))
             {
                 var encriptedBytes = bytes.Slice(0, bytesWritten).ToArray();
 
@@ -46,9 +45,9 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
         private string Encrypt(string stringToEncrypt)
         {
             var encriptedBytes = EncryptStringToBytes_Aes(stringToEncrypt, _urlGenerationOptions.AesKey, _urlGenerationOptions.AesIV);
-            var base64string = Convert.ToBase64String(encriptedBytes);
+            var base64String = Convert.ToBase64String(encriptedBytes);
 
-            return Uri.EscapeDataString(base64string);
+            return Uri.EscapeDataString(base64String);
         }
 
 
