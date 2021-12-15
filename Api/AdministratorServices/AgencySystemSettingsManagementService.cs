@@ -79,20 +79,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> DeleteAvailabilitySearchSettings(int agencyId)
         {
             return await CheckAgencyExistsIncludingInactive(agencyId)
-                .BindWithTransaction(_context, () => DeleteSettings()
+                .BindWithTransaction(_context, () => Result.Success()
+                    .Tap(DeleteSettings)
                     .Bind(WriteToAuditLog));
 
 
-            async Task<Result> DeleteSettings()
+            async Task DeleteSettings()
             {
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 if (existingSettings == default)
-                    return Result.Success();
+                    return;
 
                 _context.Remove(existingSettings);
                 await _context.SaveChangesAsync();
-
-                return Result.Success();
             }
 
 

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAgencyVerificationService agencyVerificationService,
             IContractFileManagementService contractFileManagementService,
             ILocalityInfoService localityInfoService,
-            IAgencyRemovalService agencyRemovalService)
+            IAgencyDeletionService agencyDeletionService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _agencyVerificationService = agencyVerificationService;
             _contractFileManagementService = contractFileManagementService;
             _localityInfoService = localityInfoService;
-            _agencyRemovalService = agencyRemovalService;
+            _agencyDeletionService = agencyDeletionService;
         }
 
 
@@ -311,7 +311,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> Delete([FromRoute] int agencyId) 
-            => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
+            => NoContentOrBadRequest(await _agencyDeletionService.Delete(agencyId));
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
@@ -320,6 +320,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAgencyVerificationService _agencyVerificationService;
         private readonly IContractFileManagementService _contractFileManagementService;
         private readonly ILocalityInfoService _localityInfoService;
-        private readonly IAgencyRemovalService _agencyRemovalService;
+        private readonly IAgencyDeletionService _agencyDeletionService;
     }
 }
