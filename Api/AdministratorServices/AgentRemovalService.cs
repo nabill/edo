@@ -157,6 +157,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     {
                         return Result.Failure($"Identity request failed with error: `{ex.Message}`");
                     }
+                    finally
+                    {
+                        response?.Dispose();
+                    }
                 }
 
 
