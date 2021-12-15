@@ -41,10 +41,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (isFailure)
                 return Result.Failure<MoneyAmount>(error);
 
-            if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Discarded)
-                return new MoneyAmount(booking.TotalPrice, booking.Currency);
-
-            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.Calculate(booking, operationDate);
+            return booking.Status switch
+            {
+                BookingStatuses.Rejected or BookingStatuses.Discarded or BookingStatuses.Invalid => new MoneyAmount(booking.TotalPrice, booking.Currency),
+                _ => booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.Calculate(booking, operationDate)
+            };
         }
 
 

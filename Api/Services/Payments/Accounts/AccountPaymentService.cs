@@ -197,6 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 _context.Payments.Add(payment);
                 await _context.SaveChangesAsync();
+                _context.Detach(payment);
 
                 return payment;
             }
