@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public interface IAgencyDeletionService
+    public interface IAgencyRemovalService
     {
         Task<Result> Delete(int agencyId);
     }

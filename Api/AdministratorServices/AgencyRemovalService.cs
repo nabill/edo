@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
-    public class AgencyDeletionService : IAgencyDeletionService
+    public class AgencyRemovalService : IAgencyRemovalService
     {
-        public AgencyDeletionService(EdoContext context,
+        public AgencyRemovalService(EdoContext context,
             IManagementAuditService managementAuditService,
             IBookingService bookingService,
             IAgencySystemSettingsManagementService agencySystemSettingsManagementService,

@@ -682,7 +682,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IChildAgencyService, ChildAgencyService>();
             services.AddTransient<IAgencyService, AgencyService>();
 
-            services.AddTransient<IAgencyDeletionService, AgencyDeletionService>();
+            services.AddTransient<IAgencyRemovalService, AgencyRemovalService>();
             services.AddTransient<IAgentRemovalService, AgentRemovalService>();
 
             services.AddTransient<IApiClientService, ApiClientService>();
