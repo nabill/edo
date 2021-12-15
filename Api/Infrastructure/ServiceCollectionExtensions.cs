@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     Scope = clientOptions["dacManagementScope"]
                 });
 
-                options.Client.Clients.Add(HttpClientNames.UsersManagementIdentityClient, new ClientCredentialsTokenRequest
+                options.Client.Clients.Add(HttpClientNames.UsersEditIdentityClient, new ClientCredentialsTokenRequest
                 {
                     Address = identityUri,
                     ClientId = clientId,
@@ -212,7 +212,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
-            services.AddClientAccessTokenClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersManagementIdentityClient, client =>
+            services.AddClientAccessTokenClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersEditIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
