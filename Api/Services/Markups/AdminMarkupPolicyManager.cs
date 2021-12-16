@@ -365,29 +365,24 @@ namespace HappyTravel.Edo.Api.Services.Markups
             int? agencyId = null, agentId = null;
             string? locationId = null;
 
-            try
+            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && int.TryParse(policy.SubjectScopeId, out var parsedId))
+                agencyId = parsedId;
+            else
+                return Result.Failure<MarkupPolicyData>("Cannot parse agency id");
+
+            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
             {
-                if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
-                    agencyId = int.Parse(policy.SubjectScopeId);
-
-                if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
-                {
-                    var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
-                    agencyId = agentInAgencyId.AgencyId;
-                    agentId = agentInAgencyId.AgentId;
-                }
-
-                if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
-                    locationId = policy.SubjectScopeId;
-
-                return new MarkupPolicyData(policy.Target,
-                    new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
-                    new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
+                var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
+                agencyId = agentInAgencyId.AgencyId;
+                agentId = agentInAgencyId.AgentId;
             }
-            catch (Exception ex)
-            {
-                return Result.Failure<MarkupPolicyData>(ex.Message);
-            }
+
+            if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
+                locationId = policy.SubjectScopeId;
+
+            return new MarkupPolicyData(policy.Target,
+                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency, policy.DestinationScopeId),
+                new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
         }
 
 
