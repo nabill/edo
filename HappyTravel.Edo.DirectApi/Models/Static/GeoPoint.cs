@@ -6,14 +6,17 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
     public readonly struct GeoPoint
     {
         [JsonConstructor]
-        public GeoPoint([Range(-180, 180)]double longitude, [Range(-90, 90)]double latitude)
+        public GeoPoint(double longitude, double latitude)
         {
             Latitude = latitude;
             Longitude = longitude;
         }
         
         
+        [Range(-90, 90)]
         public double Latitude { get; }
+        
+        [Range(-180, 180)]
         public double Longitude { get; }
     }
 }
