@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Validators
 {
@@ -8,8 +9,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
         public RoomOccupationRequestValidator()
         {
             RuleFor(r => r.AdultsNumber).GreaterThan(0);
-            RuleFor(r => r.IsExtraBedNeeded).NotNull();
-            RuleFor(r => r.Type).NotEmpty().IsInEnum();
+            RuleForEach(r => r.ChildrenAges).GreaterThanOrEqualTo(0).LessThan(100);
         }
     }
 }

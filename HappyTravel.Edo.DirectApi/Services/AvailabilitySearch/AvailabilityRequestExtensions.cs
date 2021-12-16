@@ -1,5 +1,7 @@
-﻿using HappyTravel.Edo.Api.Models.Availabilities;
-using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
+﻿using System.Linq;
+using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.EdoContracts.Accommodations.Internals;
+using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
@@ -12,7 +14,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                 checkInDate: request.CheckInDate,
                 checkOutDate: request.CheckOutDate,
                 filters: ClientSearchFilters.AvailableOnly,
-                roomDetails: request.RoomDetails,
+                roomDetails: request.RoomDetails
+                    .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges))
+                    .ToList(),
                 ratings: default,
                 propertyTypes: default,
                 htIds: request.Ids);

@@ -22,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public Task<List<Country>> Get(string query, string languageCode)
         {
-            if (query?.Length < 2)
+            if (query == null || query.Length < 2)
                 return GetFullCountryList(languageCode);
 
             return _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode, query), async ()
                 => await _context.Countries
-                    .Where(c => EF.Functions.ILike(c.Code, query) || EF.Functions.ILike(EdoContext.JsonbToString(c.Names), $"%{query}%"))
-                    .Select(c => new Country(c.Code, LocalizationHelper.GetValueFromSerializedString(c.Names, languageCode), c.RegionId))
+                    .Where(c => EF.Functions.ILike(c.Code, query) || EF.Functions.ILike((string)(object)c.Names, @$"%""{languageCode}"":%""%{query}%"))
+                    .Select(c => new Country(c.Code, c.Names.RootElement.GetProperty(languageCode).GetString(), c.RegionId))
                     .ToListAsync(), DefaultLocationCachingTime);
         }
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var cacheKey = _flow.BuildKey(nameof(CountryService), CountriesKeyBase, languageCode);
             return _flow.GetOrSetAsync(cacheKey, async ()
                     => (await _context.Countries.ToListAsync())
-                    .Select(c => new Country(c.Code, LocalizationHelper.GetValueFromSerializedString(c.Names, languageCode), c.RegionId)).ToList(),
+                    .Select(c => new Country(c.Code, c.Names.RootElement.GetProperty(languageCode).GetString(), c.RegionId)).ToList(),
                 DefaultLocationCachingTime);
         }
 

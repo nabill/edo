@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Static;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using JsonException = System.Text.Json.JsonException;
 
 namespace HappyTravel.Edo.DirectApi.Services.Static
 {
@@ -30,28 +30,38 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var endpoint = $"api/1.0/accommodations?top={top}&skip={skip}&suppliers={string.Join("&suppliers=", searchSettings.EnabledConnectors)}";
-            return await Send<List<Accommodation>>(endpoint, languageCode);
+            var (_, isFailure, accommodations, error) = await Send<List<MapperContracts.Public.Accommodations.Accommodation>?>(endpoint, languageCode);
+            
+            if (isFailure)
+                return Result.Failure<List<Accommodation>>(error);
+            
+            return accommodations?.ToDirectApiModels() ?? Result.Failure<List<Accommodation>>("Failed to get accommodations");
         }
 
 
-        public Task<Result<Accommodation>> GetAccommodationById(string accommodationId, string languageCode)
+        public async Task<Result<Accommodation>> GetAccommodationById(string accommodationId, string languageCode)
         {
             var endpoint = $"api/1.0/accommodations/{accommodationId}";
-            return Send<Accommodation>(endpoint, languageCode);
+            var (_, isFailure, accommodation, error) = await Send<MapperContracts.Public.Accommodations.Accommodation?>(endpoint, languageCode);
+
+            if (isFailure)
+                return Result.Failure<Accommodation>(error);
+            
+            return accommodation?.ToDirectApiModel() ?? Result.Failure<Accommodation>("Failed to get accommodation");
         }
 
 
-        private async Task<Result<T>> Send<T>(string endpoint, string languageCode)
+        private async Task<Result<T?>> Send<T>(string endpoint, string languageCode)
         {
             using var client = _httpClientFactory.CreateClient(HttpClientNames.MapperApi);
             client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-            
+
             try
             {
-                var response = await client.GetAsync(endpoint);
+                using var response = await client.GetAsync(endpoint);
 
                 if (response.IsSuccessStatusCode)
-                    return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
+                    return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), _jsonSerializerOptions);
 
                 string error;
 
@@ -65,13 +75,21 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
                     error = await response.Content.ReadAsStringAsync();
                 }
                 
-                return Result.Failure<T>(error);
+                return Result.Failure<T?>(error);
             }
             catch (Exception ex)
             {
-                return Result.Failure<T>(ex.Message);
+                return Result.Failure<T?>(ex.Message);
             }
         }
+        
+        
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+            Converters = {new JsonStringEnumConverter()}
+        };
 
 
         private readonly IHttpClientFactory _httpClientFactory;

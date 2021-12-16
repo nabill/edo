@@ -77,6 +77,7 @@ using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
+using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
@@ -173,13 +174,21 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["vccScope"]
                 });
-                
+
                 options.Client.Clients.Add(HttpClientNames.DacIdentityClient, new ClientCredentialsTokenRequest
                 {
                     Address = identityUri,
                     ClientId = clientId,
                     ClientSecret = clientSecret,
                     Scope = clientOptions["dacManagementScope"]
+                });
+
+                options.Client.Clients.Add(HttpClientNames.UsersEditIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["odawaraUsersEditScope"]
                 });
             });
             
@@ -202,7 +211,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
-            
+
+            services.AddClientAccessTokenClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersEditIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(authorityUrl);
+            });
+
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(configuration["Edo:Google:Endpoint"]); })
@@ -443,6 +457,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         public static IServiceCollection AddServices(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
+            services.AddScoped<IdempotentFunctionExecutor>();
+            services.AddScoped<IdempotentBookingExecutor>();
+            
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration)));
             services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();
@@ -549,7 +566,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
-            services.AddTransient<ISupplierConnectorManager, SupplierConnectorManager>();
+            services.AddSingleton<ISupplierConnectorManager, SupplierConnectorManager>();
             services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IWideAvailabilityPriceProcessor, WideAvailabilityPriceProcessor>();
             services.AddTransient<IWideAvailabilityAccommodationsStorage, WideAvailabilityAccommodationsStorage>();
@@ -664,6 +681,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencyManagementService, AgencyManagementService>();
             services.AddTransient<IChildAgencyService, ChildAgencyService>();
             services.AddTransient<IAgencyService, AgencyService>();
+
+            services.AddTransient<IAgencyRemovalService, AgencyRemovalService>();
+            services.AddTransient<IAgentRemovalService, AgentRemovalService>();
 
             services.AddTransient<IApiClientService, ApiClientService>();
             services.AddTransient<IReportService, ReportService>();

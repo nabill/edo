@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Validators
 {
@@ -8,8 +9,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
         public RoomDetailsValidator()
         {
             RuleFor(d => d.Passengers).NotEmpty();
-            RuleFor(d => d.Type).NotEmpty().IsInEnum();
-            RuleFor(d => d.IsExtraBedNeeded).NotNull();
+            RuleForEach(d => d.Passengers).SetValidator(new PaxValidator());
         }
     }
 }

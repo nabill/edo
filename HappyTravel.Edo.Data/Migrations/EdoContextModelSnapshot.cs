@@ -811,7 +811,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
-                    b.Property<string>("Names")
+                    b.Property<JsonDocument>("Names")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
@@ -830,7 +830,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<string>("Names")
+                    b.Property<JsonDocument>("Names")
                         .IsRequired()
                         .HasColumnType("jsonb");
 

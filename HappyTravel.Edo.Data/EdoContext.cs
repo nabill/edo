@@ -99,10 +99,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<AgentDirectApiClientRelation> AgentDirectApiClientRelations { get; set; }
 
 
-        [DbFunction("jsonb_to_string")]
-        public static string JsonbToString(string target) => throw new Exception();
-
-
         public virtual Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
 
 

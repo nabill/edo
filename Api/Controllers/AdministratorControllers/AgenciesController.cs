@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAdminAgencyManagementService agencyManagementService,
             IAgencyVerificationService agencyVerificationService,
             IContractFileManagementService contractFileManagementService,
-            ILocalityInfoService localityInfoService)
+            ILocalityInfoService localityInfoService,
+            IAgencyRemovalService agencyRemovalService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
@@ -37,6 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _agencyVerificationService = agencyVerificationService;
             _contractFileManagementService = contractFileManagementService;
             _localityInfoService = localityInfoService;
+            _agencyRemovalService = agencyRemovalService;
         }
 
 
@@ -270,11 +273,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        /// Edits an agency with specified id
+        /// </summary>
+        /// <param name="agencyId">Id of the edited agency</param>
+        /// <param name="request">New fields for the edited agency</param>
         [HttpPut("{agencyId}")]
         [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> EditSelfAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
+        public async Task<IActionResult> EditAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
         {
             var localityId = request.LocalityHtId;
             if (string.IsNullOrWhiteSpace(localityId))
@@ -299,8 +307,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("root-agencies")]
         [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetRootAgencies()
-            => Ok(await _agencyManagementService.GetRootAgencies(LanguageCode));
+        [EnableQuery(PageSize = 500, MaxTop = 500)]
+        public IEnumerable<AdminViewAgencyInfo> GetRootAgencies()
+            => _agencyManagementService.GetRootAgencies(LanguageCode);
+
+
+        [HttpDelete("{agencyId}")]
+        [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> Delete([FromRoute] int agencyId) 
+            => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
@@ -309,5 +325,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAgencyVerificationService _agencyVerificationService;
         private readonly IContractFileManagementService _contractFileManagementService;
         private readonly ILocalityInfoService _localityInfoService;
+        private readonly IAgencyRemovalService _agencyRemovalService;
     }
 }

@@ -1,10 +1,8 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Bookings;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -16,26 +14,44 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<List<Booking>>> GetAgencyBookings(int agencyId)
+        public IQueryable<BookingSlim> GetAllBookings() 
+            => GetBookings();
+
+
+        public IQueryable<BookingSlim> GetAgencyBookings(int agencyId) 
+            => GetBookings(booking => booking.AgencyId == agencyId);
+
+
+        public IQueryable<BookingSlim> GetAgentBookings(int agentId) 
+            => GetBookings(booking => booking.AgentId == agentId);
+
+
+        private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>>? expression = null)
         {
-            var agency = await _context.Agencies.SingleOrDefaultAsync(agency => agency.Id == agencyId);
-            if (agency is null)
-                return Result.Failure<List<Booking>>($"Agency with ID {agencyId} not found");
+            var query = from booking in _context.Bookings
+                join agent in _context.Agents on booking.AgentId equals agent.Id
+                join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                select new BookingSlim
+                {
+                    Id = booking.Id,
+                    ReferenceCode = booking.ReferenceCode,
+                    AccommodationName = booking.AccommodationName,
+                    AgencyId = booking.AgencyId,
+                    AgentId = booking.AgentId,
+                    AgencyName = agency.Name,
+                    AgentName = $"{agent.FirstName} {agent.LastName}",
+                    Created = booking.Created,
+                    Currency = booking.Currency,
+                    PaymentStatus = booking.PaymentStatus,
+                    TotalPrice = booking.TotalPrice,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    Status = booking.Status
+                };
 
-            return await _context.Bookings.Where(booking => booking.AgencyId == agencyId).ToListAsync();
-        }
-
-
-        public async Task<Result<List<Booking>>> GetAgentBookings(int agentId)
-        {
-            var agent = await _context.Agents.SingleOrDefaultAsync(agent => agent.Id == agentId);
-            if (agent is null)
-                return Result.Failure<List<Booking>>($"Agent with ID {agentId} not found");
-
-            return await _context.Bookings
-                .Where(booking => booking.AgentId == agentId)
-                .OrderByDescending(booking => booking.CheckInDate)
-                .ToListAsync();
+            return expression == null
+                ? query
+                : query.Where(expression);
         }
 
 

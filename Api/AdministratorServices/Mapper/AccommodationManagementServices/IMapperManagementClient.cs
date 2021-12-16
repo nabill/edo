@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
@@ -11,9 +12,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
     public interface IMapperManagementClient
     {
         Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken);
-
         Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken);
-
+        Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string deactivationReasonDescription, CancellationToken cancellationToken);
         Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken);
+        Task<Result<DetailedAccommodation, ProblemDetails>> GetDetailedAccommodationData(string accommodationHtId, string languageCode, CancellationToken cancellationToken);
+        Task<Result<List<SlimAccommodationData>, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken);
+        Task<Result<Dictionary<int, string>, ProblemDetails>> GetDeactivationReasonTypes(CancellationToken cancellationToken);
+        Task<Result<Dictionary<int, string>, ProblemDetails>> GetRatingTypes(CancellationToken cancellationToken);
+        Task<Result<List<CountryData>, ProblemDetails>> SearchCountries(string query, string languageCode, CancellationToken cancellationToken);
+        Task<Result<List<LocalityData>, ProblemDetails>> SearchLocalities(int countryId, string query, string languageCode, CancellationToken cancellationToken);
+        Task<Result<Dictionary<int, string>, ProblemDetails>> GetSuppliers(CancellationToken cancellationToken);
     }
 }

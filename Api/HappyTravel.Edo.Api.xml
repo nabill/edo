@@ -445,6 +445,12 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings">
+            <summary>
+                Gets all bookings
+            </summary>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
             <summary>
                 Gets a list of all bookings made by the agency
@@ -486,6 +492,12 @@
             </summary>
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingCancellationPenalty(System.Int32)">
+            <summary>
+                Gets cancellation penalty for cancelling booking
+            </summary>
+            <returns>Amount of penalty</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32)">
             <summary>
@@ -628,7 +640,7 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsMergeRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsMergeRequest,System.Threading.CancellationToken)">
             <summary>
             Combines two accommodations by htAccommodationId
             </summary>
@@ -636,13 +648,81 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationController.Get(System.String,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.Get(System.String,System.Threading.CancellationToken)">
             <summary>
-            Returns mapper's accommodation details
+            Returns mapper accommodation info
             </summary>
             <param name="htAccommodationId"></param>
             <param name="cancellationToken"></param>
             <returns>Raw accommodation details</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateWrongMatchingAccommodations(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deactivates accommodations with wrong matching
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Deactivates accommodation manually
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="deactivateAccommodationDescriptionRequest"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.GetDetailedAccommodationData(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves accommodation detailed data
+            </summary>
+            <param name="accommodationHtId"></param>
+            <param name="cancellationToken"></param>
+            <returns>Detailed accommodation</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.SearchAccommodations(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationSearchRequest,System.Threading.CancellationToken)">
+            <summary>
+            Searches accommodations by search criteria
+            </summary>
+            <param name="searchRequest"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.GetRatingTypes(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves rating types
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.GetDeactivationReasonTypes(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves deactivation reason types
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.LocationsController.SearchCountries(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Searches countries by query
+            </summary>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.LocationsController.SearchLocalities(System.Int32,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Searches localities by query
+            </summary>
+            <param name="countryId"></param>
+            <param name="query"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.SuppliersController.Get(System.Threading.CancellationToken)">
+            <summary>
+            Returns suppliers list
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">
             <summary>

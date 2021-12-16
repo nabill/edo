@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1061, "BookingByAccountFailure"),
                 "Failed to book using account. HtId: '{HtId}'. Error: {Error}");
             
-            BookingByAccountStarted = LoggerMessage.Define<string>(LogLevel.Error,
+            BookingByAccountStarted = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1062, "BookingByAccountStarted"),
                 "Book using account started. HtId: '{HtId}'");
             
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1064, "BookingByOfflinePaymentFailure"),
                 "Failed to book using offline payment. HtId: '{HtId}'. Error: {Error}");
             
-            BookingByOfflinePaymentStarted = LoggerMessage.Define<string>(LogLevel.Error,
+            BookingByOfflinePaymentStarted = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1065, "BookingByOfflinePaymentStarted"),
                 "Book using offline payment started. HtId: '{HtId}'");
             

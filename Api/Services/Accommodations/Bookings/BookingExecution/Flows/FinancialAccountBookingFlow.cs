@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -24,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingDocumentsService documentsService,
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
-            IBookingRequestExecutor requestExecutor, 
+            IBookingRequestExecutor requestExecutor,
+            IBookingRecordManager recordManager,
             ILogger<FinancialAccountBookingFlow> logger)
         {
             _dateTimeProvider = dateTimeProvider;
@@ -34,10 +36,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingInfoService = bookingInfoService;
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
+            _recordManager = recordManager;
             _logger = logger;
         }
-        
-        
+
 
         public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
@@ -81,8 +83,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => _documentsService.GenerateInvoice(booking);
 
 
-            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking) 
-                => await _requestExecutor.Execute(booking, agentContext, languageCode);
+            async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
+            {
+                var refreshedBooking = await _recordManager.Get(booking.ReferenceCode);
+                return await _requestExecutor.Execute(refreshedBooking.Value, agentContext, languageCode);
+            }
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
@@ -102,6 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRegistrationService _registrationService;
+        private readonly IBookingRecordManager _recordManager;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<FinancialAccountBookingFlow> _logger;
     }
