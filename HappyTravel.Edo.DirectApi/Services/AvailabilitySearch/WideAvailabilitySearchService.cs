@@ -6,7 +6,8 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Models;
-using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.AvailabilityRequest;
+using HappyTravel.Edo.DirectApi.Models.Search;
+using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {

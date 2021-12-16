@@ -78,21 +78,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> DeleteAvailabilitySearchSettings(int agencyId)
         {
-            return await CheckAgencyExists(agencyId)
-                .BindWithTransaction(_context, () => DeleteSettings()
+            return await CheckAgencyExistsIncludingInactive(agencyId)
+                .BindWithTransaction(_context, () => Result.Success()
+                    .Tap(DeleteSettings)
                     .Bind(WriteToAuditLog));
 
 
-            async Task<Result> DeleteSettings()
+            async Task DeleteSettings()
             {
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 if (existingSettings == default)
-                    return Result.Failure("Could not find settings for specified agency");
+                    return;
 
                 _context.Remove(existingSettings);
                 await _context.SaveChangesAsync();
-
-                return Result.Success();
             }
 
 
@@ -108,8 +107,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 : Result.Failure("Agency with such id does not exist");
 
 
-        private Task<bool> DoesAgencyExist(int agencyId) 
+        private async Task<Result> CheckAgencyExistsIncludingInactive(int agencyId)
+            => await DoesAgencyExistIncludingInactive(agencyId)
+                ? Result.Success()
+                : Result.Failure("Agency with such id does not exist");
+
+
+        private Task<bool> DoesAgencyExist(int agencyId)
             => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
+
+
+        private Task<bool> DoesAgencyExistIncludingInactive(int agencyId)
+            => _context.Agencies.AnyAsync(a => a.Id == agencyId);
 
 
         private readonly EdoContext _context;

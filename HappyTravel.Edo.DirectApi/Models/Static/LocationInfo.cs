@@ -1,24 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.MapperContracts.Public.Accommodations.Internals;
-using Newtonsoft.Json;
-using GeoPoint = HappyTravel.Geography.GeoPoint;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Static
 {
     public readonly struct LocationInfo
     {
         [JsonConstructor]
-        public LocationInfo(string countryCode, string countryHtId, string country, string localityHtId, string locality, string? localityZoneHtId,
+        public LocationInfo(string countryCode, string countryId, string country, string? localityId, string? locality, string? localityZoneId,
             string? localityZone, in GeoPoint coordinates, string address, LocationDescriptionCodes locationDescriptionCode, List<PoiInfo>? pointsOfInterests,
             bool isHistoricalBuilding = false)
         {
             CountryCode = countryCode;
-            CountryId = countryHtId;
+            CountryId = countryId;
             Country = country;
             Locality = locality;
-            LocalityId = localityHtId;
-            LocalityZoneId = localityZoneHtId;
+            LocalityId = localityId;
+            LocalityZoneId = localityZoneId;
             LocalityZone = localityZone;
             Address = address;
             Coordinates = coordinates;
