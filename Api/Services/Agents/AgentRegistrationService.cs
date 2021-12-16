@@ -100,10 +100,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         Name = agency.Name,
                         CountryCode = agency.CountryCode,
                         City = agency.City,
+                        Address = agency.Address,
                         Phone = agency.Phone,
                         PostalCode = agency.PostalCode,
                         Fax = agency.Fax,
                         PreferredCurrency = EnumFormatters.FromDescription(agency.PreferredCurrency),
+                        PreferredPaymentMethod = EnumFormatters.FromDescription(agency.PreferredPaymentMethod),
                         Website = agency.Website
                     },
                     AgentEmail = email,
