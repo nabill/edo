@@ -273,11 +273,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        /// Edits an agency with specified id
+        /// </summary>
+        /// <param name="agencyId">Id of the edited agency</param>
+        /// <param name="request">New fields for the edited agency</param>
         [HttpPut("{agencyId}")]
         [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> EditSelfAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
+        public async Task<IActionResult> EditAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
         {
             var localityId = request.LocalityHtId;
             if (string.IsNullOrWhiteSpace(localityId))
