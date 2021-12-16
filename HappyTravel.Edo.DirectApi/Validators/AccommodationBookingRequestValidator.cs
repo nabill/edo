@@ -1,25 +1,34 @@
-﻿using System.Linq;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
-using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.Data;
+using HappyTravel.Edo.DirectApi.Models.Booking;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Validators
 {
     public class AccommodationBookingRequestValidator : AbstractValidator<AccommodationBookingRequest>
     {
-        public AccommodationBookingRequestValidator()
+        public AccommodationBookingRequestValidator(EdoContext context)
         {
+            _context = context;
+            
+            
             RuleFor(r => r.AccommodationId).NotEmpty();
             RuleFor(r => r.SearchId).NotNull();
             RuleFor(r => r.RoomContractSetId).NotNull();
-            RuleFor(r => r.ReferenceCode).NotEmpty();
-            RuleFor(r => r.Nationality).NotEmpty().MaximumLength(2).MinimumLength(2).Must(HasOnlyLetters);
-            RuleFor(r => r.Residency).NotEmpty().MaximumLength(2).MinimumLength(2).Must(HasOnlyLetters);
+            RuleFor(r => r.ClientReferenceCode).NotEmpty();
             RuleFor(r => r.RoomDetails).NotEmpty();
             RuleForEach(r => r.RoomDetails).SetValidator(new RoomDetailsValidator());
+            RuleFor(r => r.Nationality).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
+            RuleFor(r => r.Residency).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
         }
         
         
-        private static bool HasOnlyLetters(string str) 
-            => str.All(char.IsLetter);
+        private Task<bool> IsCountryIsoCode(string code, CancellationToken cancellationToken) 
+            => _context.Countries.AnyAsync(c => c.Code == code, cancellationToken);
+
+
+        private readonly EdoContext _context;
     }
 }

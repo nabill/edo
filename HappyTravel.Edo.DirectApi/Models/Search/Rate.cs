@@ -1,40 +1,30 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Search
 {
-    public readonly struct DailyRate
+    public readonly struct Rate
     {
         [JsonConstructor]
-        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount finalPrice, in MoneyAmount gross, PriceTypes type,
-            string description)
+        public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
+            PriceTypes type = PriceTypes.Room, string description = null)
         {
-            Description = description ?? string.Empty;
-            FromDate = fromDate;
+            Description = description;
             Gross = gross;
+            Discounts = discounts ?? new List<Discount>();
             FinalPrice = finalPrice;
-            ToDate = toDate;
             Type = type;
+            Currency = finalPrice.Currency;
         }
-
-
-        /// <summary>
-        ///     The time frame start date.
-        /// </summary>
-        public DateTime FromDate { get; }
-
-        /// <summary>
-        ///     The time frame end date.
-        /// </summary>
-        public DateTime ToDate { get; }
-
+        
         /// <summary>
         ///     The price currency.
         /// </summary>
-        public Currencies Currency => FinalPrice.Currency;
+        public Currencies Currency { get; }
 
         /// <summary>
         ///     The price description.
@@ -45,6 +35,11 @@ namespace HappyTravel.Edo.DirectApi.Models
         ///     The gross price of a service. This is just <b>a reference</b> value.
         /// </summary>
         public MoneyAmount Gross { get; }
+
+        /// <summary>
+        ///     The list of available discounts.
+        /// </summary>
+        public List<Discount> Discounts { get; }
 
         /// <summary>
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.

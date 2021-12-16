@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 using HappyTravel.Money.Extensions;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
@@ -32,11 +33,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         private static List<BookedRoom> FromEdoModel(this List<Data.Bookings.BookedRoom> bookedRooms)
         {
             return bookedRooms.Select(r => new BookedRoom(type: r.Type,
-                isExtraBedNeeded: r.IsExtraBedNeeded,
                 price: r.Price,
                 boardBasis: r.BoardBasis,
                 mealPlan: r.MealPlan,
-                deadlineDate: r.DeadlineDate,
                 contractDescription: r.ContractDescription,
                 remarks: r.Remarks,
                 deadlineDetails: r.DeadlineDetails,
