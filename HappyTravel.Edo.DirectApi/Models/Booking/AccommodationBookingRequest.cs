@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Booking
 {
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, string nationality, string residency, 
-            string referenceCode, List<BookingRoomDetails> roomDetails, Guid searchId, Guid roomContractSetId)
+            string clientReferenceCode, List<BookingRoomDetails> roomDetails, Guid searchId, Guid roomContractSetId)
         {
             AccommodationId = accommodationId;
             Nationality = nationality;
             Residency = residency;
             SearchId = searchId;
             RoomContractSetId = roomContractSetId;
-            ReferenceCode = referenceCode;
+            ClientReferenceCode = clientReferenceCode;
             RoomDetails = roomDetails;
         }
         
@@ -38,7 +37,7 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// <summary>
         ///     Client booking reference code
         /// </summary>
-        public string ReferenceCode { get; }
+        public string ClientReferenceCode { get; }
         
         /// <summary>
         ///     Alpha-2 nationality code for a lead passengers.

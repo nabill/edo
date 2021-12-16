@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Search;
 using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Authorization;

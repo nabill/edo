@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Search
 {
     public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets, decimal minPrice,
-            decimal maxPrice, DateTime checkInDate, DateTime checkOutDate)
+        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets
+            , DateTime checkInDate, DateTime checkOutDate)
         {
             AccommodationId = accommodationId;
-            MinPrice = minPrice;
-            MaxPrice = maxPrice;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             RoomContractSets = roomContractSets;
@@ -22,16 +20,6 @@ namespace HappyTravel.Edo.DirectApi.Models
         /// AccommodationId
         /// </summary>
         public string AccommodationId { get; }
-        
-        /// <summary>
-        /// Minimal room contract set price
-        /// </summary>
-        public decimal MinPrice { get; }
-        
-        /// <summary>
-        /// Maximal room contract set price
-        /// </summary>
-        public decimal MaxPrice { get; }
 
         /// <summary>
         /// Check in date
