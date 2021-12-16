@@ -197,8 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<List<MarkupInfo>> GetGlobalPolicies()
         {
             return _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global && 
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
                 .OrderBy(p => p.Order)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
