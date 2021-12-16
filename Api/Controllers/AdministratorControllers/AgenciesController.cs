@@ -30,7 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IAdminAgencyManagementService agencyManagementService,
             IAgencyVerificationService agencyVerificationService,
             IContractFileManagementService contractFileManagementService,
-            ILocalityInfoService localityInfoService)
+            ILocalityInfoService localityInfoService,
+            IAgencyRemovalService agencyRemovalService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _agencyVerificationService = agencyVerificationService;
             _contractFileManagementService = contractFileManagementService;
             _localityInfoService = localityInfoService;
+            _agencyRemovalService = agencyRemovalService;
         }
 
 
@@ -305,11 +307,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => _agencyManagementService.GetRootAgencies(LanguageCode);
 
 
+        [HttpDelete("{agencyId}")]
+        [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> Delete([FromRoute] int agencyId) 
+            => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
         private readonly IAdminAgencyManagementService _agencyManagementService;
         private readonly IAgencyVerificationService _agencyVerificationService;
         private readonly IContractFileManagementService _contractFileManagementService;
         private readonly ILocalityInfoService _localityInfoService;
+        private readonly IAgencyRemovalService _agencyRemovalService;
     }
 }
