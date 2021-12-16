@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
@@ -14,8 +15,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         {
             return new WideAvailabilityResult(accommodationId: result.HtId, 
                 roomContractSets: result.RoomContractSets.MapFromEdoModels(),
-                minPrice: result.MinPrice,
-                maxPrice: result.MaxPrice,
                 checkInDate: result.CheckInDate,
                 checkOutDate: result.CheckOutDate);
         }

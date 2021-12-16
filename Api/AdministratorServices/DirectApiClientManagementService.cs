@@ -138,6 +138,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 return Result.Failure($"Request failed with error: `{ex.Message}`");
             }
+            finally
+            {
+                response?.Dispose();
+            }
         }
 
 

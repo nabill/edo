@@ -16,5 +16,7 @@
         public const string NGenius = "NGenius";
         public const string DacManagementClient = "DirectApiClientsManagementClient";
         public const string DacIdentityClient = "DirectApiClientsIdentityClient";
+        public const string UsersManagementIdentityClient = "UsersManagementIdentityClient";
+        public const string UsersEditIdentityClient = "UsersEditIdentityClient";
     }
 }

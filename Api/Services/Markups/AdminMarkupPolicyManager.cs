@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -175,7 +176,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.DestinationScopeId = settings.DestinationScopeId;
                 policy.DestinationScopeType = destinationScopeType.Value;
 
-                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy), policy);
+                var policyData = GetPolicyData(policy);
+                if(policyData.IsFailure)
+                    return Result.Failure<MarkupPolicy>(policyData.Error);
+
+                var (_, isFailure, error) = await ValidatePolicy(policyData.Value, policy);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
@@ -190,6 +195,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return (await GetPoliciesForScope(scope))
                 .Select(GetPolicyData)
+                .Where(p => p.IsSuccess)
+                .Select(p => p.Value)
                 .ToList();
         }
 
@@ -197,8 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<List<MarkupInfo>> GetGlobalPolicies()
         {
             return _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global && 
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
                 .OrderBy(p => p.Order)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
@@ -354,15 +360,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
+        private static Result<MarkupPolicyData> GetPolicyData(MarkupPolicy policy)
         {
             int? agencyId = null, agentId = null;
             string? locationId = null;
-            
-            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
-                agencyId = int.Parse(policy.SubjectScopeId);
 
-            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
+            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && int.TryParse(policy.SubjectScopeId, out var parsedId))
+                agencyId = parsedId;
+            else
+                return Result.Failure<MarkupPolicyData>("Cannot parse agency id");
+
+            if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
             {
                 var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
                 agencyId = agentInAgencyId.AgencyId;
