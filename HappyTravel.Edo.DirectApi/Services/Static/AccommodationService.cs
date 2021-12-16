@@ -55,19 +55,13 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
         {
             using var client = _httpClientFactory.CreateClient(HttpClientNames.MapperApi);
             client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                Converters = { new JsonStringEnumConverter() }
-            };
-            
+
             try
             {
-                var response = await client.GetAsync(endpoint);
+                using var response = await client.GetAsync(endpoint);
 
                 if (response.IsSuccessStatusCode)
-                    return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), options);
+                    return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), _jsonSerializerOptions);
 
                 string error;
 
@@ -88,6 +82,14 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
                 return Result.Failure<T?>(ex.Message);
             }
         }
+        
+        
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+            Converters = {new JsonStringEnumConverter()}
+        };
 
 
         private readonly IHttpClientFactory _httpClientFactory;
