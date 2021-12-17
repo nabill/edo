@@ -35,6 +35,44 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task AddAdminNotification(DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
+        {
+
+            var recipients = await GetRecipients(notificationType);
+
+            foreach (var recipient in recipients)
+            {
+
+                var notification = new Notification
+                {
+                    Receiver = ReceiverTypes.AdminPanel,
+                    UserId = recipient.Key,
+                    AgencyId = null,
+                    Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
+                    Type = notificationType,
+                    SendingSettings = sendingSettings
+                };
+
+                await SaveAndSend(notification, messageData);
+            }
+        }
+
+
+        private async Task<Dictionary<int, string>> GetRecipients(NotificationTypes notificationType)
+        {
+            var roleIds = _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType)).Select(r => r.Id);
+            var recipients = new Dictionary<int, string>();
+
+            foreach (var roleId in roleIds)
+            {
+                recipients = (Dictionary<int, string>)recipients.Union(await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
+                    .ToDictionaryAsync(a => a.Id, a => a.Email));
+            }
+
+            return recipients;
+        }
+
+
         public async Task AddAdminNotification(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
@@ -135,14 +173,14 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .ToListAsync();
 
 
-        private async Task SaveAndSend(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
+        private async Task SaveAndSend(Notification notification, DataWithCompanyInfo messageData)
         {
             var notificationId = await Save(notification);
             await Send(notification, notificationId, messageData);
         }
 
 
-        private async Task<int> Save(Notifications.Models.Notification notification)
+        private async Task<int> Save(Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
@@ -161,7 +199,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task Send(Notifications.Models.Notification notification, int notificationId, DataWithCompanyInfo messageData)
+        private async Task Send(Notification notification, int notificationId, DataWithCompanyInfo messageData)
         {
             var tasks = new List<Task>();
 
