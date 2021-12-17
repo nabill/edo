@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("{agencyId}/agents")]
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.ViewAgents)]
         public async Task<IActionResult> GetAgents([FromRoute] int agencyId)
         {
             var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns></returns>
         [HttpGet("{agencyId}/child-agencies")]
         [ProducesResponseType(typeof(List<AgencyInfo>), (int) HttpStatusCode.OK)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
             => Ok(await _agencyManagementService.GetChildAgencies(agencyId, LanguageCode));
 
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("{agencyId}/deactivate")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
             var (_, isFailure, error) = await _agencyManagementService.DeactivateAgency(agencyId, request.Reason);
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("{agencyId}/activate")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
             var (_, isFailure, error) = await _agencyManagementService.ActivateAgency(agencyId, request.Reason);
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("{agencyId}")]
         [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         public async Task<IActionResult> GetAgency(int agencyId)
             => OkOrBadRequest(await _agencyManagementService.Get(agencyId, LanguageCode));
 
@@ -245,7 +245,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{agencyId}/contract-file")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> UploadContractFile(int agencyId, [FromForm] IFormFile file)
         {
             var result = await _contractFileManagementService.Add(agencyId, file);
@@ -261,7 +261,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("{agencyId}/contract-file")]
         [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> GetContractFile(int agencyId)
         {
             var (_, isFailure, (stream, contentType), error) = await _contractFileManagementService.Get(agencyId);
@@ -306,7 +306,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         [HttpGet("root-agencies")]
         [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
         public IEnumerable<AdminViewAgencyInfo> GetRootAgencies()
             => _agencyManagementService.GetRootAgencies(LanguageCode);
@@ -314,7 +314,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         [HttpDelete("{agencyId}")]
         [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> Delete([FromRoute] int agencyId) 
             => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
 
