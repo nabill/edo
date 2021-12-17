@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(AgencyAccommodationBookingSettingsInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agencyId)
         {
             var (_, isFailure, settings, error) = await _systemSettingsManagementService.GetAvailabilitySearchSettings(agencyId);
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{agencyId}/system-settings/availability-search")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettingsInfo settings, [FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId, settings));
 
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpDelete("{agencyId}/system-settings/availability-search")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> DeleteSystemSettings([FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.DeleteAvailabilitySearchSettings(agencyId));
         
@@ -281,7 +281,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{agencyId}")]
         [ProducesResponseType(typeof(AgencyInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> EditAgency([FromRoute] int agencyId, [FromBody] ManagementEditAgencyRequest request)
         {
             var localityId = request.LocalityHtId;
