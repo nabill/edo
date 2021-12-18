@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -25,23 +27,24 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IBookingChangeLogService changeLogService, 
             ISupplierOrderService supplierOrderService, 
             IBookingRequestStorage requestStorage, 
-            IAccommodationService accommodationService,
+            IAccommodationMapperClient accommodationMapperClient,
             ILogger<DirectApiBookingRegistrationService> logger) 
             : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, logger)
         {
-            _accommodationService = accommodationService;
+            _accommodationMapperClient = accommodationMapperClient;
         }
 
 
         protected override async Task<Booking> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationService.Get(availabilityInfo.HtId, booking.LanguageCode ?? "en");
+            var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en");
             if (isFailure)
             {
                 throw new Exception($"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{error.Detail}`");
             }
 
-            var location = accommodation.Location;
+            var edoAccommodation = accommodation.ToEdoContract();
+            var location = edoAccommodation.Location;
 
             booking.Location = new AccommodationLocation(location.Country,
                 location.Locality,
@@ -49,19 +52,19 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 location.Address,
                 location.Coordinates);
 
-            booking.AccommodationId = accommodation.Id;
-            booking.AccommodationName = accommodation.Name;
+            booking.AccommodationId = edoAccommodation.Id;
+            booking.AccommodationName = edoAccommodation.Name;
 
             if (accommodation.Photos.Any())
             {
                 booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                    new ImageInfo(accommodation.Photos[0].Caption, accommodation.Photos[0].SourceUrl));
+                    new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl));
             }
 
             return booking;
         }
 
 
-        private readonly IAccommodationService _accommodationService;
+        private readonly IAccommodationMapperClient _accommodationMapperClient;
     }
 }
