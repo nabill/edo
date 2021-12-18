@@ -218,6 +218,13 @@
             </summary>
             <param name="agencyId">Id of the agency to load the contract file for</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.EditAgency(System.Int32,HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest)">
+            <summary>
+            Edits an agency with specified id
+            </summary>
+            <param name="agencyId">Id of the edited agency</param>
+            <param name="request">New fields for the edited agency</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies">
             <summary>
             Gets a list of all root agencies
