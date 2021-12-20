@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -23,13 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         public BookingInfoService(EdoContext context, 
             IBookingRecordManager bookingRecordManager,
-            IAccommodationService accommodationService,
+            IAccommodationMapperClient accommodationMapperClient,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
-            _accommodationService = accommodationService;
+            _accommodationMapperClient = accommodationMapperClient;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
         }
@@ -175,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.HtId, languageCode);
+            var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
 
@@ -183,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ? await _accommodationBookingSettingsService.Get(agentContext.Value)
                 : (AccommodationBookingSettings?) null;
             
-            var bookingDetails = GetDetails(booking, accommodation);
+            var bookingDetails = GetDetails(booking, accommodation.ToEdoContract());
             var supplier = GetSupplier(booking, settings);
             var isDirectContract = GetDirectContractFlag(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
@@ -270,7 +272,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
-        private readonly IAccommodationService _accommodationService;
+        private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
