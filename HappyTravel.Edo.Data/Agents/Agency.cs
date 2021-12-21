@@ -8,7 +8,6 @@ namespace HappyTravel.Edo.Data.Agents
     public class Agency
     {
         public int Id { get; set; }
-        public int CounterpartyId { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public string CountryCode { get; set; }

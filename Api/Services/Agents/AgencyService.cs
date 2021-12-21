@@ -58,7 +58,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agency = new Agency
             {
                 Name = name,
-                CounterpartyId = 0,
                 Created = now,
                 Modified = now,
                 ParentId = parentAgencyId,

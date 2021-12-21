@@ -190,7 +190,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             {
                 booking.AgentId = agentContext.AgentId;
                 booking.AgencyId = agentContext.AgencyId;
-                booking.CounterpartyId = 0;
             }
             
             void AddRooms(List<RoomContract> roomContracts, List<BookingRoomDetails> bookingRequestRoomDetails)

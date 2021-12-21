@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.Data
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
 
         public virtual DbSet<Country> Countries { get; set; }
-        public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
         public DbSet<Region> Regions { get; set; }
@@ -206,7 +205,6 @@ namespace HappyTravel.Edo.Data
             BuildCountry(builder);
             BuildRegion(builder);
             BuildAgent(builder);
-            BuildCounterparty(builder);
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
             BuildBookingRequests(builder);
@@ -225,7 +223,7 @@ namespace HappyTravel.Edo.Data
             BuildMarkupPolicyAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
-            BuildCounterpartyAgencies(builder);
+            BuildAgencies(builder);
             BuildSupplierOrders(builder);
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
@@ -286,19 +284,17 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCounterpartyAgencies(ModelBuilder builder)
+        private void BuildAgencies(ModelBuilder builder)
         {
             builder.Entity<Agency>(agency =>
             {
                 agency.HasKey(a => a.Id);
-                agency.Property(a => a.CounterpartyId).IsRequired();
                 agency.Property(a => a.Modified).IsRequired();
                 agency.Property(a => a.Created).IsRequired();
                 agency.Property(a => a.Name).IsRequired();
                 agency.Property(a => a.IsActive)
                     .IsRequired()
                     .HasDefaultValue(true);
-                agency.HasIndex(a => a.CounterpartyId);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
                 agency.Property(a => a.Address).IsRequired();
@@ -464,17 +460,6 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCounterparty(ModelBuilder builder)
-        {
-            builder.Entity<Counterparty>(counterparty =>
-            {
-                counterparty.HasKey(c => c.Id);
-                counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
-                counterparty.Property(c => c.Name).IsRequired();
-            });
-        }
-
-
         private void BuildAgentAgencyRelation(ModelBuilder builder)
         {
             builder.Entity<AgentAgencyRelation>(relation =>
@@ -496,9 +481,6 @@ namespace HappyTravel.Edo.Data
 
                 booking.Property(b => b.AgentId).IsRequired();
                 booking.HasIndex(b => b.AgentId);
-
-                booking.Property(b => b.CounterpartyId).IsRequired();
-                booking.HasIndex(b => b.CounterpartyId);
 
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
@@ -786,7 +768,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<DisplayMarkupFormula>(b =>
             {
-                b.HasIndex(f => new {f.CounterpartyId, f.AgencyId, f.AgentId}).IsUnique();
+                b.HasIndex(f => new {f.AgencyId, f.AgentId}).IsUnique();
                 b.Property(f => f.DisplayFormula).IsRequired();
             });
         }

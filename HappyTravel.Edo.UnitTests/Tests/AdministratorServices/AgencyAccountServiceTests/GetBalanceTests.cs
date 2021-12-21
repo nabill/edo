@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAccountServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountServiceTests
 {
     public class GetBalanceTests
     {

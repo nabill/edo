@@ -12,7 +12,6 @@ namespace HappyTravel.Edo.Data.Bookings
 
         public int AgentId { get; set; }
         public int AgencyId { get; set; }
-        public int CounterpartyId { get; set; }
         public string HtId { get; set; }
         
         public DateTime Created { get; set; }

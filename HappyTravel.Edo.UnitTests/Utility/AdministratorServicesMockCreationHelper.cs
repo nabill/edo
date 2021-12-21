@@ -29,7 +29,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-            edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
@@ -166,41 +165,11 @@ namespace HappyTravel.Edo.UnitTests.Utility
             }
         };
 
-        private readonly IEnumerable<Counterparty> _counterparties = new[]
-        {
-            new Counterparty
-            {
-                Id = 1,
-                Name = "Test"
-            },
-            new Counterparty
-            {
-                Id = 2,
-                Name = "Test1"
-            },
-            new Counterparty
-            {
-                Id = 3,
-                Name = "Test"
-            },
-            new Counterparty
-            {
-                Id = 14,
-                Name = "CounterpartyWithBillingEmail"
-            },
-            new Counterparty
-            {
-                Id = 15,
-                Name = "CounterpartyWithoutBillingEmail"
-            }
-        };
-
         private readonly IEnumerable<Agency> _agencies = new[]
         {
             new Agency
             {
                 Id = 1,
-                CounterpartyId = 1,
                 VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName",
                 CountryCode = "AF",
@@ -209,7 +178,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 2,
-                CounterpartyId = 1,
                 Name = "agencyName2",
                 CountryCode = "AF",
                 ParentId = 1,
@@ -219,7 +187,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 3,
-                CounterpartyId = 2,
                 VerificationState = AgencyVerificationStates.PendingVerification,
                 Name = "agencyName3",
                 CountryCode = "AF",
@@ -228,7 +195,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 5,
-                CounterpartyId = 2,
                 Name = "childAgency",
                 CountryCode = "AF",
                 IsActive = false,
@@ -238,7 +204,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 4,
-                CounterpartyId = 1,
                 Name = "childAgency",
                 CountryCode = "AF",
                 ParentId = 1,
@@ -248,7 +213,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 14,
-                CounterpartyId = 14,
                 VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions",
                 BillingEmail = "predictionsExample@mail.com",
@@ -258,7 +222,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 15,
-                CounterpartyId = 15,
                 VerificationState = AgencyVerificationStates.FullAccess,
                 Name = "AgencyExampleForPredictions1",
                 CountryCode = "AF",
@@ -267,9 +230,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Agency
             {
                 Id = 20,
-                CounterpartyId = 3,
                 VerificationState = AgencyVerificationStates.ReadOnly,
-                Name = "RootAgencyForCounterparty3",
+                Name = "RootAgency",
                 CountryCode = "AF",
                 IsActive = true
             }
