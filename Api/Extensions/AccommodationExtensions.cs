@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Geography;
@@ -45,6 +46,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     roomServiceEndTime: accommodation.Schedule.RoomServiceEndTime),
                 textualDescriptions: accommodation.TextualDescriptions,
                 type: accommodation.Type,
+                suppliers: accommodation.Suppliers,
                 htId: accommodation.HtId,
                 uniqueCodes: new UniqueAccommodationCodes(accommodation.UniqueCodes?.GiataId, accommodation.UniqueCodes?.SynxisId),
                 hotelChain: accommodation.HotelChain,
