@@ -12,6 +12,7 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using System;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -35,6 +36,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 ? defaultOptions 
                 : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory, 
                     EmailTemplateId = defaultOptions.EmailTemplateId};
+        }
+
+
+        public async Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients, NotificationTypes notificationType)
+        {
+            throw new NotImplementedException();
         }
 
 

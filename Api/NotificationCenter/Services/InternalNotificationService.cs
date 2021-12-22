@@ -35,44 +35,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        public async Task AddAdminNotification(DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
-        {
-
-            var recipients = await GetRecipients(notificationType);
-
-            foreach (var recipient in recipients)
-            {
-
-                var notification = new Notification
-                {
-                    Receiver = ReceiverTypes.AdminPanel,
-                    UserId = recipient.Key,
-                    AgencyId = null,
-                    Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
-                    Type = notificationType,
-                    SendingSettings = sendingSettings
-                };
-
-                await SaveAndSend(notification, messageData);
-            }
-        }
-
-
-        private async Task<Dictionary<int, string>> GetRecipients(NotificationTypes notificationType)
-        {
-            var roleIds = _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType)).Select(r => r.Id);
-            var recipients = new Dictionary<int, string>();
-
-            foreach (var roleId in roleIds)
-            {
-                recipients = (Dictionary<int, string>)recipients.Union(await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
-                    .ToDictionaryAsync(a => a.Id, a => a.Email));
-            }
-
-            return recipients;
-        }
-
-
         public async Task AddAdminNotification(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
@@ -102,6 +64,26 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             };
 
             await SaveAndSend(notification, messageData);
+        }
+
+
+        public async Task AddAdminNotifications(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<RecipientWithSendingSettings> recipientsWithSendingSettings)
+        {
+            foreach (var recipient in recipientsWithSendingSettings)
+            {
+
+                var notification = new Notification
+                {
+                    Receiver = ReceiverTypes.AdminPanel,
+                    UserId = recipient.RecipientId,
+                    AgencyId = null,
+                    Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
+                    Type = notificationType,
+                    SendingSettings = recipient.SendingSettings
+                };
+
+                await SaveAndSend(notification, messageData);
+            }
         }
 
 
