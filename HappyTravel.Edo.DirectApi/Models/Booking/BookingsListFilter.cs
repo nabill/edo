@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Edo.DirectApi.Enum;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Booking
 {
     public class BookingsListFilter
     {

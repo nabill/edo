@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -22,11 +23,11 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider, 
             IBookingEvaluationStorage bookingEvaluationStorage, 
-            IAccommodationService accommodationService,
+            IAccommodationMapperClient accommodationMapperClient,
             IAdminAgencyManagementService adminAgencyManagementService, 
             ILogger<DirectApiBookingEvaluationService> logger) 
             : base(supplierConnectorManager, priceProcessor, roomSelectionStorage, accommodationBookingSettingsService, dateTimeProvider, bookingEvaluationStorage,
-                accommodationService, adminAgencyManagementService, logger)
+                accommodationMapperClient, adminAgencyManagementService, logger)
         {
             
         }

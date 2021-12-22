@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
         public async Task<Result<Booking>> Register(AccommodationBookingRequest request, AgentContext agent, string languageCode)
         {
-            return await _validationService.Validate(request.ReferenceCode, agent)
+            return await _validationService.Validate(request.ClientReferenceCode, agent)
                 .Bind(GetCachedAvailability)
                 .Bind(RegisterBooking);
             

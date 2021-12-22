@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -33,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            IAccommodationService accommodationService,
+            IAccommodationMapperClient accommodationMapperClient,
             IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger)
         {
@@ -43,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _accommodationService = accommodationService;
+            _accommodationMapperClient = accommodationMapperClient;
             _adminAgencyManagementService = adminAgencyManagementService;
             _logger = logger;
         }
@@ -260,8 +262,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
         
         
-        protected virtual Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode)
-            => _accommodationService.Get(htId, languageCode);
+        protected virtual async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode)
+        {
+            var (_, isFailure, accommodation, problemDetails) = await _accommodationMapperClient.GetAccommodation(htId, languageCode);
+
+            return isFailure
+                ? problemDetails
+                : accommodation.ToEdoContract();
+        }
 
 
         protected virtual SlimAccommodation GetSlimAccommodation(Accommodation accommodation)
@@ -288,7 +296,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
-        private readonly IAccommodationService _accommodationService;
+        private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly ILogger<BookingEvaluationService> _logger;
     }

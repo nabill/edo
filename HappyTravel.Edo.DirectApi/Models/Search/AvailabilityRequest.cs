@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 
-namespace HappyTravel.Edo.DirectApi.Models
+namespace HappyTravel.Edo.DirectApi.Models.Search
 {
     public readonly struct AvailabilityRequest
     {

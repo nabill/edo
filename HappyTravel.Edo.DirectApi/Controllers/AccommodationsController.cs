@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Static;
 using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.Edo.DirectApi.Services.Static;
 using Microsoft.AspNetCore.Authorization;
