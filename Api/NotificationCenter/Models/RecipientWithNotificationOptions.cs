@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Models
     {
         public int RecipientId { get; init; }
         public string Email { get; init; }
-        public SlimNotificationOptions NotificationOptions { get; init; }
+        public SlimNotificationOptions? NotificationOptions { get; set; }
     }
 }

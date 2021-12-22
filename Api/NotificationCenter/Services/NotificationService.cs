@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails);
 
 
-        public async Task<Result> SendToAdmins(DataWithCompanyInfo messageData, NotificationTypes notificationType)
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType)
         {
             return await GetRecipients(notificationType)
                 .Bind(recipients => GetNotificationOptions(recipients, notificationType))
@@ -145,11 +145,11 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 {
                     var sendingSettings = new Dictionary<ProtocolTypes, object>();
 
-                    if ((recipient.NotificationOptions.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
+                    if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
                         sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
-                    if ((recipient.NotificationOptions.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = { recipient.Email }, TemplateId = recipient.NotificationOptions.EmailTemplateId });
+                    if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = { recipient.Email }, TemplateId = recipient.NotificationOptions?.EmailTemplateId });
 
                     recipientsWithSendingSettings.Add(new RecipientWithSendingSettings 
                     { 
