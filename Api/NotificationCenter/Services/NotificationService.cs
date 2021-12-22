@@ -149,7 +149,11 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
                     if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings { Emails = { recipient.Email }, TemplateId = recipient.NotificationOptions?.EmailTemplateId });
+                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings 
+                            { 
+                                Emails = { recipient.Email }, 
+                                TemplateId = recipient.NotificationOptions?.EmailTemplateId 
+                            });
 
                     recipientsWithSendingSettings.Add(new RecipientWithSendingSettings 
                     { 

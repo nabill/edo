@@ -71,7 +71,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         {
             foreach (var recipient in recipientsWithSendingSettings)
             {
-
                 var notification = new Notification
                 {
                     Receiver = ReceiverTypes.AdminPanel,
