@@ -5,9 +5,8 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
@@ -72,7 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             return new BookingDocumentsService(
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),
-                Mock.Of<IAccommodationService>(),
+                Mock.Of<IAccommodationMapperClient>(),
                 invoiceServiceMock.Object,
                 Mock.Of<IReceiptService>(),
                 Mock.Of<IImageFileService>(),
