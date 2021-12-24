@@ -101,12 +101,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     // Remove using range because no guarantees that only one API client per (agent, agency)
                     var directApiClients = await _context.AgentDirectApiClientRelations
-                        .Where(r => r.AgentId == agentId)
+                        .Where(r => r.AgentId == agentId && r.AgencyId == agencyId)
                         .ToListAsync();
 
                     foreach (var directApiClient in directApiClients)
                     {
-                        var apiClientRemoveRequest = new RemoveDirectApiClientRequest(directApiClient.AgentId, directApiClient.DirectApiClientId);
+                        var apiClientRemoveRequest = new RemoveDirectApiClientRequest(directApiClient.AgentId, directApiClient.AgencyId,
+                            directApiClient.DirectApiClientId);
                         var result = await _apiClientManagementService.RemoveApiClient(apiClientRemoveRequest);
 
                         if (result.IsFailure)
