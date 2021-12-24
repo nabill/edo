@@ -901,7 +901,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<AgentDirectApiClientRelation>(b =>
             {
-                b.HasKey(a => new { a.AgentId, a.DirectApiClientId });
+                b.HasKey(a => new { a.AgentId, a.AgencyId, a.DirectApiClientId });
             });
         }
 
