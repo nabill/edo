@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     This is accommodation details for "2nd step" for availability search.
         /// </remarks>
         [HttpGet("searches/{searchId}/results/{htId}/accommodation")]
-        [ProducesResponseType(typeof(Accommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgentAccommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
