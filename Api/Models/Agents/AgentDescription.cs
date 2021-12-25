@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Position { get; }
 
         /// <summary>
-        ///     List of counterparties, associated with agent.
+        ///     List of agencies, associated with agent.
         /// </summary>
         public List<AgentAgencyRelationInfo> Counterparties { get; }
     }
