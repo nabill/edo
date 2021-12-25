@@ -113,14 +113,16 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType)
         {
             return await GetRecipients(notificationType)
-                .Bind(recipients => GetNotificationOptions(recipients, notificationType))
+                .Bind(GetNotificationOptions)
                 .Bind(BuildSettings)
                 .Bind(AddNotifications);
 
 
             async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
             {
-                var roleIds = _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType)).Select(r => r.Id);
+                var roleIds = await _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType))
+                    .Select(r => r.Id)
+                    .ToListAsync();
                 var recipients = new Dictionary<int, string>();
 
                 foreach (var roleId in roleIds)
@@ -133,7 +135,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             }
 
 
-            async Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients, NotificationTypes notificationType)
+            async Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients)
                 => await _notificationOptionsService.GetNotificationOptions(recipients, notificationType);
 
 
