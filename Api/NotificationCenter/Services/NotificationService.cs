@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             return await GetRecipients(notificationType)
                 .Bind(GetNotificationOptions)
                 .Bind(BuildSettings)
-                .Bind(AddNotifications);
+                .Tap(AddNotifications);
 
 
             async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
@@ -168,11 +168,9 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             }
 
 
-            async Task<Result> AddNotifications(List<RecipientWithSendingSettings> recipientsWithSendingSettings)
+            async Task AddNotifications(List<RecipientWithSendingSettings> recipientsWithSendingSettings)
             {
                 await _internalNotificationService.AddAdminNotifications(messageData, notificationType, recipientsWithSendingSettings);
-                
-                return Result.Success();
             }
         }
 
