@@ -7,15 +7,17 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20211220105058_AddAgencyIdToApiClient")]
+    partial class AddAgencyIdToApiClient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,6 +51,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int?>("ContractKind")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<string>("CountryCode")
@@ -123,6 +128,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Ancestors")
                         .HasMethod("gin");
+
+                    b.HasIndex("CounterpartyId");
 
                     b.ToTable("Agencies");
                 });
@@ -312,6 +319,25 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("BalanceNotificationSettings");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<bool>("IsContractUploaded")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Counterparties");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
                 {
                     b.Property<int>("Id")
@@ -414,6 +440,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("CounterpartyId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
@@ -496,6 +525,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgentId");
 
                     b.HasIndex("ClientReferenceCode");
+
+                    b.HasIndex("CounterpartyId");
 
                     b.HasIndex("IsDirectContract");
 
@@ -991,13 +1022,16 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int?>("AgentId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("CounterpartyId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("DisplayFormula")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AgencyId", "AgentId")
+                    b.HasIndex("CounterpartyId", "AgencyId", "AgentId")
                         .IsUnique();
 
                     b.ToTable("DisplayMarkupFormulas");

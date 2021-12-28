@@ -1,6 +1,5 @@
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Geography;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using ContactInfo = HappyTravel.Edo.Api.Models.Accommodations.ContactInfo;
 using GeoPoint = HappyTravel.Geography.GeoPoint;
@@ -45,8 +44,33 @@ namespace HappyTravel.Edo.Api.Extensions
                     roomServiceEndTime: accommodation.Schedule.RoomServiceEndTime),
                 textualDescriptions: accommodation.TextualDescriptions,
                 type: accommodation.Type,
+                suppliers: accommodation.Suppliers,
                 htId: accommodation.HtId,
                 uniqueCodes: new UniqueAccommodationCodes(accommodation.UniqueCodes?.GiataId, accommodation.UniqueCodes?.SynxisId),
+                hotelChain: accommodation.HotelChain,
+                modified: accommodation.Modified
+            );
+
+
+        public static AgentAccommodation ToAgentAccommodation(this Accommodation accommodation, bool isSupplierVisible)
+            => new AgentAccommodation(
+                id: accommodation.Id,
+                name: accommodation.Name,
+                accommodationAmenities: accommodation.AccommodationAmenities,
+                additionalInfo: accommodation.AdditionalInfo,
+                category: accommodation.Category,
+                contacts: accommodation.Contacts,
+                location: accommodation.Location,
+                photos: accommodation.Photos,
+                rating: accommodation.Rating,
+                schedule: accommodation.Schedule,
+                textualDescriptions: accommodation.TextualDescriptions,
+                type: accommodation.Type,
+                suppliers: isSupplierVisible
+                    ? accommodation.Suppliers
+                    : null,
+                htId: accommodation.HtId,
+                uniqueCodes: accommodation.UniqueCodes,
                 hotelChain: accommodation.HotelChain,
                 modified: accommodation.Modified
             );

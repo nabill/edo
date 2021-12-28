@@ -23,7 +23,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public AgentServiceTests()
         {
             var edoContextMock = MockEdoContextFactory.Create();
-            edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
@@ -145,21 +144,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             },
         };
 
-        private readonly IEnumerable<Counterparty> _counterparties = new[]
-        {
-            new Counterparty
-            {
-                Id = 1,
-                Name = "comName",
-            }
-        };
-
         private readonly IEnumerable<Agency> _agencies = new[]
         {
             new Agency
             {
                 Id = 1,
-                CounterpartyId = 1,
                 Name = "agencyName",
                 ParentId = null,
                 VerificationState = AgencyVerificationStates.FullAccess
@@ -167,7 +156,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             new Agency
             {
                 Id = 2,
-                CounterpartyId = 1,
                 Name = "agencyName2",
                 ParentId = 1,
             }
@@ -209,7 +197,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             }
         };
 
-        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithCounterpartyAndAgency(3, 1);
+        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithAgency(3, 1);
         private readonly AgentService _agentService;
 
         public void Dispose() { }

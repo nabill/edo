@@ -188,7 +188,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .ToList();
 
             var searchFilters = Convert(request.Filters);
-
             var supplierAccommodationCodes = mappings.Select(m => m.SupplierCode).ToList();
             
             return new AvailabilityRequest(nationality: request.Nationality,

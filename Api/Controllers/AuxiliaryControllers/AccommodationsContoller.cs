@@ -4,7 +4,10 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +20,13 @@ namespace HappyTravel.Edo.Api.Controllers.AuxiliaryControllers
     
     public class Accommodations : BaseController
     {
-        public Accommodations(IAccommodationMapperClient mapperClient)
+        public Accommodations(IAccommodationMapperClient mapperClient,
+            IAgentContextService agentContextService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _mapperClient = mapperClient;
+            _agentContextService = agentContextService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
         
         /// <summary>
@@ -28,7 +35,7 @@ namespace HappyTravel.Edo.Api.Controllers.AuxiliaryControllers
         /// <param name="htId"></param>
         /// <returns></returns>
         [HttpGet("{htId}")]
-        [ProducesResponseType(typeof(Accommodations), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -38,11 +45,16 @@ namespace HappyTravel.Edo.Api.Controllers.AuxiliaryControllers
 
             if (isFailure)
                 return BadRequest(error);
-                
-            return Ok(accommodation.ToEdoContract());
+
+            var agent = await _agentContextService.GetAgent();
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            
+            return Ok(accommodation.ToEdoContract().ToAgentAccommodation(searchSettings.IsSupplierVisible));
         }
 
         
         private readonly IAccommodationMapperClient _mapperClient;
+        private readonly IAgentContextService _agentContextService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }

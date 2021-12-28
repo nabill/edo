@@ -13,8 +13,10 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
     {
         public BookingDocumentsService(EdoContext context,
             IOptions<BankDetails> bankDetails, 
-            IAccommodationService accommodationService,
+            IAccommodationMapperClient accommodationMapperClient,
             IInvoiceService invoiceService,
             IReceiptService receiptService,
             IImageFileService imageFileService,
@@ -35,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         {
             _context = context;
             _bankDetails = bankDetails.Value;
-            _accommodationService = accommodationService;
+            _accommodationMapperClient = accommodationMapperClient;
             _invoiceService = invoiceService;
             _receiptService = receiptService;
             _imageFileService = imageFileService;
@@ -45,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         public async Task<Result<BookingVoucherData>> GenerateVoucher(Booking booking, string languageCode)
         {
-            var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.HtId, languageCode);
+            var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode);
                 
             if (isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             (
                 agentName: $"{agent.FirstName} {agent.LastName}",
                 bookingId: booking.Id,
-                accommodation: GetAccommodationInfo(accommodationDetails),
+                accommodation: GetAccommodationInfo(accommodationDetails.ToEdoContract()),
                 nightCount: (booking.CheckOutDate - booking.CheckInDate).Days,
                 checkInDate: booking.CheckInDate,
                 checkOutDate: booking.CheckOutDate,
@@ -219,7 +221,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         private readonly EdoContext _context;
         private readonly BankDetails _bankDetails;
-        private readonly IAccommodationService _accommodationService;
+        private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
         private readonly IImageFileService _imageFileService;
