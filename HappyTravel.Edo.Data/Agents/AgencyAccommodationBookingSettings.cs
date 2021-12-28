@@ -11,6 +11,8 @@ namespace HappyTravel.Edo.Data.Agents
         
         public List<SuppliersCatalog.Suppliers> EnabledSuppliers { get; set; }
         
+        public List<SuppliersCatalog.Suppliers> AllowedMultiRoomBookingSuppliers { get; set; }
+
         public bool IsSupplierVisible { get; set; }
         
         public bool IsDirectContractFlagVisible { get; set; }

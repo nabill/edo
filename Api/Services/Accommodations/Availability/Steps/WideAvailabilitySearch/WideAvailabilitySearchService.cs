@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
-                if (!accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
+                if (!IsBookingAllowed(supplier) || !accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings))
                 {
                     await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
                     continue;
@@ -111,6 +111,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
                 });
             }
+
+
+            bool IsBookingAllowed(Suppliers supplier)
+                => request.RoomDetails.Count == 1 || searchSettings.AllowedMultiRoomBookingSuppliers.Contains(supplier);
         }
         
         
