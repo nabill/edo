@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
+        public async Task<Result<AgentAccommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.AddSearchId(searchId);
 
@@ -62,8 +62,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return accommodation.Error;
             
             _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
-            
-            return accommodation.Value.ToEdoContract();
+
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+
+            return accommodation.Value.ToEdoContract().ToAgentAccommodation(searchSettings.IsSupplierVisible);
         }
 
 

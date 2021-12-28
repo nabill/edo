@@ -6,10 +6,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct Accommodation
+    public readonly struct AgentAccommodation
     {
         [JsonConstructor]
-        public Accommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
+        public AgentAccommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
             string category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
             in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, List<SupplierInfo> suppliers,
             string htId = "", UniqueAccommodationCodes? uniqueCodes = null,  string hotelChain = null, DateTime? modified = null)

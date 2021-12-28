@@ -126,7 +126,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private async ValueTask<AgentContext> GetAgentInfoByIdentityHash(string identityHash)
         {
-            // TODO: use counterparty information from headers to get counterparty id
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
             // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByIdentityHash(identityHash);
