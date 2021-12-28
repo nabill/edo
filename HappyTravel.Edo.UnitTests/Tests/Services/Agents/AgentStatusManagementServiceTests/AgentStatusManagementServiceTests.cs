@@ -102,6 +102,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
             return (service, edoContextMock.Object);
         }
         
-        private static AgentContext Agent => AgentContextFactory.CreateWithCounterpartyAndAgency(3, 1);
+        private static AgentContext Agent => AgentContextFactory.CreateWithAgency(3, 1);
     }
 }

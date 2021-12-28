@@ -147,34 +147,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountSer
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
 
             edoContextMock
-                .Setup(c => c.Counterparties)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
-                {
-                    new Counterparty
-                    {
-                        Id = 1
-                    },
-                    // Having more than one element for predicates to be tested too
-                    new Counterparty
-                    {
-                        Id = 2
-                    },
-                }));
-
-            edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
                 {
                     new Agency
                     {
                         Id = 1,
-                        CounterpartyId = 1,
                         ParentId = null,
                     },
                     new Agency
                     {
                         Id = 2,
-                        CounterpartyId = 2,
                         ParentId = null,
                     }
                 }));

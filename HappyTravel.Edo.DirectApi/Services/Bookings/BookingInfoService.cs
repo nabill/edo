@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Enum;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {

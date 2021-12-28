@@ -11,9 +11,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         [JsonConstructor]
         public Accommodation(string id, string name, List<string> accommodationAmenities, Dictionary<string, string> additionalInfo,
             string category, in ContactInfo contacts, in LocationInfo location, List<ImageInfo> photos, AccommodationRatings rating,
-            in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, string htId = "",
-            UniqueAccommodationCodes? uniqueCodes = null,
-            string hotelChain = null, DateTime? modified = null)
+            in ScheduleInfo schedule, List<TextualDescription> textualDescriptions, PropertyTypes type, List<SupplierInfo> suppliers,
+            string htId = "", UniqueAccommodationCodes? uniqueCodes = null,  string hotelChain = null, DateTime? modified = null)
         {
             Id = id;
             AccommodationAmenities = accommodationAmenities ?? new List<string>(0);
@@ -27,6 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Schedule = schedule;
             TextualDescriptions = textualDescriptions ?? new List<TextualDescription>(0);
             Type = type;
+            Suppliers = suppliers;
             HtId = htId;
             UniqueCodes = uniqueCodes;
             HotelChain = hotelChain;
@@ -113,5 +113,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         ///     The Modification date of accommodation data
         /// </summary>
         public DateTime? Modified { get; }
+
+        /// <summary>
+        ///     List of suppliers
+        /// </summary>
+        public List<SupplierInfo> Suppliers { get; }
     }
 }

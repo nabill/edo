@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
@@ -11,7 +13,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             return new Edo.Api.Models.Bookings.AccommodationBookingRequest(itineraryNumber: string.Empty,
                 nationality: request.Nationality,
                 residency: request.Residency,
-                clientReferenceCode: request.ReferenceCode,
+                clientReferenceCode: request.ClientReferenceCode,
                 roomDetails: request.RoomDetails
                     .Select(r => r.ToEdoModel())
                     .ToList(),
@@ -27,10 +29,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
         private static Edo.Api.Models.Bookings.BookingRoomDetails ToEdoModel(this BookingRoomDetails roomDetails)
         {
-            return new Api.Models.Bookings.BookingRoomDetails(type: roomDetails.Type, 
-                passengers: roomDetails.Passengers,
-                isExtraBedNeeded: roomDetails.IsExtraBedNeeded,
-                isCotNeeded: roomDetails.IsCotNeededNeeded);
+            return new Api.Models.Bookings.BookingRoomDetails(type: roomDetails.Type ?? RoomTypes.NotSpecified, 
+                passengers: roomDetails.Passengers);
         }
 
 

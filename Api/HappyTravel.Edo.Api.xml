@@ -218,6 +218,13 @@
             </summary>
             <param name="agencyId">Id of the agency to load the contract file for</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.EditAgency(System.Int32,HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest)">
+            <summary>
+            Edits an agency with specified id
+            </summary>
+            <param name="agencyId">Id of the edited agency</param>
+            <param name="request">New fields for the edited agency</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies">
             <summary>
             Gets a list of all root agencies
@@ -1788,9 +1795,99 @@
                 The Modification date of accommodation data
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Accommodation.Suppliers">
+            <summary>
+                List of suppliers
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo.Photo">
             <summary>
                 Accommodation photo.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Id">
+            <summary>
+                The accommodation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Name">
+            <summary>
+                The accommodation name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Category">
+            <summary>
+                The accommodation category.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Contacts">
+            <summary>
+                Contact info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Location">
+            <summary>
+                Location info.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Photos">
+            <summary>
+                Accommodation pictures and their descriptions.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Rating">
+            <summary>
+                The accommodation rating.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Schedule">
+            <summary>
+                The schedule of accommodation services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.TextualDescriptions">
+            <summary>
+                Textual descriptions of an accommodation and its zones.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Type">
+            <summary>
+                The type of a property.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.UniqueCodes">
+            <summary>
+                Unique codes in external accommodation mapping services.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.HotelChain">
+            <summary>
+                Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.HtId">
+            <summary>
+                The Happytravel.com unique accommodation correlation ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.AccommodationAmenities">
+            <summary>
+                The dictionary of amenities available in an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.AdditionalInfo">
+            <summary>
+                The dictionary of all other accommodation stats.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Modified">
+            <summary>
+                The Modification date of accommodation data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AgentAccommodation.Suppliers">
+            <summary>
+                List of suppliers
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ContactInfo.Emails">
@@ -2819,9 +2916,9 @@
                 Agent position in agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.AgencyRelations">
             <summary>
-                List of counterparties, associated with agent.
+                List of agencies, associated with agent.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgentId">

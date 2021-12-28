@@ -69,31 +69,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     {
                         Id = 1,
                         Name = "AgencyName1",
-                        CounterpartyId = 1,
                         CountryCode = "en"
                     },
                     new Agency
                     {
                         Id = 2,
                         Name = "AgencyName2",
-                        CounterpartyId = 2,
                         CountryCode = "en"
-                    }
-                }));
-
-            edoContextMock
-                .Setup(c => c.Counterparties)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
-                {
-                    new Counterparty
-                    {
-                        Id = 1,
-                        Name = "Name1"
-                    },
-                    new Counterparty
-                    {
-                        Id = 2,
-                        Name = "Name2"
                     }
                 }));
 

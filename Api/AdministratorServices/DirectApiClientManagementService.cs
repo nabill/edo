@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .AnyAsync(a => a.Id == request.AgentId);
 
                 if (!isAgentExists)
-                    return Result.Failure($"Agent with id {request.AgentId} not found");
+                    return Result.Failure($"Agent with id {request.AgentId} not found in agency {request.AgencyId}");
 
                 var isClientAlreadyBounded = await _context.AgentDirectApiClientRelations
                     .AnyAsync(r => r.DirectApiClientId == request.ClientId);
@@ -66,6 +66,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 _context.AgentDirectApiClientRelations.Add(new AgentDirectApiClientRelation
                 {
                     AgentId = request.AgentId,
+                    AgencyId = request.AgencyId,
                     DirectApiClientId = request.ClientId
                 });
                 await _context.SaveChangesAsync();
@@ -76,10 +77,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> RemoveApiClient(RemoveDirectApiClientRequest request)
         {
             var relation = await _context.AgentDirectApiClientRelations
-                .SingleOrDefaultAsync(r => r.AgentId == request.AgentId && r.DirectApiClientId == request.ClientId);
+                .SingleOrDefaultAsync(r => r.AgentId == request.AgentId && r.AgencyId == request.AgencyId && r.DirectApiClientId == request.ClientId);
 
             if (relation is null)
-                return Result.Failure<AgentDirectApiClientRelation>($"Relation between {request.AgentId} and {request.ClientId} not found");
+                return Result.Failure<AgentDirectApiClientRelation>($"Relation between agent {request.AgentId} from agency {request.AgencyId}" +
+                    $" and {request.ClientId} not found");
 
             
             return await RemoveApiClient()
@@ -137,6 +139,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             catch (Exception ex)
             {
                 return Result.Failure($"Request failed with error: `{ex.Message}`");
+            }
+            finally
+            {
+                response?.Dispose();
             }
         }
 

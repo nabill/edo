@@ -68,19 +68,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> DeleteAvailabilitySearchSettings(int agentId, int agencyId)
         {
             return await CheckRelationExists(agentId, agencyId)
-                .BindWithTransaction(_context, () => Get(agentId, agencyId)
+                .BindWithTransaction(_context, () => Result.Success()
                     .Tap(Remove)
                     .Bind(WriteAuditLog));
 
 
-            Task Remove(AgentSystemSettings settings)
+            async Task Remove()
             {
+                var settings = await GetOrDefault(agentId, agencyId);
+                if (settings is null)
+                    return;
+
                 _context.Remove(settings);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
 
 
-            Task<Result> WriteAuditLog(AgentSystemSettings _)
+            Task<Result> WriteAuditLog()
                 => _managementAuditService.Write(ManagementEventType.AgentSystemSettingsDelete,
                     new AgentSystemSettingsDeleteEventData(agentId, agencyId));
         }
@@ -90,11 +94,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => await _context.AgentAgencyRelations.AnyAsync(r => r.AgentId == agentId && r.AgencyId == agencyId)
                 ? Result.Success()
                 : Result.Failure("Could not find specified agent in given agency");
-
-
-        private async Task<Result<AgentSystemSettings>> Get(int agentId, int agencyId)
-            => await GetOrDefault(agentId, agencyId)
-                ?? Result.Failure<AgentSystemSettings>("Could not find settings record for specified agent in given agency");
 
 
         private Task<AgentSystemSettings> GetOrDefault(int agentId, int agencyId)
