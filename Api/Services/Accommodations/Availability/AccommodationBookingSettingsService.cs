@@ -80,11 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 };
             }
 
-            var allowedMultiRoomBookingSuppliers = agencySettingsValue?.AllowedMultiRoomBookingSuppliers 
-                ?? new List<Suppliers>();
-
             return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
-                allowedMultiRoomBookingSuppliers: allowedMultiRoomBookingSuppliers,
                 aprMode: aprMode.Value,
                 passedDeadlineOffersMode: passedDeadlineOffersMode.Value,
                 isSupplierVisible: isSupplierVisible,
