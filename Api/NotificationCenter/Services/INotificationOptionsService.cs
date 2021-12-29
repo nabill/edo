@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
     public interface INotificationOptionsService
     {
         Task<Result<SlimNotificationOptions>> GetNotificationOptions(int userId, ApiCallerTypes userType, int? agencyId, NotificationTypes notificationType);
+        Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients, NotificationTypes notificationType);
 
         Task<Dictionary<NotificationTypes, NotificationSettings>> Get(SlimAgentContext agent);
         Task<Dictionary<NotificationTypes, NotificationSettings>> Get(SlimAdminContext admin);

@@ -1,17 +1,19 @@
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Notifications;
-using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Api.Models.Agents;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.NotificationCenter.Models;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -33,8 +35,30 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             return options is null 
                 ? defaultOptions 
-                : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = options.IsMandatory, 
+                : new SlimNotificationOptions {EnabledProtocols = options.EnabledProtocols, IsMandatory = defaultOptions.IsMandatory, 
                     EmailTemplateId = defaultOptions.EmailTemplateId};
+        }
+
+
+        public async Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients, NotificationTypes notificationType)
+        {
+            var recipientsWithNotificationOptions = await GetOptions(recipients, notificationType);
+
+            var (_, isFailure, defaultOptions, error) = await TryGetDefaultOptions(notificationType, ApiCallerTypes.Admin);
+            if (isFailure)
+                return Result.Failure<List<RecipientWithNotificationOptions>>(error);
+
+            foreach (var recipient in recipientsWithNotificationOptions)
+            {
+                recipient.NotificationOptions = (recipient.NotificationOptions is null)
+                    ? defaultOptions
+                    : new SlimNotificationOptions(enabledProtocols: recipient.NotificationOptions?.EnabledProtocols ?? ProtocolTypes.None,
+                        isMandatory: defaultOptions.IsMandatory,
+                        enabledReceivers: recipient.NotificationOptions?.EnabledReceivers ?? ReceiverTypes.None,
+                        emailTemplateId: defaultOptions.EmailTemplateId);
+            }
+
+            return recipientsWithNotificationOptions;
         }
 
 
@@ -154,6 +178,22 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .SingleOrDefaultAsync(o => o.UserId == userId && o.UserType == userType && o.AgencyId == agencyId && o.Type == notificationType);
 
 
+        private async Task<List<RecipientWithNotificationOptions>> GetOptions(Dictionary<int, string> recipients, NotificationTypes notificationType)
+        {
+            var admins = await _context.NotificationOptions.Where(o => o.Type == notificationType && o.UserType == ApiCallerTypes.Admin
+                && recipients.Keys.Contains(o.UserId))
+                .ToListAsync();
+
+            return recipients.Select(r => new RecipientWithNotificationOptions 
+                { 
+                    RecipientId = r.Key, 
+                    Email = r.Value, 
+                    NotificationOptions = admins.SingleOrDefault(a => a.UserId == r.Key)?.ToSlimNotificationOptions()
+                })
+                .ToList();
+        }
+
+
         private async Task<Dictionary<NotificationTypes, NotificationSettings>> GetMaterializedOptions(List<NotificationOptions> userOptions, ReceiverTypes receiver)
         {
             var defaultOptions = await GetDefaultOptions(receiver);
@@ -182,7 +222,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         private async Task<Result<SlimNotificationOptions>> TryGetDefaultOptions(NotificationTypes type, ApiCallerTypes userType)
         {
-            var receiver = GetReceiver(userType);
+            var receiver = userType.ToReceiverType();
             var options = await _context.DefaultNotificationOptions.SingleOrDefaultAsync(o => o.Type == type);
 
             if (options is null)
@@ -193,7 +233,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 ApiCallerTypes.Agent => options.AgentEmailTemplateId,
                 ApiCallerTypes.Admin => options.AdminEmailTemplateId,
                 ApiCallerTypes.PropertyOwner => options.PropertyOwnerEmailTemplateId,
-                _ => throw new System.NotImplementedException()
+                _ => throw new NotImplementedException("No email templates are defined for the specified API caller type")
             };
 
             return options.EnabledReceivers.HasFlag(receiver)
@@ -202,16 +242,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     enabledReceivers: options.EnabledReceivers, 
                     emailTemplateId: emailTemplateId)
                 : Result.Failure<SlimNotificationOptions>($"Cannot find notification options for the type '{type}' and the receiver '{receiver}'");
-
-
-            static ReceiverTypes GetReceiver(ApiCallerTypes userType)
-                => userType switch
-                {
-                    ApiCallerTypes.Admin => ReceiverTypes.AdminPanel,
-                    ApiCallerTypes.Agent => ReceiverTypes.AgentApp,
-                    ApiCallerTypes.PropertyOwner => ReceiverTypes.PropertyOwner,
-                    _ => throw new System.NotImplementedException()
-                };
         }
 
 
@@ -227,7 +257,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 ReceiverTypes.AgentApp => options.AgentEmailTemplateId,
                 ReceiverTypes.AdminPanel => options.AdminEmailTemplateId,
                 ReceiverTypes.PropertyOwner => options.PropertyOwnerEmailTemplateId,
-                _ => throw new System.NotImplementedException()
+                _ => throw new NotImplementedException("No email templates are defined for the specified receiver type")
             };
 
 

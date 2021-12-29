@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         {
             await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingCancelled);
             
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingCancelled);
+            await SendDetailedBookingNotification(bookingInfo, NotificationTypes.BookingCancelled);
         }
 
 
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         {
             await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingFinalized);
             
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, NotificationTypes.BookingFinalized);
+            await SendDetailedBookingNotification(bookingInfo, NotificationTypes.BookingFinalized);
         }
 
 
@@ -155,8 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public async Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo)
         {
             // TODO: remove when we have appropriate admin panel booking monitoring
-            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, 
-                NotificationTypes.BookingStatusChangedToPendingOrWaitingForResponse);
+            await SendDetailedBookingNotification(bookingInfo, NotificationTypes.BookingStatusChangedToPendingOrWaitingForResponse);
         }
 
 
@@ -173,14 +172,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, NotificationTypes notificationType)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, NotificationTypes notificationType)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
 
-            return _notificationService.Send(messageData: notificationData,
-                notificationType: notificationType,
-                emails: recipients);
+            return _notificationService.Send(messageData: notificationData, notificationType: notificationType);
         }
 
 

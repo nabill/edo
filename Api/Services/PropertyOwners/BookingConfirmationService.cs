@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
                     BookingConfirmationStatuses.Amended => BookingStatuses.ManualCorrectionNeeded,
                     BookingConfirmationStatuses.Confirmed => BookingStatuses.Confirmed,
                     BookingConfirmationStatuses.Cancelled => BookingStatuses.Cancelled,
-                    _ => throw new NotImplementedException()
+                    _ => throw new NotImplementedException("No corresponding booking status has been defined for the specified booking confirmation status")
                 };
 
                 return await _recordsUpdater.ChangeStatus(booking: booking, 
