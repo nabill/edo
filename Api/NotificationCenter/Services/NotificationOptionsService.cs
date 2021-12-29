@@ -1,19 +1,19 @@
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Notifications.Enums;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
+using HappyTravel.Edo.Api.NotificationCenter.Models;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Notifications;
-using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Api.Models.Agents;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.NotificationCenter.Models;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using System;
-using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
