@@ -233,7 +233,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 ApiCallerTypes.Agent => options.AgentEmailTemplateId,
                 ApiCallerTypes.Admin => options.AdminEmailTemplateId,
                 ApiCallerTypes.PropertyOwner => options.PropertyOwnerEmailTemplateId,
-                _ => throw new NotImplementedException()
+                _ => throw new NotImplementedException("No email templates are defined for the specified API caller type")
             };
 
             return options.EnabledReceivers.HasFlag(receiver)
@@ -257,7 +257,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 ReceiverTypes.AgentApp => options.AgentEmailTemplateId,
                 ReceiverTypes.AdminPanel => options.AdminEmailTemplateId,
                 ReceiverTypes.PropertyOwner => options.PropertyOwnerEmailTemplateId,
-                _ => throw new System.NotImplementedException()
+                _ => throw new NotImplementedException("No email templates are defined for the specified receiver type")
             };
 
 

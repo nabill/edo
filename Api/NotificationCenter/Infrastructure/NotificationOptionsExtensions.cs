@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Infrastructure
                 ApiCallerTypes.Admin => ReceiverTypes.AdminPanel,
                 ApiCallerTypes.Agent => ReceiverTypes.AgentApp,
                 ApiCallerTypes.PropertyOwner => ReceiverTypes.PropertyOwner,
-                _ => throw new NotImplementedException()
+                _ => throw new NotImplementedException("There is no corresponding receiver type for the specified API caller type")
             };
     }
 }

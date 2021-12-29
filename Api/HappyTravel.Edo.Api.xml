@@ -2916,7 +2916,7 @@
                 Agent position in agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.AgencyRelations">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
             <summary>
                 List of agencies, associated with agent.
             </summary>
