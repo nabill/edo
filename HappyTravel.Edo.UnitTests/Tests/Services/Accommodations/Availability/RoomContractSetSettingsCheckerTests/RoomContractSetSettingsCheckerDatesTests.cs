@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         private AccommodationBookingSettings GetSettings(AprMode aprMode, PassedDeadlineOffersMode deadlineMode)
-            => new AccommodationBookingSettings(default, default, aprMode, deadlineMode, default, default, default, default);
+            => new AccommodationBookingSettings(default, aprMode, deadlineMode, default, default, default, default);
 
 
         private IDateTimeProvider GetProvider(DateTime tomorrow)
