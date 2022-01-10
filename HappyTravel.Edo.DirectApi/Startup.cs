@@ -23,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using AccommodationService = HappyTravel.Edo.DirectApi.Services.Static.AccommodationService;
 using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
@@ -118,10 +119,15 @@ namespace HappyTravel.Edo.DirectApi
             app.UseHttpsRedirection();
             app.UseHealthChecks("/health");
             app.UseRouting();
+            app.UseHttpMetrics();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseClientRequestLogging();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapMetrics();
+            });
         }
 
 
