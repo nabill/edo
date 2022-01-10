@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
@@ -114,11 +115,11 @@ namespace HappyTravel.Edo.DirectApi
             
             var logger = loggerFactory.CreateLogger<Startup>();
             
-            app.UseMetricServer(int.Parse(Environment.GetEnvironmentVariable("METRICS_PORT") ?? string.Empty));
+            app.UseMetricServer(GetRequiredConfigurationValue<int>("METRICS_PORT"));
             app.UseProblemDetailsExceptionHandler(env, logger);
             app.UseResponseCompression();
             app.UseHttpsRedirection();
-            app.UseHealthChecks("/health", Environment.GetEnvironmentVariable("HEALTH_CHECK_PORT") ?? string.Empty);
+            app.UseHealthChecks("/health", GetRequiredConfigurationValue<int>("HEALTH_CHECK_PORT"));
             app.UseRouting();
             app.UseHttpMetrics();
             app.UseAuthentication();
@@ -129,6 +130,16 @@ namespace HappyTravel.Edo.DirectApi
                 endpoints.MapControllers();
                 endpoints.MapMetrics();
             });
+        }
+
+
+        private T GetRequiredConfigurationValue<T>(string key)
+        {
+            var value = Configuration.GetValue<T>(key);
+            if (EqualityComparer<T>.Default.Equals(value, default))
+                throw new Exception($"Value for `{key}` is not set");
+
+            return value;
         }
 
 
