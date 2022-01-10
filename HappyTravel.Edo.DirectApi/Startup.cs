@@ -116,11 +116,9 @@ namespace HappyTravel.Edo.DirectApi
             
             var logger = loggerFactory.CreateLogger<Startup>();
             
-            app.UseMetricServer(Configuration.GetRequiredValue<int>("METRICS_PORT"));
             app.UseProblemDetailsExceptionHandler(env, logger);
             app.UseResponseCompression();
             app.UseHttpsRedirection();
-            app.UseHealthChecks("/health", Configuration.GetRequiredValue<int>("HEALTH_CHECK_PORT"));
             app.UseRouting();
             app.UseHttpMetrics();
             app.UseAuthentication();
@@ -128,8 +126,9 @@ namespace HappyTravel.Edo.DirectApi
             app.UseClientRequestLogging();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapMetrics();
+                endpoints.MapControllers().RequireHost(Configuration.GetValue<string>("API_HOST"));
+                endpoints.MapMetrics().RequireHost(Configuration.GetValue<string>("METRICS_HOST"));
+                endpoints.MapHealthChecks("/health").RequireHost(Configuration.GetValue<string>("HEALTH_CHECK_HOST"));
             });
         }
 
