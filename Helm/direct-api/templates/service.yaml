@@ -17,8 +17,8 @@ spec:
       protocol: TCP
       name: metrics
     - port: {{ .Values.service.healthchecks.port }}
-      targetPort: http-healthchecks
+      targetPort: http-healthc
       protocol: TCP
-      name: healthchecks
+      name: healthc
   selector:
     {{- include "direct-api.selectorLabels" . | nindent 4 }}
