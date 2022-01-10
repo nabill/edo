@@ -47,10 +47,16 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+            - name: http-metrics
+              containerPort: {{ .Values.service.metrics.port }}
+              protocol: TCP
+            - name: http-healthchecks
+              containerPort: {{ .Values.service.healthchecks.port }}
+              protocol: TCP
           startupProbe:
             httpGet:
               path: /health
-              port: http
+              port: http-healthchecks
             timeoutSeconds: 7
             failureThreshold: 12
           envFrom:
