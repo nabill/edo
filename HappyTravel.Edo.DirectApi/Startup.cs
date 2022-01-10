@@ -126,9 +126,9 @@ namespace HappyTravel.Edo.DirectApi
             app.UseClientRequestLogging();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers().RequireHost(Configuration.GetValue<string>("API_HOST"));
-                endpoints.MapMetrics().RequireHost(Configuration.GetValue<string>("METRICS_HOST"));
-                endpoints.MapHealthChecks("/health").RequireHost(Configuration.GetValue<string>("HEALTH_CHECK_HOST"));
+                endpoints.MapControllers().RequireHost(Configuration.GetRequiredValue<string>("API_HOST"));
+                endpoints.MapMetrics().RequireHost(Configuration.GetRequiredValue<string>("METRICS_HOST"));
+                endpoints.MapHealthChecks("/health").RequireHost(Configuration.GetRequiredValue<string>("HEALTH_CHECK_HOST"));
             });
         }
 
