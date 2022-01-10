@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.EdoContracts.General;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -11,13 +10,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     {
         [JsonConstructor]
         public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
-            PriceTypes type = PriceTypes.Room, string description = null)
+            string? description = null)
         {
-            Description = description;
+            Description = description ?? string.Empty;
             Gross = gross;
             Discounts = discounts ?? new List<Discount>();
             FinalPrice = finalPrice;
-            Type = type;
             Currency = finalPrice.Currency;
         }
         
@@ -45,10 +43,5 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
         /// </summary>
         public MoneyAmount FinalPrice { get; }
-
-        /// <summary>
-        ///     The price type.
-        /// </summary>
-        public PriceTypes Type { get; }
     }
 }

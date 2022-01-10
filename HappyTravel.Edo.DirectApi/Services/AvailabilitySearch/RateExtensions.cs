@@ -9,7 +9,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
             => new Rate(finalPrice: rate.FinalPrice,
                 gross: rate.Gross,
                 discounts: rate.Discounts,
-                type: rate.Type,
                 description: rate.Description);
     }
 }
