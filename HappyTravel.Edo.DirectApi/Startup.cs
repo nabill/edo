@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
@@ -117,7 +119,6 @@ namespace HappyTravel.Edo.DirectApi
             app.UseProblemDetailsExceptionHandler(env, logger);
             app.UseResponseCompression();
             app.UseHttpsRedirection();
-            app.UseHealthChecks("/health");
             app.UseRouting();
             app.UseHttpMetrics();
             app.UseAuthentication();
@@ -125,8 +126,9 @@ namespace HappyTravel.Edo.DirectApi
             app.UseClientRequestLogging();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                endpoints.MapMetrics();
+                endpoints.MapControllers().RequireHost(Configuration.GetRequiredValue<string>("API_HOST"));
+                endpoints.MapMetrics().RequireHost(Configuration.GetRequiredValue<string>("METRICS_HOST"));
+                endpoints.MapHealthChecks("/health").RequireHost(Configuration.GetRequiredValue<string>("HEALTH_CHECK_HOST"));
             });
         }
 

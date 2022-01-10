@@ -12,5 +12,13 @@ spec:
       targetPort: http-nginx
       protocol: TCP
       name: http
+    - port: {{ .Values.service.metrics.port }}
+      targetPort: http-metrics
+      protocol: TCP
+      name: metrics
+    - port: {{ .Values.service.healthchecks.port }}
+      targetPort: http-healthchecks
+      protocol: TCP
+      name: healthchecks
   selector:
     {{- include "direct-api.selectorLabels" . | nindent 4 }}
