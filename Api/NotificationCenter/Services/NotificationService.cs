@@ -120,9 +120,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
             async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
             {
-                var roleIds = await _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType))
+                var roles = await _context.AdministratorRoles.ToListAsync();
+                var roleIds = roles.Where(r => r.NotificationTypes.Contains(notificationType))
                     .Select(r => r.Id)
-                    .ToListAsync();
+                    .ToList();
+                //var roleIds = await _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType))
+                //    .Select(r => r.Id)
+                //    .ToListAsync();
                 var recipients = new Dictionary<int, string>();
 
                 foreach (var roleId in roleIds)
