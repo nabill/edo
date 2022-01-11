@@ -128,6 +128,31 @@
                 Room details from an availability response.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.Pax.Age">
+            <summary>
+                The passenger age. <b>Required for children</b>.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.Pax.FirstName">
+            <summary>
+                The passenger first name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.Pax.IsLeader">
+            <summary>
+                Indicates the passenger as a group leader within a booking.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.Pax.LastName">
+            <summary>
+                The passenger last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.Pax.Title">
+            <summary>
+                The passenger title.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest.Ids">
             <summary>
             Countries, Localities or Accommodations Ids
