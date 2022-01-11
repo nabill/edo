@@ -36,6 +36,10 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+  metrics:
+    port: 60000
+  healthchecks:
+    port: 60001
 
 ingress:
   enabled: true
@@ -45,6 +49,8 @@ ingress:
     kubernetes.io/ingress.allow-http: "false"
     kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
   hosts:
     - host: api-dev.happytravel.com
       paths:
@@ -76,14 +82,20 @@ affinity:
           values:
           - edo
       topologyKey: "kubernetes.io/hostname"
+
 metrics:
   enabled: true
   podMonitor:
     enabled: true
+
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://*:80;http://*:60000/;http://*:60001/"
+  METRICS_HOST: "localhost:60000"
+  HEALTH_CHECK_HOST: "*:60001"
+  API_HOST: "*:80"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
-  HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://db23cc3a191649f39a8d9087ded431f6@sentry1.happytravel.com/2"
+  HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://ceda11b983284f5db0370a441822e17f@sentry.happytravel.com/63"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
   HTDC_REDIS_HOST: "redis-edo"

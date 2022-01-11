@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using HappyTravel.Edo.Data;
@@ -18,7 +20,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
             RuleFor(r => r.SearchId).NotNull();
             RuleFor(r => r.RoomContractSetId).NotNull();
             RuleFor(r => r.ClientReferenceCode).NotEmpty();
-            RuleFor(r => r.RoomDetails).NotEmpty();
+            RuleFor(r => r.RoomDetails).NotEmpty().Must(HasLeader).WithMessage("Passengers doesn't have a leader");
             RuleForEach(r => r.RoomDetails).SetValidator(new RoomDetailsValidator());
             RuleFor(r => r.Nationality).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
             RuleFor(r => r.Residency).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
@@ -27,6 +29,10 @@ namespace HappyTravel.Edo.DirectApi.Validators
         
         private Task<bool> IsCountryIsoCode(string code, CancellationToken cancellationToken) 
             => _context.Countries.AnyAsync(c => c.Code == code, cancellationToken);
+        
+        
+        private static bool HasLeader(List<BookingRoomDetails> rooms) 
+            => rooms.Any(r => r.Passengers.Any(p => p.IsLeader));
 
 
         private readonly EdoContext _context;

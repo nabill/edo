@@ -4,9 +4,12 @@
     "HappyTravel.Edo.DirectApi": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
-      "applicationUrl": "http://localhost:5005",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "METRICS_HOST": "localhost:60000",
+        "HEALTH_CHECK_HOST": "localhost:60000",
+        "API_HOST": "*:5005",
+        "ASPNETCORE_URLS": "http://localhost:60000;http://+:5005"
       }
     }
   }

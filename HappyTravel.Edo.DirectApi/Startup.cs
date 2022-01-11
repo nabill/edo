@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
@@ -23,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using AccommodationService = HappyTravel.Edo.DirectApi.Services.Static.AccommodationService;
 using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.AvailabilitySearch.WideAvailabilitySearchService;
 
@@ -116,12 +119,17 @@ namespace HappyTravel.Edo.DirectApi
             app.UseProblemDetailsExceptionHandler(env, logger);
             app.UseResponseCompression();
             app.UseHttpsRedirection();
-            app.UseHealthChecks("/health");
             app.UseRouting();
+            app.UseHttpMetrics();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseClientRequestLogging();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers().RequireHost(Configuration.GetRequiredValue<string>("API_HOST"));
+                endpoints.MapMetrics().RequireHost(Configuration.GetRequiredValue<string>("METRICS_HOST"));
+                endpoints.MapHealthChecks("/health").RequireHost(Configuration.GetRequiredValue<string>("HEALTH_CHECK_HOST"));
+            });
         }
 
 

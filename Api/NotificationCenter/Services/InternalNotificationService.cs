@@ -67,6 +67,25 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task AddAdminNotifications(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<RecipientWithSendingSettings> recipientsWithSendingSettings)
+        {
+            foreach (var recipient in recipientsWithSendingSettings)
+            {
+                var notification = new Notification
+                {
+                    Receiver = ReceiverTypes.AdminPanel,
+                    UserId = recipient.RecipientId,
+                    AgencyId = null,
+                    Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new(JsonSerializerDefaults.Web))),
+                    Type = notificationType,
+                    SendingSettings = recipient.SendingSettings
+                };
+
+                await SaveAndSend(notification, messageData);
+            }
+        }
+
+
         public async Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
@@ -135,14 +154,14 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .ToListAsync();
 
 
-        private async Task SaveAndSend(Notifications.Models.Notification notification, DataWithCompanyInfo messageData)
+        private async Task SaveAndSend(Notification notification, DataWithCompanyInfo messageData)
         {
             var notificationId = await Save(notification);
             await Send(notification, notificationId, messageData);
         }
 
 
-        private async Task<int> Save(Notifications.Models.Notification notification)
+        private async Task<int> Save(Notification notification)
         {
             var entry = _context.Notifications.Add(new Data.Notifications.Notification
             {
@@ -161,7 +180,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task Send(Notifications.Models.Notification notification, int notificationId, DataWithCompanyInfo messageData)
+        private async Task Send(Notification notification, int notificationId, DataWithCompanyInfo messageData)
         {
             var tasks = new List<Task>();
 

@@ -93,25 +93,5 @@ data:
                 proxy_cache_bypass $http_upgrade;
                 proxy_pass http://{{ .Chart.Name }};
             }
-
-            location = /metrics {
-                limit_req zone=health;
-                allow 157.90.123.59; # Prometheus
-                deny  all;
-                proxy_pass http://{{ .Chart.Name }}/metrics;
-            }
-
-            location = /health {
-                add_header Content-Type text/plain;
-                limit_req zone=health;
-                stub_status on;
-                allow 127.0.0.1;
-                allow 10.0.0.0/8;
-                allow 192.168.0.0/16;
-                allow 172.16.0.0/12;
-                allow 157.90.123.59; # Prometheus
-                deny  all;
-                access_log off;
-            }
         }
     }

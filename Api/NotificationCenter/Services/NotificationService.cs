@@ -5,9 +5,12 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Notifications.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -16,12 +19,12 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
     public class NotificationService : INotificationService
     {
         public NotificationService(IInternalNotificationService internalNotificationService,
-            INotificationOptionsService notificationOptionsService,
-            IAgentContextService agentContextService)
+            INotificationOptionsService notificationOptionsService, IAgentContextService agentContextService, EdoContext context)
         {
             _internalNotificationService = internalNotificationService;
             _notificationOptionsService = notificationOptionsService;
             _agentContextService = agentContextService;
+            _context = context;
         }
 
 
@@ -107,6 +110,73 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, emails);
 
 
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType)
+        {
+            return await GetRecipients(notificationType)
+                .Bind(GetNotificationOptions)
+                .Bind(BuildSettings)
+                .Tap(AddNotifications);
+
+
+            async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
+            {
+                var roles = await _context.AdministratorRoles.ToListAsync();
+                var roleIds = roles.Where(r => r.NotificationTypes.Contains(notificationType))
+                    .Select(r => r.Id)
+                    .ToList();
+
+                var recipients = new Dictionary<int, string>();
+
+                foreach (var roleId in roleIds)
+                {
+                    recipients = (Dictionary<int, string>)recipients.Union(await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
+                        .ToDictionaryAsync(a => a.Id, a => a.Email));
+                }
+
+                return recipients;
+            }
+
+
+            async Task<Result<List<RecipientWithNotificationOptions>>> GetNotificationOptions(Dictionary<int, string> recipients)
+                => await _notificationOptionsService.GetNotificationOptions(recipients, notificationType);
+
+
+            static Result<List<RecipientWithSendingSettings>> BuildSettings(List<RecipientWithNotificationOptions> recipientWithNotificationOptions)
+            {
+                var recipientsWithSendingSettings = new List<RecipientWithSendingSettings>(recipientWithNotificationOptions.Count);
+
+                foreach (var recipient in recipientWithNotificationOptions)
+                {
+                    var sendingSettings = new Dictionary<ProtocolTypes, object>();
+
+                    if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.WebSocket) == ProtocolTypes.WebSocket)
+                        sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
+
+                    if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
+                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings 
+                            { 
+                                Emails = { recipient.Email }, 
+                                TemplateId = recipient.NotificationOptions?.EmailTemplateId 
+                            });
+
+                    recipientsWithSendingSettings.Add(new RecipientWithSendingSettings 
+                    { 
+                        RecipientId = recipient.RecipientId,
+                        SendingSettings = sendingSettings
+                    });
+                }
+
+                return recipientsWithSendingSettings;
+            }
+
+
+            async Task AddNotifications(List<RecipientWithSendingSettings> recipientsWithSendingSettings)
+            {
+                await _internalNotificationService.AddAdminNotifications(messageData, notificationType, recipientsWithSendingSettings);
+            }
+        }
+
+
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
             => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, skip, top);
         
@@ -135,5 +205,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private readonly IInternalNotificationService _internalNotificationService;
         private readonly INotificationOptionsService _notificationOptionsService;
         private readonly IAgentContextService _agentContextService;
+        private readonly EdoContext _context;
     }
 }
