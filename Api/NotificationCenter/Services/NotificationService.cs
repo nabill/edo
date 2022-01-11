@@ -124,9 +124,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 var roleIds = roles.Where(r => r.NotificationTypes.Contains(notificationType))
                     .Select(r => r.Id)
                     .ToList();
-                //var roleIds = await _context.AdministratorRoles.Where(r => r.NotificationTypes.Contains(notificationType))
-                //    .Select(r => r.Id)
-                //    .ToListAsync();
+
                 var recipients = new Dictionary<int, string>();
 
                 foreach (var roleId in roleIds)
