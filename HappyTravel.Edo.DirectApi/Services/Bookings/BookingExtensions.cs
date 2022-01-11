@@ -23,7 +23,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 status: booking.Status,
                 rooms: booking.Rooms.FromEdoModel(),
                 accommodationId: booking.HtId,
-                cancellationPolicies: booking.CancellationPolicies,
+                cancellationPolicies: booking.CancellationPolicies
+                    .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
+                    .ToList(),
                 cancelled: booking.Cancelled,
                 isAdvancePurchaseRate: booking.IsAdvancePurchaseRate,
                 isPackage: booking.IsPackage);
