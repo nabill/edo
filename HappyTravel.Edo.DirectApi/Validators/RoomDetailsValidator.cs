@@ -9,12 +9,11 @@ namespace HappyTravel.Edo.DirectApi.Validators
     {
         public RoomDetailsValidator()
         {
-            RuleFor(d => d.Passengers).NotEmpty().Must(HasLeader).WithMessage("Passengers doesn't have a leader");
+            RuleFor(d => d.Passengers).NotEmpty();
             RuleForEach(d => d.Passengers).SetValidator(new PaxValidator());
         }
 
 
-        private bool HasLeader(List<Pax> passengers) 
-            => passengers.Any(p => p.IsLeader);
+        
     }
 }
