@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
                         sendingSettings.Add(ProtocolTypes.Email, new EmailSettings 
                             { 
-                                Emails = { recipient.Email }, 
+                                Emails = new(){ recipient.Email }, 
                                 TemplateId = recipient.NotificationOptions?.EmailTemplateId 
                             });
 
