@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General;
 
 namespace HappyTravel.Edo.DirectApi.Models.Booking
 {

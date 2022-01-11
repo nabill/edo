@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using HappyTravel.EdoContracts.General;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Validators
 {
@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
         public PaxValidator()
         {
             RuleFor(p => p.Age).GreaterThanOrEqualTo(0).LessThan(100);
-            RuleFor(p => p.Title).IsInEnum();
+            RuleFor(p => p.Title).NotEmpty().IsInEnum();
             RuleFor(p => p.FirstName).NotEmpty();
             RuleFor(p => p.LastName).NotEmpty();
         }
