@@ -129,8 +129,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
                 foreach (var roleId in roleIds)
                 {
-                    recipients = (Dictionary<int, string>)recipients.Union(await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
-                        .ToDictionaryAsync(a => a.Id, a => a.Email));
+                    var addedRecipients = await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
+                        .ToDictionaryAsync(a => a.Id, a => a.Email);
+                    recipients = recipients.Union(addedRecipients)
+                        .ToDictionary(r => r.Key, r => r.Value);
                 }
 
                 return recipients;
