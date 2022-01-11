@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
             {
                 var roles = await _context.AdministratorRoles.ToListAsync();
-                var roleIds = roles.Where(r => r.NotificationTypes.Contains(notificationType))
+                var roleIds = roles.Where(r => r.NotificationTypes?.Contains(notificationType) ?? false)
                     .Select(r => r.Id)
                     .ToList();
 
