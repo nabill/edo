@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using HappyTravel.EdoContracts.General;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Validators
 {
