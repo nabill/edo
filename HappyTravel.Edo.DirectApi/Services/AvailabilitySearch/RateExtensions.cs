@@ -11,7 +11,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                 discounts: rate.Discounts
                     .Select(d => new Discount(d.Percent, d.Description))
                     .ToList(),
-                type: rate.Type,
                 description: rate.Description);
     }
 }
