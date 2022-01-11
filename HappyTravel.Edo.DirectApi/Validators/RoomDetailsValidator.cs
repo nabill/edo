@@ -12,8 +12,5 @@ namespace HappyTravel.Edo.DirectApi.Validators
             RuleFor(d => d.Passengers).NotEmpty();
             RuleForEach(d => d.Passengers).SetValidator(new PaxValidator());
         }
-
-
-        
     }
 }
