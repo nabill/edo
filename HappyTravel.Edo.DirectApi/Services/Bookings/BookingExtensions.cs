@@ -40,7 +40,12 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 mealPlan: r.MealPlan,
                 contractDescription: r.ContractDescription,
                 remarks: r.Remarks,
-                deadlineDetails: r.DeadlineDetails,
+                deadlineDetails: new Deadline(date: r.DeadlineDetails.Date,
+                    policies: r.DeadlineDetails.Policies?
+                        .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
+                        .ToList(),
+                    remarks: r.DeadlineDetails.Remarks,
+                    isFinal: r.DeadlineDetails.IsFinal),
                 passengers: r.Passengers)).ToList();
         }
     }
