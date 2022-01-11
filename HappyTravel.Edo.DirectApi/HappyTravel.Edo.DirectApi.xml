@@ -113,16 +113,6 @@
                 Client booking reference code
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.AccommodationBookingRequest.Nationality">
-            <summary>
-                Alpha-2 nationality code for a lead passengers.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.AccommodationBookingRequest.Residency">
-            <summary>
-                Alpha-2 residency of a main passenger.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.AccommodationBookingRequest.RoomDetails">
             <summary>
                 Room details from an availability response.
@@ -251,11 +241,6 @@
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Rate.FinalPrice">
             <summary>
                 The final and total net price of a service. This is <b>the actual</b> value of a price.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Rate.Type">
-            <summary>
-                The price type.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.BoardBasis">

@@ -22,13 +22,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
             RuleFor(r => r.ClientReferenceCode).NotEmpty();
             RuleFor(r => r.RoomDetails).NotEmpty().Must(HasLeader).WithMessage("Passengers doesn't have a leader");
             RuleForEach(r => r.RoomDetails).SetValidator(new RoomDetailsValidator());
-            RuleFor(r => r.Nationality).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
-            RuleFor(r => r.Residency).NotEmpty().MaximumLength(2).MinimumLength(2).MustAsync(IsCountryIsoCode).WithMessage("Wrong country ISO code");
         }
-        
-        
-        private Task<bool> IsCountryIsoCode(string code, CancellationToken cancellationToken) 
-            => _context.Countries.AnyAsync(c => c.Code == code, cancellationToken);
         
         
         private static bool HasLeader(List<BookingRoomDetails> rooms) 

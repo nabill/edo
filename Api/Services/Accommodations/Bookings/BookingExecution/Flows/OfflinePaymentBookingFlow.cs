@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -8,11 +7,13 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Logging;
+using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -24,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor, 
-            ILogger<OfflinePaymentBookingFlow> logger)
+            ILogger<OfflinePaymentBookingFlow> logger, IAvailabilityRequestStorage availabilityRequestStorage)
         {
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
             _logger = logger;
+            _availabilityRequestStorage = availabilityRequestStorage;
         }
         
 
@@ -52,26 +54,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Finally(WriteLog);
 
 
-            bool IsDeadlineNotPassed(BookingAvailabilityInfo bookingAvailability)
+            bool IsDeadlineNotPassed((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data)
             {
-                var deadlineDate = bookingAvailability.RoomContractSet.Deadline.Date;
-                var dueDate = deadlineDate == null || deadlineDate == DateTime.MinValue ? bookingAvailability.CheckInDate : deadlineDate.Value;
+                var deadlineDate = data.BookingAvailabilityInfo.RoomContractSet.Deadline.Date;
+                var dueDate = deadlineDate == null || deadlineDate == DateTime.MinValue 
+                    ? data.BookingAvailabilityInfo.CheckInDate 
+                    : deadlineDate.Value;
+                
                 return _dateTimeProvider.UtcToday() < dueDate - BookingPaymentTypesHelper.OfflinePaymentAdditionalDays;
             }
 
 
-            async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
-                => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
+            async Task<Result<(AvailabilityRequest, BookingAvailabilityInfo)>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
+            {
+                var availabilityInfo = await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.HtId,
                     bookingRequest.RoomContractSetId);
-            
 
-            bool IsPaymentTypeAllowed(BookingAvailabilityInfo availabilityInfo) 
-                => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.Offline);
+                if (availabilityInfo.IsFailure)
+                    return Result.Failure<(AvailabilityRequest, BookingAvailabilityInfo)>(availabilityInfo.Error);
+
+                var availabilityRequest = await _availabilityRequestStorage.Get(bookingRequest.SearchId);
+                if (availabilityRequest.IsFailure)
+                    return Result.Failure<(AvailabilityRequest, BookingAvailabilityInfo)>(availabilityRequest.Error);
+
+                return (availabilityRequest.Value, availabilityInfo.Value);
+            }
 
 
-            Task<Data.Bookings.Booking> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
-                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
+            bool IsPaymentTypeAllowed((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data) 
+                => data.BookingAvailabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.Offline);
+
+
+            Task<Data.Bookings.Booking> RegisterBooking((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data) 
+                => _registrationService.Register(bookingRequest: bookingRequest, 
+                    availabilityInfo: data.BookingAvailabilityInfo, 
+                    paymentMethod: PaymentTypes.Offline, 
+                    agentContext: agentContext, 
+                    languageCode: languageCode,
+                    nationality: data.AvailabilityRequest.Nationality,
+                    residency: data.AvailabilityRequest.Residency);
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -103,5 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<OfflinePaymentBookingFlow> _logger;
+        private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
     }
 }

@@ -734,6 +734,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDiscountStorage, DiscountStorage>();
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
+            services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
 
             services.AddCreditCardProvider(configuration, vaultClient);
 

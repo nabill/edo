@@ -5,13 +5,14 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Booking;
+using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
@@ -20,7 +21,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public BookingCreationService(ClientReferenceCodeValidationService validationService, 
             IBookingRegistrationService bookingRegistrationService, IBookingEvaluationStorage bookingEvaluationStorage,
             BookingInfoService bookingInfoService, IBookingDocumentsService documentsService, IDateTimeProvider dateTimeProvider, 
-            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor)
+            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor, IAvailabilityRequestStorage availabilityRequestStorage)
         {
             _validationService = validationService;
             _bookingRegistrationService = bookingRegistrationService;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
             _requestExecutor = requestExecutor;
+            _availabilityRequestStorage = availabilityRequestStorage;
         }
 
 
@@ -40,19 +42,32 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 .Bind(RegisterBooking);
             
             
-            async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability()
-                => await _bookingEvaluationStorage.Get(request.SearchId,
+            async Task<Result<(AvailabilityRequest, BookingAvailabilityInfo)>> GetCachedAvailability()
+            {
+                var availabilityInfo = await _bookingEvaluationStorage.Get(request.SearchId,
                     request.AccommodationId,
                     request.RoomContractSetId);
 
+                if (availabilityInfo.IsFailure)
+                    return Result.Failure<(AvailabilityRequest, BookingAvailabilityInfo)>(availabilityInfo.Error);
 
-            async Task<Result<Booking>> RegisterBooking(BookingAvailabilityInfo availabilityInfo)
+                var availabilityRequest = await _availabilityRequestStorage.Get(request.SearchId);
+                if (availabilityRequest.IsFailure)
+                    return Result.Failure<(AvailabilityRequest, BookingAvailabilityInfo)>(availabilityRequest.Error);
+
+                return (availabilityRequest.Value, availabilityInfo.Value);
+            }
+
+
+            async Task<Result<Booking>> RegisterBooking((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data)
             {
                 var booking =  await _bookingRegistrationService.Register(bookingRequest: request.ToEdoModel(), 
-                    availabilityInfo: availabilityInfo, 
+                    availabilityInfo: data.BookingAvailabilityInfo, 
                     paymentMethod: PaymentTypes.VirtualAccount, 
                     agentContext: agent, 
-                    languageCode: languageCode);
+                    languageCode: languageCode,
+                    nationality: data.AvailabilityRequest.Nationality,
+                    residency: data.AvailabilityRequest.Residency);
 
                 return booking.FromEdoModels();
             }
@@ -99,5 +114,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingRequestExecutor _requestExecutor;
+        private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
     }
 }
