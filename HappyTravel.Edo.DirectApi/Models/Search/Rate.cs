@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -11,7 +10,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     {
         [JsonConstructor]
         public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
-            PriceTypes type = PriceTypes.Room, string description = null)
+            PriceTypes type = PriceTypes.Room, string? description = null)
         {
             Description = description;
             Gross = gross;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// <summary>
         ///     The price description.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         /// <summary>
         ///     The gross price of a service. This is just <b>a reference</b> value.
