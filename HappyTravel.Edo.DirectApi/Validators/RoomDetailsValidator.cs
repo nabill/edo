@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FluentValidation;
+﻿using FluentValidation;
 using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Validators
