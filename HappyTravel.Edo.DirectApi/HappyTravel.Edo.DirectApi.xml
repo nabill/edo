@@ -218,6 +218,16 @@
                 The price type.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Discount.Description">
+            <summary>
+                The discount description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Discount.Percent">
+            <summary>
+                Discount percentage.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Rate.Currency">
             <summary>
                 The price currency.
