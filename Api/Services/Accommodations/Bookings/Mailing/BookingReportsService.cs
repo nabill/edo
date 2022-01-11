@@ -130,7 +130,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                        Status = EnumFormatters.FromDescription(booking.Status)
+                        Status = EnumFormatters.FromDescription(booking.Status),
+                        PaymentType = EnumFormatters.FromDescription(booking.PaymentType)
                     };
             }
 
@@ -193,7 +194,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
                         Status = EnumFormatters.FromDescription(booking.Status),
-                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus)
+                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus),
+                        PaymentType = EnumFormatters.FromDescription(booking.PaymentType)
                     };
 
                 return new BookingAdministratorSummaryNotificationData
@@ -246,7 +248,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
                         Status = EnumFormatters.FromDescription(booking.Status),
-                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus)
+                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus),
+                        PaymentType = EnumFormatters.FromDescription(booking.PaymentType)
                     };
 
                 return new BookingAdministratorSummaryNotificationData
