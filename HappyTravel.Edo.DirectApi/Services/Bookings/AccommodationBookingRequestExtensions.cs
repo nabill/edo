@@ -30,7 +30,13 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         private static Edo.Api.Models.Bookings.BookingRoomDetails ToEdoModel(this BookingRoomDetails roomDetails)
         {
             return new Api.Models.Bookings.BookingRoomDetails(type: roomDetails.Type ?? RoomTypes.NotSpecified, 
-                passengers: roomDetails.Passengers);
+                passengers: roomDetails.Passengers
+                    .Select(p => new EdoContracts.General.Pax(title: p.Title, 
+                        lastName: p.LastName, 
+                        firstName: p.FirstName, 
+                        isLeader: p.IsLeader, 
+                        age: p.Age))
+                    .ToList());
         }
 
 
