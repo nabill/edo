@@ -4,8 +4,8 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Data.Bookings;
 using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
 
@@ -13,23 +13,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 {
     public class BookingEvaluationStorage : IBookingEvaluationStorage
     {
-        public BookingEvaluationStorage(IDoubleFlow doubleFlow, IAvailabilityRequestStorage availabilityRequestStorage)
+        public BookingEvaluationStorage(IDoubleFlow doubleFlow)
         {
             _doubleFlow = doubleFlow;
-            _availabilityRequestStorage = availabilityRequestStorage;
         }
 
 
-        public async Task<Result> Set(Guid searchId, Guid roomContractSetId, string htId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
-            Deadline supplierDeadline, CreditCardRequirement? cardRequirement, string supplierAccommodationCode)
+        public Task Set(Guid searchId, Guid roomContractSetId, string htId, DataWithMarkup<RoomContractSetAvailability> availability, Deadline agentDeadline,
+            Deadline supplierDeadline, CreditCardRequirement? cardRequirement, string supplierAccommodationCode, AvailabilityRequest availabilityRequest)
         {
             var accommodation = availability.Data.Accommodation;
             var key = BuildKey(searchId, htId, roomContractSetId);
             var roomSetAvailability = availability.Data;
             var location = accommodation.Location;
-            var availabilityRequest = await _availabilityRequestStorage.Get(searchId);
-            if (availabilityRequest.IsFailure)
-                return Result.Failure(availabilityRequest.Error);
 
             var bookingAvailabilityInfo = new BookingAvailabilityInfo(
                 accommodationId: supplierAccommodationCode,
@@ -56,10 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 agentDeadline: agentDeadline,
                 supplierDeadline: supplierDeadline,
                 cardRequirement: cardRequirement,
-                availabilityRequest: availabilityRequest.Value);
+                availabilityRequest: availabilityRequest);
             
-            await _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
-            return Result.Success();
+            return _doubleFlow.SetAsync(key, bookingAvailabilityInfo, CacheExpirationTime);
         }
 
 
@@ -80,6 +75,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         private readonly IDoubleFlow _doubleFlow;
-        private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
     }
 }
