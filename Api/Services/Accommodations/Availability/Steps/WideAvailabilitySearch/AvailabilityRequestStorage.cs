@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var key = BuildKey(searchId);
             var request = await _flow.GetAsync<AvailabilityRequest?>(key, _lifeTime);
-            return request ?? Result.Failure<AvailabilityRequest>("Could not found search request in cache");
+            return request ?? Result.Failure<AvailabilityRequest>("Could not find search request in cache");
         }
 
 
