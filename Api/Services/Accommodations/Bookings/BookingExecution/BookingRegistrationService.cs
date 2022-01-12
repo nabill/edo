@@ -40,8 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         
         
         public async Task<Booking> Register(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, 
-            string languageCode, string nationality, string residency)
+            BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
         {
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
@@ -92,9 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     availabilityInfo: availabilityInfo,
                     paymentMethod: paymentMethod,
                     bookingRequest: bookingRequest,
-                    languageCode: languageCode,
-                    nationality: nationality,
-                    residency: residency);
+                    languageCode: languageCode);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -142,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private async Task<Booking> CreateBooking(DateTime created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
-            AccommodationBookingRequest bookingRequest, string languageCode, string nationality, string residency)
+            AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
             {
@@ -177,8 +174,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             void AddRequestInfo(in AccommodationBookingRequest bookingRequestInternal)
             {
-                booking.Nationality = nationality.ToUpper();
-                booking.Residency = residency.ToUpper();
+                booking.Nationality = availabilityInfo.AvailabilityRequest.Nationality.ToUpper();
+                booking.Residency = availabilityInfo.AvailabilityRequest.Residency.ToUpper();
                 booking.MainPassengerName = bookingRequestInternal.MainPassengerName.Trim();
             }
 

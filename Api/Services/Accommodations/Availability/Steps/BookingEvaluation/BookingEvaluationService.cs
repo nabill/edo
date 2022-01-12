@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             } 
                 
             
-            Task SaveToCache(DataWithMarkup<RoomContractSetAvailability> responseWithDeadline)
+            Task<Result> SaveToCache(DataWithMarkup<RoomContractSetAvailability> responseWithDeadline)
             {
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSet = responseWithDeadline.Data.RoomContractSet;

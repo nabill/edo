@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -7,14 +8,12 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Logging;
-using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -28,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor,
             IBookingRecordManager recordManager,
-            ILogger<FinancialAccountBookingFlow> logger, IAvailabilityRequestStorage availabilityRequestStorage)
+            ILogger<FinancialAccountBookingFlow> logger)
         {
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
@@ -39,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _requestExecutor = requestExecutor;
             _recordManager = recordManager;
             _logger = logger;
-            _availabilityRequestStorage = availabilityRequestStorage;
         }
 
 
@@ -63,35 +61,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
 
 
-            async Task<Result<(AvailabilityRequest, BookingAvailabilityInfo)>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
-            {
-                var availabilityInfo = await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
+            async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
+                => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.HtId,
                     bookingRequest.RoomContractSetId);
-
-                if (availabilityInfo.IsFailure)
-                    return Result.Failure<(Models.Availabilities.AvailabilityRequest, BookingAvailabilityInfo)>(availabilityInfo.Error);
-
-                var availabilityRequest = await _availabilityRequestStorage.Get(bookingRequest.SearchId);
-                if (availabilityRequest.IsFailure)
-                    return Result.Failure<(AvailabilityRequest, BookingAvailabilityInfo)>(availabilityRequest.Error);
-
-                return (availabilityRequest.Value, availabilityInfo.Value);
-            }
             
 
-            bool IsPaymentTypeAllowed((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data) 
-                => data.BookingAvailabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.VirtualAccount);
+            bool IsPaymentTypeAllowed(BookingAvailabilityInfo availabilityInfo) 
+                => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.VirtualAccount);
 
 
-            Task<Data.Bookings.Booking> RegisterBooking((AvailabilityRequest AvailabilityRequest, BookingAvailabilityInfo BookingAvailabilityInfo) data) 
-                => _registrationService.Register(bookingRequest: bookingRequest, 
-                    availabilityInfo: data.BookingAvailabilityInfo, 
-                    paymentMethod: PaymentTypes.VirtualAccount, 
-                    agentContext: agentContext, 
-                    languageCode: languageCode,
-                    nationality: data.AvailabilityRequest.Nationality,
-                    residency: data.AvailabilityRequest.Residency);
+            Task<Data.Bookings.Booking> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, agentContext, languageCode);
 
 
             async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
@@ -129,6 +110,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRecordManager _recordManager;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<FinancialAccountBookingFlow> _logger;
-        private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
     }
 }
