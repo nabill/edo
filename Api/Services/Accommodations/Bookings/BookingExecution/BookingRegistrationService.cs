@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using CsvHelper;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -39,19 +40,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
         
         
-        public async Task<Booking> Register(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
         {
-            var (_, _, booking, _) = await Result.Success()
+            var (_, isFailure, booking, error) = await CheckRooms()
                 .Map(GetTags)
                 .Map(Create)
                 .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder); 
+                .Tap(CreateSupplierOrder);
+
+            if (isFailure)
+                return Result.Failure<Booking>(error);
 
             _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
             return booking;
+
+
+            Result CheckRooms()
+            {
+                return bookingRequest.RoomDetails.Count == availabilityInfo.AvailabilityRequest.RoomDetails.Count 
+                    ? Result.Success()
+                    : Result.Failure("Rooms does not correspond to search rooms");
+            }
 
 
             async Task<(string itn, string referenceCode)> GetTags()

@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             var (_, isFailure, booking, error) = await GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
-                .Map(Register)
+                .Bind(Register)
                 .Check(SendEmailToPropertyOwner)
                 .Finally(WriteLog);
 
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.CreditCard);
 
 
-            Task<Booking> Register(BookingAvailabilityInfo bookingAvailability) 
+            Task<Result<Booking>> Register(BookingAvailabilityInfo bookingAvailability) 
                 => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
 
 

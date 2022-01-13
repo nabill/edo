@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             return GetCachedAvailability(bookingRequest)
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Ensure(IsDeadlineNotPassed, "Deadline already passed, can not book")
-                .Map(RegisterBooking)
+                .Bind(RegisterBooking)
                 .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo)
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => availabilityInfo.AvailablePaymentTypes.Contains(PaymentTypes.Offline);
 
 
-            Task<Data.Bookings.Booking> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
+            Task<Result<Data.Bookings.Booking>> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
                 => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
 
 
