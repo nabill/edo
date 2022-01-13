@@ -59,9 +59,36 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             Result CheckRooms()
             {
-                return bookingRequest.RoomDetails.Count == availabilityInfo.AvailabilityRequest.RoomDetails.Count 
-                    ? Result.Success()
-                    : Result.Failure("Rooms does not correspond to search rooms");
+                if (bookingRequest.RoomDetails.Count != availabilityInfo.AvailabilityRequest.RoomDetails.Count)
+                    return Result.Failure("Rooms does not correspond to search rooms");
+                
+                var requestPassengers = bookingRequest.RoomDetails
+                    .Select(r => new
+                    {
+                        Adults = r.Passengers.Count(p => p.Age != null),
+                        Childrens = r.Passengers.Count(p => p.Age == null)
+                    })
+                    .OrderBy(p => p.Adults)
+                    .ThenBy(p => p.Childrens)
+                    .ToList();
+                
+                var searchPassengers = availabilityInfo.AvailabilityRequest.RoomDetails
+                    .Select(r => new
+                    {
+                        Adults = r.AdultsNumber,
+                        Childrens = r.ChildrenAges.Count
+                    })
+                    .OrderBy(p => p.Adults)
+                    .ThenBy(p => p.Childrens)
+                    .ToList();
+
+                for (var i = 0; i < requestPassengers.Count; i++)
+                {
+                    if (requestPassengers[i].Adults != searchPassengers[i].Adults || requestPassengers[i].Childrens != searchPassengers[i].Childrens)
+                        return Result.Failure("Rooms does not correspond to search rooms");
+                }
+
+                return Result.Success();
             }
 
 
