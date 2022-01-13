@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             async Task<Result<Dictionary<int, string>>> GetRecipients(NotificationTypes notificationType)
             {
                 var roles = await _context.AdministratorRoles.ToListAsync();
-                var roleIds = roles.Where(r => r.NotificationTypes.Contains(notificationType))
+                var roleIds = roles.Where(r => r.NotificationTypes?.Contains(notificationType) ?? false)
                     .Select(r => r.Id)
                     .ToList();
 
@@ -129,8 +129,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
                 foreach (var roleId in roleIds)
                 {
-                    recipients = (Dictionary<int, string>)recipients.Union(await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
-                        .ToDictionaryAsync(a => a.Id, a => a.Email));
+                    var addedRecipients = await _context.Administrators.Where(a => a.AdministratorRoleIds.Contains(roleId))
+                        .ToDictionaryAsync(a => a.Id, a => a.Email);
+                    recipients = recipients.Union(addedRecipients)
+                        .ToDictionary(r => r.Key, r => r.Value);
                 }
 
                 return recipients;
@@ -155,7 +157,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
                         sendingSettings.Add(ProtocolTypes.Email, new EmailSettings 
                             { 
-                                Emails = { recipient.Email }, 
+                                Emails = new(){ recipient.Email }, 
                                 TemplateId = recipient.NotificationOptions?.EmailTemplateId 
                             });
 
