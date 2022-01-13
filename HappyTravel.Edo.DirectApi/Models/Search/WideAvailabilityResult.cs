@@ -7,8 +7,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets
-            , DateTime checkInDate, DateTime checkOutDate)
+        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets, DateTime checkInDate, DateTime checkOutDate)
         {
             AccommodationId = accommodationId;
             CheckInDate = checkInDate;

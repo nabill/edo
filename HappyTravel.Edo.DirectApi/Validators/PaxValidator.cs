@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
         public PaxValidator()
         {
             RuleFor(p => p.Age).GreaterThanOrEqualTo(0).LessThan(100);
-            RuleFor(p => p.Title).IsInEnum();
+            RuleFor(p => p.Title).NotEmpty().IsInEnum();
             RuleFor(p => p.FirstName).NotEmpty();
             RuleFor(p => p.LastName).NotEmpty();
         }

@@ -253,11 +253,6 @@
                 The final and total net price of a service. This is <b>the actual</b> value of a price.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.Rate.Type">
-            <summary>
-                The price type.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.BoardBasis">
             <summary>
                 The board basis of a contract.

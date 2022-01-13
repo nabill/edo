@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string Amount { get; set; }
             public string DeadlineDate { get; set; }
             public string Status { get; set; }
+            public string PaymentType { get; set; }
         }
     }
 }
