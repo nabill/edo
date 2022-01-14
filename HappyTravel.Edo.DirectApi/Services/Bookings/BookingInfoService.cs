@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<List<Booking>> Get(BookingsListFilter filter, AgentContext agent)
+        public async Task<List<BookingSlim>> Get(BookingsListFilter filter, AgentContext agent)
         {
             var query = from booking in _context.Bookings
                 where booking.AgentId == agent.AgentId &&
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             };
 
             var bookings = await query.ToListAsync();
-            return bookings.FromEdoModels();
+            return bookings.SlimFromEdoModels();
         }
 
 
