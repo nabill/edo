@@ -8,13 +8,15 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
     public class PaymentLinkCreationRequest
     {
         [JsonConstructor]
-        public PaymentLinkCreationRequest(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment)
+        public PaymentLinkCreationRequest(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment,
+            PaymentProcessors? paymentProcessor = null)
         {
             Amount = amount;
             Email = email;
             ServiceType = serviceType;
             Currency = currency;
             Comment = comment;
+            PaymentProcessor = paymentProcessor;
         }
 
 
@@ -47,5 +49,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
         /// </summary>
         [Required]
         public string Comment { get; }
+
+        /// <summary>
+        /// Payment processor to use for payment link. Default will be used if not set
+        /// </summary>
+        public PaymentProcessors? PaymentProcessor { get; }
     }
 }

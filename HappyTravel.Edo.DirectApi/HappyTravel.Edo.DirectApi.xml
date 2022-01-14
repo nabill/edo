@@ -288,11 +288,6 @@
                 Ages of each child.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.IsExtraBedNeeded">
-            <summary>
-                Indicates if extra child bed needed.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.Deadline">
             <summary>
                 Deadline and cancellation information.

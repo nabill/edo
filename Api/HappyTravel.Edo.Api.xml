@@ -3732,6 +3732,11 @@
                 Mandatory payment comment.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest.PaymentProcessor">
+            <summary>
+            Payment processor to use for payment link. Default will be used if not set
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Amount">
             <summary>
                 Payment price.

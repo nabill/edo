@@ -14,7 +14,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 ? CreditCardPaymentStatuses.Created
                 : JsonConvert.DeserializeObject<PaymentResponse>(link.LastPaymentResponse).Status;
 
-            return new PaymentLinkData(link.Amount, link.Email, link.ServiceType, link.Currency, link.Comment, link.ReferenceCode, paymentStatus, link.Code, link.Created);
+            return new PaymentLinkData(amount: link.Amount,
+                email: link.Email,
+                serviceType: link.ServiceType,
+                currency: link.Currency,
+                comment: link.Comment, 
+                referenceCode: link.ReferenceCode,
+                creditCardPaymentStatus: paymentStatus,
+                code: link.Code,
+                date: link.Created,
+                paymentProcessor: link.PaymentProcessor);
         }
     }
 }
