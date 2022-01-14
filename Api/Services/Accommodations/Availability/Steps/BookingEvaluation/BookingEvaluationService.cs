@@ -37,7 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IBookingEvaluationStorage bookingEvaluationStorage,
             IAccommodationMapperClient accommodationMapperClient,
             IAdminAgencyManagementService adminAgencyManagementService,
-            ILogger<BookingEvaluationService> logger)
+            ILogger<BookingEvaluationService> logger, 
+            IAvailabilityRequestStorage availabilityRequestStorage)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
@@ -48,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _accommodationMapperClient = accommodationMapperClient;
             _adminAgencyManagementService = adminAgencyManagementService;
             _logger = logger;
+            _availabilityRequestStorage = availabilityRequestStorage;
         }
         
         
@@ -59,6 +61,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
+
+            var availabilityRequest = await _availabilityRequestStorage.Get(searchId);
+            if (availabilityRequest.IsFailure)
+                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(availabilityRequest.Error);
 
             var connectorEvaluationResult = await EvaluateOnConnector(result);
             if (connectorEvaluationResult.IsFailure)
@@ -211,7 +217,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     cardRequirement: creditCardRequirement.HasValue
                         ? new CreditCardRequirement(creditCardRequirement.Value.ActivationDate, creditCardRequirement.Value.DueDate)
                         : null,
-                    supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId);
+                    supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId,
+                    availabilityRequest: availabilityRequest.Value);
             }
 
 
@@ -299,5 +306,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
         private readonly ILogger<BookingEvaluationService> _logger;
+        private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
     }
 }

@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, IBookingAnalyticsService bookingAnalyticsService,
-            IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage,
+            IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IAvailabilityRequestStorage requestStorage,
             ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _bookingAnalyticsService = bookingAnalyticsService;
             _searchAreaService = searchAreaService;
             _dateTimeProvider = dateTimeProvider;
-            _accommodationsStorage = accommodationsStorage;
+            _requestStorage = requestStorage;
             _logger = logger;
             _stateStorage = stateStorage;
         }
@@ -60,6 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            await _requestStorage.Set(searchId, request);
             await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
                 
             return searchId;
@@ -121,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
+        private readonly IAvailabilityRequestStorage _requestStorage;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

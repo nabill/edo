@@ -11,8 +11,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public static Edo.Api.Models.Bookings.AccommodationBookingRequest ToEdoModel(this AccommodationBookingRequest request)
         {
             return new Edo.Api.Models.Bookings.AccommodationBookingRequest(itineraryNumber: string.Empty,
-                nationality: request.Nationality,
-                residency: request.Residency,
                 clientReferenceCode: request.ClientReferenceCode,
                 roomDetails: request.RoomDetails
                     .Select(r => r.ToEdoModel())

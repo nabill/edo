@@ -174,8 +174,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
             void AddRequestInfo(in AccommodationBookingRequest bookingRequestInternal)
             {
-                booking.Nationality = bookingRequestInternal.Nationality.ToUpper();
-                booking.Residency = bookingRequestInternal.Residency.ToUpper();
+                booking.Nationality = availabilityInfo.AvailabilityRequest.Nationality.ToUpper();
+                booking.Residency = availabilityInfo.AvailabilityRequest.Residency.ToUpper();
                 booking.MainPassengerName = bookingRequestInternal.MainPassengerName.Trim();
             }
 

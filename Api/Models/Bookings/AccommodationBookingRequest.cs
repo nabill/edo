@@ -10,15 +10,13 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string itineraryNumber, string nationality, string residency, 
-            string clientReferenceCode, List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
+        public AccommodationBookingRequest(string itineraryNumber, string clientReferenceCode,
+            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features,
             Guid searchId, string htId, Guid roomContractSetId, string mainPassengerName,
             string evaluationToken, bool rejectIfUnavailable = true)
         {
             ItineraryNumber = itineraryNumber;
-            Nationality = nationality;
             RejectIfUnavailable = rejectIfUnavailable;
-            Residency = residency;
             SearchId = searchId;
             HtId = htId;
             RoomContractSetId = roomContractSetId;
@@ -30,25 +28,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Features = features ?? new List<AccommodationFeature>(0);
         }
 
-
-        /// <summary>
-        ///     The nationality of a main passenger.
-        /// </summary>
-        [Required]
-        public string Nationality { get; }
-
         /// <summary>
         ///     This indicates the system to reject the request when an accommodation has been booked by some one else between
         ///     availability and booking requests. Default is true.
         /// </summary>
         public bool RejectIfUnavailable { get; }
-
-
-        /// <summary>
-        ///     The residency of a main passenger.
-        /// </summary>
-        [Required]
-        public string Residency { get; }
 
         public Guid SearchId { get; }
         public string HtId { get; }

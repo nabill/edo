@@ -3216,20 +3216,10 @@
                 The result of a prediction query.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
-            <summary>
-                The nationality of a main passenger.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RejectIfUnavailable">
             <summary>
                 This indicates the system to reject the request when an accommodation has been booked by some one else between
                 availability and booking requests. Default is true.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Residency">
-            <summary>
-                The residency of a main passenger.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomDetails">

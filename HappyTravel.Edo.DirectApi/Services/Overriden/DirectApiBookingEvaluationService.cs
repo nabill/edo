@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Connectors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,9 +26,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IBookingEvaluationStorage bookingEvaluationStorage, 
             IAccommodationMapperClient accommodationMapperClient,
             IAdminAgencyManagementService adminAgencyManagementService, 
-            ILogger<DirectApiBookingEvaluationService> logger) 
+            ILogger<DirectApiBookingEvaluationService> logger,
+            IAvailabilityRequestStorage availabilityRequestStorage) 
             : base(supplierConnectorManager, priceProcessor, roomSelectionStorage, accommodationBookingSettingsService, dateTimeProvider, bookingEvaluationStorage,
-                accommodationMapperClient, adminAgencyManagementService, logger)
+                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage)
         {
             
         }
