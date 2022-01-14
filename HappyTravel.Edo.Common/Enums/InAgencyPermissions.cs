@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Common.Enums
         AgentStatusManagement = 2048,
         ObserveAgencyInvitations = 4096,
         AgencyImagesManagement = 8192,
-        ObserveCounterpartyContract = 16384,
+        ObserveAgencyContract = 16384,
         MarkupManagement = 32768,
         ObserveChildAgencies = 65536,
         InviteChildAgencies = 131072,
