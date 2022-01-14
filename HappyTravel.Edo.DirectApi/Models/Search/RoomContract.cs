@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         [JsonConstructor]
         public RoomContract(BoardBasisTypes boardBasis, string mealPlan, string contractTypeCode, bool isAvailableImmediately,
             bool isDynamic, string contractDescription, List<KeyValuePair<string, string>> remarks, List<DailyRate> dailyRoomRates,
-            Rate rate, int adultsNumber, int childrenNumber, RoomTypes type, bool isExtraBedNeeded, Deadline deadline,
+            Rate rate, int adultsNumber, int childrenNumber, RoomTypes type, Deadline deadline,
             bool isAdvancePurchaseRate)
         {
             BoardBasis = boardBasis;
@@ -24,7 +24,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
             Remarks = remarks;
             AdultsNumber = adultsNumber;
             ChildrenNumber = childrenNumber;
-            IsExtraBedNeeded = isExtraBedNeeded;
             Deadline = deadline;
             IsAdvancePurchaseRate = isAdvancePurchaseRate;
             DailyRoomRates = dailyRoomRates;
@@ -79,11 +78,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         ///     Ages of each child.
         /// </summary>
         public int ChildrenNumber { get; }
-
-        /// <summary>
-        ///     Indicates if extra child bed needed.
-        /// </summary>
-        public bool IsExtraBedNeeded { get; }
 
         /// <summary>
         ///     Deadline and cancellation information.
