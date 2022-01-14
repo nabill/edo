@@ -65,6 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("send")]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        // TODO: Add permissions check https://github.com/happy-travel/agent-app-project/issues/1061
         public async Task<IActionResult> SendLink([FromBody] PaymentLinkCreationRequest creationRequest)
         {
             var (isSuccess, _, error) = await _paymentLinkService.Send(creationRequest);
@@ -82,6 +83,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        // TODO: Add permissions check https://github.com/happy-travel/agent-app-project/issues/1061
         public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkCreationRequest creationRequest)
         {
             var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(creationRequest);
