@@ -20,7 +20,8 @@ namespace HappyTravel.Edo.CreditCards.Services
         
         public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, Suppliers supplier, string accommodationName)
         {
-            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, activationDate, dueDate, new Dictionary<string, string>
+            // Passing null to credit card types before we'll support the types in contracts
+            var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, null, activationDate, dueDate, new Dictionary<string, string>
             {
                 {"Supplier", EnumFormatters.FromDescription(supplier)},
                 {"AccommodationName", accommodationName}

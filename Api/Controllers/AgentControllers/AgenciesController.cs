@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("agency/contract-file")]
         [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [InAgencyPermissions(InAgencyPermissions.ObserveCounterpartyContract)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgencyContract)]
         public async Task<IActionResult> GetContractFile()
         {
             var agent = await _agentContextService.GetAgent();

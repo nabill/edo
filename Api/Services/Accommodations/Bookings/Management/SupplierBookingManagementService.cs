@@ -44,11 +44,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             Result CheckBookingCanBeCancelled()
             {
-                if(booking.Status != BookingStatuses.Confirmed)
+                if (booking.Status != BookingStatuses.Confirmed)
                     return Result.Failure("Only confirmed bookings can be cancelled");
                 
-                if (booking.CheckInDate <= _dateTimeProvider.UtcToday())
-                    return Result.Failure("Cannot cancel booking after check in date");
+                if (booking.CheckOutDate <= _dateTimeProvider.UtcToday())
+                    return Result.Failure("Cannot cancel booking after check out date");
 
                 return Result.Success();
             }
