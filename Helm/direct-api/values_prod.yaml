@@ -39,7 +39,7 @@ service:
   metrics:
     port: 60000
   healthchecks:
-    port: 60000
+    port: 60001
 
 ingress:
   enabled: true
@@ -90,10 +90,10 @@ metrics:
 
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
-  ASPNETCORE_URLS: "http://*:80;http://localhost:60000"
+  ASPNETCORE_URLS: "http://*:80;http://*:60000/;http://*:60001/"
   METRICS_HOST: "localhost:60000"
-  HEALTH_CHECK_HOST: "localhost:60000"
-  API_HOST: "*:80"  
+  HEALTH_CHECK_HOST: "*:60001"
+  API_HOST: "*:80"
   HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
   HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://ceda11b983284f5db0370a441822e17f@sentry.happytravel.com/63"
   JAEGER_AGENT_HOST: "localhost"

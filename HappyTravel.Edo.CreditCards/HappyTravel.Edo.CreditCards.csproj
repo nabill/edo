@@ -4,8 +4,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HappyTravel.DataFormatters" Version="1.1.6" />
+    <PackageReference Include="HappyTravel.DataFormatters" Version="1.1.8" />
     <PackageReference Include="HappyTravel.SuppliersCatalog" Version="0.10.0" />
-    <PackageReference Include="HappyTravel.VccServiceClient" Version="0.15.2" />
+    <PackageReference Include="HappyTravel.VccServiceClient" Version="0.15.3" />
   </ItemGroup>
 </Project>

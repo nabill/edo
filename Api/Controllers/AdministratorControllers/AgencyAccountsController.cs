@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("agencies/{agencyId}/accounts")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
             => Ok(await _agencyAccountService.Get(agencyId));
         
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="currency">Currency</param>
         [HttpGet("agencies/{agencyId}/accounts/{currency}/balance")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
         public async Task<IActionResult> GetAgencyBalance(int agencyId, Currencies currency)
             => Ok(await _agencyAccountService.Get(agencyId, currency));
 
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/activate")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ActivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
             => OkOrBadRequest(await _agencyAccountService.Activate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/deactivate")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> DeactivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
             => OkOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("agency-accounts/{agencyAccountId}/replenish")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ReplenishAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("agency-accounts/{agencyAccountId}/subtract")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SubtractAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
