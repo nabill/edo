@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                                 description: dr.Description)).ToList(),
                         rate: r.Rate.MapFromEdoModel(),
                         adultsNumber: r.AdultsNumber,
-                        childrenAges: r.ChildrenAges,
+                        childrenNumber: r.ChildrenAges.Count,
                         type: r.Type,
                         deadline: r.Deadline,
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
