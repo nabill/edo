@@ -96,15 +96,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     Comment = paymentLinkCreationData.Comment,
                     Created = _dateTimeProvider.UtcNow(),
                     Code = Base64UrlEncoder.Encode(Guid.NewGuid().ToByteArray()),
-                    ReferenceCode = referenceCode
+                    ReferenceCode = referenceCode,
+                    PaymentProcessor = paymentLinkCreationData.PaymentProcessor
                 };
                 _context.PaymentLinks.Add(paymentLink);
                 await _context.SaveChangesAsync();
 
                 return paymentLink;
             }
-            
-            
         }
 
 
