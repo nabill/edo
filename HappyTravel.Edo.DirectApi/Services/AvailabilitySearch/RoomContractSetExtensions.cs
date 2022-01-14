@@ -35,7 +35,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                         adultsNumber: r.AdultsNumber,
                         childrenAges: r.ChildrenAges,
                         type: r.Type,
-                        isExtraBedNeeded: r.IsExtraBedNeeded,
                         deadline: r.Deadline,
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),

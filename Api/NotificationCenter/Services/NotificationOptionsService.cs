@@ -188,7 +188,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 { 
                     RecipientId = r.Key, 
                     Email = r.Value, 
-                    NotificationOptions = admins.SingleOrDefault(a => a.UserId == r.Key)?.ToSlimNotificationOptions()
+                    NotificationOptions = admins.SingleOrDefault(a => a.UserId == r.Key)?
+                        .ToSlimNotificationOptions()
                 })
                 .ToList();
         }
