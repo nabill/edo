@@ -171,14 +171,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1111, "AgentAuthorizationFailure"),
                 "Agent authorization failure: '{Error}'");
             
-            CounterpartyAccountCreationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
-                new EventId(1120, "CounterpartyAccountCreationFailure"),
-                "Failed to create account for counterparty {Id}, error {Error}");
-            
-            CounterpartyAccountCreationSuccess = LoggerMessage.Define<int, int>(LogLevel.Information,
-                new EventId(1121, "CounterpartyAccountCreationSuccess"),
-                "Successfully created account for counterparty: '{CounterpartyId}', account id: {AccountId}");
-            
             ServiceAccountAuthorizationSuccess = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1125, "ServiceAccountAuthorizationSuccess"),
                 "Service account '{ClientId}' authorized successfully");
@@ -291,9 +283,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1603, "MapperManagementClientException"),
                 "Mapper management client exception");
             
-            CounterpartyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
-                new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
-                "Counterparty {CounterpartyId} account added notification failed with error {Error}");
+            AgencyAccountAddedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
+                new EventId(1701, "AgencyAccountAddedNotificationFailure"),
+                "Agency {AgencyId} account added notification failed with error {Error}");
             
             AgentRegistrationNotificationFailure = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1702, "AgentRegistrationNotificationFailure"),
@@ -303,17 +295,17 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1703, "ChildAgencyRegistrationNotificationFailure"),
                 "Child agency registration notification failed");
             
-            CounterpartyAccountSubtractedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
-                new EventId(1704, "CounterpartyAccountSubtractedNotificationFailure"),
-                "Counterparty {CounterpartyId} account subtracted notification failed with error {Error}");
+            AgencyAccountSubtractedNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
+                new EventId(1704, "AgencyAccountSubtractedNotificationFailure"),
+                "Agency {AgencyId} account subtracted notification failed with error {Error}");
             
-            CounterpartyAccountIncreasedManuallyNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
-                new EventId(1705, "CounterpartyAccountIncreasedManuallyNotificationFailure"),
-                "Counterparty {CounterpartyId} account increasedManually notification failed with error {Error}");
+            AgencyAccountIncreasedManuallyNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
+                new EventId(1705, "AgencyAccountIncreasedManuallyNotificationFailure"),
+                "Agency {AgencyId} account increasedManually notification failed with error {Error}");
             
-            CounterpartyAccountDecreasedManuallyNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
-                new EventId(1706, "CounterpartyAccountDecreasedManuallyNotificationFailure"),
-                "Counterparty {CounterpartyId} account decreasedManually notification failed with error {Error}");
+            AgencyAccountDecreasedManuallyNotificationFailure = LoggerMessage.Define<int, string>(LogLevel.Error,
+                new EventId(1706, "AgencyAccountDecreasedManuallyNotificationFailure"),
+                "Agency {AgencyId} account decreasedManually notification failed with error {Error}");
             
             ExternalPaymentLinkGenerationSuccess = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1707, "ExternalPaymentLinkGenerationSuccess"),
@@ -593,12 +585,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogAgentAuthorizationFailure(this ILogger logger, string Error, Exception exception = null)
             => AgentAuthorizationFailure(logger, Error, exception);
                 
-         public static void LogCounterpartyAccountCreationFailure(this ILogger logger, int Id, string Error, Exception exception = null)
-            => CounterpartyAccountCreationFailure(logger, Id, Error, exception);
-                
-         public static void LogCounterpartyAccountCreationSuccess(this ILogger logger, int CounterpartyId, int AccountId, Exception exception = null)
-            => CounterpartyAccountCreationSuccess(logger, CounterpartyId, AccountId, exception);
-                
          public static void LogServiceAccountAuthorizationSuccess(this ILogger logger, string ClientId, Exception exception = null)
             => ServiceAccountAuthorizationSuccess(logger, ClientId, exception);
                 
@@ -683,8 +669,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMapperManagementClientException(this ILogger logger, Exception exception = null)
             => MapperManagementClientException(logger, exception);
                 
-         public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
-            => CounterpartyAccountAddedNotificationFailure(logger, CounterpartyId, Error, exception);
+         public static void LogAgencyAccountAddedNotificationFailure(this ILogger logger, int AgencyId, string Error, Exception exception = null)
+            => AgencyAccountAddedNotificationFailure(logger, AgencyId, Error, exception);
                 
          public static void LogAgentRegistrationNotificationFailure(this ILogger logger, string Error, Exception exception = null)
             => AgentRegistrationNotificationFailure(logger, Error, exception);
@@ -692,14 +678,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogChildAgencyRegistrationNotificationFailure(this ILogger logger, Exception exception = null)
             => ChildAgencyRegistrationNotificationFailure(logger, exception);
                 
-         public static void LogCounterpartyAccountSubtractedNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
-            => CounterpartyAccountSubtractedNotificationFailure(logger, CounterpartyId, Error, exception);
+         public static void LogAgencyAccountSubtractedNotificationFailure(this ILogger logger, int AgencyId, string Error, Exception exception = null)
+            => AgencyAccountSubtractedNotificationFailure(logger, AgencyId, Error, exception);
                 
-         public static void LogCounterpartyAccountIncreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
-            => CounterpartyAccountIncreasedManuallyNotificationFailure(logger, CounterpartyId, Error, exception);
+         public static void LogAgencyAccountIncreasedManuallyNotificationFailure(this ILogger logger, int AgencyId, string Error, Exception exception = null)
+            => AgencyAccountIncreasedManuallyNotificationFailure(logger, AgencyId, Error, exception);
                 
-         public static void LogCounterpartyAccountDecreasedManuallyNotificationFailure(this ILogger logger, int CounterpartyId, string Error, Exception exception = null)
-            => CounterpartyAccountDecreasedManuallyNotificationFailure(logger, CounterpartyId, Error, exception);
+         public static void LogAgencyAccountDecreasedManuallyNotificationFailure(this ILogger logger, int AgencyId, string Error, Exception exception = null)
+            => AgencyAccountDecreasedManuallyNotificationFailure(logger, AgencyId, Error, exception);
                 
          public static void LogExternalPaymentLinkGenerationSuccess(this ILogger logger, string Email, Exception exception = null)
             => ExternalPaymentLinkGenerationSuccess(logger, Email, exception);
@@ -899,10 +885,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> AgentAuthorizationFailure;
         
-        private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountCreationFailure;
-        
-        private static readonly Action<ILogger, int, int, Exception> CounterpartyAccountCreationSuccess;
-        
         private static readonly Action<ILogger, string, Exception> ServiceAccountAuthorizationSuccess;
         
         private static readonly Action<ILogger, string, Exception> ServiceAccountAuthorizationFailure;
@@ -959,17 +941,17 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> MapperManagementClientException;
         
-        private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountAddedNotificationFailure;
+        private static readonly Action<ILogger, int, string, Exception> AgencyAccountAddedNotificationFailure;
         
         private static readonly Action<ILogger, string, Exception> AgentRegistrationNotificationFailure;
         
         private static readonly Action<ILogger, Exception> ChildAgencyRegistrationNotificationFailure;
         
-        private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountSubtractedNotificationFailure;
+        private static readonly Action<ILogger, int, string, Exception> AgencyAccountSubtractedNotificationFailure;
         
-        private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountIncreasedManuallyNotificationFailure;
+        private static readonly Action<ILogger, int, string, Exception> AgencyAccountIncreasedManuallyNotificationFailure;
         
-        private static readonly Action<ILogger, int, string, Exception> CounterpartyAccountDecreasedManuallyNotificationFailure;
+        private static readonly Action<ILogger, int, string, Exception> AgencyAccountDecreasedManuallyNotificationFailure;
         
         private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkGenerationSuccess;
         
