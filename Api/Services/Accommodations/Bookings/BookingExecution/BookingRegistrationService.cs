@@ -39,19 +39,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
         
         
-        public async Task<Booking> Register(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
         {
-            var (_, _, booking, _) = await Result.Success()
+            var (_, isFailure, booking, error) = await CheckRooms()
                 .Map(GetTags)
                 .Map(Create)
                 .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder); 
+                .Tap(CreateSupplierOrder);
+
+            if (isFailure)
+                return Result.Failure<Booking>(error);
 
             _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
             return booking;
+
+
+            Result CheckRooms()
+            {
+                if (bookingRequest.RoomDetails.Count != availabilityInfo.AvailabilityRequest.RoomDetails.Count)
+                    return Result.Failure("Rooms does not correspond to search rooms");
+
+                for (var i = 0; i < bookingRequest.RoomDetails.Count; i++)
+                {
+                    var adultsCount = bookingRequest.RoomDetails[i].Passengers.Count(p => p.Age == null);
+                    var childrenCount = bookingRequest.RoomDetails[i].Passengers.Count(p => p.Age != null);
+                    
+                    if (availabilityInfo.AvailabilityRequest.RoomDetails[i].AdultsNumber != adultsCount ||
+                        availabilityInfo.AvailabilityRequest.RoomDetails[i].ChildrenAges.Count != childrenCount)
+                        return Result.Failure("Rooms does not correspond to search rooms");
+                }
+
+                return Result.Success();
+            }
 
 
             async Task<(string itn, string referenceCode)> GetTags()

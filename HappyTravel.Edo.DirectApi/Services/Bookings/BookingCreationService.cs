@@ -54,7 +54,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                     agentContext: agent, 
                     languageCode: languageCode);
 
-                return booking.FromEdoModels();
+                return booking.IsSuccess
+                    ? booking.Value.FromEdoModels()
+                    : Result.Failure<Booking>(booking.Error);
             }
         }
 
