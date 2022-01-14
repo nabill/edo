@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<List<BookingSlim>> Get(BookingsListFilter filter, AgentContext agent)
+        public async Task<List<SlimBooking>> Get(BookingsListFilter filter, AgentContext agent)
         {
             var query = from booking in _context.Bookings
                 where booking.AgentId == agent.AgentId &&

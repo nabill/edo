@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// Get bookings
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<BookingSlim>>> GetList([FromQuery] BookingsListFilter filters)
+        public async Task<ActionResult<List<SlimBooking>>> GetList([FromQuery] BookingsListFilter filters)
         {
             var agent = await _agentContextService.GetAgent();
             return await _bookingInfoService.Get(filters, agent);

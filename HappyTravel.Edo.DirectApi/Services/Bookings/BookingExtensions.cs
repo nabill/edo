@@ -12,8 +12,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             => bookings.Select(b => b.FromEdoModels()).ToList();
 
 
-        public static List<BookingSlim> SlimFromEdoModels(this IEnumerable<Data.Bookings.Booking> bookings)
-            => bookings.Select(b => new BookingSlim(clientReferenceCode: b.ClientReferenceCode,
+        public static List<SlimBooking> SlimFromEdoModels(this IEnumerable<Data.Bookings.Booking> bookings)
+            => bookings.Select(b => new SlimBooking(clientReferenceCode: b.ClientReferenceCode,
                     referenceCode: b.ReferenceCode,
                     checkInDate: b.CheckInDate,
                     checkOutDate: b.CheckOutDate,

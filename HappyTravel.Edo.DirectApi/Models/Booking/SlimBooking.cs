@@ -4,9 +4,9 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.DirectApi.Models.Booking
 {
-    public readonly struct BookingSlim
+    public readonly struct SlimBooking
     {
-        public BookingSlim(string clientReferenceCode, string referenceCode, DateTime checkInDate, DateTime checkOutDate, 
+        public SlimBooking(string clientReferenceCode, string referenceCode, DateTime checkInDate, DateTime checkOutDate, 
             string accommodationId, MoneyAmount totalPrice, bool isAdvancePurchaseRate, BookingStatuses status, string mainPassengerName)
         {
             ClientReferenceCode = clientReferenceCode;
