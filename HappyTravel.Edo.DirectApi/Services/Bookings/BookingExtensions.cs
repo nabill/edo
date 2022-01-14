@@ -57,8 +57,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                     policies: r.DeadlineDetails.Policies?
                         .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                         .ToList(),
-                    remarks: r.DeadlineDetails.Remarks,
-                    isFinal: r.DeadlineDetails.IsFinal),
+                    remarks: r.DeadlineDetails.Remarks),
                 passengers: r.Passengers)).ToList();
         }
 
