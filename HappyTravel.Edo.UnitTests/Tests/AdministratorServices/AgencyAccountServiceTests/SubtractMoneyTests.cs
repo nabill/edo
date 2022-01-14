@@ -19,7 +19,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAccountServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountServiceTests
 {
     public class SubtractMoneyTests
     {
@@ -89,13 +89,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
                     new Agency
                     {
                         Id = 1,
-                        CounterpartyId = 1,
                         ParentId = null,
                     },
                     new Agency
                     {
                         Id = 2,
-                        CounterpartyId = 2,
                         ParentId = null,
                     }
                 }));

@@ -30,7 +30,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
                 {
-                    CounterpartyId = 0,
                     AgencyId = agencyId,
                     AgentId = agentId,
                     DisplayFormula = formula
@@ -57,7 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
                 {
-                    CounterpartyId = 0,
                     AgencyId = agencyId,
                     AgentId = null,
                     DisplayFormula = formula
@@ -77,14 +75,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> UpdateGlobalFormula()
         {
             var displayedMarkupFormula = await _context.DisplayMarkupFormulas
-                .SingleOrDefaultAsync(f => f.CounterpartyId == null && f.AgencyId == null && f.AgentId == null);
+                .SingleOrDefaultAsync(f => f.AgencyId == null && f.AgentId == null);
             
             var formula = await GetGlobalMarkupFormula();
             if (displayedMarkupFormula is null)
             {
                 _context.DisplayMarkupFormulas.Add(new DisplayMarkupFormula
                 {
-                    CounterpartyId = null,
                     AgencyId = null,
                     AgentId = null,
                     DisplayFormula = formula

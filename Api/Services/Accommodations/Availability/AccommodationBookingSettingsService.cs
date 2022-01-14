@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -79,16 +80,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 };
             }
 
-            return new AccommodationBookingSettings(enabledConnectors,
-                aprMode.Value,
-                passedDeadlineOffersMode.Value,
+            return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
+                aprMode: aprMode.Value,
+                passedDeadlineOffersMode: passedDeadlineOffersMode.Value,
                 isSupplierVisible: isSupplierVisible,
-                cancellationPolicyProcessSettings,
+                cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
                 isDirectContractFlagVisible: isDirectContractFlagVisible,
-                additionalSearchFilters);
+                additionalSearchFilters: additionalSearchFilters);
         }
 
-        
+
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
 
         private const AprMode DefaultAprMode = AprMode.DisplayOnly;

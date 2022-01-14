@@ -99,10 +99,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             context
                 .Setup(x => x.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(Agencies));
-
-            context
-                .Setup(x => x.Counterparties)
-                .Returns(DbSetMockProvider.GetDbSetMock(Counterparties));
             
             return new BookingRecordsUpdater(
                 Mock.Of<IDateTimeProvider>(), 
@@ -123,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             new()
             {
-                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1, CounterpartyId = 1
+                Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard, AgentId = 1, AgencyId = 1
             }
         };
 
@@ -140,15 +136,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             new()
             {
                 Id = 1
-            }
-        };
-        
-        private static readonly Counterparty[] Counterparties =
-        {
-            new()
-            {
-                Id = 1,
-                Name = "Test Counterparty"
             }
         };
 

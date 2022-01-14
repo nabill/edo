@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public async Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
-            var requestUri = "api/1.0/AccommodationsManagement/accommodations/merge";
+            var requestUri = "api/1.0/admin/accommodations/merge";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
-            var requestUri = "api/1.0/AccommodationsManagement/accommodations/deactivate";
+            var requestUri = "api/1.0/admin/accommodations/deactivate";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
         {
             using var requestContent = new StringContent($@"""{nameof(DeactivationReasonDescription)}"" = ""{DeactivationReasonDescription}""", Encoding.UTF8, "application/json");
-            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/deactivate-manually";
+            var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/deactivate-manually";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public async Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-            var requestUri = $"api/1.0/AccommodationsManagement/accommodations/{htAccommodationId}/suppliers/remove";
+            var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/suppliers/remove";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }

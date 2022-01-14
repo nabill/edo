@@ -1,16 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using CacheFlow.Json.Extensions;
+﻿using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Middlewares;
-using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
 using HappyTravel.Edo.Api.NotificationCenter.Hubs;
 using HappyTravel.Edo.Api.NotificationCenter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
@@ -37,6 +31,11 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
 using StackExchange.Redis;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
 
 namespace HappyTravel.Edo.Api
 {

@@ -2918,7 +2918,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
             <summary>
-                List of counterparties, associated with agent.
+                List of agencies, associated with agent.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.AgentId">
@@ -3740,6 +3740,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest.Comment">
             <summary>
                 Mandatory payment comment.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest.PaymentProcessor">
+            <summary>
+            Payment processor to use for payment link. Default will be used if not set
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Amount">

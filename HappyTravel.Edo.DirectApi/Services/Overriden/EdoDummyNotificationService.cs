@@ -41,6 +41,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             => Task.FromResult(Result.Success());
 
 
+        public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType)
+            => Task.FromResult(Result.Success());
+
+
         public Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType) 
             => Task.FromResult(Result.Success());
 

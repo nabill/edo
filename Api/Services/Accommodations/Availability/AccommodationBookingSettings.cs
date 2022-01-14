@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.SuppliersCatalog;
