@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             var (regData, invoice) = document;
-            return Ok(new BookingDocument<BookingInvoiceInfo>(regData.Number, regData.Date, invoice));
+            return Ok(new BookingDocument<BookingInvoiceInfo>(regData.Number, regData.Date.DateTime, invoice));
         }
 
 

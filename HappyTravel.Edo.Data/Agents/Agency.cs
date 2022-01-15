@@ -19,9 +19,9 @@ namespace HappyTravel.Edo.Data.Agents
         public string VatNumber { get; set; }
         public string BillingEmail { get; set; }
         public string Website { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
-        public DateTime? Verified { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Modified { get; set; }
+        public DateTimeOffset? Verified { get; set; }
         public int? ParentId { get; set; }
         public bool IsActive { get; set; }
         public List<int> Ancestors { get; set; } = new();

@@ -180,7 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 {
                     BookingId = booking.Id,
                     LastRefreshDate = _dateTimeProvider.UtcNow(),
-                    DeadlineDate = booking.DeadlineDate
+                    DeadlineDate = booking.DeadlineDate?.DateTime
                 }
                 : state with
                 {

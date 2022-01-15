@@ -40,12 +40,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     AgentId = booking.AgentId,
                     AgencyName = agency.Name,
                     AgentName = $"{agent.FirstName} {agent.LastName}",
-                    Created = booking.Created,
+                    Created = booking.Created.DateTime,
                     Currency = booking.Currency,
                     PaymentStatus = booking.PaymentStatus,
                     TotalPrice = booking.TotalPrice,
-                    CheckInDate = booking.CheckInDate,
-                    CheckOutDate = booking.CheckOutDate,
+                    CheckInDate = booking.CheckInDate.DateTime,
+                    CheckOutDate = booking.CheckOutDate.DateTime,
                     Status = booking.Status
                 };
 

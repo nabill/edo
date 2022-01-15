@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         booking.CheckOutDate < endDate
                     select new FullBookingsReportData
                     {
-                        Created = booking.Created,
+                        Created = booking.Created.DateTime,
                         ReferenceCode = booking.ReferenceCode,
                         Status = booking.Status.ToString(),
                         InvoiceNumber = invoice.Number,
@@ -45,15 +45,17 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ConfirmationNumber = booking.SupplierReferenceCode,
                         Rooms = booking.Rooms,
                         GuestName = booking.MainPassengerName,
-                        ArrivalDate = booking.CheckInDate,
-                        DepartureDate = booking.CheckOutDate,
+                        ArrivalDate = booking.CheckInDate.DateTime,
+                        DepartureDate = booking.CheckOutDate.DateTime,
                         OriginalAmount = order.Price,
                         OriginalCurrency = order.Currency,
                         ConvertedAmount = order.ConvertedPrice,
                         ConvertedCurrency = order.ConvertedCurrency,
                         PaymentStatus = booking.PaymentStatus,
                         Supplier = booking.Supplier,
-                        CancellationDate = booking.Cancelled
+                        CancellationDate = booking.Cancelled == null
+                            ? null
+                            : booking.Cancelled.Value.DateTime
                     })
                 .ToListAsync();
         }

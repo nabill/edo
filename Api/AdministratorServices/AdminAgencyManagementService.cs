@@ -53,7 +53,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
                     from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
                     where a.Id == agencyId
-                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+                    select a.ToAgencyInfo(a.ContractKind, 
+                        ra.VerificationState, 
+                        ra.Verified != null
+                            ? ra.Verified.Value.DateTime
+                            : null, 
+                        c.Names, 
+                        languageCode,
+                        markupFormula == null 
+                            ? string.Empty 
+                            : markupFormula.DisplayFormula))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -78,7 +87,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Name = a.Name,
                     City = a.City,
                     CountryName = c.Names.RootElement.GetProperty(languageCode).GetString(),
-                    Created = a.Created,
+                    Created = a.Created.DateTime,
                     VerificationState = a.VerificationState,
                     AccountManagerName = string.Empty,
                     IsActive = a.IsActive
@@ -92,7 +101,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
                     from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
                     where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(a.ContractKind, ra.VerificationState, ra.Verified, c.Names, languageCode, markupFormula == null ? string.Empty : markupFormula.DisplayFormula))
+                    select a.ToAgencyInfo(a.ContractKind, 
+                        ra.VerificationState, 
+                        ra.Verified != null
+                            ? ra.Verified.Value.DateTime
+                            : null, 
+                        c.Names, 
+                        languageCode,
+                        markupFormula == null 
+                            ? string.Empty 
+                            : markupFormula.DisplayFormula))
                 .ToListAsync();
 
 

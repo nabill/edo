@@ -25,14 +25,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 where booking.Created >= fromDate && booking.Created < endDate && booking.Status == BookingStatuses.Cancelled
                 select new CancelledBookingsReportData
                 {
-                    Created = booking.Created,
+                    Created = booking.Created.DateTime,
                     AccommodationName = booking.AccommodationName,
                     AgentName = $"{agent.FirstName} {agent.LastName}",
                     AgencyName = agency.Name,
-                    CheckInDate = booking.CheckInDate,
-                    CheckOutDate = booking.CheckOutDate,
+                    CheckInDate = booking.CheckInDate.DateTime,
+                    CheckOutDate = booking.CheckOutDate.DateTime,
                     Supplier = booking.Supplier.ToString(),
-                    DeadlineDate = booking.DeadlineDate.GetValueOrDefault(),
+                    DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                     ReferenceCode = booking.ReferenceCode,
                 };
 

@@ -25,14 +25,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                 where booking.AgentId == currentAgent.AgentId && booking.Created >= fromDate && booking.Created < endDate
                 select new AgentWiseReportData
                 {
-                    Created = booking.Created,
+                    Created = booking.Created.DateTime,
                     ReferenceCode = booking.ReferenceCode,
                     PaymentMethod = booking.PaymentType,
                     AccommodationName = booking.AccommodationName,
                     Rooms = booking.Rooms,
                     GuestName = booking.MainPassengerName,
-                    ArrivalDate = booking.CheckInDate,
-                    DepartureDate = booking.CheckOutDate,
+                    ArrivalDate = booking.CheckInDate.DateTime,
+                    DepartureDate = booking.CheckOutDate.DateTime,
                     TotalPrice = booking.TotalPrice
                 };
             

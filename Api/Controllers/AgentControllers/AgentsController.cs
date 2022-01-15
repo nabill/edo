@@ -14,8 +14,8 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Invitations;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers

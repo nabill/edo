@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 Id = agency.Id,
                 Name = agency.Name,
-                Created = agency.Created,
+                Created = agency.Created.DateTime,
                 IsActive = agency.IsActive,
                 Accounts = agencyAccounts.Select(acc =>
                     new AgencyAccountInfo
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 {
                     Id = a.Id,
                     Name = a.Name,
-                    Created = a.Created,
+                    Created = a.Created.DateTime,
                     IsActive = a.IsActive
                 })
                 .ToListAsync();

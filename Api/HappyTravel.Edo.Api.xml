@@ -2916,7 +2916,7 @@
                 Agent position in agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Counterparties">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.AgencyRelations">
             <summary>
                 List of agencies, associated with agent.
             </summary>
@@ -3780,6 +3780,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Date">
             <summary>
                 Date when the link was created
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.PaymentProcessor">
+            <summary>
+            Payment processor to use for payment link. Default will be used if not set
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">

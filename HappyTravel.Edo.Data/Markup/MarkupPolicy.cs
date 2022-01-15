@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Data.Markup
         public string Description { get; set; }
         public int Order { get; set; }
         public MarkupPolicyTarget Target { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Modified { get; set; }
         public int TemplateId { get; set; }
         public IDictionary<string, decimal> TemplateSettings { get; set; }
         public Currencies Currency { get; set; }

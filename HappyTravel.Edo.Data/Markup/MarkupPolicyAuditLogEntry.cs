@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Markup
     {
         public int Id { get; set; }
         public MarkupPolicyEventType Type { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         public int UserId { get; set; }
         public ApiCallerTypes ApiCallerType { get; set; }
         public string EventData { get; set; }

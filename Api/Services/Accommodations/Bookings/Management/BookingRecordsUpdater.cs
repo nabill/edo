@@ -63,11 +63,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ChangeTime = _dateTimeProvider.UtcNow(),
                 AccommodationName = booking.AccommodationName,
                 AccommodationPhoto = booking.AccommodationInfo?.Photo,
-                CheckInDate = booking.CheckInDate,
-                CheckOutDate = booking.CheckOutDate
+                CheckInDate = booking.CheckInDate.DateTime,
+                CheckOutDate = booking.CheckOutDate.DateTime
             };
             await _notificationsService.Send(apiCaller, 
-                JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new(JsonSerializerDefaults.Web))), 
+                JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new JsonSerializerOptions(JsonSerializerDefaults.Web))), 
                 Notifications.Enums.NotificationTypes.BookingStatusChanged);
 
             // Temporary hot-fix for notifying admins about bookings statuses changed to "Pending" or "Waiting for response"

@@ -24,11 +24,11 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         fromDate <= booking.CheckInDate && booking.CheckOutDate < endDate
                     select new CancellationDeadlineData
                     {
-                        Created = booking.Created,
+                        Created = booking.Created.DateTime,
                         AccommodationName = booking.AccommodationName,
-                        CheckInDate = booking.CheckInDate,
-                        CheckOutDate = booking.CheckOutDate,
-                        DeadlineDate = booking.DeadlineDate.GetValueOrDefault(),
+                        CheckInDate = booking.CheckInDate.DateTime,
+                        CheckOutDate = booking.CheckOutDate.DateTime,
+                        DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                         BookingStatus = booking.Status.ToString(),
                         ReferenceCode = booking.ReferenceCode,
                     })

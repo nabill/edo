@@ -193,7 +193,7 @@ namespace HappyTravel.Edo.Api.Services.Files
 
             return image == null
                 ? Maybe<SlimUploadedImage>.None
-                : new SlimUploadedImage(image.FileName, image.Url, image.Created, image.Updated);
+                : new SlimUploadedImage(image.FileName, image.Url, image.Created.DateTime, image.Updated.DateTime);
         }
 
 

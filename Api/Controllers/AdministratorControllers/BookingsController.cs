@@ -15,8 +15,8 @@ using HappyTravel.Edo.Data.Bookings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
-using Microsoft.AspNet.OData;
 using HappyTravel.Money.Models;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {

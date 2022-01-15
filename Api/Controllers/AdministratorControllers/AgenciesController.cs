@@ -13,9 +13,9 @@ using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {

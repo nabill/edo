@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public int UserId { get; set; }
         public ApiCallerTypes ApiCallerType { get; set; }
         public int? AgencyId { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public BookingStatuses Status { get; set; }
         public BookingChangeInitiators Initiator { get; set; }
         public BookingChangeSources Source { get; set; }

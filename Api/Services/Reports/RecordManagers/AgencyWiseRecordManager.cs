@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     booking.Created < endDate
                 select new AgencyWiseRecordData
                 {
-                    Date = booking.Created,
+                    Date = booking.Created.DateTime,
                     ReferenceCode = booking.ReferenceCode,
                     InvoiceNumber = invoice.Number,
                     AgencyName = agency.Name,
@@ -37,8 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     ConfirmationNumber = booking.SupplierReferenceCode,
                     Rooms = booking.Rooms,
                     GuestName = booking.MainPassengerName,
-                    ArrivalDate = booking.CheckInDate,
-                    DepartureDate = booking.CheckOutDate,
+                    ArrivalDate = booking.CheckInDate.DateTime,
+                    DepartureDate = booking.CheckOutDate.DateTime,
                     OriginalAmount = order.Price,
                     OriginalCurrency = order.Currency,
                     ConvertedAmount = order.ConvertedPrice,

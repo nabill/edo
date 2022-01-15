@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.CreditCards.Services
                 return Result.Failure<CreditCardInfo>(error);
 
             return new CreditCardInfo(Number: virtualCreditCard.Number,
-                ExpiryDate: virtualCreditCard.Expiry,
+                ExpiryDate: virtualCreditCard.Expiry.DateTime,
                 HolderName: virtualCreditCard.Holder,
                 SecurityCode: virtualCreditCard.Code);
         }
