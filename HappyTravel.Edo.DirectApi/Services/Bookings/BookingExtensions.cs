@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 rooms: booking.Rooms.FromEdoModel(),
                 accommodationId: booking.HtId,
                 cancellationPolicies: booking.CancellationPolicies
-                    .Select(p => new CancellationPolicy(p.FromDate.DateTime, p.Percentage))
+                    .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                     .ToList(),
                 cancelled: booking.Cancelled?.DateTime,
                 isAdvancePurchaseRate: booking.IsAdvancePurchaseRate,
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 remarks: r.Remarks,
                 deadlineDetails: new Deadline(date: r.DeadlineDetails.Date?.Date,
                     policies: r.DeadlineDetails.Policies?
-                        .Select(p => new CancellationPolicy(p.FromDate.DateTime, p.Percentage))
+                        .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                         .ToList(),
                     remarks: r.DeadlineDetails.Remarks),
                 passengers: r.Passengers)).ToList();
