@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Infrastructure
     {
         public string CodeHash { get; set; }
         public string Email { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         public int InviterUserId { get; set; }
         public int? InviterAgencyId { get; set; }
         public UserInvitationStatuses InvitationStatus { get; set; }

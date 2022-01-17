@@ -24,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         booking.Created >= fromDate && booking.Created < endDate
                     select new ThirdPartySupplierData
                     {
-                        Created = booking.Created,
+                        Created = booking.Created.DateTime,
                         AccommodationName = booking.AccommodationName,
-                        CheckInDate = booking.CheckInDate,
-                        CheckOutDate = booking.CheckOutDate,
+                        CheckInDate = booking.CheckInDate.DateTime,
+                        CheckOutDate = booking.CheckOutDate.DateTime,
                         Supplier = booking.Supplier.ToString(),
-                        DeadlineDate = booking.DeadlineDate.GetValueOrDefault(),
+                        DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                         BookingStatus = booking.Status.ToString(),
                         ReferenceCode = booking.ReferenceCode,
                     })

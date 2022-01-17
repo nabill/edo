@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Data.Bookings
     {
         public int BookingId { get; set; }
         public int AdministratorId { get; set; }
-        public DateTime ConfirmedAt { get; set; }
+        public DateTimeOffset ConfirmedAt { get; set; }
     }
 }

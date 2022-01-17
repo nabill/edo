@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public string AccommodationId2 { get; set; }
         public int ReporterAgentId { get; set; }
         public int ReporterAgencyId { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         public bool IsApproved { get; set; }
     }
 }

@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     booking.CheckOutDate < endDate
                 select new ConfirmedBookingsData
                 {
-                    Created = booking.Created,
+                    Created = booking.Created.DateTime,
                     AccommodationName = booking.AccommodationName,
                     ReferenceCode = booking.ReferenceCode,
-                    CheckInDate = booking.CheckInDate,
-                    CheckOutDate = booking.CheckOutDate,
+                    CheckInDate = booking.CheckInDate.DateTime,
+                    CheckOutDate = booking.CheckOutDate.DateTime,
                     Rooms = booking.Rooms
                 };
         }

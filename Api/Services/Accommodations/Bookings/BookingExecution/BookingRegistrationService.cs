@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     Event = BookingChangeEvents.Create,
                     Source = BookingChangeSources.System
                 };
-                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created, 
+                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created.DateTime, 
                     agentContext.ToApiCaller(), changeReason);
             }
 
@@ -154,8 +154,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         ? SupplierPaymentType.CreditCard
                         : SupplierPaymentType.DirectPayment,
                     paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
-                        ? booking.Created
-                        : booking.CheckOutDate);
+                        ? booking.Created.DateTime
+                        : booking.CheckOutDate.DateTime);
         }
 
 

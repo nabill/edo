@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 using Deadline = HappyTravel.Edo.Data.Bookings.Deadline;

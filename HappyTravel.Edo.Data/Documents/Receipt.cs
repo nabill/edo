@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Data.Documents
         public ServiceSource ServiceSource { get; set; }
         public string ParentReferenceCode { get; set; }
         public string Data { get; set; }
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         public int InvoiceId { get; set; }
         public DocumentRegistrationInfo GetRegistrationInfo() => new DocumentRegistrationInfo(Number, Date);
     }

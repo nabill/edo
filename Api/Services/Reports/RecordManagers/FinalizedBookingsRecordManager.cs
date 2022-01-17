@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         || booking.CheckOutDate >= fromDate && booking.CheckOutDate < endDate)
                 select new FinalizedBookingsReportData
                 {
-                    Created = booking.Created,
+                    Created = booking.Created.DateTime,
                     ReferenceCode = booking.ReferenceCode,
                     BookingStatus = booking.Status,
                     InvoiceNumber = invoice.Number,
@@ -38,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     ConfirmationNumber = booking.SupplierReferenceCode,
                     Rooms = booking.Rooms,
                     GuestName = booking.MainPassengerName,
-                    ArrivalDate = booking.CheckInDate,
-                    DepartureDate = booking.CheckOutDate,
+                    ArrivalDate = booking.CheckInDate.DateTime,
+                    DepartureDate = booking.CheckOutDate.DateTime,
                     SupplierPrice = supplierOrder.Price,
                     SupplierCurrency = supplierOrder.Currency,
                     AgentPrice = booking.TotalPrice,
@@ -48,11 +48,15 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     SupplierConvertedCurrency = supplierOrder.ConvertedCurrency,
                     Supplier = booking.Supplier,
                     CancellationPolicies = booking.CancellationPolicies,
-                    CancellationDate = booking.Cancelled,
+                    CancellationDate = booking.Cancelled == null
+                        ? null
+                        : booking.Cancelled.Value.DateTime,
                     IsDirectContract = booking.IsDirectContract,
-                    CheckInDate = booking.CheckInDate,
-                    CheckOutDate = booking.CheckOutDate,
-                    AgentDeadline = booking.DeadlineDate,
+                    CheckInDate = booking.CheckInDate.DateTime,
+                    CheckOutDate = booking.CheckOutDate.DateTime,
+                    AgentDeadline = booking.DeadlineDate == null
+                        ? null
+                        : booking.DeadlineDate.Value.DateTime,
                     SupplierDeadline = supplierOrder.Deadline
                 })
                 .ToListAsync();

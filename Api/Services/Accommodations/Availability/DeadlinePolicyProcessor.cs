@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 ? TimeSpan.Zero
                 : shiftValue;
 
-            if (deadline.Date == default(DateTime))
+            if (deadline.Date == default(DateTimeOffset))
                 throw new ArgumentException($"Deadline date '{deadline.Date}' is invalid", nameof(deadline.Date));
             
             if (checkInDate == default(DateTime))
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private static DateTime ShiftDate(DateTime? current, DateTime checkInDate, TimeSpan shiftValue)
-            => (current ?? checkInDate) + shiftValue;
+        private static DateTime ShiftDate(DateTimeOffset? current, DateTime checkInDate, TimeSpan shiftValue)
+            => (current?.DateTime ?? checkInDate) + shiftValue;
     }
 }

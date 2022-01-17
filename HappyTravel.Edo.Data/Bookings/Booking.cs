@@ -14,12 +14,12 @@ namespace HappyTravel.Edo.Data.Bookings
         public int AgencyId { get; set; }
         public string HtId { get; set; }
         
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         
-        public DateTime CheckInDate { get; set; }
-        public DateTime CheckOutDate { get; set; }
+        public DateTimeOffset CheckInDate { get; set; }
+        public DateTimeOffset CheckOutDate { get; set; }
         
-        public DateTime? DeadlineDate { get; set; }
+        public DateTimeOffset? DeadlineDate { get; set; }
         public decimal TotalPrice { get; set; }
         
         public Currencies Currency { get; set; }
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Data.Bookings
 
         public BookingStatuses Status { get; set; }
         public BookingPaymentStatuses PaymentStatus { get; set; }
-        public DateTime? ConfirmationDate { get; set; }
+        public DateTimeOffset? ConfirmationDate { get; set; }
         public string Nationality { get; set; }
         public string Residency { get; set; }
         public string ItineraryNumber { get; set; }
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public bool IsDirectContract { get; set; }
         public List<CancellationPolicy> CancellationPolicies { get; set; }
         public string PropertyOwnerConfirmationCode { get; set; }
-        public DateTime? Cancelled { get; set; }
+        public DateTimeOffset? Cancelled { get; set; }
         public bool IsAdvancePurchaseRate { get; set; }
         public bool IsPackage { get; set; }
     }

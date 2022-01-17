@@ -25,8 +25,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 select new Bonus
                 {
                     ReferenceCode = appliedMarkup.ReferenceCode,
-                    Created = booking.Created,
-                    Paid = appliedMarkup.Paid,
+                    Created = booking.Created.DateTime,
+                    Paid = appliedMarkup.Paid == null
+                        ? null
+                        : appliedMarkup.Paid.Value.DateTime,
                     Amount = new MoneyAmount(appliedMarkup.Amount, markupPolicy.Currency)
                 };
         }

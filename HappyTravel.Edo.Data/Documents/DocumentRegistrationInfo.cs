@@ -9,13 +9,13 @@ namespace HappyTravel.Edo.Data.Documents
         {
         }
         
-        public DocumentRegistrationInfo(string number, DateTime date)
+        public DocumentRegistrationInfo(string number, DateTimeOffset date)
         {
             Number = number;
             Date = date;
         }
         
         public string Number { get; set; }
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
     }
 }

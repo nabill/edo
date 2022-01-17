@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 } into formulas
                 from formula in formulas.DefaultIfEmpty()
                 let name = $"{agent.FirstName} {agent.LastName}"
-                let created = agent.Created.ToEpochTime()
+                let created = agent.Created.DateTime.ToEpochTime()
                 select new SlimAgentInfo
                 {
                     AgentId = agent.Id,

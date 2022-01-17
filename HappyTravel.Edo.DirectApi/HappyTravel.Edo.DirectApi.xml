@@ -283,7 +283,7 @@
                 Required. Number of adult passengers.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.ChildrenAges">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContract.ChildrenNumber">
             <summary>
                 Ages of each child.
             </summary>

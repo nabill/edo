@@ -58,10 +58,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         AccommodationName = booking.AccommodationName,
                         CountryName = booking.Location.Country,
                         LocalityName = booking.Location.Locality,
-                        Deadline = booking.DeadlineDate,
+                        Deadline = booking.DeadlineDate == null
+                            ? null
+                            : booking.DeadlineDate.Value.DateTime,
                         Price = new MoneyAmount(booking.TotalPrice, booking.Currency),
-                        CheckInDate = booking.CheckInDate,
-                        CheckOutDate = booking.CheckOutDate,
+                        CheckInDate = booking.CheckInDate.DateTime,
+                        CheckOutDate = booking.CheckOutDate.DateTime,
                         Status = booking.Status,
                         PaymentStatus = booking.PaymentStatus,
                         Rooms = booking.Rooms,
@@ -141,15 +143,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         AccommodationName = b.AccommodationName,
                         CountryName = b.Location.Country,
                         LocalityName = b.Location.Locality,
-                        Deadline = b.DeadlineDate,
+                        Deadline = b.DeadlineDate == null
+                            ? null
+                            : b.DeadlineDate.Value.DateTime,
                         Price = new MoneyAmount(b.TotalPrice, b.Currency),
-                        CheckInDate = b.CheckInDate,
-                        CheckOutDate = b.CheckOutDate,
+                        CheckInDate = b.CheckInDate.DateTime,
+                        CheckOutDate = b.CheckOutDate.DateTime,
                         Status = b.Status,
                         PaymentStatus = b.PaymentStatus,
                         Rooms = b.Rooms,
                         Supplier = b.Supplier,
-                        Created = b.Created
+                        Created = b.Created.DateTime
                     }
                 );
 
@@ -214,18 +218,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     agentReference: booking.SupplierReferenceCode,
                     status: booking.Status,
                     numberOfNights: numberOfNights,
-                    checkInDate: booking.CheckInDate,
-                    checkOutDate: booking.CheckOutDate,
+                    checkInDate: booking.CheckInDate.DateTime,
+                    checkOutDate: booking.CheckOutDate.DateTime,
                     location: booking.Location,
                     contactInfo: accommodationDetails.Contacts,
                     accommodationId: booking.AccommodationId,
                     accommodationName: booking.AccommodationName,
                     accommodationInfo: booking.AccommodationInfo,
-                    deadlineDate: booking.DeadlineDate,
+                    deadlineDate: booking.DeadlineDate?.DateTime,
                     roomDetails: booking.Rooms,
                     numberOfPassengers: passengerNumber,
                     cancellationPolicies: booking.CancellationPolicies,
-                    created: booking.Created,
+                    created: booking.Created.DateTime,
                     propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
                     isAdvancePurchaseRate: booking.IsAdvancePurchaseRate);
             }

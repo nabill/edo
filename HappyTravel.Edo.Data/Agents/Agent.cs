@@ -13,6 +13,6 @@ namespace HappyTravel.Edo.Data.Agents
         public string IdentityHash { get; set; }
         public string AppSettings { get; set; }
         public string UserSettings { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
     }
 }

@@ -70,9 +70,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 bookingId: booking.Id,
                 accommodation: GetAccommodationInfo(accommodationDetails.ToEdoContract()),
                 nightCount: (booking.CheckOutDate - booking.CheckInDate).Days,
-                checkInDate: booking.CheckInDate,
-                checkOutDate: booking.CheckOutDate,
-                deadlineDate: booking.DeadlineDate,
+                checkInDate: booking.CheckInDate.DateTime,
+                checkOutDate: booking.CheckOutDate.DateTime,
+                deadlineDate: booking.DeadlineDate?.DateTime,
                 mainPassengerName: booking.MainPassengerName,
                 referenceCode: booking.ReferenceCode,
                 supplierReferenceCode: booking.SupplierReferenceCode,
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 roomDetails: booking.Rooms.Select(r=> new BookingVoucherData.RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
-                    r.DeadlineDate,
+                    r.DeadlineDate?.DateTime,
                     r.ContractDescription,
                     r.Passengers,
                     r.Remarks,
@@ -112,10 +112,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.SupplierReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
-                booking.DeadlineDate ?? booking.CheckInDate,
-                booking.CheckInDate,
-                booking.CheckOutDate,
-                booking.DeadlineDate
+                booking.DeadlineDate?.DateTime ?? booking.CheckInDate.DateTime,
+                booking.CheckInDate.DateTime,
+                booking.CheckOutDate.DateTime,
+                booking.DeadlineDate?.DateTime
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                             room.Price,
                             room.Price,
                             room.Type,
-                            room.DeadlineDate,
+                            room.DeadlineDate?.DateTime,
                             room.Passengers.Where(p => p.IsLeader).Select(p => p.FirstName).SingleOrDefault(),
                             room.Passengers.Where(p => p.IsLeader).Select(p => p.LastName).SingleOrDefault()
                         ))
@@ -177,10 +177,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.ReferenceCode,
                 invoiceInfo.RegistrationInfo,
                 booking.AccommodationName,
-                booking.CheckInDate,
-                booking.CheckOutDate,
-                booking.DeadlineDate,
-                booking.Rooms.Select(r => new PaymentReceipt.ReceiptItemInfo(r.DeadlineDate, r.Type)).ToList(),
+                booking.CheckInDate.DateTime,
+                booking.CheckOutDate.DateTime,
+                booking.DeadlineDate?.DateTime,
+                booking.Rooms.Select(r => new PaymentReceipt.ReceiptItemInfo(r.DeadlineDate?.DateTime, r.Type)).ToList(),
                 new PaymentReceipt.BuyerInfo(
                     invoiceInfo.Data.BuyerDetails.Name,
                     invoiceInfo.Data.BuyerDetails.Address,

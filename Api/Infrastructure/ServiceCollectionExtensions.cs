@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -18,7 +17,6 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
@@ -58,7 +56,6 @@ using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +97,6 @@ using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Api.Services.Reports.Converters;
 using HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
-using HappyTravel.SuppliersCatalog;
 using IdentityModel.Client;
 using Prometheus;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
@@ -400,7 +396,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddAmazonS3Client(options =>
             {
                 options.AccessKeyId = amazonS3DocumentsOptions["accessKeyId"];
-                options.AccessKey = amazonS3DocumentsOptions["accessKey"];
+                options.SecretKey = amazonS3DocumentsOptions["accessKey"];
                 options.AmazonS3Config = new AmazonS3Config
                 {
                     RegionEndpoint = RegionEndpoint.GetBySystemName(amazonS3DocumentsOptions["regionEndpoint"])

@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Data.Documents
 
         public string ParentReferenceCode { get; set; }
         public string Data { get; set; }
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         
         public DocumentRegistrationInfo GetRegistrationInfo() => new DocumentRegistrationInfo(Number, Date);
     }

@@ -15,8 +15,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public static List<SlimBooking> SlimFromEdoModels(this IEnumerable<Data.Bookings.Booking> bookings)
             => bookings.Select(b => new SlimBooking(clientReferenceCode: b.ClientReferenceCode,
                     referenceCode: b.ReferenceCode,
-                    checkInDate: b.CheckInDate,
-                    checkOutDate: b.CheckOutDate,
+                    checkInDate: b.CheckInDate.DateTime,
+                    checkOutDate: b.CheckOutDate.DateTime,
                     accommodationId: b.HtId,
                     totalPrice: b.TotalPrice.ToMoneyAmount(b.Currency),
                     isAdvancePurchaseRate: b.IsAdvancePurchaseRate,
@@ -29,9 +29,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         {
             return new Booking(clientReferenceCode: booking.ClientReferenceCode,
                 referenceCode: booking.ReferenceCode,
-                created: booking.Created,
-                checkInDate: booking.CheckInDate,
-                checkOutDate: booking.CheckOutDate,
+                created: booking.Created.DateTime,
+                checkInDate: booking.CheckInDate.DateTime,
+                checkOutDate: booking.CheckOutDate.DateTime,
                 totalPrice: booking.TotalPrice.ToMoneyAmount(booking.Currency),
                 status: booking.Status,
                 rooms: booking.Rooms.FromEdoModel(),
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 cancellationPolicies: booking.CancellationPolicies
                     .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                     .ToList(),
-                cancelled: booking.Cancelled,
+                cancelled: booking.Cancelled?.DateTime,
                 isAdvancePurchaseRate: booking.IsAdvancePurchaseRate,
                 isPackage: booking.IsPackage);
         }
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 mealPlan: r.MealPlan,
                 contractDescription: r.ContractDescription,
                 remarks: r.Remarks,
-                deadline: new Deadline(date: r.DeadlineDetails.Date,
+                deadline: new Deadline(date: r.DeadlineDetails.Date?.Date,
                     policies: r.DeadlineDetails.Policies?
                         .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                         .ToList(),

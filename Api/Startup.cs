@@ -12,9 +12,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.Telemetry.Extensions;
 using HappyTravel.VaultClient;
-using Microsoft.AspNet.OData.Extensions;
-using Microsoft.AspNet.OData.Formatter;
-using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +33,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Formatter;
 
 namespace HappyTravel.Edo.Api
 {
@@ -154,9 +153,8 @@ namespace HappyTravel.Edo.Api
             });
             services.AddSwaggerGenNewtonsoftSupport();
             
-            services.AddOData();
             services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
-            
+
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
@@ -164,7 +162,7 @@ namespace HappyTravel.Edo.Api
                     options.Conventions.Add(new ApiExplorerGroupPerVersionConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
                     options.Filters.Add(typeof(ModelValidationFilter));
-                    
+
                     AddODataMediaTypes(options);
                 })
                 .AddAuthorization()
@@ -174,7 +172,8 @@ namespace HappyTravel.Edo.Api
                 .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
                 .AddApiExplorer()
                 .AddCacheTagHelper()
-                .AddDataAnnotations();
+                .AddDataAnnotations()
+                .AddOData(opt => opt.Filter().Select().OrderBy().SetMaxTop(100));
         }
 
 
@@ -252,8 +251,6 @@ namespace HappyTravel.Edo.Api
                 {
                     endpoints.MapMetrics();
                     endpoints.MapControllers();
-                    endpoints.EnableDependencyInjection();
-                    endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
                     endpoints.MapHub<AgentNotificationHub>("/signalr/notifications/agents");
                     endpoints.MapHub<AdminNotificationHub>("/signalr/notifications/admins");
                     endpoints.MapHub<SearchHub>("/signalr/search");

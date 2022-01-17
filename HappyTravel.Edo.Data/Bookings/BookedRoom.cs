@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Data.Bookings
         }
         
         public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan,
-            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails,
+            DateTimeOffset? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails,
             List<Passenger> passengers, bool isAdvancePurchaseRate,
             string supplierRoomReferenceCode)
         {
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Data.Bookings
 
         public BoardBasisTypes BoardBasis { get; set; }
         public string MealPlan { get; set;}
-        public DateTime? DeadlineDate { get; set;}
+        public DateTimeOffset? DeadlineDate { get; set;}
         public string ContractDescription { get; set;}
         public List<KeyValuePair<string, string>> Remarks { get; set;}
         public Deadline DeadlineDetails { get; set;}

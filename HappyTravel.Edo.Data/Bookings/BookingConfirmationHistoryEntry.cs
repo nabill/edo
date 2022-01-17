@@ -11,6 +11,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public BookingConfirmationStatuses Status { get; set; }
         public string Comment { get; set; }
         public string Initiator { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }
