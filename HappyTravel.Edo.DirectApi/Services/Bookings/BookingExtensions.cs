@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 mealPlan: r.MealPlan,
                 contractDescription: r.ContractDescription,
                 remarks: r.Remarks,
-                deadlineDetails: new Deadline(date: r.DeadlineDetails.Date?.Date,
+                deadline: new Deadline(date: r.DeadlineDetails.Date?.Date,
                     policies: r.DeadlineDetails.Policies?
                         .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                         .ToList(),
