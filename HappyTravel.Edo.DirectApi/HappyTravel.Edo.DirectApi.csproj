@@ -10,6 +10,11 @@
       <ProjectReference Include="..\Api\HappyTravel.Edo.Api.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <NoWarn>1701;1702;1591</NoWarn>
         <DocumentationFile>..\HappyTravel.Edo.DirectApi\HappyTravel.Edo.DirectApi.xml</DocumentationFile>
@@ -22,15 +27,6 @@
       <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.2.3" />
       <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.2.3" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="HappyTravel.Edo.DirectApi.xml">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="README.md">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
 </Project>
