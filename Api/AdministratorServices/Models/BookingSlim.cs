@@ -16,10 +16,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         public string AgencyName { get; set; }
         public string HtId { get; set; }
         public string AccommodationName { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime CheckInDate { get; set; }
-        public DateTime CheckOutDate { get; set; }
-        public DateTime? DeadlineDate { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset CheckInDate { get; set; }
+        public DateTimeOffset CheckOutDate { get; set; }
+        public DateTimeOffset? DeadlineDate { get; set; }
         public decimal TotalPrice { get; set; }
         public Currencies Currency { get; set; }
         public BookingStatuses Status { get; set; }
