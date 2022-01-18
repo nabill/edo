@@ -49,8 +49,8 @@ namespace HappyTravel.Edo.DirectApi
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var environment = hostingContext.HostingEnvironment;
-                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                    config.AddJsonFile("directapisettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"directapisettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     
                     var consulHttpAddr = Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set");
                     var consulHttpToken = Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set");
