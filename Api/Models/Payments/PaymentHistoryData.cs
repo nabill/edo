@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
 {
     public readonly struct PaymentHistoryData
     {
-        public PaymentHistoryData(in DateTime created, decimal amount, object eventData, Currencies currency, int agentId, PaymentHistoryType eventType,
+        public PaymentHistoryData(in DateTimeOffset created, decimal amount, object eventData, Currencies currency, int agentId, PaymentHistoryType eventType,
             PaymentTypes paymentMethod, string accommodationName, string leadingPassenger, int bookingId, string referenceCode)
         {
             Created = created;
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// <summary>
         ///     Current operation date and time
         /// </summary>
-        public DateTime Created { get; init; }
+        public DateTimeOffset Created { get; init; }
 
         /// <summary>
         ///     Amount of money for the current operation
