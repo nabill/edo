@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     Id = booking.Id,
                     ReferenceCode = booking.ReferenceCode,
+                    HtId = booking.HtId,
                     AccommodationName = booking.AccommodationName,
                     AgencyId = booking.AgencyId,
                     AgentId = booking.AgentId,
@@ -46,7 +47,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     TotalPrice = booking.TotalPrice,
                     CheckInDate = booking.CheckInDate.DateTime,
                     CheckOutDate = booking.CheckOutDate.DateTime,
-                    Status = booking.Status
+                    DeadlineDate = booking.DeadlineDate != null
+                        ? booking.DeadlineDate.Value.DateTime
+                        : null,
+                    Status = booking.Status,
+                    Supplier = booking.Supplier
                 };
 
             return expression == null
