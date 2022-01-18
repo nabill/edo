@@ -41,15 +41,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     AgentId = booking.AgentId,
                     AgencyName = agency.Name,
                     AgentName = $"{agent.FirstName} {agent.LastName}",
-                    Created = booking.Created.DateTime,
+                    Created = booking.Created,
                     Currency = booking.Currency,
                     PaymentStatus = booking.PaymentStatus,
                     TotalPrice = booking.TotalPrice,
-                    CheckInDate = booking.CheckInDate.DateTime,
-                    CheckOutDate = booking.CheckOutDate.DateTime,
-                    DeadlineDate = booking.DeadlineDate != null
-                        ? booking.DeadlineDate.Value.DateTime
-                        : null,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    DeadlineDate = booking.DeadlineDate,
                     Status = booking.Status,
                     Supplier = booking.Supplier
                 };
