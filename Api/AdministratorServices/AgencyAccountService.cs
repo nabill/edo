@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         Currency = a.Currency
                     },
                     Currency = a.Currency,
-                    Created = a.Created,
+                    Created = a.Created.DateTime,
                     IsActive = a.IsActive
                 })
                 .ToListAsync();
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         Currency = a.Currency
                     },
                     Currency = a.Currency,
-                    Created = a.Created,
+                    Created = a.Created.DateTime,
                     IsActive = a.IsActive
                 })
                 .ToListAsync();

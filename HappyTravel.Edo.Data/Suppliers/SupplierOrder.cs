@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Data.Suppliers
         public SupplierOrderState State { get; set; }
         public ServiceTypes Type { get; set; }
         public string ReferenceCode { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Modified { get; set; }
         public Deadline Deadline { get; set; }
         public decimal RefundableAmount { get; set; }
-        public DateTime PaymentDate { get; set; }
+        public DateTimeOffset PaymentDate { get; set; }
         public SupplierPaymentType PaymentType { get; set; }
     }
 }

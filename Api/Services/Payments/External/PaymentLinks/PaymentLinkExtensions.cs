@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 referenceCode: link.ReferenceCode,
                 creditCardPaymentStatus: paymentStatus,
                 code: link.Code,
-                date: link.Created,
+                date: link.Created.DateTime,
                 paymentProcessor: link.PaymentProcessor);
         }
     }

@@ -13,8 +13,8 @@ namespace HappyTravel.Edo.Data.PaymentLinks
         public decimal Amount { get; set; }
         public string Comment { get; set; }
         public string ReferenceCode { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime? LastPaymentDate { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset? LastPaymentDate { get; set; }
         public string LastPaymentResponse { get; set; }
         public string ExternalId { get; set; }
         public PaymentProcessors? PaymentProcessor { get; set; }

@@ -147,9 +147,13 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                     Message = n.Message.ToJsonString(),
                     Type = n.Type,
                     SendingStatus = n.SendingStatus,
-                    Created = n.Created,
-                    Received = n.Received,
-                    Read = n.Read
+                    Created = n.Created.DateTime,
+                    Received = n.Received != null
+                        ? n.Received.Value.DateTime
+                        : null,
+                    Read = n.Read != null
+                        ? n.Read.Value.DateTime
+                        : null
                 })
                 .ToListAsync();
 
