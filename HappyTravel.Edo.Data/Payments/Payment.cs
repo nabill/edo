@@ -13,8 +13,8 @@ namespace HappyTravel.Edo.Data.Payments
         public int? AccountId { get; set; }
         public Currencies Currency { get; set; }
         public string AccountNumber { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset Modified { get; set; }
         public PaymentStatuses Status { get; set; }
         public PaymentTypes PaymentMethod { get; set; }
         public PaymentProcessors PaymentProcessor { get; set; }

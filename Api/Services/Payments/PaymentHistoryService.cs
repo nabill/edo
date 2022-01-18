@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 let eventType = isAccountLogEntry ? ToPaymentHistoryType(accountAuditLogEntry.Type) : ToPaymentHistoryType(cardAuditLogEntry.Type)
                 select new PaymentHistoryData
                 {
-                    Created = isAccountLogEntry ? accountAuditLogEntry.Created : cardAuditLogEntry.Created,
+                    Created = isAccountLogEntry ? accountAuditLogEntry.Created.DateTime : cardAuditLogEntry.Created.DateTime,
                     Amount = isAccountLogEntry ? accountAuditLogEntry.Amount : cardAuditLogEntry.Amount,
                     EventData = JObject.Parse(isAccountLogEntry ? accountAuditLogEntry.EventData : cardAuditLogEntry.EventData),
                     Currency = booking.Currency,

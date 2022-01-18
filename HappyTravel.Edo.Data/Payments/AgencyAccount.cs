@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Payments
         public int AgencyId { get; set; }
         public decimal Balance { get; set; }
         public Currencies Currency { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         public bool IsActive { get; set; }
     }
 }
