@@ -91,7 +91,7 @@ metrics:
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
   ASPNETCORE_URLS: "http://*:80;http://*:60000/;http://*:60001/"
-  METRICS_HOST: "localhost:60000"
+  METRICS_HOST: "*:60000"
   HEALTH_CHECK_HOST: "*:60001"
   API_HOST: "*:80"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
