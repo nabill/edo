@@ -15,7 +15,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         {
             return new RoomContractSet(id: rcs.Id,
                 rate: rcs.Rate.MapFromEdoModel(),
-                deadline: rcs.Deadline,
                 rooms: rcs.Rooms
                     .Select(r => new RoomContract(boardBasis: r.BoardBasis,
                         mealPlan: r.MealPlan,
@@ -38,7 +37,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                         deadline: r.Deadline,
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),
-                isAdvancePurchaseRate: rcs.IsAdvancePurchaseRate,
                 isPackageRate: rcs.IsPackageRate);
         }
     }

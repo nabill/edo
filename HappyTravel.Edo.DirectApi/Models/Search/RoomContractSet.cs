@@ -8,14 +8,11 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public record RoomContractSet
     {
         [JsonConstructor]
-        public RoomContractSet(Guid id, in Rate rate, Deadline deadline, List<RoomContract> rooms,
-            bool isAdvancePurchaseRate, bool isPackageRate)
+        public RoomContractSet(Guid id, in Rate rate, List<RoomContract> rooms, bool isPackageRate)
         {
             Id = id;
             Rate = rate;
-            Deadline = deadline;
             Rooms = rooms;
-            IsAdvancePurchaseRate = isAdvancePurchaseRate;
             IsPackageRate = isPackageRate;
         }
         
@@ -28,16 +25,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         ///     The total set price.
         /// </summary>
         public Rate Rate { get; }
-        
-        /// <summary>
-        /// Deadline information
-        /// </summary>
-        public Deadline Deadline { get; }
-        
-        /// <summary>
-        /// Is advanced purchase rate (Non-refundable)
-        /// </summary>
-        public bool IsAdvancePurchaseRate { get; }
         
         /// <summary>
         ///     The list of room contracts within a set.

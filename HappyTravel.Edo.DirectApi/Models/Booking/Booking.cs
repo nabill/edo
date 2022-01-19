@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     {
         public Booking(string clientReferenceCode, string referenceCode, DateTime created, DateTime checkInDate, DateTime checkOutDate, MoneyAmount totalPrice,
             BookingStatuses status, List<BookedRoom> rooms, string accommodationId, List<CancellationPolicy> cancellationPolicies, DateTime? cancelled,
-            bool isAdvancePurchaseRate, bool isPackage)
+            bool isPackage)
         {
             ClientReferenceCode = clientReferenceCode;
             ReferenceCode = referenceCode;
@@ -22,7 +22,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
             AccommodationId = accommodationId;
             CancellationPolicies = cancellationPolicies;
             Cancelled = cancelled;
-            IsAdvancePurchaseRate = isAdvancePurchaseRate;
             IsPackage = isPackage;
         }
 
@@ -38,7 +37,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         public List<BookedRoom> Rooms { get; }
         public List<CancellationPolicy> CancellationPolicies { get; }
         public DateTime? Cancelled { get; }
-        public bool IsAdvancePurchaseRate { get; }
         public bool IsPackage { get; }
     }
 }

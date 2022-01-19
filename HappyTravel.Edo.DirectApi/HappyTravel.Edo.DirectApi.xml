@@ -319,16 +319,6 @@
                 The total set price.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContractSet.Deadline">
-            <summary>
-            Deadline information
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContractSet.IsAdvancePurchaseRate">
-            <summary>
-            Is advanced purchase rate (Non-refundable)
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContractSet.Rooms">
             <summary>
                 The list of room contracts within a set.
