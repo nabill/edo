@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
                 new("suppliers", suppliers)
             };
             
-            if(modified.HasValue)
+            if (modified.HasValue)
                 query.Add(new KeyValuePair<string, StringValues>("modifiedDate", modified.ToString()));
 
             var queryString = QueryString.Create(query).Value;
