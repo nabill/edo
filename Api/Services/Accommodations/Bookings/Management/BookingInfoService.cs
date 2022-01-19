@@ -58,9 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         AccommodationName = booking.AccommodationName,
                         CountryName = booking.Location.Country,
                         LocalityName = booking.Location.Locality,
-                        Deadline = booking.DeadlineDate == null
-                            ? null
-                            : booking.DeadlineDate.Value.DateTime,
+                        Deadline = booking.DeadlineDate,
                         Price = new MoneyAmount(booking.TotalPrice, booking.Currency),
                         CheckInDate = booking.CheckInDate.DateTime,
                         CheckOutDate = booking.CheckOutDate.DateTime,
@@ -143,17 +141,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         AccommodationName = b.AccommodationName,
                         CountryName = b.Location.Country,
                         LocalityName = b.Location.Locality,
-                        Deadline = b.DeadlineDate == null
-                            ? null
-                            : b.DeadlineDate.Value.DateTime,
+                        Deadline = b.DeadlineDate,
                         Price = new MoneyAmount(b.TotalPrice, b.Currency),
-                        CheckInDate = b.CheckInDate.DateTime,
-                        CheckOutDate = b.CheckOutDate.DateTime,
+                        CheckInDate = b.CheckInDate,
+                        CheckOutDate = b.CheckOutDate,
                         Status = b.Status,
                         PaymentStatus = b.PaymentStatus,
                         Rooms = b.Rooms,
                         Supplier = b.Supplier,
-                        Created = b.Created.DateTime
+                        Created = b.Created
                     }
                 );
 

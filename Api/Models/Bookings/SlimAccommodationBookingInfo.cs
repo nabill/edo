@@ -19,15 +19,15 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AccommodationName = bookingInfo.AccommodationName;
             CountryName = bookingInfo.Location.Country;
             LocalityName = bookingInfo.Location.Locality;
-            Deadline = bookingInfo.DeadlineDate?.DateTime;
+            Deadline = bookingInfo.DeadlineDate;
             Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
-            CheckInDate = bookingInfo.CheckInDate.DateTime;
-            CheckOutDate = bookingInfo.CheckOutDate.DateTime;
+            CheckInDate = bookingInfo.CheckInDate;
+            CheckOutDate = bookingInfo.CheckOutDate;
             Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
             Rooms = bookingInfo.Rooms;
             Supplier = bookingInfo.Supplier;
-            Created = bookingInfo.Created.DateTime;
+            Created = bookingInfo.Created;
             HtId = bookingInfo.HtId;
         }
 
@@ -41,11 +41,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public MoneyAmount Price { get; init; }
 
-        public DateTime CheckOutDate { get; init; }
+        public DateTimeOffset CheckOutDate { get; init; }
 
-        public DateTime CheckInDate { get; init; }
+        public DateTimeOffset CheckInDate { get; init; }
         
-        public DateTime Created { get; init; }
+        public DateTimeOffset Created { get; init; }
 
         public string LocalityName { get; init; }
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public string AccommodationName { get; init; }
 
-        public DateTime? Deadline { get; init; }
+        public DateTimeOffset? Deadline { get; init; }
 
         public BookingPaymentStatuses PaymentStatus { get; init; }
 
