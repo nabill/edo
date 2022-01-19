@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -10,7 +11,9 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models.Static;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace HappyTravel.Edo.DirectApi.Services.Static
 {
@@ -25,11 +28,27 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
         }
 
 
-        public async Task<Result<List<Accommodation>>> GetAccommodationList(int top, int skip, string languageCode)
+        public async Task<Result<List<Accommodation>>> GetAccommodationList(DateTimeOffset? modified, int top, int skip, string languageCode)
         {
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var endpoint = $"api/1.0/accommodations?top={top}&skip={skip}&suppliers={string.Join("&suppliers=", searchSettings.EnabledConnectors)}";
+            var suppliers = searchSettings.EnabledConnectors
+                .Select(System.Enum.GetName)
+                .ToArray();
+
+            var query = new List<KeyValuePair<string, StringValues>>
+            {
+                new("top", top.ToString()),
+                new("skip", skip.ToString()),
+                new("suppliers", suppliers)
+            };
+            
+            if(modified.HasValue)
+                query.Add(new KeyValuePair<string, StringValues>("modifiedDate", modified.ToString()));
+
+            var queryString = QueryString.Create(query).Value;
+
+            var endpoint = $"api/1.0/accommodations{queryString}";
             var (_, isFailure, accommodations, error) = await Send<List<MapperContracts.Public.Accommodations.Accommodation>?>(endpoint, languageCode);
             
             if (isFailure)
