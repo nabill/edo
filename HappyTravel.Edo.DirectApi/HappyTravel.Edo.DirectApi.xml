@@ -10,7 +10,7 @@
             Accommodations static data
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.DirectApi.Controllers.AccommodationsController.GetAccommodationsList(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.DirectApi.Controllers.AccommodationsController.GetAccommodationsList(System.Nullable{System.DateTimeOffset},System.Int32,System.Int32)">
             <summary>
             Accommodation list
             </summary>
