@@ -40,7 +40,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                     .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                     .ToList(),
                 cancelled: booking.Cancelled?.DateTime,
-                isAdvancePurchaseRate: booking.IsAdvancePurchaseRate,
                 isPackage: booking.IsPackage);
         }
 
