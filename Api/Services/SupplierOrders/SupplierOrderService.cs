@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Currency = originalSupplierPrice.Currency,
                 RefundableAmount = 0,
                 State = SupplierOrderState.Created,
-                Supplier = supplier,
+                Supplier = (int) supplier,
                 Type = serviceType,
                 ReferenceCode = referenceCode,
                 Deadline = deadline,
