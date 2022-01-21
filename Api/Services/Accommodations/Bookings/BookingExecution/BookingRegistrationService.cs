@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     convertedPrice: availabilityInfo.ConvertedSupplierPrice, 
                     supplierPrice: availabilityInfo.OriginalSupplierPrice, 
                     deadline: availabilityInfo.SupplierDeadline, 
-                    supplier: booking.Supplier,
+                    supplier: (int) booking.Supplier,
                     paymentType: availabilityInfo.CardRequirement is not null
                         ? SupplierPaymentType.CreditCard
                         : SupplierPaymentType.DirectPayment,
