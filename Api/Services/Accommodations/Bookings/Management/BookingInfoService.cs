@@ -234,8 +234,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             static Suppliers? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => booking.Supplier,
-                    {IsSupplierVisible: true} => booking.Supplier,
+                    null => (Suppliers) booking.Supplier,
+                    {IsSupplierVisible: true} => (Suppliers) booking.Supplier,
                     _ => null
                 };
             

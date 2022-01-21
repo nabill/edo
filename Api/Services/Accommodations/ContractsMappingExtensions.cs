@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 DeadlineMerger.CalculateMergedDeadline(roomContractSet.RoomContracts),
                 roomContractSet.RoomContracts.ToRoomContractList(),
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
-                supplier,
+                (int?) supplier,
                 roomContractSet.Tags,
                 isDirectContract: isDirectContract,
                 isPackageRate: roomContractSet.IsPackageRate);

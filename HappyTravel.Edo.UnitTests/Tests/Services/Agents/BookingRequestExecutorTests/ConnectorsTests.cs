@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         {
             InitializeMocks();
             var service = CreateBookingRequestExecutor();
-            var booking = new Booking { Supplier = supplier };
+            var booking = new Booking { Supplier = (int) supplier };
 
             await service.Execute(booking, default, default);
 
