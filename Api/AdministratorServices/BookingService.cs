@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     CheckOutDate = booking.CheckOutDate,
                     DeadlineDate = booking.DeadlineDate,
                     Status = booking.Status,
-                    Supplier = booking.Supplier
+                    Supplier = (int) booking.Supplier
                 };
 
             return expression == null

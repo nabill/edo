@@ -29,18 +29,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Where(b => string.IsNullOrEmpty(b.HtId))
                 .ToListAsync();
 
-            var accommodationsCache = new Dictionary<(Suppliers, string), Result<Accommodation, ProblemDetails>>();
+            var accommodationsCache = new Dictionary<(int, string), Result<Accommodation, ProblemDetails>>();
 
             foreach (var booking in bookingsWithEmptyHtId)
             {
-                if (accommodationsCache.TryGetValue((booking.Supplier, booking.AccommodationId), out var result))
+                if (accommodationsCache.TryGetValue(((int) booking.Supplier, booking.AccommodationId), out var result))
                 {
                     UpdateHtId(booking, result);
                     continue;
                 }
                 
                 var accommodationResult = await _client.GetAccommodation(booking.Supplier, booking.AccommodationId, booking.LanguageCode);
-                accommodationsCache.Add((booking.Supplier, booking.AccommodationId), accommodationResult);
+                accommodationsCache.Add(((int) booking.Supplier, booking.AccommodationId), accommodationResult);
                 UpdateHtId(booking, accommodationResult);
             }
             

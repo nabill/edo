@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Data.Suppliers
     public class SupplierOrder
     {
         public int Id { get; set; }
-        public SuppliersCatalog.Suppliers Supplier { get; set; }
+        public int Supplier { get; set; }
         public decimal ConvertedPrice { get; set; }
         public Currencies ConvertedCurrency { get; set; }
         public decimal Price { get; set; }
