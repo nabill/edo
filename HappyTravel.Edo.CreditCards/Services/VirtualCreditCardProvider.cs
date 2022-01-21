@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.DataFormatters;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Money.Models;
-using HappyTravel.SuppliersCatalog;
 using HappyTravel.VccServiceClient.Services;
 
 namespace HappyTravel.Edo.CreditCards.Services
@@ -18,12 +16,12 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
         
         
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, Suppliers supplier, string accommodationName)
+        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, int supplier, string accommodationName)
         {
             // Passing null to credit card types before we'll support the types in contracts
             var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, null, activationDate, dueDate, new Dictionary<string, string>
             {
-                {"Supplier", EnumFormatters.FromDescription(supplier)},
+                {"Supplier", supplier.ToString()},
                 {"AccommodationName", accommodationName}
             });
             if (isFailure)
