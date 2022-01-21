@@ -105,7 +105,9 @@ using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
 using Microsoft.Extensions.Hosting;
+using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
+using Tsutsujigasaki.GrpcContracts.Services;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -227,9 +229,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.CurrencyService)
+            services.AddHttpClient(HttpClientNames.CurrencyService, client =>
+                {
+                    client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
+                })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
+            {
+                o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
+            });
 
             services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {
@@ -315,22 +325,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
-
-            var currencyConverterOptions = vaultClient.Get(configuration["CurrencyConverter:Options"]).GetAwaiter().GetResult();
-            services.Configure<CurrencyRateServiceOptions>(o =>
-            {
-                var url = environment.IsLocal()
-                    ? configuration["CurrencyConverter:Url"]
-                    : currencyConverterOptions["url"];
-
-                o.ServiceUrl = new Uri(url);
-
-                var cacheLifeTimeMinutes = environment.IsLocal()
-                    ? configuration["CurrencyConverter:CacheLifetimeInMinutes"]
-                    : currencyConverterOptions["cacheLifetimeMinutes"];
-
-                o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
-            });
+            
+            services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
 
             services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
 
