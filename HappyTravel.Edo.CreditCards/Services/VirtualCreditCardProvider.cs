@@ -21,6 +21,8 @@ namespace HappyTravel.Edo.CreditCards.Services
             // Passing null to credit card types before we'll support the types in contracts
             var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, null, activationDate, dueDate, new Dictionary<string, string>
             {
+
+                // TODO: https://github.com/happy-travel/agent-app-project/issues/1079
                 {"Supplier", supplier.ToString()},
                 {"AccommodationName", accommodationName}
             });
