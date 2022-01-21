@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
@@ -41,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     OriginalCurrency = order.Currency,
                     ConvertedAmount = order.ConvertedPrice,
                     ConvertedCurrency = order.ConvertedCurrency,
-                    Supplier = booking.Supplier
+                    Supplier = (Suppliers) booking.Supplier
                 })
                 .ToListAsync();
         }

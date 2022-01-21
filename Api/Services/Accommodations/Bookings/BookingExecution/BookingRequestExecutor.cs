@@ -22,6 +22,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.Errors;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
@@ -92,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 try
                 {
                     var (isSuccess, _, bookingResult, error) = await TimeObserver.Execute(observedFunc: () => _supplierConnectorManager
-                        .Get(booking.Supplier)
+                        .Get((Suppliers) booking.Supplier)
                         .Book(innerRequest, languageCode),
                         notifyFunc: Notify,
                         notifyAfter: TimeSpan.FromSeconds(BookExecutionTimeLimitInSeconds));
