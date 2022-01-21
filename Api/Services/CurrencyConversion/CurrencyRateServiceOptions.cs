@@ -5,6 +5,6 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
     public class CurrencyRateServiceOptions
     {
         public TimeSpan CacheLifeTime { get; set; }
-        public bool CanUseGrpc { get; set; }
+        public ClientTypes ClientType { get; set; }
     }
 }

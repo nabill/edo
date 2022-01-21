@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
         private Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
         {
-            return _options.CurrentValue.CanUseGrpc
+            return _options.CurrentValue.ClientType == ClientTypes.Grpc
                 ? GetFromGrpc(source, target)
                 : GetFromWebApi(source, target);
         }
