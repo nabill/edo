@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         }
 
         
-        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success((decimal)1);
+        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success(1m);
         
 
         private readonly IHttpClientFactory _httpClientFactory;
