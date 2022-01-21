@@ -12,20 +12,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Tsutsujigasaki.GrpcContracts.Models;
+using Tsutsujigasaki.GrpcContracts.Services;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyRateService : ICurrencyRateService
     {
         public CurrencyRateService(IHttpClientFactory httpClientFactory,
-            IOptions<CurrencyRateServiceOptions> options,
+            IOptionsMonitor<CurrencyRateServiceOptions> options,
             IDoubleFlow flow,
-            ILogger<CurrencyRateService> logger)
+            ILogger<CurrencyRateService> logger,
+            IRatesGrpcService ratesGrpcService)
         {
             _httpClientFactory = httpClientFactory;
             _flow = flow;
-            _options = options.Value;
+            _options = options;
             _logger = logger;
+            _ratesGrpcService = ratesGrpcService;
         }
 
         public async ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
@@ -35,15 +39,39 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
             var key = _flow.BuildKey(nameof(CurrencyRateService), source.ToString(), target.ToString());
             return await _flow.GetOrSetAsync(key, () => GetCurrent(source, target), 
-                _options.CacheLifeTime);
+                _options.CurrentValue.CacheLifeTime);
         }
 
 
-        private async Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
+        private Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
+        {
+            return _options.CurrentValue.ClientType == ClientTypes.Grpc
+                ? GetFromGrpc(source, target)
+                : GetFromWebApi(source, target);
+        }
+        
+        
+        private async Task<Result<decimal>> GetFromGrpc(Currencies source, Currencies target)
+        {
+            var response = await _ratesGrpcService.GetRate(new RatesRequest
+            {
+                SourceCurrency = source,
+                TargetCurrency = target
+            });
+
+            if (!response.Rate.IsFailure)
+                return Result.Success(response.Rate.Value);
+
+            _logger.LogCurrencyConversionFailed(source, target, response.Rate.Error);
+            return Result.Failure<decimal>(response.Rate.Error);
+        }
+
+
+        private async Task<Result<decimal>> GetFromWebApi(Currencies source, Currencies target)
         {
             using var response = await _httpClientFactory
                 .CreateClient(HttpClientNames.CurrencyService)
-                .GetAsync($"{_options.ServiceUrl}api/1.0/rates/{source}/{target}");
+                .GetAsync($"api/1.0/rates/{source}/{target}");
 
             var content = await response.Content.ReadAsStringAsync();
 
@@ -62,12 +90,15 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             
             return Result.Success(decimal.Parse(content, CultureInfo.InvariantCulture));
         }
+
         
+        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success(1m);
+        
+
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDoubleFlow _flow;
-
-        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success((decimal)1);
-        private readonly CurrencyRateServiceOptions _options;
-        private ILogger<CurrencyRateService> _logger;
+        private readonly ILogger<CurrencyRateService> _logger;
+        private readonly IOptionsMonitor<CurrencyRateServiceOptions> _options;
+        private readonly IRatesGrpcService _ratesGrpcService;
     }
 }
