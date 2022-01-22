@@ -161,28 +161,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             {
                 Id = 1,
                 Status = BookingStatuses.Pending,
-                Supplier = Suppliers.Jumeirah,
+                Supplier = (int) Suppliers.Jumeirah,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 2,
                 Status = BookingStatuses.Pending,
-                Supplier = Suppliers.Etg,
+                Supplier = (int) Suppliers.Etg,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 3,
                 Status = BookingStatuses.Pending,
-                Supplier = Suppliers.Darina,
+                Supplier = (int) Suppliers.Darina,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 4,
                 Status = BookingStatuses.Pending,
-                Supplier = Suppliers.Bronevik,
+                Supplier = (int) Suppliers.Bronevik,
                 CheckInDate = DateTimeNow.AddDays(-10)
             }
         };

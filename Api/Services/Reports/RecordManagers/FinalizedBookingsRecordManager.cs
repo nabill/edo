@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
@@ -46,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     AgentCurrency = booking.Currency,
                     SupplierConvertedPrice = supplierOrder.ConvertedPrice,
                     SupplierConvertedCurrency = supplierOrder.ConvertedCurrency,
-                    Supplier = booking.Supplier,
+                    Supplier = (Suppliers) booking.Supplier,
                     CancellationPolicies = booking.CancellationPolicies,
                     CancellationDate = booking.Cancelled == null
                         ? null

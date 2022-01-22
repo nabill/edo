@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<List<int>> GetBookingsToRefresh()
         {
             var states = await GetStates();
-            var disabledSuppliers = _statusUpdateOptionsMonitor.CurrentValue.DisabledSuppliers;
+            var disabledSuppliers = _statusUpdateOptionsMonitor.CurrentValue.DisabledSuppliers.Select(d => (int)d);
             var now = _dateTimeProvider.UtcNow();
 
             var excludedIds = states
