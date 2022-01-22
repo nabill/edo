@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -45,12 +46,15 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
         private Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
         {
-            return _options.CurrentValue.ClientType == ClientTypes.Grpc
-                ? GetFromGrpc(source, target)
-                : GetFromWebApi(source, target);
+            return _options.CurrentValue.ClientType switch
+            {
+                ClientTypes.Grpc => GetFromGrpc(source, target),
+                ClientTypes.WebApi => GetFromWebApi(source, target),
+                _ => throw new NotSupportedException($"ClientType `{_options.CurrentValue.ClientType}` not supported")
+            };
         }
-        
-        
+
+
         private async Task<Result<decimal>> GetFromGrpc(Currencies source, Currencies target)
         {
             var response = await _ratesGrpcService.GetRate(new RatesRequest
