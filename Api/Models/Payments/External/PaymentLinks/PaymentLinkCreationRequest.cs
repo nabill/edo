@@ -60,6 +60,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
         /// Optional invoice number to attach to payment link.
         /// </summary>
         [MaxLength(50)]
+        [Required]
         public string InvoiceNumber { get; }
     }
 }
