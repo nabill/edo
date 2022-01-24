@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                             .FirstOrDefault()
                     );
 
-                    return new CancellationPolicy(date, CalculatePercent(amount));
+                    return new CancellationPolicy(date, CalculatePercent(amount), null);    // TODO: Need clarify
                 })
                 .ToList();
 
