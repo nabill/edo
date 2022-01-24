@@ -76,8 +76,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = BookingStatuses.Confirmed,
                 PaymentType = paymentMethod,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue,
+                Created = DateTimeOffset.MinValue,
             };
         }
         
@@ -110,8 +111,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = paymentStatus,
                 Status = BookingStatuses.Confirmed,
                 PaymentType = PaymentTypes.VirtualAccount,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue
             };
         }
 
@@ -146,8 +147,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = statusCode,
                 PaymentType = PaymentTypes.VirtualAccount,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue
             };
         }
         

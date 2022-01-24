@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 accountManagementServiceMock.Object,
                 Mock.Of<IManagementAuditService>(), 
                 Mock.Of<INotificationService>(),
-                Mock.Of<IDateTimeProvider>(),
+                new DefaultDateTimeProvider(),
                 agentService);
         }
 

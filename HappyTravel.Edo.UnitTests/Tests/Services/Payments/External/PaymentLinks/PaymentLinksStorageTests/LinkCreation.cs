@@ -126,11 +126,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
         public static readonly object[][] ValidLinkDataList =
         {
-            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2")},
-            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5")}
+            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1", invoiceNumber: "number1")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2", invoiceNumber: "number2")},
+            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3", invoiceNumber: "number3")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4", invoiceNumber: "number4")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5", invoiceNumber: "number5")}
         };
 
         public static readonly object[][] InvalidLinkDataList =
