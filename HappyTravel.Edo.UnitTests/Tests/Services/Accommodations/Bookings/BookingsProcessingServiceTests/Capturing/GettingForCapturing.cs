@@ -109,8 +109,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatuses.Confirmed,
                 PaymentType = paymentMethod,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue
             };
         }
         
@@ -143,8 +143,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = paymentStatus,
                 Status = BookingStatuses.Confirmed,
                 PaymentType = PaymentTypes.CreditCard,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue
             };
         }
 
@@ -179,8 +179,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = statusCode,
                 PaymentType = PaymentTypes.CreditCard,
-                DeadlineDate = DateTime.MinValue,
-                CheckInDate = DateTime.MinValue
+                DeadlineDate = DateTimeOffset.MinValue,
+                CheckInDate = DateTimeOffset.MinValue
             };
         }
         
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IBookingReportsService>(),
                 context.Object,
                 Mock.Of<IBookingRecordsUpdater>(),
-                Mock.Of<IDateTimeProvider>());
+                new DefaultDateTimeProvider());
             
             return service;
         }
