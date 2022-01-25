@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 rooms: rooms,
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 deadline: roomContractSet.Deadline,
-                supplier: roomContractSet.Supplier,
+                supplier: (int) roomContractSet.Supplier,
                 tags: roomContractSet.Tags,
                 isPackageRate: roomContractSet.IsPackageRate);
     }
