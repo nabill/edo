@@ -9,13 +9,15 @@ namespace HappyTravel.Edo.Data.Bookings
         private CancellationPolicy() { }
 
         [JsonConstructor]
-        public CancellationPolicy(DateTime fromDate, double percentage)
+        public CancellationPolicy(DateTime fromDate, double percentage, string remark)
         {
             FromDate = fromDate;
             Percentage = percentage;
+            Remark = remark;
         }
         
         public DateTime FromDate { get; set; }
         public double Percentage { get; set; }
+        public string Remark { get; set; }
     }
 }
