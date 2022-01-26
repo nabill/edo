@@ -48,16 +48,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (!request.HtIds.Any())
                 return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
             
-            if (request.HtIds.Count > _searchLimits.CurrentValue.HtIds)
+            if (request.HtIds.Count > _searchLimits.CurrentValue.MaxHtIdsCount)
                 return Result.Failure<Guid>($"{nameof(request.HtIds)} limit exceeded");
             
             if (request.CheckInDate.Date < _dateTimeProvider.UtcToday())
                 return Result.Failure<Guid>("Check in date must not be in the past");
             
-            if (request.RoomDetails.Count > _searchLimits.CurrentValue.Rooms)
+            if (request.RoomDetails.Count > _searchLimits.CurrentValue.MaxRoomsCount)
                 return Result.Failure<Guid>($"{nameof(request.RoomDetails)} limit exceeded");
             
-            if (request.RoomDetails.Any(r => (r.AdultsNumber + r.ChildrenAges?.Count ?? 0) > _searchLimits.CurrentValue.Guests))
+            if (request.RoomDetails.Any(r => (r.AdultsNumber + r.ChildrenAges?.Count ?? 0) > _searchLimits.CurrentValue.MaxGuestsCount))
                 return Result.Failure<Guid>("Guests limit exceeded");
 
             var searchId = Guid.NewGuid();
