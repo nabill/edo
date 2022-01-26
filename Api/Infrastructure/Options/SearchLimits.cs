@@ -2,7 +2,9 @@
 
 public class SearchLimits
 {
-    public int MaxHtIdsCount { get; set; }
+    public int MaxCountriesCount { get; set; }
+    public int MaxLocalitiesCount { get; set; }
+    public int MaxLocationsCount { get; set; }
     public int MaxRoomsCount { get; set; }
     public int MaxGuestsCount { get; set; }
 }

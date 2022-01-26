@@ -48,17 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (!request.HtIds.Any())
                 return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
             
-            if (request.HtIds.Count > _searchLimits.CurrentValue.MaxHtIdsCount)
-                return Result.Failure<Guid>($"{nameof(request.HtIds)} limit exceeded");
-            
             if (request.CheckInDate.Date < _dateTimeProvider.UtcToday())
                 return Result.Failure<Guid>("Check in date must not be in the past");
-            
-            if (request.RoomDetails.Count > _searchLimits.CurrentValue.MaxRoomsCount)
-                return Result.Failure<Guid>($"{nameof(request.RoomDetails)} limit exceeded");
-            
-            if (request.RoomDetails.Any(r => (r.AdultsNumber + r.ChildrenAges?.Count ?? 0) > _searchLimits.CurrentValue.MaxGuestsCount))
-                return Result.Failure<Guid>("Guests limit exceeded");
 
             var searchId = Guid.NewGuid();
             
@@ -69,6 +60,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
             if (isFailure)
                 return Result.Failure<Guid>(error);
+
+            var searchLimitsValidator = new WideAvailabilitySearchLimitsValidator(_searchLimits.CurrentValue, searchArea.Locations);
+            var validationResult = await searchLimitsValidator.ValidateAsync(request);
+            
+            if (!validationResult.IsValid)
+                return Result.Failure<Guid>(validationResult.ToString("; "));
 
             _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
