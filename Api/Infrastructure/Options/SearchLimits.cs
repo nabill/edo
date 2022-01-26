@@ -4,6 +4,5 @@ public class SearchLimits
 {
     public int HtIds { get; set; }
     public int Rooms { get; set; }
-    public int AdultsPerRoom { get; set; }
-    public int ChildrenPerRoom { get; set; }
+    public int Guests { get; set; }
 }

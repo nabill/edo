@@ -57,11 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (request.RoomDetails.Count > _searchLimits.CurrentValue.Rooms)
                 return Result.Failure<Guid>($"{nameof(request.RoomDetails)} limit exceeded");
             
-            if (request.RoomDetails.Any(r => r.AdultsNumber > _searchLimits.CurrentValue.AdultsPerRoom))
-                return Result.Failure<Guid>("Adults per room limit exceeded");
-            
-            if (request.RoomDetails.Any(r => r.ChildrenAges?.Count > _searchLimits.CurrentValue.ChildrenPerRoom))
-                return Result.Failure<Guid>("Children per room limit exceeded");
+            if (request.RoomDetails.Any(r => (r.AdultsNumber + r.ChildrenAges?.Count ?? 0) > _searchLimits.CurrentValue.Guests))
+                return Result.Failure<Guid>("Guests limit exceeded");
 
             var searchId = Guid.NewGuid();
             
