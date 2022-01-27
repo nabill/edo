@@ -15,23 +15,19 @@ public class WideAvailabilitySearchLimitsValidator : AbstractValidator<Availabil
         RuleFor(r => r.RoomDetails.Count).LessThanOrEqualTo(limits.MaxRoomsCount);
         
         RuleFor(r => r.HtIds)
-            .Must(_ => IsLimitNotExceeded(() => locations.Select(l => l.CountryHtId).Distinct().Count(), limits.MaxCountriesCount))
+            .Must(_ => locations.Select(l => l.CountryHtId).Distinct().Count() <= limits.MaxCountriesCount)
             .WithMessage("Countries count limit exceeded");
 
         RuleFor(r => r.HtIds)
-            .Must(_ => IsLimitNotExceeded(() => locations.Select(l => l.LocalityHtId).Distinct().Count(), limits.MaxLocalitiesCount))
+            .Must(_ => locations.Select(l => l.LocalityHtId).Distinct().Count() <= limits.MaxLocalitiesCount)
             .WithMessage("Localities limit exceeded");
 
         RuleFor(r => r.HtIds)
-            .Must(_ => IsLimitNotExceeded(() => locations.Count, limits.MaxLocationsCount))
+            .Must(_ => locations.Count <= limits.MaxLocationsCount)
             .WithMessage("Locations limit exceeded");
         
         RuleForEach(r => r.RoomDetails)
-            .Must(r => IsLimitNotExceeded(() => r.AdultsNumber + r.ChildrenAges?.Count ?? 0, limits.MaxGuestsCount))
+            .Must(r => (r.AdultsNumber + r.ChildrenAges?.Count ?? 0) <= limits.MaxGuestsCount)
             .WithMessage("Guests limit exceeded");
     }
-
-
-    private static bool IsLimitNotExceeded(Func<int> func, int limit) 
-        => func() <= limit;
 }
