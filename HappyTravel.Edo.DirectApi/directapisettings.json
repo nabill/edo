@@ -169,8 +169,8 @@
   "SearchLimits": {
     "MaxCountriesCount": 1,
     "MaxLocalitiesCount": 1,
-    "MaxLocationsCount": 1000,
-    "MaxRoomsCount": 5,
+    "MaxAccommodationsCount": 1000,
+    "MaxRoomsCount": 1,
     "MaxGuestsCount": 5
   }
 }
