@@ -188,6 +188,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["odawaraUsersEditScope"]
                 });
+                
+                options.Client.Clients.Add(HttpClientNames.SupplierOptionsProviderIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["supplierOptionsProviderScope"]
+                });
             });
             
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
@@ -214,6 +222,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
+            
+            services.AddClientAccessTokenClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.SupplierOptionsProviderIdentityClient);
 
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 

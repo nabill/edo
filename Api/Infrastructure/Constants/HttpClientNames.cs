@@ -18,5 +18,7 @@
         public const string DacIdentityClient = "DirectApiClientsIdentityClient";
         public const string UsersManagementIdentityClient = "UsersManagementIdentityClient";
         public const string UsersEditIdentityClient = "UsersEditIdentityClient";
+        public const string SupplierOptionsProvider = "SupplierOptionsProvider";
+        public const string SupplierOptionsProviderIdentityClient = "SupplierOptionsProviderIdentityClient";
     }
 }
