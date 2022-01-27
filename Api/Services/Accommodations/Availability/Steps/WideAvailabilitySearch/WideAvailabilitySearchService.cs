@@ -62,7 +62,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return Result.Failure<Guid>(error);
 
             var searchLimitsValidator = new WideAvailabilitySearchLimitsValidator(_searchLimits.CurrentValue, searchArea.Locations);
-            var validationResult = await searchLimitsValidator.ValidateAsync(request);
+            // ReSharper disable once MethodHasAsyncOverload
+            var validationResult = searchLimitsValidator.Validate(request);
             
             if (!validationResult.IsValid)
                 return Result.Failure<Guid>(validationResult.ToString("; "));
