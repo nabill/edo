@@ -17,9 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Deadline = deadline;
             Rooms = rooms ?? new List<RoomContract>(0);
             IsAdvancePurchaseRate = isAdvancePurchaseRate;
-            Supplier = supplier is not null
-                ? (Suppliers) supplier
-                : null;
+            Supplier = (Suppliers?) supplier;
             Tags = tags;
             IsDirectContract = isDirectContract;
             IsPackageRate = isPackageRate;
