@@ -376,6 +376,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task<Result<Payment>> GetPayment()
             {
                 var payment = await _context.Payments
+                    .Where(p => p.Status == PaymentStatuses.Authorized)
                     .SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
 
                 if (payment == default)
