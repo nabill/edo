@@ -7,6 +7,7 @@ using FloxDc.CacheFlow;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
@@ -16,6 +17,7 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -25,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage, IServiceScopeFactory serviceScopeFactory, IBookingAnalyticsService bookingAnalyticsService,
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IAvailabilityRequestStorage requestStorage,
-            ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage)
+            ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage, 
+            IOptionsMonitor<SearchLimits> searchLimits)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -36,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _requestStorage = requestStorage;
             _logger = logger;
             _stateStorage = stateStorage;
+            _searchLimits = searchLimits;
         }
         
    
@@ -46,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             if (request.CheckInDate.Date < _dateTimeProvider.UtcToday())
                 return Result.Failure<Guid>("Check in date must not be in the past");
-            
+
             var searchId = Guid.NewGuid();
             
             Baggage.AddSearchId(searchId);
@@ -56,6 +60,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
             if (isFailure)
                 return Result.Failure<Guid>(error);
+
+            var searchLimitsValidator = new WideAvailabilitySearchLimitsValidator(_searchLimits.CurrentValue, searchArea.Locations);
+            // Validator doesn't have async methods
+            // ReSharper disable once MethodHasAsyncOverload
+            var validationResult = searchLimitsValidator.Validate(request);
+            
+            if (!validationResult.IsValid)
+                return Result.Failure<Guid>(validationResult.ToString("; "));
 
             _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
@@ -124,5 +136,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAvailabilityRequestStorage _requestStorage;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
+        private readonly IOptionsMonitor<SearchLimits> _searchLimits;
     }
 }

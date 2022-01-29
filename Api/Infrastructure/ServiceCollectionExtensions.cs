@@ -432,6 +432,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
             services.Configure<MarkupPolicyStorageOptions>(configuration.GetSection("MarkupPolicyStorageOptions"));
             services.Configure<DiscountStorageOptions>(configuration.GetSection("DiscountStorageOptions"));
+            services.Configure<SearchLimits>(configuration.GetSection("SearchLimits"));
 
             #region Configure NGenius
 
