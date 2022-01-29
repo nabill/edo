@@ -83,12 +83,12 @@ curl --request GET \
 
 ## Availability search
 ### Search steps
-**Static part**
+####Static part
 As mentioned above, when starting a search, the API client must already know the static data criteria (where to search) and provide a collection of ids of places or accommodations (ids of places and accommodations can be included in one collection simultaneously).
 
 Thus searching the static data is entirely done by the API client, not by the API itself. The API itself only provides the static data, but not the means to search through it.
 
-**Availability search**
+####Availability search
 The search is done 3 steps:
 1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
    Finds accommodations that match the search criteria and have room contract sets that match the search criteria.
@@ -103,6 +103,8 @@ Search is starting from wider search to more specific, narrowing the results fro
 
 ![image](https://user-images.githubusercontent.com/43397444/151672111-454f9e0c-292b-4472-baef-0749bd8c6e6c.png)
 
+> **Note:** Results, returned during each step have the 10 minutes lifetime
+
 Every next step uses information from the previous and cannot be executed in any other order than described above.
 - Wide availability search introduces `SearchId`
 - Room selection introduces `AccommodationId`
@@ -111,12 +113,13 @@ Every next step uses information from the previous and cannot be executed in any
 All the three parameters from these steps are used during booking and can be fetched only while steps executing.
 Although the first step returns all three of them inside its models, it is not guaranteed that `RoomContractSetId` will be preserved same and will be valid for booking evaluation step or booking.
 
+
 ### Supported search models
 
 Wide availability search can be executed in 3 modes:
 1. One country search
 2. One city search
-3. Multiple hotel search
+3. Multiple hotel search (up to 1000 hotels in request)
 
 The search mode is selected based on `SearchLocations` field of [AvailabilityRequest](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)  model and supports adding multiple location ids to the request, where each location id can be country id, locality id or accommodation id.
 E.g. the following requests executes a search for locality with id `ff`:
@@ -140,6 +143,8 @@ search is complete or reached given timeout.
 Endpoint returns the search state and ready results in a single model, and can be used as following:
 
 ![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
+
+> **Note:** Polling request interval must be larger than 2 seconds 
 
 ## Booking flow
 Data from the Booking evaluation step can be used to book a room contract set.
