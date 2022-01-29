@@ -83,12 +83,12 @@ curl --request GET \
 
 ## Availability search
 ### Search steps
-####Static part
+#### Static part
 As mentioned above, when starting a search, the API client must already know the static data criteria (where to search) and provide a collection of ids of places or accommodations (ids of places and accommodations can be included in one collection simultaneously).
 
 Thus searching the static data is entirely done by the API client, not by the API itself. The API itself only provides the static data, but not the means to search through it.
 
-####Availability search
+#### Availability search
 The search is done 3 steps:
 1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
    Finds accommodations that match the search criteria and have room contract sets that match the search criteria.
@@ -183,7 +183,7 @@ Following operations can be performed:
 - [Retrieve a list of all bookings](/index.html#tag/Booking/paths/~1api~11.0~1bookings/get)
 - [Retrieve details of a particular booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get)
 - [Cancel a booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1cancel/post)
-Operations involving a certain booking, such as cancellation, needs client reference code to pass. [More about reference codes.](/index.html#section/API-functionality-overview/Booking-reference-codes)
+Operations involving a certain booking, such as cancellation, needs client reference code to pass.
 
 #### Booking cancellation and cancellation policies
 When a booking is cancelled, there might be a cancellation penalty, depending on cancellation date.
