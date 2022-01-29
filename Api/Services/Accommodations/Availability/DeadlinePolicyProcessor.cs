@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 
                 var shiftedPolicyDate = ShiftDate(policy.FromDate, checkInDate, shiftValue);
                 var percentage = Math.Round(policy.Percentage, 2, MidpointRounding.AwayFromZero);
-                shiftedPolicies.Add(new CancellationPolicy(shiftedPolicyDate, percentage));
+                shiftedPolicies.Add(new CancellationPolicy(shiftedPolicyDate, percentage, policy.Remark));
             }
 
             var shiftedDeadline = new Deadline(shiftedDeadlineDate, shiftedPolicies, deadline.Remarks, deadline.IsFinal);

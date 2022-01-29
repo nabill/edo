@@ -33,10 +33,6 @@
       "BookMe": "https://tg-dev.happytravel.com/api/1.0/bokm/"
     }
   },
-  "CurrencyConverter": {
-    "Url": "https://cc-dev.happytravel.com",
-    "CacheLifetimeInMinutes": 1
-  },
   "Jaeger": {
     "AgentHost": "localhost",
     "AgentPort": "6831"
@@ -52,5 +48,11 @@
       "ConnectionString": "mongodb://admin:password@localhost:27017",
       "DatabaseName": "edo"
     }
+  },
+  "CurrencyConverter": {
+    "WebApiHost": "http://localhost:5100",
+    "GrpcHost": "http://localhost:5101",
+    "CacheLifetime": "0.00:01:00",
+    "ClientType": "Grpc"
   }
 }
