@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private static CancellationPolicy ToCancellationPolicy(EdoContracts.Accommodations.Internals.CancellationPolicy policy)
         {
-            return new (policy.FromDate, policy.Percentage);
+            return new (policy.FromDate, policy.Percentage, policy.Remark);
         }
         
         

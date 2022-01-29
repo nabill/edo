@@ -165,5 +165,12 @@
   },
   "DiscountStorageOptions": {
     "Timeout": "0.00:00:10"
+  },
+  "SearchLimits": {
+    "MaxCountriesCount": 1,
+    "MaxLocalitiesCount": 1,
+    "MaxAccommodationsCount": 1000,
+    "MaxRoomsCount": 1,
+    "MaxGuestsCount": 5
   }
 }

@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
                         new DateTime(2020, 1, 1),
                         new List<CancellationPolicy>
                         {
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 0.3d)
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 0.3d, null)
                         }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
                         new DateTime(2020, 2, 1),
                         new List<CancellationPolicy>
                         {
-                            new(fromDate: new DateTime(2020, 2, 1), 50.53533d)
+                            new(fromDate: new DateTime(2020, 2, 1), 50.53533d, null)
                         }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
@@ -127,10 +127,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
                         new DateTime(2020, 1, 3),
                         new List<CancellationPolicy>
                         {
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 30d),
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 5), 60d),
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 8), 80d),
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 10), 100d),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 30d, null),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 5), 60d, null),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 8), 80d, null),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 10), 100d, null),
                         }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
                         deadlineDate,
                         new List<CancellationPolicy>
                         {
-                            new(fromDate: deadlineDate, 72.00)
+                            new(fromDate: deadlineDate, 72.00, null)
                         }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD),
                     isAdvancePurchaseRate: true)

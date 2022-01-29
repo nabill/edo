@@ -115,10 +115,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
 
         private static readonly List<CancellationPolicy> Policies = new List<CancellationPolicy>
         {
-            new CancellationPolicy(new DateTime(2021, 1, 16), 1d),
-            new CancellationPolicy(new DateTime(2021, 1, 17), 2d),
-            new CancellationPolicy(new DateTime(2021, 1, 18), 3d),
-            new CancellationPolicy(new DateTime(2021, 1, 19), 4d),
+            new CancellationPolicy(new DateTime(2021, 1, 16), 1d, null),
+            new CancellationPolicy(new DateTime(2021, 1, 17), 2d, null),
+            new CancellationPolicy(new DateTime(2021, 1, 18), 3d, null),
+            new CancellationPolicy(new DateTime(2021, 1, 19), 4d, null),
         };
     }
 }
