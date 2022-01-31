@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
@@ -104,7 +106,9 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Primitives;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
@@ -117,13 +121,22 @@ namespace HappyTravel.Edo.Api.Infrastructure
             IHostEnvironment environment, string apiName, string authorityUrl)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
+                .AddJwtBearer(options =>
                 {
                     options.Authority = authorityUrl;
-                    options.ApiName = apiName;
+                    options.Audience = apiName;
                     options.RequireHttpsMetadata = true;
-                    options.SupportedTokens = SupportedTokens.Jwt;
-                    options.TokenRetriever = TokenRetrieval.FromAuthorizationHeaderOrQueryString();
+                    options.Events = new JwtBearerEvents {
+                        OnMessageReceived = context =>
+                        {
+                            var func = !context.Request.Path.StartsWithSegments("/signalr")
+                                ? IdentityModel.AspNetCore.OAuth2Introspection.TokenRetrieval.FromAuthorizationHeader()
+                                : IdentityModel.AspNetCore.OAuth2Introspection.TokenRetrieval.FromQueryString();
+
+                            context.Token = func(context.Request);
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             return services;
