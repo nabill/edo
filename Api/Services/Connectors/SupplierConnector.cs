@@ -17,9 +17,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnector : ISupplierConnector
     {
-        public SupplierConnector(Suppliers supplier, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
+        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
         {
-            _supplier = supplier;
+            _supplierName = supplierName;
             _connectorClient = connectorClient;
             _baseUrl = baseUrl;
             _logger = logger;
@@ -112,13 +112,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             _logger.LogSupplierConnectorRequestStarted(_baseUrl, step);
             
-            using var timer = Counters.SupplierRequestHistogram.WithLabels(step, _supplier.ToString()).NewTimer();
+            using var timer = Counters.SupplierRequestHistogram.WithLabels(step, _supplierName).NewTimer();
             var result = await funcToExecute();
             timer.Dispose();
             
             Counters.SupplierRequestCounter
                 .WithLabels(step,
-                    _supplier.ToString(),
+                    _supplierName,
                     result.IsFailure ? result.Error.Status.ToString() : string.Empty)
                 .Inc();
 
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        private readonly Suppliers _supplier;
+        private readonly string _supplierName;
         private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
         private readonly ILogger<SupplierConnector> _logger;

@@ -1704,12 +1704,6 @@
             2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Infrastructure.TokenRetrieval.FromAuthorizationHeaderOrQueryString">
-            <summary>
-            Reads the token from the authorization header and from query string for SignalR hubs.
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.

@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.SupplierOptionsProvider;
 using HappyTravel.SuppliersCatalog;
@@ -18,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             _supplierStorage = supplierStorage;
         }
 
-
+        
         public ISupplierConnector Get(Suppliers key)
         {
             var supplier = _supplierStorage.GetById((int) key);
@@ -26,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierConnector>>();
 
             return new SupplierConnector(
-                supplier: (Suppliers)supplier.Id,
+                supplierName: supplier.Name,
                 connectorClient: connectorClient,
                 baseUrl: supplier.ConnectorUrl,
                 logger: logger);
