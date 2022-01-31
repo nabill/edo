@@ -14,7 +14,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -74,10 +73,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
 
 
         [Theory]
-        [InlineData(2, Suppliers.Jumeirah)]
-        [InlineData(2, Suppliers.Etg)]
-        [InlineData(1, Suppliers.Etg, Suppliers.Jumeirah)]
-        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params Suppliers[] disabledSuppliers)
+        [InlineData(2, 2)]
+        [InlineData(2, 1)]
+        [InlineData(1, 1, 2)]
+        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params int[] disabledSuppliers)
         {
             var flowMock = new Mock<IDistributedFlow>();
             flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
@@ -104,13 +103,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         }
 
         
-        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService, List<Suppliers>? disabledSuppliers = null)
+        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService, List<int>? disabledSuppliers = null)
         {
             var context = CreateContext();
             var dateTimeProvider = new DateTimeProviderMock(DateTimeNow);
             var monitor = Mock.Of<IOptionsMonitor<BookingStatusUpdateOptions>>(_ => _.CurrentValue == new BookingStatusUpdateOptions
             {
-                DisabledSuppliers = disabledSuppliers ?? new List<Suppliers>()
+                DisabledSuppliers = disabledSuppliers ?? new List<int>()
             });
             
             return new BookingStatusRefreshService(
@@ -161,28 +160,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             {
                 Id = 1,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) Suppliers.Jumeirah,
+                Supplier = (int) 2,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 2,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) Suppliers.Etg,
+                Supplier = (int) 1,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 3,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) Suppliers.Darina,
+                Supplier = (int) 3,
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 4,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) Suppliers.Bronevik,
+                Supplier = (int) 4,
                 CheckInDate = DateTimeNow.AddDays(-10)
             }
         };

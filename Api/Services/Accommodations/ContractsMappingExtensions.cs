@@ -2,22 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public static class ContractsMappingExtensions
     {
-        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, Suppliers? supplier, bool isDirectContract)
+        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, string supplier, int supplierId, bool isDirectContract)
         {
             return new RoomContractSet(roomContractSet.Id,
                 roomContractSet.Rate.ToRate(),
                 DeadlineMerger.CalculateMergedDeadline(roomContractSet.RoomContracts),
                 roomContractSet.RoomContracts.ToRoomContractList(),
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
-                (int?) supplier,
+                supplier: supplier,
+                supplierId,
                 roomContractSet.Tags,
                 isDirectContract: isDirectContract,
                 isPackageRate: roomContractSet.IsPackageRate);

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
@@ -53,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ConvertedAmount = order.ConvertedPrice,
                         ConvertedCurrency = order.ConvertedCurrency,
                         PaymentStatus = booking.PaymentStatus,
-                        Supplier = (Suppliers) booking.Supplier,
+                        Supplier = booking.Supplier,
                         CancellationDate = booking.Cancelled == null
                             ? null
                             : booking.Cancelled.Value.DateTime

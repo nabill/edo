@@ -1,7 +1,6 @@
 using System;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.SupplierOptionsProvider;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -16,9 +15,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
         
-        public ISupplierConnector Get(Suppliers key)
+        public ISupplierConnector Get(int key)
         {
-            var supplier = _supplierStorage.GetById((int) key);
+            var supplier = _supplierStorage.GetById(key);
             var connectorClient = _serviceProvider.GetRequiredService<IConnectorClient>();
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierConnector>>();
 

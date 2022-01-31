@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -26,7 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
             Rooms = bookingInfo.Rooms;
-            Supplier = (int) bookingInfo.Supplier;
+            SupplierId = bookingInfo.Supplier;
             Created = bookingInfo.Created;
             HtId = bookingInfo.HtId;
         }
@@ -59,6 +58,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public List<BookedRoom> Rooms { get; init; }
         
-        public int? Supplier { get; init; }
+        public int? SupplierId { get; init; }
     }
 }

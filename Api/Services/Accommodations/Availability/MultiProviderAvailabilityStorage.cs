@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -18,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<(Suppliers Supplier, TObject Result)[]> Get<TObject>(string keyPrefix, List<Suppliers> suppliers, bool isCachingEnabled = false)
+        public Task<(int SupplierId, TObject Result)[]> Get<TObject>(string keyPrefix, List<int> suppliers, bool isCachingEnabled = false)
         {
             var supplierTasks = suppliers
                 .Select(async p =>
@@ -50,14 +48,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task Save<TObject>(string keyPrefix, TObject @object, Suppliers supplier)
+        public Task Save<TObject>(string keyPrefix, TObject @object, int supplier)
         {
             var key = BuildKey<TObject>(keyPrefix, supplier);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 
 
-        private string BuildKey<TObjectType>(string keyPrefix, Suppliers supplier)
+        private string BuildKey<TObjectType>(string keyPrefix, int supplier)
             => _distributedFlow.BuildKey(nameof(MultiProviderAvailabilityStorage),
                 keyPrefix,
                 typeof(TObjectType).Name,

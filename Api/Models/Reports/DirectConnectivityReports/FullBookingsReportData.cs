@@ -4,7 +4,6 @@ using System.Text.Json;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
@@ -30,7 +29,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public decimal ConvertedAmount { get; init; }
         public Currencies ConvertedCurrency { get; init; }
         public List<BookedRoom> Rooms { get; init; }
-        public Suppliers Supplier { get; init; }
+        public int Supplier { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
         public DateTime? CancellationDate { get; init; }
     }

@@ -32,8 +32,8 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                 maxPrice: roomContractSets.Max(r => r.Rate.FinalPrice.Amount),
                 checkInDate: result.CheckInDate,
                 checkOutDate: result.CheckOutDate,
-                supplier: searchSettings.IsSupplierVisible
-                    ? result.Supplier
+                supplierId: searchSettings.IsSupplierVisible
+                    ? result.SupplierId
                     : null,
                 htId: result.HtId);
         }

@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -77,7 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 .ReturnsAsync((request, default));
 
             _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<Suppliers>()))
+                .Setup(x => x.Get(It.IsAny<int>()))
                 .Returns(_supplierConnectorMock.Object);
         }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
@@ -20,6 +19,6 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public Currencies OriginalCurrency { get; init; }
         public decimal ConvertedAmount { get; init; }
         public Currencies ConvertedCurrency { get; init; }
-        public Suppliers Supplier { get; init; }
+        public int Supplier { get; init; }
     }
 }

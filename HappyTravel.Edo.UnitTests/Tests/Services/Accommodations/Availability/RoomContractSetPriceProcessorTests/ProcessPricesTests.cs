@@ -145,7 +145,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
                 deadline: default,
                 rooms: roomContracts,
                 isAdvancePurchaseRate: default,
-                supplier: 0,
+                supplier: "",
+                supplierId: 0,
                 tags: default,
                 isDirectContract: default,
                 isPackageRate: default);

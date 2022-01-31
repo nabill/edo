@@ -109,7 +109,6 @@ using HappyTravel.SupplierOptionsProvider;
 using HappyTravel.VccServiceClient.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Primitives;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
@@ -362,8 +361,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, 16);
             
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
-
-            services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
 
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
@@ -656,8 +653,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
 
-            var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
-            if (isUseMongoDbStorage)
+            var useMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (useMongoDbStorage)
             {
                 services.AddMongoDbStorage(environment, configuration, vaultClient);
                 services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();

@@ -13,8 +13,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -98,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability((int, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -106,13 +104,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplier: source, supplierAccommodationCode: result.SupplierAccommodationCode, 
+                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplierId: source, supplierAccommodationCode: result.SupplierAccommodationCode, 
                         availabilityId: result.AvailabilityId, settings: searchSettings, agent: agent, languageCode: languageCode,
                         countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId);
             }
             
 
-            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, string htId, AgentContext agent)
+            async Task<Result<List<(int Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, string htId, AgentContext agent)
             {
                 var results = await GetWideAvailabilityResults(searchId, htId, agent);
                 if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
@@ -137,12 +135,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<IEnumerable<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId,
+        private async Task<IEnumerable<(int Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId,
             AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
-                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierKey, Result: acr)))
+                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: (int) r.SupplierId, Result: acr)))
                 .Where(r => r.Result.HtId == htId);
         }
 

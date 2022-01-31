@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Prometheus;

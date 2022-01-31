@@ -1,7 +1,6 @@
 ﻿using System;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models
 {

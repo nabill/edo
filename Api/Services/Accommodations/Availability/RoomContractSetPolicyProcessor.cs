@@ -34,7 +34,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 rate: roomContractSet.Rate,
                 deadline: roomContractSetDeadline,
                 rooms: shiftedRoomContracts,
-                supplier: (int) roomContractSet.Supplier,
+                supplier: roomContractSet.Supplier,
+                supplierId: roomContractSet.SupplierId,
                 tags: roomContractSet.Tags);
 
 

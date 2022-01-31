@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.ApiClients
 {
@@ -13,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.ApiClients
         /// <summary>
         /// Suppliers enabled for the client
         /// </summary>
-        public List<Suppliers> EnabledSuppliers { get; init; }
+        public List<int> EnabledSuppliers { get; init; }
         
         /// <summary>
         /// Is direct contracts only available for the client

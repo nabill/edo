@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.SupplierResponses
 {
@@ -19,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
         }
         
         
-        public async Task<Result> ProcessBookingData(Stream stream, Suppliers supplier)
+        public async Task<Result> ProcessBookingData(Stream stream, int supplier)
         {
             var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(supplier).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
