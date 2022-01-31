@@ -15,8 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
     /// <summary>
-    /// <h2>Accommodations</h2>
-    /// Accommodations static data
+    /// Endpoints to fetch accommodations static data.
+    /// Includes getting list of accommodations modified since given date or a single accommodation by known Id.
     /// </summary>
     [ApiController]
     [Authorize]

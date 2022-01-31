@@ -5,6 +5,7 @@
         public const string GoogleMaps = "GoogleMaps";
         public const string Payfort = "Payfort";
         public const string CurrencyService = "CurrencyConverter";
+        public const string CurrencyServiceIdentity = "CurrencyConverterIdentity";
         public const string Identity = "Identity";
         public const string Connectors = "Connectors";
         public const string MapperApi = "Mapper";

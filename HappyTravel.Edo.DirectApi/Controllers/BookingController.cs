@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
     /// <summary>
-    /// <h2>Booking management</h2>
+    /// Endpoints to book and manage existing bookings.
     /// </summary>
     [ApiController]
     [Authorize]

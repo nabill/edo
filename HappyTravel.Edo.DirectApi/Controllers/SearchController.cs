@@ -16,13 +16,7 @@ using WideAvailabilitySearchService = HappyTravel.Edo.DirectApi.Services.Availab
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
     /// <summary>
-    /// <h2>The booking flow contains four following steps:</h2>
-    /// <ul>
-    /// <li>Wide availability search for search all available accommodations on predefined parameters.</li>
-    /// <li>Room selection for getting a specific contract from a selected accommodation.</li>
-    /// <li>Booking evaluation to ensure no one book a contract you want when you make a decision and fill out passenger data.</li>
-    /// <li>Booking to book the selected contract.</li>
-    /// </ul>
+    /// Availability search endpoints
     /// </summary>
     [ApiController]
     [Authorize]

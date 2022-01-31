@@ -1,6 +1,6 @@
-﻿## API functionality overview
-### General information
-The whole system's purpose, in general, is to find a room and book it.
+﻿# API functionality overview
+## General
+The whole system's purpose, in general, is to find appropriate rooms and book them.
 
 Omitting the details, this involves several steps:
 - finding a collection of accommodations (or places) which meet the requirements to search rooms in
@@ -11,68 +11,31 @@ Omitting the details, this involves several steps:
 
 Booking management might be required afterwards in order to retrieve information about existing bookings or cancel a booking.
 
-### Data
-In general, the accommodation-related information could be divided into
-- static data: accommodations info and locality info, which changes relatively rarely (hotels, star ratings, addresses, places, etc.)
-- dynamic data: current availability info and prices, which change constantly
+## Static and dynamic data
+In general, the accommodation-related information can be divided into
+- **static data**: accommodations info and locality info, which changes relatively rarely (hotels, star ratings, addresses, places, etc.)
+- **dynamic data**: current availability info and prices, which change constantly
 
 **Static data** is intended to be downloaded and then synchronized periodically by API users due to the fact that it does not change much and there is no point requesting it from the API every time, instead.
 
 Static data synchronization is recommended once a week.
 
 Static data search is done on the client side, so that when the client uses the API search, they already know, which accommodations or which places they need the available rooms to be found in.
+For more information about the endpoints and models see [Accommodations related endpoints](/index.html#tag/Accommodations)
 
 **Dynamic data** includes the following structure:
-- Accommodation (a hotel or another type of place where available room could be found)
-- Room contract set. It takes place inside a list of room contract sets in accommodation data. Room contract set is the entity that is being booked.
-- Room. It takes place inside a list of rooms inside a room contract set. Rooms cannot be booked or otherwise managed, only a room contract set can.
+- _Accommodation_ (a hotel or another type of place where available room could be found)
+- _Room_ contract set. It takes place inside a list of room contract sets in accommodation data. Room contract set is the entity that is being booked.
+- _Room_. It takes place inside a list of rooms inside a room contract set. Rooms cannot be booked or otherwise managed, only a room contract set can.
 
 Every entity above also includes details of its own, involving other data structures.
 
 **Booking data** also takes place. It is required for booking management: querying existing bookings, cancelling, monitoring status, etc.
 
-### Search
-**Static part**
-As mentioned above, when starting a search, the API client must already know the static data criteria (where to search) and provide a collection of ids of places or accommodations (ids of places and accommodations can be included in one collection simultaneously).
-
-Thus searching the static data is entirely done by the API client, not by the API itself. The API itself only provides the static data, but not the means to search through it.
-
-**Availability search**
-The search is done 3 steps:
-1. Wide availability search.
-   Finds accommodations that match the search criteria and have room contract sets that match the search criteria.
-   A number of room contract sets is also fetched to each found accommodation, however, it is not guaranteed that a list would contain all room contract sets for a given accommodation.
-   The data fetched at this step is pulled from cache, therefore must not be considered as latest. Changes could have occurred since the cache update.
-2. Search within accommodation.
-   Finds a full list of room contract sets within chosen accommodation. The data is more likely to be correct due to the fact that search is not as broad as previous step.
-3. Room contract set evaluation.
-   This step concludes the search. Selected room contract set is evaluated to fetch the final price and terms and determine that booking is possible.
-
-## Booking
-Data from a completed search can be used to book a room contract set.
-This creates a booking, which can then be managed.
-
-## Booking management
-### General information
-Following operations can be performed:
-- Retrieve a list of all bookings
-- Retrieve details of a particular booking
-- Cancel a booking
-
-### Booking cancellation and cancellation policies
-When a booking is cancelled, there might be a cancellation penalty, depending on cancellation date.
-The cancellation penalty rate may vary from 0 to 100 percent and is defined for each date.
-This data is available before booking.
-
-
-
-
-
-
 ## Authorization
 
 ### Introduction
-We use JWT tokens for authorization.
+We use JWT tokens for authorization and API is available only for authorized clients.
 More info on this: [Wikipedia article](https://en.wikipedia.org/wiki/JSON_Web_Token), [rfc7519](https://datatracker.ietf.org/doc/html/rfc7519), [Token debugger](https://jwt.io/)
 
 The authorization in general consists of receiving a token by providing your credentials and then using it in your requests by attaching the token in headers.
@@ -117,6 +80,126 @@ curl --request GET \
   --url https://edo.happytravel.com/en/api/1.0/accommodations/availabilities/searches/b1265bf7-7d9f-4a3e-846b-88330703786d/state \
   --header 'Authorization: Bearer token'
 ```
+
+## Availability search
+### Search steps
+#### Static part
+As mentioned above, when starting a search, the API client must already know the static data criteria (where to search) and provide a collection of ids of places or accommodations (ids of places and accommodations can be included in one collection simultaneously).
+
+Thus searching the static data is entirely done by the API client, not by the API itself. The API itself only provides the static data, but not the means to search through it.
+
+#### Availability search
+The search is done 3 steps:
+1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
+   Finds accommodations that match the search criteria and have room contract sets that match the search criteria.
+   A number of room contract sets is also fetched to each found accommodation, however, it is not guaranteed that a list would contain all room contract sets for a given accommodation.
+   The data fetched at this step is pulled from cache, therefore must not be considered as latest. Changes could have occurred since the cache update.
+2. [Room selection](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)
+   Finds a full list of room contract sets within chosen accommodation. The data is more likely to be correct due to the fact that search is not as broad as previous step.
+3. [Booking evaluation (prebooking)](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)
+   This step concludes the search. Selected room contract set is evaluated to fetch the final price and terms and determine that booking is possible.
+   
+Search is starting from wider search to more specific, narrowing the results from step to step, as in the scheme:
+
+![image](https://user-images.githubusercontent.com/43397444/151672111-454f9e0c-292b-4472-baef-0749bd8c6e6c.png)
+
+> **Note:** Results, returned during each step have the 10 minutes lifetime
+
+Every next step uses information from the previous and cannot be executed in any other order than described above.
+- Wide availability search introduces `SearchId`
+- Room selection introduces `AccommodationId`
+- Booking evaluation introduces `RoomContractSetId`
+
+All the three parameters from these steps are used during booking and can be fetched only while steps executing.
+Although the first step returns all three of them inside its models, it is not guaranteed that `RoomContractSetId` will be preserved same and will be valid for booking evaluation step or booking.
+
+
+### Supported search models
+
+Wide availability search can be executed in 3 modes:
+1. One country search
+2. One city search
+3. Multiple hotel search (up to 1000 hotels in request)
+
+The search mode is selected based on `SearchLocations` field of [AvailabilityRequest](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)  model and supports adding multiple location ids to the request, where each location id can be country id, locality id or accommodation id.
+E.g. the following requests executes a search for locality with id `ff`:
+```
+// TODO example request
+```
+And the following request executes a search for 3 hotel ids:
+```
+// TODO example request
+```
+
+In current API version searching for accommodations in multiple countries or localities is not supported and validation will fail when trying to execute the request.
+
+### Wide availability search polling
+
+Since wide availability search may take a long time to complete, especially for large number of the hotels, there
+is a way to get a part of results before search is fully finished.
+The flow may be described as the polling loop, which can be started after [starting search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
+done. During this loop client can continue executing the [get availability results endpoint](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}/get) until
+search is complete or reached given timeout.
+Endpoint returns the search state and ready results in a single model, and can be used as following:
+
+![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
+
+> **Note:** Polling request interval must be larger than 2 seconds 
+
+## Booking flow
+Data from the Booking evaluation step can be used to book a room contract set.
+This creates a booking, which can then be managed.
+
+### 2-step booking flow explanation
+In our system we use 2-step booking flow, containing the following steps:
+1. [Registration](/index.html#tag/Booking/paths/~1api~11.0~1bookings/post)
+2. [Finalization](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
+
+Two-step booking divides the booking process to 2 stages to allow clients to implement a safe flow.
+1. **Registration** step is used to validate a booking, create a database record and prepare the system to execute a "real" booking with executing request to the final supplier. During this step a _Reference code_ is generated. It is safe to abandon such booking if the next step is not executed. If there is an error during step execution, client can be sure, that booking did not really go through.
+2. **Finalization** step is used to make a real booking in supplier's or hotel's system, based on the booking registration, made before. Due to a broad variety of inter-system communication errors possible, this request may fail, while actually the booking will succeed on the supplier or the hotel side.
+
+### Booking failure handling logic details
+
+Booking request results interpretation based on the executing step and server response.
+The flowchart explaining this:
+![image](https://user-images.githubusercontent.com/43397444/151673402-d1015f7f-cfa0-4321-b26c-1f937fd5f8ec.png)
+
+### Booking reference codes
+Every booking in our system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
+_Reference code_ is unique system wide and _supplier reference code_ is unique API-client wide.
+The main identifier in our API is a client reference code, which must be provided by the client during booking request and plays an important role in booing API stability.
+
+| Reference code                                 | Client reference code                                                  |
+|------------------------------------------------|------------------------------------------------------------------------|
+| Generated by HT system                         | Generated by client                                                    |
+| Cannot be used to get the booking from the API | Can be used to get the booking by the API                              |
+| Has strict format (e.g. `HTL-AE-0007W3-01`)    | Format is up to client (e.g. `124003982` or `bkn-298845` or any other) |
+
+
+### Booking management
+
+Following operations can be performed:
+- [Retrieve a list of all bookings](/index.html#tag/Booking/paths/~1api~11.0~1bookings/get)
+- [Retrieve details of a particular booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get)
+- [Cancel a booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1cancel/post)
+Operations involving a certain booking, such as cancellation, needs client reference code to pass.
+
+#### Booking cancellation and cancellation policies
+When a booking is cancelled, there might be a cancellation penalty, depending on cancellation date.
+The cancellation penalty rate may vary from 0 to 100 percent and is defined for each date.
+This data is available on booking evaluation step.
+
+## Payments flow
+API supports only the credit flow, either prepaid or contracted.
+Payments for the bookings are charged from the agency account, which is replenished by the Accounts team, based on payment documents or contract.
+Account balance is accessible from the agent application on [HappyTravel.com](https://happytravel.com)
+
+### Account charging flow
+Booking price is charged from the account balance.
+There are two main cases possible:
+- For non-refundable (APR) bookings or bookings within deadline money is charged immediately. Booking fails if balance insufficient
+- For all other bookings money is charged on the deadline date. Booking is **auto cancelled** if balance is insufficient
 
 ## Requests walkthrough
 Here are the examples of requests in such order in which they would likely be used.
