@@ -244,8 +244,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
-            
-            services.AddClientAccessTokenClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.SupplierOptionsProviderIdentityClient);
+
+            services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.SupplierOptionsProviderIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(authorityUrl);
+            }); 
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
             {
