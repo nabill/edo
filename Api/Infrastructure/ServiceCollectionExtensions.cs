@@ -103,6 +103,7 @@ using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
+using HappyTravel.SupplierOptionsProvider;
 using HappyTravel.VccServiceClient.Extensions;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
@@ -738,6 +739,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
+            
+            var supplierOptions = vaultClient.Get(configuration["SupplierOptionsProvider:Endpoint"]).GetAwaiter().GetResult();
+
+            services.AddSupplierOptionsProvider(options =>
+            {
+                options.HttpClientName = HttpClientNames.SupplierOptionsProvider;
+                options.Endpoint = supplierOptions["endpoint"];
+                options.StorageTimeout = TimeSpan.FromSeconds(60);
+                options.UpdaterInterval = TimeSpan.FromSeconds(60);
+            });
 
             services.AddCreditCardProvider(configuration, vaultClient);
 
