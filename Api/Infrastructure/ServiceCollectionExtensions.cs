@@ -68,7 +68,6 @@ using Polly.Extensions.Http;
 using Amazon;
 using Amazon.S3;
 using Elasticsearch.Net;
-using Grpc.Net.Client;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
@@ -105,7 +104,6 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
-using IdentityModel.AspNetCore.AccessTokenManagement;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
@@ -139,7 +137,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var identityUri = new Uri(new Uri(authorityUrl), "/connect/token").ToString();
             var clientId = clientOptions["clientId"];
             var clientSecret = clientOptions["clientSecret"];
-            
+
             services.Configure<ConnectorTokenRequestOptions>(options =>
             {
                 options.Address = identityUri;
@@ -200,32 +198,32 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 });
             });
             
-            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             
-            services.AddClientAccessTokenClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             
-            services.AddClientAccessTokenClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
             });
 
-            services.AddClientAccessTokenClient(HttpClientNames.DacManagementClient, HttpClientNames.DacIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.DacManagementClient, HttpClientNames.DacIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
-            services.AddClientAccessTokenClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersEditIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersEditIdentityClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
-            services.AddClientAccessTokenClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
             {
                 client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
             })
@@ -796,13 +794,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var creditCardProvider = configuration.GetValue<CreditCardProviderTypes>("CreditCardProvider");
             if (creditCardProvider == CreditCardProviderTypes.Vcc)
             {
-                var vccServiceOptions = vaultClient.Get("edo/vcc-service-options").GetAwaiter().GetResult();
                 services.AddVccService(options =>
                 {
-                    options.VccEndpoint = vccServiceOptions["vccEndpoint"];
-                    options.IdentityEndpoint = vccServiceOptions["identityEndpoint"];
-                    options.IdentityClient = vccServiceOptions["identityClient"];
-                    options.IdentitySecret = vccServiceOptions["identitySecret"];
+                    options.VccEndpoint = configuration["VccService:Endpoint"];
+                    options.IdentityClientName = HttpClientNames.VccApiIdentity;
                 });
                 services.AddTransient<ICreditCardProvider, VirtualCreditCardProvider>();
             }
