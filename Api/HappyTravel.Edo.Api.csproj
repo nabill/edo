@@ -66,8 +66,6 @@
     <PackageReference Include="Tsutsujigasaki.GrpcContracts" Version="0.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\sunpu-client\HappyTravel.SupplierOptionsProvider\HappyTravel.SupplierOptionsProvider.csproj" />
-    <ProjectReference Include="..\..\supplier-options-provider\HappyTravel.SupplierOptionsProvider\HappyTravel.SupplierOptionsProvider.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.CreditCards\HappyTravel.Edo.CreditCards.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
