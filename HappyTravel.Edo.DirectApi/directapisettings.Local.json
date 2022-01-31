@@ -41,7 +41,7 @@
     "Endpoint": "https://nakijin-dev.happytravel.com"
   },
   "VccService": {
-    "Endpoint": "https://gf-dev.happytravel.com"
+    "Endpoint": "https://gf-dev.happytravel.com/api/1.0/cards"
   },
   "MongoDB": {
     "Options": {

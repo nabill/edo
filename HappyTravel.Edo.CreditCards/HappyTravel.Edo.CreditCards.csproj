@@ -6,6 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HappyTravel.DataFormatters" Version="1.2.1" />
-    <PackageReference Include="HappyTravel.VccServiceClient" Version="0.16.0" />
+    <PackageReference Include="HappyTravel.VccServiceClient" Version="1.0.0" />
   </ItemGroup>
 </Project>
