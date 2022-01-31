@@ -68,6 +68,7 @@ using Polly.Extensions.Http;
 using Amazon;
 using Amazon.S3;
 using Elasticsearch.Net;
+using Grpc.Net.Client;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
@@ -104,6 +105,7 @@ using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.VccServiceClient.Extensions;
+using IdentityModel.AspNetCore.AccessTokenManagement;
 using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
@@ -188,6 +190,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["odawaraUsersEditScope"]
                 });
+                
+                options.Client.Clients.Add(HttpClientNames.CurrencyServiceIdentity, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["currencyServiceScope"]
+                });
             });
             
             services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
@@ -215,6 +225,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
+            services.AddClientAccessTokenClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
+            {
+                client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
+            })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(configuration["Edo:Google:Endpoint"]); })
@@ -229,17 +246,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.CurrencyService, client =>
-                {
-                    client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
-                })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-                .AddPolicyHandler(GetDefaultRetryPolicy());
-            
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
             {
                 o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
-            });
+            }).AddClientAccessTokenHandler(HttpClientNames.CurrencyServiceIdentity);
 
             services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {
