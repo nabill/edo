@@ -361,7 +361,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, 16);
             
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
-
+            
+            services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
+            
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
@@ -761,12 +763,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
             
-            var supplierOptions = vaultClient.Get(configuration["SupplierOptionsProvider:Endpoint"]).GetAwaiter().GetResult();
-
+            var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
                 options.HttpClientName = HttpClientNames.SupplierOptionsProvider;
-                options.Endpoint = supplierOptions["endpoint"];
+                options.Endpoint = endpoint;
                 options.StorageTimeout = TimeSpan.FromSeconds(60);
                 options.UpdaterInterval = TimeSpan.FromSeconds(60);
             });

@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     OriginalCurrency = order.Currency,
                     ConvertedAmount = order.ConvertedPrice,
                     ConvertedCurrency = order.ConvertedCurrency,
-                    Supplier = booking.Supplier
+                    SupplierId = booking.Supplier
                 })
                 .ToListAsync();
         }

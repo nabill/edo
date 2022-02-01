@@ -48,18 +48,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task Save<TObject>(string keyPrefix, TObject @object, int supplier)
+        public Task Save<TObject>(string keyPrefix, TObject @object, int supplierId)
         {
-            var key = BuildKey<TObject>(keyPrefix, supplier);
+            var key = BuildKey<TObject>(keyPrefix, supplierId);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 
 
-        private string BuildKey<TObjectType>(string keyPrefix, int supplier)
+        private string BuildKey<TObjectType>(string keyPrefix, int supplierId)
             => _distributedFlow.BuildKey(nameof(MultiProviderAvailabilityStorage),
                 keyPrefix,
                 typeof(TObjectType).Name,
-                supplier.ToString());
+                supplierId.ToString());
 
 
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
