@@ -54,5 +54,8 @@
     "GrpcHost": "http://localhost:5101",
     "CacheLifetime": "0.00:01:00",
     "ClientType": "Grpc"
+  },
+  "SupplierOptionsProvider": {
+    "Endpoint": "https://sunpu-dev.happytravel.com/api/1.0/suppliers"
   }
 }

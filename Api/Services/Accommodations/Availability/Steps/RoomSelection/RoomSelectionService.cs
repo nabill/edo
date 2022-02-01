@@ -135,12 +135,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<IEnumerable<(int Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId,
+        private async Task<IEnumerable<(int SupplierId, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId,
             AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
-                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: (int) r.SupplierId, Result: acr)))
+                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierId, Result: acr)))
                 .Where(r => r.Result.HtId == htId);
         }
 
