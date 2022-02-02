@@ -1,10 +1,13 @@
-﻿using HappyTravel.Edo.Api.AdministratorServices;
+﻿using System;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -28,6 +31,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AdministratorRoleInfo>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
             => Ok(await _administratorRolesManagementService.GetAll());
+        
+        
+        /// <summary>
+        ///     Gets all possible administrator permissions
+        /// </summary>
+        /// <returns> Array of all permission names </returns>
+        [HttpGet("permissions")]
+        [ProducesResponseType(typeof(IEnumerable<AdministratorPermissions>), (int) HttpStatusCode.OK)]
+        public IActionResult GetAllPermissionsList() => Ok(Enum.GetValues<AdministratorPermissions>().ToList());
 
 
         /// <summary>
