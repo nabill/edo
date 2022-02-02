@@ -1,11 +1,18 @@
-﻿using HappyTravel.Edo.Api.AdministratorServices;
+﻿using System;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Notifications.Enums;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -67,6 +74,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => OkOrBadRequest(await _administratorRolesManagementService.Delete(roleId));
 
 
+        /// <summary>
+        ///     Gets all possible notification types
+        /// </summary>
+        /// <returns> Array of all notification types</returns>
+        [HttpGet("notification-types")]
+        [ProducesResponseType(typeof(IEnumerable<NotificationTypes>), (int) HttpStatusCode.OK)]
+        public IActionResult GetAllNotificationTypes() => Ok(Enum.GetValues<NotificationTypes>().ToList());
+        
+        
         private readonly IAdministratorRolesManagementService _administratorRolesManagementService;
     }
 }
