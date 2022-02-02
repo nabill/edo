@@ -2,20 +2,17 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -60,58 +57,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return Result.Failure<PaymentResponse>(error);
             }
 
-            return await Validate(request)
-                .Bind(Authorize)
-                .TapIf(IsSaveCardNeeded, SaveCard)
+            return await Authorize()
                 .Bind(StorePaymentResults)
                 .Finally(WriteLog);
 
-
-            static Result Validate(NewCreditCardPaymentRequest payment)
-            {
-                return GenericValidator<NewCreditCardPaymentRequest>
-                    .Validate(p =>
-                    {
-                        if (payment.IsSaveCardNeeded)
-                        {
-                            p.RuleFor(r => r.CardInfo)
-                                .ChildRules(c =>
-                                {
-                                    c.RuleFor(info => info.HolderName)
-                                        .NotEmpty()
-                                        .WithMessage($"{nameof(CreditCardInfo.HolderName)} is required to save card");
-                                });
-                        }
-                    }, payment);
-            }
-
             async Task<Result<CreditCardPaymentResult>> Authorize()
             {
-                var tokenType = request.IsSaveCardNeeded
-                    ? PaymentTokenTypes.Stored
-                    : PaymentTokenTypes.OneTime;
-
                 var cardPaymentRequest = await CreatePaymentRequest(servicePrice,
-                    new PaymentTokenInfo(request.Token, tokenType),
+                    new PaymentTokenInfo(request.Token, PaymentTokenTypes.OneTime),
                     ipAddress, request.ReferenceCode,
                     languageCode, agent);
 
                 return await _moneyAuthorizationService.AuthorizeMoneyForService(cardPaymentRequest, agent);
             }
             
-            bool IsSaveCardNeeded(CreditCardPaymentResult response)
-                => request.IsSaveCardNeeded && response.Status != CreditCardPaymentStatuses.Failed;
-            
-            Task SaveCard(CreditCardPaymentResult _) 
-                => _creditCardsManagementService.Save(request.CardInfo, request.Token, agent);
             
             async Task<Result<PaymentResponse>> StorePaymentResults(CreditCardPaymentResult paymentResult)
             {
-                var card = request.IsSaveCardNeeded
-                    ? await _context.CreditCards.SingleOrDefaultAsync(c => c.Token == request.Token)
-                    : null;
-                
-                var payment = await CreatePayment(ipAddress, servicePrice, card?.Id, paymentResult);
+                var payment = await CreatePayment(ipAddress, servicePrice, null, paymentResult);
                 var (_, isFailure, error) = await paymentCallbackService.ProcessPaymentChanges(payment);
 
                 return isFailure
@@ -120,69 +83,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             }
 
 
-            Result<PaymentResponse> WriteLog(Result<PaymentResponse> result)
-            {
-                return LoggerUtils.WriteLogByResult(result,
-                    () => _logger.LogCreditCardAuthorizationSuccess(request.ReferenceCode),
-                    () => _logger.LogCreditCardAuthorizationFailure(request.ReferenceCode, result.Error));
-            }
-        }
-        
-        
-        public async Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
-            string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
-        {
-            _logger.LogCreditCardAuthorizationStarted(request.ReferenceCode);
-            
-            var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetChargingAmount(request.ReferenceCode);
-            if (isFailure)
-            {
-                _logger.LogCreditCardAuthorizationFailure(request.ReferenceCode, error);
-                return Result.Failure<PaymentResponse>(error);
-            }
-
-            return await Validate(request)
-                .Bind(Authorize)
-                .Bind(StorePaymentResults)
-                .Finally(WriteLog);
-            
-            static Result Validate(SavedCreditCardPaymentRequest payment)
-            {
-                return GenericValidator<SavedCreditCardPaymentRequest>
-                    .Validate(p =>
-                    {
-                        p.RuleFor(p => p.CardId).NotEmpty();
-                    }, payment);
-            }
-
-            async Task<Result<CreditCardPaymentResult>> Authorize()
-            {
-                var (_, isFailure, token, error) = await _creditCardsManagementService.GetToken(request.CardId, agent);
-                if (isFailure)
-                    return Result.Failure<CreditCardPaymentResult>(error);
-                
-                var cardPaymentRequest = await CreatePaymentRequest(servicePrice,
-                    new PaymentTokenInfo(token, PaymentTokenTypes.Stored),
-                    ipAddress,
-                    request.ReferenceCode,
-                    languageCode,
-                    agent,
-                    request.SecurityCode);
-                
-                return await _moneyAuthorizationService.AuthorizeMoneyForService(cardPaymentRequest, agent);
-            }
-            
-            async Task<Result<PaymentResponse>> StorePaymentResults(CreditCardPaymentResult paymentResult)
-            {
-                var payment = await CreatePayment(ipAddress, servicePrice, request.CardId, paymentResult);
-                var (_, isFailure, error) = await paymentCallbackService.ProcessPaymentChanges(payment);
-
-                return isFailure
-                    ? Result.Failure<PaymentResponse>(error)
-                    : Result.Success(paymentResult.ToPaymentResponse());
-            }
-            
-            
             Result<PaymentResponse> WriteLog(Result<PaymentResponse> result)
             {
                 return LoggerUtils.WriteLogByResult(result,

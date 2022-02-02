@@ -99,25 +99,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Pays by payfort token
-        /// </summary>
-        /// <param name="request">Payment request</param>
-        [HttpPost("accommodations/bookings/cards/saved/pay")]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardPaymentRequest request)
-        {
-            return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
-                LanguageCode,
-                ClientIp,
-                _bookingPaymentCallbackService,
-                await _agentContextService.GetAgent()));
-        }
-
-
-        /// <summary>
         ///     Pays by NGenius
         /// </summary>
         /// <param name="referenceCode">Booking reference code</param>

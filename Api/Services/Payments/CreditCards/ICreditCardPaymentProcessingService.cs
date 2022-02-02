@@ -15,10 +15,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent);
 
 
-        Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
-            string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent);
-
-
         Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject rawResponse, IPaymentCallbackService paymentCallbackService);
 
         Task<Result<string>> CaptureMoney(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService);
