@@ -18,7 +18,10 @@ updates:
     registries:
     - nuget-github
     - nuget-org
-    reviewers: 
+    assignees:
+    - "dfsko"
+    - "mingazhev"
+    reviewers:
     - "kirillta"
     - "mingazhev"
     - "oleg-n-k"
