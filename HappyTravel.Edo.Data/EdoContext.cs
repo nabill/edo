@@ -48,7 +48,6 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Administrator> Administrators { get; set; }
 
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
-        public DbSet<CreditCard> CreditCards { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         public DbSet<OfflinePaymentAuditLogEntry> OfflinePaymentAuditLogs { get; set; }
@@ -209,7 +208,6 @@ namespace HappyTravel.Edo.Data
             BuildBooking(builder);
             BuildBookingRequests(builder);
             BuildCreditCardPaymentConfirmation(builder);
-            BuildCard(builder);
             BuildPayment(builder);
 
             BuildItnNumerator(builder);
@@ -533,22 +531,6 @@ namespace HappyTravel.Edo.Data
 
         }
         
-
-        private void BuildCard(ModelBuilder builder)
-        {
-            builder
-                .Entity<CreditCard>(card =>
-                {
-                    card.HasKey(c => c.Id);
-                    card.Property(c => c.HolderName).IsRequired();
-                    card.Property(c => c.MaskedNumber).IsRequired();
-                    card.Property(c => c.ExpirationDate).IsRequired();
-                    card.Property(c => c.Token).IsRequired();
-                    card.Property(c => c.OwnerId).IsRequired();
-                    card.Property(c => c.OwnerType).IsRequired();
-                });
-        }
-
 
         private void BuildPayment(ModelBuilder builder)
         {

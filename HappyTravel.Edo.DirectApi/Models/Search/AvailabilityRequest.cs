@@ -34,12 +34,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         public DateTime CheckOutDate { get; }
 
         /// <summary>
-        ///     Alpha-2 nationality code for a lead passengers.
+        ///     Uppercase Alpha-2 nationality code for a lead passengers. More info on https://www.iban.com/country-codes
         /// </summary>
         public string Nationality { get; }
 
         /// <summary>
-        ///     Alpha-2 residency code for a lead passengers.
+        ///     Uppercase Alpha-2 residency code for a lead passengers. More info on https://www.iban.com/country-codes
         /// </summary>
         public string Residency { get; }
 

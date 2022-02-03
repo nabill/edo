@@ -11,7 +11,7 @@ Omitting the details, this involves several steps:
 
 Booking management might be required afterwards in order to retrieve information about existing bookings or cancel a booking.
 
-## Static and dynamic data
+## Data types
 In general, the accommodation-related information can be divided into
 - **static data**: accommodations info and locality info, which changes relatively rarely (hotels, star ratings, addresses, places, etc.)
 - **dynamic data**: current availability info and prices, which change constantly
@@ -101,9 +101,7 @@ The search is done 3 steps:
    
 Search is starting from wider search to more specific, narrowing the results from step to step, as in the scheme:
 
-![image](https://user-images.githubusercontent.com/43397444/151672111-454f9e0c-292b-4472-baef-0749bd8c6e6c.png)
-
-> **Note:** Results, returned during each step have the 10 minutes lifetime
+![image](https://user-images.githubusercontent.com/43397444/151757981-2105b3da-c3c7-46eb-aecc-6660a000cc92.png)
 
 Every next step uses information from the previous and cannot be executed in any other order than described above.
 - Wide availability search introduces `SearchId`
@@ -123,15 +121,46 @@ Wide availability search can be executed in 3 modes:
 
 The search mode is selected based on `SearchLocations` field of [AvailabilityRequest](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)  model and supports adding multiple location ids to the request, where each location id can be country id, locality id or accommodation id.
 E.g. the following requests executes a search for locality with id `ff`:
+```json
+{
+   "checkInDate":"2022-11-04T00:00:00Z",
+   "checkOutDate":"2022-11-05T00:00:00Z",
+   "roomDetails":[
+      {
+         "adultsNumber":2,
+         "childrenNumber":0
+      }
+   ],
+   "nationality":"RU",
+   "residency":"RU",
+   "ids":[
+      "Locality_607184" // Locality id
+   ]
+}
 ```
-// TODO example request
-```
-And the following request executes a search for 3 hotel ids:
-```
-// TODO example request
+And the following request executes a search for 3 accommodation ids:
+```json
+{
+   "checkInDate":"2022-11-04T00:00:00Z",
+   "checkOutDate":"2022-11-05T00:00:00Z",
+   "roomDetails":[
+      {
+         "adultsNumber":2,
+         "childrenNumber":0
+      }
+   ],
+   "nationality":"RU",
+   "residency":"RU",
+   "ids":[
+      // Accommodation ids
+      "Accommodation_9594995", "Accommodation_729495", "Accommodation_346843"
+   ]
+}
 ```
 
 In current API version searching for accommodations in multiple countries or localities is not supported and validation will fail when trying to execute the request.
+
+> Note: Do not rely on locations or accommodation ids format since it can be changed
 
 ### Wide availability search polling
 
@@ -140,11 +169,21 @@ is a way to get a part of results before search is fully finished.
 The flow may be described as the polling loop, which can be started after [starting search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
 done. During this loop client can continue executing the [get availability results endpoint](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}/get) until
 search is complete or reached given timeout.
+> **Note:** Polling request interval must be larger than 2 seconds
+
 Endpoint returns the search state and ready results in a single model, and can be used as following:
 
 ![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
 
-> **Note:** Polling request interval must be larger than 2 seconds 
+### Search results lifetime
+Every search step returns information which can be used for booking during a short period of time.
+
+E.g. when you search for the hotel, wait for an hour and then try to book, booking will fail.
+Client implementation needs to handle lifetimes correctly, not trying to book using the old results.
+Step results lifetime:
+- Wide availability search: **10 minutes**
+- Room selection: **10 minutes**
+- Booking evaluation: **10 minutes**
 
 ## Booking flow
 Data from the Booking evaluation step can be used to book a room contract set.
