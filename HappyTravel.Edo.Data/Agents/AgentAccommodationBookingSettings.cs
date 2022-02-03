@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         /// <summary>
         /// Enabled suppliers list
         /// </summary>
-        public List<SuppliersCatalog.Suppliers> EnabledSuppliers { get; set; }
+        public List<int> EnabledSuppliers { get; set; }
         
         public AprMode? AprMode { get; set; }
         

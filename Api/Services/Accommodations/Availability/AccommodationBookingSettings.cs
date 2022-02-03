@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public readonly struct AccommodationBookingSettings
     {
-        public AccommodationBookingSettings(List<Suppliers> enabledConnectors, 
+        public AccommodationBookingSettings(List<int> enabledConnectors, 
             AprMode aprMode,
             PassedDeadlineOffersMode passedDeadlineOffersMode,
             bool isSupplierVisible,
@@ -24,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             AdditionalSearchFilters = additionalSearchFilters;
         }
         
-        public List<Suppliers> EnabledConnectors { get; }
+        public List<int> EnabledConnectors { get; }
         public AprMode AprMode { get; }
         public PassedDeadlineOffersMode PassedDeadlineOffersMode { get; }
         public bool IsSupplierVisible { get; }

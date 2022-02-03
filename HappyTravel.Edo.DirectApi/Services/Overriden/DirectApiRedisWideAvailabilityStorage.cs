@@ -7,7 +7,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
@@ -19,7 +18,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         }
 
         
-        public async Task<List<(Suppliers SupplierKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> suppliers)
+        public async Task<List<(int SupplierId, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<int> suppliers)
         {
             return (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
                 .Where(t => t.Result != default)
@@ -27,7 +26,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         }
 
 
-        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode)
+        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<int> suppliers, string languageCode)
         {
             var results = await GetResults(searchId, suppliers);
             var availabilities = results.SelectMany(r => r.AccommodationAvailabilities)
@@ -48,8 +47,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         }
 
 
-        public Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results) 
-            => _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplier);
+        public Task SaveResults(Guid searchId, int supplierId, List<AccommodationAvailabilityResult> results) 
+            => _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplierId);
         
         
         private readonly IMultiProviderAvailabilityStorage _multiProviderAvailabilityStorage;

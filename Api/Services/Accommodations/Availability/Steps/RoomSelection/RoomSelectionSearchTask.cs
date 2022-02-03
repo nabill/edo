@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,25 +15,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionSearchTask
     {
-        private RoomSelectionSearchTask(IRoomSelectionPriceProcessor priceProcessor,
-            ISupplierConnectorManager supplierConnectorManager,
-            IRoomSelectionStorage roomSelectionStorage)
+        private RoomSelectionSearchTask(IRoomSelectionPriceProcessor priceProcessor, ISupplierConnectorManager supplierConnectorManager,
+            IRoomSelectionStorage roomSelectionStorage, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _priceProcessor = priceProcessor;
             _supplierConnectorManager = supplierConnectorManager;
             _roomSelectionStorage = roomSelectionStorage;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
         public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider) 
             => new(serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
             serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
-            serviceProvider.GetRequiredService<IRoomSelectionStorage>()
+            serviceProvider.GetRequiredService<IRoomSelectionStorage>(),
+            serviceProvider.GetRequiredService<ISupplierOptionsStorage>()
         );
 
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
-            string htId, Suppliers supplier, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
+            string htId, int supplierId, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
             AgentContext agent, string languageCode, string countryHtId, string localityHtId)
         {
             return await ExecuteRequest()
@@ -46,13 +47,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest() 
-                => _supplierConnectorManager.Get(supplier).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
+                => _supplierConnectorManager.Get(supplierId).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
                 var roomContractSets = availabilityDetails.RoomContractSets
-                    .Select(r => r.ToRoomContractSet(supplier, r.IsDirectContract))
+                    .Select(r => r.ToRoomContractSet(_supplierOptionsStorage.GetById(supplierId).Name, supplierId, r.IsDirectContract))
                     .ToList();
                 
                 return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
@@ -77,12 +78,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task SaveToCache(SingleAccommodationAvailability details) 
-                => _roomSelectionStorage.SaveResult(searchId, htId, details, supplier);
+                => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierId);
         }
         
         
         private readonly IRoomSelectionPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
