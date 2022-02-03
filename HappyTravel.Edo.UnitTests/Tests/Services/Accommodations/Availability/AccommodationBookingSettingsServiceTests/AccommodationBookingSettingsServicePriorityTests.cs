@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.Options;
 using Xunit;
 using Moq;
@@ -26,22 +28,26 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-
+        
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
-
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
+        
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
-
+                supplierOptionsStorage);
+        
             var settings = await service.Get(_agentContext);
-
+        
             Assert.Equal(DefaultAprMode, settings.AprMode);
             Assert.Equal(DefaultPassedDeadlineOffersMode, settings.PassedDeadlineOffersMode);
             Assert.Equal(default, settings.AdditionalSearchFilters);
             
-            for (int i = 0; i < supplierOptions.Value.EnabledSuppliers.Count; i++)
-                Assert.Equal(supplierOptions.Value.EnabledSuppliers[i], settings.EnabledConnectors[i]);
+            var defaultEnabledSuppliers = _suppliers.Where(s => s.IsEnabled)
+                .Select(s => s.Id)
+                .ToArray();
+            
+            for (var i = 0; i < defaultEnabledSuppliers.Length; i++)
+                Assert.Equal(defaultEnabledSuppliers[i], settings.EnabledConnectors[i]);
         }
 
 
@@ -61,11 +67,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var expectedPolicyStartDateShift = new TimeSpan(0, 0, 0, 18);
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
+                supplierOptionsStorage);
 
             var settings = await service.Get(_agentContext);
 
@@ -82,11 +88,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
+                supplierOptionsStorage);
 
             var settings = await service.Get(_agentContext);
 
@@ -110,11 +116,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
+                supplierOptionsStorage);
 
             var settings = await service.Get(_agentContext);
 
@@ -147,11 +153,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
+                supplierOptionsStorage);
 
             var settings = await service.Get(_agentContext);
 
@@ -178,11 +184,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var supplierOptions = Options.Create(new SupplierOptions { EnabledSuppliers = new List<int> { 0 } });
             var flow = GetDoubleFlow();
+            var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptions);
+                supplierOptionsStorage);
 
             var settings = await service.Get(_agentContext);
 
@@ -232,7 +238,35 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         }
 
 
+        private ISupplierOptionsStorage GetSupplierOptionsStorage()
+        {
+            var mock = new Mock<ISupplierOptionsStorage>();
+            mock.Setup(m => m.GetAll())
+                .Returns(_suppliers);
+            return mock.Object;
+        }
+
+
         private readonly AgentContext _agentContext = new AgentContext(1, "fn", "ln", "email", "title", "pos", 1, "aname", default, default, "", "", new());
+        private readonly List<Supplier> _suppliers = new()
+        {
+            new Supplier
+            {
+                Id = 1,
+                IsEnabled = true
+            },
+            new Supplier
+            {
+                Id = 2,
+                IsEnabled = false
+            },
+            new Supplier()
+            {
+                Id = 3,
+                IsEnabled = true
+            }
+        };
+
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
         private const AprMode DefaultAprMode = AprMode.DisplayOnly;
