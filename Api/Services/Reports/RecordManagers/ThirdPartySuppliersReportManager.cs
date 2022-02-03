@@ -4,15 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Data;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
 {
     public class ThirdPartySuppliersReportManager : IRecordManager<ThirdPartySupplierData>
     {
-        public ThirdPartySuppliersReportManager(EdoContext context)
+        public ThirdPartySuppliersReportManager(EdoContext context, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _context = context;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
         
         
@@ -28,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         AccommodationName = booking.AccommodationName,
                         CheckInDate = booking.CheckInDate.DateTime,
                         CheckOutDate = booking.CheckOutDate.DateTime,
-                        Supplier = booking.Supplier.ToString(),
+                        Supplier = _supplierOptionsStorage.GetById(booking.Supplier).Name,
                         DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                         BookingStatus = booking.Status.ToString(),
                         ReferenceCode = booking.ReferenceCode,
@@ -37,5 +39,6 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         }
         
         private readonly EdoContext _context;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

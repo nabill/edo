@@ -3,11 +3,18 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public  class PayableToSupplierRecordDataConverter : IConverter<PayableToSupplierRecordData, PayableToSupplierReportRow>
     {
+        public PayableToSupplierRecordDataConverter(ISupplierOptionsStorage supplierOptionsStorage)
+        {
+            _supplierOptionsStorage = supplierOptionsStorage;
+        }
+        
+        
         public PayableToSupplierReportRow Convert(PayableToSupplierRecordData data) 
             => new()
             {
@@ -27,7 +34,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,
                 ConvertedCurrency = data.ConvertedCurrency,
-                Supplier = EnumFormatters.FromDescription(data.Supplier)
+                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name
             };
+
+
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

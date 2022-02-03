@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
     public readonly struct DetailedAccommodation
     {
-        public DetailedAccommodation(AccommodationData data, Dictionary<Suppliers, AccommodationData> suppliersRawAccommodationData, AccommodationData manualCorrectedData, Dictionary<AccommodationDataTypes, List<Suppliers>> suppliersPriorities)
+        public DetailedAccommodation(AccommodationData data, Dictionary<int, AccommodationData> suppliersRawAccommodationData, AccommodationData manualCorrectedData, Dictionary<AccommodationDataTypes, List<int>> suppliersPriorities)
         {
             Data = data;
             SuppliersRawAccommodationData = suppliersRawAccommodationData ?? new ();
@@ -16,8 +15,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 
 
         public AccommodationData Data { get; init; }
-        public Dictionary<Suppliers, AccommodationData> SuppliersRawAccommodationData { get; init; }
+        public Dictionary<int, AccommodationData> SuppliersRawAccommodationData { get; init; }
         public AccommodationData ManualCorrectedData { get; init; }
-        public Dictionary<AccommodationDataTypes, List<Suppliers>> SuppliersPriorities { get; init; }
+        public Dictionary<AccommodationDataTypes, List<int>> SuppliersPriorities { get; init; }
     }
 }

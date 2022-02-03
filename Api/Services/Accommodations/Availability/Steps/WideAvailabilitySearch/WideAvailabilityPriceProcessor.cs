@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 }
                 
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: slimAccommodationAvailability.SearchId,
-                    supplier: slimAccommodationAvailability.Supplier,
+                    supplierId: slimAccommodationAvailability.SupplierId,
                     created: slimAccommodationAvailability.Created,
                     availabilityId: slimAccommodationAvailability.AvailabilityId,
                     roomContractSets: convertedRoomContractSets,
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 }
 
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: slimAccommodationAvailability.SearchId,
-                    supplier: slimAccommodationAvailability.Supplier,
+                    supplierId: slimAccommodationAvailability.SupplierId,
                     created: slimAccommodationAvailability.Created,
                     availabilityId: slimAccommodationAvailability.AvailabilityId,
                     roomContractSets: convertedRoomContractSets,
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 // Currency can differ in different results
                 var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(accommodationAvailability.RoomContractSets);
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
-                    supplier: accommodationAvailability.Supplier,
+                    supplierId: accommodationAvailability.SupplierId,
                     created: accommodationAvailability.Created,
                     availabilityId: accommodationAvailability.AvailabilityId,
                     roomContractSets: roomContractSets,

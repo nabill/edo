@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
@@ -14,14 +13,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        public async Task<List<(Suppliers SupplierKey, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId, List<Suppliers> suppliers) 
+        public async Task<List<(int SupplierId, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId, List<int> suppliers) 
             => (await _multiProviderAvailabilityStorage.Get<SupplierAvailabilitySearchState>(searchId.ToString(), suppliers, false))
                 .Where(t => !t.Result.Equals(default))
                 .ToList();
 
 
-        public Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, Suppliers supplier) 
-            => _multiProviderAvailabilityStorage.Save(searchId.ToString(), state, supplier);
+        public Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, int supplierId) 
+            => _multiProviderAvailabilityStorage.Save(searchId.ToString(), state, supplierId);
 
 
         private readonly IMultiProviderAvailabilityStorage _multiProviderAvailabilityStorage;

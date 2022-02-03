@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -10,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int agencyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, Suppliers? supplier,
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, int? supplierId,
             BookingAgentInformation agentInformation, PaymentTypes paymentMethod, List<string> tags,
             bool? isDirectContract)
         {
@@ -20,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             PaymentStatus = paymentStatus;
             TotalPrice = totalPrice;
             CancellationPenalty = cancellationPenalty;
-            Supplier = supplier;
+            SupplierId = supplierId;
             AgentInformation = agentInformation;
             PaymentMethod = paymentMethod;
             Tags = tags;
@@ -32,8 +31,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => Equals((BookingId, BookingDetails, AgencyId, PaymentStatus, TotalPrice, Supplier),
-                (other.BookingId, other.BookingDetails, other.AgencyId, other.PaymentStatus, TotalPrice, Supplier));
+            => Equals((BookingId, BookingDetails, AgencyId, PaymentStatus, TotalPrice, SupplierId),
+                (other.BookingId, other.BookingDetails, other.AgencyId, other.PaymentStatus, TotalPrice, SupplierId));
 
 
         public override int GetHashCode() => (BookingId, BookingDetails, AgencyId).GetHashCode();
@@ -45,7 +44,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
         public MoneyAmount CancellationPenalty { get; }
-        public Suppliers? Supplier { get; }
+        public int? SupplierId { get; }
         public BookingAgentInformation AgentInformation { get; }
         public PaymentTypes PaymentMethod { get; }
         public List<string> Tags { get; }

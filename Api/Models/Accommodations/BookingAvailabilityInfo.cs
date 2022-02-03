@@ -6,7 +6,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Geography;
 using HappyTravel.Money.Models;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -17,7 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public BookingAvailabilityInfo(string accommodationId, string accommodationName, AccommodationInfo accommodationInfo,
             RoomContractSet roomContractSet, string zoneName, string localityName, string countryName,
             string countryCode, string address, GeoPoint coordinates, DateTime checkInDate,
-            DateTime checkOutDate, int numberOfNights, int supplier, List<AppliedMarkup> appliedMarkups,
+            DateTime checkOutDate, int numberOfNights, int supplierId, List<AppliedMarkup> appliedMarkups,
             MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, string availabilityId,
             string htId, List<PaymentTypes> availablePaymentTypes, bool isDirectContract, Deadline agentDeadline, Deadline supplierDeadline,
             CreditCardRequirement? cardRequirement, AvailabilityRequest availabilityRequest)
@@ -35,7 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             NumberOfNights = numberOfNights;
-            Supplier = supplier;
+            SupplierId = supplierId;
             AppliedMarkups = appliedMarkups;
             ConvertedSupplierPrice = convertedSupplierPrice;
             OriginalSupplierPrice = originalSupplierPrice;
@@ -63,7 +62,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public int NumberOfNights { get; }
-        public int Supplier { get; }
+        public int SupplierId { get; }
         public List<AppliedMarkup> AppliedMarkups { get; }
         public MoneyAmount ConvertedSupplierPrice { get; }
         public MoneyAmount OriginalSupplierPrice { get; }

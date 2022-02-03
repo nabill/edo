@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.MapperContracts.Internal.Mappings;
 using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping

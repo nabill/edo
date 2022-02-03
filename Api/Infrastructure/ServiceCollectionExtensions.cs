@@ -105,10 +105,10 @@ using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.CreditCards.Models;
 using HappyTravel.Edo.CreditCards.Options;
 using HappyTravel.Edo.CreditCards.Services;
+using HappyTravel.SupplierOptionsProvider;
 using HappyTravel.VccServiceClient.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Primitives;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
@@ -202,6 +202,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     Scope = clientOptions["odawaraUsersEditScope"]
                 });
                 
+                options.Client.Clients.Add(HttpClientNames.SupplierOptionsProviderIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["supplierOptionsProviderScope"]
+                });
+                
                 options.Client.Clients.Add(HttpClientNames.CurrencyServiceIdentity, new ClientCredentialsTokenRequest
                 {
                     Address = identityUri,
@@ -235,6 +243,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
+
+            services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.SupplierOptionsProviderIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(authorityUrl);
+            }); 
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
             {
@@ -348,9 +361,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, 16);
             
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
-
+            
             services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
-
+            
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
@@ -642,8 +655,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
 
-            var isUseMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
-            if (isUseMongoDbStorage)
+            var useMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
+            if (useMongoDbStorage)
             {
                 services.AddMongoDbStorage(environment, configuration, vaultClient);
                 services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
@@ -749,6 +762,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
+            
+            var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
+            services.AddSupplierOptionsProvider(options =>
+            {
+                options.HttpClientName = HttpClientNames.SupplierOptionsProvider;
+                options.Endpoint = endpoint;
+                options.StorageTimeout = TimeSpan.FromSeconds(60);
+                options.UpdaterInterval = TimeSpan.FromSeconds(60);
+            });
 
             services.AddCreditCardProvider(configuration, vaultClient);
 
