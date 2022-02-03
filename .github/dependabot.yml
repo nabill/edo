@@ -18,6 +18,11 @@ updates:
     registries:
     - nuget-github
     - nuget-org
+    open-pull-requests-limit: 10
     assignees:
     - "dfsko"
     - "mingazhev"
+    reviewers:
+    - "kirillta"
+    - "mingazhev"
+    - "oleg-n-k"
