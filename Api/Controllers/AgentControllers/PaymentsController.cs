@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardPaymentRequest request)
+        public async Task<IActionResult> PayWithNewCreditCard([FromBody] CreditCardPaymentRequest request)
         {
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,

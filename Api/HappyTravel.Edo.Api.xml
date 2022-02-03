@@ -1599,7 +1599,7 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
@@ -3609,6 +3609,21 @@
                 Reason for payment.
             </summary>
         </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest">
+            <summary>
+                Payment request
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest.Token">
+            <summary>
+                Payment token
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest.ReferenceCode">
+            <summary>
+                Service reference code
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.ClientSettings.Currencies">
             <summary>
                 Available currencies.
@@ -3702,21 +3717,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.PaymentProcessor">
             <summary>
             Payment processor to use for payment link. Default will be used if not set
-            </summary>
-        </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">
-            <summary>
-                Payment request
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.Token">
-            <summary>
-                Payment token
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.ReferenceCode">
-            <summary>
-                Service reference code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Amount">

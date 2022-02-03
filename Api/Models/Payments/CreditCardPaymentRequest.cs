@@ -6,10 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// <summary>
     ///     Payment request
     /// </summary>
-    public readonly struct NewCreditCardPaymentRequest
+    public readonly struct CreditCardPaymentRequest
     {
         [JsonConstructor]
-        public NewCreditCardPaymentRequest(string token,
+        public CreditCardPaymentRequest(string token,
             string referenceCode)
         {
             Token = token;

@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using CreditCardPaymentRequest = HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
@@ -45,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
         
         
-        public async Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
+        public async Task<Result<PaymentResponse>> Authorize(CreditCardPaymentRequest request, 
             string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
         {
             _logger.LogCreditCardAuthorizationStarted(request.ReferenceCode);
@@ -124,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private async Task<CreditCardPaymentRequest> CreatePaymentRequest(MoneyAmount moneyAmount,
+        private async Task<Models.Payments.Payfort.CreditCardPaymentRequest> CreatePaymentRequest(MoneyAmount moneyAmount,
             PaymentTokenInfo paymentToken,
             string ipAddress,
             string referenceCode,
@@ -132,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             AgentContext agent,
             string securityCode = default)
         {
-            return new CreditCardPaymentRequest(currency: moneyAmount.Currency,
+            return new Models.Payments.Payfort.CreditCardPaymentRequest(currency: moneyAmount.Currency,
                 amount: moneyAmount.Amount,
                 token: paymentToken,
                 customerName: $"{agent.FirstName} {agent.LastName}",
