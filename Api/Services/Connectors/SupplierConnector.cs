@@ -7,20 +7,25 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Prometheus;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnector : ISupplierConnector
     {
-        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
+        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, 
+            string gRpcEndpoint, ClientTypes clientType, ILogger<SupplierConnector> logger)
         {
             _supplierName = supplierName;
             _connectorClient = connectorClient;
             _baseUrl = baseUrl;
+            _gRpcEndpoint = gRpcEndpoint;
+            _clientType = clientType;
             _logger = logger;
         }
         
@@ -132,6 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         private readonly string _supplierName;
         private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
+        private readonly string _gRpcEndpoint;
+        private readonly ClientTypes _clientType;
         private readonly ILogger<SupplierConnector> _logger;
     }
 }
