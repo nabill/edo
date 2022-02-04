@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns> Array of all permission names </returns>
         [HttpGet("permissions")]
-        [ProducesResponseType(typeof(IEnumerable<AdministratorPermissions>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AdministratorPermissions>), (int) HttpStatusCode.OK)]
         public IActionResult GetAllPermissionsList() => Ok(Enum.GetValues<AdministratorPermissions>().ToList());
 
 
