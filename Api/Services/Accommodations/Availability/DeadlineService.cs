@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -10,7 +9,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -51,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Supplier: r.Supplier, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (SupplierId: r.SupplierId, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
@@ -62,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find RoomContractSetId for selected room set");
 
                 var checkInDate = selectedResult.Select(s => s.Result.CheckInDate).FirstOrDefault();
-                return await MakeSupplierRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
+                return await MakeSupplierRequest(selectedRoomSet.SupplierId, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
                     .Bind(deadline => ProcessDeadline(deadline, checkInDate, agent));
             }
 
@@ -70,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
                 var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
-                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierKey, a)))
+                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierId, a)))
                     .Where(r => r.a.HtId == htId)
                     .ToList();
                 
@@ -87,8 +85,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(Suppliers supplier, Guid roomSetId, string availabilityId)
-                => _supplierConnectorManager.Get(supplier).GetDeadline(availabilityId, roomSetId, languageCode);
+            Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(int supplierId, Guid roomSetId, string availabilityId)
+                => _supplierConnectorManager.Get(supplierId).GetDeadline(availabilityId, roomSetId, languageCode);
         }
         
         

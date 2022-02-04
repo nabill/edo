@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -60,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 ? agencySettings.Value
                 : null;
 
-            List<Suppliers> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? _supplierOptions.EnabledSuppliers;
+            List<int> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? _supplierOptions.EnabledSuppliers;
             AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                 DefaultPassedDeadlineOffersMode;
