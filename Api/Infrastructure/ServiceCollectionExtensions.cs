@@ -217,6 +217,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                     Scope = clientOptions["currencyServiceScope"]
                 });
+                
+                options.Client.Clients.Add(HttpClientNames.ConnectorsIdentity, new ClientCredentialsTokenRequest
+                {
+                    Address = identityUri,
+                    ClientId = clientId,
+                    ClientSecret = clientSecret,
+                    Scope = clientOptions["connectorsScope"]
+                });
             });
             
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
@@ -269,6 +277,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
+
+            services.AddHttpClient(HttpClientNames.ConnectorsGrpc)
+                .AddClientAccessTokenHandler(HttpClientNames.ConnectorsIdentity);
 
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
             {

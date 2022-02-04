@@ -1,21 +1,28 @@
 using System;
+using System.Collections.Concurrent;
+using System.Net.Http;
+using Grpc.Net.Client;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
+using HappyTravel.EdoContracts.Grpc.Services;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ProtoBuf.Grpc.Client;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnectorManager : ISupplierConnectorManager
     {
-        public SupplierConnectorManager(IServiceProvider serviceProvider, ISupplierOptionsStorage supplierStorage, IOptionsMonitor<SupplierConnectorOptions> supplierConnectorOptions)
+        public SupplierConnectorManager(IServiceProvider serviceProvider, ISupplierOptionsStorage supplierStorage, IOptionsMonitor<SupplierConnectorOptions> supplierConnectorOptions, IHttpClientFactory httpClientFactory)
         {
             _serviceProvider = serviceProvider;
             _supplierStorage = supplierStorage;
             _supplierConnectorOptions = supplierConnectorOptions;
+            _httpClientFactory = httpClientFactory;
         }
 
         
@@ -46,12 +53,41 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private ISupplierConnector GetGrpcConnector(int key)
         {
-            return new GrpcSupplierConnector();
+            var supplier = _supplierStorage.GetById(key);
+            var client = GetGrpcClient(supplier);
+            var logger = _serviceProvider.GetRequiredService<ILogger<GrpcSupplierConnector>>();
+            
+            return new GrpcSupplierConnector(supplierName: supplier.Name,
+                connectorClient: client,
+                logger: logger);
         }
 
-        
+
+        private IGrpcConnectorService GetGrpcClient(Supplier supplier)
+        {
+            if (string.IsNullOrEmpty(supplier.ConnectorGrpcEndpoint))
+                throw new Exception($"Supplier {supplier.Name} gRPC endpoint is null or empty");
+
+            if (_grcClients.TryGetValue(supplier.Id, out var client))
+                return client;
+
+            var channel = GrpcChannel.ForAddress("http://localhost:5201", new GrpcChannelOptions
+            {
+                HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc)
+            });
+            client = channel.CreateGrpcService<IGrpcConnectorService>();
+            _grcClients.AddOrUpdate(supplier.Id, client, (_, _) => client);
+            
+            return client;
+        }
+
+
+        private readonly ConcurrentDictionary<int, IGrpcConnectorService> _grcClients = new();
+
+
         private readonly IServiceProvider _serviceProvider;
         private readonly ISupplierOptionsStorage _supplierStorage;
         private readonly IOptionsMonitor<SupplierConnectorOptions> _supplierConnectorOptions;
+        private readonly IHttpClientFactory _httpClientFactory;
     }
 }
