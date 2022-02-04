@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns> Array of all notification types</returns>
         [HttpGet("notification-types")]
-        [ProducesResponseType(typeof(IEnumerable<NotificationTypes>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<NotificationTypes>), StatusCodes.Status200OK)]
         public IActionResult GetAllNotificationTypes() => Ok(Enum.GetValues<NotificationTypes>().ToList());
         
         
