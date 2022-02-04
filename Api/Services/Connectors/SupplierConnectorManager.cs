@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             if (_grcClients.TryGetValue(supplier.Id, out var client))
                 return client;
 
-            var channel = GrpcChannel.ForAddress("http://localhost:5201", new GrpcChannelOptions
+            var channel = GrpcChannel.ForAddress(supplier.ConnectorGrpcEndpoint, new GrpcChannelOptions
             {
                 HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc)
             });
