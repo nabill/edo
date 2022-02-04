@@ -16,8 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnector : ISupplierConnector
     {
-        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl,
-            ILogger<SupplierConnector> logger)
+        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
         {
             _supplierName = supplierName;
             _connectorClient = connectorClient;
