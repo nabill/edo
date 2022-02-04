@@ -362,8 +362,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
             
-            services.Configure<SupplierOptions>(configuration.GetSection("Suppliers"));
-            
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
