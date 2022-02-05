@@ -6,10 +6,9 @@
       "dotnetRunMessages": "true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Local",
-        "METRICS_HOST": "localhost:60000",
-        "HEALTH_CHECK_HOST": "localhost:60000",
-        "API_HOST": "*:5005",
-        "ASPNETCORE_URLS": "http://localhost:60000;http://+:5005"
+        "HTDC_WEBAPI_PORT": "5005",
+        "HTDC_HEALTH_PORT": "60000",
+        "HTDC_METRICS_PORT": "60001"
       }
     }
   }
