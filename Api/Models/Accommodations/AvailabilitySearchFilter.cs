@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 using AccommodationRatings = HappyTravel.MapperContracts.Public.Accommodations.Enums.AccommodationRatings;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -14,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         decimal? MaxPrice,
         List<BoardBasisTypes>? BoardBasisTypes,
         List<AccommodationRatings>? Ratings,
-        List<Suppliers>? Suppliers,
+        List<int>? Suppliers,
         string? Order,
         string? Direction = "asc");
 }

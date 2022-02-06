@@ -1333,17 +1333,6 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Get">
-            <summary>
-                Returns cards, available for current agent/agency
-            </summary>
-            <returns>List of cards.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Delete(System.Int32)">
-            <summary>
-                Deletes credit card
-            </summary>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.CalculateSignature(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Calculates signature from json model
@@ -1610,13 +1599,7 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest)">
-            <summary>
-                Pays by payfort token
-            </summary>
-            <param name="request">Payment request</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
@@ -1703,12 +1686,6 @@
             1. EDO has invalid token that is expired or belongs to old instance of Identity server (Identity and connectors were restarted but EDO did not)
             2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Infrastructure.TokenRetrieval.FromAuthorizationHeaderOrQueryString">
-            <summary>
-            Reads the token from the authorization header and from query string for SignalR hubs.
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>
@@ -2326,7 +2303,7 @@
             Check out date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.SupplierId">
             <summary>
             Temporarily added data supplier for filtering and testing purposes. 
             </summary>
@@ -3632,69 +3609,19 @@
                 Reason for payment.
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest">
             <summary>
-                Saved credit card info
+                Payment request
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest.Token">
             <summary>
-                Card identifier
+                Payment token
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Number">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardPaymentRequest.ReferenceCode">
             <summary>
-                Masked card number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.ExpirationDate">
-            <summary>
-                Expiration Date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.HolderName">
-            <summary>
-                Card holder name
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.OwnerType">
-            <summary>
-                Card owner type
-            </summary>
-        </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest">
-            <summary>
-                Request to save credit card token to database
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.Number">
-            <summary>
-                Masked card number
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.ExpirationDate">
-            <summary>
-                Expiration date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.HolderName">
-            <summary>
-                Card holder name
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.Token">
-            <summary>
-                Card token
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.ReferenceCode">
-            <summary>
-                Reference code that was used while tokenization process
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.OwnerType">
-            <summary>
-                Card owner type
+                Service reference code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.ClientSettings.Currencies">
@@ -3790,31 +3717,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.PaymentProcessor">
             <summary>
             Payment processor to use for payment link. Default will be used if not set
-            </summary>
-        </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">
-            <summary>
-                Payment request
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.Token">
-            <summary>
-                Payment token
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.ReferenceCode">
-            <summary>
-                Service reference code
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.CardInfo">
-            <summary>
-                Credit card information
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.IsSaveCardNeeded">
-            <summary>
-                Flag, indicating that save card is needed, TRUE if card should be saved
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Amount">
@@ -3940,21 +3842,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentTokenInfo.Type">
             <summary>
                 Payment token type
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.CardId">
-            <summary>
-                Id of existing saved credit card
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.ReferenceCode">
-            <summary>
-                Service reference code
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.SecurityCode">
-            <summary>
-                Card security code
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings">

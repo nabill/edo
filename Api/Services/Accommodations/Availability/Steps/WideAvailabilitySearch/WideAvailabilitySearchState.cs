@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -42,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public string Error { get; }
 
 
-        public static WideAvailabilitySearchState FromSupplierStates(Guid searchId, IEnumerable<(Suppliers, SupplierAvailabilitySearchState)> searchStates)
+        public static WideAvailabilitySearchState FromSupplierStates(Guid searchId, IEnumerable<(int, SupplierAvailabilitySearchState)> searchStates)
         {
             var statesDictionary = searchStates
                 .ToDictionary(s => s.Item1, s => s.Item2);
@@ -54,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return new WideAvailabilitySearchState(searchId, overallState, totalResultsCount, errors);
 
 
-            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<Suppliers, SupplierAvailabilitySearchState> supplierSearchStates)
+            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<int, SupplierAvailabilitySearchState> supplierSearchStates)
             {
                 var searchStates = supplierSearchStates
                     .Select(r => r.Value.TaskState)
@@ -73,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            static string GetErrors(Dictionary<Suppliers, SupplierAvailabilitySearchState> states)
+            static string GetErrors(Dictionary<int, SupplierAvailabilitySearchState> states)
             {
                 var errors = states
                     .Select(p => p.Value.Error)
@@ -84,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            static int GetResultsCount(Dictionary<Suppliers, SupplierAvailabilitySearchState> states)
+            static int GetResultsCount(Dictionary<int, SupplierAvailabilitySearchState> states)
             {
                 var totalCount = states.Sum(s => s.Value.ResultCount);
                 var duplicates = 0;

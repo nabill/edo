@@ -12,7 +12,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -76,7 +75,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _creditCardProvider = new Mock<ICreditCardProvider>();
 
             _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<Suppliers>()))
+                .Setup(x => x.Get(It.IsAny<int>()))
                 .Returns(_supplierConnectorMock.Object);
             
             var request = Utility.CreateAccommodationBookingRequest();

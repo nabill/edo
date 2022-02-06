@@ -6,11 +6,18 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class FinalizedBookingsReportDataConverter : IConverter<FinalizedBookingsReportData, FinalizedBookingsReportRow>
     {
+        public FinalizedBookingsReportDataConverter(ISupplierOptionsStorage supplierOptionsStorage)
+        {
+            _supplierOptionsStorage = supplierOptionsStorage;
+        }
+        
+        
         public FinalizedBookingsReportRow Convert(FinalizedBookingsReportData data)
             => new()
             {
@@ -30,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.SupplierConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.SupplierPrice), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.SupplierPrice), 2),
-                Supplier = EnumFormatters.FromDescription(data.Supplier),
+                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name,
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",
                 PayableByAgent = GetPayableByAgent(data),
                 PayableByAgentCurrency = data.AgentCurrency,
@@ -86,5 +93,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
             
             return data.SupplierPrice * multiplier;
         }
+
+
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

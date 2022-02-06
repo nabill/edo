@@ -4,26 +4,24 @@ using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.SupplierResponses
 {
     public class NetstormingResponseService
     {
         public NetstormingResponseService(IConnectorClient connectorClient,
+            ISupplierOptionsStorage supplierOptionsStorage,
             IBookingResponseProcessor responseProcessor,
-            IOptions<SupplierOptions> supplierOptions,
             ILogger<NetstormingResponseService> logger)
         {
             _connectorClient = connectorClient;
-            _supplierOptions = supplierOptions.Value;
+            _supplierOptionsStorage = supplierOptionsStorage;
             _responseProcessor = responseProcessor;
             _logger = logger;
         }
@@ -38,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
                 return Result.Failure(bookingDetailsError);
             }
 
-            await _responseProcessor.ProcessResponse(bookingDetails, ApiCaller.FromSupplier(Suppliers.Netstorming), Common.Enums.BookingChangeEvents.SupplierWebHook);
+            await _responseProcessor.ProcessResponse(bookingDetails, ApiCaller.FromSupplier(NetstormingId), Common.Enums.BookingChangeEvents.SupplierWebHook);
 
             return Result.Success();
         }
@@ -47,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
         private async Task<Result<Booking>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
             var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
-                new Uri($"{_supplierOptions.Endpoints[Suppliers.Netstorming]}" + "bookings/response"))
+                new Uri($"{_supplierOptionsStorage.GetById(NetstormingId).ConnectorUrl}" + "bookings/response"))
             {
                 Content = new ByteArrayContent(xmlData)
             });
@@ -58,10 +56,11 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
                 : Result.Success(bookingDetails);
         }
         
+        private const int NetstormingId = 1;
 
         private readonly IConnectorClient _connectorClient;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly SupplierOptions _supplierOptions;
         private readonly ILogger<NetstormingResponseService> _logger;
     }
 }

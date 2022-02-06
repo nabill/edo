@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IMultiProviderAvailabilityStorage
     {
-        Task<(Suppliers Supplier, TObject Result)[]> Get<TObject>(string keyPrefix, List<Suppliers> suppliers, bool isCachingEnabled = false);
+        Task<(int SupplierId, TObject Result)[]> Get<TObject>(string keyPrefix, List<int> suppliers, bool isCachingEnabled = false);
 
-        Task Save<TObjectType>(string keyPrefix, TObjectType @object, Suppliers supplier);
+        Task Save<TObjectType>(string keyPrefix, TObjectType @object, int supplierId);
     }
 }

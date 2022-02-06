@@ -4,11 +4,18 @@ using System.Text.Json;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Reports.Converters
 {
     public class FullBookingsReportDataConverter : IConverter<FullBookingsReportData, FullBookingsReportRow>
     {
+        public FullBookingsReportDataConverter(ISupplierOptionsStorage supplierOptionsStorage)
+        {
+            _supplierOptionsStorage = supplierOptionsStorage;
+        }
+        
+        
         public FullBookingsReportRow Convert(FullBookingsReportData data) 
             => new()
             {
@@ -35,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.ConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
-                Supplier = EnumFormatters.FromDescription(data.Supplier),
+                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name,
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
             };
 
@@ -46,5 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 .GetProperty(property)
                 .GetString();
         }
+
+
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

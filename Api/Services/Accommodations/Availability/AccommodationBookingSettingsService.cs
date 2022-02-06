@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.SuppliersCatalog;
-using Microsoft.Extensions.Options;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -22,13 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
-            IOptions<SupplierOptions> supplierOptions)
+            ISupplierOptionsStorage supplierOptionsStorage
+            )
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
-            _supplierOptions = supplierOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
             _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -60,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 ? agencySettings.Value
                 : null;
 
-            List<Suppliers> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? _supplierOptions.EnabledSuppliers;
+            List<int> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
             AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                 DefaultPassedDeadlineOffersMode;
@@ -90,6 +89,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
+        private List<int> GetEnabledConnectors() 
+            => _supplierOptionsStorage.GetAll()
+                .Where(s => s.IsEnabled)
+                .Select(x => x.Id)
+                .ToList();
+
+
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
 
         private const AprMode DefaultAprMode = AprMode.DisplayOnly;
@@ -97,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IDoubleFlow _doubleFlow;
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
-        private readonly SupplierOptions _supplierOptions;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;

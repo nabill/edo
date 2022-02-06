@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Settings
 {
@@ -20,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Settings
         /// <summary>
         /// When searching, only results from this suppliers will be seen to the user
         /// </summary>
-        public Dictionary<Suppliers, bool> EnabledSuppliers { get; init; }
+        public Dictionary<int, bool> EnabledSuppliers { get; init; }
 
         /// <summary>
         /// The user will see suppliers in search UI if this setting is set to true

@@ -1379,41 +1379,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("AgencyAccounts");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ExpirationDate")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("HolderName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MaskedNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OwnerType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CreditCards");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCardAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")

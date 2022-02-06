@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models.Static;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -20,7 +21,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
     public class AccommodationService
     {
         public AccommodationService(IHttpClientFactory httpClientFactory, IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            IAgentContextService agentContextService)
+            IAgentContextService agentContextService, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _httpClientFactory = httpClientFactory;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -33,7 +34,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var suppliers = searchSettings.EnabledConnectors
-                .Select(System.Enum.GetName)
+                .Select(GetSupplierName)
                 .ToArray();
 
             var query = new List<KeyValuePair<string, StringValues>>
@@ -55,6 +56,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
                 return Result.Failure<List<Accommodation>>(error);
             
             return accommodations?.ToDirectApiModels() ?? Result.Failure<List<Accommodation>>("Failed to get accommodations");
+
+
+            string GetSupplierName(int supplierId) 
+                => _supplierOptionsStorage.GetById(supplierId).Name;
         }
 
 
@@ -114,5 +119,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IAgentContextService _agentContextService;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

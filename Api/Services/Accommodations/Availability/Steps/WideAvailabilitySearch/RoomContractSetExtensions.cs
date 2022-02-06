@@ -11,7 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             rs.Rooms,
             rs.IsAdvancePurchaseRate,
             isSupplierVisible
-                ? (int) rs.Supplier
+                ? rs.Supplier
+                : null,
+            isSupplierVisible
+                ? rs.SupplierId
                 : null,
             rs.Tags,
             isDirectContract: isDirectContractsVisible && rs.IsDirectContract,
