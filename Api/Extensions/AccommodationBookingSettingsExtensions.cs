@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -38,7 +37,7 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToEnumList(),
+                EnabledSuppliers = settings.EnabledSuppliers.ToList(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 CustomDeadlineShift = settings.CustomDeadlineShift
@@ -50,21 +49,21 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToEnumList(),
+                EnabledSuppliers = settings.EnabledSuppliers.ToList(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 AdditionalSearchFilters = settings.AdditionalSearchFilters
             };
         
 
-        public static Dictionary<Suppliers, bool> ToBoolDictionary(this List<Suppliers> suppliers)
+        public static Dictionary<int, bool> ToBoolDictionary(this List<int> suppliers)
         {
             if (suppliers == null)
                 return null;
 
-            var suppliersMap = new Dictionary<Suppliers, bool>();
+            var suppliersMap = new Dictionary<int, bool>();
 
-            foreach (var possibleSupplier in Enum.GetValues<Suppliers>().Except(SuppliersToHide))
+            foreach (var possibleSupplier in suppliers.Except(SuppliersToHide))
                 suppliersMap[possibleSupplier] = false;
 
             foreach (var actualSupplier in suppliers)
@@ -74,13 +73,13 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
-        private static List<Suppliers> ToEnumList(this Dictionary<Suppliers, bool> suppliersMap)
+        private static List<int> ToList(this Dictionary<int, bool> suppliersMap)
             => suppliersMap?
                 .Where(p => p.Value)
                 .Select(p => p.Key)
                 .ToList();
 
 
-        private static readonly List<Suppliers> SuppliersToHide = new List<Suppliers>() {Suppliers.Unknown};
+        private static readonly List<int> SuppliersToHide = new() {0};
     }
 }

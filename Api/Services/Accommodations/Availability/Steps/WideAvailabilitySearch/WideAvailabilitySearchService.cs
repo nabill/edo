@@ -13,8 +13,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Analytics;
-using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -98,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
+        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<int, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
@@ -113,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            void StartSearchTask(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
+            void StartSearchTask(int supplierId, List<SupplierCodeMapping> supplierCodeMappings)
             {
                 Task.Run(async () =>
                 {
@@ -121,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     
                     await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
+                        .Start(searchId, request, supplierCodeMappings, supplierId, agent, languageCode, searchSettings);
                 });
             }
         }

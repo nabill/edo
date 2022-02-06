@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
 {
@@ -13,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string InvoiceNumber { get; init; }
         public BookingStatuses BookingStatus { get; init; }
         public string AccommodationName { get; init; }
-        public Suppliers Supplier { get; init; }
+        public int SupplierId { get; init; }
         public string ConfirmationNumber { get; init; }
         public string AgencyName { get; init; }
         public string GuestName { get; init; }

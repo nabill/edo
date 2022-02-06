@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -9,14 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public WideAvailabilityResult(SlimAccommodation accommodation, List<RoomContractSet> roomContractSets, decimal minPrice,
-            decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, Suppliers? supplier, string htId)
+            decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, int? supplierId, string htId)
         {
             Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            Supplier = supplier;
+            SupplierId = supplierId;
             HtId = htId;
             RoomContractSets = roomContractSets ?? new List<RoomContractSet>();
         }
@@ -24,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
             : this(result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.CheckInDate,
-                result.CheckOutDate, result.Supplier, result.HtId)
+                result.CheckOutDate, result.SupplierId, result.HtId)
         { }
         
         /// <summary>
@@ -56,7 +55,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Temporarily added data supplier for filtering and testing purposes. 
         /// </summary>
-        public Suppliers? Supplier { get; }
+        public int? SupplierId { get; }
+        
 
         /// <summary>
         /// HT id

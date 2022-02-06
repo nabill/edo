@@ -4,8 +4,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Http;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/accommodations/responses/etg")]
         public async Task<IActionResult> HandleEtgBookingResponse()
         {
-            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.Etg);
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, EtgId);
             return Ok(isFailure ? error : "ok");
         }
 
@@ -67,9 +65,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/accommodations/responses/direct-contracts")]
         public async Task<IActionResult> HandleDirectContractsBookingResponse()
         {
-            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.DirectContracts);
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, DirectContractsId);
             return Ok(isFailure ? error : "ok");
         }
+
+
+        private const int EtgId = 4;
+        private const int DirectContractsId = 3;
         
         
         private readonly WebhookResponseService _bookingWebhookResponseService;

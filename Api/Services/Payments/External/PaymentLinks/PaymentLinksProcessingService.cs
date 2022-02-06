@@ -14,6 +14,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using CreditCardPaymentRequest = HappyTravel.Edo.Api.Models.Payments.Payfort.CreditCardPaymentRequest;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
@@ -15,14 +14,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public Task SaveResult(Guid searchId, string htId, SingleAccommodationAvailability details, Suppliers supplier)
+        public Task SaveResult(Guid searchId, string htId, SingleAccommodationAvailability details, int supplierId)
         {
             var keyPrefix = BuildKeyPrefix(searchId, htId);
-            return _storage.Save(keyPrefix, details, supplier);
+            return _storage.Save(keyPrefix, details, supplierId);
         }
 
 
-        public async Task<List<(Suppliers Supplier, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, string htId, List<Suppliers> suppliers)
+        public async Task<List<(int SupplierId, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, string htId, List<int> suppliers)
         {
             var keyPrefix = BuildKeyPrefix(searchId, htId);
             return (await _storage.Get<SingleAccommodationAvailability>(keyPrefix, suppliers))

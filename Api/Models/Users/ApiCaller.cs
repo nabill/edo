@@ -1,5 +1,4 @@
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Models.Users
 {
@@ -18,7 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Users
         public static ApiCaller InternalServiceAccount 
             => new(0, ApiCallerTypes.InternalServiceAccount);
         
-        public static ApiCaller FromSupplier(Suppliers supplier) 
-            => new((int) supplier, ApiCallerTypes.Supplier);
+        public static ApiCaller FromSupplier(int supplierId) 
+            => new(supplierId, ApiCallerTypes.Supplier);
     }
 }

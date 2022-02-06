@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SuppliersCatalog;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -10,14 +9,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public RoomContractSet(Guid id, in Rate rate, Deadline deadline, List<RoomContract> rooms,
-            bool isAdvancePurchaseRate, int? supplier, List<string> tags, bool isDirectContract, bool isPackageRate)
+            bool isAdvancePurchaseRate, string? supplier, int? supplierId, List<string> tags, bool isDirectContract, bool isPackageRate)
         {
             Id = id;
             Rate = rate;
             Deadline = deadline;
             Rooms = rooms ?? new List<RoomContract>(0);
             IsAdvancePurchaseRate = isAdvancePurchaseRate;
-            Supplier = (Suppliers?) supplier;
+            Supplier = supplier;
+            SupplierId = supplierId;
             Tags = tags;
             IsDirectContract = isDirectContract;
             IsPackageRate = isPackageRate;
@@ -51,7 +51,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Supplier
         /// </summary>
-        public Suppliers? Supplier { get; init; }
+        public string? Supplier { get; init; }
+        
+        
+        public int? SupplierId { get; init; }
         
         /// <summary>
         /// System tags returned by connector, e.g. "DirectConnectivity"
