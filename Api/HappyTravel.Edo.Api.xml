@@ -104,6 +104,12 @@
             </summary>
             <param name="roleId">Id of the role to delete</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAllNotificationTypes">
+            <summary>
+                Gets all possible notification types
+            </summary>
+            <returns> Array of all notification types</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetCurrent">
             <summary>
                 Gets current administrator information
