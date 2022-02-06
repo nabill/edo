@@ -35,6 +35,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AdministratorRoleInfo>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
             => Ok(await _administratorRolesManagementService.GetAll());
+        
+        
+        /// <summary>
+        ///     Gets all possible administrator permissions
+        /// </summary>
+        /// <returns> Array of all permission names </returns>
+        [HttpGet("permissions")]
+        [ProducesResponseType(typeof(List<AdministratorPermissions>), StatusCodes.Status200OK)]
+        public IActionResult GetAllPermissionsList() => Ok(Enum.GetValues<AdministratorPermissions>().ToList());
 
 
         /// <summary>

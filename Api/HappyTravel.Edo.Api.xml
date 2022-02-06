@@ -79,6 +79,12 @@
                 Gets all possible administrator roles
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAllPermissionsList">
+            <summary>
+                Gets all possible administrator permissions
+            </summary>
+            <returns> Array of all permission names </returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo)">
             <summary>
                 Adds a new administrator role
