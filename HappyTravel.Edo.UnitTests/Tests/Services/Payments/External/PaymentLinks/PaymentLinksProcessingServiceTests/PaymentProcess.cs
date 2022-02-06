@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Xunit;
+using CreditCardPaymentRequest = HappyTravel.Edo.Api.Models.Payments.Payfort.CreditCardPaymentRequest;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLinks.PaymentLinksProcessingServiceTests
 {

@@ -6,21 +6,23 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.SuppliersCatalog;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
     public class RedisWideAvailabilityStorage : IWideAvailabilityStorage
     {
-        public RedisWideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage, IDateTimeProvider dateTimeProvider, IWideAvailabilityAccommodationsStorage accommodationsStorage)
+        public RedisWideAvailabilityStorage(IMultiProviderAvailabilityStorage multiProviderAvailabilityStorage, IDateTimeProvider dateTimeProvider, 
+            IWideAvailabilityAccommodationsStorage accommodationsStorage, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _multiProviderAvailabilityStorage = multiProviderAvailabilityStorage;
             _dateTimeProvider = dateTimeProvider;
             _accommodationsStorage = accommodationsStorage;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
-        public async Task<List<(Suppliers SupplierKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> suppliers)
+        public async Task<List<(int SupplierId, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<int> suppliers)
         {
             return  (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
                 .Where(t => t.Result != default)
@@ -28,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode)
+        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<int> suppliers, string languageCode)
         {
             var results = await GetResults(searchId, suppliers);
             var availabilities = results.SelectMany(r => r.AccommodationAvailabilities)
@@ -59,8 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         maxPrice: a.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount),
                         checkInDate: a.CheckInDate,
                         checkOutDate: a.CheckOutDate,
-                        supplier: searchSettings.IsSupplierVisible
-                            ? a.Supplier
+                        supplierId: searchSettings.IsSupplierVisible
+                            ? a.SupplierId
                             : null,
                         htId: a.HtId);
                 })
@@ -70,14 +72,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results)
+        public Task SaveResults(Guid searchId, int supplierId, List<AccommodationAvailabilityResult> results)
         {
-            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplier);
+            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplierId);
         }
         
         
         private readonly IMultiProviderAvailabilityStorage _multiProviderAvailabilityStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

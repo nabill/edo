@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
-using HappyTravel.SuppliersCatalog;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -23,23 +22,23 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
 
 
         // TODO: method added for compability with 2nd and 3rd steps. Need to refactor them for using filters instead of loading whole search results
-        public async Task<List<(Suppliers SupplierKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> suppliers)
+        public async Task<List<(int SupplierId, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<int> suppliers)
         {
             var entities = await _availabilityStorage.Collection()
-                .Where(r => r.SearchId == searchId && suppliers.Contains(r.Supplier))
+                .Where(r => r.SearchId == searchId && suppliers.Contains(r.SupplierId))
                 .ToListAsync();
 
             return entities
-                .GroupBy(r => r.Supplier)
+                .GroupBy(r => r.SupplierId)
                 .Select(g => (g.Key, g.ToList()))
                 .ToList();
         }
 
 
-        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<Suppliers> suppliers, string languageCode)
+        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<int> suppliers, string languageCode)
         {
             var rows = await _availabilityStorage.Collection()
-                .Where(r => r.SearchId == searchId && suppliers.Contains(r.Supplier))
+                .Where(r => r.SearchId == searchId && suppliers.Contains(r.SupplierId))
                 .Select(r => new {r.Id, r.HtId, r.Created})
                 .ToListAsync();
             
@@ -64,7 +63,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         }
 
 
-        public Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results)
+        public Task SaveResults(Guid searchId, int supplierId, List<AccommodationAvailabilityResult> results)
             => results.Any()
                 ? _availabilityStorage.Add(results)
                 : Task.CompletedTask;

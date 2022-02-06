@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: roomSetAvailability.CheckInDate,
                 checkOutDate: roomSetAvailability.CheckOutDate,
                 numberOfNights: roomSetAvailability.NumberOfNights,
-                supplier: (int) availability.Data.RoomContractSet.Supplier,
+                supplierId: availability.Data.RoomContractSet.SupplierId.Value,
                 appliedMarkups: availability.AppliedMarkups,
                 convertedSupplierPrice: availability.ConvertedSupplierPrice,
                 originalSupplierPrice: availability.OriginalSupplierPrice,

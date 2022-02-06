@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
@@ -26,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 return Result.Failure<SearchArea>("Could not find requested search locations");
 
             var locations = new List<Location>();
-            var codes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
+            var codes = new Dictionary<int, List<SupplierCodeMapping>>();
             
             foreach (var mapping in mappings)
             {
@@ -43,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             };
 
 
-            static void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<Suppliers, List<SupplierCodeMapping>> dictionary, Location location)
+            static void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<int, List<SupplierCodeMapping>> dictionary, Location location)
             {
                 foreach (var supplierCode in accommodationMapping.SupplierCodes)
                 {
@@ -55,12 +54,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                         LocalityHtId = location.LocalityHtId 
                     };
 
-                    var supplier = (Suppliers) supplierCode.Key;
+                    // TODO: Remove suppliers from mapper contracts
+                    var supplierId = (int) supplierCode.Key;
 
-                    if (dictionary.TryGetValue(supplier, out var supplierCodeMappings))
+                    if (dictionary.TryGetValue(supplierId, out var supplierCodeMappings))
                         supplierCodeMappings.Add(supplierCodeMapping);
                     else
-                        dictionary[supplier] = new List<SupplierCodeMapping> {supplierCodeMapping};
+                        dictionary[supplierId] = new List<SupplierCodeMapping> {supplierCodeMapping};
                 }
             }
         }

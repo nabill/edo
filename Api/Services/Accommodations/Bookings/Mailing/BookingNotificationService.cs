@@ -16,6 +16,7 @@ using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -24,10 +25,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             INotificationService notificationService,
             IOptions<BookingMailingOptions> options,
+            ISupplierOptionsStorage supplierOptionsStorage,
             EdoContext context)
         {
             _bookingRecordManager = bookingRecordManager;
             _notificationService = notificationService;
+            _supplierOptionsStorage = supplierOptionsStorage;
             _options = options.Value;
             _context = context;
         }
@@ -181,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
+        private BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)
         {
             return new BookingNotificationData
             {
@@ -224,15 +227,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
                 Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
                 CancellationPenalty = MoneyFormatter.ToCurrencyString(bookingInfo.CancellationPenalty.Amount, bookingInfo.CancellationPenalty.Currency),
-                Supplier = bookingInfo.Supplier is null
+                Supplier = bookingInfo.SupplierId is null
                     ? string.Empty
-                    : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
+                    : _supplierOptionsStorage.GetById(bookingInfo.SupplierId.Value).Name
             };
         }
 
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly INotificationService _notificationService;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;
     }

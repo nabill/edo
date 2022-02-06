@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Bookings;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moq;
 using Xunit;
 
@@ -178,7 +179,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
 
         private RoomContractSet GetRoomContractSet(Deadline deadline, bool isApr)
-            => new RoomContractSet(default, default, deadline, default, isApr, 0, default, default, default);
+            => new RoomContractSet(default, default, deadline, default, isApr, "", 0, default, default, default);
 
 
         private AccommodationBookingSettings GetSettings(AprMode aprMode, PassedDeadlineOffersMode deadlineMode)

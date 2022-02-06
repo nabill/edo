@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
         
-        public List<SuppliersCatalog.Suppliers> EnabledSuppliers { get; set; }
+        public List<int> EnabledSuppliers { get; set; }
         
         public bool IsSupplierVisible { get; set; }
         

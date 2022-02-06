@@ -15,7 +15,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
-using HappyTravel.SuppliersCatalog;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
@@ -65,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         Status = booking.Status,
                         PaymentStatus = booking.PaymentStatus,
                         Rooms = booking.Rooms,
-                        Supplier = (int) booking.Supplier
+                        SupplierId = booking.Supplier
                     }
                 };
         }
@@ -148,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         Status = b.Status,
                         PaymentStatus = b.PaymentStatus,
                         Rooms = b.Rooms,
-                        Supplier = (int) b.Supplier,
+                        SupplierId = b.Supplier,
                         Created = b.Created
                     }
                 );
@@ -197,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 paymentStatus: booking.PaymentStatus,
                 totalPrice: new MoneyAmount(booking.TotalPrice, booking.Currency),
                 cancellationPenalty: BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()),
-                supplier: supplier,
+                supplierId: supplier,
                 agentInformation: agentInformation,
                 paymentMethod: booking.PaymentType,
                 tags: booking.Tags,
@@ -231,11 +230,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
             
             
-            static Suppliers? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
+            static int? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => (Suppliers) booking.Supplier,
-                    {IsSupplierVisible: true} => (Suppliers) booking.Supplier,
+                    null => booking.Supplier,
+                    {IsSupplierVisible: true} => booking.Supplier,
                     _ => null
                 };
             
