@@ -57,11 +57,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
         
         
-        public ClientSettings GetClientSettings() => _paymentLinkOptions.ClientSettings;
-
-        public List<Version> GetSupportedVersions() => _paymentLinkOptions.SupportedVersions;
-
-
         public Task<Result<PaymentLinkData>> Get(string code)
         {
             return _storage.Get(code)
@@ -90,7 +85,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Uri GeneratePaymentUri(PaymentLinkData link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
+        private Uri GeneratePaymentUri(PaymentLinkData link) 
+            => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
 
         private readonly ILogger<PaymentLinkService> _logger;
         private readonly PaymentLinkOptions _paymentLinkOptions;

@@ -1511,18 +1511,6 @@
             <param name="notificationSettings">Notification settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
-            <summary>
-                Gets supported desktop client versions.
-            </summary>
-            <returns>List of supported versions.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSettings">
-            <summary>
-                Gets client settings for payment links.
-            </summary>
-            <returns>Payment link settings.</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest)">
             <summary>
                 Sends payment link to specified e-mail address.
@@ -1572,7 +1560,6 @@
             <summary>
                 Refreshes payment status in NGenius
             </summary>
-            <param name="referenceCode">Booking reference code</param>
             <param name="code">Payment link code</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">
