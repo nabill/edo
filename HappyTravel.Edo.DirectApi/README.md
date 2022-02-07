@@ -35,12 +35,12 @@ Every entity above also includes details of its own, involving other data struct
 ## Authorization
 
 ### Introduction
-We use JWT tokens for authorization and API is available only for authorized clients.
+JWT tokens are used for authorization and API is available only for authorized clients.
 More info on this: [Wikipedia article](https://en.wikipedia.org/wiki/JSON_Web_Token), [rfc7519](https://datatracker.ietf.org/doc/html/rfc7519), [Token debugger](https://jwt.io/)
 
-The authorization in general consists of receiving a token by providing your credentials and then using it in your requests by attaching the token in headers.
+The authorization in general consists of receiving a token by providing client's credentials and then using it in API requests by attaching the token in headers.
 
-Note that tokens are temporary (10 minutes) and you will need to receive another once current token is outdated.
+Note that tokens are temporary (10 minutes) and it's required to renew the token once current is outdated.
 
 ### Flow
 1. Send a request with your credentials to the Identity Service.
@@ -194,7 +194,7 @@ In our system we use 2-step booking flow, containing the following steps:
 1. [Registration](/index.html#tag/Booking/paths/~1api~11.0~1bookings/post)
 2. [Finalization](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
 
-Two-step booking divides the booking process to 2 stages to allow clients to implement a safe flow.
+Booking process consists of the following two steps:
 1. **Registration** step is used to validate a booking, create a database record and prepare the system to execute a "real" booking with executing request to the final supplier. During this step a _Reference code_ is generated. It is safe to abandon such booking if the next step is not executed. If there is an error during step execution, client can be sure, that booking did not really go through.
 2. **Finalization** step is used to make a real booking in supplier's or hotel's system, based on the booking registration, made before. Due to a broad variety of inter-system communication errors possible, this request may fail, while actually the booking will succeed on the supplier or the hotel side.
 
@@ -205,7 +205,7 @@ The flowchart explaining this:
 ![image](https://user-images.githubusercontent.com/43397444/151673402-d1015f7f-cfa0-4321-b26c-1f937fd5f8ec.png)
 
 ### Booking reference codes
-Every booking in our system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
+Every booking in the system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
 _Reference code_ is unique system wide and _supplier reference code_ is unique API-client wide.
 The main identifier in our API is a client reference code, which must be provided by the client during booking request and plays an important role in booing API stability.
 
@@ -239,6 +239,44 @@ Booking price is charged from the account balance.
 There are two main cases possible:
 - For non-refundable (APR) bookings or bookings within deadline money is charged immediately. Booking fails if balance insufficient
 - For all other bookings money is charged on the deadline date. Booking is **auto cancelled** if balance is insufficient
+
+## Error handling
+Messages and status codes, returned by the API can indicate the following situations (bound to HTTP-status codes):
+- `200 OK`  - Request succeeded
+- `400 Bad request` - Bad request or validation error
+- `401 Unauthorized` - Authorization failure
+- `403 Forbidden` - Permission denied
+- `404 Not found` - Resource was not found
+- `405 Method not allowed` - Incorrect HTTP method
+- `500 Internal Server Error` - Unexpected error
+
+### Bad Request (400) errors
+In most cases _Bad Request_ error indicates the request error, caused by invalid or unacceptable request.
+Common errors are listed below:
+
+| Error                                                   | Description                                                                                                                                 |
+|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| **{Some field} must not be empty**                        | One of the mandatory request fields is not set or set by default value ("Unspecified" for enums).<br/> Need to fill the field and try again |
+| **{Some data field} must be greater than {Another date}** | Some of the date fields is filled with incorrect value. E.g. check in date is in the past.                                                  |
+| **Wrong country ISO code**                                | Provided nationality or residency ISO code has incorrect format or value                                                                    |
+| **Adults number must be greater than 0**                    | One of the requested rooms has no adults specified. It is mandatory to specify adults count in the request.                                 |
+| **Passengers don't have a leader**           | It is mandatory to have at least one passenger with "IsLeader" flag set to "TRUE" in a booking request                                      |
+
+
+
+### Unauthorized (401) and Forbidden (403) errors
+API does not return a reason why operation is _Unauthorized_, typically this is caused by the following:
+- Invalid or corrupted token format
+- Token expired
+- Token signature validation failure
+
+If the reason is unclear, token may be parsed on websites like https://jwt.io to check the validness and token data.
+
+_Forbidden_ status code indicates that client tries to make an operation, having a valid token, but not having appropriate permissions.
+Normally it should not occur, and the best way to handle is to check that used url is correct.
+
+### Not Found (404) and Method Not Allowed (405) errors
+These error codes indicate that request is incorrect, 404 means that url is incorrect, 405 means that HTTP-method is incorrect.
 
 ## Requests walkthrough
 Here are the examples of requests in such order in which they would likely be used.
