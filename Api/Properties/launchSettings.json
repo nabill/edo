@@ -3,9 +3,11 @@
     "Api": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Local"
-      },
-      "applicationUrl": "http://localhost:5000"
+        "ASPNETCORE_ENVIRONMENT": "Local",
+        "HTDC_WEBAPI_PORT": "5000",
+        "HTDC_HEALTH_PORT": "60000",
+        "HTDC_METRICS_PORT": "60001"
+      }
     }
   }
 }

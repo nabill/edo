@@ -249,11 +249,12 @@ namespace HappyTravel.Edo.Api
                 .UseAgentRequestLogging()
                 .UseEndpoints(endpoints =>
                 {
-                    endpoints.MapMetrics();
                     endpoints.MapControllers();
                     endpoints.MapHub<AgentNotificationHub>("/signalr/notifications/agents");
                     endpoints.MapHub<AdminNotificationHub>("/signalr/notifications/admins");
                     endpoints.MapHub<SearchHub>("/signalr/search");
+                    endpoints.MapMetrics().RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_METRICS_PORT")}");
+                    endpoints.MapHealthChecks("/health").RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_HEALTH_PORT")}");
                 });
         }
 
