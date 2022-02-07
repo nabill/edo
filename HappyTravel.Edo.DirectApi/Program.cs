@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net;
 using HappyTravel.ConsulKeyValueClient.ConfigurationProvider.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.StdOutLogger.Extensions;
@@ -27,6 +28,9 @@ namespace HappyTravel.Edo.DirectApi
                             options.Limits.MaxRequestBodySize = 10 * 1024; // 10kb
                             options.Limits.MaxConcurrentConnections = 500;
                             options.Limits.MaxRequestHeaderCount = 25;
+                            options.Listen(IPAddress.Any, EnvironmentVariableHelper.GetPort("HTDC_WEBAPI_PORT"));
+                            options.Listen(IPAddress.Any, EnvironmentVariableHelper.GetPort("HTDC_METRICS_PORT"));
+                            options.Listen(IPAddress.Any, EnvironmentVariableHelper.GetPort("HTDC_HEALTH_PORT"));
                         })
                         .UseSentry(options =>
                         {
