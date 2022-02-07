@@ -35,26 +35,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
-
-
-        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
-        {
-            using var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
-            var requestUri = "api/1.0/admin/accommodations/deactivate";
-            
-            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
-        }
-
         
-        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
+        
+        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string deactivationReasonDescription, CancellationToken cancellationToken)
         {
-            using var requestContent = new StringContent($@"""{nameof(DeactivationReasonDescription)}"" = ""{DeactivationReasonDescription}""", Encoding.UTF8, "application/json");
+            using var requestContent = new StringContent($@"""{nameof(deactivationReasonDescription)}"" = ""{deactivationReasonDescription}""", Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/deactivate-manually";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
         
+        
+        public async Task<Result<Unit, ProblemDetails>> ActivateAccommodationManually(string htAccommodationId, CancellationToken cancellationToken)
+        {
+            var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/activate-manually";
+            
+            return await Post(requestUri, null, cancellationToken: cancellationToken);
+        }
 
+        
         public async Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
