@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
+using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -22,5 +23,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         Task<Result<List<CountryData>, ProblemDetails>> SearchCountries(string query, string languageCode, CancellationToken cancellationToken);
         Task<Result<List<LocalityData>, ProblemDetails>> SearchLocalities(int countryId, string query, string languageCode, CancellationToken cancellationToken);
         Task<Result<Dictionary<int, string>, ProblemDetails>> GetSuppliers(CancellationToken cancellationToken);
+        Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, MultilingualAccommodationDetails accommodation, CancellationToken cancellationToken);
     }
 }

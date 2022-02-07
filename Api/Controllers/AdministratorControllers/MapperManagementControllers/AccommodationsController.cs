@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
+using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.Administrators;
@@ -134,6 +135,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
             => OkOrBadRequest(await _mapperManagementClient.GetDeactivationReasonTypes(cancellationToken));
 
         
+        /// <summary>
+        /// Adds an accommodation data corrections. Values will be applied after the mapper updater is run
+        /// </summary>
+        /// <param name="htAccommodationId"></param>
+        /// <param name="accommodation"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("{htAccommodationId}/manual-correction")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
+        public async Task<IActionResult> AddManualCorrectionData([FromRoute] string htAccommodationId, [FromBody] MultilingualAccommodationDetails accommodation, CancellationToken cancellationToken = default)
+            => NoContentOrBadRequest(await _mapperManagementClient.AddManualCorrectionData(htAccommodationId, accommodation, cancellationToken));
+
+
         private readonly IMapperManagementClient _mapperManagementClient;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
     }

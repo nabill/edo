@@ -721,6 +721,15 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddAccommodationCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
+            <summary>
+            Adds an accommodation data corrections
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="accommodation"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.LocationsController.SearchCountries(System.String,System.Threading.CancellationToken)">
             <summary>
             Searches countries by query
