@@ -126,7 +126,7 @@ steps:
       - CONSUL_HTTP_TOKEN
 
 - name: Deploy EDO to DEV
-  image: pelotech/drone-helm3:0.14.2
+  image: pelotech/drone-helm3
   settings:
     mode: upgrade
     chart: ./Helm/edo
@@ -144,7 +144,7 @@ steps:
       from_secret: KUBERNETES_DEV_TOKEN
 
 - name: Deploy DIRECT-API to DEV
-  image: pelotech/drone-helm3:0.14.2
+  image: pelotech/drone-helm3
   settings:
     mode: upgrade
     chart: ./Helm/direct-api
@@ -235,7 +235,7 @@ steps:
       - CONSUL_HTTP_TOKEN
 
 - name: Deploy to production
-  image: pelotech/drone-helm3:0.14.2
+  image: pelotech/drone-helm3
   settings:
     mode: upgrade
     chart: ./Helm/edo

@@ -35,7 +35,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 5005
+  port: 80
   metrics:
     port: 60000
   healthchecks:
@@ -90,7 +90,7 @@ metrics:
 
 env:
   ASPNETCORE_ENVIRONMENT: "Production" 
-  HTDC_WEBAPI_PORT: "5005"
+  HTDC_WEBAPI_PORT: "80"
   HTDC_HEALTH_PORT: "60000"
   HTDC_METRICS_PORT: "60001"
   HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
