@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $fullName }}
+  name: {{ .Chart.Name }}
   labels:
     {{- include "direct-api.labels" . | nindent 4 }}
 spec:
