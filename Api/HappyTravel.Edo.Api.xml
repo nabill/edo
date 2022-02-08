@@ -675,15 +675,16 @@
             <param name="cancellationToken"></param>
             <returns>Raw accommodation details</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateWrongMatchingAccommodations(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
             <summary>
-            Deactivates accommodations with wrong matching
+            Deactivates accommodation manually
             </summary>
-            <param name="request"></param>
+            <param name="htAccommodationId"></param>
+            <param name="deactivateAccommodationDescriptionRequest"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.ActivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
             <summary>
             Deactivates accommodation manually
             </summary>
@@ -718,6 +719,15 @@
             <summary>
             Retrieves deactivation reason types
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddAccommodationCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
+            <summary>
+            Adds an accommodation data corrections
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="accommodation"></param>
+            <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.LocationsController.SearchCountries(System.String,System.Threading.CancellationToken)">
