@@ -677,19 +677,18 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
             <summary>
-            Deactivates accommodation manually
+            Deactivates accommodation
             </summary>
             <param name="htAccommodationId"></param>
             <param name="deactivateAccommodationDescriptionRequest"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.ActivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.ActivateAccommodationManually(System.String,System.Threading.CancellationToken)">
             <summary>
-            Deactivates accommodation manually
+            Activates accommodation 
             </summary>
             <param name="htAccommodationId"></param>
-            <param name="deactivateAccommodationDescriptionRequest"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
@@ -721,9 +720,9 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddAccommodationCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
             <summary>
-            Adds an accommodation data corrections
+            Adds an accommodation data corrections. Values will be applied after the mapper updater is run
             </summary>
             <param name="htAccommodationId"></param>
             <param name="accommodation"></param>
