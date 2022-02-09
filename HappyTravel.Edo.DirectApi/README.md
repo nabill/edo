@@ -12,25 +12,27 @@ Omitting the details, this involves several steps:
 Booking management might be required afterwards in order to retrieve information about existing bookings or cancel a booking.
 
 ## Data types
-In general, the accommodation-related information can be divided into
-- **static data**: accommodations info and locality info, which changes relatively rarely (hotels, star ratings, addresses, places, etc.)
-- **dynamic data**: current availability info and prices, which change constantly
+Accomodations and booking data include:
+- _Static data_: Accomodation details that rarely change, such as hotel name, address, and star rating
+- _Dynamic data_: Accomodation details that change constantly, such as current availability and prices
+- _Booking data_: Details about a particular booking
 
-**Static data** is intended to be downloaded and then synchronized periodically by API users due to the fact that it does not change much and there is no point requesting it from the API every time, instead.
+### Static data
+Static data does not change often, so you do not need to download it every time you use the API. You should update static data weekly.
 
-Static data synchronization is recommended once a week.
+Clients search static data locally. A client uses this data to select the accommodations to search for available rooms with the API.
+For more info about the endpoints and models, see [Accommodations-related endpoints](/index.html#tag/Accommodations).
 
-Static data search is done on the client side, so that when the client uses the API search, they already know, which accommodations or which places they need the available rooms to be found in.
-For more information about the endpoints and models see [Accommodations related endpoints](/index.html#tag/Accommodations)
+### Dynamic data
+This data structure includes:
+- _Accommodation_: A hotel or other property with available rooms.
+- _Room contract sets_: Accomodation data includes a list of _room contract sets_. You use a room contract set to make a booking.
+- _Rooms_: A room contract set includes a list of _rooms_. You cannot book or manage rooms directly. Instead, you use a room contract set for this.
 
-**Dynamic data** includes the following structure:
-- _Accommodation_ (a hotel or another type of place where available room could be found)
-- _Room_ contract set. It takes place inside a list of room contract sets in accommodation data. Room contract set is the entity that is being booked.
-- _Room_. It takes place inside a list of rooms inside a room contract set. Rooms cannot be booked or otherwise managed, only a room contract set can.
+Each dynamic data structure has its own details and includes other data structures.
 
-Every entity above also includes details of its own, involving other data structures.
-
-**Booking data** also takes place. It is required for booking management: querying existing bookings, cancelling, monitoring status, etc.
+### Booking data
+You use booking data for tasks such as searching, checking, and canceling existing bookings.
 
 ## Authorization
 
