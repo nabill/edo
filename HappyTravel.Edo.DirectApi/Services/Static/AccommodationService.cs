@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
             _httpClientFactory = httpClientFactory;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _agentContextService = agentContextService;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
