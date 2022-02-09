@@ -18,7 +18,7 @@ Accomodations and booking data include:
 - _Booking data_: Details about a particular booking
 
 ### Static data
-Static data does not change often, so you do not need to download it every time you use the API. You should update static data weekly.
+Static data does not change often, so you do not need to download it every time you use the API. Consider updating this data weekly.
 
 Clients search static data locally. A client uses this data to select the accommodations to search for available rooms with the API.
 For more info about the endpoints and models, see [Accommodations-related endpoints](/index.html#tag/Accommodations).
@@ -27,7 +27,7 @@ For more info about the endpoints and models, see [Accommodations-related endpoi
 This data structure includes:
 - _Accommodation_: A hotel or other property with available rooms.
 - _Room contract sets_: Accomodation data includes a list of _room contract sets_. You use a room contract set to make a booking.
-- _Rooms_: A room contract set includes a list of _rooms_. You cannot book or manage rooms directly. Instead, you use a room contract set for this.
+- _Rooms_: A room contract set includes a list of one or more _rooms_. You book or manage rooms using a room contract set.
 
 Each dynamic data structure has its own details and includes other data structures.
 
