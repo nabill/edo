@@ -126,7 +126,7 @@ steps:
       - CONSUL_HTTP_TOKEN
 
 - name: Deploy EDO to DEV
-  image: pelotech/drone-helm3
+  image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
     chart: ./Helm/edo
@@ -135,7 +135,6 @@ steps:
     namespace: dev
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}-DEV
   environment:
     KUBE_API_SERVER:
@@ -144,7 +143,7 @@ steps:
       from_secret: KUBERNETES_DEV_TOKEN
 
 - name: Deploy DIRECT-API to DEV
-  image: pelotech/drone-helm3
+  image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
     chart: ./Helm/direct-api
@@ -153,7 +152,6 @@ steps:
     namespace: dev
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}-DIRECT-API-DEV
   environment:
     KUBE_API_SERVER:
@@ -235,7 +233,7 @@ steps:
       - CONSUL_HTTP_TOKEN
 
 - name: Deploy to production
-  image: pelotech/drone-helm3
+  image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
     chart: ./Helm/edo
@@ -244,7 +242,6 @@ steps:
     namespace: production
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
   environment:
     KUBE_API_SERVER:
