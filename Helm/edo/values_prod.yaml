@@ -41,7 +41,7 @@ service:
   metrics:
     port: 60001
   healthchecks:
-    port: 60000  
+    port: 60000
 
 ingress:
   enabled: true
@@ -99,6 +99,6 @@ env:
   HTDC_WEBAPI_PORT: "80"
   HTDC_GRPC_PORT: "5101"
   HTDC_HEALTH_PORT: "60000"
-  HTDC_METRICS_PORT: "60001"  
+  HTDC_METRICS_PORT: "60001"
   HTDC_REDIS_HOST: "redis-edo-master"
   CONSUL_HTTP_ADDR: "https://consul.happytravel.com/"
