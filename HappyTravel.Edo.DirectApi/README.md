@@ -37,17 +37,17 @@ You use booking data for tasks such as searching, checking, and canceling existi
 ## Authorization
 
 ### Introduction
-JWT tokens are used for authorization and API is available only for authorized clients.
-More info on this: [Wikipedia article](https://en.wikipedia.org/wiki/JSON_Web_Token), [rfc7519](https://datatracker.ietf.org/doc/html/rfc7519), [Token debugger](https://jwt.io/)
+This API is available only for authorized clients. You need a JWT token for authorization.
+More info on this: [Wikipedia article](https://en.wikipedia.org/wiki/JSON_Web_Token), [rfc7519](https://datatracker.ietf.org/doc/html/rfc7519), and [Token debugger](https://jwt.io/).
 
 The authorization in general consists of receiving a token by providing client's credentials and then using it in API requests by attaching the token in headers.
 
-Note that tokens are temporary (10 minutes) and it's required to renew the token once current is outdated.
+A tokens expires after 10 minutes. After that, you must request a new token.
 
 ### Flow
 1. Send a request with your credentials to the Identity Service.
    POST `https://identity.happytravel.com/connect/token`
-   The response will contain json with a token and other info. The token is in `access_token` field.
+   The response contains JSON with a token and other info. The token is in the `access_token` field.
    An example of a token request and response is below.
 
 2. Put this token into the "Authorization" header of your requests, using the following format:
@@ -85,20 +85,18 @@ curl --request GET \
 
 ## Availability search
 ### Search steps
-#### Static part
+#### Static data search
 As mentioned above, when starting a search, the API client must already know the static data criteria (where to search) and provide a collection of ids of places or accommodations (ids of places and accommodations can be included in one collection simultaneously).
 
 Thus searching the static data is entirely done by the API client, not by the API itself. The API itself only provides the static data, but not the means to search through it.
 
 #### Availability search
-The search is done 3 steps:
-1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
-   Finds accommodations that match the search criteria and have room contract sets that match the search criteria.
-   A number of room contract sets is also fetched to each found accommodation, however, it is not guaranteed that a list would contain all room contract sets for a given accommodation.
-   The data fetched at this step is pulled from cache, therefore must not be considered as latest. Changes could have occurred since the cache update.
-2. [Room selection](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)
+The search has three steps:
+1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)  
+   Finds accommodations that match the search criteria and have room contract sets that match the search criteria. A number of room contract sets is also fetched for each found accommodation, however, it is not guaranteed that a list would contain all room contract sets for a given accommodation. The data fetched at this step is pulled from cache, therefore must not be considered as latest. Changes could have occurred since the cache update.
+2. [Room selection](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)  
    Finds a full list of room contract sets within chosen accommodation. The data is more likely to be correct due to the fact that search is not as broad as previous step.
-3. [Booking evaluation (prebooking)](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)
+3. [Booking evaluation (prebooking)](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)  
    This step concludes the search. Selected room contract set is evaluated to fetch the final price and terms and determine that booking is possible.
    
 Search is starting from wider search to more specific, narrowing the results from step to step, as in the scheme:
@@ -116,9 +114,9 @@ Although the first step returns all three of them inside its models, it is not g
 
 ### Supported search models
 
-Wide availability search can be executed in 3 modes:
-1. One country search
-2. One city search
+Wide availability search can be executed in three modes:
+1. Single country search
+2. Single city search
 3. Multiple hotel search (up to 1000 hotels in request)
 
 The search mode is selected based on `SearchLocations` field of [AvailabilityRequest](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)  model and supports adding multiple location ids to the request, where each location id can be country id, locality id or accommodation id.
