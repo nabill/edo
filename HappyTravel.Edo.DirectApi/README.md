@@ -103,7 +103,8 @@ The search is done 3 steps:
    
 Search is starting from wider search to more specific, narrowing the results from step to step, as in the scheme:
 
-![image](https://user-images.githubusercontent.com/43397444/151757981-2105b3da-c3c7-46eb-aecc-6660a000cc92.png)
+![search schematic](https://user-images.githubusercontent.com/41554067/153322312-2f8d9609-8cfe-4510-8c71-444864141946.png)
+
 
 Every next step uses information from the previous and cannot be executed in any other order than described above.
 - Wide availability search introduces `SearchId`
@@ -204,7 +205,8 @@ Booking process consists of the following two steps:
 
 Booking request results interpretation based on the executing step and server response.
 The flowchart explaining this:
-![image](https://user-images.githubusercontent.com/43397444/151673402-d1015f7f-cfa0-4321-b26c-1f937fd5f8ec.png)
+![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
+
 
 ### Booking reference codes
 Every booking in the system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
