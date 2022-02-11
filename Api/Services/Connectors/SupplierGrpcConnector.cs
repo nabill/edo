@@ -14,9 +14,9 @@ using Prometheus;
 
 namespace HappyTravel.Edo.Api.Services.Connectors;
 
-public class GrpcSupplierConnector : ISupplierConnector
+public class SupplierGrpcConnector : ISupplierConnector
 {
-    public GrpcSupplierConnector(string supplierName, IGrpcConnectorService connectorClient, ILogger<GrpcSupplierConnector> logger)
+    public SupplierGrpcConnector(string supplierName, IGrpcConnectorService connectorClient, ILogger<SupplierGrpcConnector> logger)
     {
         _supplierName = supplierName;
         _connectorClient = connectorClient;
@@ -160,5 +160,5 @@ public class GrpcSupplierConnector : ISupplierConnector
     
     private readonly string _supplierName;
     private readonly IGrpcConnectorService _connectorClient;
-    private readonly ILogger<GrpcSupplierConnector> _logger;
+    private readonly ILogger<SupplierGrpcConnector> _logger;
 }

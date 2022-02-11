@@ -55,9 +55,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             var supplier = _supplierStorage.GetById(key);
             var client = GetGrpcClient(supplier);
-            var logger = _serviceProvider.GetRequiredService<ILogger<GrpcSupplierConnector>>();
+            var logger = _serviceProvider.GetRequiredService<ILogger<SupplierGrpcConnector>>();
             
-            return new GrpcSupplierConnector(supplierName: supplier.Name,
+            return new SupplierGrpcConnector(supplierName: supplier.Name,
                 connectorClient: client,
                 logger: logger);
         }
