@@ -105,7 +105,6 @@ Search is starting from wider search to more specific, narrowing the results fro
 
 ![search schematic](https://user-images.githubusercontent.com/41554067/153322312-2f8d9609-8cfe-4510-8c71-444864141946.png)
 
-
 Every next step uses information from the previous and cannot be executed in any other order than described above.
 - Wide availability search introduces `SearchId`
 - Room selection introduces `AccommodationId`
@@ -206,7 +205,6 @@ Booking process consists of the following two steps:
 Booking request results interpretation based on the executing step and server response.
 The flowchart explaining this:
 ![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
-
 
 ### Booking reference codes
 Every booking in the system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
