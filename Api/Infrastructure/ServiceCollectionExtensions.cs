@@ -399,19 +399,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
             });
 
-            var paymentLinksOptions = vaultClient.Get(configuration["PaymentLinks:Options"]).GetAwaiter().GetResult();
-            services.Configure<PaymentLinkOptions>(options =>
-            {
-                options.ClientSettings = new ClientSettings
-                {
-                    Currencies = configuration.GetSection("PaymentLinks:Currencies")
-                        .Get<List<Currencies>>(),
-                    ServiceTypes = configuration.GetSection("PaymentLinks:ServiceTypes")
-                        .Get<Dictionary<ServiceTypes, string>>()
-                };
-                options.SupportedVersions = new List<Version> { new Version(0, 2) };
-                options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
-            });
+            services.Configure<PaymentLinkOptions>(configuration.GetSection("PaymentLinks"));
 
             var payfortOptions = vaultClient.Get(configuration["Edo:Payfort:Options"]).GetAwaiter().GetResult();
             var payfortUrlsOptions = vaultClient.Get(configuration["Edo:Payfort:Urls"]).GetAwaiter().GetResult();

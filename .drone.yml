@@ -135,7 +135,6 @@ steps:
     namespace: dev
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}-DEV
   environment:
     KUBE_API_SERVER:
@@ -153,7 +152,6 @@ steps:
     namespace: dev
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}-DIRECT-API-DEV
   environment:
     KUBE_API_SERVER:
@@ -244,7 +242,6 @@ steps:
     namespace: production
     skip_tls_verify: true
     wait: true
-    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
   environment:
     KUBE_API_SERVER:

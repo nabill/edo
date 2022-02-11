@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
+using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.Administrators;
-using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,24 +52,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [AdministratorPermissions(AdministratorPermissions.AccommodationsMerge)]
         public async Task<IActionResult> Get([FromRoute] string htAccommodationId, CancellationToken cancellationToken = default)
             => OkOrBadRequest(await _accommodationMapperClient.GetAccommodation(htAccommodationId, LanguageCode, cancellationToken));
-
-
+        
+        
        /// <summary>
-       /// Deactivates accommodations with wrong matching
-       /// </summary>
-       /// <param name="request"></param>
-       /// <param name="cancellationToken"></param>
-       /// <returns></returns>
-       [HttpPost("deactivate-wrong-matching")]
-       [ProducesResponseType(StatusCodes.Status204NoContent)]
-       [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-       [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
-       public async Task<IActionResult> DeactivateWrongMatchingAccommodations([FromBody] DeactivateAccommodationsRequest request, CancellationToken cancellationToken = default)
-           => NoContentOrBadRequest(await _mapperManagementClient.DeactivateAccommodations(request, AccommodationDeactivationReasons.WrongMatching, cancellationToken));
-
-
-       /// <summary>
-       /// Deactivates accommodation manually
+       /// Deactivates accommodation
        /// </summary>
        /// <param name="htAccommodationId"></param>
        /// <param name="deactivateAccommodationDescriptionRequest"></param>
@@ -83,6 +69,20 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
            => NoContentOrBadRequest(await _mapperManagementClient.DeactivateAccommodationManually(htAccommodationId, deactivateAccommodationDescriptionRequest.DeactivationReasonDescription, cancellationToken));
        
        
+       /// <summary>
+       /// Activates accommodation 
+       /// </summary>
+       /// <param name="htAccommodationId"></param>
+       /// <param name="cancellationToken"></param>
+       /// <returns></returns>
+       [HttpPost("{htAccommodationId}/activate-manually")]
+       [ProducesResponseType(StatusCodes.Status204NoContent)]
+       [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+       [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
+       public async Task<IActionResult> ActivateAccommodationManually([FromRoute] string htAccommodationId, CancellationToken cancellationToken = default)
+           => NoContentOrBadRequest(await _mapperManagementClient.ActivateAccommodationManually(htAccommodationId, cancellationToken));
+
+
         /// <summary>
         /// Retrieves accommodation detailed data
         /// </summary>
@@ -135,6 +135,21 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
             => OkOrBadRequest(await _mapperManagementClient.GetDeactivationReasonTypes(cancellationToken));
 
         
+        /// <summary>
+        /// Adds an accommodation data corrections. Values will be applied after the mapper updater is run
+        /// </summary>
+        /// <param name="htAccommodationId"></param>
+        /// <param name="accommodation"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        [HttpPost("{htAccommodationId}/manual-correction")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
+        public async Task<IActionResult> AddManualCorrectionData([FromRoute] string htAccommodationId, [FromBody] MultilingualAccommodationDetails accommodation, CancellationToken cancellationToken = default)
+            => NoContentOrBadRequest(await _mapperManagementClient.AddManualCorrectionData(htAccommodationId, accommodation, cancellationToken));
+
+
         private readonly IMapperManagementClient _mapperManagementClient;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
     }

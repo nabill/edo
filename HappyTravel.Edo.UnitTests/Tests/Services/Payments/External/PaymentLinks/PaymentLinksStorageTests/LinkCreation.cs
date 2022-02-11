@@ -105,8 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
                             {ServiceTypes.TRN, "Airport transfer"}
                         }
                     },
-                    SupportedVersions = new List<Version> {new Version(0, 2)},
-                    PaymentUrlPrefix = new Uri("https://test/prefix")
+                    PaymentUrlPrefix = "https://test/prefix"
                 });
         }
 

@@ -47,6 +47,14 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+            - name: grpc
+              containerPort: {{ .Values.service.grpc.port }}
+              protocol: TCP
+            - name: http-metrics
+              containerPort: {{ .Values.service.metrics.port }}
+              protocol: TCP
+            - name: http-healthc
+              containerPort: {{ .Values.service.healthchecks.port }}
           startupProbe:
             httpGet:
               path: /health

@@ -154,12 +154,12 @@
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest.Nationality">
             <summary>
-                Alpha-2 nationality code for a lead passengers.
+                Uppercase Alpha-2 nationality code for a lead passengers. More info on https://www.iban.com/country-codes
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest.Residency">
             <summary>
-                Alpha-2 residency code for a lead passengers.
+                Uppercase Alpha-2 residency code for a lead passengers. More info on https://www.iban.com/country-codes
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest.RoomDetails">
