@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Mapping
     public readonly struct SearchArea
     {
         public List<Location> Locations { get; init; }
-        public Dictionary<int, List<SupplierCodeMapping>> AccommodationCodes { get; init; }
+        public Dictionary<string, List<SupplierCodeMapping>> AccommodationCodes { get; init; }
     }
 }
