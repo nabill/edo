@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SuppliersCatalog;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
