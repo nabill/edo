@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors;
 
 public class SupplierGrpcConnector : ISupplierConnector
 {
-    public SupplierGrpcConnector(string supplierName, IGrpcConnectorService connectorClient, ILogger<SupplierGrpcConnector> logger)
+    public SupplierGrpcConnector(string supplierName, IConnectorGrpcService connectorClient, ILogger<SupplierGrpcConnector> logger)
     {
         _supplierName = supplierName;
         _connectorClient = connectorClient;
@@ -28,7 +28,7 @@ public class SupplierGrpcConnector : ISupplierConnector
     {
         return ExecuteWithLogging(Counters.WideAvailabilitySearch, async () =>
         {
-            var result = await _connectorClient.GetAllAvailabilities(availabilityRequest);
+            var result = await _connectorClient.GetWideAvailability(availabilityRequest);
             return result.Result.IsFailure
                 ? Result.Failure<Availability, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
                 : result.Result.Value;
@@ -40,7 +40,7 @@ public class SupplierGrpcConnector : ISupplierConnector
     {
         return ExecuteWithLogging(Counters.RoomSelection, async () =>
         {
-            var result = await _connectorClient.GetAccommodationAvailabilities(new AccommodationAvailabilityRequest
+            var result = await _connectorClient.GetAccommodationAvailability(new AccommodationAvailabilityRequest
             {
                 AvailabilityId = availabilityId,
                 AccommodationId = accommodationId
@@ -120,7 +120,7 @@ public class SupplierGrpcConnector : ISupplierConnector
     {
         return ExecuteWithLogging(Counters.BookingInformation, async () =>
         {
-            var result = await _connectorClient.GetBookingInfo(new BookingInfoRequest
+            var result = await _connectorClient.GetBooking(new BookingInfoRequest
             {
                 ReferenceCode = referenceCode
             });
@@ -159,6 +159,6 @@ public class SupplierGrpcConnector : ISupplierConnector
     
     
     private readonly string _supplierName;
-    private readonly IGrpcConnectorService _connectorClient;
+    private readonly IConnectorGrpcService _connectorClient;
     private readonly ILogger<SupplierGrpcConnector> _logger;
 }

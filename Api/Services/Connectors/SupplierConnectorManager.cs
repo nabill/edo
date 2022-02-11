@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        private IGrpcConnectorService GetGrpcClient(Supplier supplier)
+        private IConnectorGrpcService GetGrpcClient(Supplier supplier)
         {
             if (string.IsNullOrEmpty(supplier.ConnectorGrpcEndpoint))
                 throw new Exception($"Supplier {supplier.Name} gRPC endpoint is null or empty");
@@ -75,14 +75,14 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc)
             });
-            client = channel.CreateGrpcService<IGrpcConnectorService>();
+            client = channel.CreateGrpcService<IConnectorGrpcService>();
             _grcClients.AddOrUpdate(supplier.Id, client, (_, _) => client);
             
             return client;
         }
 
 
-        private readonly ConcurrentDictionary<int, IGrpcConnectorService> _grcClients = new();
+        private readonly ConcurrentDictionary<int, IConnectorGrpcService> _grcClients = new();
 
 
         private readonly IServiceProvider _serviceProvider;
