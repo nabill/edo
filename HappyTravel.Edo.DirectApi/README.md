@@ -176,7 +176,7 @@ search is complete or reached given timeout.
 
 Endpoint returns the search state and ready results in a single model, and can be used as following:
 
-![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
+![search polling loop](https://user-images.githubusercontent.com/41554067/153536132-9a1c809d-2d0b-4757-8f02-712ca0edd4e6.png)
 
 ### Search results lifetime
 Every search step returns information which can be used for booking during a short period of time.
