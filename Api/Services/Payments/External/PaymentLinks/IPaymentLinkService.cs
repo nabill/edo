@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -11,10 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         Task<Result> Send(PaymentLinkCreationRequest paymentLinkCreationData);
 
         Task<Result<Uri>> GenerateUri(PaymentLinkCreationRequest paymentLinkCreationData);
-
-        ClientSettings GetClientSettings();
-
-        List<Version> GetSupportedVersions();
 
         Task<Result<PaymentLinkData>> Get(string code);
     }

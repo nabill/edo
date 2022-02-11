@@ -12,35 +12,37 @@ Omitting the details, this involves several steps:
 Booking management might be required afterwards in order to retrieve information about existing bookings or cancel a booking.
 
 ## Data types
-In general, the accommodation-related information can be divided into
-- **static data**: accommodations info and locality info, which changes relatively rarely (hotels, star ratings, addresses, places, etc.)
-- **dynamic data**: current availability info and prices, which change constantly
+Accomodations and booking data include:
+- _Static data_: Accomodation details that rarely change, such as hotel name, address, and star rating
+- _Dynamic data_: Accomodation details that change constantly, such as current availability and prices
+- _Booking data_: Details about a particular booking
 
-**Static data** is intended to be downloaded and then synchronized periodically by API users due to the fact that it does not change much and there is no point requesting it from the API every time, instead.
+### Static data
+Static data does not change often, so you do not need to download it every time you use the API. Consider updating this data weekly.
 
-Static data synchronization is recommended once a week.
+Clients search static data locally. A client uses this data to select the accommodations to search for available rooms with the API.
+For more info about the endpoints and models, see [Accommodations-related endpoints](/index.html#tag/Accommodations).
 
-Static data search is done on the client side, so that when the client uses the API search, they already know, which accommodations or which places they need the available rooms to be found in.
-For more information about the endpoints and models see [Accommodations related endpoints](/index.html#tag/Accommodations)
+### Dynamic data
+This data structure includes:
+- _Accommodation_: A hotel or other property with available rooms.
+- _Room contract sets_: Accomodation data includes a list of _room contract sets_. You use a room contract set to make a booking.
+- _Rooms_: A room contract set includes a list of one or more _rooms_. You book or manage rooms using a room contract set.
 
-**Dynamic data** includes the following structure:
-- _Accommodation_ (a hotel or another type of place where available room could be found)
-- _Room_ contract set. It takes place inside a list of room contract sets in accommodation data. Room contract set is the entity that is being booked.
-- _Room_. It takes place inside a list of rooms inside a room contract set. Rooms cannot be booked or otherwise managed, only a room contract set can.
+Each dynamic data structure has its own details and includes other data structures.
 
-Every entity above also includes details of its own, involving other data structures.
-
-**Booking data** also takes place. It is required for booking management: querying existing bookings, cancelling, monitoring status, etc.
+### Booking data
+You use booking data for tasks such as searching, checking, and canceling existing bookings.
 
 ## Authorization
 
 ### Introduction
-We use JWT tokens for authorization and API is available only for authorized clients.
+JWT tokens are used for authorization and API is available only for authorized clients.
 More info on this: [Wikipedia article](https://en.wikipedia.org/wiki/JSON_Web_Token), [rfc7519](https://datatracker.ietf.org/doc/html/rfc7519), [Token debugger](https://jwt.io/)
 
-The authorization in general consists of receiving a token by providing your credentials and then using it in your requests by attaching the token in headers.
+The authorization in general consists of receiving a token by providing client's credentials and then using it in API requests by attaching the token in headers.
 
-Note that tokens are temporary (10 minutes) and you will need to receive another once current token is outdated.
+Note that tokens are temporary (10 minutes) and it's required to renew the token once current is outdated.
 
 ### Flow
 1. Send a request with your credentials to the Identity Service.
@@ -194,7 +196,7 @@ In our system we use 2-step booking flow, containing the following steps:
 1. [Registration](/index.html#tag/Booking/paths/~1api~11.0~1bookings/post)
 2. [Finalization](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
 
-Two-step booking divides the booking process to 2 stages to allow clients to implement a safe flow.
+Booking process consists of the following two steps:
 1. **Registration** step is used to validate a booking, create a database record and prepare the system to execute a "real" booking with executing request to the final supplier. During this step a _Reference code_ is generated. It is safe to abandon such booking if the next step is not executed. If there is an error during step execution, client can be sure, that booking did not really go through.
 2. **Finalization** step is used to make a real booking in supplier's or hotel's system, based on the booking registration, made before. Due to a broad variety of inter-system communication errors possible, this request may fail, while actually the booking will succeed on the supplier or the hotel side.
 
@@ -205,7 +207,7 @@ The flowchart explaining this:
 ![image](https://user-images.githubusercontent.com/43397444/151673402-d1015f7f-cfa0-4321-b26c-1f937fd5f8ec.png)
 
 ### Booking reference codes
-Every booking in our system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
+Every booking in the system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
 _Reference code_ is unique system wide and _supplier reference code_ is unique API-client wide.
 The main identifier in our API is a client reference code, which must be provided by the client during booking request and plays an important role in booing API stability.
 
@@ -239,6 +241,44 @@ Booking price is charged from the account balance.
 There are two main cases possible:
 - For non-refundable (APR) bookings or bookings within deadline money is charged immediately. Booking fails if balance insufficient
 - For all other bookings money is charged on the deadline date. Booking is **auto cancelled** if balance is insufficient
+
+## Error handling
+Messages and status codes, returned by the API can indicate the following situations (bound to HTTP-status codes):
+- `200 OK`  - Request succeeded
+- `400 Bad request` - Bad request or validation error
+- `401 Unauthorized` - Authorization failure
+- `403 Forbidden` - Permission denied
+- `404 Not found` - Resource was not found
+- `405 Method not allowed` - Incorrect HTTP method
+- `500 Internal Server Error` - Unexpected error
+
+### Bad Request (400) errors
+In most cases _Bad Request_ error indicates the request error, caused by invalid or unacceptable request.
+Common errors are listed below:
+
+| Error                                                   | Description                                                                                                                                 |
+|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| **{Some field} must not be empty**                        | One of the mandatory request fields is not set or set by default value ("Unspecified" for enums).<br/> Need to fill the field and try again |
+| **{Some data field} must be greater than {Another date}** | Some of the date fields is filled with incorrect value. E.g. check in date is in the past.                                                  |
+| **Wrong country ISO code**                                | Provided nationality or residency ISO code has incorrect format or value                                                                    |
+| **Adults number must be greater than 0**                    | One of the requested rooms has no adults specified. It is mandatory to specify adults count in the request.                                 |
+| **Passengers don't have a leader**           | It is mandatory to have at least one passenger with "IsLeader" flag set to "TRUE" in a booking request                                      |
+
+
+
+### Unauthorized (401) and Forbidden (403) errors
+API does not return a reason why operation is _Unauthorized_, typically this is caused by the following:
+- Invalid or corrupted token format
+- Token expired
+- Token signature validation failure
+
+If the reason is unclear, token may be parsed on websites like https://jwt.io to check the validness and token data.
+
+_Forbidden_ status code indicates that client tries to make an operation, having a valid token, but not having appropriate permissions.
+Normally it should not occur, and the best way to handle is to check that used url is correct.
+
+### Not Found (404) and Method Not Allowed (405) errors
+These error codes indicate that request is incorrect, 404 means that url is incorrect, 405 means that HTTP-method is incorrect.
 
 ## Requests walkthrough
 Here are the examples of requests in such order in which they would likely be used.

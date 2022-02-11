@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using HappyTravel.EdoContracts.Grpc.Surrogates;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 
@@ -214,6 +215,7 @@ namespace HappyTravel.Edo.Api
 
             var logger = loggerFactory.CreateLogger<Startup>();
             app.UseProblemDetailsExceptionHandler(env, logger);
+            EdoContractsSurrogates.Register();
 
             app.UseSwagger()
                 .UseSwaggerUI(options =>
@@ -249,11 +251,12 @@ namespace HappyTravel.Edo.Api
                 .UseAgentRequestLogging()
                 .UseEndpoints(endpoints =>
                 {
-                    endpoints.MapMetrics();
                     endpoints.MapControllers();
                     endpoints.MapHub<AgentNotificationHub>("/signalr/notifications/agents");
                     endpoints.MapHub<AdminNotificationHub>("/signalr/notifications/admins");
                     endpoints.MapHub<SearchHub>("/signalr/search");
+                    endpoints.MapMetrics().RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_METRICS_PORT")}");
+                    endpoints.MapHealthChecks("/health").RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_HEALTH_PORT")}");
                 });
         }
 

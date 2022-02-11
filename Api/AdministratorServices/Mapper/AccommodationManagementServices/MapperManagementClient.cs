@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
+using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -34,26 +35,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
-
-
-        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodations(DeactivateAccommodationsRequest request, AccommodationDeactivationReasons deactivationReason, CancellationToken cancellationToken)
-        {
-            using var requestContent = new StringContent(JsonSerializer.Serialize(new {request.HtAccommodationIds, reason = deactivationReason}), Encoding.UTF8, "application/json");
-            var requestUri = "api/1.0/admin/accommodations/deactivate";
-            
-            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
-        }
-
         
-        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string DeactivationReasonDescription, CancellationToken cancellationToken)
+        
+        public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string deactivationReasonDescription, CancellationToken cancellationToken)
         {
-            using var requestContent = new StringContent($@"""{nameof(DeactivationReasonDescription)}"" = ""{DeactivationReasonDescription}""", Encoding.UTF8, "application/json");
+            using var requestContent = new StringContent($@"""{nameof(deactivationReasonDescription)}"" = ""{deactivationReasonDescription}""", Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/deactivate-manually";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
         
+        
+        public async Task<Result<Unit, ProblemDetails>> ActivateAccommodationManually(string htAccommodationId, CancellationToken cancellationToken)
+        {
+            var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/activate-manually";
+            
+            return await Post(requestUri, null, cancellationToken: cancellationToken);
+        }
 
+        
         public async Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
@@ -113,15 +113,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             return Send<List<LocalityData>>(requestMessage, languageCode, cancellationToken);
         }
         
-        
-        public Task<Result<Dictionary<int, string>, ProblemDetails>> GetSuppliers(CancellationToken cancellationToken)
+
+        public async Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, MultilingualAccommodationDetails accommodation,
+            CancellationToken cancellationToken = default)
         {
-            using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/suppliers");
+            using var requestContent = new StringContent(JsonSerializer.Serialize(accommodation, JsonSerializerOptions), Encoding.UTF8, "application/json");
+            var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/manual-correction";
             
-            return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
+            return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
         
-
+        
         private async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage requestMessage,
             string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
         {

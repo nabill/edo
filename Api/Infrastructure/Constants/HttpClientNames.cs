@@ -8,6 +8,8 @@
         public const string CurrencyServiceIdentity = "CurrencyConverterIdentity";
         public const string Identity = "Identity";
         public const string Connectors = "Connectors";
+        public const string ConnectorsIdentity = "ConnectorsIdentity";
+        public const string ConnectorsGrpc = "ConnectorsGrpc";
         public const string MapperApi = "Mapper";
         public const string MapperIdentityClient = "MapperIdentityClient";
         public const string MapperManagement = "MapperManagement";

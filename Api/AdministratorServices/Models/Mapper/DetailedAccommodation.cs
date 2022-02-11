@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
     public readonly struct DetailedAccommodation
     {
-        public DetailedAccommodation(AccommodationData data, Dictionary<int, AccommodationData> suppliersRawAccommodationData, AccommodationData manualCorrectedData, Dictionary<AccommodationDataTypes, List<int>> suppliersPriorities)
+        public DetailedAccommodation(AccommodationData data, Dictionary<string, AccommodationData> suppliersRawAccommodationData, AccommodationData manualCorrectedData, Dictionary<AccommodationDataTypes, List<int>> suppliersPriorities)
         {
             Data = data;
             SuppliersRawAccommodationData = suppliersRawAccommodationData ?? new ();
@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 
 
         public AccommodationData Data { get; init; }
-        public Dictionary<int, AccommodationData> SuppliersRawAccommodationData { get; init; }
+        public Dictionary<string, AccommodationData> SuppliersRawAccommodationData { get; init; }
         public AccommodationData ManualCorrectedData { get; init; }
         public Dictionary<AccommodationDataTypes, List<int>> SuppliersPriorities { get; init; }
     }
