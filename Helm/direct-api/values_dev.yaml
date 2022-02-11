@@ -37,9 +37,9 @@ service:
   type: ClusterIP
   port: 80
   metrics:
-    port: 60000
-  healthchecks:
     port: 60001
+  healthchecks:
+    port: 60000
 
 ingress:
   enabled: true
@@ -90,10 +90,9 @@ metrics:
 
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
-  ASPNETCORE_URLS: "http://*:80;http://*:60000/;http://*:60001/"
-  METRICS_HOST: "*:60000"
-  HEALTH_CHECK_HOST: "*:60001"
-  API_HOST: "*:80"
+  HTDC_WEBAPI_PORT: "80"
+  HTDC_HEALTH_PORT: "60000"
+  HTDC_METRICS_PORT: "60001"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
   HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://ceda11b983284f5db0370a441822e17f@sentry.happytravel.com/63"
   JAEGER_AGENT_HOST: "localhost"

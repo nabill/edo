@@ -79,6 +79,12 @@
                 Gets all possible administrator roles
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAllPermissionsList">
+            <summary>
+                Gets all possible administrator permissions
+            </summary>
+            <returns> Array of all permission names </returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.Add(HappyTravel.Edo.Api.AdministratorServices.Models.AdministratorRoleInfo)">
             <summary>
                 Adds a new administrator role
@@ -97,6 +103,12 @@
                 Deletes an administrator role
             </summary>
             <param name="roleId">Id of the role to delete</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAllNotificationTypes">
+            <summary>
+                Gets all possible notification types
+            </summary>
+            <returns> Array of all notification types</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorsController.GetCurrent">
             <summary>
@@ -663,20 +675,20 @@
             <param name="cancellationToken"></param>
             <returns>Raw accommodation details</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateWrongMatchingAccommodations(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationsRequest,System.Threading.CancellationToken)">
-            <summary>
-            Deactivates accommodations with wrong matching
-            </summary>
-            <param name="request"></param>
-            <param name="cancellationToken"></param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.DeactivateAccommodationManually(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.DeactivateAccommodationDescriptionRequest,System.Threading.CancellationToken)">
             <summary>
-            Deactivates accommodation manually
+            Deactivates accommodation
             </summary>
             <param name="htAccommodationId"></param>
             <param name="deactivateAccommodationDescriptionRequest"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.ActivateAccommodationManually(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Activates accommodation 
+            </summary>
+            <param name="htAccommodationId"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
@@ -706,6 +718,15 @@
             <summary>
             Retrieves deactivation reason types
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
+            <summary>
+            Adds an accommodation data corrections. Values will be applied after the mapper updater is run
+            </summary>
+            <param name="htAccommodationId"></param>
+            <param name="accommodation"></param>
+            <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.LocationsController.SearchCountries(System.String,System.Threading.CancellationToken)">
@@ -1499,18 +1520,6 @@
             <param name="notificationSettings">Notification settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
-            <summary>
-                Gets supported desktop client versions.
-            </summary>
-            <returns>List of supported versions.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSettings">
-            <summary>
-                Gets client settings for payment links.
-            </summary>
-            <returns>Payment link settings.</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkCreationRequest)">
             <summary>
                 Sends payment link to specified e-mail address.
@@ -1560,7 +1569,6 @@
             <summary>
                 Refreshes payment status in NGenius
             </summary>
-            <param name="referenceCode">Booking reference code</param>
             <param name="code">Payment link code</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.PaymentCallback(System.String,Newtonsoft.Json.Linq.JObject)">

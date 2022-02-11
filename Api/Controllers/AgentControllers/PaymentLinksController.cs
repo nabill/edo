@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -14,7 +11,7 @@ using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -40,24 +37,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Gets supported desktop client versions.
-        /// </summary>
-        /// <returns>List of supported versions.</returns>
-        [HttpGet("versions")]
-        [ProducesResponseType(typeof(List<Version>), (int) HttpStatusCode.OK)]
-        public IActionResult GetSupportedDesktopAppVersion() => Ok(_paymentLinkService.GetSupportedVersions());
-
-
-        /// <summary>
-        ///     Gets client settings for payment links.
-        /// </summary>
-        /// <returns>Payment link settings.</returns>
-        [HttpGet("settings")]
-        [ProducesResponseType(typeof(ClientSettings), (int) HttpStatusCode.OK)]
-        public IActionResult GetSettings() => Ok(_paymentLinkService.GetClientSettings());
-
-
-        /// <summary>
         ///     Sends payment link to specified e-mail address.
         /// </summary>
         /// <param name="creationRequest">Payment link data</param>
@@ -65,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("send")]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        // TODO: Add permissions check https://github.com/happy-travel/agent-app-project/issues/1061
+        [AdministratorPermissions(AdministratorPermissions.PaymentLinkGeneration)]
         public async Task<IActionResult> SendLink([FromBody] PaymentLinkCreationRequest creationRequest)
         {
             var (isSuccess, _, error) = await _paymentLinkService.Send(creationRequest);
@@ -83,7 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        // TODO: Add permissions check https://github.com/happy-travel/agent-app-project/issues/1061
+        [AdministratorPermissions(AdministratorPermissions.PaymentLinkGeneration)]
         public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkCreationRequest creationRequest)
         {
             var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(creationRequest);
@@ -215,7 +194,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refreshes payment status in NGenius
         /// </summary>
-        /// <param name="referenceCode">Booking reference code</param>
         /// <param name="code">Payment link code</param>
         [HttpPost("{code}/ngenius/pay/refresh-status")]
         [ProducesResponseType(typeof(StatusResponse), (int) HttpStatusCode.OK)]
@@ -254,7 +232,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("tokenization-settings")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(TokenizationSettings), (int) HttpStatusCode.OK)]
-        public IActionResult GetTokenizationSettings() => Ok(_cardsManagementService.GetTokenizationSettings());
+        public IActionResult GetTokenizationSettings() 
+            => Ok(_cardsManagementService.GetTokenizationSettings());
 
 
         private readonly ICreditCardsManagementService _cardsManagementService;
