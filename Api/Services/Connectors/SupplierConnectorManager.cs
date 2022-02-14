@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.EdoContracts.Grpc.Services;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -63,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        private IConnectorGrpcService GetGrpcClient(Supplier supplier)
+        private IConnectorGrpcService GetGrpcClient(SlimSupplier supplier)
         {
             if (string.IsNullOrEmpty(supplier.ConnectorGrpcEndpoint))
                 throw new Exception($"Supplier {supplier.Name} gRPC endpoint is null or empty");

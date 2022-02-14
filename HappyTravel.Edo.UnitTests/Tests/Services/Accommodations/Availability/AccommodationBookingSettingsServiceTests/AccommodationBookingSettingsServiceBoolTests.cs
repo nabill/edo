@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var mock = new Mock<ISupplierOptionsStorage>();
             mock.Setup(m => m.GetAll())
-                .Returns(new List<Supplier>
+                .Returns(new List<SlimSupplier>
                 {
                     new()
                     {
