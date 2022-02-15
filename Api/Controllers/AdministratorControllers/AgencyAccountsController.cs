@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("agency-accounts/{agencyAccountId}/balance-notification-settings")]
         [ProducesResponseType(typeof(BalanceNotificationSettingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AccountsReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.FinanceReportGeneration)]
         public async Task<IActionResult> GetBalanceNotificationSettings(int agencyAccountId)
             => OkOrBadRequest(await _balanceNotificationsManagementService.Get(agencyAccountId));
 
@@ -187,7 +187,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("agency-accounts/{agencyAccountId}/balance-notification-settings")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AccountsReportGeneration)]
+        [AdministratorPermissions(AdministratorPermissions.FinanceReportGeneration)]
         public async Task<IActionResult> SetBalanceNotificationSettings(int agencyAccountId, [FromBody] BalanceNotificationSettingInfo info)
         {
             var (isSuccess, _, error) = await _balanceNotificationsManagementService.Set(agencyAccountId, info.Thresholds);

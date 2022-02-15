@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -248,19 +249,19 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
 
         private readonly AgentContext _agentContext = new AgentContext(1, "fn", "ln", "email", "title", "pos", 1, "aname", default, default, "", "", new());
-        private readonly List<Supplier> _suppliers = new()
+        private readonly List<SlimSupplier> _suppliers = new()
         {
-            new Supplier
+            new SlimSupplier
             {
                 Id = 1,
                 IsEnabled = true
             },
-            new Supplier
+            new SlimSupplier
             {
                 Id = 2,
                 IsEnabled = false
             },
-            new Supplier()
+            new SlimSupplier
             {
                 Id = 3,
                 IsEnabled = true

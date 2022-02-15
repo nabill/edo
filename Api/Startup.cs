@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using HappyTravel.EdoContracts.Grpc.Surrogates;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 
@@ -214,6 +215,7 @@ namespace HappyTravel.Edo.Api
 
             var logger = loggerFactory.CreateLogger<Startup>();
             app.UseProblemDetailsExceptionHandler(env, logger);
+            EdoContractsSurrogates.Register();
 
             app.UseSwagger()
                 .UseSwaggerUI(options =>

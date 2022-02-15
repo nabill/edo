@@ -22,7 +22,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         Task<Result<Dictionary<int, string>, ProblemDetails>> GetRatingTypes(CancellationToken cancellationToken);
         Task<Result<List<CountryData>, ProblemDetails>> SearchCountries(string query, string languageCode, CancellationToken cancellationToken);
         Task<Result<List<LocalityData>, ProblemDetails>> SearchLocalities(int countryId, string query, string languageCode, CancellationToken cancellationToken);
-        Task<Result<Dictionary<int, string>, ProblemDetails>> GetSuppliers(CancellationToken cancellationToken);
         Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, MultilingualAccommodationDetails accommodation, CancellationToken cancellationToken);
     }
 }
