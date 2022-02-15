@@ -223,6 +223,7 @@ Booking process:
 If a booking request fails, the action you should take depends on the step of the process and the server response.
 
 Handling booking failures:
+
 ![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
 
 ### Booking reference codes
