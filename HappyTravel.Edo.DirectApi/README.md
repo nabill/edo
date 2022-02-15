@@ -189,7 +189,7 @@ You can start this flow, called the _polling loop_, after you [start the wide av
 
 This endpoint returns the search state and results in a single model:
 
-![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
+![search polling loop](https://user-images.githubusercontent.com/41554067/153536132-9a1c809d-2d0b-4757-8f02-712ca0edd4e6.png)
 
 ### Search results lifetime
 Every search step returns info with a short lifetime. You can use this for booking until it expires.
@@ -224,7 +224,6 @@ If a booking request fails, the action you should take depends on the step of th
 
 Handling booking failures:
 ![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
-
 
 ### Booking reference codes
 Every booking in our system has two unique identifiers: the _reference code_ and the _client reference code_.
