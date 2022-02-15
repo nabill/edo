@@ -103,7 +103,7 @@ The search is done 3 steps:
    
 Search is starting from wider search to more specific, narrowing the results from step to step, as in the scheme:
 
-![image](https://user-images.githubusercontent.com/43397444/151757981-2105b3da-c3c7-46eb-aecc-6660a000cc92.png)
+![search schematic](https://user-images.githubusercontent.com/41554067/153322312-2f8d9609-8cfe-4510-8c71-444864141946.png)
 
 Every next step uses information from the previous and cannot be executed in any other order than described above.
 - Wide availability search introduces `SearchId`
@@ -175,7 +175,7 @@ search is complete or reached given timeout.
 
 Endpoint returns the search state and ready results in a single model, and can be used as following:
 
-![image](https://user-images.githubusercontent.com/43397444/151672982-603de243-dfab-4931-b5f0-f8cebb0220e9.png)
+![search polling loop](https://user-images.githubusercontent.com/41554067/153536132-9a1c809d-2d0b-4757-8f02-712ca0edd4e6.png)
 
 ### Search results lifetime
 Every search step returns information which can be used for booking during a short period of time.
@@ -204,7 +204,7 @@ Booking process consists of the following two steps:
 
 Booking request results interpretation based on the executing step and server response.
 The flowchart explaining this:
-![image](https://user-images.githubusercontent.com/43397444/151673402-d1015f7f-cfa0-4321-b26c-1f937fd5f8ec.png)
+![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
 
 ### Booking reference codes
 Every booking in the system has a couple of unique identifiers: _Reference code_ and _supplier reference code_.
