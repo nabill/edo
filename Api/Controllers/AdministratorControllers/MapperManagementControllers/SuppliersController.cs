@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +15,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
     [Produces("application/json")]
     public class SuppliersController : BaseController
     {
-        public SuppliersController(IMapperManagementClient mapperManagementClient)
+        public SuppliersController(ISupplierOptionsStorage supplierOptionsStorage)
         {
-            _mapperManagementClient = mapperManagementClient;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
         
         
@@ -25,11 +27,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(Dictionary<int, string>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Get(CancellationToken cancellationToken) 
-            => OkOrBadRequest(await _mapperManagementClient.GetSuppliers(cancellationToken));
-        
-        
-        private readonly IMapperManagementClient _mapperManagementClient;
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        {
+            var suppliers = _supplierOptionsStorage.GetAll()
+                .ToDictionary(s => s.Id, s => s.Name);
+            
+            return Ok(suppliers);
+        }
+
+
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
