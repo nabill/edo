@@ -205,18 +205,18 @@ For example, if you search for a hotel, wait an hour, and then try to book, the 
 You use data from the Booking evaluation step to book a room contract set. This creates a booking, which you can then manage.
 
 ### General booking flow
-We use a two-step booking flow:
+The booking flow has two steps:
 1. [Registration](/index.html#tag/Booking/paths/~1api~11.0~1bookings/post)
 2. [Finalization](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
 
 Booking process:
 1. **Registration** validates a booking, creates a database record, and prepares the system to execute a "real" booking by sending a request to the supplier. This step generates a _Reference code_.
  
-    It is safe to abandon a booking if you do not continue to Finalization. If there is an error during this step, you can be sure that you have not made a real booking.
+    You can safely abandon a booking if you do not continue to Finalization. If there is an error during this step, you can be sure that you have not made a real booking.
 
 2. **Finalization** uses the booking registration from the first step to make a real booking in a supplier's or hotel's system. 
 
-    Many inter-system communication errors are possible. Even if this request fails, it is possible for the booking to succeed in the supplier's or hotel's system.
+    Many inter-system communication errors are possible. Even if this request fails, the booking can succeed in the supplier's or hotel's system.
 
 ### Booking failure handling logic
 
@@ -227,7 +227,7 @@ Handling booking failures:
 ![booking failure schematic](https://user-images.githubusercontent.com/41554067/153322418-4d686626-faaa-47b2-aee7-b76835aa9b16.png)
 
 ### Booking reference codes
-Every booking in our system has two unique identifiers: the _reference code_ and the _client reference code_.
+Every booking has two unique identifiers: the _reference code_ and the _client reference code_.
 
 The _reference code_ is unique across our system.
 
@@ -251,12 +251,12 @@ You need a client reference code to work with a particular booking, such as for 
 #### Booking cancellation policies
 When you cancel a booking, there might be a cancellation penalty, depending on the date.
 
-The cancellation penalty rate varies from 0 to 100 percent and is defined for each date. This data is available at the booking evaluation step.
+The cancellation penalty rate varies from 0 to 100 percent and depends on the date. This data is available at the booking evaluation step.
 
 ## Payments flow
 The API supports only the credit flow, either prepaid or contracted.
 
-Payments for bookings are charged from the agency account, which is replenished by the Accounts team, based on payment documents or your contract.
+Payments for bookings come from the agency account. The Accounts team adds money to your account, based on payment documents or your contract.
 
 You can access the account balance using the agent application on [HappyTravel.com](https://happytravel.com).
 
@@ -301,7 +301,7 @@ If you are not sure, try parsing the token on a website like [JWT.io](https://jw
 _Forbidden_ means that the client has a valid token but does not have permission for an operation. This is not common, and the best solution is to check that the URL is correct.
 
 ### Not Found (404) and Method Not Allowed (405) errors
-These error codes indicate that the request is incorrect. _Not Found_ means that the URL is incorrect, and _Method Not Allowed_ means that the HTTP method is incorrect.
+These error codes show that the request is incorrect. _Not Found_ means that the URL is incorrect, and _Method Not Allowed_ means that the HTTP method is incorrect.
 
 ## Requests walkthrough
 Here are example requests in the typical order.
