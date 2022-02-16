@@ -10,15 +10,17 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using HappyTravel.SupplierOptionsProvider;
 using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
 namespace HappyTravel.Edo.Api.Services.Analytics
 {
     public class BookingAnalyticsService : IBookingAnalyticsService
     {
-        public BookingAnalyticsService(IAnalyticsService analytics)
+        public BookingAnalyticsService(IAnalyticsService analytics, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _analytics = analytics;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -75,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 bookingRequest.HtId,
                 bookingRequest.RoomContractSetId,
                 booking.TotalPrice,
-                booking.Supplier.ToString());
+                GetSupplierCode(booking.Supplier));
 
             _analytics.LogEvent(@event, "booking-request-sent", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
@@ -97,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 booking.Rooms.Count,
                 booking.HtId,
                 booking.TotalPrice,
-                booking.Supplier.ToString());
+                GetSupplierCode(booking.Supplier));
 
             _analytics.LogEvent(@event, "booking-confirmed", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
@@ -119,13 +121,18 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 booking.Rooms.Count,
                 booking.HtId,
                 booking.TotalPrice,
-                booking.Supplier.ToString());
+                GetSupplierCode(booking.Supplier));
 
             _analytics.LogEvent(@event, "booking-cancelled", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
         }
 
 
+        private string GetSupplierCode(int supplierId) 
+            => _supplierOptionsStorage.GetById(supplierId).Code;
+
+
         private readonly IAnalyticsService _analytics;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
