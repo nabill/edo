@@ -6,7 +6,7 @@ Overall process:
 1. Find accommodations (or places) that meet the search criteria.
 2. Find accommodations that have suitable available rooms.
 3. Choose an accommodation and find possible bookings, called room contract sets.
-4. Choose a room contract set and confirm the final contract terms and prices.
+4. Choose a room contract set and confirm the final contract terms and price.
 5. Book the selected room contract set.
 
 You can also manage bookings by retrieving details or canceling a booking.
@@ -49,11 +49,11 @@ A token expires after 10 minutes. After that, you must request a new token.
 
    POST `https://identity.happytravel.com/connect/token`
 
-   The response contains JSON with a token and other info. Request and response examples are below. The token is in the `access_token` field.
+   The JSON response contains a token in the `access_token` field. Request and response examples are below.
 
-2. Add this token to the `Authorization` header of your requests, using the following format:
+2. Add the token to the `Authorization` header of your requests, using the following format:
 
-   `Authorization: Bearer <token>`, where `<token>` stands for an actual token.
+   `Authorization: Bearer <token>`, where `<token>` means your actual token.
 
 3. Ten minutes after you receive the token, it expires. Send an authorization request again to receive a new one.
 
@@ -96,7 +96,7 @@ curl --request GET \
 The API provides static data but not the means to search through it. To start a search with the API, the client must first search the static data locally and provide the IDs for places, accommodations, or both.
 
 #### Availability search
-The search has three steps:
+The API search has three steps:
 1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
 
    This step returns accommodations and room contract sets that match the search criteria. This search fetches cached data. Changes can occur after the cache update, so this may not include all room contract sets for each accommodation.
@@ -107,7 +107,7 @@ The search has three steps:
 
 3. [Booking evaluation (prebooking)](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)
 
-   This step concludes the search. This fetches the final price and terms for the selected room contract set and confirms that booking is possible.
+   This final step of the search fetches the final price and terms for the selected room contract set and confirms that booking is possible.
    
 The process starts as a wide search and narrows the results at each step:
 
@@ -122,14 +122,14 @@ Data from each step:
 
 You use all three IDs during booking and can only fetch them during the search steps. The first step returns all three, but the initial `RoomContractSetId` can change and may not be valid for booking evaluation or booking.
 
-### Wide availability search models
+### Wide availability search types
 
 You can do three types of wide availability search:
 - Single country search
 - Single city search
 - Multiple hotel search (up to 1000 hotels per request)
 
-The `ids` field in the request to [start wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post) selects the search mode. You can add multiple location IDs to the request, where each is a country ID, locality ID, or accommodation ID.
+The `ids` field in the request to [start wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post) selects the search type. You can add multiple location IDs to the request, where each is a country ID, locality ID, or accommodation ID.
 
 For example, this request searches within `Locality_607184`:
 ```json
@@ -191,15 +191,15 @@ This endpoint returns the search state and results in a single model:
 
 ![search polling loop](https://user-images.githubusercontent.com/41554067/153536132-9a1c809d-2d0b-4757-8f02-712ca0edd4e6.png)
 
-### Search results lifetime
+### Search result lifetimes
 Every search step returns info with a short lifetime. You can use this for booking until it expires.
 
-Search results lifetimes:
+Limits:
 - Wide availability search: _10 minutes_
 - Room selection: _10 minutes_
 - Booking evaluation: _10 minutes_
 
-For example, if you search for a hotel, wait an hour, and then try to book, the booking fails. Make sure that you handle lifetimes correctly so you do not try to book with expired results.
+For example, if you search for a hotel, wait an hour, and then try to book, the booking fails. Make sure to handle lifetimes correctly so you do not try to book with expired results.
 
 ## Booking flow
 You use data from the Booking evaluation step to book a room contract set. This creates a booking, which you can then manage.
@@ -253,7 +253,7 @@ When you cancel a booking, there might be a cancellation penalty, depending on t
 
 The cancellation penalty rate varies from 0 to 100 percent and depends on the date. This data is available at the booking evaluation step.
 
-## Payments flow
+## Payment flow
 The API supports only the credit flow, either prepaid or contracted.
 
 Payments for bookings come from the agency account. The Accounts team adds money to your account, based on payment documents or your contract.
@@ -867,15 +867,9 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
 --header 'Authorization: Bearer <token>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "nationality": "ru",
-    "rejectIfUnavailable": true,
-    "residency": "ru",
-    "searchId": "0a984683-08c3-40df-babf-496f83aefcd3",
     "accommodationId": "Accommodation_11064994",
+    "searchId": "0a984683-08c3-40df-babf-496f83aefcd3",
     "roomContractSetId": "f7ee0157-91cd-4cc0-8c48-095e1462c0fe",
-    "evaluationToken": "",
-    "mainPassengerName": "John Smith",
-    "itineraryNumber": "",
     "clientReferenceCode": "AAAAA-81",
     "roomDetails": [
         {
@@ -888,14 +882,7 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
                     "title": "Mr"
                 }
             ],
-            "type": "NotSpecified",
-            "isExtraBedNeeded": true
-        }
-    ],
-    "features": [
-        {
-            "type": "None",
-            "value": "string"
+            "type": "NotSpecified"
         }
     ]
 }'
