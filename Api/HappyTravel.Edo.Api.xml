@@ -1688,13 +1688,6 @@
                 Prevents authorization policies execution for not authenticated clients
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Infrastructure.SupplierConnectors.ConnectorClient.ExecuteWithRetryOnUnauthorized(System.Func{System.Net.Http.HttpRequestMessage},System.String,System.Threading.CancellationToken)">
-            <summary>
-            Method covers two situations:
-            1. EDO has invalid token that is expired or belongs to old instance of Identity server (Identity and connectors were restarted but EDO did not)
-            2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
-            </summary>
-        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.
