@@ -698,7 +698,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
-                options.HttpClientName = HttpClientNames.SupplierOptionsProvider;
+                options.IdentityClientName = HttpClientNames.AccessTokenClient;
                 options.Endpoint = endpoint;
                 options.StorageTimeout = TimeSpan.FromSeconds(60);
                 options.UpdaterInterval = TimeSpan.FromSeconds(60);
