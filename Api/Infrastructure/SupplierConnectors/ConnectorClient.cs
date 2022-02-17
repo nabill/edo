@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -9,23 +8,19 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Polly;
 
 namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 {
     public class ConnectorClient : IConnectorClient
     {
         public ConnectorClient(IHttpClientFactory clientFactory, 
-            IConnectorSecurityTokenManager securityTokenManager,
             ILogger<ConnectorClient> logger)
         {
             _clientFactory = clientFactory;
-            _securityTokenManager = securityTokenManager;
             _logger = logger;
             _serializer = new JsonSerializer
             {
@@ -96,7 +91,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 
             try
             {
-                response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
+                var connectorClient = _clientFactory.CreateClient(HttpClientNames.Connectors);
+                connectorClient.DefaultRequestHeaders.Add("Accept-Language", languageCode);
+                response = await connectorClient.SendAsync(requestFactory(), cancellationToken);
 
                 await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
                 using var streamReader = new StreamReader(stream);
@@ -141,71 +138,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         }
 
 
-        /// <summary>
-        /// Method covers two situations:
-        /// 1. EDO has invalid token that is expired or belongs to old instance of Identity server (Identity and connectors were restarted but EDO did not)
-        /// 2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
-        /// </summary>
-        private async Task<HttpResponseMessage> ExecuteWithRetryOnUnauthorized(Func<HttpRequestMessage> requestFactory, string languageCode, CancellationToken cancellationToken)
-        {
-            using var connectorClient = _clientFactory.CreateClient(HttpClientNames.Connectors);
-            connectorClient.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-            
-            // Passing values throw context to avoid additional closure allocations.
-            var policyContext = new Context(nameof(Send), new Dictionary<string, object>
-            {
-                { nameof(_securityTokenManager.Get), new Func<Task<string>>(_securityTokenManager.Get)},
-                { nameof(requestFactory), requestFactory },
-                { nameof(connectorClient), connectorClient }
-            });
-
-            return await GetUnauthorizedRetryPolicy().ExecuteAsync
-            (
-                action: ExecuteAuthorizedRequest,
-                context: policyContext,
-                cancellationToken: cancellationToken
-            );
-                
-            
-            IAsyncPolicy<HttpResponseMessage> GetUnauthorizedRetryPolicy()
-            {
-                // If unauthorized response returned:
-                // 1. Refreshing token to make sure that it is valid
-                // 2. Trying to send request one more time
-                return Policy
-                    .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
-                    .FallbackAsync
-                    (
-                        onFallbackAsync: WaitAndRefreshToken,
-                        fallbackAction: ExecuteAuthorizedRequest
-                    );
-            }
-            
-            
-            static async Task<HttpResponseMessage> ExecuteAuthorizedRequest (Context context, CancellationToken cancelToken) 
-            {
-                var getTokenFunc = (Func<Task<string>>) context[nameof(_securityTokenManager.Get)];
-                var createRequestFunc = (Func<HttpRequestMessage>) context[nameof(requestFactory)];
-                var client = (HttpClient) context[nameof(connectorClient)];
-
-                var token = await getTokenFunc();
-                var requestMessage = createRequestFunc();
-                requestMessage.SetBearerToken(token);
-
-                return await client.SendAsync(requestMessage, cancelToken);
-            }
-
-
-            async Task WaitAndRefreshToken(DelegateResult<HttpResponseMessage> result, Context context)
-            {
-                const int delayNextRequestMilliseconds = 150;
-                _logger.LogUnauthorizedConnectorResponse(result.Result?.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
-                await Task.Delay(TimeSpan.FromMilliseconds(delayNextRequestMilliseconds), cancellationToken);
-                await _securityTokenManager.Refresh();
-            }
-        }
-
-
         private static HttpRequestMessage WithCustomHeaders(HttpRequestMessage request, Dictionary<string, string> headers)
         {
             if (headers is null)
@@ -219,7 +151,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
        
         
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IConnectorSecurityTokenManager _securityTokenManager;
         private readonly JsonSerializer _serializer;
         private readonly ILogger<ConnectorClient> _logger;
     }
