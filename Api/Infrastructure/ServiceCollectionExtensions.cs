@@ -146,20 +146,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient, string authorityUrl)
         {
-            var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
+            var clientOptions = vaultClient.Get(configuration["Edo:IdentityClient:Options"]).GetAwaiter().GetResult();
             var identityUri = new Uri(new Uri(authorityUrl), "/connect/token").ToString();
             var clientId = clientOptions["clientId"];
             var clientSecret = clientOptions["clientSecret"];
 
-            services.Configure<ConnectorTokenRequestOptions>(options =>
-            {
-                options.Address = identityUri;
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.Scope = clientOptions["connectorsScope"];
-                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
-            });
-            
             services.AddAccessTokenManagement(options =>
             {
                 options.Client.Clients.Add(HttpClientNames.AccessTokenClient, new ClientCredentialsTokenRequest
@@ -233,6 +224,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
                 })
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
 
@@ -433,7 +425,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();
 
             services.AddTransient<IConnectorClient, ConnectorClient>();
-            services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
 
