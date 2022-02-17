@@ -93,13 +93,13 @@ curl --request GET \
 ## Availability search
 ### Search steps
 #### Before starting: Static data search
-The API provides static data but not the means to search through it. To start a search with the API, the client must first search the static data locally and provide the IDs for places, accommodations, or both.
+The API provides static data but not the means to search through it. To start, the client must first download the static data and select the IDs for places, accommodations, or both. Then, the client provides these to the API to search for availability.
 
 #### Availability search
 The API search has three steps:
 1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
 
-   This step returns accommodations and room contract sets that match the search criteria. This search fetches cached data. Changes can occur after the cache update, so this may not include all room contract sets for each accommodation.
+   This step returns accommodations and room contract sets that match the search criteria. This search fetches cached data. The availability may change after the cache update, so the returned room contract sets at this step may not be the most current.
 
 2. [Room selection](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)
 
@@ -216,7 +216,7 @@ Booking process:
 
 2. **Finalization** uses the booking registration from the first step to make a real booking in a supplier's or hotel's system. 
 
-    Many inter-system communication errors are possible. Even if this request fails, the booking can succeed in the supplier's or hotel's system.
+    Many inter-system communication errors are possible. Even if this request fails, the supplier or hotel might still make the booking. Make sure to check the status of bookings that fail at this stage.
 
 ### Booking failure handling logic
 
