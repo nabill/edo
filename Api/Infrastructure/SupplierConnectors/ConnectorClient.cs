@@ -34,34 +34,52 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         }
 
 
-        public Task<Result<TResponse, ProblemDetails>> Get<TResponse>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Get<TResponse>(Uri url, Dictionary<string, string> customHeaders, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Get, url), languageCode, cancellationToken);
-
-
-        public Task<Result<TResponse, ProblemDetails>> Post<TRequest, TResponse>(Uri url, TRequest requestContent, string languageCode = LocalizationHelper.DefaultLanguageCode,
-            CancellationToken cancellationToken = default)
-            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url)
+            => Send<TResponse>(() =>
             {
-                Content = BuildContent(requestContent)
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                return WithCustomHeaders(request, customHeaders);
             }, languageCode, cancellationToken);
 
 
-        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Post<TRequest, TResponse>(Uri url, TRequest requestContent, Dictionary<string, string> customHeaders, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url), languageCode, cancellationToken);
-
-
-        public Task<Result<Unit, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode,
-            CancellationToken cancellationToken = default)
-            => Post<Unit, Unit>(uri, Unit.Instance, languageCode, cancellationToken);
-
-
-        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, Stream stream, string languageCode = LocalizationHelper.DefaultLanguageCode,
-            CancellationToken cancellationToken = default)
-            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url)
+            => Send<TResponse>(() =>
             {
-                Content = new StreamContent(stream)
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = BuildContent(requestContent)
+                };
+
+                return WithCustomHeaders(request, customHeaders);
+            }, languageCode, cancellationToken);
+
+
+        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, Dictionary<string, string> customHeaders, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Send<TResponse>(() =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                return WithCustomHeaders(request, customHeaders);
+            }, languageCode, cancellationToken);
+
+
+        public Task<Result<Unit, ProblemDetails>> Post(Uri uri, Dictionary<string, string> customHeaders, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Post<Unit, Unit>(uri, Unit.Instance, customHeaders, languageCode, cancellationToken);
+
+
+        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, Stream stream, Dictionary<string, string> customHeaders, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Send<TResponse>(() =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StreamContent(stream)
+                };
+
+                return WithCustomHeaders(request, customHeaders);
             }, languageCode, cancellationToken);
 
 
@@ -185,6 +203,18 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                 await Task.Delay(TimeSpan.FromMilliseconds(delayNextRequestMilliseconds), cancellationToken);
                 await _securityTokenManager.Refresh();
             }
+        }
+
+
+        private static HttpRequestMessage WithCustomHeaders(HttpRequestMessage request, Dictionary<string, string> headers)
+        {
+            if (headers is null)
+                return request;
+
+            foreach (var (key, value) in headers)
+                request.Headers.Add(key, value);
+
+            return request;
         }
        
         
