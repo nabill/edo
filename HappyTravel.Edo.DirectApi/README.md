@@ -328,7 +328,7 @@ Common errors are:
 | **{Field} must not be empty** | A mandatory request field is missing or set to the default value (`"Unspecified"` for enums). Fill in the field and try again. |
 | **{Date} must be greater than {another date}** | A date field has an incorrect value. For example, the check-in date is in the past. |
 | **Wrong country ISO code** | The nationality or residency ISO code has an incorrect format or value. |
-| **Number of adults must be greater than 0** | A requested room has no adults. You must specify the number of adults in the request. |
+| **Adults number must be greater than 0** | A requested room has no adults. You must specify the number of adults in the request. |
 | **Passengers don't have a leader** | You must have at least one passenger with the `"IsLeader"` flag set to `"TRUE"` in a booking request. |
 
 ### Unauthorized (401) and Forbidden (403) errors
