@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using Grpc.Core;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
@@ -11,16 +14,18 @@ using HappyTravel.EdoContracts.Grpc.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Prometheus;
+using ProtoBuf.Grpc;
 
 namespace HappyTravel.Edo.Api.Services.Connectors;
 
 public class SupplierGrpcConnector : ISupplierConnector
 {
-    public SupplierGrpcConnector(string supplierName, IConnectorGrpcService connectorClient, ILogger<SupplierGrpcConnector> logger)
+    public SupplierGrpcConnector(string supplierName, IConnectorGrpcService connectorClient, ILogger<SupplierGrpcConnector> logger, Dictionary<string, string> customHeaders)
     {
         _supplierName = supplierName;
         _connectorClient = connectorClient;
         _logger = logger;
+        _customHeaders = customHeaders;
     }
     
     
@@ -28,7 +33,7 @@ public class SupplierGrpcConnector : ISupplierConnector
     {
         return ExecuteWithLogging(Counters.WideAvailabilitySearch, async () =>
         {
-            var result = await _connectorClient.GetWideAvailability(availabilityRequest);
+            var result = await _connectorClient.GetWideAvailability(availabilityRequest, GetCallOptions());
             return result.Result.IsFailure
                 ? Result.Failure<Availability, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
                 : result.Result.Value;
@@ -44,7 +49,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             {
                 AvailabilityId = availabilityId,
                 AccommodationId = accommodationId
-            });
+            }, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<AccommodationAvailability, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -61,7 +66,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             {
                 AvailabilityId = availabilityId,
                 RoomContractSetId = roomContractSetId
-            });
+            }, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<RoomContractSetAvailability?, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -78,7 +83,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             {
                 AvailabilityId = availabilityId,
                 RoomContractSetId = roomContractSetId
-            });
+            }, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<Deadline, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -91,7 +96,7 @@ public class SupplierGrpcConnector : ISupplierConnector
     {
         return ExecuteWithLogging(Counters.Booking, async () =>
         {
-            var result = await _connectorClient.Book(request);
+            var result = await _connectorClient.Book(request, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<Booking, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -107,7 +112,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             var result = await _connectorClient.CancelBooking(new CancelBookingRequest
             {
                 ReferenceCode = referenceCode
-            });
+            }, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<Unit, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -123,7 +128,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             var result = await _connectorClient.GetBooking(new BookingInfoRequest
             {
                 ReferenceCode = referenceCode
-            });
+            }, GetCallOptions());
             
             return result.Result.IsFailure
                 ? Result.Failure<Booking, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
@@ -156,9 +161,25 @@ public class SupplierGrpcConnector : ISupplierConnector
 
         return result;
     }
+
+
+    private CallOptions GetCallOptions()
+    {
+        Metadata metadata = null;
+
+        if (_customHeaders is not null)
+        {
+            metadata = new Metadata();
+            foreach (var (key, value) in _customHeaders)
+                metadata.Add(key, value);
+        }
+
+        return new CallOptions(headers: metadata);
+    }
     
     
     private readonly string _supplierName;
     private readonly IConnectorGrpcService _connectorClient;
     private readonly ILogger<SupplierGrpcConnector> _logger;
+    private readonly Dictionary<string, string> _customHeaders;
 }

@@ -48,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 supplierName: supplier.Name,
                 connectorClient: client,
                 baseUrl: supplier.ConnectorUrl,
-                logger: logger);
+                logger: logger,
+                customHeaders: supplier.CustomHeaders);
         }
 
 
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             
             return new SupplierGrpcConnector(supplierName: supplier.Name,
                 connectorClient: client,
-                logger: logger);
+                logger: logger,
+                customHeaders: supplier.CustomHeaders);
         }
 
 
