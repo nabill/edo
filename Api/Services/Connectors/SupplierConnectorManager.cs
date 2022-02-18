@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.EdoContracts.Grpc.Services;
-using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -48,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 supplierName: supplier.Name,
                 connectorClient: client,
                 baseUrl: supplier.ConnectorUrl,
-                logger: logger);
+                logger: logger,
+                customHeaders: supplier.CustomHeaders);
         }
 
 
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             
             return new SupplierGrpcConnector(supplierName: supplier.Name,
                 connectorClient: client,
-                logger: logger);
+                logger: logger,
+                customHeaders: supplier.CustomHeaders);
         }
 
 

@@ -146,118 +146,52 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient, string authorityUrl)
         {
-            var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
+            var clientOptions = vaultClient.Get(configuration["Edo:IdentityClient:Options"]).GetAwaiter().GetResult();
             var identityUri = new Uri(new Uri(authorityUrl), "/connect/token").ToString();
             var clientId = clientOptions["clientId"];
             var clientSecret = clientOptions["clientSecret"];
 
-            services.Configure<ConnectorTokenRequestOptions>(options =>
-            {
-                options.Address = identityUri;
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.Scope = clientOptions["connectorsScope"];
-                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
-            });
-            
             services.AddAccessTokenManagement(options =>
             {
-                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
+                options.Client.Clients.Add(HttpClientNames.AccessTokenClient, new ClientCredentialsTokenRequest
                 {
                     Address = identityUri,
                     ClientId = clientId,
                     ClientSecret = clientSecret,
-                    Scope = clientOptions["mapperScope"]
-                });
-                
-                options.Client.Clients.Add(HttpClientNames.MapperManagementIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["mapperManagementScope"]
-                });
-                
-                options.Client.Clients.Add(HttpClientNames.VccApiIdentity, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["vccScope"]
-                });
-
-                options.Client.Clients.Add(HttpClientNames.DacIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["dacManagementScope"]
-                });
-
-                options.Client.Clients.Add(HttpClientNames.UsersEditIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["odawaraUsersEditScope"]
-                });
-                
-                options.Client.Clients.Add(HttpClientNames.SupplierOptionsProviderIdentityClient, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["supplierOptionsProviderScope"]
-                });
-                
-                options.Client.Clients.Add(HttpClientNames.CurrencyServiceIdentity, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["currencyServiceScope"]
-                });
-                
-                options.Client.Clients.Add(HttpClientNames.ConnectorsIdentity, new ClientCredentialsTokenRequest
-                {
-                    Address = identityUri,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret,
-                    Scope = clientOptions["connectorsScope"]
                 });
             });
             
-            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             
-            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.MapperManagementIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
             
-            services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.VccApiIdentity, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
             });
 
-            services.AddClientAccessTokenHttpClient(HttpClientNames.DacManagementClient, HttpClientNames.DacIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.DacManagementClient, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
-            services.AddClientAccessTokenHttpClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.UsersEditIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             });
 
-            services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.SupplierOptionsProviderIdentityClient, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
             }); 
 
-            services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.CurrencyServiceIdentity, client =>
+            services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
             })
@@ -279,17 +213,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.AddHttpClient(HttpClientNames.ConnectorsGrpc)
-                .AddClientAccessTokenHandler(HttpClientNames.ConnectorsIdentity);
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
             {
                 o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
-            }).AddClientAccessTokenHandler(HttpClientNames.CurrencyServiceIdentity);
+            }).AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
                 })
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
 
@@ -490,7 +425,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();
 
             services.AddTransient<IConnectorClient, ConnectorClient>();
-            services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
 
@@ -764,7 +698,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
-                options.HttpClientName = HttpClientNames.SupplierOptionsProvider;
+                options.IdentityClientName = HttpClientNames.AccessTokenClient;
                 options.Endpoint = endpoint;
                 options.StorageTimeout = TimeSpan.FromSeconds(60);
                 options.UpdaterInterval = TimeSpan.FromSeconds(60);
@@ -830,7 +764,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 services.AddVccService(options =>
                 {
                     options.VccEndpoint = configuration["VccService:Endpoint"];
-                    options.IdentityClientName = HttpClientNames.VccApiIdentity;
+                    options.IdentityClientName = HttpClientNames.AccessTokenClient;
                 });
                 services.AddTransient<ICreditCardProvider, VirtualCreditCardProvider>();
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -15,12 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnector : ISupplierConnector
     {
-        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
+        public SupplierConnector(string supplierName, IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger, Dictionary<string, string> customHeaders)
         {
             _supplierName = supplierName;
             _connectorClient = connectorClient;
             _baseUrl = baseUrl;
             _logger = logger;
+            _customHeaders = customHeaders;
         }
         
         
@@ -29,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(Counters.WideAvailabilitySearch, () =>
             {
                 return _connectorClient.Post<AvailabilityRequest, Availability>(
-                    new Uri(_baseUrl + "accommodations/availabilities", UriKind.Absolute), request, languageCode);
+                    new Uri(_baseUrl + "accommodations/availabilities", UriKind.Absolute), request, _customHeaders, languageCode);
             });
         }
 
@@ -40,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(Counters.RoomSelection, () =>
             {
                 return _connectorClient.Post<AccommodationAvailability>(
-                    new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
+                    new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), _customHeaders, languageCode);
             });
         }
         
@@ -50,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(Counters.Evaluation, () =>
             {
                 return _connectorClient.Post<RoomContractSetAvailability?>(
-                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}", UriKind.Absolute), languageCode);
+                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}", UriKind.Absolute), _customHeaders, languageCode);
             });
         }
 
@@ -60,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(Counters.BookingDeadline, () =>
             {
                 var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline", UriKind.Absolute);
-                return _connectorClient.Get<Deadline>(uri, languageCode);
+                return _connectorClient.Get<Deadline>(uri, _customHeaders, languageCode);
             });
         }
 
@@ -71,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 return _connectorClient.Post<BookingRequest, Booking>(
                     new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute),
-                    request, languageCode);
+                    request, _customHeaders, languageCode);
             });
         }
 
@@ -81,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(Counters.Cancellation, () =>
             {
                 return _connectorClient.Post(new Uri(_baseUrl + "accommodations/bookings/" + referenceCode + "/cancel",
-                    UriKind.Absolute));
+                    UriKind.Absolute), _customHeaders);
             });
         }
 
@@ -92,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 return _connectorClient.Get<Booking>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
-                        UriKind.Absolute), languageCode);
+                        UriKind.Absolute), _customHeaders, languageCode);
             });
         }
 
@@ -101,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(Counters.BookingAsyncResponse, () =>
             {
-                return _connectorClient.Post<Booking>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
+                return _connectorClient.Post<Booking>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream, _customHeaders);
             });
         }
         
@@ -132,5 +134,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
         private readonly ILogger<SupplierConnector> _logger;
+        private readonly Dictionary<string, string> _customHeaders;
     }
 }

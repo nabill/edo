@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
 {
     public readonly struct SlimAccommodationData
     {
-        public SlimAccommodationData(string htId, string name, string countryName, string localityName, string localityZoneName, string address, AccommodationRatings rating)
+        public SlimAccommodationData(string htId, string name, string countryName, string localityName, string localityZoneName, string address, AccommodationRatings rating, bool isActive)
         {
             HtId = htId ?? string.Empty;
             Name = name ?? string.Empty;
@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
             LocalityZoneName = localityZoneName;
             Address = address ?? string.Empty;;
             Rating = rating;
+            IsActive = isActive;
         }
 
 
@@ -23,5 +24,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
         public string LocalityZoneName { get; init; }
         public string Address { get; init; }
         public AccommodationRatings Rating { get; init; }
+        public bool IsActive { get; init; }
     }
 }
