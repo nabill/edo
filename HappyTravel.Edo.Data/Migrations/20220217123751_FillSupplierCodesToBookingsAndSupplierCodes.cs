@@ -41,7 +41,8 @@ namespace HappyTravel.Edo.Data.Migrations
                 (29, "withinearth"),
                 (30, "mtsCityBreaks"),
                 (31, "avraTours"),
-                (32, "ddHolidays")
+                (32, "ddHolidays"),
+                (33, "htTest")
             };
 
             foreach (var (from, to) in fromTo)
