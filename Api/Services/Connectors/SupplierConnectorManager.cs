@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.EdoContracts.Grpc.Services;
-using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

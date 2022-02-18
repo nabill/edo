@@ -5,16 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
-using Microsoft.Extensions.Options;
 using Xunit;
 using Moq;
 

@@ -784,6 +784,43 @@
                 Confirm credit card payment
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Add">
+            <summary>
+            Gets all suppliers
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Add(System.String)">
+            <summary>
+            Gets supplier by code
+            </summary>
+            <param name="code">Supplier code</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Add(HappyTravel.SupplierOptionsClient.Models.RichSupplier)">
+            <summary>
+            Adds a new supplier
+            </summary>
+            <param name="supplier">A new supplier info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Modify(System.String,HappyTravel.SupplierOptionsClient.Models.RichSupplier)">
+            <summary>
+            Modifies existing supplier
+            </summary>
+            <param name="code">Supplier code</param>
+            <param name="supplier">Supplier data</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Activate(System.String)">
+            <summary>
+            Activates a supplier
+            </summary>
+            <param name="code">Supplier code</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Deactivate(System.String)">
+            <summary>
+            Deactivates a supplier
+            </summary>
+            <param name="code">Supplier code</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
@@ -1686,13 +1723,6 @@
         <member name="T:HappyTravel.Edo.Api.Infrastructure.ForbidUnauthenticatedPolicyEvaluator">
             <summary>
                 Prevents authorization policies execution for not authenticated clients
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Infrastructure.SupplierConnectors.ConnectorClient.ExecuteWithRetryOnUnauthorized(System.Func{System.Net.Http.HttpRequestMessage},System.String,System.Threading.CancellationToken)">
-            <summary>
-            Method covers two situations:
-            1. EDO has invalid token that is expired or belongs to old instance of Identity server (Identity and connectors were restarted but EDO did not)
-            2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
