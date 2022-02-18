@@ -122,9 +122,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var parentAgencyId = await _context.Agencies
                     .Where(a => a.Id.ToString() == data.SubjectScopeId)
                     .Select(a => a.ParentId)
-                    .SingleOrDefaultAsync() ?? int.Parse(data.SubjectScopeId);
+                    .SingleOrDefaultAsync();
+                
+                // Do not apply bonuses if agency has no parents
+                if (parentAgencyId == null)
+                    return Result.Success();
 
-                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId, data.Amount);
+                return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value, data.Amount);
             }
         }
 
