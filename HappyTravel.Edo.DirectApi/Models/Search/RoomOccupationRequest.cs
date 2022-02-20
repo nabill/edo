@@ -18,18 +18,18 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
 
 
         /// <summary>
-        ///     Required. Number of adult passengers.
+        ///     Number of adult passengers
         /// </summary>
         [Required]
         public int AdultsNumber { get; }
 
         /// <summary>
-        ///     Ages of each child.
+        ///     Ages of each child
         /// </summary>
         public List<int> ChildrenAges { get; }
 
         /// <summary>
-        ///     Desirable room type.
+        ///     Desirable room type
         /// </summary>
         public RoomTypes Type { get; }
 

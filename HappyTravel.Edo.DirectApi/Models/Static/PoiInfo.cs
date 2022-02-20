@@ -17,27 +17,27 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The name of a POI.
+        ///     Name of the point of interest
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        ///     The POI description.
+        ///     Description of the point of interest
         /// </summary>
         public string Description { get; }
 
         /// <summary>
-        ///     The distance to a POI in meters.
+        ///     Distance to the point of interest in meters
         /// </summary>
         public double Distance { get; }
 
         /// <summary>
-        ///     Travel time to POI in seconds.
+        ///     Travel time to the point of interest in seconds
         /// </summary>
         public double Time { get; }
 
         /// <summary>
-        ///     The type of a POI.
+        ///     Type of point of interest
         /// </summary>
         public PoiTypes Type { get; }
     }

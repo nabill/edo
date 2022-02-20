@@ -19,32 +19,32 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         
         
         /// <summary>
-        /// Countries, Localities or Accommodations Ids
+        ///     IDs for countries, localities, or accommodations
         /// </summary>
         public List<string> Ids { get; }
 
         /// <summary>
-        ///     Check-in date.
+        ///     Check-in date
         /// </summary>
         public DateTime CheckInDate { get; }
 
         /// <summary>
-        ///     Check-out date.
+        ///     Check-out date
         /// </summary>
         public DateTime CheckOutDate { get; }
 
         /// <summary>
-        ///     Uppercase Alpha-2 nationality code for a lead passengers. More info on https://www.iban.com/country-codes
+        ///     Uppercase two-letter country code for the lead passenger's nationality (see Alpha-2 codes at https://www.iban.com/country-codes)
         /// </summary>
         public string Nationality { get; }
 
         /// <summary>
-        ///     Uppercase Alpha-2 residency code for a lead passengers. More info on https://www.iban.com/country-codes
+        ///     Uppercase two-letter country code for the lead passenger's residency (see Alpha-2 codes at https://www.iban.com/country-codes)
         /// </summary>
         public string Residency { get; }
 
         /// <summary>
-        ///     Desirable room details.
+        ///     Desired room details
         /// </summary>
         public List<RoomOccupationRequest> RoomDetails { get; }
     }

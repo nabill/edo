@@ -18,30 +18,30 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
 
 
         /// <summary>
-        ///     The passenger age. <b>Required for children</b>.
+        ///     Passenger's age (<b>required for children</b>)
         /// </summary>
         public int? Age { get; }
 
         /// <summary>
-        ///     The passenger first name.
+        ///     Passenger's first name
         /// </summary>
         [Required]
         public string FirstName { get; }
 
         /// <summary>
-        ///     Indicates the passenger as a group leader within a booking.
+        ///     Indicates if the passenger is a group leader for the booking. The flag affects voucher appearance and other booking-related details.
         /// </summary>
         [Required]
         public bool IsLeader { get; }
 
         /// <summary>
-        ///     The passenger last name.
+        ///     Passenger's last name
         /// </summary>
         [Required]
         public string LastName { get; }
 
         /// <summary>
-        ///     The passenger title.
+        ///     Passenger's title
         /// </summary>
         [Required]
         public PassengerTitles Title { get; }

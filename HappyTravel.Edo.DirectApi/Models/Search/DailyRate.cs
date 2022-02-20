@@ -12,6 +12,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount finalPrice, in MoneyAmount gross, PriceTypes type,
             string description)
         {
+            // TODO: check nullability
             Description = description ?? string.Empty;
             FromDate = fromDate;
             Gross = gross;
@@ -22,37 +23,38 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
 
 
         /// <summary>
-        ///     The time frame start date.
+        ///     Start of the date range
         /// </summary>
         public DateTime FromDate { get; }
 
         /// <summary>
-        ///     The time frame end date.
+        ///     End of the date range
         /// </summary>
         public DateTime ToDate { get; }
 
+        // TODO: what's the difference between final and total prices?
         /// <summary>
-        ///     The price currency.
+        ///     Currency of the price
         /// </summary>
         public Currencies Currency => FinalPrice.Currency;
 
         /// <summary>
-        ///     The price description.
+        ///     Description of the price
         /// </summary>
         public string Description { get; }
 
         /// <summary>
-        ///     The gross price of a service. This is just <b>a reference</b> value.
+        ///     Gross price of a service (This is just a <b>reference</b> value)
         /// </summary>
         public MoneyAmount Gross { get; }
 
         /// <summary>
-        ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
+        ///     Final and total net price of a service (This is the <b>actual</b> value for the price)
         /// </summary>
         public MoneyAmount FinalPrice { get; }
 
         /// <summary>
-        ///     The price type.
+        ///     Type of price
         /// </summary>
         public PriceTypes Type { get; }
     }

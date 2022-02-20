@@ -18,33 +18,33 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The check-in time in an accommodation.
+        ///     Check-in time for the accommodation
         /// </summary>
         public string CheckInTime { get; }
 
         /// <summary>
-        ///     The check-out time in an accommodation.
+        ///     Check-out time for the accommodation
         /// </summary>
         public string CheckOutTime { get; }
 
         /// <summary>
-        ///     The time when porters start working in an accommodation.
+        ///     Time when porters start working at the accommodation
         /// </summary>
 
         public string PortersStartTime { get; }
 
         /// <summary>
-        ///     The time when porters end working in an accommodation.
+        ///     Time when porters stop working at the accommodation
         /// </summary>
         public string PortersEndTime { get; }
 
         /// <summary>
-        ///     The time when a room service start working in an accommodation.
+        ///     Time when room service starts at the accommodation
         /// </summary>
         public string RoomServiceStartTime { get; }
 
         /// <summary>
-        ///     The time when a room service end working in an accommodation.
+        ///     Time when room service stops at the accommodation
         /// </summary>
         public string RoomServiceEndTime { get; }
     }

@@ -18,17 +18,17 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         }
         
         /// <summary>
-        ///     Accommodation Id
+        ///     ID for the accommodation
         /// </summary>
         public string AccommodationId { get; }
         
         /// <summary>
-        ///     Search Id
+        ///     ID for the search
         /// </summary>
         public Guid SearchId { get; }
         
         /// <summary>
-        ///     Identifier of chosen room contract set.
+        ///     ID for the room contract set you want to book
         /// </summary>
         public Guid RoomContractSetId { get; }
         
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         public string ClientReferenceCode { get; }
         
         /// <summary>
-        ///     Room details from an availability response.
+        ///     Room details that match the response from the booking evaluation step
         /// </summary>
         public List<BookingRoomDetails> RoomDetails { get; }
     }

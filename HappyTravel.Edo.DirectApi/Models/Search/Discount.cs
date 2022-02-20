@@ -13,12 +13,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         
         
         /// <summary>
-        ///     The discount description.
+        ///     Description of discount
         /// </summary>
         public string? Description { get; }
 
         /// <summary>
-        ///     Discount percentage.
+        ///     Percentage of the discount
         /// </summary>
         public double Percent { get; }
     }

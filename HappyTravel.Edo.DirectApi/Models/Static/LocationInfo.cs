@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
             CountryCode = countryCode;
             CountryId = countryId;
             Country = country;
+            // TODO check nullability
             Locality = locality;
             LocalityId = localityId;
             LocalityZoneId = localityZoneId;
@@ -27,62 +28,63 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The location address.
+        ///     Address of the location
         /// </summary>
         public string Address { get; }
 
         /// <summary>
-        ///     Location coordinates.
+        ///     Coordinates of the location
         /// </summary>
         public GeoPoint Coordinates { get; }
 
         /// <summary>
-        ///     The country code in the ISO 3166-1 Alpha-2 format.
+        ///     Two-letter country code in ISO 3166-1 Alpha-2 format
         /// </summary>
         public string CountryCode { get; }
 
         /// <summary>
-        /// Happy Travel country Id
+        ///     Happytravel.com country ID
         /// </summary>
         public string CountryId { get; }
 
         /// <summary>
-        ///     The location country name.
+        ///     Name of the country
         /// </summary>
         public string Country { get; }
 
+        // TODO: do we need this?
         /// <summary>
-        ///     Indicates if a location a historical place.
+        ///     Indicates if the location is a historical place
         /// </summary>
         public bool IsHistoricalBuilding { get; }
 
         /// <summary>
-        /// Happy Travel localityId
+        ///     Happytravel.com locality ID
         /// </summary>
         public string LocalityId { get; }
 
         /// <summary>
-        ///     The locality name.
+        ///     Name of the locality
         /// </summary>
         public string Locality { get; }
 
         /// <summary>
-        /// Happy Travel locality zone Id
+        ///     Happytravel.com locality zone ID
         /// </summary>
         public string? LocalityZoneId { get; }
 
         /// <summary>
-        ///     The locality zone name.
+        ///     Name of the locality zone
         /// </summary>
         public string? LocalityZone { get; }
 
         /// <summary>
-        ///     The description of a location.
+        ///     Description of a location
         /// </summary>
         public LocationDescriptionCodes LocationDescriptionCode { get; }
 
         /// <summary>
-        ///     The list of transportation facility or POI.
+        ///     List of transportation facilities or other points of interest
         /// </summary>
         public List<PoiInfo> PointsOfInterests { get; }
     }

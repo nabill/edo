@@ -24,13 +24,38 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         }
         
 
+        /// <summary>
+        ///     Meals included in the contract
+        /// </summary>
         public BoardBasisTypes BoardBasis { get; }
+
+        /// <summary>
+        ///     Description of the board basis (included meals)
+        /// </summary>
         public string MealPlan { get;}
         public string ContractDescription { get;}
+
+        /// <summary>
+        ///     Extra notes on the contract
+        /// </summary>
         public List<KeyValuePair<string, string>> Remarks { get;}
+
+        /// <summary>
+        ///     Deadline and cancellation information
+        /// </summary>
         public Deadline Deadline { get;}
+
+        /// <summary>
+        ///     Booked room type
+        /// </summary>
         public RoomTypes Type { get;}
+
+        // TODO: need more details about the nature of the price
         public MoneyAmount Price { get;}
+
+        /// <summary>
+        ///     List of passengers in the room
+        /// </summary>
         public List<Passenger> Passengers { get;}
     }
 }

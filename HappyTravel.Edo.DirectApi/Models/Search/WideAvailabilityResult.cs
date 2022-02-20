@@ -16,22 +16,22 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         }
         
         /// <summary>
-        /// AccommodationId
+        ///     ID for the accommodation
         /// </summary>
         public string AccommodationId { get; }
 
         /// <summary>
-        /// Check in date
+        ///     Check-in date
         /// </summary>
         public DateTime CheckInDate { get; }
         
         /// <summary>
-        /// Check out date
+        ///     Check-out date
         /// </summary>
         public DateTime CheckOutDate { get; }
 
         /// <summary>
-        /// List of available room contracts sets
+        ///     List of available room contracts sets
         /// </summary>
         public List<RoomContractSet> RoomContractSets { get; }
     }

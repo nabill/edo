@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Booking;
-using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.Edo.DirectApi.Services.Bookings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,12 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace HappyTravel.Edo.DirectApi.Controllers
 {
     /// <summary>
-    /// Endpoints to book and manage existing bookings.
+    /// These endpoints allow you to make and manage bookings.
     /// </summary>
     [ApiController]
     [Authorize]
     [ApiVersion("1.0")]
-    [Route("api/{version:apiVersion}/bookings")]
+    [Route("api/{version:apiVersion}/bookings", Name = "Bookings", Order = 3)]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,7 +37,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         
         
         /// <summary>
-        /// Register booking.
+        /// Register a booking
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<Booking>> Register([FromBody] AccommodationBookingRequest request)
@@ -56,7 +53,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
 
 
         /// <summary>
-        /// Finalize booking
+        /// Finalize a booking
         /// </summary>>
         [HttpPost("{clientReferenceCode}/finalize")]
         public async Task<ActionResult<Booking>> Finalize([Required] string clientReferenceCode)
@@ -98,7 +95,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
 
 
         /// <summary>
-        /// Cancel booking
+        /// Cancel a booking
         /// </summary>
         [HttpPost("{clientReferenceCode}/cancel")]
         public async Task<ActionResult<Booking>> Cancel(string clientReferenceCode)

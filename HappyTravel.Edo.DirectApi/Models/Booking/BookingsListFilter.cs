@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     {
         public DateTime? CreatedFrom { get; set; } 
         public DateTime? CreatedTo { get; set; }
+        // TODO: fix naming
         public DateTime? CheckinFrom { get; set; }
         public DateTime? CheckinTo { get; set; }
         public BookingListOrderTypes OrderBy { get; set; }

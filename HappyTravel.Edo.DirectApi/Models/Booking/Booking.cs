@@ -26,17 +26,65 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         }
 
 
+        /// <summary>
+        ///     Client booking reference code
+        /// </summary>
         public string ClientReferenceCode { get; }
+
+        /// <summary>
+        ///     Happytravel.com 
+        /// </summary>
         public string ReferenceCode { get; }
+
+        /// <summary>
+        ///     ID for the accommodation
+        /// </summary>
         public string AccommodationId { get; }
+
+        /// <summary>
+        ///     Date when an accommodation was booked
+        /// </summary>
         public DateTime Created { get; }
+
+        /// <summary>
+        ///     Check-in date
+        /// </summary>
         public DateTime CheckInDate { get; }
+
+        /// <summary>
+        ///     Check-out date
+        /// </summary>
         public DateTime CheckOutDate { get; }
+
+        /// <summary>
+        ///     Total net price of a service (This is the <b>actual</b> value for the price)
+        /// </summary>
         public MoneyAmount TotalPrice { get; }
+
+        /// <summary>
+        ///     Current status of the booking
+        /// </summary>
         public BookingStatuses Status { get; }
+
+        /// <summary>
+        ///     List of rooms in the booking contract
+        /// </summary>
         public List<BookedRoom> Rooms { get; }
+
+        /// <summary>
+        ///     Cancellation information
+        /// </summary>
         public List<CancellationPolicy> CancellationPolicies { get; }
+
+        /// <summary>
+        ///     Date when an accommodation booking was cancelled. 'NULL' means the booking is not cancelled.
+        /// </summary>
         public DateTime? Cancelled { get; }
+
+        // TODO: the name IsPackageRate also uses 
+        /// <summary>
+        ///     Indicates if the rate must be sold as a package
+        /// </summary>
         public bool IsPackage { get; }
     }
 }
