@@ -28,15 +28,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
             return new RoomContractSet(id: roomContractSet.Id,
-                isDirectContract: roomContractSet.IsDirectContract,
-                isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
-                isPackageRate: roomContractSet.IsPackageRate,
                 rate: roomContractSet.Rate,
                 deadline: roomContractSetDeadline,
                 rooms: shiftedRoomContracts,
+                isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 supplier: roomContractSet.Supplier,
-                supplierId: roomContractSet.SupplierId,
-                tags: roomContractSet.Tags);
+                supplierCode: roomContractSet.SupplierCode,
+                supplierId: roomContractSet.SupplierId, tags: roomContractSet.Tags, isDirectContract: roomContractSet.IsDirectContract, isPackageRate: roomContractSet.IsPackageRate);
 
 
             static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline)
