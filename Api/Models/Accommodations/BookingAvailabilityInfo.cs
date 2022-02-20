@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public BookingAvailabilityInfo(string accommodationId, string accommodationName, AccommodationInfo accommodationInfo,
             RoomContractSet roomContractSet, string zoneName, string localityName, string countryName,
             string countryCode, string address, GeoPoint coordinates, DateTime checkInDate,
-            DateTime checkOutDate, int numberOfNights, int supplierId, List<AppliedMarkup> appliedMarkups,
+            DateTime checkOutDate, int numberOfNights, int supplierId, string supplierCode, List<AppliedMarkup> appliedMarkups,
             MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice, string availabilityId,
             string htId, List<PaymentTypes> availablePaymentTypes, bool isDirectContract, Deadline agentDeadline, Deadline supplierDeadline,
             CreditCardRequirement? cardRequirement, AvailabilityRequest availabilityRequest)
@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckOutDate = checkOutDate;
             NumberOfNights = numberOfNights;
             SupplierId = supplierId;
+            SupplierCode = supplierCode;
             AppliedMarkups = appliedMarkups;
             ConvertedSupplierPrice = convertedSupplierPrice;
             OriginalSupplierPrice = originalSupplierPrice;
@@ -63,6 +64,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckOutDate { get; }
         public int NumberOfNights { get; }
         public int SupplierId { get; }
+        public string SupplierCode { get; }
         public List<AppliedMarkup> AppliedMarkups { get; }
         public MoneyAmount ConvertedSupplierPrice { get; }
         public MoneyAmount OriginalSupplierPrice { get; }

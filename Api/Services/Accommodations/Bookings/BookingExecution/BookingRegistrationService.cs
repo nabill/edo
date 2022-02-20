@@ -149,7 +149,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     convertedPrice: availabilityInfo.ConvertedSupplierPrice, 
                     supplierPrice: availabilityInfo.OriginalSupplierPrice, 
                     deadline: availabilityInfo.SupplierDeadline, 
-                    supplier: (int) booking.Supplier,
+                    supplier: booking.Supplier,
+                    supplierCode: booking.SupplierCode,
                     paymentType: availabilityInfo.CardRequirement is not null
                         ? SupplierPaymentType.CreditCard
                         : SupplierPaymentType.DirectPayment,
@@ -173,6 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 PaymentType = paymentMethod,
                 LanguageCode = languageCode,
                 Supplier = availabilityInfo.SupplierId,
+                SupplierCode = availabilityInfo.SupplierCode,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date,
                 CheckInDate = availabilityInfo.CheckInDate,
