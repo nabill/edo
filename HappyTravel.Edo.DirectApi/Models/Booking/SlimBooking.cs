@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     public readonly struct SlimBooking
     {
         public SlimBooking(string clientReferenceCode, string referenceCode, DateTime checkInDate, DateTime checkOutDate, 
-            string accommodationId, MoneyAmount totalPrice, bool isAdvancePurchaseRate, BookingStatuses status, string mainPassengerName)
+            string accommodationId, MoneyAmount totalPrice, BookingStatuses status, string leadPassengerName)
         {
             ClientReferenceCode = clientReferenceCode;
             ReferenceCode = referenceCode;
@@ -15,9 +15,8 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
             CheckOutDate = checkOutDate;
             AccommodationId = accommodationId;
             TotalPrice = totalPrice;
-            IsAdvancePurchaseRate = isAdvancePurchaseRate;
             Status = status;
-            MainPassengerName = mainPassengerName;
+            LeadPassengerName = leadPassengerName;
         }
 
 
@@ -51,20 +50,14 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         /// </summary>
         public MoneyAmount TotalPrice { get; }
 
-        // TODO: SlimBooking has this field, but Booking hasn't
-        /// <summary>
-        ///     Indicates if a contract is an advance purchase
-        /// </summary>
-        public bool IsAdvancePurchaseRate { get; }
         /// <summary>
         ///     Current status of the booking
         /// </summary>
         public BookingStatuses Status { get; }
 
-        // TODO: we use MainPassenger and IsLeader. THat's inconsistent
         /// <summary>
         ///     Name of a group leader for the booking
         /// </summary>
-        public string MainPassengerName { get; }
+        public string LeadPassengerName { get; }
     }
 }

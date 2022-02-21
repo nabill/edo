@@ -50,7 +50,9 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         /// </summary>
         public RoomTypes Type { get;}
 
-        // TODO: need more details about the nature of the price
+        /// <summary>
+        ///     Room price
+        /// </summary>
         public MoneyAmount Price { get;}
 
         /// <summary>

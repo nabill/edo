@@ -32,8 +32,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
                             time: p.Time,
                             type: p.Type,
                             description: p.Description))
-                        .ToList(),
-                    isHistoricalBuilding: accommodation.Location.IsHistoricalBuilding),
+                        .ToList()),
                 photos: accommodation.Photos
                     .Select(p => new ImageInfo(p.SourceUrl, p.Caption))
                     .ToList(),

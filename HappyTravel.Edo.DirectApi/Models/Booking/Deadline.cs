@@ -14,9 +14,8 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
             Remarks = remarks ?? new List<string>(0);
         }
         
-        // TODO: or this is the date when the nearest policy starts?
         /// <summary>
-        ///     From this date no refund are available
+        ///     Free cancellation is available before this date
         /// </summary>
         public DateTime? Date { get; }
 

@@ -8,13 +8,11 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
     {
         [JsonConstructor]
         public LocationInfo(string countryCode, string countryId, string country, string? localityId, string? locality, string? localityZoneId,
-            string? localityZone, in GeoPoint coordinates, string address, LocationDescriptionCodes locationDescriptionCode, List<PoiInfo>? pointsOfInterests,
-            bool isHistoricalBuilding = false)
+            string? localityZone, in GeoPoint coordinates, string address, LocationDescriptionCodes locationDescriptionCode, List<PoiInfo>? pointsOfInterests)
         {
             CountryCode = countryCode;
             CountryId = countryId;
             Country = country;
-            // TODO check nullability
             Locality = locality;
             LocalityId = localityId;
             LocalityZoneId = localityZoneId;
@@ -23,7 +21,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
             Coordinates = coordinates;
             LocationDescriptionCode = locationDescriptionCode;
             PointsOfInterests = pointsOfInterests ?? new List<PoiInfo>(0);
-            IsHistoricalBuilding = isHistoricalBuilding;
         }
 
 
@@ -51,22 +48,16 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
         ///     Name of the country
         /// </summary>
         public string Country { get; }
-
-        // TODO: do we need this?
-        /// <summary>
-        ///     Indicates if the location is a historical place
-        /// </summary>
-        public bool IsHistoricalBuilding { get; }
-
+        
         /// <summary>
         ///     Happytravel.com locality ID
         /// </summary>
-        public string LocalityId { get; }
+        public string? LocalityId { get; }
 
         /// <summary>
         ///     Name of the locality
         /// </summary>
-        public string Locality { get; }
+        public string? Locality { get; }
 
         /// <summary>
         ///     Happytravel.com locality zone ID

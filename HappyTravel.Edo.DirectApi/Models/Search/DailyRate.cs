@@ -9,14 +9,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct DailyRate
     {
         [JsonConstructor]
-        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount finalPrice, in MoneyAmount gross, PriceTypes type,
-            string description)
+        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount totalPrice, in MoneyAmount gross, PriceTypes type, string description)
         {
-            // TODO: check nullability
-            Description = description ?? string.Empty;
+            Description = description;
             FromDate = fromDate;
             Gross = gross;
-            FinalPrice = finalPrice;
+            TotalPrice = totalPrice;
             ToDate = toDate;
             Type = type;
         }
@@ -32,11 +30,10 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// </summary>
         public DateTime ToDate { get; }
 
-        // TODO: what's the difference between final and total prices?
         /// <summary>
         ///     Currency of the price
         /// </summary>
-        public Currencies Currency => FinalPrice.Currency;
+        public Currencies Currency => TotalPrice.Currency;
 
         /// <summary>
         ///     Description of the price
@@ -51,7 +48,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// <summary>
         ///     Final and total net price of a service (This is the <b>actual</b> value for the price)
         /// </summary>
-        public MoneyAmount FinalPrice { get; }
+        public MoneyAmount TotalPrice { get; }
 
         /// <summary>
         ///     Type of price

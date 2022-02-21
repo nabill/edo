@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Booking;
 using HappyTravel.Money.Extensions;
 
@@ -19,9 +18,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                     checkOutDate: b.CheckOutDate.DateTime,
                     accommodationId: b.HtId,
                     totalPrice: b.TotalPrice.ToMoneyAmount(b.Currency),
-                    isAdvancePurchaseRate: b.IsAdvancePurchaseRate,
                     status: b.Status,
-                    mainPassengerName: GetMainPassengerName(b.Rooms)))
+                    leadPassengerName: GetLeadPassengerName(b.Rooms)))
                 .ToList();
 
 
@@ -40,7 +38,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                     .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
                     .ToList(),
                 cancelled: booking.Cancelled?.DateTime,
-                isPackage: booking.IsPackage);
+                isPackageRate: booking.IsPackage);
         }
 
 
@@ -61,13 +59,13 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        private static string GetMainPassengerName(List<Data.Bookings.BookedRoom> rooms)
+        private static string GetLeadPassengerName(List<Data.Bookings.BookedRoom> rooms)
         {
-            var mainPassenger = rooms.SelectMany(r => r.Passengers)
+            var leadPassenger = rooms.SelectMany(r => r.Passengers)
                 .FirstOrDefault(p => p.IsLeader);
 
-            return mainPassenger is not null
-                ? $"{mainPassenger.FirstName} {mainPassenger.LastName}"
+            return leadPassenger is not null
+                ? $"{leadPassenger.FirstName} {leadPassenger.LastName}"
                 : string.Empty;
         }
     }

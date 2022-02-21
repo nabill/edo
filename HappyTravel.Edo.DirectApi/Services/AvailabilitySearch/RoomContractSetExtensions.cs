@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
@@ -26,7 +25,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                         dailyRoomRates: r.DailyRoomRates
                             .Select(dr => new DailyRate(fromDate: dr.FromDate,
                                 toDate: dr.ToDate,
-                                finalPrice: dr.FinalPrice,
+                                totalPrice: dr.TotalPrice,
                                 gross: dr.Gross,
                                 type: dr.Type,
                                 description: dr.Description)).ToList(),
