@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20220221060511_FillSupplierCodes")]
+    partial class FillSupplierCodes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,7 +131,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Ancestors"), "gin");
 
-                    b.ToTable("Agencies", (string)null);
+                    b.ToTable("Agencies");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgencySystemSettings", b =>
@@ -145,7 +147,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("AgencyId");
 
-                    b.ToTable("AgencySystemSettings", (string)null);
+                    b.ToTable("AgencySystemSettings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agent", b =>
@@ -191,7 +193,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Agents", (string)null);
+                    b.ToTable("Agents");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentAgencyRelation", b =>
@@ -229,7 +231,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("AgentId", "AgencyId", "DirectApiClientId");
 
-                    b.ToTable("AgentDirectApiClientRelations", (string)null);
+                    b.ToTable("AgentDirectApiClientRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentRole", b =>
@@ -251,7 +253,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgentRoles", (string)null);
+                    b.ToTable("AgentRoles");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentSystemSettings", b =>
@@ -267,7 +269,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("AgentId", "AgencyId");
 
-                    b.ToTable("AgentSystemSettings", (string)null);
+                    b.ToTable("AgentSystemSettings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.ApiClient", b =>
@@ -300,7 +302,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Name", "PasswordHash");
 
-                    b.ToTable("ApiClients", (string)null);
+                    b.ToTable("ApiClients");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.BalanceNotificationSetting", b =>
@@ -319,7 +321,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BalanceNotificationSettings", (string)null);
+                    b.ToTable("BalanceNotificationSettings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
@@ -349,7 +351,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("AgencyId", "FileName");
 
-                    b.ToTable("UploadedImages", (string)null);
+                    b.ToTable("UploadedImages");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.AppliedBookingMarkup", b =>
@@ -379,7 +381,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Paid");
 
-                    b.ToTable("AppliedBookingMarkups", (string)null);
+                    b.ToTable("AppliedBookingMarkups");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.Booking", b =>
@@ -521,7 +523,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("ReferenceCode");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.BookingAuditLogEntry", b =>
@@ -602,7 +604,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("ReferenceCode");
 
-                    b.ToTable("BookingRequests", (string)null);
+                    b.ToTable("BookingRequests");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry", b =>
@@ -670,7 +672,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("BookingId");
 
-                    b.ToTable("CreditCardPaymentConfirmations", (string)null);
+                    b.ToTable("CreditCardPaymentConfirmations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Documents.Invoice", b =>
@@ -707,7 +709,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("ServiceSource", "ServiceType", "ParentReferenceCode");
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Documents.Receipt", b =>
@@ -747,7 +749,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("ServiceSource", "ServiceType", "ParentReferenceCode");
 
-                    b.ToTable("Receipts", (string)null);
+                    b.ToTable("Receipts");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.EntityLock", b =>
@@ -799,7 +801,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("CodeHash");
 
-                    b.ToTable("UserInvitations", (string)null);
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
@@ -816,7 +818,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Countries", (string)null);
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>
@@ -833,7 +835,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Regions", (string)null);
+                    b.ToTable("Regions");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.Administrator", b =>
@@ -881,7 +883,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("IdentityHash");
 
-                    b.ToTable("Administrators", (string)null);
+                    b.ToTable("Administrators");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.AdministratorRole", b =>
@@ -903,7 +905,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdministratorRoles", (string)null);
+                    b.ToTable("AdministratorRoles");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
@@ -929,7 +931,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ManagementAuditLog", (string)null);
+                    b.ToTable("ManagementAuditLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ServiceAccount", b =>
@@ -946,7 +948,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceAccounts", (string)null);
+                    b.ToTable("ServiceAccounts");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.AgencyMarkupBonusesAccount", b =>
@@ -1004,7 +1006,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Discounts", (string)null);
+                    b.ToTable("Discounts");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.DisplayMarkupFormula", b =>
@@ -1030,7 +1032,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgencyId", "AgentId")
                         .IsUnique();
 
-                    b.ToTable("DisplayMarkupFormulas", (string)null);
+                    b.ToTable("DisplayMarkupFormulas");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicy", b =>
@@ -1056,9 +1058,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("DestinationScopeType")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FunctionType")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("Modified")
                         .HasColumnType("timestamp with time zone");
 
@@ -1081,9 +1080,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<decimal>("Value")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DestinationScopeId");
@@ -1094,7 +1090,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Target");
 
-                    b.ToTable("MarkupPolicies", (string)null);
+                    b.ToTable("MarkupPolicies");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicyAuditLogEntry", b =>
@@ -1122,7 +1118,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MarkupPolicyAuditLogs", (string)null);
+                    b.ToTable("MarkupPolicyAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MaterializationBonusLog", b =>
@@ -1144,7 +1140,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("ReferenceCode", "PolicyId");
 
-                    b.ToTable("MaterializationBonusLogs", (string)null);
+                    b.ToTable("MaterializationBonusLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Notifications.DefaultNotificationOptions", b =>
@@ -1172,7 +1168,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Type");
 
-                    b.ToTable("DefaultNotificationOptions", (string)null);
+                    b.ToTable("DefaultNotificationOptions");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Notifications.Notification", b =>
@@ -1221,7 +1217,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Notifications.NotificationOptions", b =>
@@ -1255,7 +1251,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("AgencyId", "UserId", "UserType", "Type")
                         .IsUnique();
 
-                    b.ToTable("NotificationOptions", (string)null);
+                    b.ToTable("NotificationOptions");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>
@@ -1317,7 +1313,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("ReferenceCode");
 
-                    b.ToTable("PaymentLinks", (string)null);
+                    b.ToTable("PaymentLinks");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
@@ -1355,7 +1351,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AccountBalanceAuditLogs", (string)null);
+                    b.ToTable("AccountBalanceAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AgencyAccount", b =>
@@ -1385,7 +1381,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgencyAccounts", (string)null);
+                    b.ToTable("AgencyAccounts");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCardAuditLogEntry", b =>
@@ -1430,7 +1426,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CreditCardAuditLogs", (string)null);
+                    b.ToTable("CreditCardAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.NGeniusRefund", b =>
@@ -1482,7 +1478,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OfflinePaymentAuditLogs", (string)null);
+                    b.ToTable("OfflinePaymentAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
@@ -1539,7 +1535,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("ReferenceCode");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.StaticData.StaticData", b =>
@@ -1553,7 +1549,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Type");
 
-                    b.ToTable("StaticData", (string)null);
+                    b.ToTable("StaticData");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Suppliers.SupplierOrder", b =>
@@ -1618,7 +1614,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("SupplierOrders", (string)null);
+                    b.ToTable("SupplierOrders");
                 });
 #pragma warning restore 612, 618
         }

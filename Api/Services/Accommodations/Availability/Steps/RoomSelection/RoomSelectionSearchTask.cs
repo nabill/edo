@@ -52,8 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
+                var supplier = _supplierOptionsStorage.GetById(supplierId);
                 var roomContractSets = availabilityDetails.RoomContractSets
-                    .Select(r => r.ToRoomContractSet(_supplierOptionsStorage.GetById(supplierId).Name, supplierId, r.IsDirectContract))
+                    .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Id, supplier.Code, r.IsDirectContract))
                     .ToList();
                 
                 return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,

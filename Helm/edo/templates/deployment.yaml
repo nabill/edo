@@ -58,7 +58,7 @@ spec:
           startupProbe:
             httpGet:
               path: /health
-              port: http
+              port: http-healthc
             timeoutSeconds: 7
             failureThreshold: 12
           envFrom:

@@ -135,10 +135,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
+                var supplier = _supplierOptionsStorage.GetById(result.SupplierId);
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
                 var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
-                return availabilityData.ToRoomContractSetAvailability(_supplierOptionsStorage.GetById(result.SupplierId).Name,
-                    supplierId: result.SupplierId,
+                return availabilityData.ToRoomContractSetAvailability(supplier.Name,
+                    supplierId: supplier.Id,
+                    supplierCode: supplier.Code,
                     paymentMethods: paymentMethods,
                     accommodation: slimAccommodation,
                     countryHtId: result.CountryHtId,
