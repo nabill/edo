@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Payments
         public CreditCardEventType Type { get; set; }
         public DateTimeOffset Created { get; set; }
         public int AgentId { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public ApiCallerTypes ApiCallerType { get; set; }
         public string MaskedNumber { get; set; }
         public decimal Amount { get; set; }

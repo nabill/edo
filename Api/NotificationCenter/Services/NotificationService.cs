@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
@@ -37,7 +38,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), message, notificationType);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(new SlimAdminContext(apiCaller.Id), message, notificationType);
+                return await Send(new SlimAdminContext(Convert.ToInt32(apiCaller.Id)), message, notificationType);
             else
                 return Result.Success();
         }
@@ -56,7 +57,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 return await Send(new SlimAgentContext(agent.AgentId, agent.AgencyId), messageData, notificationType, emails);
             }
             else if (apiCaller.Type == ApiCallerTypes.Admin)
-                return await Send(new SlimAdminContext(apiCaller.Id), messageData, notificationType, emails);
+                return await Send(new SlimAdminContext(Convert.ToInt32(apiCaller.Id)), messageData, notificationType, emails);
             else if (apiCaller.Type == ApiCallerTypes.PropertyOwner)
             {
                 return await _notificationOptionsService.GetNotificationOptions(NoUserId, apiCaller.Type, NoAgencyId, notificationType)

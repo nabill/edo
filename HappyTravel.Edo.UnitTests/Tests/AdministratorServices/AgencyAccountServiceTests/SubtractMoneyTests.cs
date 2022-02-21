@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountSer
 
         private readonly Mock<EdoContext> _edoContextMock;
         private readonly EdoContext _mockedEdoContext;
-        private readonly ApiCaller _apiCaller = new ApiCaller(1, ApiCallerTypes.Admin);
+        private readonly ApiCaller _apiCaller = new ApiCaller(1.ToString(), ApiCallerTypes.Admin);
         private readonly IAgencyAccountService _agencyAccountService;
     }
 }

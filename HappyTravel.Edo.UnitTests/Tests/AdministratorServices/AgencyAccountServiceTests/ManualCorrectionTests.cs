@@ -188,6 +188,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyAccountSer
         }
 
 
-        private readonly ApiCaller _apiCaller = new ApiCaller(1, ApiCallerTypes.Admin);
+        private readonly ApiCaller _apiCaller = new ApiCaller(1.ToString(), ApiCallerTypes.Admin);
     }
 }
