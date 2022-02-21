@@ -7,7 +7,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public static class ContractsMappingExtensions
     {
-        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, string supplier, int supplierId, bool isDirectContract)
+        public static RoomContractSet ToRoomContractSet(this in EdoContracts.Accommodations.Internals.RoomContractSet roomContractSet, string supplier, int supplierId,
+            string supplierCode, bool isDirectContract)
         {
             return new RoomContractSet(roomContractSet.Id,
                 roomContractSet.Rate.ToRate(),
@@ -16,6 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 supplier: supplier,
                 supplierId,
+                supplierCode: supplierCode,
                 roomContractSet.Tags,
                 isDirectContract: isDirectContract,
                 isPackageRate: roomContractSet.IsPackageRate);
