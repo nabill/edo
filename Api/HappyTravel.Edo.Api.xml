@@ -4091,6 +4091,11 @@
             <typeparam name="TDetails">Data type to apply markups</typeparam>
             <returns>Resulting data with applied markups</returns>
         </member>
+        <member name="T:HappyTravel.Edo.Api.Services.Markups.MarkupPolicyValueUpdater">
+            <summary>
+            Temporary class to not break markup management logic before we finish migration to template-free markups
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Startup.AddODataMediaTypes(Microsoft.AspNetCore.Mvc.MvcOptions)">
             <remarks>
             This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
