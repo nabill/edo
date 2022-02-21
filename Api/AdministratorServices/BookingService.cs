@@ -3,14 +3,16 @@ using HappyTravel.Edo.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class BookingService : IBookingService
     {
-        public BookingService(EdoContext context)
+        public BookingService(EdoContext context, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _context = context;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -28,6 +30,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>>? expression = null)
         {
+            var suppliersDictionary = _supplierOptionsStorage.GetAll().ToDictionary(s => s.Code, s => s.Name);
             var query = from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
@@ -49,7 +52,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     CheckOutDate = booking.CheckOutDate,
                     DeadlineDate = booking.DeadlineDate,
                     Status = booking.Status,
-                    Supplier = (int) booking.Supplier
+                    Supplier = suppliersDictionary[booking.SupplierCode],
+                    SupplierCode = booking.SupplierCode
                 };
 
             return expression == null
@@ -59,5 +63,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly EdoContext _context;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
