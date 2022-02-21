@@ -16,14 +16,12 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
         
         
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, int supplier, string accommodationName)
+       public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName)
         {
             // Passing null to credit card types before we'll support the types in contracts
             var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, null, activationDate, dueDate, new Dictionary<string, string>
             {
-
-                // TODO: https://github.com/happy-travel/agent-app-project/issues/1079
-                {"Supplier", supplier.ToString()},
+                {"Supplier", supplierCode},
                 {"AccommodationName", accommodationName}
             });
             if (isFailure)
