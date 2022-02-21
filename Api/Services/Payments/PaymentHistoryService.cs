@@ -42,9 +42,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     on booking.ReferenceCode equals cardAuditLogEntry.ReferenceCode into cardAuditLogEntries
                 from cardAuditLogEntry in cardAuditLogEntries.DefaultIfEmpty()
                 where
-                    accountAuditLogEntry.UserId == agentId &&
+                    accountAuditLogEntry.UserId == agentId.ToString() &&
                     accountAuditLogEntry.ApiCallerType == ApiCallerTypes.Agent ||
-                    cardAuditLogEntry.UserId == agentId &&
+                    cardAuditLogEntry.UserId == agentId.ToString() &&
                     cardAuditLogEntry.ApiCallerType == ApiCallerTypes.Agent
                 let isAccountLogEntry = accountAuditLogEntry != null && cardAuditLogEntry == null
                 let eventType = isAccountLogEntry ? ToPaymentHistoryType(accountAuditLogEntry.Type) : ToPaymentHistoryType(cardAuditLogEntry.Type)

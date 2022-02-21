@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             await _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
-                new ApiCaller(agentId, ApiCallerTypes.Agent),
+                new ApiCaller(agentId.ToString(), ApiCallerTypes.Agent),
                 eventData,
                 payment.ReferenceCode,
                 agentId,
