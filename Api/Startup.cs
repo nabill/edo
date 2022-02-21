@@ -34,8 +34,10 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using HappyTravel.EdoContracts.Grpc.Surrogates;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 
 namespace HappyTravel.Edo.Api
 {
@@ -174,7 +176,16 @@ namespace HappyTravel.Edo.Api
                 .AddApiExplorer()
                 .AddCacheTagHelper()
                 .AddDataAnnotations()
-                .AddOData(opt => opt.Filter().Select().OrderBy().SetMaxTop(100));
+                .ConfigureApplicationPartManager(manager =>
+                {
+                    manager.FeatureProviders.Remove(manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault());
+                    manager.FeatureProviders.Add(new RemoveMetadataControllerFeatureProvider());
+                })
+                .AddOData(opt =>
+                {
+                    opt.Conventions.Remove(opt.Conventions.First(convention => convention is MetadataRoutingConvention));
+                    opt.Filter().Select().OrderBy().SetMaxTop(100);
+                });
         }
 
 
@@ -242,8 +253,7 @@ namespace HappyTravel.Edo.Api
             headersOptions.KnownNetworks.Clear();
             headersOptions.KnownProxies.Clear();
             app.UseForwardedHeaders(headersOptions);
-
-            app.UseHealthChecks("/health");
+            
             app.UseRouting()
                 .UseHttpMetrics()
                 .UseAuthentication()
