@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(Dictionary<int, string>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(Dictionary<string, string>), StatusCodes.Status200OK)]
+        public IActionResult Get()
         {
             var suppliers = _supplierOptionsStorage.GetAll()
-                .ToDictionary(s => s.Id, s => s.Name);
+                .ToDictionary(s => s.Code, s => s.Name);
             
             return Ok(suppliers);
         }
