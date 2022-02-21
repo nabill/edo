@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20220220181307_AddMarkupValuesColumns")]
-    partial class AddMarkupValuesColumns
+    [Migration("20220221060511_FillSupplierCodes")]
+    partial class FillSupplierCodes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1058,9 +1058,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("DestinationScopeType")
                         .HasColumnType("integer");
 
-                    b.Property<int>("FunctionType")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("Modified")
                         .HasColumnType("timestamp with time zone");
 
@@ -1082,9 +1079,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("TemplateSettings")
                         .IsRequired()
                         .HasColumnType("jsonb");
-
-                    b.Property<decimal>("Value")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 

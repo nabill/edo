@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 try
                 {
                     var (isSuccess, _, bookingResult, error) = await TimeObserver.Execute(observedFunc: () => _supplierConnectorManager
-                        .Get(booking.Supplier)
+                        .GetByCode(booking.SupplierCode)
                         .Book(innerRequest, languageCode),
                         notifyFunc: Notify,
                         notifyAfter: TimeSpan.FromSeconds(BookExecutionTimeLimitInSeconds));
@@ -180,7 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
-                supplier: availabilityInfo.SupplierId,
+                supplierCode: availabilityInfo.SupplierCode,
                 accommodationName: booking.AccommodationName);
         }
 
