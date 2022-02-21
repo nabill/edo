@@ -67,6 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Modified = now,
                     TemplateId = settings.TemplateId
                 };
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
@@ -125,6 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Order = settings.Order;
                 policy.TemplateId = settings.TemplateId;
                 policy.TemplateSettings = settings.TemplateSettings;
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
