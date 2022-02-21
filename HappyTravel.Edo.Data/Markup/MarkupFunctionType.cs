@@ -3,6 +3,6 @@
 public enum MarkupFunctionType
 {
     NotSpecified = 0,
-    Multiplication = 1,
-    Addition = 2
+    Percent = 1,
+    Fixed = 2
 }
