@@ -15,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
@@ -26,18 +27,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IBookingRecordManager bookingRecordManager,
             IAccommodationMapperClient accommodationMapperClient,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            ISupplierOptionsStorage supplierOptionsStorage,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
             _accommodationMapperClient = accommodationMapperClient;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _supplierOptionsStorage = supplierOptionsStorage;
             _dateTimeProvider = dateTimeProvider;
         }
         
         
         public IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>> GetAgencyBookingsInfo(AgentContext agentContext)
         {
+            var suppliersDictionary = GetSuppliersDictionary();
+            
             return from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 where booking.AgencyId == agentContext.AgencyId && !BookingStatusesToHide.Contains(booking.Status)
@@ -64,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         Status = booking.Status,
                         PaymentStatus = booking.PaymentStatus,
                         Rooms = booking.Rooms,
-                        SupplierId = booking.Supplier
+                        Supplier = suppliersDictionary[booking.SupplierCode]
                     }
                 };
         }
@@ -129,6 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         /// <returns>List of the slim booking models </returns>
         public IQueryable<SlimAccommodationBookingInfo> GetAgentBookingsInfo(AgentContext agentContext)
         {
+            var suppliersDictionary = GetSuppliersDictionary();
             var bookingData = _context.Bookings
                 .Where(b => b.AgentId == agentContext.AgentId)
                 .Where(b => !BookingStatusesToHide.Contains(b.Status))
@@ -147,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                         Status = b.Status,
                         PaymentStatus = b.PaymentStatus,
                         Rooms = b.Rooms,
-                        SupplierId = b.Supplier,
+                        Supplier = suppliersDictionary[b.SupplierCode],
                         Created = b.Created
                     }
                 );
@@ -170,8 +176,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 .OrderBy(bch => bch.Id)
                 .ToListAsync();
 
-            return history ?? emptyBookingConfirmationHistory;
+            return history ?? EmptyBookingConfirmationHistory;
         }
+
+
+        private Dictionary<string, string> GetSuppliersDictionary()
+            => _supplierOptionsStorage.GetAll()
+                .ToDictionary(s => s.Code, s => s.Name);
 
 
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
@@ -196,7 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 paymentStatus: booking.PaymentStatus,
                 totalPrice: new MoneyAmount(booking.TotalPrice, booking.Currency),
                 cancellationPenalty: BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()),
-                supplierId: supplier,
+                supplier: supplier,
                 agentInformation: agentInformation,
                 paymentMethod: booking.PaymentType,
                 tags: booking.Tags,
@@ -230,11 +241,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
             
             
-            static int? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
+            string? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => booking.Supplier,
-                    {IsSupplierVisible: true} => booking.Supplier,
+                    null => _supplierOptionsStorage.GetByCode(booking.SupplierCode).Name,
+                    {IsSupplierVisible: true} => _supplierOptionsStorage.GetByCode(booking.SupplierCode).Name,
                     _ => null
                 };
             
@@ -267,12 +278,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             BookingStatuses.Created,
             BookingStatuses.Invalid
         };
-        private static readonly List<BookingConfirmationHistoryEntry> emptyBookingConfirmationHistory = new(0);
+        
+        
+        private static readonly List<BookingConfirmationHistoryEntry> EmptyBookingConfirmationHistory = new(0);
 
+        
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
