@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             return wholePart;
         }
 
-        private const int MultiplicationTemplateId = 1;
-        private const int AdditionTemplateId = 2;
+        public const int MultiplicationTemplateId = 1;
+        public const int AdditionTemplateId = 2;
     }
 }

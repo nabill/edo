@@ -7,15 +7,17 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SupplierOptionsProvider;
 using AccommodationInfo = HappyTravel.Edo.Api.Models.Accommodations.AccommodationInfo;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
     public class BookingEvaluationStorage : IBookingEvaluationStorage
     {
-        public BookingEvaluationStorage(IDoubleFlow doubleFlow)
+        public BookingEvaluationStorage(IDoubleFlow doubleFlow, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _doubleFlow = doubleFlow;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -26,6 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var key = BuildKey(searchId, htId, roomContractSetId);
             var roomSetAvailability = availability.Data;
             var location = accommodation.Location;
+            var supplier = _supplierOptionsStorage.GetById(availability.Data.RoomContractSet.SupplierId.Value);
 
             var bookingAvailabilityInfo = new BookingAvailabilityInfo(
                 accommodationId: supplierAccommodationCode,
@@ -41,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkInDate: roomSetAvailability.CheckInDate,
                 checkOutDate: roomSetAvailability.CheckOutDate,
                 numberOfNights: roomSetAvailability.NumberOfNights,
-                supplierId: availability.Data.RoomContractSet.SupplierId.Value,
+                supplierCode: supplier.Code,
                 appliedMarkups: availability.AppliedMarkups,
                 convertedSupplierPrice: availability.ConvertedSupplierPrice,
                 originalSupplierPrice: availability.OriginalSupplierPrice,
@@ -75,5 +78,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         private readonly IDoubleFlow _doubleFlow;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
