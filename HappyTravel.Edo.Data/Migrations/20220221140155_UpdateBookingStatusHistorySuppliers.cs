@@ -6,8 +6,6 @@ namespace HappyTravel.Edo.Data.Migrations
 {
     public partial class UpdateBookingStatusHistorySuppliers : Migration
     {
-        
-        
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             foreach (var (from, to) in FromToMapping)
@@ -15,7 +13,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 migrationBuilder.Sql($@"
                 UPDATE ""BookingStatusHistory"" 
                 SET ""UserId"" = '{to}'
-                WHERE ""UserId"" = {from} AND ""ApiCallerType"" = 5");
+                WHERE ""UserId"" = '{from}' AND ""ApiCallerType"" = 5");
             }
 
         }
@@ -27,7 +25,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 migrationBuilder.Sql($@"
                 UPDATE ""BookingStatusHistory"" 
                 SET ""UserId"" = '{to}'
-                WHERE ""UserId"" = {from} AND ""ApiCallerType"" = 5");
+                WHERE ""UserId"" = '{from}' AND ""ApiCallerType"" = 5");
             }
         }
         
