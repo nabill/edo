@@ -180,7 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
-                supplier: availabilityInfo.SupplierId,
+                supplierCode: availabilityInfo.SupplierCode,
                 accommodationName: booking.AccommodationName);
         }
 

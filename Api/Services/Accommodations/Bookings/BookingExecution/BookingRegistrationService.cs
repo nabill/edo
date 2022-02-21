@@ -173,7 +173,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 Status = BookingStatuses.Created,
                 PaymentType = paymentMethod,
                 LanguageCode = languageCode,
-                Supplier = availabilityInfo.SupplierId,
                 SupplierCode = availabilityInfo.SupplierCode,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date,
