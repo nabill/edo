@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.CreditCards.Services
 {
     public interface ICreditCardProvider
     {
-        Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, int supplier, string accommodationName);
+        Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName);
 
         Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount);
     }

@@ -124,9 +124,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .Select(a => a.ParentId)
                     .SingleOrDefaultAsync();
                 
-                if (parentAgencyId is null)
-                    return Result.Failure($"Cannot retrieve parent agency for agency id '{data.SubjectScopeId}'");
-                
+                // Do not apply bonuses if agency has no parents
+                if (parentAgencyId == null)
+                    return Result.Success();
+
                 return await ApplyAgencyBonus(data.PolicyId, data.ReferenceCode, parentAgencyId.Value, data.Amount);
             }
         }

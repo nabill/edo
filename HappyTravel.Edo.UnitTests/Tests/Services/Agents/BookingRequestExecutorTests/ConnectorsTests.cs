@@ -18,18 +18,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
     public class ConnectorsTests
     {
         [Theory]
-        [InlineData(3)]
-        [InlineData(2)]
-        [InlineData(1)]
-        public async Task Correct_supplier_should_be_passed_when_getting_supplier_connector(int supplierId)
+        [InlineData("supplier1")]
+        [InlineData("supplier2")]
+        [InlineData("supplier3")]
+        public async Task Correct_supplier_should_be_passed_when_getting_supplier_connector(string supplierCode)
         {
             InitializeMocks();
             var service = CreateBookingRequestExecutor();
-            var booking = new Booking { Supplier = supplierId };
+            var booking = new Booking { SupplierCode = supplierCode };
 
             await service.Execute(booking, default, default);
 
-            _supplierConnectorManagerMock.Verify(x => x.Get(supplierId));
+            _supplierConnectorManagerMock.Verify(x => x.GetByCode(supplierCode));
         }
 
 
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 .ReturnsAsync((request, default));
 
             _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<int>()))
+                .Setup(x => x.GetByCode(It.IsAny<string>()))
                 .Returns(_supplierConnectorMock.Object);
         }
 
