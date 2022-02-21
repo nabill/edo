@@ -4,7 +4,7 @@
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class FillSupplierCodesToBookingsAndSupplierCodes : Migration
+    public partial class FillSupplierCodes : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,20 +46,22 @@ namespace HappyTravel.Edo.Data.Migrations
             };
 
             foreach (var (from, to) in fromTo)
-            {
-                migrationBuilder.Sql($@"
+        {
+            migrationBuilder.Sql($@"
                 UPDATE ""Bookings"" 
                 SET ""SupplierCode"" = '{to}'
                 WHERE ""Supplier"" = {from}");
                 
-                migrationBuilder.Sql($@"
+            migrationBuilder.Sql($@"
                 UPDATE ""SupplierOrders"" 
                 SET ""SupplierCode"" = '{to}'
                 WHERE ""Supplier"" = {from}");
-            }
         }
+    }
 
         protected override void Down(MigrationBuilder migrationBuilder)
-        { }
+        {
+
+        }
     }
 }
