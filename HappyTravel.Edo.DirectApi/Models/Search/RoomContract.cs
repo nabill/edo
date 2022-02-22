@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 
 namespace HappyTravel.Edo.DirectApi.Models.Search
