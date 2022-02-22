@@ -8,12 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public record AccommodationAvailabilityResult
     {
         [JsonConstructor]
-        public AccommodationAvailabilityResult(Guid searchId, int supplierId, DateTime created, string availabilityId, List<RoomContractSet> roomContractSets,
+        public AccommodationAvailabilityResult(Guid searchId, int supplierId, string supplierCode, DateTime created, string availabilityId,
+            List<RoomContractSet> roomContractSets,
             decimal minPrice, decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, string htId, string supplierAccommodationCode, string countryHtId,
             string localityHtId)
         {
             SearchId = searchId;
             SupplierId = supplierId;
+            SupplierCode = supplierCode;
             Created = created;
             AvailabilityId = availabilityId;
             RoomContractSets = roomContractSets;
@@ -31,6 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public ObjectId Id { get; init; }
         public Guid SearchId { get; init; }
         public int SupplierId { get; init; }
+        public string SupplierCode { get; }
         public DateTime Created { get; init; }
         public string AvailabilityId { get; init; }
         public List<RoomContractSet> RoomContractSets { get; init; }

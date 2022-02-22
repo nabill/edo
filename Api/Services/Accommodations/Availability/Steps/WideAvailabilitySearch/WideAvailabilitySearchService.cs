@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Analytics;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -99,21 +100,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<string, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
         {
-            foreach (var supplier in searchSettings.EnabledConnectors)
+            foreach (var supplierId in searchSettings.EnabledConnectors)
             {
-                var supplierCode = _supplierOptionsStorage.GetById(supplier).Code;
-                if (!accommodationCodes.TryGetValue(supplierCode, out var supplierCodeMappings))
+                var supplier = _supplierOptionsStorage.GetById(supplierId);
+                if (!accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings))
                 {
-                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Id);
                     continue;
                 }
-                
+
                 // Starting search tasks in a separate thread
                 StartSearchTask(supplier, supplierCodeMappings);
             }
 
 
-            void StartSearchTask(int supplierId, List<SupplierCodeMapping> supplierCodeMappings)
+            void StartSearchTask(SlimSupplier supplier, List<SupplierCodeMapping> supplierCodeMappings)
             {
                 Task.Run(async () =>
                 {
@@ -121,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     
                     await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Start(searchId, request, supplierCodeMappings, supplierId, agent, languageCode, searchSettings);
+                        .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
                 });
             }
         }
