@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 if (isFailure)
                     return Result.Failure<Data.Management.Administrator>(error);
 
-                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, email, new Models.Users.ApiCaller(administrator.Id, ApiCallerTypes.Admin));
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, email, new Models.Users.ApiCaller(administrator.Id.ToString(), ApiCallerTypes.Admin));
                 
                 return administrator;
             }
