@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Models.Booking;
 using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
@@ -34,7 +35,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                         adultsNumber: r.AdultsNumber,
                         childrenNumber: r.ChildrenAges.Count,
                         type: r.Type,
-                        deadline: r.Deadline,
+                        deadline: new Deadline(r.Deadline.Date, r.Deadline.Policies
+                            .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
+                            .ToList(), r.Deadline.Remarks),
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),
                 isPackageRate: rcs.IsPackageRate);
