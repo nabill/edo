@@ -17,10 +17,9 @@ namespace HappyTravel.Edo.Api.Services.Analytics
 {
     public class BookingAnalyticsService : IBookingAnalyticsService
     {
-        public BookingAnalyticsService(IAnalyticsService analytics, ISupplierOptionsStorage supplierOptionsStorage)
+        public BookingAnalyticsService(IAnalyticsService analytics)
         {
             _analytics = analytics;
-            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -77,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 bookingRequest.HtId,
                 bookingRequest.RoomContractSetId,
                 booking.TotalPrice,
-                GetSupplierCode(booking.Supplier));
+                booking.SupplierCode);
 
             _analytics.LogEvent(@event, "booking-request-sent", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
@@ -99,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 booking.Rooms.Count,
                 booking.HtId,
                 booking.TotalPrice,
-                GetSupplierCode(booking.Supplier));
+                booking.SupplierCode);
 
             _analytics.LogEvent(@event, "booking-confirmed", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
@@ -121,18 +120,13 @@ namespace HappyTravel.Edo.Api.Services.Analytics
                 booking.Rooms.Count,
                 booking.HtId,
                 booking.TotalPrice,
-                GetSupplierCode(booking.Supplier));
+                booking.SupplierCode);
 
             _analytics.LogEvent(@event, "booking-cancelled", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
         }
 
 
-        private string GetSupplierCode(int supplierId) 
-            => _supplierOptionsStorage.GetById(supplierId).Code;
-
-
         private readonly IAnalyticsService _analytics;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

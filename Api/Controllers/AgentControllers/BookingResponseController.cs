@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/accommodations/responses/etg")]
         public async Task<IActionResult> HandleEtgBookingResponse()
         {
-            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, EtgId);
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, EtgCode);
             return Ok(isFailure ? error : "ok");
         }
 
@@ -65,13 +65,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/accommodations/responses/direct-contracts")]
         public async Task<IActionResult> HandleDirectContractsBookingResponse()
         {
-            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, DirectContractsId);
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, DirectContractsCode);
             return Ok(isFailure ? error : "ok");
         }
 
 
-        private const int EtgId = 4;
-        private const int DirectContractsId = 3;
+        private const string EtgCode = "etg";
+        private const string DirectContractsCode = "directContracts";
         
         
         private readonly WebhookResponseService _bookingWebhookResponseService;

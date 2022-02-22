@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 
 
         public async Task Add(string referenceCode, ServiceTypes serviceType, MoneyAmount convertedSupplierPrice, MoneyAmount originalSupplierPrice,
-            Deadline deadline, int supplier, SupplierPaymentType paymentType, DateTime paymentDate)
+            Deadline deadline, int supplier, string supplierCode, SupplierPaymentType paymentType, DateTime paymentDate)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -38,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 RefundableAmount = 0,
                 State = SupplierOrderState.Created,
                 Supplier = supplier,
+                SupplierCode = supplierCode,
                 Type = serviceType,
                 ReferenceCode = referenceCode,
                 Deadline = deadline,

@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
         public List<AccommodationDeactivationReasons> DeactivationReasons { get; init; }
         public string AddressLineQuery { get; init; }
         public List<AccommodationRatings> Ratings { get; init; }
-        public List<int> Suppliers { get; init; }
+        public List<string> Suppliers { get; init; }
         public bool? HasDirectContract { get; init; }
         public int Skip { get; init; }
         public int Top { get; init; } = 100;

@@ -20,5 +20,7 @@ namespace HappyTravel.Edo.Data.Markup
         public string SubjectScopeId { get; set; }
         public DestinationMarkupScopeTypes DestinationScopeType { get; set; }
         public string DestinationScopeId { get; set; }
+        public MarkupFunctionType FunctionType { get; set; }
+        public decimal Value { get; set; }
     }
 }
