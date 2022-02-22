@@ -14,12 +14,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The description.
+        ///     Description text
         /// </summary>
         public string Description { get; }
 
         /// <summary>
-        ///     The description type.
+        ///     Type of description
         /// </summary>
         public TextualDescriptionTypes Type { get; }
 

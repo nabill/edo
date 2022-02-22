@@ -13,7 +13,14 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         }
         
         
+        /// <summary>
+        ///     Date the policy applies. A newer policy overwrites an older one.
+        /// </summary>
         public DateTime FromDate { get; }
+
+        /// <summary>
+        ///     Percentage of the policy
+        /// </summary>
         public double Percentage { get; }
     }
 }

@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Serializers
             writer.Write(nameof(dailyRate.ToDate), dailyRate.ToDate);
             writer.Write(nameof(dailyRate.Description), dailyRate.Description);
             writer.Write(nameof(dailyRate.Gross), dailyRate.Gross);
-            writer.Write(nameof(dailyRate.FinalPrice), dailyRate.FinalPrice);
+            writer.Write(nameof(dailyRate.TotalPrice), dailyRate.TotalPrice);
             writer.Write(nameof(dailyRate.Type), dailyRate.Type);
             writer.WriteEndDocument();
         }
@@ -38,7 +38,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Serializers
             reader.ReadEndDocument();
 
             return new DailyRate(fromDate: fromDate,
-                toDate: toDate, finalPrice: finalPrice,
+                toDate: toDate, 
+                totalPrice: finalPrice,
                 gross: gross,
                 type: type,
                 description: description);

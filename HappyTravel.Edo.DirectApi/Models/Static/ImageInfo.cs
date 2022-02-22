@@ -5,10 +5,10 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
     public readonly struct ImageInfo
     {
         /// <summary>
-        ///     The picture of a service i.e. a room or an accommodation
+        ///     Picture of a service (a room or accommodation)
         /// </summary>
-        /// <param name="sourceUrl">The URL of an image.</param>
-        /// <param name="caption">The caption for an image.</param>
+        /// <param name="sourceUrl">URL of the image</param>
+        /// <param name="caption">Caption of the image</param>
         [JsonConstructor]
         public ImageInfo(string sourceUrl, string caption)
         {
@@ -18,12 +18,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The caption for an image.
+        ///     Caption of the image
         /// </summary>
         public string Caption { get; }
 
         /// <summary>
-        ///     The URL of an image.
+        ///     URL of the image
         /// </summary>
         public string SourceUrl { get; }
 

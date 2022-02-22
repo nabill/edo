@@ -16,22 +16,22 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The accommodation email.
+        ///     Email address of the accommodation
         /// </summary>
         public List<string> Emails { get; }
 
         /// <summary>
-        ///     The accommodation fax number.
+        ///     Fax number of the accommodation
         /// </summary>
         public List<string> Faxes { get; }
 
         /// <summary>
-        ///     The accommodation phone.
+        ///     Phone number of the accommodation
         /// </summary>
         public List<string> Phones { get; }
 
         /// <summary>
-        ///     The accommodation web site.
+        ///     Web site of the accommodation
         /// </summary>
         public List<string> WebSites { get; }
     }

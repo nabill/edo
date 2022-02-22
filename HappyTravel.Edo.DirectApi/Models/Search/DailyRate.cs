@@ -9,50 +9,49 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct DailyRate
     {
         [JsonConstructor]
-        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount finalPrice, in MoneyAmount gross, PriceTypes type,
-            string description)
+        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount totalPrice, in MoneyAmount gross, PriceTypes type, string description)
         {
-            Description = description ?? string.Empty;
+            Description = description;
             FromDate = fromDate;
             Gross = gross;
-            FinalPrice = finalPrice;
+            TotalPrice = totalPrice;
             ToDate = toDate;
             Type = type;
         }
 
 
         /// <summary>
-        ///     The time frame start date.
+        ///     Start of the date range
         /// </summary>
         public DateTime FromDate { get; }
 
         /// <summary>
-        ///     The time frame end date.
+        ///     End of the date range
         /// </summary>
         public DateTime ToDate { get; }
 
         /// <summary>
-        ///     The price currency.
+        ///     Currency of the price
         /// </summary>
-        public Currencies Currency => FinalPrice.Currency;
+        public Currencies Currency => TotalPrice.Currency;
 
         /// <summary>
-        ///     The price description.
+        ///     Description of the price
         /// </summary>
         public string Description { get; }
 
         /// <summary>
-        ///     The gross price of a service. This is just <b>a reference</b> value.
+        ///     Gross price of a service (This is just a <b>reference</b> value)
         /// </summary>
         public MoneyAmount Gross { get; }
 
         /// <summary>
-        ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
+        ///     Final and total net price of a service (This is the <b>actual</b> value for the price)
         /// </summary>
-        public MoneyAmount FinalPrice { get; }
+        public MoneyAmount TotalPrice { get; }
 
         /// <summary>
-        ///     The price type.
+        ///     Type of price
         /// </summary>
         public PriceTypes Type { get; }
     }

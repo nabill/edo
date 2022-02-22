@@ -31,72 +31,72 @@ namespace HappyTravel.Edo.DirectApi.Models.Static
 
 
         /// <summary>
-        ///     The accommodation ID.
+        ///     ID for the accommodation
         /// </summary>
         public string Id { get; }
 
         /// <summary>
-        ///     The accommodation name.
+        ///     Name of the accommodation
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        ///     The accommodation category.
+        ///     Category of the accommodation
         /// </summary>
         public string? Category { get; }
 
         /// <summary>
-        ///     Contact info.
+        ///     Contact info
         /// </summary>
         public ContactInfo Contacts { get; }
 
         /// <summary>
-        ///     Location info.
+        ///     Location info
         /// </summary>
         public LocationInfo Location { get; }
 
         /// <summary>
-        ///     Accommodation pictures and their descriptions.
+        ///     Accommodation pictures and their descriptions
         /// </summary>
         public List<ImageInfo>? Photos { get; }
 
         /// <summary>
-        ///     The accommodation rating.
+        ///     Accommodation rating
         /// </summary>
         public AccommodationRatings Rating { get; }
 
         /// <summary>
-        ///     The schedule of accommodation services.
+        ///     Schedule of accommodation services
         /// </summary>
         public ScheduleInfo Schedule { get; }
 
         /// <summary>
-        ///     Textual descriptions of an accommodation and its zones.
+        ///     Description of the accommodation or part of the accommodation
         /// </summary>
         public List<TextualDescription>? TextualDescriptions { get; }
 
         /// <summary>
-        ///     The type of a property.
+        ///     Type of property
         /// </summary>
         public PropertyTypes Type { get; }
 
         /// <summary>
-        ///     Name of the hotel chain, where the hotel belongs to (Radisson, Hilton etc.)
+        ///     Name of the hotel chain (such as Radisson or Hilton)
         /// </summary>
         public string? HotelChain { get; }
 
         /// <summary>
-        ///     The dictionary of amenities available in an accommodation.
+        ///     List of amenities available at the accommodation
         /// </summary>
         public List<string> AccommodationAmenities { get; }
 
         /// <summary>
-        ///     The dictionary of all other accommodation stats.
+        ///     Dictionary of all other accommodation info
         /// </summary>
         public Dictionary<string, string>? AdditionalInfo { get; }
 
         /// <summary>
-        ///     The Modification date of accommodation data
+        ///     Date when the accommodation data was last modified
         /// </summary>
         public DateTime? Modified { get; }
     }

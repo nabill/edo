@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Enum;
 using Microsoft.EntityFrameworkCore;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
@@ -58,11 +57,11 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             if (filter.CreatedTo is not null)
                 query = query.Where(b => b.Created <= filter.CreatedTo);
             
-            if (filter.CheckinFrom is not null)
-                query = query.Where(b => b.CheckInDate >= filter.CheckinFrom);
+            if (filter.CheckInFrom is not null)
+                query = query.Where(b => b.CheckInDate >= filter.CheckInFrom);
 
-            if (filter.CheckinTo is not null)
-                query = query.Where(b => b.CheckInDate <= filter.CheckinTo);
+            if (filter.CheckInTo is not null)
+                query = query.Where(b => b.CheckInDate <= filter.CheckInTo);
 
             query = filter.OrderBy switch
             {

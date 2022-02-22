@@ -9,13 +9,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct DailyRate
     {
         [JsonConstructor]
-        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount finalPrice, in MoneyAmount gross, PriceTypes type,
+        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount totalPrice, in MoneyAmount gross, PriceTypes type,
             string description)
         {
             Description = description ?? string.Empty;
             FromDate = fromDate;
             Gross = gross;
-            FinalPrice = finalPrice;
+            TotalPrice = totalPrice;
             ToDate = toDate;
             Type = type;
         }
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The price currency.
         /// </summary>
-        public Currencies Currency => FinalPrice.Currency;
+        public Currencies Currency => TotalPrice.Currency;
 
         /// <summary>
         ///     The price description.
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
         /// </summary>
-        public MoneyAmount FinalPrice { get; }
+        public MoneyAmount TotalPrice { get; }
 
         /// <summary>
         ///     The price type.

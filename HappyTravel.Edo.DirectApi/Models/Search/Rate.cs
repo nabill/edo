@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -9,8 +8,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct Rate
     {
         [JsonConstructor]
-        public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
-            string? description = null)
+        public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null, string? description = null)
         {
             Description = description;
             Gross = gross;
@@ -20,27 +18,27 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         }
         
         /// <summary>
-        ///     The price currency.
+        ///     Currency of the price
         /// </summary>
         public Currencies Currency { get; }
 
         /// <summary>
-        ///     The price description.
+        ///     Description of the price
         /// </summary>
         public string? Description { get; }
 
         /// <summary>
-        ///     The gross price of a service. This is just <b>a reference</b> value.
+        ///     Gross price of a service (This is just a <b>reference</b> value)
         /// </summary>
         public MoneyAmount Gross { get; }
 
         /// <summary>
-        ///     The list of available discounts.
+        ///     List of available discounts
         /// </summary>
         public List<Discount> Discounts { get; }
 
         /// <summary>
-        ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
+        ///     Final and total net price of a service (This is the <b>actual</b> value for the price)
         /// </summary>
         public MoneyAmount FinalPrice { get; }
     }

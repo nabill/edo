@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.DirectApi.Models.Search
 {
@@ -17,22 +16,22 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         }
         
         /// <summary>
-        ///     The set ID.
+        ///     ID for the room contract set
         /// </summary>
         public Guid Id { get; }
         
         /// <summary>
-        ///     The total set price.
+        ///     Total price for the room contract set
         /// </summary>
         public Rate Rate { get; }
         
         /// <summary>
-        ///     The list of room contracts within a set.
+        ///     List of room contracts within a set
         /// </summary>
         public List<RoomContract> Rooms { get; }
         
         /// <summary>
-        /// Indicates that rates must be sold as a package
+        ///     Indicates if the rate must be sold as a package
         /// </summary>
         public bool IsPackageRate { get; }
     }

@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     public readonly struct SlimBooking
     {
         public SlimBooking(string clientReferenceCode, string referenceCode, DateTime checkInDate, DateTime checkOutDate, 
-            string accommodationId, MoneyAmount totalPrice, bool isAdvancePurchaseRate, BookingStatuses status, string mainPassengerName)
+            string accommodationId, MoneyAmount totalPrice, BookingStatuses status, string leadPassengerName)
         {
             ClientReferenceCode = clientReferenceCode;
             ReferenceCode = referenceCode;
@@ -15,20 +15,49 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
             CheckOutDate = checkOutDate;
             AccommodationId = accommodationId;
             TotalPrice = totalPrice;
-            IsAdvancePurchaseRate = isAdvancePurchaseRate;
             Status = status;
-            MainPassengerName = mainPassengerName;
+            LeadPassengerName = leadPassengerName;
         }
 
 
+        /// <summary>
+        ///     Client booking reference code
+        /// </summary>
         public string ClientReferenceCode { get; }
+
+        /// <summary>
+        ///     Happytravel.com reference code
+        /// </summary>
         public string ReferenceCode { get; }
+
+        /// <summary>
+        ///     Check-in date
+        /// </summary>
         public DateTime CheckInDate { get; }
+
+        /// <summary>
+        ///     Check-out date
+        /// </summary>
         public DateTime CheckOutDate { get; }
+
+        /// <summary>
+        ///     ID for the accommodation
+        /// </summary>
         public string AccommodationId { get; }
+
+        /// <summary>
+        ///     Total net price of a service (This is the <b>actual</b> value for the price)
+        /// </summary>
         public MoneyAmount TotalPrice { get; }
-        public bool IsAdvancePurchaseRate { get; }
+
+        /// <summary>
+        ///     Current status of the booking
+        /// </summary>
         public BookingStatuses Status { get; }
-        public string MainPassengerName { get; }
+
+        /// <summary>
+        ///     Name of a group leader for the booking
+        /// </summary>
+        public string LeadPassengerName { get; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 

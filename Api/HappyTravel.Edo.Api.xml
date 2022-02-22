@@ -1950,7 +1950,7 @@
                 The gross price of a service. This is just <b>a reference</b> value.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FinalPrice">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.TotalPrice">
             <summary>
                 The final and total net price of a service. This is <b>the actual</b> value of a price.
             </summary>

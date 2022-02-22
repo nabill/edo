@@ -15,8 +15,19 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         }
 
         
+        /// <summary>
+        ///     ID for the search
+        /// </summary>
         public Guid SearchId { get; }
+
+        /// <summary>
+        ///     ID for the accommodation
+        /// </summary>
         public string AccommodationId { get; }
+
+        /// <summary>
+        ///     Information about selected room contract sets
+        /// </summary>
         public List<RoomContractSet> RoomContractSets { get; }
     }
 }
