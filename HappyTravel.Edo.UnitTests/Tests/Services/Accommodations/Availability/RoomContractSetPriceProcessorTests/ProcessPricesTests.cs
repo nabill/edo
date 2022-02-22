@@ -147,6 +147,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
                 isAdvancePurchaseRate: default,
                 supplier: "",
                 supplierId: 0,
+                supplierCode: "",
                 tags: default,
                 isDirectContract: default,
                 isPackageRate: default);

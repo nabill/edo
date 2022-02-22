@@ -29,18 +29,30 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         
         public ISupplierConnector Get(int key)
         {
+            var supplier = _supplierStorage.GetById(key);
             return _supplierConnectorOptions.CurrentValue.ClientType switch
             {
-                ClientTypes.WebApi => GetRestApiConnector(key),
-                ClientTypes.Grpc => GetGrpcConnector(key),
+                ClientTypes.WebApi => GetRestApiConnector(supplier),
+                ClientTypes.Grpc => GetGrpcConnector(supplier),
                 _ => throw new NotSupportedException($"{_supplierConnectorOptions.CurrentValue.ClientType} not supported")
             };
         }
 
-
-        private ISupplierConnector GetRestApiConnector(int key)
+        
+        public ISupplierConnector GetByCode(string supplierCode)
         {
-            var supplier = _supplierStorage.GetById(key);
+            var supplier = _supplierStorage.GetByCode(supplierCode);
+            return _supplierConnectorOptions.CurrentValue.ClientType switch
+            {
+                ClientTypes.WebApi => GetRestApiConnector(supplier),
+                ClientTypes.Grpc => GetGrpcConnector(supplier),
+                _ => throw new NotSupportedException($"{_supplierConnectorOptions.CurrentValue.ClientType} not supported")
+            };
+        }
+        
+
+        private ISupplierConnector GetRestApiConnector(SlimSupplier supplier)
+        {
             var client = _serviceProvider.GetRequiredService<IConnectorClient>();
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierConnector>>();
             
@@ -53,9 +65,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        private ISupplierConnector GetGrpcConnector(int key)
+        private ISupplierConnector GetGrpcConnector(SlimSupplier supplier)
         {
-            var supplier = _supplierStorage.GetById(key);
             var client = GetGrpcClient(supplier);
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierGrpcConnector>>();
             

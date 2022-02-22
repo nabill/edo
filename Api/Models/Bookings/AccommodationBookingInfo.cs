@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int agencyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, int? supplierId,
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, string supplier,
             BookingAgentInformation agentInformation, PaymentTypes paymentMethod, List<string> tags,
             bool? isDirectContract)
         {
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             PaymentStatus = paymentStatus;
             TotalPrice = totalPrice;
             CancellationPenalty = cancellationPenalty;
-            SupplierId = supplierId;
+            Supplier = supplier;
             AgentInformation = agentInformation;
             PaymentMethod = paymentMethod;
             Tags = tags;
@@ -31,8 +31,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => Equals((BookingId, BookingDetails, AgencyId, PaymentStatus, TotalPrice, SupplierId),
-                (other.BookingId, other.BookingDetails, other.AgencyId, other.PaymentStatus, TotalPrice, SupplierId));
+            => Equals((BookingId, BookingDetails, AgencyId, PaymentStatus, TotalPrice, Supplier),
+                (other.BookingId, other.BookingDetails, other.AgencyId, other.PaymentStatus, TotalPrice, Supplier));
 
 
         public override int GetHashCode() => (BookingId, BookingDetails, AgencyId).GetHashCode();
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
         public MoneyAmount CancellationPenalty { get; }
-        public int? SupplierId { get; }
+        public string Supplier { get; }
         public BookingAgentInformation AgentInformation { get; }
         public PaymentTypes PaymentMethod { get; }
         public List<string> Tags { get; }

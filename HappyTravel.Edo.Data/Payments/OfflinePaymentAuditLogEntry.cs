@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Payments
     {
         public int Id { get; set; }
         public DateTimeOffset Created { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public ApiCallerTypes ApiCallerType { get; set; }
         public string ReferenceCode { get; set; }
     }

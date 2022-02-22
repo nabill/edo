@@ -10,26 +10,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     // TODO: NIJO-1226 Create separate model for client api
     public readonly struct SlimAccommodationBookingInfo
     {
-        [JsonConstructor]
-        public SlimAccommodationBookingInfo(Booking bookingInfo)
-        {
-            Id = bookingInfo.Id;
-            ReferenceCode = bookingInfo.ReferenceCode;
-            AccommodationName = bookingInfo.AccommodationName;
-            CountryName = bookingInfo.Location.Country;
-            LocalityName = bookingInfo.Location.Locality;
-            Deadline = bookingInfo.DeadlineDate;
-            Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
-            CheckInDate = bookingInfo.CheckInDate;
-            CheckOutDate = bookingInfo.CheckOutDate;
-            Status = bookingInfo.Status;
-            PaymentStatus = bookingInfo.PaymentStatus;
-            Rooms = bookingInfo.Rooms;
-            SupplierId = bookingInfo.Supplier;
-            Created = bookingInfo.Created;
-            HtId = bookingInfo.HtId;
-        }
-
         public int Id { get; init; }
 
         public string ReferenceCode { get; init; }
@@ -58,6 +38,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public List<BookedRoom> Rooms { get; init; }
         
-        public int? SupplierId { get; init; }
+        public string Supplier { get; init; }
     }
 }

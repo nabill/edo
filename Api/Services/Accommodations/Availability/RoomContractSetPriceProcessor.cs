@@ -140,14 +140,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             
         static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Rate roomContractSetRate, List<RoomContract> rooms)
             => new (id: roomContractSet.Id,
-                isDirectContract: roomContractSet.IsDirectContract,
                 rate: roomContractSetRate,
+                deadline: roomContractSet.Deadline,
                 rooms: rooms,
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
-                deadline: roomContractSet.Deadline,
                 supplier: roomContractSet.Supplier,
-                supplierId: roomContractSet.SupplierId,
-                tags: roomContractSet.Tags,
-                isPackageRate: roomContractSet.IsPackageRate);
+                supplierCode: roomContractSet.SupplierCode,
+                supplierId: roomContractSet.SupplierId, tags: roomContractSet.Tags, isDirectContract: roomContractSet.IsDirectContract, isPackageRate: roomContractSet.IsPackageRate);
     }
 }
