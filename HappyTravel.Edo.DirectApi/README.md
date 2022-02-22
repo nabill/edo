@@ -27,7 +27,7 @@ Accommodations and booking data include:
 Static data does not change often, so you do not need to download it every time you use the API. Consider updating this data weekly.
 
 Clients search static data locally. A client uses this data to select the accommodations to search for available rooms with the API.
-For more info about the endpoints and models, see [Accommodations-related endpoints](/index.html#tag/Accommodations).
+For more info about the endpoints and models, see [Accommodations-related endpoints](/index.html#tag/Static-Data).
 
 ### Dynamic data
 
@@ -118,15 +118,15 @@ The API provides static data but not the means to search through it. To start, t
 
 The API search has three steps:
 
-1. [Wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post)
+1. [Wide availability search](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches/post)
 
    This step returns accommodations and room contract sets that match the search criteria. This search fetches cached data. The availability may change after the cache update, so the returned room contract sets at this step may not be the most current.
 
-2. [Room selection](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)
+2. [Room selection](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}/get)
 
    This step returns the full list of room contract sets for the chosen accommodation. The data is more accurate because the search is not as broad as in the previous step.
 
-3. [Booking evaluation (prebooking)](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)
+3. [Booking evaluation (prebooking)](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}~1accommodations~1{accommodationId}~1room-contract-sets~1{roomContractSetId}/get)
 
    This final step of the search fetches the final price and terms for the selected room contract set and confirms that booking is possible.
 
@@ -152,7 +152,7 @@ You can do three types of wide availability search:
 - Single city search
 - Multiple hotel search (up to 1000 hotels per request)
 
-The `ids` field in the request to [start wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post) selects the search type. You can add multiple location IDs to the request, where each is a country ID, locality ID, or accommodation ID.
+The `ids` field in the request to [start wide availability search](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches/post) selects the search type. You can add multiple location IDs to the request, where each is a country ID, locality ID, or accommodation ID.
 
 For example, this request searches within `Locality_607184`:
 
@@ -210,7 +210,7 @@ In the current API version, you can only search for accommodations in one countr
 
 The wide availability search may take a long time, especially for a large number of hotels. You can access partial results before the search is complete.
 
-You can start this flow, called the _polling loop_, after you [start the wide availability search](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches/post). During this loop, you can [get availability results](/index.html#tag/Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}/get) until the search finishes or times out.
+You can start this flow, called the _polling loop_, after you [start the wide availability search](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches/post). During this loop, you can [get availability results](/index.html#tag/Availability-Search/paths/~1api~11.0~1availabilities~1searches~1{searchId}/get) until the search finishes or times out.
 > **Note:** The polling request interval must be more than 2 seconds.
 
 This endpoint returns the search state and results in a single model:
@@ -237,8 +237,8 @@ You use data from the Booking evaluation step to book a room contract set. This 
 
 The booking flow has two steps:
 
-1. [Registration](/index.html#tag/Booking/paths/~1api~11.0~1bookings/post)
-2. [Finalization](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
+1. [Registration](/index.html#tag/Bookings/paths/~1api~11.0~1bookings/post)
+2. [Finalization](/index.html#tag/Bookings/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1finalize/post)
 
 Booking process:
 
@@ -276,9 +276,9 @@ The _client reference code_ is unique for your client and is the main identifier
 
 You can manage bookings as follows:
 
-- [Retrieve a list of all bookings](/index.html#tag/Booking/paths/~1api~11.0~1bookings/get)
+- [Retrieve a list of all bookings](/index.html#tag/Bookings/paths/~1api~11.0~1bookings/get)
 - [Retrieve details of a particular booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get)
-- [Cancel a booking](/index.html#tag/Booking/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1cancel/post)
+- [Cancel a booking](/index.html#tag/Bookings/paths/~1api~11.0~1bookings~1{clientReferenceCode}~1cancel/post)
 
 You need a client reference code to work with a particular booking, such as for cancellation.
 
@@ -294,7 +294,7 @@ The API supports only the credit flow, either prepaid or contracted.
 
 Payments for bookings come from the agency account. The Accounts team adds money to your account, based on payment documents or your contract.
 
-You can access the account balance using the agent application on [HappyTravel.com](https://happytravel.com).
+You can access the account balance using the agent application on [Happytravel.com](https://happytravel.com).
 
 ### Account charging flow
 
