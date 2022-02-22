@@ -22,7 +22,7 @@ public class CustomDocumentFilter : IDocumentFilter
                 .ActionDescriptor.EndpointMetadata.First(x=>x is RouteAttribute) as RouteAttribute;
 
             var order = routeAttribute?.Order ?? 0;
-            var oldName = string.Empty;
+            var originalTagName = string.Empty;
             var name = routeAttribute?.Name;
 
             if (name is not null)
@@ -31,13 +31,13 @@ public class CustomDocumentFilter : IDocumentFilter
                 {
                     foreach (var tag in path.Value.Operations[key].Tags)
                     {
-                        oldName = tag.Name ?? string.Empty;
+                        originalTagName = tag.Name ?? string.Empty;
                         tag.Name = name;
                     }
                 }
             }
 
-            var rootTag = swaggerDoc.Tags.FirstOrDefault(t => t.Name == oldName);
+            var rootTag = swaggerDoc.Tags.FirstOrDefault(t => t.Name == originalTagName);
             if (rootTag is not null)
             {
                 rootTag.Name = name;
