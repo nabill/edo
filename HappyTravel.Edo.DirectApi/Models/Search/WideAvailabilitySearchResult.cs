@@ -4,11 +4,10 @@ using System.Text.Json.Serialization;
 
 namespace HappyTravel.Edo.DirectApi.Models.Search
 {
-    // TODO: WideAvailabilityResult and WideSearchResult names are quite similar
-    public readonly struct WideSearchResult
+    public readonly struct WideAvailabilitySearchResult
     {
         [JsonConstructor]
-        public WideSearchResult(Guid searchId, bool isComplete, List<WideAvailabilityResult> accommodations)
+        public WideAvailabilitySearchResult(Guid searchId, bool isComplete, List<WideAvailabilityResult> accommodations)
         {
             SearchId = searchId;
             IsComplete = isComplete;

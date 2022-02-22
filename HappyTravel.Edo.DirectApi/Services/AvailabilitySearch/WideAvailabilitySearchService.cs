@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Search;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest;
 
@@ -34,7 +33,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<WideSearchResult>> GetResult(Guid searchId, AgentContext agent, string languageCode)
+        public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId, AgentContext agent, string languageCode)
         {
             var isComplete = await IsComplete(searchId, agent);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
@@ -44,7 +43,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                 suppliers: searchSettings.EnabledConnectors,
                 languageCode: languageCode);
             
-            return new WideSearchResult(searchId, isComplete, result.MapFromEdoModels());
+            return new WideAvailabilitySearchResult(searchId, isComplete, result.MapFromEdoModels());
         }
 
 

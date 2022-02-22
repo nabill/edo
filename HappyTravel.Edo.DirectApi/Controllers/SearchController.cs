@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         /// If the search is still in progress, you receive a partial list and the `isComplete` flag is `false`.
         /// </remarks>
         [HttpGet("{searchId:guid}")]
-        public async Task<ActionResult<WideSearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
+        public async Task<ActionResult<WideAvailabilitySearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
             var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent, "en");
