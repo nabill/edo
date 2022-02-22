@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -20,12 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IRoomSelectionStorage roomSelectionStorage,
             ISupplierConnectorManager supplierConnectorManager,
             IAccommodationBookingSettingsService accommodationBookingSettingsService, 
+            ISupplierOptionsStorage supplierOptionsStorage,
             ILogger<DeadlineService> logger)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
             _supplierConnectorManager = supplierConnectorManager;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _supplierOptionsStorage = supplierOptionsStorage;
             _logger = logger;
         }
 
@@ -44,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSuppliers);
+                var enabledSupplierIds = enabledSuppliers.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSupplierIds);
                 var selectedRoomSet = selectedResult
                     .SelectMany(r =>
                     {
@@ -67,7 +71,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
+                var enabledSupplierIds = enabledSuppliers.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSupplierIds))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierId, a)))
                     .Where(r => r.a.HtId == htId)
                     .ToList();
@@ -99,6 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
         private readonly ILogger<DeadlineService> _logger;

@@ -82,7 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
+            var enabledConnectorIds = searchSettings.EnabledConnectors.Select(c => _supplierOptionsStorage.GetByCode(c).Id).ToList();
+            var searchStates = await _stateStorage.GetStates(searchId, enabledConnectorIds);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
 
@@ -94,15 +95,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
-            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers, languageCode);
+            
+            var enabledConnectorIds = suppliers.Select(c => _supplierOptionsStorage.GetByCode(c).Id).ToList();
+            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, enabledConnectorIds, languageCode);
         }
 
 
         private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings, Dictionary<string, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
         {
-            foreach (var supplierId in searchSettings.EnabledConnectors)
+            foreach (var supplierCode in searchSettings.EnabledConnectors)
             {
-                var supplier = _supplierOptionsStorage.GetById(supplierId);
+                var supplier = _supplierOptionsStorage.GetByCode(supplierCode);
                 if (!accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings))
                 {
                     await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Id);

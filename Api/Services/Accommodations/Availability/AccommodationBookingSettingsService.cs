@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 ? agencySettings.Value
                 : null;
 
-            List<int> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
+            List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
             AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                 DefaultPassedDeadlineOffersMode;
@@ -89,10 +89,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private List<int> GetEnabledConnectors() 
+        private List<string> GetEnabledConnectors() 
             => _supplierOptionsStorage.GetAll()
                 .Where(s => s.IsEnabled)
-                .Select(x => x.Id)
+                .Select(x => x.Code)
                 .ToList();
 
 

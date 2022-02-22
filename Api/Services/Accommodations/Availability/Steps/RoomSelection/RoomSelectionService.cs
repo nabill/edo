@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IWideAvailabilitySearchStateStorage stateStorage,
             IBookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient, 
+            ISupplierOptionsStorage supplierOptionsStorage,
             ILogger<RoomSelectionService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -38,6 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _bookingAnalyticsService = bookingAnalyticsService;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _mapperClient = mapperClient;
+            _supplierOptionsStorage = supplierOptionsStorage;
             _logger = logger;
             _stateStorage = stateStorage;
         }
@@ -46,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, string htId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            var results = await _stateStorage.GetStates(searchId, settings.EnabledConnectors);
+            var supplierIds = settings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+            var results = await _stateStorage.GetStates(searchId, supplierIds);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
@@ -139,7 +143,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
-            return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
+            var supplierIds = settings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+            return (await _wideAvailabilityStorage.GetResults(searchId, supplierIds))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierId, Result: acr)))
                 .Where(r => r.Result.HtId == htId);
         }
@@ -151,6 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IBookingAnalyticsService _bookingAnalyticsService;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationMapperClient _mapperClient;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly ILogger<RoomSelectionService> _logger;
     }

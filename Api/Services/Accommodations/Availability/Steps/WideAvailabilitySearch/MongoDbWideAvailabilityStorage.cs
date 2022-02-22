@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .Where(r => r.SearchId == searchId && ids.Contains(r.Id));
 
             query = filters.Suppliers is not null
-                ? query.Where(r => filters.Suppliers.Contains(r.SupplierId))
+                ? query.Where(r => filters.Suppliers.Contains(r.SupplierCode))
                 : query.Where(r => suppliers.Contains(r.SupplierId));
 
             if (filters.MinPrice is not null)

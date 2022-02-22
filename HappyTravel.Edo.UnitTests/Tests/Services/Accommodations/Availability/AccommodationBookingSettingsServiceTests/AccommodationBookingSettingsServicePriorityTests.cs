@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             Assert.Equal(default, settings.AdditionalSearchFilters);
             
             var defaultEnabledSuppliers = _suppliers.Where(s => s.IsEnabled)
-                .Select(s => s.Id)
+                .Select(s => s.Code)
                 .ToArray();
             
             for (var i = 0; i < defaultEnabledSuppliers.Length; i++)
@@ -103,11 +103,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [Fact]
         public async Task Agent_settings_must_apply_when_only_agent_settings_found()
         {
-            var expectedSupplierOptions = new List<int> { 1, 2 };
+            var expectedSupplierOptions = new List<string> { "supplier1", "supplier2" };
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<int> { 1, 2},
+                    EnabledSuppliers = new List<string> { "supplier1", "supplier2"},
                     AprMode = AprMode.CardPurchasesOnly,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
@@ -134,18 +134,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [Fact]
         public async Task Agent_settings_must_apply_when_agent_and_agency_settings_found()
         {
-            var expectedSupplierOptions = new List<int> { 1, 2 };
+            var expectedSupplierOptions = new List<string> { "supplier1", "supplier2" };
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<int> { 1, 2 },
+                    EnabledSuppliers = new List<string> { "supplier1", "supplier2" },
                     AprMode = AprMode.CardPurchasesOnly,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<int> { 3, 4},
+                    EnabledSuppliers = new List<string> { "supplier3", "supplier4"},
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
@@ -171,12 +171,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [Fact]
         public async Task Agency_settings_must_apply_when_only_agency_settings_found()
         {
-            var expectedSupplierOptions = new List<int> { 3, 4 };
+            var expectedSupplierOptions = new List<string> { "supplier3", "supplier4" };
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<int> { 3, 4 },
+                    EnabledSuppliers = new List<string> { "supplier3", "supplier4" },
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
