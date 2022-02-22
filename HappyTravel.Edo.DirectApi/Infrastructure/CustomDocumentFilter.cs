@@ -21,6 +21,17 @@ public class CustomDocumentFilter : IDocumentFilter
                 .ActionDescriptor.EndpointMetadata.First(x=>x is RouteAttribute) as RouteAttribute;
 
             var order = routeAttribute?.Order ?? 0;
+            var name = routeAttribute?.Name;
+
+            if (name is not null)
+            {
+                foreach (var key in path.Value.Operations.Keys)
+                {
+                    foreach (var tag in path.Value.Operations[key].Tags)
+                        tag.Name = name;
+                }
+            }
+
             paths.Add(path, order);
         }
 
