@@ -37,11 +37,11 @@ public class CustomDocumentFilter : IDocumentFilter
                 }
             }
 
-            var t = swaggerDoc.Tags.FirstOrDefault(t => t.Name == oldName);
-            if (t is not null)
+            var rootTag = swaggerDoc.Tags.FirstOrDefault(t => t.Name == oldName);
+            if (rootTag is not null)
             {
-                t.Name = name;
-                tags.Add(order, t);
+                rootTag.Name = name;
+                tags.Add(order, rootTag);
             }
 
             paths.Add(path, order);
