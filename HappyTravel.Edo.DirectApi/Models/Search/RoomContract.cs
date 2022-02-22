@@ -41,7 +41,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// </summary>
         public string MealPlan { get; }
 
-        // TODO: check naming and meaning
         /// <summary>
         ///     Code for the contract type
         /// </summary>
@@ -83,7 +82,6 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// </summary>
         public int ChildrenNumber { get; }
 
-        // TODO: we pass a database entity straight to the world
         /// <summary>
         ///     Deadline and cancellation information.
         ///     <b>A null value means an unknown deadline for the first search steps, and it means an empty deadline at the evaluation step.</b>

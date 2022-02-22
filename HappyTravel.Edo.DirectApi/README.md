@@ -646,7 +646,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                                     "currency": "USD"
                                 },
                                 "discounts": [],
-                                "finalPrice": {
+                                "totalPrice": {
                                     "amount": 147.43,
                                     "currency": "USD"
                                 }
@@ -727,7 +727,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                     "currency": "USD"
                 },
                 "discounts": [],
-                "finalPrice": {
+                "totalPrice": {
                     "amount": 147.43,
                     "currency": "USD"
                 }
@@ -760,7 +760,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                             "currency": "USD"
                         },
                         "discounts": [],
-                        "finalPrice": {
+                        "totalPrice": {
                             "amount": 147.43,
                             "currency": "USD"
                         }
@@ -838,7 +838,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                 "currency": "USD"
             },
             "discounts": [],
-            "finalPrice": {
+            "totalPrice": {
                 "amount": 147.43,
                 "currency": "USD"
             }
@@ -871,7 +871,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                         "currency": "USD"
                     },
                     "discounts": [],
-                    "finalPrice": {
+                    "totalPrice": {
                         "amount": 147.43,
                         "currency": "USD"
                     }
@@ -1028,7 +1028,7 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
     ],
     "cancelled": null,
     "isAdvancePurchaseRate": true,
-    "isPackage": false
+    "isPackageRate": false
 }
 ```
 
@@ -1120,7 +1120,7 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
     ],
     "cancelled": null,
     "isAdvancePurchaseRate": true,
-    "isPackage": false
+    "isPackageRate": false
 }
 ```
 
@@ -1155,7 +1155,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/bookings?
         },
         "isAdvancePurchaseRate": true,
         "status": "Confirmed",
-        "mainPassengerName": "John Smith"
+        "leadPassengerName": "John Smith"
     }
 ]
 ```
@@ -1247,7 +1247,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/bookings/
     ],
     "cancelled": null,
     "isAdvancePurchaseRate": true,
-    "isPackage": false
+    "isPackageRate": false
 }
 ```
 
@@ -1338,7 +1338,7 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
     ],
     "cancelled": "2022-01-18T22:13:25.937693",
     "isAdvancePurchaseRate": true,
-    "isPackage": false
+    "isPackageRate": false
 }
 ```
 

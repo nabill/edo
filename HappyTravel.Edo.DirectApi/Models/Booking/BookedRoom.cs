@@ -33,6 +33,10 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         ///     Description of the board basis (included meals)
         /// </summary>
         public string MealPlan { get;}
+
+        /// <summary>
+        ///     Description for the contract, such as "Pool View Suite", "Ocean Club Room", or "Pioneer Cabin"
+        /// </summary>
         public string ContractDescription { get;}
 
         /// <summary>
