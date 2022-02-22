@@ -23,7 +23,7 @@
     "Booking": {
       "Options": "edo/booking-options"
     },
-    "ConnectorClient": {
+    "IdentityClient": {
       "Options": "edo/client"
     },
     "Database": {
