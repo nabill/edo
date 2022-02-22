@@ -613,7 +613,7 @@ curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/availabil
                             "currency": "USD"
                         },
                         "discounts": [],
-                        "finalPrice": {
+                        "totalPrice": {
                             "amount": 147.43,
                             "currency": "USD"
                         }
