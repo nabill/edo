@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
@@ -12,12 +11,10 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
-using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.SupplierOptionsProvider;
+using HappyTravel.SupplierOptionsClient.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage, IWideAvailabilityPriceProcessor priceProcessor,
             ISupplierConnectorManager supplierConnectorManager, IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchTask> logger, IHubContext<SearchHub, ISearchHub> hubContext,
-            IWideAvailabilitySearchStateStorage stateStorage, ISupplierOptionsStorage supplierOptionsStorage)
+            IWideAvailabilitySearchStateStorage stateStorage)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
@@ -41,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _logger = logger;
             _hubContext = hubContext;
             _stateStorage = stateStorage;
-            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -52,17 +48,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 dateTimeProvider: serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 logger: serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
                 hubContext: serviceProvider.GetRequiredService<IHubContext<SearchHub, ISearchHub>>(),
-                stateStorage: serviceProvider.GetRequiredService<IWideAvailabilitySearchStateStorage>(),
-                supplierOptionsStorage:serviceProvider.GetRequiredService<ISupplierOptionsStorage>());
+                stateStorage: serviceProvider.GetRequiredService<IWideAvailabilitySearchStateStorage>());
 
 
         public async Task Start(Guid searchId, Models.Availabilities.AvailabilityRequest availabilityRequest, 
-            List<SupplierCodeMapping> accommodationCodeMappings, int supplierId, 
+            List<SupplierCodeMapping> accommodationCodeMappings, SlimSupplier supplier, 
             AgentContext agent, string languageCode,
             AccommodationBookingSettings searchSettings)
         {
             var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
-            var supplier = _supplierOptionsStorage.GetById(supplierId);
             var supplierConnector = _supplierConnectorManager.GetByCode(supplier.Code);
             using var _ = Counters.WideAccommodationAvailabilitySearchTaskDuration.WithLabels(supplier.Name).NewTimer();
 
@@ -91,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request,
                 string languageCode)
             {
-                var saveToStorageTask = _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplierId);
+                var saveToStorageTask = _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier.Id);
                 var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
@@ -121,7 +115,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
                         
                         return new AccommodationAvailabilityResult(searchId: searchId,
-                            supplierId: supplierId,
+                            supplierId: supplier.Id,
+                            supplierCode: supplier.Code,
                             created: now,
                             availabilityId: details.AvailabilityId,
                             roomContractSets: roomContractSets,
@@ -156,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results) 
-                => _storage.SaveResults(searchId, supplierId, results);
+                => _storage.SaveResults(searchId, supplier.Id, results);
 
 
             Task NotifyClient() 
@@ -178,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     _logger.LogSupplierAvailabilitySearchFailure(searchId, supplier.Name, state.TaskState, state.Error);
                 }
 
-                return _stateStorage.SaveState(searchId, state, supplierId);
+                return _stateStorage.SaveState(searchId, state, supplier.Id);
             }
         }
         
@@ -244,6 +239,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _storage;
         private readonly IHubContext<SearchHub, ISearchHub> _hubContext;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }
