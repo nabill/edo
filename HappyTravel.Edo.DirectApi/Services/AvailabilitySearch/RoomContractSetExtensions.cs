@@ -35,9 +35,11 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
                         adultsNumber: r.AdultsNumber,
                         childrenNumber: r.ChildrenAges.Count,
                         type: r.Type,
-                        deadline: new Deadline(r.Deadline.Date, r.Deadline.Policies
-                            .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
-                            .ToList(), r.Deadline.Remarks),
+                        deadline: new Deadline(r.Deadline.Date, 
+                            r.Deadline.Policies
+                                .Select(p => new CancellationPolicy(p.FromDate, p.Percentage))
+                                .ToList(), 
+                            r.Deadline.Remarks),
                         isAdvancePurchaseRate: r.IsAdvancePurchaseRate))
                     .ToList(),
                 isPackageRate: rcs.IsPackageRate);
