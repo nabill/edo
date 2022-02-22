@@ -108,7 +108,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             async Task<Result<(int SupplierId, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId)>> 
                 GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
-                var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
+                var supplierIds = settings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+                var result = (await _roomSelectionStorage.GetResult(searchId, htId, supplierIds))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets

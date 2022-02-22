@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -6,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Models.Search;
+using HappyTravel.SupplierOptionsProvider;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
@@ -14,12 +16,13 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
     {
         public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
             IWideAvailabilitySearchStateStorage stateStorage, IWideAvailabilitySearchService wideAvailabilitySearchService, 
-            IWideAvailabilityStorage availabilityStorage)
+            IWideAvailabilityStorage availabilityStorage, ISupplierOptionsStorage supplierOptionsStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _stateStorage = stateStorage;
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
             _availabilityStorage = availabilityStorage;
+            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -37,10 +40,11 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         {
             var isComplete = await IsComplete(searchId, agent);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var supplierIds = searchSettings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
             var result = await _availabilityStorage.GetFilteredResults(searchId: searchId, 
                 filters: null, 
                 searchSettings: searchSettings, 
-                suppliers: searchSettings.EnabledConnectors,
+                suppliers: supplierIds,
                 languageCode: languageCode);
             
             return new WideAvailabilitySearchResult(searchId, isComplete, result.MapFromEdoModels());
@@ -50,7 +54,8 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
+            var supplierIds = searchSettings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
+            var searchStates = await _stateStorage.GetStates(searchId, supplierIds);
             var state = WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
 
             return state.TaskState is not AvailabilitySearchTaskState.Pending or AvailabilitySearchTaskState.PartiallyCompleted;
@@ -60,5 +65,6 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
+        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

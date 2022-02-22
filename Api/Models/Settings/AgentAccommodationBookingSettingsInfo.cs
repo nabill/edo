@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Settings
         /// <summary>
         /// When searching, only results from this suppliers will be seen to the user
         /// </summary>
-        public Dictionary<int, bool> EnabledSuppliers { get; init; }
+        public Dictionary<string, bool> EnabledSuppliers { get; init; }
 
         /// <summary>
         /// The user will see suppliers in search UI if this setting is set to true
