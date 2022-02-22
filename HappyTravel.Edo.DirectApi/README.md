@@ -282,6 +282,25 @@ You can manage bookings as follows:
 
 You need a client reference code to work with a particular booking, such as for cancellation.
 
+#### Booking state updates
+
+At this moment the API has no tools to notify you about booking state changes, except [a direct booking retails request](/index.html#tag/Bookings/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get). We recommend to check states no more often than once per second for recently created bookings and bookings before a check-in, and no more often than once per hour for all other cases.
+
+#### Booking states
+
+| State | Description |
+|-------|-------------|
+| Created | Registred in the system |
+| WaitingForResponse | Status change requested, but not finished |
+| Pending | Registred at supplier's system, but still has not achieved any final state |
+| Confirmed | Confirmed by an accommodation |
+| Cancelled | Cancelled after confirmation with application of suitable cancellation policies |
+| Rejected | Rejected due technical reasons |
+| Invalid | A booking request has inconsistent data and can not be created or confirmed |
+| Discarded | Cancelled without a penalty, if there are unresolvable issues on supplier's side |
+| ManualCorrectionNeeded | There are differences in booking details across Happytravel's and supplier's data sources. All MCN bookings investigated by Happytravel's reservation team. |
+| PendingCancellation | Cancellation has been requested and still in progress |
+
 #### Booking cancellation policies
 
 When you cancel a booking, there might be a cancellation penalty, depending on the date.
