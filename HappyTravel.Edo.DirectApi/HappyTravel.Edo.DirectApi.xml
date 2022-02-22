@@ -125,6 +125,11 @@
                 Description of the board basis (included meals)
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.BookedRoom.ContractDescription">
+            <summary>
+                Description for the contract, such as "Pool View Suite", "Ocean Club Room", or "Pioneer Cabin"
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.BookedRoom.Remarks">
             <summary>
                 Extra notes on the contract
@@ -571,17 +576,17 @@
                 List of available room contracts sets
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideSearchResult.SearchId">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilitySearchResult.SearchId">
             <summary>
                 ID for the search
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideSearchResult.IsComplete">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilitySearchResult.IsComplete">
             <summary>
                 Indicates if the search complete
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideSearchResult.Accommodations">
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilitySearchResult.Accommodations">
             <summary>
                 List of available accommodations
             </summary>
