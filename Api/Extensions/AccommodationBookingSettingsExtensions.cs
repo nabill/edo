@@ -56,12 +56,12 @@ namespace HappyTravel.Edo.Api.Extensions
             };
         
 
-        public static Dictionary<int, bool> ToBoolDictionary(this List<int> suppliers)
+        public static Dictionary<string, bool> ToBoolDictionary(this List<string> suppliers)
         {
             if (suppliers == null)
                 return null;
 
-            var suppliersMap = new Dictionary<int, bool>();
+            var suppliersMap = new Dictionary<string, bool>();
 
             foreach (var possibleSupplier in suppliers.Except(SuppliersToHide))
                 suppliersMap[possibleSupplier] = false;
@@ -73,13 +73,13 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
-        private static List<int> ToList(this Dictionary<int, bool> suppliersMap)
+        private static List<string> ToList(this Dictionary<string, bool> suppliersMap)
             => suppliersMap?
                 .Where(p => p.Value)
                 .Select(p => p.Key)
                 .ToList();
 
 
-        private static readonly List<int> SuppliersToHide = new() {0};
+        private static readonly List<string> SuppliersToHide = new();
     }
 }

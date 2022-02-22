@@ -59,8 +59,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
             return accommodations?.ToDirectApiModels() ?? Result.Failure<List<Accommodation>>("Failed to get accommodations");
 
 
-            string GetSupplierName(int supplierId) 
-                => _supplierOptionsStorage.GetById(supplierId).Name;
+            string GetSupplierName(string supplierCode) 
+                => _supplierOptionsStorage.GetByCode(supplierCode).Name;
         }
 
 
