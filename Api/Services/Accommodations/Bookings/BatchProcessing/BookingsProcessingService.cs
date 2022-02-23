@@ -124,19 +124,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
                 if (chargeResult.IsFailure)
                 {
-                    var (_, isCancelFailure, error) = await _supplierBookingManagementService.Cancel(booking, serviceAccount.ToApiCaller(),
-                        BookingChangeEvents.Charge); 
-
-                    if (isCancelFailure)
-                    {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
-                        { 
-                            Source = BookingChangeSources.System,
-                            Event = BookingChangeEvents.Charge,
-                            Reason = "It is impossible to cancel the booking for which the error occurred during charge"
-                        });
-                        return Result.Failure<string>(error);
-                    }
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
+                    { 
+                        Source = BookingChangeSources.System,
+                        Event = BookingChangeEvents.Charge,
+                        Reason = "It is impossible charge money from a virtual account"
+                    });
                 }
 
                 return chargeResult;

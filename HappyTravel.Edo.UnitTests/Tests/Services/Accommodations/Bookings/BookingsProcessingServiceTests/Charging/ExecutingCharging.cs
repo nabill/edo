@@ -61,49 +61,35 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
 
         [Fact]
-        public async Task When_payment_fails_bookings_should_be_cancelled()
+        public async Task When_payment_fails_bookings_should_be_set_manual_correction_needed()
         {
             var bookingAccountPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
             var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
+            var bookingRecordsUpdater = new Mock<IBookingRecordsUpdater>();
 
             bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<ApiCaller>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
 
-            var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object);
+            var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object, bookingRecordsUpdater.Object);
 
             await service.Charge(new List<int> { 2, 3 }, ServiceAccount);
 
             bookingServiceMock
                 .Verify(
                     b => b.Cancel(It.IsAny<Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()),
-                    Times.Exactly(2)
-                );
-        }
-
-
-        [Fact]
-        public async Task When_payment_succeed_bookings_should_not_be_cancelled()
-        {
-            var bookingPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
-            var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
-
-            var service = CreateProcessingService(bookingPaymentServiceMock.Object, bookingServiceMock.Object);
-
-            await service.Charge(new List<int> { 1, 2, 3 }, ServiceAccount);
-
-            bookingServiceMock
-                .Verify(
-                    b => b.Cancel(It.IsAny<Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()),
                     Times.Exactly(0)
                 );
+            bookingRecordsUpdater.Verify(s => s.ChangeStatus(It.IsAny<Booking>(),
+                BookingStatuses.ManualCorrectionNeeded, It.IsAny<DateTime>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
         }
 
 
         private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService? bookingPaymentService = null,
-            ISupplierBookingManagementService? bookingManagementService = null)
+            ISupplierBookingManagementService? bookingManagementService = null, IBookingRecordsUpdater? bookingRecordsUpdater = null)
         {
             bookingPaymentService ??= Mock.Of<IBookingAccountPaymentService>();
             bookingManagementService ??= Mock.Of<ISupplierBookingManagementService>();
+            bookingRecordsUpdater ??= Mock.Of<IBookingRecordsUpdater?>();
 
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
@@ -115,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
                 context.Object,
-                Mock.Of<IBookingRecordsUpdater>(),
+                bookingRecordsUpdater,
                 Mock.Of<IDateTimeProvider>());
             return service;
         }
@@ -173,7 +159,5 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 CheckInDate = new DateTime(2022, 12, 20)
             }
         };
-        
-        
     }
 }
