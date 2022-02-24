@@ -720,6 +720,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     BufferValue = decimal.Zero,
                     SourceCurrency = Currencies.USD,
                     TargetCurrency = Currencies.AED
+                },
+                new()
+                {
+                    BufferValue = 0.02m,
+                    SourceCurrency = Currencies.USD,
+                    TargetCurrency = Currencies.OMR
+                },
+                new()
+                {
+                    BufferValue = 0.02m,
+                    SourceCurrency = Currencies.OMR,
+                    TargetCurrency = Currencies.USD
                 }
             });
             
