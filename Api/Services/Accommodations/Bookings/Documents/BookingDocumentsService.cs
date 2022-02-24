@@ -145,13 +145,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 if (!bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
                     accountData = bankDetails.AccountDetails[Currencies.USD];
 
-                var sellerDetails = new BookingInvoiceData.SellerInfo(bankDetails.CompanyName,
-                    accountData.BankName, 
-                    bankDetails.BankAddress,
-                    accountData.AccountNumber,
-                    accountData.Iban,
-                    accountData.RoutingCode,
-                    accountData.SwiftCode);
+                if (!bankDetails.IntermediaryBankDetails.TryGetValue(booking.Currency, out var intermediaryBankData))
+                    intermediaryBankData = null;
+
+                var sellerDetails = new BookingInvoiceData.SellerInfo(companyName: bankDetails.CompanyName,
+                    bankName: bankDetails.BankName, 
+                    bankAddress: bankDetails.BankAddress,
+                    accountNumber: accountData.AccountNumber,
+                    iban: accountData.Iban,
+                    routingCode: bankDetails.RoutingCode,
+                    swiftCode: bankDetails.SwiftCode,
+                    intermediaryBankDetails: intermediaryBankData is null
+                        ? null
+                        : new IntermediaryBankDetails(bankName: intermediaryBankData.BankName,
+                            swiftCode: intermediaryBankData.SwiftCode,
+                            accountNumber: intermediaryBankData.AccountNumber,
+                            abaNo: intermediaryBankData.AbaNo));
                 
                 return sellerDetails;
             }
