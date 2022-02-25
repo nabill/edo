@@ -65,11 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins, SlimAgentContext agent)
         {
-            // TODO: hardcoded to be removed with UEDA-20
-            var addresses = new List<string> {email};
-            if (sendCopyToAdmins)
-                addresses.AddRange(_options.CcNotificationAddresses);
-            
             return _documentsService.GetActualInvoice(booking)
                 .Bind(async invoice =>
                 {
@@ -104,10 +99,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         DeadlineDate = DateTimeFormatters.ToDateString(data.DeadlineDate)
                     };
 
-                    return await _notificationsService.Send(agent: agent,
+                    var errors = string.Empty;
+                    var (_, isAgentNotificationFailure, agentNotificationError) = await _notificationsService.Send(agent: agent,
                         messageData: invoiceData,
                         notificationType: NotificationTypes.BookingInvoice,
-                        emails: addresses);
+                        emails: new List<string> { email });
+                    if (isAgentNotificationFailure)
+                        errors = agentNotificationError;
+
+                    if (sendCopyToAdmins)
+                    {
+                        var (_, isAdminsNotificationFailure, adminsNotificationError) = await _notificationsService.Send(messageData: invoiceData,
+                            notificationType: NotificationTypes.BookingInvoice);
+                        if (isAdminsNotificationFailure)
+                            errors = string.Join(", ", errors, adminsNotificationError);
+                    }
+
+                    if (errors != string.Empty)
+                        return Result.Failure(errors);
+
+                    return Result.Success();
                 });
         }
         
