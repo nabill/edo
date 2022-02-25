@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
@@ -19,11 +17,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IAdministratorContext administratorContext,
-            ICreditCardPaymentConfirmationService creditCardPaymentConfirmationService,
             IBookingOfflinePaymentService offlinePaymentService)
         {
             _administratorContext = administratorContext;
-            _creditCardPaymentConfirmationService = creditCardPaymentConfirmationService;
             _offlinePaymentService = offlinePaymentService;
         }
 
@@ -47,25 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        /// <summary>
-        ///     Confirm credit card payment
-        /// </summary>
-        [HttpPost("credit-card/accommodations/bookings/{bookingId}/confirm")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
-        public async Task<IActionResult> ConfirmCreditCartPayment(int bookingId)
-        {
-            var (isSuccess, _, error) = await _creditCardPaymentConfirmationService.Confirm(bookingId);
-
-            return isSuccess
-                ? NoContent()
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
-        }
-
-
         private readonly IAdministratorContext _administratorContext;
-        private readonly ICreditCardPaymentConfirmationService _creditCardPaymentConfirmationService;
         private readonly IBookingOfflinePaymentService _offlinePaymentService;
     }
 }

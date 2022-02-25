@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.General;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
@@ -23,13 +22,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
             INotificationService notificationService,
-            IOptions<BookingMailingOptions> options,
-            EdoContext context)
+            IOptions<BookingMailingOptions> options)
         {
             _bookingRecordManager = bookingRecordManager;
             _notificationService = notificationService;
             _options = options.Value;
-            _context = context;
         }
 
 
@@ -78,61 +75,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                                 notificationType: NotificationTypes.DeadlineApproaching,
                                 email: email);
                 });
-        }
-
-
-        public async Task<Result> NotifyCreditCardPaymentConfirmed(string referenceCode)
-        {
-            return await GetData()
-                .Tap(SendNotificationToAdmin)
-                .Tap(SendNotificationToAgent);
-
-
-            async Task<Result<CreditCardPaymentConfirmationNotification>> GetData()
-            {
-                var query = from booking in _context.Bookings
-                    join agent in _context.Agents on booking.AgentId equals agent.Id
-                    join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
-                    join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
-                    where booking.ReferenceCode == referenceCode
-                    select new CreditCardPaymentConfirmationNotification
-                    {
-                        Agency = agency.Name,
-                        Agent = $"{agent.FirstName} {agent.LastName}",
-                        ReferenceCode = booking.ReferenceCode,
-                        Accommodation = booking.AccommodationName,
-                        Location = $"{booking.Location.Country}, {booking.Location.Locality}",
-                        LeadingPassenger = booking.GetLeadingPassengerFormattedName(),
-                        Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
-                        DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
-                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
-                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                        Status = EnumFormatters.FromDescription(booking.Status),
-                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus),
-                        Email = agent.Email
-                    };
-
-                var data = await query.SingleOrDefaultAsync();
-
-                return data ?? Result.Failure<CreditCardPaymentConfirmationNotification>($"Booking with reference code {referenceCode} not found");
-            }
-
-
-            Task SendNotificationToAdmin(CreditCardPaymentConfirmationNotification data)
-                =>  _notificationService.Send(messageData: data,
-                    notificationType: NotificationTypes.CreditCardPaymentReceivedAdministrator,
-                    emails: _options.CcNotificationAddresses);
-
-
-            async Task SendNotificationToAgent(CreditCardPaymentConfirmationNotification data)
-            {
-                var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == data.ReferenceCode);
-
-                await _notificationService.Send(agent: new SlimAgentContext(booking.AgentId, booking.AgencyId),
-                    messageData: data,
-                    notificationType: NotificationTypes.CreditCardPaymentReceived,
-                    email: data.Email);
-            }
         }
 
 
@@ -232,6 +174,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly INotificationService _notificationService;
         private readonly BookingMailingOptions _options;
-        private readonly EdoContext _context;
     }
 }

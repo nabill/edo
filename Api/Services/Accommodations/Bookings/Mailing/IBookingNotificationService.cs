@@ -13,8 +13,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
 
-        Task<Result> NotifyCreditCardPaymentConfirmed(string referenceCode);
-        
         Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline);
 
         Task NotifyAdminsStatusChanged(AccommodationBookingInfo bookingInfo);

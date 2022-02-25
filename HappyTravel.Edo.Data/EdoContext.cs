@@ -39,7 +39,6 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
         
         public DbSet<BookingRequest> BookingRequests { get; set; }
-        public DbSet<CreditCardPaymentConfirmation> CreditCardPaymentConfirmations { get; set; }
 
         public DbSet<UserInvitation> UserInvitations { get; set; }
 
@@ -207,7 +206,6 @@ namespace HappyTravel.Edo.Data
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
             BuildBookingRequests(builder);
-            BuildCreditCardPaymentConfirmation(builder);
             BuildPayment(builder);
 
             BuildItnNumerator(builder);
@@ -698,16 +696,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<UploadedImage>(settings =>
             {
                 settings.HasIndex(i => new { i.AgencyId, i.FileName });
-            });
-        }
-
-
-
-        private void BuildCreditCardPaymentConfirmation(ModelBuilder builder)
-        {
-            builder.Entity<CreditCardPaymentConfirmation>(confirmation =>
-            {
-                confirmation.HasKey(c => c.BookingId);
             });
         }
 
