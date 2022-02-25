@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public readonly struct SellerInfo
         {
             [JsonConstructor]
-            public SellerInfo(string companyName, string bankName, string bankAddress, string accountNumber, string iban, string routingCode, string swiftCode)
+            public SellerInfo(string companyName, string bankName, string bankAddress, string accountNumber, string iban, string routingCode, string swiftCode,
+                IntermediaryBankDetails? intermediaryBankDetails = null)
             {
                 AccountNumber = accountNumber;
                 BankAddress = bankAddress;
@@ -69,6 +71,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 Iban = iban;
                 RoutingCode = routingCode;
                 SwiftCode = swiftCode;
+                IntermediaryBankDetails = intermediaryBankDetails;
             }
 
 
@@ -79,6 +82,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public string Iban { get; }
             public string RoutingCode { get; }
             public string SwiftCode { get; }
+            public IntermediaryBankDetails? IntermediaryBankDetails { get; }
         }
         
         
