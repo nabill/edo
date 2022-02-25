@@ -1,9 +1,0 @@
-using System.Collections.Generic;
-
-namespace HappyTravel.Edo.Api.Infrastructure.Options
-{
-    public class AgentRegistrationNotificationOptions
-    {
-        public List<string> AdministratorsEmails { get; set; }
-    }
-}

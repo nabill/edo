@@ -1,21 +1,19 @@
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.DataFormatters;
-using HappyTravel.Edo.Api.Models.Agencies;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
@@ -23,14 +21,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public AgentRegistrationService(EdoContext context,
             IAgentService agentService,
-            IOptions<AgentRegistrationNotificationOptions> notificationOptions,
             INotificationService notificationService,
             ILogger<AgentRegistrationService> logger,
             IAgencyService agencyService)
         {
             _context = context;
             _agentService = agentService;
-            _notificationOptions = notificationOptions.Value;
             _notificationService = notificationService;
             _logger = logger;
             _agencyService = agencyService;
@@ -113,8 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 };
 
                 return await _notificationService.Send(messageData: messageData,
-                    notificationType: NotificationTypes.MasterAgentSuccessfulRegistration,
-                    emails: _notificationOptions.AdministratorsEmails);
+                    notificationType: NotificationTypes.MasterAgentSuccessfulRegistration);
             }
 
 
@@ -153,6 +148,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly ILogger<AgentRegistrationService> _logger;
         private readonly IAgencyService _agencyService;
         private readonly INotificationService _notificationService;
-        private readonly AgentRegistrationNotificationOptions _notificationOptions;
     }
 }
