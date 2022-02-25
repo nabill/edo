@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
@@ -18,16 +19,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     {
         public BookingCreditCardPaymentService(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             ILogger<BookingCreditCardPaymentService> logger,
-            IDateTimeProvider dateTimeProvider,
-            IBookingInfoService bookingInfoService,
-            IBookingNotificationService bookingNotificationService,
+            IDateTimeProvider dateTimeProvider, BookingDocumentsMailingService documentsMailingService,
+            IBookingInfoService bookingInfoService, IBookingDocumentsService documentsService, 
             IBookingPaymentCallbackService paymentCallbackService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
+            _documentsMailingService = documentsMailingService;
             _bookingInfoService = bookingInfoService;
-            _bookingNotificationService = bookingNotificationService;
+            _documentsService = documentsService;
             _paymentCallbackService = paymentCallbackService;
         }
         
@@ -71,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             return await GetBooking(referenceCode, agent)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
-                .Tap(NotifyPaymentReceived);
+                .Tap(SendReceipt);
 
 
             Task<Result<Booking>> GetBooking(string code, AgentContext agentContext) 
@@ -90,16 +91,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 => await Capture(booking, agent.ToApiCaller());
             
             
-            async Task NotifyPaymentReceived(Booking booking) 
-                => await _bookingNotificationService.NotifyCreditCardPaymentConfirmed(booking.ReferenceCode);
+            async Task SendReceipt(Booking booking)
+            {
+                var (_, _, receiptInfo, _) = await _documentsService.GenerateReceipt(booking);
+
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email, new ApiCaller(agent.Email, ApiCallerTypes.Agent));
+            }
         }
         
         
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly BookingDocumentsMailingService _documentsMailingService;
         private readonly IBookingInfoService _bookingInfoService;
-        private readonly IBookingNotificationService _bookingNotificationService;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentCallbackService _paymentCallbackService;
     }
 }

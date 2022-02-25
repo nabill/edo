@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -21,18 +20,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 {
     public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
-        public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage, IBookingNotificationService bookingNotificationService,
-            IBookingRequestExecutor requestExecutor, IBookingEvaluationStorage evaluationStorage,
+        public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage, IBookingRequestExecutor requestExecutor, 
+            IBookingEvaluationStorage evaluationStorage,
             IBookingCreditCardPaymentService creditCardPaymentService, IBookingDocumentsService documentsService,
+            IBookingDocumentsMailingService documentsMailingService,
             IBookingInfoService bookingInfoService, IDateTimeProvider dateTimeProvider, IBookingRegistrationService registrationService,
             IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
-            _bookingNotificationService = bookingNotificationService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
             _creditCardPaymentService = creditCardPaymentService;
             _documentsService = documentsService;
+            _documentsMailingService = documentsMailingService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
             _registrationService = registrationService;
@@ -86,8 +86,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(CheckBookingIsPaid)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Check(GenerateInvoice)
+                .Tap(SendReceipt)
                 .Bind(SendSupplierRequest)
-                .Bind(NotifyPaymentReceived)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
 
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => await _creditCardPaymentService.Capture(booking, agentContext.ToApiCaller());
             
 
-            async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
+            async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Booking booking)
             {
                 var (_, isFailure, requestInfo, error) = await _requestStorage.Get(booking.ReferenceCode);
                 if(isFailure)
@@ -130,14 +130,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             }
 
             
-            Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
+            Task<Result> GenerateInvoice(Booking booking) 
                 => _documentsService.GenerateInvoice(booking);
-
-
-            async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)
+            
+            
+            async Task SendReceipt(Booking booking)
             {
-                await _bookingNotificationService.NotifyCreditCardPaymentConfirmed(details.ReferenceCode);
-                return details;
+                var (_, _, receiptInfo, _) = await _documentsService.GenerateReceipt(booking);
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agentContext.Email, 
+                    new ApiCaller(agentContext.AgentId.ToString(), ApiCallerTypes.Admin));
             }
 
 
@@ -153,11 +154,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         
         private readonly IBookingRequestStorage _requestStorage;
-        private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingDocumentsService _documentsService;
+        private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRegistrationService _registrationService;

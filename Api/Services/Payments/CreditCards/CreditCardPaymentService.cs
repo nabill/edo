@@ -25,18 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
     public class CreditCardPaymentProcessingService : ICreditCardPaymentProcessingService
     {
         public CreditCardPaymentProcessingService(IPayfortResponseParser responseParser,
-            EdoContext context,
-            ICreditCardsManagementService creditCardsManagementService,
-            IEntityLocker locker,
-            IDateTimeProvider dateTimeProvider,
-            ICreditCardMoneyAuthorizationService moneyAuthorizationService,
-            ICreditCardMoneyCaptureService captureService,
+            EdoContext context, IEntityLocker locker, IDateTimeProvider dateTimeProvider,
+            ICreditCardMoneyAuthorizationService moneyAuthorizationService, ICreditCardMoneyCaptureService captureService, 
             ICreditCardMoneyRefundService refundService, 
             ILogger<CreditCardPaymentProcessingService> logger)
         {
             _responseParser = responseParser;
             _context = context;
-            _creditCardsManagementService = creditCardsManagementService;
             _locker = locker;
             _dateTimeProvider = dateTimeProvider;
             _moneyAuthorizationService = moneyAuthorizationService;
@@ -82,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     ? Result.Failure<PaymentResponse>(error)
                     : Result.Success(paymentResult.ToPaymentResponse());
             }
-
+            
 
             Result<PaymentResponse> WriteLog(Result<PaymentResponse> result)
             {
@@ -486,7 +481,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private readonly IPayfortResponseParser _responseParser;
         private readonly EdoContext _context;
-        private readonly ICreditCardsManagementService _creditCardsManagementService;
         private readonly IEntityLocker _locker;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICreditCardMoneyAuthorizationService _moneyAuthorizationService;

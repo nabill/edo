@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         {
             var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
 
-          var (_, isInvoiceFailure, invoiceInfo, invoiceError) = await GetActualInvoice(booking);
+            var (_, isInvoiceFailure, invoiceInfo, invoiceError) = await GetActualInvoice(booking);
             if (isInvoiceFailure)
                 return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(invoiceError);
             
