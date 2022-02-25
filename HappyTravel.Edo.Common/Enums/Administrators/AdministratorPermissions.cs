@@ -28,6 +28,7 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
         ViewAgents = 2097152,
         AdministratorRoleManagement = 4194304,
         AdministratorNotificationManagement = 8388608,
-        SupplierManagement = 16777216
+        SupplierManagement = 16777216,
+        BookingView = 33554432
     }
 }
