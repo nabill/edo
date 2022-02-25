@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     var (_, isAgentNotificationFailure, agentNotificationError) = await _notificationsService.Send(agent: agent,
                         messageData: invoiceData,
                         notificationType: NotificationTypes.BookingInvoice,
-                        emails: new List<string> { email });
+                        email: email);
                     if (isAgentNotificationFailure)
                         errors = agentNotificationError;
 
