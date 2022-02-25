@@ -150,9 +150,16 @@
         "Iban": ""
       }
     },
+    "IntermediaryBankDetails": {
+      "USD": {
+        "BankName": "",
+        "AccountNumber": "",
+        "SwiftCode": "",
+        "AbaNo": ""
+      }
+    },
     "BankAddress": "",
     "BankName": "",
-    "CompanyName": "",
     "RoutingCode": "",
     "SwiftCode": ""
   },
