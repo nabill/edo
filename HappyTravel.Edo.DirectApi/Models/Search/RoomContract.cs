@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         public string ContractTypeCode { get; }
 
         /// <summary>
-        ///     Flag indicates if the contract can be booked immediately. 'FALSE' means what the contract is available on request.
+        ///     Indicates if the accommodation can immediately confirm the booking (If `false`, the accommodation must manually check availability, which can take several hours)
         /// </summary>
         public bool IsAvailableImmediately { get; }
 
