@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -13,21 +10,19 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.DataFormatters;
 using HappyTravel.Money.Models;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            INotificationService notificationsService,
-            IOptions<BookingMailingOptions> options)
+            INotificationService notificationsService)
         {
             _documentsService = documentsService;
             _notificationsService = notificationsService;
-            _options = options.Value;
         }
         
         
@@ -168,6 +163,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
-        private readonly BookingMailingOptions _options;
     }
 }
