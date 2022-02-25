@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     {
         public BookingCreditCardPaymentService(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             ILogger<BookingCreditCardPaymentService> logger,
-            IDateTimeProvider dateTimeProvider, BookingDocumentsMailingService documentsMailingService,
+            IDateTimeProvider dateTimeProvider, IBookingDocumentsMailingService documentsMailingService,
             IBookingInfoService bookingInfoService, IBookingDocumentsService documentsService, 
             IBookingPaymentCallbackService paymentCallbackService)
         {
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly BookingDocumentsMailingService _documentsMailingService;
+        private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentCallbackService _paymentCallbackService;
