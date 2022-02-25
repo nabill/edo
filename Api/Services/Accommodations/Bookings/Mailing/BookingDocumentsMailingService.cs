@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -13,21 +10,19 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.DataFormatters;
 using HappyTravel.Money.Models;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            INotificationService notificationsService,
-            IOptions<BookingMailingOptions> options)
+            INotificationService notificationsService)
         {
             _documentsService = documentsService;
             _notificationsService = notificationsService;
-            _options = options.Value;
         }
         
         
@@ -65,11 +60,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins, SlimAgentContext agent)
         {
-            // TODO: hardcoded to be removed with UEDA-20
-            var addresses = new List<string> {email};
-            if (sendCopyToAdmins)
-                addresses.AddRange(_options.CcNotificationAddresses);
-            
             return _documentsService.GetActualInvoice(booking)
                 .Bind(async invoice =>
                 {
@@ -104,10 +94,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         DeadlineDate = DateTimeFormatters.ToDateString(data.DeadlineDate)
                     };
 
-                    return await _notificationsService.Send(agent: agent,
+                    var errors = string.Empty;
+                    var (_, isAgentNotificationFailure, agentNotificationError) = await _notificationsService.Send(agent: agent,
                         messageData: invoiceData,
                         notificationType: NotificationTypes.BookingInvoice,
-                        emails: addresses);
+                        email: email);
+                    if (isAgentNotificationFailure)
+                        errors = agentNotificationError;
+
+                    if (sendCopyToAdmins)
+                    {
+                        var (_, isAdminsNotificationFailure, adminsNotificationError) = await _notificationsService.Send(messageData: invoiceData,
+                            notificationType: NotificationTypes.BookingInvoice);
+                        if (isAdminsNotificationFailure)
+                            errors = string.Join(", ", errors, adminsNotificationError);
+                    }
+
+                    if (errors != string.Empty)
+                        return Result.Failure(errors);
+
+                    return Result.Success();
                 });
         }
         
@@ -157,6 +163,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
-        private readonly BookingMailingOptions _options;
     }
 }
