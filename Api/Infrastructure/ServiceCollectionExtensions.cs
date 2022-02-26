@@ -260,12 +260,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
-
-            var happyTravelAccountsEmail = mailSettings[configuration["Edo:Email:HappyTravelAccountsEmail"]];
-            services.Configure<BalanceManagementNotificationsOptions>(options =>
-            {
-                options.AccountsEmail = happyTravelAccountsEmail;
-            });
             #endregion
 
             #region tag processing options
