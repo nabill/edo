@@ -255,12 +255,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.FrontendBaseUrl = edoManagementFrontendUrl;
             });
 
-            var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
-            services.Configure<BookingMailingOptions>(options =>
-            {
-                options.CcNotificationAddresses = ccNotificationAddresses;
-            });
-
             var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
             services.Configure<PropertyOwnerMailingOptions>(options => 
             {

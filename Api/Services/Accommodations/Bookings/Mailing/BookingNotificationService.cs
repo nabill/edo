@@ -1,32 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+﻿using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
-using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.EdoContracts.General;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
+using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
 using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
-using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
-using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public class BookingNotificationService : IBookingNotificationService
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
-            INotificationService notificationService,
-            IOptions<BookingMailingOptions> options)
+            INotificationService notificationService)
         {
             _bookingRecordManager = bookingRecordManager;
             _notificationService = notificationService;
-            _options = options.Value;
         }
 
 
@@ -38,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        // TODO: hardcoded to be removed with UEDA-20
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent)
         {
             await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agent, NotificationTypes.BookingFinalized);
@@ -89,8 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             };
 
             await _notificationService.Send(messageData: data,
-                notificationType: NotificationTypes.BookingManualCorrectionNeeded,
-                emails: _options.CcNotificationAddresses);
+                notificationType: NotificationTypes.BookingManualCorrectionNeeded);
         }
 
 
@@ -173,6 +165,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly INotificationService _notificationService;
-        private readonly BookingMailingOptions _options;
     }
 }
