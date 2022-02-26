@@ -1,23 +1,21 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Api.NotificationCenter.Services;
-using HappyTravel.Edo.Notifications.Enums;
-using HappyTravel.Edo.Api.Models.Agents;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -27,7 +25,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             INotificationService notificationService,
             IAgentSettingsManager agentSettingsManager,
             IAccountPaymentService accountPaymentService,
-            IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
             _dateTimeProvider = dateTimeProvider;
@@ -35,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             _agentSettingsManager = agentSettingsManager;
             _accountPaymentService = accountPaymentService;
             _context = context;
-            _options = options.Value;
         }
 
 
@@ -208,8 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
                 => _notificationService.Send(messageData: notificationData,
-                    notificationType: NotificationTypes.BookingsAdministratorSummaryNotification,
-                    emails: _options.CcNotificationAddresses);
+                    notificationType: NotificationTypes.BookingsAdministratorSummaryNotification);
         }
 
 
@@ -262,8 +257,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData)
                 => _notificationService.Send(messageData: notificationData,
-                    notificationType: NotificationTypes.BookingAdministratorPaymentsSummary,
-                    emails: _options.CcNotificationAddresses);
+                    notificationType: NotificationTypes.BookingAdministratorPaymentsSummary);
         }
 
 
@@ -284,7 +278,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
-        private readonly BookingMailingOptions _options;
 
 
         private class EmailAndSetting
