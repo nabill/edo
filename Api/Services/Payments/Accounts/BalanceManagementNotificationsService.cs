@@ -1,15 +1,13 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.Money.Models;
-using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
@@ -17,12 +15,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         // Do not build any functionality based on this service, because it is probably going to be deleted soon
         public BalanceManagementNotificationsService(INotificationService notificationService,
-            IOptions<BalanceManagementNotificationsOptions> balanceManagementNotificationsOptions,
             IBalanceNotificationsManagementService balanceNotificationsManagementService,
             IAdminAgencyManagementService adminAgencyManagementService)
         {
             _notificationService = notificationService;
-            _options = balanceManagementNotificationsOptions.Value;
             _balanceNotificationsManagementService = balanceNotificationsManagementService;
             _adminAgencyManagementService = adminAgencyManagementService;
         }
@@ -56,13 +52,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             };
 
             await _notificationService.Send(messageData: messageData,
-                notificationType: NotificationTypes.AccountBalanceManagementNotification,
-                email: _options.AccountsEmail);
+                notificationType: NotificationTypes.AccountBalanceManagementNotification);
         }
 
         
         private readonly INotificationService _notificationService;
-        private readonly BalanceManagementNotificationsOptions _options;
         private readonly IBalanceNotificationsManagementService _balanceNotificationsManagementService;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
     }

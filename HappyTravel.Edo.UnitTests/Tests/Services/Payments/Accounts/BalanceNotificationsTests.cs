@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             await service.SendNotificationIfRequired(account, chargeAmount);
 
             _notificationServiceMock.Verify(
-                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()));
+                x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>()));
         }
 
 
@@ -169,8 +169,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
 
             void SaveMailData()
                 => _notificationServiceMock
-                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()))
-                    .Callback<DataWithCompanyInfo, NotificationTypes, string>((data, _, _)
+                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>()))
+                    .Callback<DataWithCompanyInfo, NotificationTypes>((data, _)
                         => actualMailData = (AccountBalanceManagementNotificationData)data);
         }
 
@@ -195,8 +195,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
 
             void SaveMailData()
                 => _notificationServiceMock
-                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>(), It.IsAny<string>()))
-                    .Callback<DataWithCompanyInfo, NotificationTypes, string>((data, _, _)
+                    .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>()))
+                    .Callback<DataWithCompanyInfo, NotificationTypes>((data, _)
                         => actualMailData = (AccountBalanceManagementNotificationData) data);
         }
 
@@ -204,10 +204,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
         private BalanceManagementNotificationsService CreateService()
             => new BalanceManagementNotificationsService(
                 _notificationServiceMock.Object,
-                Options.Create(new BalanceManagementNotificationsOptions
-                {
-                    AccountsEmail = "accounts@email.com",
-                }),
                 new BalanceNotificationsManagementService(_mockedEdoContext),
                 new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>())
             );
