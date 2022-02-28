@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Created = booking.Created,
                     Currency = booking.Currency,
                     PaymentStatus = booking.PaymentStatus,
+                    PaymentType = booking.PaymentType,
                     TotalPrice = booking.TotalPrice,
                     CheckInDate = booking.CheckInDate,
                     CheckOutDate = booking.CheckOutDate,
