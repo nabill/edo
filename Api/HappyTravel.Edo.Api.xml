@@ -2336,9 +2336,9 @@
             Check out date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.SupplierId">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.SupplierCode">
             <summary>
-            Temporarily added data supplier for filtering and testing purposes. 
+            Supplier code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.HtId">

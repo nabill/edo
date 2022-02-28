@@ -115,7 +115,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         htIdMapping.TryGetValue(accommodationAvailability.AccommodationId, out var htId);
                         
                         return new AccommodationAvailabilityResult(searchId: searchId,
-                            supplierId: supplier.Id,
                             supplierCode: supplier.Code,
                             created: now,
                             availabilityId: details.AvailabilityId,
