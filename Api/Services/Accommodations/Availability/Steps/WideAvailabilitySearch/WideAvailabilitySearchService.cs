@@ -82,8 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var enabledConnectorIds = searchSettings.EnabledConnectors.Select(c => _supplierOptionsStorage.GetByCode(c).Id).ToList();
-            var searchStates = await _stateStorage.GetStates(searchId, enabledConnectorIds);
+            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
 
@@ -96,8 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
             
-            var enabledConnectorIds = suppliers.Select(c => _supplierOptionsStorage.GetByCode(c).Id).ToList();
-            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, enabledConnectorIds, languageCode);
+            return await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers, languageCode);
         }
 
 
@@ -108,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var supplier = _supplierOptionsStorage.GetByCode(supplierCode);
                 if (!accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings))
                 {
-                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Id);
+                    await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Code);
                     continue;
                 }
 

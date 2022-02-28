@@ -27,18 +27,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
         
-        public ISupplierConnector Get(int key)
-        {
-            var supplier = _supplierStorage.GetById(key);
-            return _supplierConnectorOptions.CurrentValue.ClientType switch
-            {
-                ClientTypes.WebApi => GetRestApiConnector(supplier),
-                ClientTypes.Grpc => GetGrpcConnector(supplier),
-                _ => throw new NotSupportedException($"{_supplierConnectorOptions.CurrentValue.ClientType} not supported")
-            };
-        }
-
-        
         public ISupplierConnector GetByCode(string supplierCode)
         {
             var supplier = _supplierStorage.GetByCode(supplierCode);

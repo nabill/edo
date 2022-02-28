@@ -21,14 +21,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IRoomSelectionStorage roomSelectionStorage,
             ISupplierConnectorManager supplierConnectorManager,
             IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            ISupplierOptionsStorage supplierOptionsStorage,
             ILogger<DeadlineService> logger)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
             _supplierConnectorManager = supplierConnectorManager;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
-            _supplierOptionsStorage = supplierOptionsStorage;
             _logger = logger;
         }
 
@@ -47,13 +45,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var enabledSupplierIds = enabledSuppliers.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
-                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSupplierIds);
+                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSuppliers);
                 var selectedRoomSet = selectedResult
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (SupplierId: r.SupplierId, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (SupplierCode: r.SupplierCode, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
@@ -64,16 +61,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find RoomContractSetId for selected room set");
 
                 var checkInDate = selectedResult.Select(s => s.Result.CheckInDate).FirstOrDefault();
-                return await MakeSupplierRequest(selectedRoomSet.SupplierId, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
+                return await MakeSupplierRequest(selectedRoomSet.SupplierCode, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId)
                     .Bind(deadline => ProcessDeadline(deadline, checkInDate, agent));
             }
 
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var enabledSupplierIds = enabledSuppliers.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
-                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSupplierIds))
-                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierId, a)))
+                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
+                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierCode, a)))
                     .Where(r => r.a.HtId == htId)
                     .ToList();
                 
@@ -90,8 +86,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(int supplierId, Guid roomSetId, string availabilityId)
-                => _supplierConnectorManager.Get(supplierId).GetDeadline(availabilityId, roomSetId, languageCode);
+            Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(string supplierCode, Guid roomSetId, string availabilityId)
+                => _supplierConnectorManager.GetByCode(supplierCode).GetDeadline(availabilityId, roomSetId, languageCode);
         }
         
         
@@ -104,7 +100,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
         private readonly ILogger<DeadlineService> _logger;

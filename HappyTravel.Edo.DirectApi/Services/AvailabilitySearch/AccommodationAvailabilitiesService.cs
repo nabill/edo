@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -8,19 +7,17 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Models.Search;
-using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public class AccommodationAvailabilitiesService
     {
         public AccommodationAvailabilitiesService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            IWideAvailabilitySearchStateStorage stateStorage, IRoomSelectionService roomSelectionService, ISupplierOptionsStorage supplierOptionsStorage)
+            IWideAvailabilitySearchStateStorage stateStorage, IRoomSelectionService roomSelectionService)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _stateStorage = stateStorage;
             _roomSelectionService = roomSelectionService;
-            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
@@ -40,8 +37,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var supplierIds = searchSettings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
-            var searchStates = await _stateStorage.GetStates(searchId, supplierIds);
+            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             var state = WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
 
             return state.TaskState is not AvailabilitySearchTaskState.Pending or AvailabilitySearchTaskState.PartiallyCompleted;
@@ -51,6 +47,5 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IRoomSelectionService _roomSelectionService;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

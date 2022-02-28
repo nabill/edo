@@ -105,38 +105,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplySearchSettings);
 
 
-            async Task<Result<(int SupplierId, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId)>> 
+            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId)>> 
                 GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
-                var supplierIds = settings.EnabledConnectors.Select(s => _supplierOptionsStorage.GetByCode(s).Id).ToList();
-                var result = (await _roomSelectionStorage.GetResult(searchId, htId, supplierIds))
+                var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.SupplierId, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId,
+                            .Select(rs => (Source: r.SupplierCode, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId,
                                 CountryHtId: r.Result.CountryHtId, LocalityHtId: r.Result.LocalityHtId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
                 if (result.Equals(default))
-                    return Result.Failure<(int, RoomContractSet, string, string, string, string)>("Could not find selected room contract set");
+                    return Result.Failure<(string, RoomContractSet, string, string, string, string)>("Could not find selected room contract set");
                 
                 return result;
             }
 
             
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((int, RoomContractSet, string, string, string, string) selectedSet)
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((string, RoomContractSet, string, string, string, string) selectedSet)
             {
                 var (supplier, roomContractSet, availabilityId, _, _, _) = selectedSet;
                 return _supplierConnectorManager
-                    .Get(supplier)
+                    .GetByCode(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
 
             
             Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
-                var supplier = _supplierOptionsStorage.GetById(result.SupplierId);
+                var supplier = _supplierOptionsStorage.GetByCode(result.SupplierCode);
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
                 var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
                 return availabilityData.ToRoomContractSetAvailability(supplier.Name,

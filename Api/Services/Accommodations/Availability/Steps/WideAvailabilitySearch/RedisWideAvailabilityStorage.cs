@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<(int SupplierId, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<int> suppliers)
+        public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<string> suppliers)
         {
             return  (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), suppliers, true))
                 .Where(t => t.Result != default)
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<int> suppliers, string languageCode)
+        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<string> suppliers, string languageCode)
         {
             var results = await GetResults(searchId, suppliers);
             var availabilities = results.SelectMany(r => r.AccommodationAvailabilities)
@@ -72,9 +72,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public Task SaveResults(Guid searchId, int supplierId, List<AccommodationAvailabilityResult> results)
+        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results)
         {
-            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplierId);
+            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, supplierCode);
         }
         
         
