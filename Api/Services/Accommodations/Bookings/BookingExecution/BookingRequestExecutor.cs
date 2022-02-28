@@ -144,7 +144,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         booking.CheckInDate.DateTime,
                         booking.CheckOutDate.DateTime,
                         new List<SlimRoomOccupation>(0),
-                        booking.UpdateMode);
+                        booking.UpdateMode,
+                        new List<KeyValuePair<string, string>>(0));
             }
             
             
