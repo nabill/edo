@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         public decimal TotalPrice { get; set; }
         public Currencies Currency { get; set; }
         public BookingStatuses Status { get; set; }
+        public PaymentTypes PaymentType { get; set; }
         public string Supplier { get; set; }
         public string SupplierCode { get; set; }
     }
