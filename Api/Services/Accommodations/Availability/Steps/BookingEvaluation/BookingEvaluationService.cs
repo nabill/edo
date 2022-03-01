@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 var (supplier, roomContractSet, availabilityId, _, _, _) = selectedSet;
                 return _supplierConnectorManager
-                    .GetByCode(supplier)
+                    .Get(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
 

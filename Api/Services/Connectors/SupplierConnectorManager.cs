@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
         
-        public ISupplierConnector GetByCode(string supplierCode)
+        public ISupplierConnector Get(string supplierCode)
         {
             var supplier = _supplierStorage.Get(supplierCode);
             return _supplierConnectorOptions.CurrentValue.ClientType switch
