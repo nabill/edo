@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
             if (_hostingEnvironment.IsProduction()) // TODO: This check will be removed after testing the hotel confirmation page in development
                 return Result.Success();
 
-            if (!booking.IsDirectContract || booking.Supplier != ColumbusSupplierId)
+            if (!booking.IsDirectContract || booking.SupplierCode != ColumbusSupplierCode)
                 return Result.Success(); 
             
             var url = _urlGenerationService.Generate(booking.ReferenceCode);
@@ -221,7 +221,7 @@ namespace HappyTravel.Edo.Api.Services.PropertyOwners
 
 
         private const int MinimumAdultAge = 18;
-        private const int ColumbusSupplierId = 6;
+        private const string ColumbusSupplierCode = "columbus";
 
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;

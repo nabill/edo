@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<List<int>> GetBookingsToRefresh()
         {
             var states = await GetStates();
-            var disabledSuppliers = _statusUpdateOptionsMonitor.CurrentValue.DisabledSuppliers.Select(d => (int)d);
+            var disabledSuppliers = _statusUpdateOptionsMonitor.CurrentValue.DisabledSuppliers;
             var now = _dateTimeProvider.UtcNow();
 
             var excludedIds = states
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     !excludedIds.Contains(b.Id) &&
                     b.CheckInDate > now &&
                     BookingStatusesForRefresh.Contains(b.Status) &&
-                    !disabledSuppliers.Contains(b.Supplier))
+                    !disabledSuppliers.Contains(b.SupplierCode))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
