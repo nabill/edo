@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount);
 
                         var roomContractSets = accommodationAvailability.RoomContractSets
-                            .Select(rs => rs.ToRoomContractSet(supplier.Name, supplier.Id, supplier.Code, rs.IsDirectContract))
+                            .Select(rs => rs.ToRoomContractSet(supplier.Name, supplier.Code, rs.IsDirectContract))
                             .Where(roomSet => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, connectorRequest.CheckInDate, searchSettings,
                                 _dateTimeProvider))
                             .ToList();

@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         ConvertedAmount = order.ConvertedPrice,
                         ConvertedCurrency = order.ConvertedCurrency,
                         PaymentStatus = booking.PaymentStatus,
-                        SupplierId = booking.Supplier,
+                        SupplierCode = booking.SupplierCode,
                         CancellationDate = booking.Cancelled == null
                             ? null
                             : booking.Cancelled.Value.DateTime

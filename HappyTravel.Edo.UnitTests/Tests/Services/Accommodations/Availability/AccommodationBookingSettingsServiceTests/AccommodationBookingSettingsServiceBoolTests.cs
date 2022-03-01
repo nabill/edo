@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 {
                     new()
                     {
-                        Id = 1,
+                        Code = "Supplier1",
                         IsEnabled = true
                     }
                 });

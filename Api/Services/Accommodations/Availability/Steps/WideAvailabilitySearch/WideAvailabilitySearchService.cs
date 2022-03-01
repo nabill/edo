@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             foreach (var supplierCode in searchSettings.EnabledConnectors)
             {
-                var supplier = _supplierOptionsStorage.GetByCode(supplierCode);
+                var supplier = _supplierOptionsStorage.Get(supplierCode);
                 if (!accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings))
                 {
                     await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Code);

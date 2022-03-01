@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
 
 
             string GetSupplierName(string supplierCode) 
-                => _supplierOptionsStorage.GetByCode(supplierCode).Name;
+                => _supplierOptionsStorage.Get(supplierCode).Name;
         }
 
 

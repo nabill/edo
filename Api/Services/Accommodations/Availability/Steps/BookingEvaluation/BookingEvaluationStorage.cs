@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             var key = BuildKey(searchId, htId, roomContractSetId);
             var roomSetAvailability = availability.Data;
             var location = accommodation.Location;
-            var supplier = _supplierOptionsStorage.GetById(availability.Data.RoomContractSet.SupplierId.Value);
+            var supplier = _supplierOptionsStorage.Get(availability.Data.RoomContractSet.SupplierCode);
 
             var bookingAvailabilityInfo = new BookingAvailabilityInfo(
                 accommodationId: supplierAccommodationCode,

@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     AgencyName = agency.Name,
                     CheckInDate = booking.CheckInDate.DateTime,
                     CheckOutDate = booking.CheckOutDate.DateTime,
-                    Supplier = _supplierOptionsStorage.GetById(booking.Supplier).Name,
+                    Supplier = _supplierOptionsStorage.Get(booking.SupplierCode).Name,
                     DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                     ReferenceCode = booking.ReferenceCode,
                 };

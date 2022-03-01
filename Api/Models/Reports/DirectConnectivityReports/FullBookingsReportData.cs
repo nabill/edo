@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public decimal ConvertedAmount { get; init; }
         public Currencies ConvertedCurrency { get; init; }
         public List<BookedRoom> Rooms { get; init; }
-        public int SupplierId { get; init; }
+        public string SupplierCode { get; init; }
         public BookingPaymentStatuses PaymentStatus { get; init; }
         public DateTime? CancellationDate { get; init; }
     }
