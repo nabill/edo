@@ -82,28 +82,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             }
         }
         
-        [Fact]
-        public void Policies_in_scope_should_be_ordered_by_order()
-        {
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
-            for (var i = 0; i < policies.Count - 1; i++)
-            {
-                Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
-            }
-    
-            bool ScopeOrderIsCorrect(MarkupPolicy firstPolicy, MarkupPolicy secondPolicy)
-            {
-                if (firstPolicy.SubjectScopeType != secondPolicy.SubjectScopeType)
-                    return true;
-
-                if (firstPolicy.SubjectScopeType == secondPolicy.SubjectScopeType && 
-                    firstPolicy.SubjectScopeId != secondPolicy.SubjectScopeId)
-                    return true;
-
-                return firstPolicy.Order < secondPolicy.Order;
-            }
-        }
-
 
         [Fact]
         public void Agencies_policies_should_be_ordered_by_agency_tree()
@@ -117,40 +95,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             }
         }
     
-        [Theory]
-        [InlineData(100, Currencies.EUR, 200288602)]
-        [InlineData(240.5, Currencies.USD, 481288602.0)]
-        [InlineData(0.13, Currencies.USD, 548602.00)]
-        public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
-        {
-            var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
-            
-            var dataWithMarkup = await _markupService.ApplyMarkups(MarkupSubject, default, data, TestStructureUnderMarkup.Apply);
-            
-            Assert.Equal(expectedResultPrice, dataWithMarkup.Price.Amount);
-        }
-    
+        
         private readonly IEnumerable<MarkupPolicy> _agentPolicies = new[]
         {
             new MarkupPolicy
             {
                 Id = 1,
-                Order = 21,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
                 TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 2}},
+                TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}},
+                FunctionType = MarkupFunctionType.Percent
             },
             new MarkupPolicy
             {
                 Id = 2,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
-                Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}}
+                TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}},
+                FunctionType = MarkupFunctionType.Percent
             },
         };
         
@@ -159,18 +125,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 7,
-                Order = 23,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
                 TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 14}},
+                FunctionType = MarkupFunctionType.Percent,
+                TemplateSettings = new Dictionary<string, decimal> {{"factor", 14}},
             },
             new MarkupPolicy
             {
                 Id = 8,
-                Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                FunctionType = MarkupFunctionType.Percent,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             },
@@ -181,30 +147,30 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 7,
-                Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}",
+                FunctionType = MarkupFunctionType.Percent,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             },
             new MarkupPolicy
             {
                 Id = 10,
-                Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "1000",
+                FunctionType = MarkupFunctionType.Percent,
                 TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"addition", 43}},
+                TemplateSettings = new Dictionary<string, decimal> {{"factor", 43}},
             },
             new MarkupPolicy
             {
                 Id = 11,
-                Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "2000",
+                FunctionType = MarkupFunctionType.Percent,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             },

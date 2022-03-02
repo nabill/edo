@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 9,
-                    Order = 1,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                     SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
@@ -41,7 +40,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 7,
-                    Order = 4,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                     SubjectScopeId = "2",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
@@ -49,7 +47,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 5,
-                    Order = 1,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                     SubjectScopeId = "3",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
