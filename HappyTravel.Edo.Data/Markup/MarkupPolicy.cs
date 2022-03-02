@@ -9,7 +9,6 @@ namespace HappyTravel.Edo.Data.Markup
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public int Order { get; set; }
         public MarkupPolicyTarget Target { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Modified { get; set; }
