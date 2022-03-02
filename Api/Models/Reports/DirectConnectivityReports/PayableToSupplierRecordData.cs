@@ -19,6 +19,6 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public Currencies OriginalCurrency { get; init; }
         public decimal ConvertedAmount { get; init; }
         public Currencies ConvertedCurrency { get; init; }
-        public int SupplierId { get; init; }
+        public string SupplierCode { get; init; }
     }
 }

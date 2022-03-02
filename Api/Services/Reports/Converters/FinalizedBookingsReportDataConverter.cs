@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.SupplierConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.SupplierPrice), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.SupplierPrice), 2),
-                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name,
+                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name,
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",
                 PayableByAgent = GetPayableByAgent(data),
                 PayableByAgentCurrency = data.AgentCurrency,

@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
         public async Task<IEnumerable<ThirdPartySupplierData>> Get(DateTime fromDate, DateTime endDate)
         {
             return await (from booking in _context.Bookings
-                    orderby booking.Supplier, booking.Created
+                    orderby booking.SupplierCode, booking.Created
                     where 
                         booking.Created >= fromDate && booking.Created < endDate
                     select new ThirdPartySupplierData
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         AccommodationName = booking.AccommodationName,
                         CheckInDate = booking.CheckInDate.DateTime,
                         CheckOutDate = booking.CheckOutDate.DateTime,
-                        Supplier = _supplierOptionsStorage.GetById(booking.Supplier).Name,
+                        Supplier = _supplierOptionsStorage.Get(booking.SupplierCode).Name,
                         DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                         BookingStatus = booking.Status.ToString(),
                         ReferenceCode = booking.ReferenceCode,
