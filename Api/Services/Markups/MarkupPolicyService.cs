@@ -27,10 +27,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             );
 
             return policies
-                .OrderBy(p => p.SubjectScopeType)
+                .OrderBy(p => p.FunctionType)
+                .ThenBy(p => p.SubjectScopeType)
                 .ThenBy(p => p.DestinationScopeType)
                 .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
-                .ThenBy(p => p.Order)
                 .ToList();
             
             static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch

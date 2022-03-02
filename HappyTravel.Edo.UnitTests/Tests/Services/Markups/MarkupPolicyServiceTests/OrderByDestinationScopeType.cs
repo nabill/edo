@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 9,
-                    Order = 1,
                     SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Country,
                     DestinationScopeId = "UAE"
@@ -41,14 +40,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 7,
-                    Order = 4,
                     SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 5,
-                    Order = 1,
                     SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Accommodation,
                     DestinationScopeId = "President Hotel"
@@ -56,7 +53,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 2,
-                    Order = 2,
                     SubjectScopeType = SubjectMarkupScopeTypes.Global,
                     DestinationScopeType = DestinationMarkupScopeTypes.Locality,
                     DestinationScopeId = "Dubai"
