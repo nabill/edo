@@ -114,11 +114,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         public async Task UpdateWithSupplierData(Booking booking, string supplierReferenceCode, BookingUpdateModes updateModes,
-            List<SlimRoomOccupation> updatedRooms)
+            List<SlimRoomOccupation> updatedRooms, List<KeyValuePair<string, string>> specialValues)
         {
             booking.SupplierReferenceCode = supplierReferenceCode;
             booking.UpdateMode = updateModes;
             booking.Rooms = UpdateSupplierReferenceCodes(booking.Rooms, updatedRooms);
+            booking.SpecialValues = specialValues;
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();

@@ -19,15 +19,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         public BookingResponseProcessor(IBookingAuditLogService bookingAuditLogService,
             IBookingRecordManager bookingRecordManager,
             ILogger<BookingResponseProcessor> logger,
-            IDateTimeProvider dateTimeProvider, 
-            EdoContext context,
+            IDateTimeProvider dateTimeProvider,
             IBookingRecordsUpdater recordsUpdater)
         {
             _bookingAuditLogService = bookingAuditLogService;
             _bookingRecordManager = bookingRecordManager;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
-            _context = context;
             _recordsUpdater = recordsUpdater;
         }
         
@@ -51,8 +49,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return;
             }
 
-            await _recordsUpdater.UpdateWithSupplierData(booking, bookingResponse.SupplierReferenceCode, bookingResponse.BookingUpdateMode,
-                bookingResponse.Rooms);
+            await _recordsUpdater.UpdateWithSupplierData(booking: booking, 
+                supplierReferenceCode: bookingResponse.SupplierReferenceCode, 
+                updateModes: bookingResponse.BookingUpdateMode,
+                updatedRooms: bookingResponse.Rooms, 
+                specialValues: bookingResponse.SpecialValues);
             
             if (bookingResponse.Status.ToInternalStatus() == booking.Status)
             {
@@ -107,7 +108,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private readonly ILogger<BookingResponseProcessor> _logger;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly EdoContext _context;
         private readonly IBookingRecordsUpdater _recordsUpdater;
     }
 }

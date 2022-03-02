@@ -182,7 +182,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 IsDirectContract = availabilityInfo.RoomContractSet.IsDirectContract,
                 CancellationPolicies = availabilityInfo.RoomContractSet.Deadline.Policies,
                 IsAdvancePurchaseRate = availabilityInfo.RoomContractSet.IsAdvancePurchaseRate,
-                IsPackage = availabilityInfo.RoomContractSet.IsPackageRate
+                IsPackage = availabilityInfo.RoomContractSet.IsPackageRate,
+                SpecialValues = new List<KeyValuePair<string, string>>(0)
             };
             
             AddRequestInfo(bookingRequest);

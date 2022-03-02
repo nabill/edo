@@ -59,6 +59,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 MakeSlimRoomOccupation("d"), 
             };
 
+            _specialValues = new List<KeyValuePair<string, string>>
+            {
+                new ("key", "value")
+            };
+
             _context = CreateContext();
             _service = CreateBookingRecordsUpdaterService();
 
@@ -73,7 +78,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Updating_rooms_with_same_number_of_rooms_should_change_rooms_supplier_code()
         {
-            await _service.UpdateWithSupplierData(_bookings.First(), default, default, _updatedRoomsSameNumber);
+            await _service.UpdateWithSupplierData(booking: _bookings.First(), 
+                supplierReferenceCode: default, 
+                updateModes: default, 
+                updatedRooms: _updatedRoomsSameNumber, 
+                specialValues:_specialValues);
         
             var rooms = _context.Bookings.First().Rooms;
             Assert.Equal(rooms[0].SupplierRoomReferenceCode, _updatedRoomsSameNumber[0].SupplierRoomReferenceCode);
@@ -85,7 +94,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Updating_rooms_with_different_number_shouldnt_change_rooms_supplier_code()
         {
-            await _service.UpdateWithSupplierData(_bookings.First(), default, default, _updatedRoomsDifferentNumber);
+            await _service.UpdateWithSupplierData(booking: _bookings.First(),
+                supplierReferenceCode: default, 
+                updateModes: default, 
+                updatedRooms: _updatedRoomsDifferentNumber,
+                specialValues: _specialValues);
         
             var rooms = _context.Bookings.First().Rooms;
             Assert.Equal(_bookedRooms[0].SupplierRoomReferenceCode, rooms[0].SupplierRoomReferenceCode);
@@ -129,5 +142,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         private readonly List<Booking> _bookings;
         private readonly List<SlimRoomOccupation> _updatedRoomsSameNumber;
         private readonly List<SlimRoomOccupation> _updatedRoomsDifferentNumber;
+        private readonly List<KeyValuePair<string, string>> _specialValues;
     }
 }
