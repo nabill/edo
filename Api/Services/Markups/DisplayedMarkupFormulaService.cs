@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
 
@@ -103,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agentScopeId = AgentInAgencyId.Create(agentId, agencyId).ToString();
             var policies = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeId == agentScopeId && p.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
-                .OrderBy(p => p.Order)
+                .OrderBy(p => p.FunctionType)
                 .ToListAsync();
 
             return policies.Any()
@@ -116,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeId == agencyId.ToString() && p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
-                .OrderBy(p => p.Order)
+                .OrderBy(p => p.FunctionType)
                 .ToListAsync();
 
             return policies.Any()
@@ -129,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
-                .OrderBy(p => p.Order)
+                .OrderBy(p => p.FunctionType)
                 .ToListAsync();
 
             return policies.Any()
