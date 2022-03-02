@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<(int SupplierId, TObject Result)[]> Get<TObject>(string keyPrefix, List<int> suppliers, bool isCachingEnabled = false)
+        public Task<(string SupplierCode, TObject Result)[]> Get<TObject>(string keyPrefix, List<string> suppliers, bool isCachingEnabled = false)
         {
             var supplierTasks = suppliers
                 .Select(async p =>
@@ -48,18 +48,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task Save<TObject>(string keyPrefix, TObject @object, int supplierId)
+        public Task Save<TObject>(string keyPrefix, TObject @object, string supplierCode)
         {
-            var key = BuildKey<TObject>(keyPrefix, supplierId);
+            var key = BuildKey<TObject>(keyPrefix, supplierCode);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 
 
-        private string BuildKey<TObjectType>(string keyPrefix, int supplierId)
+        private string BuildKey<TObjectType>(string keyPrefix, string supplierCode)
             => _distributedFlow.BuildKey(nameof(MultiProviderAvailabilityStorage),
                 keyPrefix,
                 typeof(TObjectType).Name,
-                supplierId.ToString());
+                supplierCode);
 
 
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);

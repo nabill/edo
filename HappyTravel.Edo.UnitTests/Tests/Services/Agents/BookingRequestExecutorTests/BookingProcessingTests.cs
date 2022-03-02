@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _creditCardProvider = new Mock<ICreditCardProvider>();
 
             _supplierConnectorManagerMock
-                .Setup(x => x.GetByCode(It.IsAny<string>()))
+                .Setup(x => x.Get(It.IsAny<string>()))
                 .Returns(_supplierConnectorMock.Object);
             
             var request = Utility.CreateAccommodationBookingRequest();

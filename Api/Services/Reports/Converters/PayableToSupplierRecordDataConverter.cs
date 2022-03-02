@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,
                 ConvertedCurrency = data.ConvertedCurrency,
-                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name
+                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name
             };
 
 

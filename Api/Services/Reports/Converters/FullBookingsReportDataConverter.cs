@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.ConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
-                Supplier = _supplierOptionsStorage.GetById(data.SupplierId).Name,
+                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name,
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
             };
 

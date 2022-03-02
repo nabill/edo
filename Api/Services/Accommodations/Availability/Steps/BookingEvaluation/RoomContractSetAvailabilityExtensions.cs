@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public static class RoomContractSetAvailabilityExtensions
     {
         public static RoomContractSetAvailability ToRoomContractSetAvailability(
-            this in EdoContracts.Accommodations.RoomContractSetAvailability availabilityValue, string supplier, int supplierId, string supplierCode,
+            this in EdoContracts.Accommodations.RoomContractSetAvailability availabilityValue, string supplier, string supplierCode,
             List<PaymentTypes> paymentMethods, SlimAccommodation accommodation, string countryHtId, string localityHtId, string evaluationToken)
         {
             return new RoomContractSetAvailability(availabilityId: availabilityValue.AvailabilityId,
@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 checkOutDate: availabilityValue.CheckOutDate,
                 numberOfNights: availabilityValue.NumberOfNights,
                 accommodation: accommodation,
-                roomContractSet: availabilityValue.RoomContractSet.ToRoomContractSet(supplier, supplierId, supplierCode, availabilityValue.RoomContractSet.IsDirectContract),
+                roomContractSet: availabilityValue.RoomContractSet.ToRoomContractSet(supplier, supplierCode, availabilityValue.RoomContractSet.IsDirectContract),
                 availablePaymentMethods: paymentMethods,
                 countryHtId: countryHtId,
                 localityHtId: localityHtId,
