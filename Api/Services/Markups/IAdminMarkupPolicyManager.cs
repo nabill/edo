@@ -7,19 +7,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IAdminMarkupPolicyManager
     {
-        Task<Result> Add(MarkupPolicyData policyData);
+        Task<MarkupInfo?> GetGlobalPolicy();
 
-        Task<Result> Remove(int policyId);
+        Task<Result> RemoveGlobalPolicy();
 
-        Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
-        
-        Task<List<MarkupInfo>> GetGlobalPolicies();
-
-        Task<Result> AddGlobalPolicy(MarkupPolicySettings settings);
-
-        Task<Result> RemoveGlobalPolicy(int policyId);
-
-        Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings);
+        Task<Result> SetGlobalPolicy(MarkupPolicySettings settings);
 
         Task<List<MarkupInfo>> GetLocationPolicies();
 

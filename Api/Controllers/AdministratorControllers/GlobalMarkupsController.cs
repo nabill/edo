@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
@@ -13,7 +12,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/global-markups")]
+    [Route("api/{v:apiVersion}/admin/global-markup")]
     [Produces("application/json")]
     public class GlobalMarkupsController : BaseController
     {
@@ -24,50 +23,30 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Gets global markup policies
+        /// Gets global markup policy
         /// </summary>
-        /// <returns>List of global markups</returns>
+        /// <returns>Global markup policy</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
-        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetPolicies()
-        {
-            return Ok(await _policyManager.GetGlobalPolicies());
-        }
-        
-        
-        /// <summary>
-        /// Creates global markup policy.
-        /// </summary>
-        /// <param name="settings">Markup settings</param>
-        /// <returns></returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MarkupInfo), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicySettings settings)
+        public async Task<IActionResult> Get()
         {
-            var (_, isFailure, error) = await _policyManager.AddGlobalPolicy(settings);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
+            return Ok(await _policyManager.GetGlobalPolicy());
         }
         
         
         /// <summary>
         ///     Deletes global policy.
         /// </summary>
-        /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
-        [HttpDelete("{policyId:int}")]
+        [HttpDelete]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
+        public async Task<IActionResult> RemovePolicy()
         {
-            var (_, isFailure, error) = await _policyManager.RemoveGlobalPolicy(policyId);
+            var (_, isFailure, error) = await _policyManager.RemoveGlobalPolicy();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -76,18 +55,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Updates policy settings.
+        ///     Updates global policy settings.
         /// </summary>
-        /// <param name="policyId">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
-        [HttpPut("{policyId:int}")]
+        [HttpPut]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyPolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
+        public async Task<IActionResult> SetPolicy([FromBody] MarkupPolicySettings policySettings)
         {
-            var (_, isFailure, error) = await _policyManager.ModifyGlobalPolicy(policyId, policySettings);
+            var (_, isFailure, error) = await _policyManager.SetGlobalPolicy(policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
