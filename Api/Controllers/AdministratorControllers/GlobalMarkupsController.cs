@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Global;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>Global markup policy</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(MarkupInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GlobalMarkupInfo), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> Get()
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> SetPolicy([FromBody] MarkupPolicySettings policySettings)
+        public async Task<IActionResult> SetPolicy([FromBody] SetGlobalMarkupRequest policySettings)
         {
             var (_, isFailure, error) = await _policyManager.SetGlobalPolicy(policySettings);
             if (isFailure)

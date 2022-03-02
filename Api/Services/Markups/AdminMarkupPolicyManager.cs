@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
+using HappyTravel.Edo.Api.Models.Markups.Global;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -15,6 +16,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.MapperContracts.Internal.Mappings.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -39,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
 
-        public async Task<MarkupInfo?> GetGlobalPolicy()
+        public async Task<GlobalMarkupInfo?> GetGlobalPolicy()
         {
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
@@ -48,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return policy is null
                 ? null
-                : new MarkupInfo(policy.Id, policy.GetSettings());
+                : new GlobalMarkupInfo { Percent = policy.Value };
         }
 
 
@@ -63,11 +65,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> SetGlobalPolicy(MarkupPolicySettings settings)
+        public async Task<Result> SetGlobalPolicy(SetGlobalMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
 
+            // TODO: Remove after templates removal
+            var templateSettings = new Dictionary<string, decimal>()
+            {
+                { "factor", (100 + request.Percent) / 100 }
+            };
+
+            var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
+                templateSettings, default, Currencies.USD);
+            
             if (policy is null)
             {
                 var policyData = new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
