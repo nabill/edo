@@ -16,7 +16,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return new(description: policy.Description, 
                 templateId: policy.TemplateId,
                 templateSettings: policy.TemplateSettings,
-                order: policy.Order,
                 currency: policy.Currency, 
                 locationScopeId: locationScopeId,
                 destinationScopeId: policy.DestinationScopeId);
