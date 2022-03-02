@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 try
                 {
                     var (isSuccess, _, bookingResult, error) = await TimeObserver.Execute(observedFunc: () => _supplierConnectorManager
-                        .GetByCode(booking.SupplierCode)
+                        .Get(booking.SupplierCode)
                         .Book(innerRequest, languageCode),
                         notifyFunc: Notify,
                         notifyAfter: TimeSpan.FromSeconds(BookExecutionTimeLimitInSeconds));

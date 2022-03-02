@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 isAdvancePurchaseRate: roomContractSet.IsAdvancePurchaseRate,
                 supplier: roomContractSet.Supplier,
                 supplierCode: roomContractSet.SupplierCode,
-                supplierId: roomContractSet.SupplierId, tags: roomContractSet.Tags, isDirectContract: roomContractSet.IsDirectContract, isPackageRate: roomContractSet.IsPackageRate);
+                tags: roomContractSet.Tags, isDirectContract: roomContractSet.IsDirectContract, isPackageRate: roomContractSet.IsPackageRate);
 
 
             static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline)

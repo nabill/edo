@@ -251,17 +251,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             new SlimSupplier
             {
-                Id = 1,
+                Code = "Supplier1",
                 IsEnabled = true
             },
             new SlimSupplier
             {
-                Id = 2,
+                Code = "Supplier2",
                 IsEnabled = false
             },
             new SlimSupplier
             {
-                Id = 3,
+                Code = "Supplier3",
                 IsEnabled = true
             }
         };

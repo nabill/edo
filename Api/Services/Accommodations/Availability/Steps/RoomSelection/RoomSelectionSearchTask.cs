@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
-            string htId, int supplierId, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
+            string htId, string supplierCode, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
             AgentContext agent, string languageCode, string countryHtId, string localityHtId)
         {
             return await ExecuteRequest()
@@ -47,14 +47,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest() 
-                => _supplierConnectorManager.Get(supplierId).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
+                => _supplierConnectorManager.Get(supplierCode).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
-                var supplier = _supplierOptionsStorage.GetById(supplierId);
+                var supplier = _supplierOptionsStorage.Get(supplierCode);
                 var roomContractSets = availabilityDetails.RoomContractSets
-                    .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Id, supplier.Code, r.IsDirectContract))
+                    .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Code, r.IsDirectContract))
                     .ToList();
                 
                 return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task SaveToCache(SingleAccommodationAvailability details) 
-                => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierId);
+                => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierCode);
         }
         
         

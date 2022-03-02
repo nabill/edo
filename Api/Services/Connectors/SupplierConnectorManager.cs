@@ -27,21 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
         
-        public ISupplierConnector Get(int key)
+        public ISupplierConnector Get(string supplierCode)
         {
-            var supplier = _supplierStorage.GetById(key);
-            return _supplierConnectorOptions.CurrentValue.ClientType switch
-            {
-                ClientTypes.WebApi => GetRestApiConnector(supplier),
-                ClientTypes.Grpc => GetGrpcConnector(supplier),
-                _ => throw new NotSupportedException($"{_supplierConnectorOptions.CurrentValue.ClientType} not supported")
-            };
-        }
-
-        
-        public ISupplierConnector GetByCode(string supplierCode)
-        {
-            var supplier = _supplierStorage.GetByCode(supplierCode);
+            var supplier = _supplierStorage.Get(supplierCode);
             return _supplierConnectorOptions.CurrentValue.ClientType switch
             {
                 ClientTypes.WebApi => GetRestApiConnector(supplier),
@@ -82,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             if (string.IsNullOrEmpty(supplier.ConnectorGrpcEndpoint))
                 throw new Exception($"Supplier {supplier.Name} gRPC endpoint is null or empty");
 
-            if (_grcClients.TryGetValue(supplier.Id, out var client))
+            if (_grcClients.TryGetValue(supplier.Code, out var client))
                 return client;
 
             var channel = GrpcChannel.ForAddress(supplier.ConnectorGrpcEndpoint, new GrpcChannelOptions
@@ -90,13 +78,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc)
             });
             client = channel.CreateGrpcService<IConnectorGrpcService>();
-            _grcClients.AddOrUpdate(supplier.Id, client, (_, _) => client);
+            _grcClients.AddOrUpdate(supplier.Code, client, (_, _) => client);
             
             return client;
         }
 
 
-        private readonly ConcurrentDictionary<int, IConnectorGrpcService> _grcClients = new();
+        private readonly ConcurrentDictionary<string, IConnectorGrpcService> _grcClients = new();
 
 
         private readonly IServiceProvider _serviceProvider;

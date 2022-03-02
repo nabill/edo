@@ -14,14 +14,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public Task SaveResult(Guid searchId, string htId, SingleAccommodationAvailability details, int supplierId)
+        public Task SaveResult(Guid searchId, string htId, SingleAccommodationAvailability details, string supplierCode)
         {
             var keyPrefix = BuildKeyPrefix(searchId, htId);
-            return _storage.Save(keyPrefix, details, supplierId);
+            return _storage.Save(keyPrefix, details, supplierCode);
         }
 
 
-        public async Task<List<(int SupplierId, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, string htId, List<int> suppliers)
+        public async Task<List<(string SupplierCode, SingleAccommodationAvailability Result)>> GetResult(Guid searchId, string htId, List<string> suppliers)
         {
             var keyPrefix = BuildKeyPrefix(searchId, htId);
             return (await _storage.Get<SingleAccommodationAvailability>(keyPrefix, suppliers))

@@ -4,6 +4,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
     public class BookingStatusUpdateOptions
     {
-        public List<int> DisabledSuppliers { get; set; }
+        public List<string> DisabledSuppliers { get; set; }
     }
 }

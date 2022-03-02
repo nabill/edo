@@ -115,8 +115,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             => await Get<Accommodation>($"api/1.0/accommodations/{htId}", cancellationToken);
 
 
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(int supplier, string accommodationId, string languageCode, CancellationToken cancellationToken = default) 
-            => await Get<Accommodation>($"api/1.0/suppliers/{supplier}/accommodations/{accommodationId}", cancellationToken);
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string supplierCode, string accommodationId, string languageCode, CancellationToken cancellationToken = default) 
+            => await Get<Accommodation>($"api/1.0/suppliers/{supplierCode}/accommodations/{accommodationId}", cancellationToken);
 
         
         public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default) 

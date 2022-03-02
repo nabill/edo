@@ -5,8 +5,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IMultiProviderAvailabilityStorage
     {
-        Task<(int SupplierId, TObject Result)[]> Get<TObject>(string keyPrefix, List<int> suppliers, bool isCachingEnabled = false);
+        Task<(string SupplierCode, TObject Result)[]> Get<TObject>(string keyPrefix, List<string> suppliers, bool isCachingEnabled = false);
 
-        Task Save<TObjectType>(string keyPrefix, TObjectType @object, int supplierId);
+        Task Save<TObjectType>(string keyPrefix, TObjectType @object, string supplierCode);
     }
 }

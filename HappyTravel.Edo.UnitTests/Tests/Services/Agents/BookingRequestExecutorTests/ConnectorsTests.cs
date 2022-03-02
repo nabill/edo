@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
 
             await service.Execute(booking, default, default);
 
-            _supplierConnectorManagerMock.Verify(x => x.GetByCode(supplierCode));
+            _supplierConnectorManagerMock.Verify(x => x.Get(supplierCode));
         }
 
 
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 .ReturnsAsync((request, default));
 
             _supplierConnectorManagerMock
-                .Setup(x => x.GetByCode(It.IsAny<string>()))
+                .Setup(x => x.Get(It.IsAny<string>()))
                 .Returns(_supplierConnectorMock.Object);
         }
 

@@ -244,8 +244,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             string? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    null => _supplierOptionsStorage.GetByCode(booking.SupplierCode).Name,
-                    {IsSupplierVisible: true} => _supplierOptionsStorage.GetByCode(booking.SupplierCode).Name,
+                    null => _supplierOptionsStorage.Get(booking.SupplierCode).Name,
+                    {IsSupplierVisible: true} => _supplierOptionsStorage.Get(booking.SupplierCode).Name,
                     _ => null
                 };
             
