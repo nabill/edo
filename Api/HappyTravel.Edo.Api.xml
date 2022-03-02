@@ -583,31 +583,22 @@
             <param name="password"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.GetPolicies">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.Get">
             <summary>
-            Gets global markup policies
+            Gets global markup policy
             </summary>
-            <returns>List of global markups</returns>
+            <returns>Global markup policy</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-            Creates global markup policy.
-            </summary>
-            <param name="settings">Markup settings</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy">
             <summary>
                 Deletes global policy.
             </summary>
-            <param name="policyId">Id of the policy to delete.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.SetPolicy(HappyTravel.Edo.Api.Models.Markups.Global.SetGlobalMarkupRequest)">
             <summary>
-                Updates policy settings.
+                Updates global policy settings.
             </summary>
-            <param name="policyId">Id of the policy.</param>
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
