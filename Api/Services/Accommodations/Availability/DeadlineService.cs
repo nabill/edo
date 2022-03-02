@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
             Task<Result<EdoContracts.Accommodations.Deadline, ProblemDetails>> MakeSupplierRequest(string supplierCode, Guid roomSetId, string availabilityId)
-                => _supplierConnectorManager.GetByCode(supplierCode).GetDeadline(availabilityId, roomSetId, languageCode);
+                => _supplierConnectorManager.Get(supplierCode).GetDeadline(availabilityId, roomSetId, languageCode);
         }
         
         

@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest() 
-                => _supplierConnectorManager.GetByCode(supplierCode).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
+                => _supplierConnectorManager.Get(supplierCode).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)

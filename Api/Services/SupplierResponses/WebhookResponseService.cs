@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
         
         public async Task<Result> ProcessBookingData(Stream stream, string supplierCode)
         {
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.GetByCode(supplierCode).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(supplierCode).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
 

@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             async Task<Result<Booking>> SendCancellationRequest()
             {
-                var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.GetByCode(booking.SupplierCode).CancelBooking(booking.ReferenceCode);
+                var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.SupplierCode).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure
                     ? Result.Failure<Booking>(cancelError.Detail)
                     : Result.Success(booking);
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var oldStatus = booking.Status;
             var referenceCode = booking.ReferenceCode;
             var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _supplierConnectorManager
-                .GetByCode(booking.SupplierCode)
+                .Get(booking.SupplierCode)
                 .GetBookingDetails(referenceCode, booking.LanguageCode);
 
             if (isGetDetailsFailure)

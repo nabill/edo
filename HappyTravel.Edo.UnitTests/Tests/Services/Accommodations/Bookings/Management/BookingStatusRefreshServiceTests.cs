@@ -73,10 +73,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
 
 
         [Theory]
-        [InlineData(2, 2)]
-        [InlineData(2, 1)]
-        [InlineData(1, 1, 2)]
-        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params int[] disabledSuppliers)
+        [InlineData(2, "Supplier2")]
+        [InlineData(2, "Supplier1")]
+        [InlineData(1, "Supplier1", "Supplier2")]
+        public async Task Should_filter_bookings_from_disabled_suppliers(int expectedCount, params string[] disabledSuppliers)
         {
             var flowMock = new Mock<IDistributedFlow>();
             flowMock.Setup(x => x.GetAsync<List<BookingStatusRefreshState>>(It.IsAny<string>(), default))
@@ -103,13 +103,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
         }
 
         
-        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService, List<int>? disabledSuppliers = null)
+        private static BookingStatusRefreshService CreateBookingStatusRefreshService(IDistributedFlow flow, ISupplierBookingManagementService supplierService, List<string>? disabledSuppliers = null)
         {
             var context = CreateContext();
             var dateTimeProvider = new DateTimeProviderMock(DateTimeNow);
             var monitor = Mock.Of<IOptionsMonitor<BookingStatusUpdateOptions>>(_ => _.CurrentValue == new BookingStatusUpdateOptions
             {
-                DisabledSuppliers = disabledSuppliers ?? new List<int>()
+                DisabledSuppliers = disabledSuppliers ?? new List<string>()
             });
             
             return new BookingStatusRefreshService(
@@ -160,28 +160,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
             {
                 Id = 1,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) 2,
+                SupplierCode = "Supplier2",
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 2,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) 1,
+                SupplierCode = "Supplier1",
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 3,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) 3,
+                SupplierCode = "Supplier3",
                 CheckInDate = DateTimeNow.AddDays(10)
             },
             new Booking
             {
                 Id = 4,
                 Status = BookingStatuses.Pending,
-                Supplier = (int) 4,
+                SupplierCode = "Supplier4",
                 CheckInDate = DateTimeNow.AddDays(-10)
             }
         };
