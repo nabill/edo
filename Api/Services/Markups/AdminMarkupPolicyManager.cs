@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
 
             var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
-                templateSettings, default, Currencies.USD);
+                templateSettings, Currencies.USD);
             
             if (policy is null)
             {
@@ -364,7 +364,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
-                    Order = settings.Order,
                     Target = policyData.Target,
                     TemplateSettings = settings.TemplateSettings,
                     Currency = settings.Currency,
@@ -466,7 +465,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
-                policy.Order = settings.Order;
                 policy.TemplateId = settings.TemplateId;
                 policy.TemplateSettings = settings.TemplateSettings;
                 MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
@@ -481,7 +479,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 if(policyData.IsFailure)
                     return Result.Failure<MarkupPolicy>(policyData.Error);
 
-                var (_, isFailure, error) = await ValidatePolicy(policyData.Value, policy);
+                var (_, isFailure, error) = ValidatePolicy(policyData.Value, policy);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
