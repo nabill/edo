@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             {
                 var (_, _, receiptInfo, _) = await _documentsService.GenerateReceipt(booking);
                 await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agentContext.Email, 
-                    new ApiCaller(agentContext.AgentId.ToString(), ApiCallerTypes.Admin));
+                    new ApiCaller(agentContext.AgentId.ToString(), ApiCallerTypes.Agent));
             }
 
 

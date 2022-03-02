@@ -34,9 +34,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
         {
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            var suppliers = searchSettings.EnabledConnectors
-                .Select(GetSupplierName)
-                .ToArray();
+            var suppliers = searchSettings.EnabledConnectors.ToArray();
 
             var query = new List<KeyValuePair<string, StringValues>>
             {
@@ -57,10 +55,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
                 return Result.Failure<List<Accommodation>>(error);
             
             return accommodations?.ToDirectApiModels() ?? Result.Failure<List<Accommodation>>("Failed to get accommodations");
-
-
-            string GetSupplierName(string supplierCode) 
-                => _supplierOptionsStorage.Get(supplierCode).Name;
         }
 
 
