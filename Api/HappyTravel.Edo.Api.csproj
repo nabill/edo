@@ -25,7 +25,7 @@
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.MessagePack" Version="1.10.0" />
     <PackageReference Include="HappyTravel.AmazonS3Client" Version="1.1.0" />
-    <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.1" />
+    <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.2" />
     <PackageReference Include="HappyTravel.CurrencyConverter" Version="1.0.6" />
     <PackageReference Include="HappyTravel.DataFormatters" Version="1.3.1" />
     <PackageReference Include="HappyTravel.EdoContracts" Version="2.3.4" />
@@ -35,7 +35,7 @@
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="0.4.0" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="0.6.0" />
-    <PackageReference Include="HappyTravel.Telemetry" Version="0.15.4" />
+    <PackageReference Include="HappyTravel.Telemetry" Version="0.15.5" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="10.3.6" />
     <PackageReference Include="FluentValidator.Core" Version="1.0.1" />
