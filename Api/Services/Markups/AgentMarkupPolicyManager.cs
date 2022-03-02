@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Add(int agentId, MarkupPolicySettings settings, AgentContext agent)
         {
-            return ValidateSettings(agentId, agent.AgencyId, settings)
+            return ValidateSettings(settings)
                 .Bind(() => GetAgentAgencyRelation(agentId, agent.AgencyId))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
@@ -56,7 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
-                    Order = settings.Order,
                     Target = MarkupPolicyTarget.AccommodationAvailability,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                     SubjectScopeId = agentInAgencyId.ToString(),
@@ -115,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return await GetAgentAgencyRelation(agentId, agent.AgencyId) 
                 .Bind(GetPolicy)
-                .Check(_ => ValidateSettings(agentId, agent.AgencyId, settings, policyId))
+                .Check(_ => ValidateSettings(settings))
                 .Check(UpdatePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
@@ -133,7 +132,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.DestinationScopeId = settings.DestinationScopeId;
                 policy.DestinationScopeType = destinationScopeType;
                 policy.Description = settings.Description;
-                policy.Order = settings.Order;
                 policy.TemplateId = settings.TemplateId;
                 policy.TemplateSettings = settings.TemplateSettings;
                 MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
@@ -167,7 +165,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agentInAgencyId = AgentInAgencyId.Create(agentId: agentId, agencyId: agencyId).ToString();
             return _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agent && p.SubjectScopeId == agentInAgencyId)
-                .OrderBy(p => p.Order)
                 .ToListAsync();
         }
 
@@ -181,22 +178,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
 
-        private Task<Result> ValidateSettings(int agentId, int agencyId, MarkupPolicySettings settings, int? policyId = null)
+        private Result ValidateSettings(MarkupPolicySettings settings)
         {
-            return ValidateTemplate()
-                .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
-
-
-            Result ValidateTemplate() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
-
-
-            async Task<bool> PolicyOrderIsUniqueForScope()
-            {
-                var isSameOrderPolicyExist = (await GetAgentPolicies(agentId, agencyId))
-                    .Any(p => p.Order == settings.Order && p.Id != policyId);
-
-                return !isSameOrderPolicyExist;
-            }
+            return _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
         }
 
 

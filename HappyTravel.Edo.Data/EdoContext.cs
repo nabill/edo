@@ -310,7 +310,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<MarkupPolicy>(policy =>
             {
                 policy.HasKey(l => l.Id);
-                policy.Property(l => l.Order).IsRequired();
                 policy.Property(l => l.Target).IsRequired();
 
                 policy.Property(l => l.Created).IsRequired();
