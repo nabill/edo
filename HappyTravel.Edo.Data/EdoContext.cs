@@ -513,6 +513,9 @@ namespace HappyTravel.Edo.Data
                     .HasColumnType("jsonb")
                     .HasDefaultValueSql("'[]'::jsonb");
 
+                booking.Property(b => b.SpecialValues)
+                    .HasColumnType("jsonb");
+
                 booking.HasIndex(b => b.IsDirectContract);
                 booking.HasIndex(b => b.ClientReferenceCode);
             });

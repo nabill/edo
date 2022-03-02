@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 default, default, default, default);
 
         public static EdoContracts.Accommodations.Booking CreateBooking(string referenceCode)
-            => new(referenceCode, default, string.Empty, string.Empty, default, default, new List<SlimRoomOccupation>(0), default);
+            => new(referenceCode, default, string.Empty, string.Empty, default, default, new List<SlimRoomOccupation>(0), default, new (0));
 
 
         public static ProblemDetails CreateProblemDetailsWithFailureCode(bool isErrorDefined, BookingFailureCodes failureCode = default)
