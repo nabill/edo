@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
+using HappyTravel.Edo.Api.Models.Markups.Global;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -16,6 +16,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.MapperContracts.Internal.Mappings.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -39,204 +40,53 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _mapperClient = mapperClient;
         }
         
-        
-        public async Task<Result> Add(MarkupPolicyData policyData)
+
+        public async Task<GlobalMarkupInfo?> GetGlobalPolicy()
         {
-            var destinationScopeType = await GetDestinationScopeType(policyData.Settings.DestinationScopeId);
-            if (destinationScopeType.IsFailure)
-                return Result.Failure(destinationScopeType.Error);
-            
-            var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
-                .Map(SavePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created));
-
-            if (isFailure)
-                return Result.Failure(error);
-            
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
-
-
-            async Task<MarkupPolicy> SavePolicy()
-            {
-                var now = _dateTimeProvider.UtcNow();
-                var (type, agencyId, agentId, agentScopeId) = policyData.Scope;
-                var settings = policyData.Settings;
-                
-                var policy = new MarkupPolicy
-                {
-                    Description = settings.Description,
-                    Target = policyData.Target,
-                    TemplateSettings = settings.TemplateSettings,
-                    Currency = settings.Currency,
-                    Created = now,
-                    Modified = now,
-                    TemplateId = settings.TemplateId,
-                    SubjectScopeType = type,
-                    SubjectScopeId = agentScopeId,
-                    DestinationScopeId = settings.DestinationScopeId,
-                    DestinationScopeType = destinationScopeType.Value
-                };
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
-
-                _context.MarkupPolicies.Add(policy);
-                await _context.SaveChangesAsync();
-                return policy;
-            }
-        }
-
-
-        public async Task<Result> Remove(int policyId)
-        {
-            var (_, isFailure, markupPolicy, error) = await GetPolicy()
-                .Ensure(HasNoDiscounts, "Markup policy has bound discounts")
-                .Map(DeletePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
-
-
-            async Task<Result<MarkupPolicy>> GetPolicy()
-            {
-                var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
-                return policy == null
-                    ? Result.Failure<MarkupPolicy>("Could not find policy")
-                    : Result.Success(policy);
-            }
-
-
-            async Task<bool> HasNoDiscounts(MarkupPolicy policy)
-                => !await _context.Discounts.AnyAsync(d => d.TargetPolicyId == policy.Id);
-
-
-            async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
-            {
-                _context.Remove(policy);
-                await _context.SaveChangesAsync();
-                return policy;
-            }
-        }
-
-        public async Task<Result> Modify(int policyId, MarkupPolicySettings settings)
-        {
-            var destinationScopeType = await GetDestinationScopeType(settings.DestinationScopeId);
-            if (destinationScopeType.IsFailure)
-                return Result.Failure(destinationScopeType.Error);
-            
-            var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
-            if (policy == null)
-                return Result.Failure("Could not find policy");
-
-            var (_, isFailure, markupPolicy, error) = await ValidateSettings()
-                .Bind(DiscountsDontExceedMarkups)
-                .Bind(UpdatePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified));
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
-
-
-            Result ValidateSettings() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
-            
-            
-            async Task<Result> DiscountsDontExceedMarkups()
-            {
-                // This check is only applicable to agency scope markups
-                if (policy.SubjectScopeType != SubjectMarkupScopeTypes.Agency)
-                    return Result.Success();
-
-                var agencyId = int.Parse(policy.SubjectScopeId);
-                
-                var allDiscounts = await _context.Discounts
-                    .Where(x => x.IsActive)
-                    .Where(x => x.TargetAgencyId == agencyId)
-                    .Where(x => x.TargetPolicyId == policy.Id)
-                    .Select(x => x.DiscountPercent)
-                    .ToListAsync();
-
-                var markupFunction = _templateService.CreateFunction(policy.TemplateId, policy.TemplateSettings);
-                return DiscountsValidator.DiscountsDontExceedMarkups(allDiscounts, markupFunction);
-            }
-
-
-            async Task<Result<MarkupPolicy>> UpdatePolicy()
-            {
-                policy.Description = settings.Description;
-                policy.TemplateId = settings.TemplateId;
-                policy.TemplateSettings = settings.TemplateSettings;
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
-                policy.Currency = settings.Currency;
-                policy.Modified = _dateTimeProvider.UtcNow();
-                policy.SubjectScopeId = settings.LocationScopeId;
-                // No SubjectScopeType here because changing its type is not allowed
-                policy.DestinationScopeId = settings.DestinationScopeId;
-                policy.DestinationScopeType = destinationScopeType.Value;
-
-                var policyData = GetPolicyData(policy);
-                if(policyData.IsFailure)
-                    return Result.Failure<MarkupPolicy>(policyData.Error);
-
-                var (_, isFailure, error) = ValidatePolicy(policyData.Value, policy);
-                if (isFailure)
-                    return Result.Failure<MarkupPolicy>(error);
-
-                _context.Update(policy);
-                await _context.SaveChangesAsync();
-                return policy;
-            }
-        }
-
-
-        public async Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope)
-        {
-            return (await GetPoliciesForScope(scope))
-                .Select(GetPolicyData)
-                .Where(p => p.IsSuccess)
-                .Select(p => p.Value)
-                .ToList();
-        }
-
-
-        public Task<List<MarkupInfo>> GetGlobalPolicies()
-        {
-            return _context.MarkupPolicies
+            var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
-                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
-                .ToListAsync();
+                .SingleOrDefaultAsync();
+
+            return policy is null
+                ? null
+                : new GlobalMarkupInfo { Percent = policy.Value };
         }
 
 
-        public Task<Result> AddGlobalPolicy(MarkupPolicySettings settings)
-            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(SubjectMarkupScopeTypes.Global)));
-
-
-        public async Task<Result> RemoveGlobalPolicy(int policyId)
+        public async Task<Result> RemoveGlobalPolicy()
         {
-            var isGlobalPolicy = await _context.MarkupPolicies
-                .AnyAsync(p =>
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
-                    p.Id == policyId);
-            
-            return isGlobalPolicy
-                ? await Remove(policyId)
-                : Result.Failure($"Policy '{policyId}' not found or not global");
+            var policy = await _context.MarkupPolicies
+                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
+
+            return policy is null
+                ? Result.Failure("Could not find global policy")
+                : await Remove(policy.Id);
         }
 
 
-        public async Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings)
+        public async Task<Result> SetGlobalPolicy(SetGlobalMarkupRequest request)
         {
-            var isGlobalPolicy = await _context.MarkupPolicies
-                .AnyAsync(p =>
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
-                    p.Id == policyId);
+            var policy = await _context.MarkupPolicies
+                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
+
+            // TODO: Remove after templates removal
+            var templateSettings = new Dictionary<string, decimal>()
+            {
+                { "factor", (100 + request.Percent) / 100 }
+            };
+
+            var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
+                templateSettings, Currencies.USD);
             
-            return isGlobalPolicy
-                ? await Modify(policyId, settings)
-                : Result.Failure($"Policy '{policyId}' not found or not global");
+            if (policy is null)
+            {
+                var policyData = new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
+                    new MarkupPolicyScope(SubjectMarkupScopeTypes.Global));
+                
+                return await Add(policyData);
+            }
+
+            return await Modify(policy.Id, settings);
         }
 
 
@@ -244,6 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Country || p.SubjectScopeType == SubjectMarkupScopeTypes.Locality)
+                .OrderBy(p => p.FunctionType)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
         }
@@ -287,6 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .OrderBy(p => p.FunctionType)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
         }
@@ -487,6 +339,156 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task WriteGlobalLog(MarkupPolicyEventType eventType) 
                 => _markupPolicyAuditService.Write(eventType, new GlobalMarkupPolicyData(policy.Id), administrator.ToApiCaller());
+        }
+        
+        
+        private async Task<Result> Add(MarkupPolicyData policyData)
+        {
+            var destinationScopeType = await GetDestinationScopeType(policyData.Settings.DestinationScopeId);
+            if (destinationScopeType.IsFailure)
+                return Result.Failure(destinationScopeType.Error);
+            
+            var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
+                .Map(SavePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created));
+
+            if (isFailure)
+                return Result.Failure(error);
+            
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
+
+            async Task<MarkupPolicy> SavePolicy()
+            {
+                var now = _dateTimeProvider.UtcNow();
+                var (type, agencyId, agentId, agentScopeId) = policyData.Scope;
+                var settings = policyData.Settings;
+                
+                var policy = new MarkupPolicy
+                {
+                    Description = settings.Description,
+                    Target = policyData.Target,
+                    TemplateSettings = settings.TemplateSettings,
+                    Currency = settings.Currency,
+                    Created = now,
+                    Modified = now,
+                    TemplateId = settings.TemplateId,
+                    SubjectScopeType = type,
+                    SubjectScopeId = agentScopeId,
+                    DestinationScopeId = settings.DestinationScopeId,
+                    DestinationScopeType = destinationScopeType.Value
+                };
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+
+                _context.MarkupPolicies.Add(policy);
+                await _context.SaveChangesAsync();
+                return policy;
+            }
+        }
+
+
+        private async Task<Result> Remove(int policyId)
+        {
+            var (_, isFailure, markupPolicy, error) = await GetPolicy()
+                .Ensure(HasNoDiscounts, "Markup policy has linked discounts")
+                .Map(DeletePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
+
+            if (isFailure)
+                return Result.Failure(error);
+
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
+
+
+            async Task<Result<MarkupPolicy>> GetPolicy()
+            {
+                var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
+                return policy == null
+                    ? Result.Failure<MarkupPolicy>("Could not find policy")
+                    : Result.Success(policy);
+            }
+
+
+            async Task<bool> HasNoDiscounts(MarkupPolicy policy)
+                => !await _context.Discounts.AnyAsync(d => d.TargetPolicyId == policy.Id);
+
+
+            async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
+            {
+                _context.Remove(policy);
+                await _context.SaveChangesAsync();
+                return policy;
+            }
+        }
+
+        private async Task<Result> Modify(int policyId, MarkupPolicySettings settings)
+        {
+            var destinationScopeType = await GetDestinationScopeType(settings.DestinationScopeId);
+            if (destinationScopeType.IsFailure)
+                return Result.Failure(destinationScopeType.Error);
+            
+            var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
+            if (policy == null)
+                return Result.Failure("Could not find policy");
+
+            var (_, isFailure, markupPolicy, error) = await ValidateSettings()
+                .Bind(DiscountsDontExceedMarkups)
+                .Bind(UpdatePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified));
+
+            if (isFailure)
+                return Result.Failure(error);
+
+            return await UpdateDisplayedMarkupFormula(markupPolicy);
+
+
+            Result ValidateSettings() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
+            
+            
+            async Task<Result> DiscountsDontExceedMarkups()
+            {
+                // This check is only applicable to agency scope markups
+                if (policy.SubjectScopeType != SubjectMarkupScopeTypes.Agency)
+                    return Result.Success();
+
+                var agencyId = int.Parse(policy.SubjectScopeId);
+                
+                var allDiscounts = await _context.Discounts
+                    .Where(x => x.IsActive)
+                    .Where(x => x.TargetAgencyId == agencyId)
+                    .Where(x => x.TargetPolicyId == policy.Id)
+                    .Select(x => x.DiscountPercent)
+                    .ToListAsync();
+
+                var markupFunction = _templateService.CreateFunction(policy.TemplateId, policy.TemplateSettings);
+                return DiscountsValidator.DiscountsDontExceedMarkups(allDiscounts, markupFunction);
+            }
+
+
+            async Task<Result<MarkupPolicy>> UpdatePolicy()
+            {
+                policy.Description = settings.Description;
+                policy.TemplateId = settings.TemplateId;
+                policy.TemplateSettings = settings.TemplateSettings;
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+                policy.Currency = settings.Currency;
+                policy.Modified = _dateTimeProvider.UtcNow();
+                policy.SubjectScopeId = settings.LocationScopeId;
+                // No SubjectScopeType here because changing its type is not allowed
+                policy.DestinationScopeId = settings.DestinationScopeId;
+                policy.DestinationScopeType = destinationScopeType.Value;
+
+                var policyData = GetPolicyData(policy);
+                if(policyData.IsFailure)
+                    return Result.Failure<MarkupPolicy>(policyData.Error);
+
+                var (_, isFailure, error) = ValidatePolicy(policyData.Value, policy);
+                if (isFailure)
+                    return Result.Failure<MarkupPolicy>(error);
+
+                _context.Update(policy);
+                await _context.SaveChangesAsync();
+                return policy;
+            }
         }
 
 

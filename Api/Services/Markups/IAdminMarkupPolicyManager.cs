@@ -2,24 +2,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Global;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IAdminMarkupPolicyManager
     {
-        Task<Result> Add(MarkupPolicyData policyData);
+        Task<GlobalMarkupInfo?> GetGlobalPolicy();
 
-        Task<Result> Remove(int policyId);
+        Task<Result> RemoveGlobalPolicy();
 
-        Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
-        
-        Task<List<MarkupInfo>> GetGlobalPolicies();
-
-        Task<Result> AddGlobalPolicy(MarkupPolicySettings settings);
-
-        Task<Result> RemoveGlobalPolicy(int policyId);
-
-        Task<Result> ModifyGlobalPolicy(int policyId, MarkupPolicySettings settings);
+        Task<Result> SetGlobalPolicy(SetGlobalMarkupRequest settings);
 
         Task<List<MarkupInfo>> GetLocationPolicies();
 
