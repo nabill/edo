@@ -389,7 +389,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<Result> Remove(int policyId)
         {
             var (_, isFailure, markupPolicy, error) = await GetPolicy()
-                .Ensure(HasNoDiscounts, "Markup policy has bound discounts")
+                .Ensure(HasNoDiscounts, "Markup policy has linked discounts")
                 .Map(DeletePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
 

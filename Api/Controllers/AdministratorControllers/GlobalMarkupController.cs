@@ -14,9 +14,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/admin/global-markup")]
     [Produces("application/json")]
-    public class GlobalMarkupsController : BaseController
+    public class GlobalMarkupController : BaseController
     {
-        public GlobalMarkupsController(IAdminMarkupPolicyManager policyManager)
+        public GlobalMarkupController(IAdminMarkupPolicyManager policyManager)
         {
             _policyManager = policyManager;
         }
