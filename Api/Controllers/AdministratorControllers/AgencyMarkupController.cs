@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Agency;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +14,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin")]
+    [Route("api/{v:apiVersion}/admin/{agencyId}/markup")]
     [Produces("application/json")]
     public class AgencyMarkupController : BaseController
     {
@@ -29,13 +30,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency id</param>
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
-        [HttpPost("agencies/{agencyId}/markup-policies")]
+        [HttpPut]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddPolicy([FromRoute] int agencyId, [FromBody] MarkupPolicySettings settings)
+        public async Task<IActionResult> SetPolicy([FromRoute] int agencyId, [FromBody] SetAgencyMarkupRequest settings)
         {
-            var (_, isFailure, error) = await _policyManager.AddAgencyPolicy(agencyId, settings);
+            var (_, isFailure, error) = await _policyManager.SetAgencyPolicy(agencyId, settings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency id</param>
         /// <returns></returns>
-        [HttpGet("agencies/{agencyId}/markup-policies")]
+        [HttpGet]
         [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId) 
@@ -59,36 +60,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Deletes policy.
         /// </summary>
         /// <param name="agencyId">Agency id</param>
-        /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
-        [HttpDelete("agencies/{agencyId}/markup-policies/{policyId}")]
+        [HttpDelete]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> RemovePolicy([FromRoute]int agencyId, [FromRoute] int policyId)
+        public async Task<IActionResult> RemovePolicy([FromRoute]int agencyId)
         {
-            var (_, isFailure, error) = await _policyManager.RemoveAgencyPolicy(agencyId, policyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-        
-        
-        /// <summary>
-        ///     Updates policy settings.
-        /// </summary>
-        /// <param name="agencyId">Agency id</param>
-        /// <param name="policyId">Id of the policy.</param>
-        /// <param name="policySettings">Updated settings.</param>
-        /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/markup-policies/{policyId}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyPolicy(int agencyId, int policyId, [FromBody] MarkupPolicySettings policySettings)
-        {
-            var (_, isFailure, error) = await _policyManager.ModifyForAgency(agencyId, policyId, policySettings);
+            var (_, isFailure, error) = await _policyManager.RemoveAgencyPolicy(agencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

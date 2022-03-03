@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Agency;
 using HappyTravel.Edo.Api.Models.Markups.Global;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -22,12 +23,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         Task<Result> ModifyLocationPolicy(int policyId, MarkupPolicySettings settings);
 
-        Task<Result> AddAgencyPolicy(int agencyId, MarkupPolicySettings settings);
+        Task<Result> SetAgencyPolicy(int agencyId, SetAgencyMarkupRequest request);
 
-        Task<List<MarkupInfo>> GetForAgency(int agencyId);
+        Task<AgencyMarkupInfo?> GetForAgency(int agencyId);
 
-        Task<Result> RemoveAgencyPolicy(int agencyId, int policyId);
-        
-        Task<Result> ModifyForAgency(int agencyId, int policyId, MarkupPolicySettings settings);
+        Task<Result> RemoveAgencyPolicy(int agencyId);
     }
 }

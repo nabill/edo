@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Agency;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
 using HappyTravel.Edo.Api.Models.Markups.Global;
 using HappyTravel.Edo.Api.Models.Users;
@@ -130,44 +131,55 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<Result> AddAgencyPolicy(int agencyId, MarkupPolicySettings settings) 
-            => Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings, new MarkupPolicyScope(SubjectMarkupScopeTypes.Agency, agencyId)));
-
-
-        public Task<List<MarkupInfo>> GetForAgency(int agencyId)
-        {
-            return _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
-                .OrderBy(p => p.FunctionType)
-                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
-                .ToListAsync();
-        }
-
-
-        public async Task<Result> RemoveAgencyPolicy(int agencyId, int policyId)
-        {
-            var isAgencyPolicy = await _context.MarkupPolicies
-                .AnyAsync(p =>
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
-                    p.SubjectScopeId == agencyId.ToString() &&
-                    p.Id == policyId);
-            
-            return isAgencyPolicy
-                ? await Remove(policyId)
-                : Result.Failure($"Policy '{policyId}' not found or not agency");
-        }
-
-
-        public async Task<Result> ModifyForAgency(int agencyId, int policyId, MarkupPolicySettings settings)
+        public async Task<Result> SetAgencyPolicy(int agencyId, SetAgencyMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
-                .FirstOrDefaultAsync(p => p.Id == policyId && 
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
-                    p.SubjectScopeId == agencyId.ToString());
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
+                .Where(p => p.SubjectScopeId == agencyId.ToString())
+                .SingleOrDefaultAsync();
 
-            return policy is null 
-                ? Result.Failure($"Policy '{policyId}' not found") 
-                : await Modify(policyId, settings);
+            // TODO: Remove after templates removal
+            var templateSettings = new Dictionary<string, decimal>()
+            {
+                { "factor", (100 + request.Percent) / 100 }
+            };
+
+            var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
+                templateSettings, Currencies.USD);
+            
+            if (policy is null)
+            {
+                var policyData = new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
+                    new MarkupPolicyScope(SubjectMarkupScopeTypes.Agency, agencyId));
+                
+                return await Add(policyData);
+            }
+
+            return await Modify(policy.Id, settings);
+        }
+            
+
+        public async Task<AgencyMarkupInfo?> GetForAgency(int agencyId)
+        {
+            var policy = await _context.MarkupPolicies
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .SingleOrDefaultAsync();
+
+            return policy is null
+                ? null
+                : new AgencyMarkupInfo { Percent = policy.Value };
+        }
+
+
+        public async Task<Result> RemoveAgencyPolicy(int agencyId)
+        {
+            var policy = await _context.MarkupPolicies
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .SingleOrDefaultAsync();
+            
+            return policy is null
+                ? Result.Failure("Could not find agency policy")
+                : await Remove(policy.Id);;
         }
 
 
