@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo, MarkupPolicyTarget policyTarget)
+        public List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo)
         {
             var agencyId = subjectInfo.AgencyId;
             var agencyTreeIds = subjectInfo.AgencyAncestors;

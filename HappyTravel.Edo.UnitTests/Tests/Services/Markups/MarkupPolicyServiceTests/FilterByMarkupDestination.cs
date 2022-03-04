@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupDestination, default);
+            var policies = service.Get(markupSubject, markupDestination);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupDestination, default);
+            var policies = service.Get(markupSubject, markupDestination);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupDestination, default);
+            var policies = service.Get(markupSubject, markupDestination);
             
             Assert.Single(policies);
             Assert.Equal(1, policies[0].Id);

@@ -56,7 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
-                    Target = MarkupPolicyTarget.AccommodationAvailability,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                     SubjectScopeId = agentInAgencyId.ToString(),
                     DestinationScopeType = destinationScopeType,

@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
             
-            var policies = service.Get(markupSubject, markupDestination, default);
+            var policies = service.Get(markupSubject, markupDestination);
             
             Assert.Equal(DestinationMarkupScopeTypes.Global, policies[0].DestinationScopeType);
             Assert.Equal(DestinationMarkupScopeTypes.Country, policies[1].DestinationScopeType);
