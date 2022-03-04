@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         [Fact]
         public void Positive_shift_should_be_made_zero_in_deadline_date()
         {
-            var originalDeadlineDate = new DateTime(2021, 1, 15);
+            var originalDeadlineDate = new DateTimeOffset(2021, 1, 15, 0, 0, 0, TimeSpan.Zero);
             var originalDeadline = new Deadline(originalDeadlineDate, default, default, default);
             var checkIn = originalDeadlineDate;
             var shiftSpan = TimeSpan.FromDays(10);
@@ -62,14 +62,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         [Fact]
         public void Shift_should_change_date_by_exact_days_count_to_policies()
         {
-            var originalDeadlineDate = new DateTime(2021, 1, 15);
+            var originalDeadlineDate = new DateTimeOffset(2021, 1, 15, 0, 0, 0, TimeSpan.Zero);
             var shiftSpan = TimeSpan.FromDays(-10);
-            var expectedShiftedDates = new List<DateTime>
+            var expectedShiftedDates = new List<DateTimeOffset>
             {
-                new DateTime(2021, 1, 6),
-                new DateTime(2021, 1, 7),
-                new DateTime(2021, 1, 8),
-                new DateTime(2021, 1, 9),
+                new DateTimeOffset(2021, 1, 6, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2021, 1, 7, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2021, 1, 8, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2021, 1, 9, 0, 0, 0, TimeSpan.Zero),
             };
             var originalDeadline = new Deadline(originalDeadlineDate, Policies, default, default);
             var checkIn = originalDeadlineDate;
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
         [Fact]
         public void Shift_should_use_check_in_if_deadline_null()
         {
-            var originalDeadlineDate = new DateTime(2021, 1, 15);
+            var originalDeadlineDate = new DateTimeOffset(2021, 1, 15, 0, 0, 0, TimeSpan.Zero);
             var shiftSpan = TimeSpan.FromDays(0);
             var originalDeadline = new Deadline(null, default, default, default);
             var checkIn = originalDeadlineDate;
@@ -115,10 +115,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability
 
         private static readonly List<CancellationPolicy> Policies = new List<CancellationPolicy>
         {
-            new CancellationPolicy(new DateTime(2021, 1, 16), 1d, null),
-            new CancellationPolicy(new DateTime(2021, 1, 17), 2d, null),
-            new CancellationPolicy(new DateTime(2021, 1, 18), 3d, null),
-            new CancellationPolicy(new DateTime(2021, 1, 19), 4d, null),
+            new CancellationPolicy(new DateTimeOffset(2021, 1, 16, 0, 0, 0, TimeSpan.Zero), 1d, null),
+            new CancellationPolicy(new DateTimeOffset(2021, 1, 17, 0, 0, 0, TimeSpan.Zero), 2d, null),
+            new CancellationPolicy(new DateTimeOffset(2021, 1, 18, 0, 0, 0, TimeSpan.Zero), 3d, null),
+            new CancellationPolicy(new DateTimeOffset(2021, 1, 19, 0, 0, 0, TimeSpan.Zero), 4d, null),
         };
     }
 }

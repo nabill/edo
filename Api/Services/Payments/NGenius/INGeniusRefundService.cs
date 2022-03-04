@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public interface INGeniusRefundService
     {
-        Task<List<int>> GetPaymentsForRefund(DateTime? date);
+        Task<List<int>> GetPaymentsForRefund(DateTimeOffset? date);
 
         Task<Result<BatchOperationResult>> RefundPayments(List<int> paymentIds);
 

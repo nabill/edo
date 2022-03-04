@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private bool RefreshCondition(BookingStatusRefreshState state, DateTime date)
+        private bool RefreshCondition(BookingStatusRefreshState state, DateTimeOffset date)
         {
             var delay = GetDelay(state);
             return state.LastRefreshDate.Add(delay) < date;

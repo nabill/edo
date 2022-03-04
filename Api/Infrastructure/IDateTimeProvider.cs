@@ -4,10 +4,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
 {
     public interface IDateTimeProvider
     {
-        DateTime UtcNow();
+        DateTimeOffset UtcNow();
         
-        DateTime UtcTomorrow();
+        DateTimeOffset UtcTomorrow();
         
-        DateTime UtcToday();
+        DateTimeOffset UtcToday();
     }
 }

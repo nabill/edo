@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class DeadlinePolicyProcessor
     {
-        public static Deadline Process(Deadline deadline, DateTime checkInDate, CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
+        public static Deadline Process(Deadline deadline, DateTimeOffset checkInDate, CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
         {
             var shiftValue = cancellationPolicyProcessSettings.PolicyStartDateShift;
             // This value cannot be positive because we cannot shift deadlines to future, only to the past
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             if (deadline.Date == default(DateTimeOffset))
                 throw new ArgumentException($"Deadline date '{deadline.Date}' is invalid", nameof(deadline.Date));
             
-            if (checkInDate == default(DateTime))
+            if (checkInDate == default)
                 throw new ArgumentException($"Check in date '{checkInDate}' is invalid", nameof(checkInDate));
                 
             var shiftedDeadlineDate = ShiftDate(deadline.Date, checkInDate, shiftValue);
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private static DateTime ShiftDate(DateTimeOffset? current, DateTime checkInDate, TimeSpan shiftValue)
-            => (current?.DateTime ?? checkInDate) + shiftValue;
+        private static DateTimeOffset ShiftDate(DateTimeOffset? current, DateTimeOffset checkInDate, TimeSpan shiftValue)
+            => (current ?? checkInDate) + shiftValue;
     }
 }

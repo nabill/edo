@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         public int BookingId { get; init; }
         public int RefreshStatusCount { get; init; }
-        public DateTime LastRefreshDate { get; init; }
-        public DateTime? DeadlineDate { get; init; }
+        public DateTimeOffset LastRefreshDate { get; init; }
+        public DateTimeOffset? DeadlineDate { get; init; }
     }
 }

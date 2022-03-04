@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent);
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId);
         Task<Result<PaymentResponse>> Charge(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService);
-        Task<Result> Refund(string referenceCode, ApiCaller apiCaller, DateTime operationDate, IPaymentCallbackService paymentCallbackService, string reason);
+        Task<Result> Refund(string referenceCode, ApiCaller apiCaller, DateTimeOffset operationDate, IPaymentCallbackService paymentCallbackService, string reason);
         Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
 }

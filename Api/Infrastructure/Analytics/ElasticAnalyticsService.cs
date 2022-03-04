@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
 
         public void LogEvent<TEventData>(in TEventData eventData, string name, in AgentAnalyticsInfo agentAnalyticsInfo, in GeoPoint? point = default)
         {
-            var date = new DateTimeOffset(_dateTimeProvider.UtcNow(), TimeSpan.Zero);
+            var date = _dateTimeProvider.UtcNow();
             var environmentName = _environment.EnvironmentName.ToLowerInvariant();
 
             var indexName = $"{environmentName}-{ServicePrefix}-{name}-{date:yyyy-MM-dd}";

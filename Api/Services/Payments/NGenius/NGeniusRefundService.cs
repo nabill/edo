@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         }
 
 
-        public Task<List<int>> GetPaymentsForRefund(DateTime? date)
+        public Task<List<int>> GetPaymentsForRefund(DateTimeOffset? date)
         {
             date ??= _dateTimeProvider.UtcNow();
             

@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                     .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-                paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTime>()))
+                paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
                     .ReturnsAsync(new MoneyAmount());
 
                 paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                 .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-            paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTime>()))
+            paymentServiceMock.Setup(p => p.GetRefundableAmount(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
                 .ReturnsAsync(moneyAmount);
 
             paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             ReferenceCode = "ReferenceCode"
         };
 
-        private static readonly DateTime CancellationDate = new DateTime(2020, 1, 1);
+        private static readonly DateTimeOffset CancellationDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private readonly AccountPaymentService _accountPaymentService;
         private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());

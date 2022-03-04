@@ -14,8 +14,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public static List<SlimBooking> SlimFromEdoModels(this IEnumerable<Data.Bookings.Booking> bookings)
             => bookings.Select(b => new SlimBooking(clientReferenceCode: b.ClientReferenceCode,
                     referenceCode: b.ReferenceCode,
-                    checkInDate: b.CheckInDate.DateTime,
-                    checkOutDate: b.CheckOutDate.DateTime,
+                    checkInDate: b.CheckInDate,
+                    checkOutDate: b.CheckOutDate,
                     accommodationId: b.HtId,
                     totalPrice: b.TotalPrice.ToMoneyAmount(b.Currency),
                     status: b.Status,

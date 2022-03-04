@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         Task<Result> Void(Booking booking, ApiCaller apiCaller);
 
-        Task<Result> Refund(Booking booking, DateTime operationDate, ApiCaller apiCaller);
+        Task<Result> Refund(Booking booking, DateTimeOffset operationDate, ApiCaller apiCaller);
 
         Task<Result> PayForAccountBooking(string referenceCode, AgentContext agent);
     }

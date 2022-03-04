@@ -5,18 +5,18 @@ namespace HappyTravel.Edo.UnitTests.Mocks
 {
     public class DateTimeProviderMock : IDateTimeProvider
     {
-        public DateTimeProviderMock(DateTime dateTime)
+        public DateTimeProviderMock(DateTimeOffset dateTime)
         {
             _dateTime = dateTime;
         }
 
 
-        private readonly DateTime _dateTime;
+        private readonly DateTimeOffset _dateTime;
 
-        public DateTime UtcNow() => _dateTime;
+        public DateTimeOffset UtcNow() => _dateTime;
 
-        public DateTime UtcTomorrow() => _dateTime.AddDays(1).Date;
+        public DateTimeOffset UtcTomorrow() => new DateTimeOffset(_dateTime.AddDays(1).Date, TimeSpan.Zero);
 
-        public DateTime UtcToday() => _dateTime.Date;
+        public DateTimeOffset UtcToday() => new DateTimeOffset(_dateTime.Date, TimeSpan.Zero);
     }
 }

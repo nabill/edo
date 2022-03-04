@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.R
 
         private List<DailyRate> CreateDailyRates(Currencies currency, decimal final, decimal gross)
         {
-            var fromDate = new DateTime();
+            var fromDate = new DateTimeOffset();
             return new List<DailyRate>
             {
                 new (fromDate,

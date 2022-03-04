@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
         
         
-        private async Task<Result<Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTime checkInDate, AgentContext agent)
+        private async Task<Result<Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTimeOffset checkInDate, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return DeadlinePolicyProcessor.Process(deadline.ToDeadline(), checkInDate, settings.CancellationPolicyProcessSettings);

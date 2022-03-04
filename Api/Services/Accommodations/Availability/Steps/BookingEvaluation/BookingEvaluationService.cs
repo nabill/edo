@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     agentDeadline: agentDeadline,
                     supplierDeadline: supplierDeadline,
                     cardRequirement: creditCardRequirement.HasValue
-                        ? new CreditCardRequirement(creditCardRequirement.Value.ActivationDate, creditCardRequirement.Value.DueDate)
+                        ? new CreditCardRequirement(creditCardRequirement.Value.ActivationDate.DateTime, creditCardRequirement.Value.DueDate.DateTime)
                         : null,
                     supplierAccommodationCode: connectorEvaluationResult.Value.Value.AccommodationId,
                     availabilityRequest: availabilityRequest.Value);

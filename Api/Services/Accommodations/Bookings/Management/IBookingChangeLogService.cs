@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingChangeLogService
     {
-        Task Write(Booking booking, BookingStatuses status, DateTime date, ApiCaller apiCaller, BookingChangeReason reason);
+        Task Write(Booking booking, BookingStatuses status, DateTimeOffset date, ApiCaller apiCaller, BookingChangeReason reason);
     }
 }

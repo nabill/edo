@@ -404,7 +404,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTime operationDate,  IPaymentCallbackService paymentCallbackService)
+        public async Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTimeOffset operationDate,  IPaymentCallbackService paymentCallbackService)
         {
             _logger.LogCreditCardRefundingStarted(referenceCode);
             

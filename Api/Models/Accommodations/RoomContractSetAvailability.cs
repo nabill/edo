@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct RoomContractSetAvailability
     {
         [JsonConstructor]
-        public RoomContractSetAvailability(string availabilityId, DateTime checkInDate, DateTime checkOutDate, int numberOfNights,
+        public RoomContractSetAvailability(string availabilityId, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, int numberOfNights,
             in SlimAccommodation accommodation, in RoomContractSet roomContractSet, List<PaymentTypes> availablePaymentMethods, 
             string countryHtId, string localityHtId, string evaluationToken)
         {
@@ -32,12 +32,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The check-in date.
         /// </summary>
-        public DateTime CheckInDate { get; }
+        public DateTimeOffset CheckInDate { get; }
 
         /// <summary>
         ///     The check-out date.
         /// </summary>
-        public DateTime CheckOutDate { get; }
+        public DateTimeOffset CheckOutDate { get; }
 
         /// <summary>
         ///     The number of nights to stay.
