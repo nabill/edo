@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
     public interface IMarkupPolicyTemplateService
     {
-        Func<decimal, decimal> CreateFunction(int templateId, IDictionary<string, decimal> settings);
+        Func<decimal, decimal> CreateFunction(MarkupFunctionType functionType, decimal value);
 
-        Result Validate(int templateId, IDictionary<string, decimal> settings);
+        Result Validate(MarkupFunctionType functionType, decimal value);
 
         string GetMarkupsFormula(IEnumerable<MarkupPolicy> policies);
     }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using CSharpFunctionalExtensions;
@@ -12,43 +11,49 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
     public class MarkupPolicyTemplateService : IMarkupPolicyTemplateService
     {
-        public Func<decimal, decimal> CreateFunction(int templateId, IDictionary<string, decimal> settings)
+        public Func<decimal, decimal> CreateFunction(MarkupFunctionType functionType, decimal value)
         {
-            var template = Templates.Single(t => t.Id == templateId);
-            var (_, isFailure, error) = Validate(template, settings);
+            var (_, isFailure, error) = Validate(functionType, value);
             // This is not normal case but it would be better to double check this to avoid errors.
             if (isFailure)
                 throw new Exception(error);
 
-            return template.FunctionFactory(settings);
+            return functionType switch
+            {
+                MarkupFunctionType.Percent => v => v * (100 + value) / 100,
+                MarkupFunctionType.Fixed => v => v + value,
+                _ => throw new ArgumentOutOfRangeException(nameof(functionType), functionType, null)
+            };
         }
 
 
-        public Result Validate(int templateId, IDictionary<string, decimal> settings)
+        public Result Validate(MarkupFunctionType functionType, decimal value)
         {
-            if (settings is null)
-                return Result.Failure<MarkupPolicyTemplate>("Invalid settings");
+            return functionType switch
+            {
+                MarkupFunctionType.Percent => ValidatePercent(value),
+                MarkupFunctionType.Fixed => ValidateFixed(value),
+                _ => Result.Failure("Invalid function type")
+            };
 
-            var template = Templates.SingleOrDefault(t => t.Id == templateId);
-            if (template == default)
-                return Result.Failure<MarkupPolicyTemplate>($"Could not find template by id {templateId}");
 
-            return Validate(template, settings);
+            static Result ValidatePercent(decimal value)
+            {
+                return value > 0
+                    ? Result.Success()
+                    : Result.Failure("Percent can not be below zero");
+            }
+
+
+            static Result ValidateFixed(decimal value)
+            {
+                return value > 0
+                    ? Result.Success()
+                    : Result.Failure("Fixed markup can not be below zero");
+            }
         }
 
-
-        private Result Validate(MarkupPolicyTemplate template, IDictionary<string, decimal> settings)
-        {
-            if (!template.IsEnabled)
-                return Result.Failure<MarkupPolicyTemplate>("Could not create expression for disabled template");
-
-            if (!template.SettingsValidator(settings))
-                return Result.Failure<MarkupPolicyTemplate>("Invalid template settings");
-
-            return Result.Success();
-        }
-
-
+        
         private const string MultiplyingFactorSetting = "factor";
         private const string AdditionValueSetting = "addition";
 

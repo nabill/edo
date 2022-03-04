@@ -1,17 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Money.Models;
 
@@ -79,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         {
                             Currency = policy.Currency,
                             Function = _templateService
-                                .CreateFunction(policy.TemplateId, policy.TemplateSettings)
+                                .CreateFunction(policy.FunctionType, policy.Value)
                         };
                     },
                     MarkupPolicyFunctionCachingTime);

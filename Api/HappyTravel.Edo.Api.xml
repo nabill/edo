@@ -3516,16 +3516,6 @@
                 Policy description.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.TemplateId">
-            <summary>
-                Template id.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.TemplateSettings">
-            <summary>
-                Settings.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
                 Currency of policy. Needed for proper currency applying.

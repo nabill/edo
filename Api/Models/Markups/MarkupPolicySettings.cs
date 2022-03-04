@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
@@ -7,12 +8,12 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicySettings
     {
         [JsonConstructor]
-        public MarkupPolicySettings(string description, int templateId, IDictionary<string, decimal> templateSettings, 
+        public MarkupPolicySettings(string description, MarkupFunctionType functionType, decimal value, 
             Currencies currency, string locationScopeId = "", string destinationScopeId = "")
         {
             Description = description;
-            TemplateId = templateId;
-            TemplateSettings = templateSettings;
+            FunctionType = functionType;
+            Value = value;
             Currency = currency;
             LocationScopeId = locationScopeId;
             DestinationScopeId = destinationScopeId;
@@ -24,16 +25,8 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// </summary>
         public string Description { get; }
 
-        /// <summary>
-        ///     Template id.
-        /// </summary>
-        public int TemplateId { get; }
-
-        /// <summary>
-        ///     Settings.
-        /// </summary>
-        public IDictionary<string, decimal> TemplateSettings { get; }
-
+        public MarkupFunctionType FunctionType { get; }
+        public decimal Value { get; }
 
         /// <summary>
         ///     Currency of policy. Needed for proper currency applying.
