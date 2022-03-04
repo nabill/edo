@@ -21,6 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         Task<Result> VoidMoney(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService);
 
-        Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTime operationDate, IPaymentCallbackService paymentCallbackService);
+        Task<Result> RefundMoney(string referenceCode, ApiCaller apiCaller, DateTimeOffset operationDate, IPaymentCallbackService paymentCallbackService);
     }
 }

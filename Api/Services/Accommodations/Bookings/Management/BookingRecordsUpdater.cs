@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
 
-        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, ApiCaller apiCaller, BookingChangeReason reason) 
+        public async Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTimeOffset date, ApiCaller apiCaller, BookingChangeReason reason) 
         {
             if (booking.Status == status)
                 return Result.Success();
@@ -63,8 +63,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ChangeTime = _dateTimeProvider.UtcNow(),
                 AccommodationName = booking.AccommodationName,
                 AccommodationPhoto = booking.AccommodationInfo?.Photo,
-                CheckInDate = booking.CheckInDate.DateTime,
-                CheckOutDate = booking.CheckOutDate.DateTime
+                CheckInDate = booking.CheckInDate,
+                CheckOutDate = booking.CheckOutDate
             };
             await _notificationsService.Send(apiCaller, 
                 JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(message, new JsonSerializerOptions(JsonSerializerDefaults.Web))), 
@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
 
-        private async Task<Result> ProcessConfirmation(Booking booking, DateTime confirmationDate)
+        private async Task<Result> ProcessConfirmation(Booking booking, DateTimeOffset confirmationDate)
         {
             return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
@@ -188,7 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
         
         
-        private Task<Result> ProcessCancellation(Booking booking, DateTime cancellationDate, ApiCaller user)
+        private Task<Result> ProcessCancellation(Booking booking, DateTimeOffset cancellationDate, ApiCaller user)
         {
             return GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetCancellationDate)
@@ -274,11 +274,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
         
-        private Task<Result> ReturnMoney(Booking booking, DateTime operationDate, ApiCaller user) 
+        private Task<Result> ReturnMoney(Booking booking, DateTimeOffset operationDate, ApiCaller user) 
             => _moneyReturnService.ReturnMoney(booking, operationDate, user);
         
         
-        private async Task SetConfirmationDate(Booking booking, DateTime date)
+        private async Task SetConfirmationDate(Booking booking, DateTimeOffset date)
         {
             booking.ConfirmationDate = date;
             _context.Bookings.Update(booking);
@@ -296,7 +296,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task SetCancellationDate(Booking booking, DateTime date)
+        private async Task SetCancellationDate(Booking booking, DateTimeOffset date)
         {
             booking.Cancelled = date;
             _context.Bookings.Update(booking);

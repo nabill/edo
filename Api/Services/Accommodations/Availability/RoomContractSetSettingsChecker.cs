@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class RoomContractSetSettingsChecker
     {
-        public static bool IsDisplayAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings,
+        public static bool IsDisplayAllowed(RoomContractSet roomSet, DateTimeOffset checkInDate, AccommodationBookingSettings settings,
             IDateTimeProvider dateTimeProvider)
         {
             return IsAllowed(roomSet,
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public static bool IsEvaluationAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings,
+        public static bool IsEvaluationAllowed(RoomContractSet roomSet, DateTimeOffset checkInDate, AccommodationBookingSettings settings,
             IDateTimeProvider dateTimeProvider)
         {
             return IsAllowed(roomSet,
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private static bool IsAllowed(RoomContractSet roomSet, DateTime checkInDate, AccommodationBookingSettings settings, IDateTimeProvider dateTimeProvider,
+        private static bool IsAllowed(RoomContractSet roomSet, DateTimeOffset checkInDate, AccommodationBookingSettings settings, IDateTimeProvider dateTimeProvider,
             HashSet<AprMode> aprModesToDisallow, HashSet<PassedDeadlineOffersMode> deadlineModesToDisallow)
         {
             if (roomSet.IsAdvancePurchaseRate && aprModesToDisallow.Contains(settings.AprMode))

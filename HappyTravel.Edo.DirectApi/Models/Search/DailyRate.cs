@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct DailyRate
     {
         [JsonConstructor]
-        public DailyRate(DateTime fromDate, in DateTime toDate, in MoneyAmount totalPrice, in MoneyAmount gross, PriceTypes type, string description)
+        public DailyRate(DateTimeOffset fromDate, in DateTimeOffset toDate, in MoneyAmount totalPrice, in MoneyAmount gross, PriceTypes type, string description)
         {
             Description = description;
             FromDate = fromDate;
@@ -23,12 +23,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         /// <summary>
         ///     Start of the date range
         /// </summary>
-        public DateTime FromDate { get; }
+        public DateTimeOffset FromDate { get; }
 
         /// <summary>
         ///     End of the date range
         /// </summary>
-        public DateTime ToDate { get; }
+        public DateTimeOffset ToDate { get; }
 
         /// <summary>
         ///     Currency of the price

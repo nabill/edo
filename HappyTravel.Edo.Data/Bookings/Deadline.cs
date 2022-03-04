@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Bookings
         private Deadline() {}
 
         [JsonConstructor]
-        public Deadline(DateTime? date, List<CancellationPolicy> policies, List<string> remarks, bool isFinal)
+        public Deadline(DateTimeOffset? date, List<CancellationPolicy> policies, List<string> remarks, bool isFinal)
         {
             Date = date;
             IsFinal = isFinal;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Data.Bookings
             Remarks = remarks ?? new List<string>(0);
         }
         
-        public DateTime? Date { get; set; }
+        public DateTimeOffset? Date { get; set; }
         public bool IsFinal { get; set; }
         public List<CancellationPolicy> Policies { get; set; }
         public List<string> Remarks { get; set; }

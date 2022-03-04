@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode, DateTime operationDate)
+        public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode, DateTimeOffset operationDate)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
