@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Agent;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
@@ -13,9 +14,9 @@ using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.MapperContracts.Internal.Mappings.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -35,63 +36,78 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<Result> Add(int agentId, MarkupPolicySettings settings, AgentContext agent)
+        public Task<Result> Set(int agentId, SetAgentMarkupRequest request, AgentContext agent)
         {
+            // TODO: Remove after templates removal
+            var settings = new MarkupPolicySettings(string.Empty, 1, new Dictionary<string, decimal>()
+            {
+                { "factor", (100 + request.Percent / 100) }
+            }, Currencies.USD);
+            var agentInAgencyId = AgentInAgencyId.Create(agentId, agent.AgencyId);
+            
             return ValidateSettings(settings)
-                .Bind(() => GetAgentAgencyRelation(agentId, agent.AgencyId))
+                .Map(() => GetAgentPolicy(agentInAgencyId))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
+            
+            Result ValidateSettings(MarkupPolicySettings settings) 
+                => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
 
-            async Task<Result<MarkupPolicy>> SavePolicy(AgentAgencyRelation agentAgencyRelation)
+
+            async Task<Result<MarkupPolicy>> SavePolicy(MarkupPolicy policy)
             {
                 var (_, isFailure, destinationScopeType, error) = await GetDestinationScopeType(settings.DestinationScopeId);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
                 
                 var now = _dateTimeProvider.UtcNow();
-                var agentInAgencyId = AgentInAgencyId.Create(agentAgencyRelation.AgentId, agentAgencyRelation.AgencyId);
 
-                var policy = new MarkupPolicy
+                if (policy is null)
                 {
-                    Description = settings.Description,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                    SubjectScopeId = agentInAgencyId.ToString(),
-                    DestinationScopeType = destinationScopeType,
-                    DestinationScopeId = settings.DestinationScopeId,
-                    TemplateSettings = settings.TemplateSettings,
-                    Currency = settings.Currency,
-                    Created = now,
-                    Modified = now,
-                    TemplateId = settings.TemplateId
-                };
+                    policy = new MarkupPolicy
+                    {
+                        Description = settings.Description,
+                        SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                        SubjectScopeId = agentInAgencyId.ToString(),
+                        DestinationScopeType = destinationScopeType,
+                        DestinationScopeId = settings.DestinationScopeId,
+                        TemplateSettings = settings.TemplateSettings,
+                        Currency = settings.Currency,
+                        Created = now,
+                        Modified = now,
+                        TemplateId = settings.TemplateId
+                    };
+                    _context.MarkupPolicies.Add(policy);
+                }
+                
                 MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
-
-                _context.MarkupPolicies.Add(policy);
+                _context.MarkupPolicies.Update(policy);
+                
                 await _context.SaveChangesAsync();
                 return policy;
             }
 
 
             Task WriteAuditLog(MarkupPolicy policy)
-                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupCreated,
+                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupUpdated,
                     new AgentMarkupPolicyData(policy.Id, agentId, agent.AgencyId),
                     agent.ToApiCaller());
         }
 
 
-        public Task<Result> Remove(int agentId, int policyId, AgentContext agent)
+        public Task<Result> Remove(int agentId, AgentContext agent)
         {
-            return GetAgentAgencyRelation(agentId, agent.AgencyId) 
-                .Bind(GetPolicy)
+            return Result.Success(AgentInAgencyId.Create(agentId, agent.AgencyId)) 
+                .Map(GetPolicy)
                 .Map(DeletePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
-            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) 
-                => GetAgentPolicy(relation, policyId);
+            Task<MarkupPolicy> GetPolicy(AgentInAgencyId agentId) 
+                => GetAgentPolicy(agentId);
 
 
             async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
@@ -109,87 +125,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> Modify(int agentId, int policyId, MarkupPolicySettings settings, AgentContext agent)
+        public async Task<AgentMarkupInfo?> Get(int agentId, AgentContext agent)
         {
-            return await GetAgentAgencyRelation(agentId, agent.AgencyId) 
-                .Bind(GetPolicy)
-                .Check(_ => ValidateSettings(settings))
-                .Check(UpdatePolicy)
-                .Tap(WriteAuditLog)
-                .Bind(UpdateDisplayedMarkupFormula);
-
-
-            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) => GetAgentPolicy(relation, policyId);
-
-            
-            async Task<Result> UpdatePolicy(MarkupPolicy policy)
-            {
-                var (_, isFailure, destinationScopeType, error) = await GetDestinationScopeType(settings.DestinationScopeId);
-                if (isFailure)
-                    return Result.Failure(error);
-                
-                policy.DestinationScopeId = settings.DestinationScopeId;
-                policy.DestinationScopeType = destinationScopeType;
-                policy.Description = settings.Description;
-                policy.TemplateId = settings.TemplateId;
-                policy.TemplateSettings = settings.TemplateSettings;
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
-                policy.Currency = settings.Currency;
-                policy.Modified = _dateTimeProvider.UtcNow();
-
-                _context.Update(policy);
-                await _context.SaveChangesAsync();
-                return Result.Success();
-            }
-
-
-            Task WriteAuditLog(MarkupPolicy policy)
-                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupUpdated,
-                    new AgentMarkupPolicyData(policy.Id, agentId, agent.AgencyId),
-                    agent.ToApiCaller());
+            var agentInAgencyId = AgentInAgencyId.Create(agentId, agent.AgencyId);
+            var policy = await GetAgentPolicy(agentInAgencyId);
+            return policy is not null
+                ? new AgentMarkupInfo { Percent = policy.Value }
+                : null;
         }
 
 
-        public async Task<List<MarkupInfo>> Get(int agentId, int agencyId)
+        private Task<MarkupPolicy> GetAgentPolicy(AgentInAgencyId agentId)
         {
-            var policies = await GetAgentPolicies(agentId, agencyId);
-            return policies
-                .Select(p=> new MarkupInfo(p.Id, p.GetSettings()))
-                .ToList();
-        }
-
-
-        private Task<List<MarkupPolicy>> GetAgentPolicies(int agentId, int agencyId)
-        {
-            var agentInAgencyId = AgentInAgencyId.Create(agentId: agentId, agencyId: agencyId).ToString();
+            var agentInAgencyId = agentId.ToString();
             return _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agent && p.SubjectScopeId == agentInAgencyId)
-                .ToListAsync();
-        }
-
-        
-        private async Task<Result<AgentAgencyRelation>> GetAgentAgencyRelation(int agentId, int agencyId)
-        {
-            var relation = await _context.AgentAgencyRelations
-                .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
-            
-            return relation ?? Result.Failure<AgentAgencyRelation>("Could not find this agent in your agency"); 
-        }
-        
-
-        private Result ValidateSettings(MarkupPolicySettings settings)
-        {
-            return _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
-        }
-
-
-        private async Task<Result<MarkupPolicy>> GetAgentPolicy(AgentAgencyRelation relation, int policyId)
-        {
-            var agentInAgencyId = AgentInAgencyId.Create(agentId: relation.AgentId, agencyId: relation.AgencyId).ToString();
-            var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.Id == policyId && p.SubjectScopeType == SubjectMarkupScopeTypes.Agent && p.SubjectScopeId == agentInAgencyId);
-
-            return policy ?? Result.Failure<MarkupPolicy>("Could not find agent policy");
+                .SingleOrDefaultAsync();
         }
 
 

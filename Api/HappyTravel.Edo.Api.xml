@@ -956,29 +956,18 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.SetPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.Agent.SetAgentMarkupRequest)">
             <summary>
             Creates markup policy.
             </summary>
             <param name="agentId">Agent id</param>
-            <param name="settings">Markup settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.RemovePolicy(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.RemovePolicy(System.Int32)">
             <summary>
                 Deletes policy.
             </summary>
             <param name="agentId">Agent id</param>
-            <param name="policyId">Id of the policy to delete.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-                Updates policy settings.
-            </summary>
-            <param name="agentId">Agent id</param>
-            <param name="policyId">Id of the policy.</param>
-            <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetPolicies(System.Int32)">
@@ -986,25 +975,6 @@
             Gets policies for specified scope.
             </summary>
             <param name="agentId">Agent id</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetPolicyTemplates">
-            <summary>
-                Gets policy templates.
-            </summary>
-            <returns>Policy templates.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetBonuses">
-            <summary>
-                Gets list of applied markups for agency
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetBonusesSummary(HappyTravel.Edo.Api.Models.Agents.BonusSummaryFilter)">
-            <summary>
-                Gets summary amount of applied markups for agency
-            </summary>
-            <param name="filter">Filter for date range</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentReportsController.GetAgentWiseReport(System.DateTime,System.DateTime)">
@@ -1510,6 +1480,19 @@
             <summary>
                 Returns a list of world regions.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupBonusesController.GetBonuses">
+            <summary>
+                Gets list of applied markups for agency
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupBonusesController.GetBonusesSummary(HappyTravel.Edo.Api.Models.Agents.BonusSummaryFilter)">
+            <summary>
+                Gets summary amount of applied markups for agency
+            </summary>
+            <param name="filter">Filter for date range</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.NotificationController.GetNotifications(System.Int32,System.Int32)">

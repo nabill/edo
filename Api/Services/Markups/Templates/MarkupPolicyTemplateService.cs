@@ -12,9 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
     public class MarkupPolicyTemplateService : IMarkupPolicyTemplateService
     {
-        public IReadOnlyCollection<MarkupPolicyTemplate> Get() => new ReadOnlyCollection<MarkupPolicyTemplate>(Templates);
-
-
         public Func<decimal, decimal> CreateFunction(int templateId, IDictionary<string, decimal> settings)
         {
             var template = Templates.Single(t => t.Id == templateId);
