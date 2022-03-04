@@ -103,8 +103,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 Id = 1,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}},
+                Value = 100,
                 FunctionType = MarkupFunctionType.Percent
             },
             new MarkupPolicy
@@ -112,9 +111,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 Id = 2,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}},
-                FunctionType = MarkupFunctionType.Percent
+                FunctionType = MarkupFunctionType.Percent,
+                Value = 100
             },
         };
         
@@ -124,17 +122,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 Id = 7,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
-                TemplateId = 2,
                 FunctionType = MarkupFunctionType.Percent,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 14}},
+                Value = 1300
             },
             new MarkupPolicy
             {
                 Id = 8,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
                 FunctionType = MarkupFunctionType.Percent,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
+                Value = 900,
             },
         };
         
@@ -146,8 +142,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}",
                 FunctionType = MarkupFunctionType.Percent,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
+                Value = 900 
             },
             new MarkupPolicy
             {
@@ -155,8 +150,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "1000",
                 FunctionType = MarkupFunctionType.Percent,
-                TemplateId = 2,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 43}},
+                Value = 4200
             },
             new MarkupPolicy
             {
@@ -164,9 +158,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "2000",
                 FunctionType = MarkupFunctionType.Percent,
-                TemplateId = 1,
-                TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
-            },
+                Value = 900
+            }
         };
 
 

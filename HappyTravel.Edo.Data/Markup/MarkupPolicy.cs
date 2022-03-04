@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Money.Enums;
 
@@ -11,8 +10,6 @@ namespace HappyTravel.Edo.Data.Markup
         public string Description { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset Modified { get; set; }
-        public int TemplateId { get; set; }
-        public IDictionary<string, decimal> TemplateSettings { get; set; }
         public Currencies Currency { get; set; }
         public SubjectMarkupScopeTypes SubjectScopeType { get; set; }
         public string SubjectScopeId { get; set; }

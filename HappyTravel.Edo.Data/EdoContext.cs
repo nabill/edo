@@ -313,11 +313,8 @@ namespace HappyTravel.Edo.Data
 
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
-                policy.Property(l => l.TemplateId).IsRequired();
-
-                policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();
-                policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
-                    s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
+                policy.Property(l => l.FunctionType).IsRequired();
+                policy.Property(l => l.Value).IsRequired();
 
                 policy.HasIndex(b => b.SubjectScopeType);
                 policy.HasIndex(b => b.SubjectScopeId);
