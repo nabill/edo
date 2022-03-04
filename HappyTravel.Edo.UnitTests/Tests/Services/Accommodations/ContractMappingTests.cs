@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
             var sourceContractSet = GetRoomContractSet();
             var resultContractSet = sourceContractSet.ToRoomContractSet(string.Empty, default, isDirectContract: false);
             
-            Assert.Equal(new DateTime(1, 1, 1), resultContractSet.Deadline.Date);
+            Assert.Equal(DateTimeOffset.MinValue, resultContractSet.Deadline.Date);
         }
 
 
@@ -95,22 +95,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
         {
             { 0, new Deadline(null, new List<CancellationPolicy>
             {
-                { new(new DateTime(1, 1, 5), 50) },
-                { new(new DateTime(1, 1, 10), 100) },
+                { new(new DateTimeOffset(1, 1, 5, 0, 0, 0, TimeSpan.Zero), 50) },
+                { new(new DateTimeOffset(1, 1, 10, 0, 0, 0, TimeSpan.Zero), 100) },
             }, new List<string>(), false) },
-            { 1, new Deadline(new DateTime(1, 1, 1), new List<CancellationPolicy>
+            { 1, new Deadline(new DateTimeOffset(1, 1, 1, 0, 0, 0, TimeSpan.Zero), new List<CancellationPolicy>
             {
-                { new(new DateTime(1, 1, 5), 50) },
-                { new(new DateTime(1, 1, 10), 75) },
-                { new(new DateTime(1, 1, 15), 90) },
-                { new(new DateTime(1, 1, 25), 100) },
+                { new(new DateTimeOffset(1, 1, 5, 0, 0, 0, TimeSpan.Zero), 50) },
+                { new(new DateTimeOffset(1, 1, 10, 0, 0, 0, TimeSpan.Zero), 75) },
+                { new(new DateTimeOffset(1, 1, 15, 0, 0, 0, TimeSpan.Zero), 90) },
+                { new(new DateTimeOffset(1, 1, 25, 0, 0, 0, TimeSpan.Zero), 100) },
             }, new List<string>(), false) },
-            { 2, new Deadline(new DateTime(1, 1, 1), new List<CancellationPolicy>
+            { 2, new Deadline(new DateTimeOffset(1, 1, 1, 0, 0, 0, TimeSpan.Zero), new List<CancellationPolicy>
             {
-                { new(new DateTime(1, 1, 5), 50) },
-                { new(new DateTime(1, 1, 10), 70) },
-                { new(new DateTime(1, 1, 15), 90) },
-                { new(new DateTime(1, 1, 20), 100) },
+                { new(new DateTimeOffset(1, 1, 5, 0, 0, 0, TimeSpan.Zero), 50) },
+                { new(new DateTimeOffset(1, 1, 10, 0, 0, 0, TimeSpan.Zero), 70) },
+                { new(new DateTimeOffset(1, 1, 15, 0, 0, 0, TimeSpan.Zero), 90) },
+                { new(new DateTimeOffset(1, 1, 20, 0, 0, 0, TimeSpan.Zero), 100) },
             }, new List<string>(), false) },
         };
 

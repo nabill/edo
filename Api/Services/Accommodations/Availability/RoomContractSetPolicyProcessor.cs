@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class RoomContractSetPolicyProcessor
     {
-        public static List<RoomContractSet> Process(List<RoomContractSet> roomContractSet, DateTime checkInDate, CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
+        public static List<RoomContractSet> Process(List<RoomContractSet> roomContractSet, DateTimeOffset checkInDate, CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
         {
             return roomContractSet
                 .Select(r => Process(r, checkInDate, cancellationPolicyProcessSettings))
@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
         
 
-        public static RoomContractSet Process(RoomContractSet roomContractSet, DateTime checkInDate,
+        public static RoomContractSet Process(RoomContractSet roomContractSet, DateTimeOffset checkInDate,
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
         {
             var roomContractSetDeadline = DeadlinePolicyProcessor.Process(roomContractSet.Deadline, checkInDate, cancellationPolicyProcessSettings);

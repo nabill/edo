@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
         
         
-        public async Task<Result> ReturnMoney(Booking booking, DateTime operationDate, ApiCaller apiCaller)
+        public async Task<Result> ReturnMoney(Booking booking, DateTimeOffset operationDate, ApiCaller apiCaller)
         {
             return booking.PaymentType switch
             {

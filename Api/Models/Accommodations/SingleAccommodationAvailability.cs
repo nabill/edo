@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         public SingleAccommodationAvailability(
             string availabilityId,
-            DateTime checkInDate,
+            DateTimeOffset checkInDate,
             List<RoomContractSet> roomContractSets,
             string htId,
             string countryHtId,
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
         public string AvailabilityId { get; }
 
-        public DateTime CheckInDate { get; }
+        public DateTimeOffset CheckInDate { get; }
 
         public string HtId { get; }
 

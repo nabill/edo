@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Refund(string referenceCode, ApiCaller apiCaller, DateTime operationDate, IPaymentCallbackService paymentCallbackService,
+        public async Task<Result> Refund(string referenceCode, ApiCaller apiCaller, DateTimeOffset operationDate, IPaymentCallbackService paymentCallbackService,
             string reason)
         {
             return await GetChargingAccountId()

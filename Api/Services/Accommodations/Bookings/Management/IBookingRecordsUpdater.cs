@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingRecordsUpdater
     {
-        Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTime date, ApiCaller apiCaller, BookingChangeReason reason);
+        Task<Result> ChangeStatus(Booking booking, BookingStatuses status, DateTimeOffset date, ApiCaller apiCaller, BookingChangeReason reason);
 
         Task ChangePropertyOwnerConfirmationCode(Booking booking, string confirmationCode);
 

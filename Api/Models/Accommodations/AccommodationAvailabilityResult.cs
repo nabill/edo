@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public record AccommodationAvailabilityResult
     {
         [JsonConstructor]
-        public AccommodationAvailabilityResult(Guid searchId, string supplierCode, DateTime created, string availabilityId,
-            List<RoomContractSet> roomContractSets, decimal minPrice, decimal maxPrice, DateTime checkInDate, DateTime checkOutDate, string htId, string supplierAccommodationCode, string countryHtId,
+        public AccommodationAvailabilityResult(Guid searchId, string supplierCode, DateTimeOffset created, string availabilityId,
+            List<RoomContractSet> roomContractSets, decimal minPrice, decimal maxPrice, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, string htId, string supplierAccommodationCode, string countryHtId,
             string localityHtId)
         {
             SearchId = searchId;
@@ -31,13 +31,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public ObjectId Id { get; init; }
         public Guid SearchId { get; init; }
         public string SupplierCode { get; init; }
-        public DateTime Created { get; init; }
+        public DateTimeOffset Created { get; init; }
         public string AvailabilityId { get; init; }
         public List<RoomContractSet> RoomContractSets { get; init; }
         public decimal MinPrice { get; init; }
         public decimal MaxPrice { get; init; }
-        public DateTime CheckInDate { get; init; }
-        public DateTime CheckOutDate { get; init; }
+        public DateTimeOffset CheckInDate { get; init; }
+        public DateTimeOffset CheckOutDate { get; init; }
         public string HtId { get; init; }
         public string SupplierAccommodationCode { get; init; }
         public string CountryHtId { get; init; }

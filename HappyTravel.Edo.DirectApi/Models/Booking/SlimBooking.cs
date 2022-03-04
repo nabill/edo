@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
 {
     public readonly struct SlimBooking
     {
-        public SlimBooking(string clientReferenceCode, string referenceCode, DateTime checkInDate, DateTime checkOutDate, 
+        public SlimBooking(string clientReferenceCode, string referenceCode, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, 
             string accommodationId, MoneyAmount totalPrice, BookingStatuses status, string leadPassengerName)
         {
             ClientReferenceCode = clientReferenceCode;
@@ -33,12 +33,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         /// <summary>
         ///     Check-in date
         /// </summary>
-        public DateTime CheckInDate { get; }
+        public DateTimeOffset CheckInDate { get; }
 
         /// <summary>
         ///     Check-out date
         /// </summary>
-        public DateTime CheckOutDate { get; }
+        public DateTimeOffset CheckOutDate { get; }
 
         /// <summary>
         ///     ID for the accommodation

@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     public readonly struct Deadline
     {
         [JsonConstructor]
-        public Deadline(DateTime? date, List<CancellationPolicy>? policies, List<string>? remarks)
+        public Deadline(DateTimeOffset? date, List<CancellationPolicy>? policies, List<string>? remarks)
         {
             Date = date;
             Policies = policies ?? new List<CancellationPolicy>();
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         /// <summary>
         ///     Free cancellation is available before this date
         /// </summary>
-        public DateTime? Date { get; }
+        public DateTimeOffset? Date { get; }
 
         /// <summary>
         ///     List of cancellation policies

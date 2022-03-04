@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             await service.Execute(booking, default, default);
 
             _bookingRecordsUpdaterMock
-                .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTime>(),
+                .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTimeOffset>(),
                     It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
         }
 
