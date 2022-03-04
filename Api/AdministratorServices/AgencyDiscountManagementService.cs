@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> DiscountsDontExceedMarkups()
             {
                 var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == createDiscountRequest.TargetMarkupId);
-                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.FunctionType, markupPolicy.Value);
                 
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.TargetPolicyId == markupPolicy.Id)
@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> DiscountDoesntExceedMarkups(Discount discount)
             {
                 var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == discount.TargetPolicyId);
-                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.FunctionType, markupPolicy.Value);
                 
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.TargetPolicyId == markupPolicy.Id)
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return Result.Success(discount);
 
                 var markupPolicy = await _context.MarkupPolicies.SingleOrDefaultAsync(x => x.Id == discount.TargetPolicyId);
-                var markupFunction = _templateService.CreateFunction(markupPolicy.TemplateId, markupPolicy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(markupPolicy.FunctionType, markupPolicy.Value);
                 
                 var allDiscounts = await _context.Discounts
                     .Where(x => x.TargetPolicyId == markupPolicy.Id)

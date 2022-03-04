@@ -70,14 +70,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
 
-            // TODO: Remove after templates removal
-            var templateSettings = new Dictionary<string, decimal>()
-            {
-                { "factor", (100 + request.Percent) / 100 }
-            };
-
-            var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
-                templateSettings, Currencies.USD);
+            var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
+                request.Percent, Currencies.USD);
             
             if (policy is null)
             {
@@ -138,14 +132,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Where(p => p.SubjectScopeId == agencyId.ToString())
                 .SingleOrDefaultAsync();
 
-            // TODO: Remove after templates removal
-            var templateSettings = new Dictionary<string, decimal>()
-            {
-                { "factor", (100 + request.Percent) / 100 }
-            };
-
-            var settings = new MarkupPolicySettings("Global markup", MarkupPolicyTemplateService.MultiplicationTemplateId,
-                templateSettings, Currencies.USD);
+            var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
+                request.Percent, Currencies.USD);
             
             if (policy is null)
             {
@@ -241,7 +229,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
                 locationId = policy.SubjectScopeId;
 
-            return new MarkupPolicyData(new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Currency, policy.DestinationScopeId),
+            return new MarkupPolicyData(new MarkupPolicySettings(policy.Description, policy.FunctionType, policy.Value, policy.Currency, policy.DestinationScopeId),
                 new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
         }
 
@@ -253,7 +241,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
             Result ValidateTemplate() 
-                => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
+                => _templateService.Validate(policyData.Settings.FunctionType, policyData.Settings.Value);
 
 
             bool ScopeIsValid() 
@@ -375,17 +363,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
-                    TemplateSettings = settings.TemplateSettings,
                     Currency = settings.Currency,
                     Created = now,
                     Modified = now,
-                    TemplateId = settings.TemplateId,
                     SubjectScopeType = type,
                     SubjectScopeId = agentScopeId,
                     DestinationScopeId = settings.DestinationScopeId,
                     DestinationScopeType = destinationScopeType.Value
                 };
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.FunctionType, settings.Value);
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
@@ -449,7 +435,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await UpdateDisplayedMarkupFormula(markupPolicy);
 
 
-            Result ValidateSettings() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
+            Result ValidateSettings() => _templateService.Validate(settings.FunctionType, settings.Value);
             
             
             async Task<Result> DiscountsDontExceedMarkups()
@@ -467,7 +453,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .Select(x => x.DiscountPercent)
                     .ToListAsync();
 
-                var markupFunction = _templateService.CreateFunction(policy.TemplateId, policy.TemplateSettings);
+                var markupFunction = _templateService.CreateFunction(policy.FunctionType, policy.Value);
                 return DiscountsValidator.DiscountsDontExceedMarkups(allDiscounts, markupFunction);
             }
 
@@ -475,9 +461,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
-                policy.TemplateId = settings.TemplateId;
-                policy.TemplateSettings = settings.TemplateSettings;
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.FunctionType, settings.Value);
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
                 policy.SubjectScopeId = settings.LocationScopeId;

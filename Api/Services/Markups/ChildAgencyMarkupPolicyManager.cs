@@ -40,11 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Set(int agencyId, SetAgencyMarkupRequest request, AgentContext agent)
         {
-            // TODO: Remove after templates removal
-            var settings = new MarkupPolicySettings(string.Empty, 1, new Dictionary<string, decimal>()
-            {
-                { "factor", (100 + request.Percent / 100) }
-            }, Currencies.USD);
+            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD);
             
             return ValidateSettings(settings)
                 .Bind(() => GetForChildAgency(agencyId, agent))
@@ -70,16 +66,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         DestinationScopeId = settings.DestinationScopeId,
                         SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                         SubjectScopeId = agencyId.ToString(),
-                        TemplateSettings = settings.TemplateSettings,
                         Currency = settings.Currency,
                         Created = now,
                         Modified = now,
-                        TemplateId = settings.TemplateId
                     };
                     _context.MarkupPolicies.Add(policy);
                 }
 
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, MarkupFunctionType.Percent, request.Percent);
 
                 _context.MarkupPolicies.Update(policy);
                 await _context.SaveChangesAsync();
@@ -151,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private Result ValidateSettings(MarkupPolicySettings settings)
         {
-            return _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
+            return _templateService.Validate(settings.FunctionType, settings.Value);
         }
         
         

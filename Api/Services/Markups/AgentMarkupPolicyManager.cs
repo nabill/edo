@@ -38,22 +38,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Set(int agentId, SetAgentMarkupRequest request, AgentContext agent)
         {
-            // TODO: Remove after templates removal
-            var settings = new MarkupPolicySettings(string.Empty, 1, new Dictionary<string, decimal>()
-            {
-                { "factor", (100 + request.Percent / 100) }
-            }, Currencies.USD);
+            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD);
             var agentInAgencyId = AgentInAgencyId.Create(agentId, agent.AgencyId);
             
-            return ValidateSettings(settings)
+            return ValidateSettings(request)
                 .Map(() => GetAgentPolicy(agentInAgencyId))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
             
-            Result ValidateSettings(MarkupPolicySettings settings) 
-                => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
+            Result ValidateSettings(SetAgentMarkupRequest request) 
+                => _templateService.Validate(MarkupFunctionType.Percent, request.Percent);
 
 
             async Task<Result<MarkupPolicy>> SavePolicy(MarkupPolicy policy)
@@ -73,16 +69,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         SubjectScopeId = agentInAgencyId.ToString(),
                         DestinationScopeType = destinationScopeType,
                         DestinationScopeId = settings.DestinationScopeId,
-                        TemplateSettings = settings.TemplateSettings,
                         Currency = settings.Currency,
                         Created = now,
                         Modified = now,
-                        TemplateId = settings.TemplateId
                     };
                     _context.MarkupPolicies.Add(policy);
                 }
                 
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.TemplateSettings);
+                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, MarkupFunctionType.Percent, request.Percent);
                 _context.MarkupPolicies.Update(policy);
                 
                 await _context.SaveChangesAsync();
