@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task Write(Booking booking, BookingStatuses status, DateTime date, ApiCaller apiCaller, BookingChangeReason reason)
+        public async Task Write(Booking booking, BookingStatuses status, DateTimeOffset date, ApiCaller apiCaller, BookingChangeReason reason)
         {
             var bookingStatusHistoryEntry = new BookingStatusHistoryEntry
             {

@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     public readonly struct CancellationPolicy
     {
         [JsonConstructor]
-        public CancellationPolicy(DateTime fromDate, double percentage)
+        public CancellationPolicy(DateTimeOffset fromDate, double percentage)
         {
             FromDate = fromDate;
             Percentage = percentage;
@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         /// <summary>
         ///     Date the policy applies. A newer policy overwrites an older one.
         /// </summary>
-        public DateTime FromDate { get; }
+        public DateTimeOffset FromDate { get; }
 
         /// <summary>
         ///     Percentage of the policy

@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result> Refund(Booking booking, DateTime operationDate, ApiCaller apiCaller)
+        public async Task<Result> Refund(Booking booking, DateTimeOffset operationDate, ApiCaller apiCaller)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Success();

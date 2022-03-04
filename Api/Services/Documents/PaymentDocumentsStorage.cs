@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity, Func<int, DateTime, string> numberGenerator)
+        public async Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity, Func<int, DateTimeOffset, string> numberGenerator)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity
         {
             var now = _dateTimeProvider.UtcNow();

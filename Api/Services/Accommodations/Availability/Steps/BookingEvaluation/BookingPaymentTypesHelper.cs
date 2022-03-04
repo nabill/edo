@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public static class BookingPaymentTypesHelper
     {
         public static List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-            AccommodationBookingSettings settings, ContractKind contractKind, DateTime date)
+            AccommodationBookingSettings settings, ContractKind contractKind, DateTimeOffset date)
             => AllAvailablePaymentTypes
                 .Intersect(GetAprPaymentTypes(availability, settings))
                 .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, date))
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         private static List<PaymentTypes> GetPassedDeadlinePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-            AccommodationBookingSettings settings, DateTime date)
+            AccommodationBookingSettings settings, DateTimeOffset date)
         {
             var deadlineDate = availability.RoomContractSet.Deadline.Date ?? availability.CheckInDate;
 

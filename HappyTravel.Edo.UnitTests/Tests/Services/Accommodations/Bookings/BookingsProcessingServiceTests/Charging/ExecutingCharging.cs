@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     Times.Exactly(0)
                 );
             bookingRecordsUpdater.Verify(s => s.ChangeStatus(It.IsAny<Booking>(),
-                BookingStatuses.ManualCorrectionNeeded, It.IsAny<DateTime>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
+                BookingStatuses.ManualCorrectionNeeded, It.IsAny<DateTimeOffset>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeReason>()));
         }
 
 

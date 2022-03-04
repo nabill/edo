@@ -141,8 +141,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         BookingStatusCodes.WaitingForResponse,
                         booking.AccommodationId,
                         booking.SupplierReferenceCode,
-                        booking.CheckInDate.DateTime,
-                        booking.CheckOutDate.DateTime,
+                        booking.CheckInDate,
+                        booking.CheckOutDate,
                         new List<SlimRoomOccupation>(0),
                         booking.UpdateMode,
                         new List<KeyValuePair<string, string>>(0));

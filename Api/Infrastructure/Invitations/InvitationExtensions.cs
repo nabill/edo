@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Invitations
 {
     public static class InvitationExtensions
     {
-        public static bool IsExpired(this UserInvitation invitation, DateTime date) 
+        public static bool IsExpired(this UserInvitation invitation, DateTimeOffset date) 
             => invitation.Created + InvitationExpirationPeriod < date;
 
         

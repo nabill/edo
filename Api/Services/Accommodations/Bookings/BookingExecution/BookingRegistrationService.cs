@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private async Task<Booking> CreateBooking(DateTime created, AgentContext agentContext, string itineraryNumber,
+        private async Task<Booking> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             AccommodationBookingRequest bookingRequest, string languageCode)
         {
