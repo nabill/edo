@@ -29,8 +29,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Serializers
             var reader = context.Reader;
 
             reader.ReadStartDocument();
-            var fromDate = reader.Read<DateTime>();
-            var toDate = reader.Read<DateTime>();
+            var fromDate = reader.Read<DateTimeOffset>();
+            var toDate = reader.Read<DateTimeOffset>();
             var description = reader.Read<string>();
             var gross = reader.Read<MoneyAmount>();
             var finalPrice = reader.Read<MoneyAmount>();
