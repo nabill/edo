@@ -310,7 +310,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<MarkupPolicy>(policy =>
             {
                 policy.HasKey(l => l.Id);
-                policy.Property(l => l.Target).IsRequired();
 
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
@@ -321,7 +320,6 @@ namespace HappyTravel.Edo.Data
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
 
                 policy.HasIndex(b => b.SubjectScopeType);
-                policy.HasIndex(b => b.Target);
                 policy.HasIndex(b => b.SubjectScopeId);
                 policy.HasIndex(b => b.DestinationScopeId);
             });

@@ -359,7 +359,7 @@
             <param name="discountId">Id of the discount.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.SetPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.Agency.SetAgencyMarkupRequest)">
             <summary>
             Creates markup policy.
             </summary>
@@ -374,21 +374,11 @@
             <param name="agencyId">Agency id</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.RemovePolicy(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.RemovePolicy(System.Int32)">
             <summary>
                 Deletes policy.
             </summary>
             <param name="agencyId">Agency id</param>
-            <param name="policyId">Id of the policy to delete.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-                Updates policy settings.
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="policyId">Id of the policy.</param>
-            <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentRolesController.GetAll">
@@ -583,19 +573,19 @@
             <param name="password"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.Get">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupController.Get">
             <summary>
             Gets global markup policy
             </summary>
             <returns>Global markup policy</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.RemovePolicy">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupController.RemovePolicy">
             <summary>
                 Deletes global policy.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupsController.SetPolicy(HappyTravel.Edo.Api.Models.Markups.Global.SetGlobalMarkupRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupController.SetPolicy(HappyTravel.Edo.Api.Models.Markups.Global.SetGlobalMarkupRequest)">
             <summary>
                 Updates global policy settings.
             </summary>
@@ -3516,11 +3506,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupInfo.Settings">
             <summary>
             Policy settings
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Target">
-            <summary>
-                Policy target.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Settings">

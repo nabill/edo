@@ -22,7 +22,7 @@ public class MarkupFunctionTypeOrderingTests
             AgencyAncestors = new List<int>()
         };
 
-        var orderedPolicies = policyService.Get(subjectInfo, new MarkupDestinationInfo(), MarkupPolicyTarget.AccommodationAvailability);
+        var orderedPolicies = policyService.Get(subjectInfo, new MarkupDestinationInfo());
         
         Assert.Equal(3, orderedPolicies[0].Id);
         Assert.Equal(1, orderedPolicies[1].Id);
@@ -43,7 +43,6 @@ public class MarkupFunctionTypeOrderingTests
         new MarkupPolicy
         {
             Id = 1,
-            Target = MarkupPolicyTarget.AccommodationAvailability,
             SubjectScopeType = SubjectMarkupScopeTypes.Agent,
             SubjectScopeId = "33",
             FunctionType = MarkupFunctionType.Percent
@@ -51,13 +50,11 @@ public class MarkupFunctionTypeOrderingTests
         new MarkupPolicy
         {
             Id = 2,
-            Target = MarkupPolicyTarget.AccommodationAvailability,
             FunctionType = MarkupFunctionType.Fixed,
         },
         new MarkupPolicy
         {
             Id = 3,
-            Target = MarkupPolicyTarget.AccommodationAvailability,
             SubjectScopeType = SubjectMarkupScopeTypes.Agency,
             SubjectScopeId = "22",
             FunctionType = MarkupFunctionType.Percent,

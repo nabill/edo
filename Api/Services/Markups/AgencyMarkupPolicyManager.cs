@@ -59,7 +59,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     DestinationScopeId = settings.DestinationScopeId,
                     SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                     SubjectScopeId = agencyId.ToString(),
-                    Target = MarkupPolicyTarget.AccommodationAvailability,
                     TemplateSettings = settings.TemplateSettings,
                     Currency = settings.Currency,
                     Created = now,
