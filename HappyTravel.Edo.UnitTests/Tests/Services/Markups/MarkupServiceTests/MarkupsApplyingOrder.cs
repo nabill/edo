@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public void Policies_should_be_ordered_by_scope()
         {
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(MarkupSubject, default);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].SubjectScopeType, policies[i + 1].SubjectScopeType));
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public void Agencies_policies_should_be_ordered_by_agency_tree()
         {
-            var policies = _markupPolicyService.Get(MarkupSubject, default, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = _markupPolicyService.Get(MarkupSubject, default);
             var agencyPolicies = policies.Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency).ToList();
             
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
@@ -101,7 +101,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 1,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
                 TemplateId = 2,
@@ -112,7 +111,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 Id = 2,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}-{MarkupSubject.AgentId}",
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 2}},
@@ -125,7 +123,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 7,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
                 TemplateId = 2,
                 FunctionType = MarkupFunctionType.Percent,
@@ -134,7 +131,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 8,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
                 FunctionType = MarkupFunctionType.Percent,
                 TemplateId = 1,
@@ -147,7 +143,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 7,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}",
                 FunctionType = MarkupFunctionType.Percent,
@@ -157,7 +152,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 10,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "1000",
                 FunctionType = MarkupFunctionType.Percent,
@@ -167,7 +161,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             new MarkupPolicy
             {
                 Id = 11,
-                Target = MarkupPolicyTarget.AccommodationAvailability,
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = "2000",
                 FunctionType = MarkupFunctionType.Percent,

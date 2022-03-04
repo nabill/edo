@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             if (policy is null)
             {
-                var policyData = new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
+                var policyData = new MarkupPolicyData(settings,
                     new MarkupPolicyScope(SubjectMarkupScopeTypes.Global));
                 
                 return await Add(policyData);
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (isFailure)
                 return Result.Failure(error);
                 
-            return await Add(new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
+            return await Add(new MarkupPolicyData(settings,
                 new MarkupPolicyScope(agentMarkupScopeType, locationId: settings.LocationScopeId)));
         }
 
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             if (policy is null)
             {
-                var policyData = new MarkupPolicyData(MarkupPolicyTarget.AccommodationAvailability, settings,
+                var policyData = new MarkupPolicyData(settings,
                     new MarkupPolicyScope(SubjectMarkupScopeTypes.Agency, agencyId));
                 
                 return await Add(policyData);
@@ -241,8 +241,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country)
                 locationId = policy.SubjectScopeId;
 
-            return new MarkupPolicyData(policy.Target,
-                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Currency, policy.DestinationScopeId),
+            return new MarkupPolicyData(new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Currency, policy.DestinationScopeId),
                 new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
         }
 
@@ -250,17 +249,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private Result ValidatePolicy(MarkupPolicyData policyData, MarkupPolicy sourcePolicy = null)
         {
             return ValidateTemplate()
-                .Ensure(ScopeIsValid, "Invalid scope data")
-                .Ensure(TargetIsValid, "Invalid policy target");
+                .Ensure(ScopeIsValid, "Invalid scope data");
 
 
-            Result ValidateTemplate() => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
+            Result ValidateTemplate() 
+                => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
 
 
-            bool ScopeIsValid() => policyData.Scope.Validate().IsSuccess;
-
-
-            bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
+            bool ScopeIsValid() 
+                => policyData.Scope.Validate().IsSuccess;
         }
         
         
@@ -378,7 +375,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var policy = new MarkupPolicy
                 {
                     Description = settings.Description,
-                    Target = policyData.Target,
                     TemplateSettings = settings.TemplateSettings,
                     Currency = settings.Currency,
                     Created = now,
