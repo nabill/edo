@@ -211,7 +211,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 agentInformation: agentInformation,
                 paymentMethod: booking.PaymentType,
                 tags: booking.Tags,
-                isDirectContract: isDirectContract);
+                isDirectContract: isDirectContract,
+                cancellationDate: booking.Cancelled);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)

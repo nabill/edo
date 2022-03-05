@@ -55,13 +55,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(List<MarkupInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgencyMarkupInfo), (int)HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId)
+        public async Task<IActionResult> GetChildAgencyPolicy([FromRoute] int agencyId)
         {
             var agent = await _agentContext.GetAgent();
             
-            return Ok(await _policyManager.Get(agencyId, agent));
+            return OkOrBadRequest(await _policyManager.Get(agencyId, agent));
         }
 
 
