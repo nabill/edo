@@ -69,13 +69,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         Currency = settings.Currency,
                         Created = now,
                         Modified = now,
+                        FunctionType = MarkupFunctionType.Percent,
+                        Value = request.Percent
                     };
                     _context.MarkupPolicies.Add(policy);
                 }
-
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, MarkupFunctionType.Percent, request.Percent);
-
-                _context.MarkupPolicies.Update(policy);
+                else
+                {
+                    policy.Value = request.Percent;
+                     _context.MarkupPolicies.Update(policy);
+                }
+               
                 await _context.SaveChangesAsync();
                 return policy;
             }

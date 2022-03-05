@@ -367,9 +367,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     SubjectScopeType = type,
                     SubjectScopeId = agentScopeId,
                     DestinationScopeId = settings.DestinationScopeId,
-                    DestinationScopeType = destinationScopeType.Value
+                    DestinationScopeType = destinationScopeType.Value,
+                    FunctionType = MarkupFunctionType.Percent,
+                    Value = settings.Value
                 };
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.FunctionType, settings.Value);
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
@@ -434,7 +435,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
-                MarkupPolicyValueUpdater.FillValuesFromTemplateSettings(policy, settings.FunctionType, settings.Value);
+                policy.FunctionType = MarkupFunctionType.Percent;
+                policy.Value = settings.Value;
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
                 policy.SubjectScopeId = settings.LocationScopeId;
