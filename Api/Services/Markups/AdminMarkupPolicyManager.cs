@@ -381,7 +381,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<Result> Remove(int policyId)
         {
             var (_, isFailure, markupPolicy, error) = await GetPolicy()
-                .Ensure(HasNoDiscounts, "Markup policy has linked discounts")
                 .Map(DeletePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
 
@@ -398,10 +397,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     ? Result.Failure<MarkupPolicy>("Could not find policy")
                     : Result.Success(policy);
             }
-
-
-            async Task<bool> HasNoDiscounts(MarkupPolicy policy)
-                => !await _context.Discounts.AnyAsync(d => d.TargetPolicyId == policy.Id);
 
 
             async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
@@ -423,7 +418,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return Result.Failure("Could not find policy");
 
             var (_, isFailure, markupPolicy, error) = await ValidateSettings()
-                .Bind(DiscountsDontExceedMarkups)
                 .Bind(UpdatePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified));
 
@@ -433,28 +427,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await UpdateDisplayedMarkupFormula(markupPolicy);
 
 
-            Result ValidateSettings() => _templateService.Validate(settings.FunctionType, settings.Value);
+            Result ValidateSettings() 
+                => _templateService.Validate(settings.FunctionType, settings.Value);
             
-            
-            async Task<Result> DiscountsDontExceedMarkups()
-            {
-                // This check is only applicable to agency scope markups
-                if (policy.SubjectScopeType != SubjectMarkupScopeTypes.Agency)
-                    return Result.Success();
-
-                var agencyId = int.Parse(policy.SubjectScopeId);
-                
-                var allDiscounts = await _context.Discounts
-                    .Where(x => x.IsActive)
-                    .Where(x => x.TargetAgencyId == agencyId)
-                    .Where(x => x.TargetPolicyId == policy.Id)
-                    .Select(x => x.DiscountPercent)
-                    .ToListAsync();
-
-                var markupFunction = _templateService.CreateFunction(policy.FunctionType, policy.Value);
-                return DiscountsValidator.DiscountsDontExceedMarkups(allDiscounts, markupFunction);
-            }
-
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {

@@ -468,7 +468,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IMarkupPolicyService, MarkupPolicyService>();
             services.AddTransient<IMarkupService, MarkupService>();
-            services.AddTransient<IDiscountFunctionService, DiscountFunctionService>();
             
             services.AddTransient<IDisplayedMarkupFormulaService, DisplayedMarkupFormulaService>();
             services.AddTransient<IMarkupBonusMaterializationService, MarkupBonusMaterializationService>();
@@ -480,8 +479,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMarkupPolicyAuditService, MarkupPolicyAuditService>();
             services.AddScoped<IAdminMarkupPolicyManager, AdminMarkupPolicyManager>();
             
-            services.AddTransient<IAgencyDiscountManagementService, AgencyDiscountManagementService>();
-
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
             services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
 
@@ -669,9 +666,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBalanceNotificationsManagementService, BalanceNotificationsManagementService>();
             services.AddTransient<IBalanceManagementNotificationsService, BalanceManagementNotificationsService>();
             services.AddHostedService<MarkupPolicyStorageUpdater>();
-            services.AddHostedService<DiscountStorageUpdater>();
             services.AddSingleton<IMarkupPolicyStorage, MarkupPolicyStorage>();
-            services.AddSingleton<IDiscountStorage, DiscountStorage>();
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
