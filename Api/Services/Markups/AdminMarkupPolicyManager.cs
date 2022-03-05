@@ -216,8 +216,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && int.TryParse(policy.SubjectScopeId, out var parsedId))
                 agencyId = parsedId;
-            else
-                return Result.Failure<MarkupPolicyData>("Cannot parse agency id");
 
             if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
             {

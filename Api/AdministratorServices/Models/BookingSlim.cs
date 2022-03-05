@@ -25,5 +25,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         public PaymentTypes PaymentType { get; set; }
         public string Supplier { get; set; }
         public string SupplierCode { get; set; }
+        public DateTimeOffset? CancellationDate { get; set; }
     }
 }
