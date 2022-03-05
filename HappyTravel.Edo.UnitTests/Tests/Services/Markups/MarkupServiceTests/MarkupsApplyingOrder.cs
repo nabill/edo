@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
     
             _markupPolicyService = new MarkupPolicyService(markupPolicyStorage);
 
-            _markupService = new MarkupService(_markupPolicyService, new MarkupPolicyTemplateService(), currencyRateServiceMock.Object, new FakeMemoryFlow());
+            _markupService = new MarkupService(_markupPolicyService, currencyRateServiceMock.Object);
         }
     
     
