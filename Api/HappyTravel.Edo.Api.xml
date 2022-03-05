@@ -311,54 +311,6 @@
             </summary>
             <param name="agencyAccountId">Id of the agency account</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.GetAgencyDiscounts(System.Int32)">
-            <summary>
-            Gets discounts for an agency.
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <returns>List of discounts</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.AddDiscount(System.Int32,HappyTravel.Edo.Api.AdministratorServices.Models.CreateDiscountRequest)">
-            <summary>
-            Creates discount
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="createDiscountRequest">Discount settings</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StopDiscount(System.Int32,System.Int32)">
-            <summary>
-                Deactivates discount
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="discountId">Id of the discount to deactivate.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.StartDiscount(System.Int32,System.Int32)">
-            <summary>
-                Activates discount
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="discountId">Id of the discount to deactivate.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.UpdateDiscount(System.Int32,System.Int32,HappyTravel.Edo.Api.AdministratorServices.Models.EditDiscountRequest)">
-            <summary>
-                Updates discount settings.
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="discountId">Id of the discount.</param>
-            <param name="editDiscountRequest">Updated settings.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyDiscountsController.UpdateDiscount(System.Int32,System.Int32)">
-            <summary>
-                Deletes discount settings.
-            </summary>
-            <param name="agencyId">Agency id</param>
-            <param name="discountId">Id of the discount.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.SetPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.Agency.SetAgencyMarkupRequest)">
             <summary>
             Creates markup policy.

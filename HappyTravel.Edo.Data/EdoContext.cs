@@ -85,7 +85,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationOptions> NotificationOptions { get; set; }
         
-        public DbSet<Discount> Discounts { get; set; }
         public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
@@ -782,17 +781,6 @@ namespace HappyTravel.Edo.Data
             });
         }
         
-        
-        private static void BuildDiscounts(ModelBuilder builder)
-        {
-            builder.Entity<Discount>(b =>
-            {
-                b.HasIndex(d => d.TargetAgencyId);
-                b.HasIndex(d => d.TargetPolicyId);
-                b.HasIndex(d => d.IsActive);
-            });
-        }
-
 
         private static void BuildDefaultNotificationOptions(ModelBuilder builder)
         {
