@@ -40,7 +40,7 @@ public class SuppliersController : BaseController
     [HttpGet("{code}")]
     [ProducesResponseType(typeof(RichSupplier), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Add([FromRoute] string code)
+    public async Task<IActionResult> Get([FromRoute] string code)
         => OkOrBadRequest(await _supplierOptionsClient.Get(code));
     
     
