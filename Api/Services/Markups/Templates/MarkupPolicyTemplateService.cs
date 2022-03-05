@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,22 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
     public class MarkupPolicyTemplateService : IMarkupPolicyTemplateService
     {
-        public Func<decimal, decimal> CreateFunction(MarkupFunctionType functionType, decimal value)
-        {
-            var (_, isFailure, error) = Validate(functionType, value);
-            // This is not normal case but it would be better to double check this to avoid errors.
-            if (isFailure)
-                throw new Exception(error);
-
-            return functionType switch
-            {
-                MarkupFunctionType.Percent => v => v * (100 + value) / 100,
-                MarkupFunctionType.Fixed => v => v + value,
-                _ => throw new ArgumentOutOfRangeException(nameof(functionType), functionType, null)
-            };
-        }
-
-
         public Result Validate(MarkupFunctionType functionType, decimal value)
         {
             return functionType switch
