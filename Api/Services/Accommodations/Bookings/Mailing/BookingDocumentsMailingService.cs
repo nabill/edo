@@ -47,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate),
                         MainPassengerName = voucher.MainPassengerName,
                         BannerUrl = voucher.BannerUrl,
-                        LogoUrl = voucher.LogoUrl
+                        LogoUrl = voucher.LogoUrl,
+                        SpecialValues = voucher.SpecialValues
                     };
 
                     return await _notificationsService.Send(agent: agent, 
