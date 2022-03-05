@@ -765,7 +765,7 @@
             Gets all suppliers
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Add(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Get(System.String)">
             <summary>
             Gets supplier by code
             </summary>
@@ -1313,7 +1313,7 @@
             <param name="request">Markup settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ChildAgencyMarkupController.GetChildAgencyPolicies(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ChildAgencyMarkupController.GetChildAgencyPolicy(System.Int32)">
             <summary>
             Gets markup policies for a child agency.
             </summary>
