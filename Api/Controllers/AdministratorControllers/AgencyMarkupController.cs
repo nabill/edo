@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/{agencyId}/markup")]
+    [Route("api/{v:apiVersion}/admin/agencies/{agencyId}/markup-policy")]
     [Produces("application/json")]
     public class AgencyMarkupController : BaseController
     {
