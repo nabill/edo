@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -11,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int agencyId,
             BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, MoneyAmount cancellationPenalty, string supplier,
             BookingAgentInformation agentInformation, PaymentTypes paymentMethod, List<string> tags,
-            bool? isDirectContract)
+            bool? isDirectContract, DateTimeOffset? cancellationDate)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
@@ -24,6 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             PaymentMethod = paymentMethod;
             Tags = tags;
             IsDirectContract = isDirectContract;
+            CancellationDate = cancellationDate;
         }
 
 
@@ -49,6 +51,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public PaymentTypes PaymentMethod { get; }
         public List<string> Tags { get; }
         public bool? IsDirectContract { get; }
+        public DateTimeOffset? CancellationDate { get; }
 
         public readonly struct BookingAgentInformation
         {
