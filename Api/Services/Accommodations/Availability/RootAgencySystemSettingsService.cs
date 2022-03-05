@@ -42,7 +42,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 return contractKind switch
                 {
                     ContractKind.CashPayments => TimeSpan.FromDays(-3),
+                    // TODO: Set back to -1 when deadlines with time will be implemented https://github.com/happy-travel/agent-app-project/issues/1238
                     ContractKind.CreditPayments => TimeSpan.FromDays(-2),
+                    // TODO: Set back to -1 when deadlines with time will be implemented https://github.com/happy-travel/agent-app-project/issues/1238
                     ContractKind.CreditCardPayments => TimeSpan.FromDays(-2),
                     null => DefaultPolicyDateShift,
                     _ => throw new ArgumentOutOfRangeException(nameof(contractKind), contractKind, "Unknown contract kind")
