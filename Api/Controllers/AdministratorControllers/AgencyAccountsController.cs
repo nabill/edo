@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <param name="accountId">Account Id</param>
-        [HttpGet("agency/{agencyId}/accounts/{accountId}/history")]
+        [HttpGet("agencies/{agencyId}/accounts/{accountId}/history")]
         [ProducesResponseType(typeof(List<AccountBalanceAuditLogEntry>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
