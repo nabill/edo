@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result<List<AccountBalanceAuditLogEntry>>> GetAccountHistory(int agencyId, int accountId)
         {
             var isAccountExist = await _context.AgencyAccounts.AnyAsync(a => a.AgencyId == agencyId && a.Id == accountId);
-            if (isAccountExist)
+            if (!isAccountExist)
                 return Result.Failure<List<AccountBalanceAuditLogEntry>>($"Account Id {accountId} at the agency {agencyId} not found");
 
             return await _context.AccountBalanceAuditLogs
