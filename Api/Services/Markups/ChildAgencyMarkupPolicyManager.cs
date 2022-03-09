@@ -23,14 +23,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public class ChildAgencyMarkupPolicyManager : IChildAgencyMarkupPolicyManager
     {
         public ChildAgencyMarkupPolicyManager(EdoContext context,
-            IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService,
             IMarkupPolicyAuditService markupPolicyAuditService,
             IAccommodationMapperClient mapperClient)
         {
             _context = context;
-            _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _markupPolicyAuditService = markupPolicyAuditService;
@@ -42,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD);
             
-            return ValidateSettings(settings)
+            return ValidateSettings(request)
                 .Bind(() => GetForChildAgency(agencyId, agent))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
@@ -147,9 +145,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private Result ValidateSettings(MarkupPolicySettings settings)
+        private Result ValidateSettings(SetAgencyMarkupRequest settings)
         {
-            return _templateService.Validate(settings.FunctionType, settings.Value);
+            return settings.Percent > 0
+                ? Result.Success()
+                : Result.Failure("Cannot set negative markup for a child agency");
         }
         
         
@@ -176,7 +176,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             => _displayedMarkupFormulaService.UpdateAgencyFormula(int.Parse(policy.SubjectScopeId));
 
 
-        private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
