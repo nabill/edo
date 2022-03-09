@@ -1362,3 +1362,155 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
 ```
 
 </details>
+
+
+## API Integration Testing Checklist
+
+The section contains recommended base cases for testing integration with the API. In return we expect a document with a filled table for all following scenarios and a description of hehavior of your system. 
+
+
+1. Country search (more than 1000 hotels)
+
+| Field Name | Example |
+|------------|--------------|
+| Country ID | Country_3862 |
+| Stay dates | May 5-7, 2022 |
+| Source market | AE |
+| Contract conditions | 1 Room, 2 Adults |
+| Search ID	| ab72b222-cc9e-4411-8211-a4135d941f81 |
+| Expected result | Works correct with a large number of accommodations |
+| Actual result | |
+| Comments | |
+
+
+2. Booking before a deadline with 2 adults 
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
+| Stay dates | May 5-7, 2022 |
+| Source Market | DE |
+| Contract conditions | 1 Room, 2 Adults |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | |
+| Actual result | |
+| Comments | |
+
+
+3. Booking with a non-refundable rate and 1 adult
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
+| Stay dates | June 20-27, 2022 |
+| Source Market | GB (UK) |
+| Contract conditions | 1 room, 1 adult
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | |
+| Actual result | |
+| Comments | |
+
+
+4. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
+| Stay dates | April 15-19, 2022 |
+| Source market | AE |
+| Contract conditions | 1 Room, 2 Adults and 1 Child |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | |
+| Actual result | |
+| Comments | |
+
+
+5. Booking with two rooms
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
+| Stay dates | April 20-21, 2022 |
+| Source Market | GB (UK) |
+| Contract conditions | Room 1: 2 Adults, Room 2: 1 Adult and 2 Children |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | `{ "status": 400, "detail": "'Room Details Count' must be less than or equal to '1'." }` |
+| Actual result | |
+| Comments | |
+
+
+6. Unconfirmed booking with a Pending status
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004146) |
+| Stay dates | April 19-21, 2022 |
+| Source Market | GB (UK) |
+| Contract conditions | 1 Room,	1 Adult |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | |
+| Actual result | |
+| Comments | |
+
+
+7. Empty search result
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 5 (Accommodation_12004142) |
+| Stay dates | June 5-7, 2022 |
+| Source Market | DE |
+| Contract conditions | 1 Room, 2 Adults |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | Empty search result |
+| Actual result | |
+| Comments | |
+
+
+8. Cancellation of booking before a deadline without a penalty
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
+| Stay dates | May 13-77, 2022 |
+| Source Market | DE |
+| Contract conditions | 1 Room, 3 Adults |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | Empty search result |
+| Actual result | |
+| Comments | |
+
+
+9. Cancellation of booking after a deadline with a penalty
+
+| Field Name | Example |
+|------------|--------------|
+| Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
+| Stay dates | une 20-27, 2022 |
+| Source Market | GB (UK) |
+| Contract conditions | 1 Room, 1 Adult |
+| Search ID	| |
+| Client reference code | |
+| Booking status | |
+| Expected result | Empty search result |
+| Actual result | |
+| Comments | |
+
+
+10. Attach a voucher for any of successful bookings.
+
+11. Describe behaviour of your system, when a search request on `api/1.0/availabilities/searches` returns `isComplete: false`.
