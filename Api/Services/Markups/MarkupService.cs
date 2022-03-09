@@ -32,6 +32,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ToList();
 
             var percentSum = percentPolicies.Sum(p => p.Value);
+            if (percentSum < 0)
+                throw new ArgumentException("Invalid markup settings");
+            
             PriceProcessFunction percentMarkupFunction = (initialPrice) =>
             {
                 var value = initialPrice.Amount * (100 + percentSum) / 100;

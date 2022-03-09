@@ -23,12 +23,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class AgentMarkupPolicyManager : IAgentMarkupPolicyManager
     {
-        public AgentMarkupPolicyManager(EdoContext context, IMarkupPolicyTemplateService templateService, IDateTimeProvider dateTimeProvider,
+        public AgentMarkupPolicyManager(EdoContext context, IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService, IMarkupPolicyAuditService markupPolicyAuditService,
             IAccommodationMapperClient mapperClient)
         {
             _context = context;
-            _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _markupPolicyAuditService = markupPolicyAuditService;
@@ -49,7 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             
             Result ValidateSettings(SetAgentMarkupRequest request) 
-                => _templateService.Validate(MarkupFunctionType.Percent, request.Percent);
+                => request.Percent > 0 
+                    ? Result.Success() 
+                    : Result.Failure("Markup cannot be negative");
 
 
             async Task<Result<MarkupPolicy>> SavePolicy(MarkupPolicy policy)
@@ -170,7 +171,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;

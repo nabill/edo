@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Money.Enums;
 
@@ -9,33 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
     public class MarkupPolicyTemplateService : IMarkupPolicyTemplateService
     {
-        public Result Validate(MarkupFunctionType functionType, decimal value)
-        {
-            return functionType switch
-            {
-                MarkupFunctionType.Percent => ValidatePercent(value),
-                MarkupFunctionType.Fixed => ValidateFixed(value),
-                _ => Result.Failure("Invalid function type")
-            };
-
-
-            static Result ValidatePercent(decimal value)
-            {
-                return value > 0
-                    ? Result.Success()
-                    : Result.Failure("Percent can not be below zero");
-            }
-
-
-            static Result ValidateFixed(decimal value)
-            {
-                return value > 0
-                    ? Result.Success()
-                    : Result.Failure("Fixed markup can not be below zero");
-            }
-        }
-
-        
         public string GetMarkupsFormula(IEnumerable<MarkupPolicy> policies)
         {
             decimal multiplier = 1;
