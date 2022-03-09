@@ -244,16 +244,22 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccounts(System.Int32)">
             <summary>
-                Gets agency accounts list
+            Gets agency accounts list
             </summary>
             <param name="agencyId">Agency Id</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
-                Gets balance for a agency account
+            Gets balance for a agency account
             </summary>
             <param name="agencyId">Agency Id</param>
             <param name="currency">Currency</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.GetAgencyAccountHistory(System.Int32)">
+            <summary>
+            Gets the operation history for the agency account
+            </summary>
+            <param name="accountId">Account Id</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyAccountsController.ActivateAgencyAccount(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>

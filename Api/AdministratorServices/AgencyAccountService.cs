@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -68,6 +69,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     IsActive = a.IsActive
                 })
                 .ToListAsync();
+        }
+
+
+        public Task<List<AccountBalanceAuditLogEntry>> GetAccountHistory(int accountId)
+        {
+            return _context.AccountBalanceAuditLogs
+                .Where(l => l.AccountId == accountId)
+                .ToListAsync();
+
         }
 
 

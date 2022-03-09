@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets agency accounts list
+        /// Gets agency accounts list
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("agencies/{agencyId}/accounts")]
@@ -43,7 +45,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Gets balance for a agency account
+        /// Gets balance for a agency account
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         /// <param name="currency">Currency</param>
@@ -52,6 +54,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
         public async Task<IActionResult> GetAgencyBalance(int agencyId, Currencies currency)
             => Ok(await _agencyAccountService.Get(agencyId, currency));
+
+
+        /// <summary>
+        /// Gets the operation history for the agency account
+        /// </summary>
+        /// <param name="accountId">Account Id</param>
+        [HttpGet("agency-accounts/{accountId}/history")]
+        [ProducesResponseType(typeof(List<AccountBalanceAuditLogEntry>), (int)HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
+        public async Task<IActionResult> GetAgencyAccountHistory([FromRoute] int accountId)
+            => Ok(await _agencyAccountService.GetAccountHistory(accountId));
 
 
         /// <summary>
