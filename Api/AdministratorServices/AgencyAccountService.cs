@@ -75,6 +75,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return _context.AccountBalanceAuditLogs
                 .Where(l => l.AccountId == accountId)
+                .OrderBy(l => l.Created)
                 .ToListAsync();
         }
 
