@@ -10,9 +10,9 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyId">Agency Id</param>
         [HttpGet("agencies/{agencyId}/accounts")]
-        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
         public async Task<IActionResult> GetAgencyAccounts([FromRoute] int agencyId) 
             => Ok(await _agencyAccountService.Get(agencyId));
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <param name="currency">Currency</param>
         [HttpGet("agencies/{agencyId}/accounts/{currency}/balance")]
-        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
         public async Task<IActionResult> GetAgencyBalance(int agencyId, Currencies currency)
             => Ok(await _agencyAccountService.Get(agencyId, currency));
@@ -58,12 +58,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         /// Gets the operation history for the agency account
         /// </summary>
+        /// <param name="agencyId">Agency Id</param>
         /// <param name="accountId">Account Id</param>
-        [HttpGet("agency-accounts/{accountId}/history")]
-        [ProducesResponseType(typeof(List<AccountBalanceAuditLogEntry>), (int)HttpStatusCode.OK)]
+        [HttpGet("agency/{agencyId}/accounts/{accountId}/history")]
+        [ProducesResponseType(typeof(List<AccountBalanceAuditLogEntry>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceObservation)]
-        public async Task<IActionResult> GetAgencyAccountHistory([FromRoute] int accountId)
-            => Ok(await _agencyAccountService.GetAccountHistory(accountId));
+        public async Task<IActionResult> GetAgencyAccountHistory([FromRoute] int agencyId, [FromRoute] int accountId)
+            => OkOrBadRequest(await _agencyAccountService.GetAccountHistory(agencyId, accountId));
 
 
         /// <summary>
@@ -73,12 +75,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyAccountId">Agency account Id.</param>
         /// <param name="activityStatusChangeRequest">Request data for activation.</param>
         [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/activate")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ActivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _agencyAccountService.Activate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
+            => NoContentOrBadRequest(await _agencyAccountService.Activate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
 
         /// <summary>
@@ -88,22 +90,22 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyAccountId">Agency account Id.</param>
         /// <param name="activityStatusChangeRequest">Request data for deactivation.</param>
         [HttpPost("agencies/{agencyId}/accounts/{agencyAccountId}/deactivate")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> DeactivateAgencyAccount([FromRoute] int agencyId, [FromRoute] int agencyAccountId,
             [FromBody] ActivityStatusChangeRequest activityStatusChangeRequest)
-            => OkOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
+            => NoContentOrBadRequest(await _agencyAccountService.Deactivate(agencyId, agencyAccountId, activityStatusChangeRequest.Reason));
 
         
         /// <summary>
-        ///     Append money to the agency account
+        /// Append money to the agency account
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
         [HttpPost("agency-accounts/{agencyAccountId}/replenish")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ReplenishAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
@@ -118,13 +120,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
 
         /// <summary>
-        ///     Manually Adds money to the agency account
+        /// Manually Adds money to the agency account
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
         [HttpPost("agency-accounts/{agencyAccountId}/increase-manually")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
         public async Task<IActionResult> IncreaseMoneyManuallyToAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
@@ -139,13 +141,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Manually Subtracts money from the agency account
+        /// Manually Subtracts money from the agency account
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
         [HttpPost("agency-accounts/{agencyAccountId}/decrease-manually")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
         public async Task<IActionResult> DecreaseMoneyManuallyFromAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
@@ -160,13 +162,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Subtracts money from the agency account
+        /// Subtracts money from the agency account
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
         [HttpPost("agency-accounts/{agencyAccountId}/subtract")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SubtractAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
@@ -181,24 +183,24 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets thresholds for balance notifications
+        /// Gets thresholds for balance notifications
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         [HttpGet("agency-accounts/{agencyAccountId}/balance-notification-settings")]
-        [ProducesResponseType(typeof(BalanceNotificationSettingInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BalanceNotificationSettingInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.FinanceReportGeneration)]
         public async Task<IActionResult> GetBalanceNotificationSettings(int agencyAccountId)
             => OkOrBadRequest(await _balanceNotificationsManagementService.Get(agencyAccountId));
 
 
         /// <summary>
-        ///     Sets thresholds for balance notifications
+        /// Sets thresholds for balance notifications
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         [HttpPut("agency-accounts/{agencyAccountId}/balance-notification-settings")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.FinanceReportGeneration)]
         public async Task<IActionResult> SetBalanceNotificationSettings(int agencyAccountId, [FromBody] BalanceNotificationSettingInfo info)
         {

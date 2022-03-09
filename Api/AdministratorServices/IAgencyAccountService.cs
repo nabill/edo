@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<List<FullAgencyAccountInfo>> Get(int agencyId, Currencies currency);
 
-        Task<List<AccountBalanceAuditLogEntry>> GetAccountHistory(int accountId);
+        Task<Result<List<AccountBalanceAuditLogEntry>>> GetAccountHistory(int agencyId, int accountId);
 
         Task<Result> Activate(int agencyId, int agencyAccountId, string reason);
 
