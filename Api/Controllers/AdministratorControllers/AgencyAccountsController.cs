@@ -1,9 +1,5 @@
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -15,6 +11,9 @@ using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {

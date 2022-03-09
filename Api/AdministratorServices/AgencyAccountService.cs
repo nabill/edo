@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -19,6 +15,9 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -77,7 +76,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return _context.AccountBalanceAuditLogs
                 .Where(l => l.AccountId == accountId)
                 .ToListAsync();
-
         }
 
 
