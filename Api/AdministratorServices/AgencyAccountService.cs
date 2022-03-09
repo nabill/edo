@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -18,6 +15,9 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -67,6 +67,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Created = a.Created.DateTime,
                     IsActive = a.IsActive
                 })
+                .ToListAsync();
+        }
+
+
+        public async Task<Result<List<AccountBalanceAuditLogEntry>>> GetAccountHistory(int agencyId, int accountId)
+        {
+            var isAccountExist = await _context.AgencyAccounts.AnyAsync(a => a.AgencyId == agencyId && a.Id == accountId);
+            if (!isAccountExist)
+                return Result.Failure<List<AccountBalanceAuditLogEntry>>($"Account Id {accountId} at the agency {agencyId} not found");
+
+            return await _context.AccountBalanceAuditLogs
+                .Where(l => l.AccountId == accountId)
+                .OrderBy(l => l.Created)
                 .ToListAsync();
         }
 
