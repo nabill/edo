@@ -117,10 +117,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result<AgencyMarkupInfo?>> Get(int agencyId, AgentContext agentContext)
         {
             var (_, isFailure, markupPolicy, error) = await GetForChildAgency(agencyId, agentContext);
-            if (isFailure)
-                return Result.Failure<AgencyMarkupInfo?>(error);
-
-            return new AgencyMarkupInfo { Percent = markupPolicy.Value };
+            return isFailure 
+                ? Result.Failure<AgencyMarkupInfo?>(error) 
+                : new AgencyMarkupInfo { Percent = markupPolicy.Value };
         }
 
 
@@ -157,18 +156,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return Result.Success(agencyId)
                 .Ensure(IsSpecifiedAgencyChild, "Specified agency is not a child agency or does not exist.")
-                .Map(Get);
+                .Bind(Get);
 
 
             async Task<bool> IsSpecifiedAgencyChild(int childAgencyId)
                 => await _context.Agencies.AnyAsync(a => a.Id == childAgencyId && a.ParentId == agent.AgencyId && a.IsActive);
 
 
-            Task<MarkupPolicy> Get(int childAgencyId)
-                => _context.MarkupPolicies
+            async Task<Result<MarkupPolicy>> Get(int childAgencyId)
+            {
+                var policy = await _context.MarkupPolicies
                     .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
                     .Where(p => p.SubjectScopeId == agencyId.ToString())
                     .SingleOrDefaultAsync();
+
+                return policy ?? Result.Failure<MarkupPolicy>("Markup policy not found");
+            }
         }
 
         
