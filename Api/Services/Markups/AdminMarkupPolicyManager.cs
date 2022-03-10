@@ -135,8 +135,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Where(p => p.SubjectScopeId == agencyId.ToString())
                 .SingleOrDefaultAsync();
 
-            var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
-                request.Percent, Currencies.USD);
+            var settings = new MarkupPolicySettings("Agency global markup", MarkupFunctionType.Percent,
+                request.Percent, Currencies.USD, agencyId.ToString());
             
             // TODO: Add a validation to not allow negative markup
             // https://github.com/happy-travel/agent-app-project/issues/1244
