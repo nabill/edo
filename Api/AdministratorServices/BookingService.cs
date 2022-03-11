@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.SupplierOptionsProvider;
 
@@ -30,7 +32,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private IQueryable<BookingSlim> GetBookings(Expression<Func<BookingSlim, bool>>? expression = null)
         {
-            var suppliersDictionary = _supplierOptionsStorage.GetAll().ToDictionary(s => s.Code, s => s.Name);
+            var (_, isFailure, suppliers, _) = _supplierOptionsStorage.GetAll();
+            var suppliersDictionary = isFailure
+                ? new Dictionary<string, string>(0)
+                : suppliers.ToDictionary(s => s.Code, s => s.Name);
+            
             var query = from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id

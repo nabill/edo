@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
@@ -15,8 +16,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         }
         
         
-        public PayableToSupplierReportRow Convert(PayableToSupplierRecordData data) 
-            => new()
+        public PayableToSupplierReportRow Convert(PayableToSupplierRecordData data)
+        {
+            var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(data.SupplierCode);
+            var supplierName = isFailure
+                ? string.Empty
+                : supplier.Name;
+            
+            return new()
             {
                 ReferenceCode = data.ReferenceCode,
                 InvoiceNumber = data.InvoiceNumber,
@@ -34,8 +41,9 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,
                 ConvertedCurrency = data.ConvertedCurrency,
-                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name
+                Supplier = supplierName
             };
+        }
 
 
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;

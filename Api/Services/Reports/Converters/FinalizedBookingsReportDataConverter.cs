@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -19,7 +20,13 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         
         
         public FinalizedBookingsReportRow Convert(FinalizedBookingsReportData data)
-            => new()
+        {
+            var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(data.SupplierCode);
+            var supplierName = isFailure
+                ? string.Empty
+                : supplier.Name;
+            
+            return new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
                 ReferenceCode = data.ReferenceCode,
@@ -37,13 +44,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.SupplierConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.SupplierPrice), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.SupplierPrice), 2),
-                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name,
+                Supplier = supplierName,
                 IsDirectContract = data.IsDirectContract ? "Yes" : "No",
                 PayableByAgent = GetPayableByAgent(data),
                 PayableByAgentCurrency = data.AgentCurrency,
                 PayableToSupplierOrHotel = GetPayableToSupplierOrHotel(data),
                 PayableToSupplierOrHotelCurrency = data.SupplierCurrency,
             };
+        }
 
 
         private decimal GetPayableByAgent(FinalizedBookingsReportData data)
