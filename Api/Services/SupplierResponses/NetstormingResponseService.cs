@@ -44,8 +44,12 @@ namespace HappyTravel.Edo.Api.Services.SupplierResponses
 
         private async Task<Result<Booking>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
+            var (_, isGettingSupplierFailed, supplier, gettingSupplierError) = _supplierOptionsStorage.Get(NetstormingCode);
+            if (isGettingSupplierFailed)
+                return Result.Failure<Booking>(gettingSupplierError);
+            
             var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
-                new Uri($"{_supplierOptionsStorage.Get(NetstormingCode).ConnectorUrl}" + "bookings/response"))
+                new Uri($"{supplier.ConnectorUrl}" + "bookings/response"))
             {
                 Content = new ByteArrayContent(xmlData)
             });

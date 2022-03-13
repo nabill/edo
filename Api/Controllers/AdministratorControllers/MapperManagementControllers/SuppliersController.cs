@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
+using CSharpFunctionalExtensions;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,12 +25,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(Dictionary<string, string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)] 
         public IActionResult Get()
         {
-            var suppliers = _supplierOptionsStorage.GetAll()
-                .ToDictionary(s => s.Code, s => s.Name);
+            var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
             
-            return Ok(suppliers);
+            return isFailure
+                    ? BadRequest(ProblemDetailsFactory.CreateProblemDetails(HttpContext, detail: error))
+                    : Ok(suppliers.ToDictionary(s => s.Code, s => s.Name));
         }
 
 

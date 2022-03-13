@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Services.Reports.Helpers;
@@ -16,8 +17,14 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         }
         
         
-        public FullBookingsReportRow Convert(FullBookingsReportData data) 
-            => new()
+        public FullBookingsReportRow Convert(FullBookingsReportData data)
+        {
+            var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(data.SupplierCode);
+            var supplierName = isFailure
+                ? string.Empty
+                : supplier.Name;
+            
+            return new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
                 ReferenceCode = data.ReferenceCode,
@@ -42,9 +49,10 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 ConvertedCurrency = data.ConvertedCurrency,
                 AmountExclVat = Math.Round(VatHelper.AmountExcludedVat(data.OriginalAmount), 2),
                 VatAmount = Math.Round(VatHelper.VatAmount(data.OriginalAmount), 2),
-                Supplier = _supplierOptionsStorage.Get(data.SupplierCode).Name,
+                Supplier = supplierName,
                 PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
             };
+        }
 
 
         private string GetJsonProperty(JsonDocument jsonDocument, string property)

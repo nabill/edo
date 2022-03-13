@@ -181,8 +181,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         private Dictionary<string, string> GetSuppliersDictionary()
-            => _supplierOptionsStorage.GetAll()
-                .ToDictionary(s => s.Code, s => s.Name);
+        {
+            var (_, isFailure, suppliers, _) = _supplierOptionsStorage.GetAll();
+            return isFailure 
+                ? new Dictionary<string, string>(0) 
+                : suppliers.ToDictionary(s => s.Code, s => s.Name);
+        }
 
 
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
@@ -243,14 +247,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             
             string? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
-                => settings switch
+            {
+                return settings switch
                 {
-                    null => _supplierOptionsStorage.Get(booking.SupplierCode).Name,
-                    {IsSupplierVisible: true} => _supplierOptionsStorage.Get(booking.SupplierCode).Name,
+                    null => GetName(booking.SupplierCode),
+                    {IsSupplierVisible: true} => GetName(booking.SupplierCode),
                     _ => null
                 };
-            
-            
+
+
+                string GetName(string code)
+                {
+                    var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(code);
+                    return isFailure
+                        ? null
+                        : supplier.Name;
+                }
+            }
+
+
             static bool? GetDirectContractFlag(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {

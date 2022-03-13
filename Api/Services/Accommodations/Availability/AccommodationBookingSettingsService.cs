@@ -89,11 +89,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private List<string> GetEnabledConnectors() 
-            => _supplierOptionsStorage.GetAll()
-                .Where(s => s.IsEnabled)
+        private List<string> GetEnabledConnectors()
+        {
+            var (_, isFailure, suppliers, _) = _supplierOptionsStorage.GetAll();
+            if (isFailure)
+                return new List<string>(0);
+            
+            return suppliers.Where(s => s.IsEnabled)
                 .Select(x => x.Code)
                 .ToList();
+        }
 
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
