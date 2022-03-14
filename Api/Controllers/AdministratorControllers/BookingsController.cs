@@ -288,7 +288,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("accommodations/bookings/{bookingId}/status-history")]
         [ProducesResponseType(typeof(List<BookingStatusHistoryEntry>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.BookingView)]
-        public async Task<ActionResult<List<BookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId) 
+        public async Task<ActionResult<List<BookingStatusHistory>>> GetBookingStatusHistory(int bookingId) 
             => await _bookingInfoService.GetBookingStatusHistory(bookingId);
 
 
