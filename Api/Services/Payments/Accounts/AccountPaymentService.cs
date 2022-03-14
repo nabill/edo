@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -78,6 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return await GetChargingAccountId()
                 .Bind(GetRefundableAmount)
                 .Bind(RefundMoneyToAccount)
+                .Bind(NotifyRefund)
                 .Bind(ProcessPaymentResults);
 
             
@@ -121,6 +126,33 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     await _context.SaveChangesAsync();
                     return payment;
                 }
+            }
+
+
+            async Task<Result<Payment>> NotifyRefund(Payment payment)
+            {
+                var (_, isFailure, booking, error) = await _bookingRecordManager.Get(payment.ReferenceCode);
+                if (isFailure)
+                    return Result.Failure<Payment>(error);
+
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (Equals(agent, default))
+                    return Result.Failure<Payment>($"Cannot find agent {booking.AgentId}");
+                
+                var paymentRefundMail = new PaymentRefundMail
+                {
+                    ReferenceCode = payment.ReferenceCode,
+                    RefundedAmount = payment.RefundedAmount + " " + payment.Currency
+                };
+                
+                var refundNotificationResult = await _bookingDocumentsMailingService.SendPaymentRefundNotification(paymentRefundMail, 
+                    agent.Email,
+                    ApiCaller.InternalServiceAccount);
+
+                if (refundNotificationResult.IsFailure)
+                    return Result.Failure<Payment>(refundNotificationResult.Error);
+                
+                return payment;
             }
             
             
@@ -237,5 +269,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBalanceManagementNotificationsService _balanceManagementNotificationsService;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
+        private readonly IBookingDocumentsMailingService _bookingDocumentsMailingService;
+        private readonly IBookingRecordManager _bookingRecordManager;
     }
 }

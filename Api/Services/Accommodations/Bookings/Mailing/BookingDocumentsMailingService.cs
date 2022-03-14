@@ -156,10 +156,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         notificationType: NotificationTypes.SuccessfulPaymentReceipt,
                         email: email);
         }
-        
-        
-        private static string FormatPrice(MoneyAmount moneyAmount) 
-            => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
+
+
+        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, ApiCaller apiCaller) 
+            => _notificationsService.Send(apiCaller: apiCaller,
+            messageData: payload,
+            notificationType: NotificationTypes.PaymentRefund,
+            email: email);
+
+
+        private static string FormatPrice(MoneyAmount moneyAmount) => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
         
         private readonly IBookingDocumentsService _documentsService;
