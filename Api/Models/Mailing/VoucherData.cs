@@ -20,6 +20,6 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string MainPassengerName { get; set; }
         public string BannerUrl { get; set; }
         public string LogoUrl { get; set; }
-        public List<KeyValuePair<string, string>> SpecialValues { get; set; }
+        public Dictionary<string, string> SpecialValues { get; set; }
     }
 }
