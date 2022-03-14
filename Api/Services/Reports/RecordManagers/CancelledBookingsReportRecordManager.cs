@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -33,12 +34,22 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     AgencyName = agency.Name,
                     CheckInDate = booking.CheckInDate.DateTime,
                     CheckOutDate = booking.CheckOutDate.DateTime,
-                    Supplier = _supplierOptionsStorage.Get(booking.SupplierCode).Name,
+                    Supplier = GetSupplierName(_supplierOptionsStorage, booking.SupplierCode),
                     DeadlineDate = booking.DeadlineDate.GetValueOrDefault().DateTime,
                     ReferenceCode = booking.ReferenceCode,
                 };
 
             return await cancelledBookings.ToListAsync();
+        }
+        
+        
+        private static string GetSupplierName(ISupplierOptionsStorage storage, string code)
+        {
+            var (_, isFailure, supplier, _) = storage.Get(code);
+            
+            return isFailure
+                ? string.Empty
+                : supplier.Name;
         }
 
 

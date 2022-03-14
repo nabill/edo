@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using CSharpFunctionalExtensions;
 using Grpc.Net.Client;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Options;
@@ -29,7 +30,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         
         public ISupplierConnector Get(string supplierCode)
         {
-            var supplier = _supplierStorage.Get(supplierCode);
+            var (_, isFailure, supplier, error) = _supplierStorage.Get(supplierCode);
+            if (isFailure)
+                throw new Exception($"Cannot get supplier `{supplierCode}` with error: {error}");
+            
             return _supplierConnectorOptions.CurrentValue.ClientType switch
             {
                 ClientTypes.WebApi => GetRestApiConnector(supplier),

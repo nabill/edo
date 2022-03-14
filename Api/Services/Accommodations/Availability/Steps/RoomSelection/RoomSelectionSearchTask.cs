@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -52,7 +53,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
-                var supplier = _supplierOptionsStorage.Get(supplierCode);
+                var (_, isFailure, supplier, error) = _supplierOptionsStorage.Get(supplierCode);
+                if (isFailure)
+                    return ProblemDetailsBuilder.Fail<SingleAccommodationAvailability>(error);
+
                 var roomContractSets = availabilityDetails.RoomContractSets
                     .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Code, r.IsDirectContract))
                     .ToList();
