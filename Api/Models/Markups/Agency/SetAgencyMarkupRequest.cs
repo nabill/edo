@@ -4,6 +4,6 @@ namespace HappyTravel.Edo.Api.Models.Markups.Agency;
 
 public readonly struct SetAgencyMarkupRequest
 {
-    [Range(0.1d, 100d)]
+    [Range(-100d, 100d)]
     public decimal Percent { get; init; }
 }
