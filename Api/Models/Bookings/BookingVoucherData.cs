@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
             in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, string mainPassengerName, string referenceCode,
             string supplierReferenceCode, string propertyOwnerConfirmationCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails,
-            Dictionary<string, string> specialValues)
+            List<KeyValuePair<string, string>> specialValues)
         {
             AgentName = agentName;
             Accommodation = accommodation;
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string BannerUrl { get; }
         public string LogoUrl { get; }
         public List<RoomInfo> RoomDetails { get; }
-        public Dictionary<string, string> SpecialValues { get; }
+        public List<KeyValuePair<string, string>> SpecialValues { get; }
 
 
         public readonly struct AccommodationInfo

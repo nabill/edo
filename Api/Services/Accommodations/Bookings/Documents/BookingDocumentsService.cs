@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                     r.Remarks,
                     r.SupplierRoomReferenceCode))
                     .ToList(),
-                specialValues: booking.SpecialValues.ToDictionary(s => s.Key, s => s.Value)
+                specialValues: booking.SpecialValues
             );
         }
 
