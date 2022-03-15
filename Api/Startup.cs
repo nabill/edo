@@ -154,7 +154,6 @@ namespace HappyTravel.Edo.Api
                 // Use fully qualified object names
                 options.CustomSchemaIds(x => x.FullName);
             });
-            services.AddSwaggerGenNewtonsoftSupport();
             
             services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
 
