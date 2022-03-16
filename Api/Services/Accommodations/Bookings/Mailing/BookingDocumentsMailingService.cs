@@ -168,7 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         private static string FormatPrice(MoneyAmount moneyAmount) 
             => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
-        
+
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
     }
