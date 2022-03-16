@@ -27,12 +27,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public AccountPaymentService(IAccountPaymentProcessingService accountPaymentProcessingService,
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IBalanceManagementNotificationsService balanceManagementNotificationsService)
+            IBalanceManagementNotificationsService balanceManagementNotificationsService,
+            IBookingRecordManager bookingRecordManager,
+            IBookingDocumentsMailingService bookingDocumentsMailingService)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _balanceManagementNotificationsService = balanceManagementNotificationsService;
+            _bookingRecordManager = bookingRecordManager;
+            _bookingDocumentsMailingService = bookingDocumentsMailingService;
         }
 
 

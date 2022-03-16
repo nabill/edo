@@ -5,6 +5,8 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -37,7 +39,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             _balanceManagementNotificationsServiceMock = new Mock<IBalanceManagementNotificationsService>();
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                new DefaultDateTimeProvider(), _balanceManagementNotificationsServiceMock.Object);
+                new DefaultDateTimeProvider(), _balanceManagementNotificationsServiceMock.Object, Mock.Of<IBookingRecordManager>(),
+                Mock.Of<IBookingDocumentsMailingService>());
     
             var strategy = new ExecutionStrategyMock();
     
