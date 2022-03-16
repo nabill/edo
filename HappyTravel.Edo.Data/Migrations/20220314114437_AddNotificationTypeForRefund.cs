@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,12 +11,11 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.UpdateData(
-                "DefaultNotificationOptions", 
-                "Type", 
-                35, 
-                "AgentEmailTemplateId", 
-                "d-d1ff61c075d546d987806df68e975006"); // Payment refund 
+            migrationBuilder.InsertData("DefaultNotificationOptions", new string[] { "Type", "EnabledProtocols", "IsMandatory", "EnabledReceivers", "AgentEmailTemplateId"},
+                new object[,]
+                {
+                    { (int)NotificationTypes.PaymentRefund, (int)(ProtocolTypes.Email), true, (int)ReceiverTypes.None, "d-d1ff61c075d546d987806df68e975006" }
+                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
