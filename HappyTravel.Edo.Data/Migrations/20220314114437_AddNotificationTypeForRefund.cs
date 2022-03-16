@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.InsertData("DefaultNotificationOptions", new string[] { "Type", "EnabledProtocols", "IsMandatory", "EnabledReceivers", "AgentEmailTemplateId"},
                 new object[,]
                 {
-                    { (int)NotificationTypes.PaymentRefund, (int)(ProtocolTypes.Email), true, (int)ReceiverTypes.None, "d-d1ff61c075d546d987806df68e975006" }
+                    { (int)NotificationTypes.PaymentRefund, (int)(ProtocolTypes.Email & ProtocolTypes.WebSocket), true, (int)ReceiverTypes.AgentApp, "d-d1ff61c075d546d987806df68e975006" }
                 });
         }
 
