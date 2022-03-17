@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -72,13 +73,13 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.InsertData("CompanyAccounts", new string[] { "Id", "CompanyBankId", "Currency", "AccountNumber", "Iban", "IsDefault",
                 "IntermediaryBankName", "IntermediaryBankAccountNumber", "IntermediaryBankSwiftCode", "IntermediaryBankAbaNo", "Created", "Modified" }, new object[,]
                 {
-                    { 1, 1, "AED", "1015674054701", "AE580260001015674054701", true,
+                    { 1, 1, (int)Currencies.AED, "1015674054701", "AE580260001015674054701", true,
                         null, null, null, null, utcNow, utcNow },
-                    { 2, 1, "EUR", "1025674054703", "AE390260001025674054703", true,
+                    { 2, 1, (int)Currencies.EUR, "1025674054703", "AE390260001025674054703", true,
                         null, null, null, null, utcNow, utcNow },
-                    { 3, 1, "USD", "1025674054702", "AE660260001025674054702", false,
+                    { 3, 1, (int)Currencies.USD, "1025674054702", "AE660260001025674054702", false,
                 "Bank of America National Association, New York", "6550286074", "BOFAUS3N", "026009593", utcNow, utcNow },
-                    { 4, 2, "USD", "11835739920001", "AE710030011835739920001", true,
+                    { 4, 2, (int)Currencies.USD, "11835739920001", "AE710030011835739920001", true,
                         null, null, null, null, utcNow, utcNow },
                 });
         }
