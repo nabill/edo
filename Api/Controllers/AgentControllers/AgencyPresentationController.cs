@@ -13,11 +13,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/agency/images")]
+    [Route("api/{v:apiVersion}/agency/presentation")]
     [Produces("application/json")]
-    public class AgencyImagesController : BaseController
+    public class AgencyPresentationController : BaseController
     {
-        public AgencyImagesController(IImageFileService imageFileService,
+        public AgencyPresentationController(IImageFileService imageFileService,
             IAgentContextService agentContextService)
         {
             _imageFileService = imageFileService;
