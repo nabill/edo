@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.Data.Company;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
@@ -93,6 +94,9 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<NGeniusRefund> NGeniusRefunds { get; set; }
         public virtual DbSet<AgencyMarkupBonusesAccount> AgencyMarkupBonusesAccounts { get; set; }
         public DbSet<AgentDirectApiClientRelation> AgentDirectApiClientRelations { get; set; }
+
+        public DbSet<CompanyBank> CompanyBanks { get; set; }
+        public DbSet<CompanyAccount> CompanyAccounts { get; set; }
 
 
         public virtual Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
@@ -241,6 +245,8 @@ namespace HappyTravel.Edo.Data
             BuildNGeniusRefund(builder);
             BuildAgencyMarkupBonusesAccounts(builder);
             BuildAgentDirectApiClientRelations(builder);
+            BuildCompanyBanks(builder);
+            BuildCompanyAccounts(builder);
         }
 
 
@@ -839,6 +845,45 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AgentDirectApiClientRelation>(b =>
             {
                 b.HasKey(a => new { a.AgentId, a.AgencyId, a.DirectApiClientId });
+            });
+        }
+
+
+        private static void BuildCompanyBanks(ModelBuilder builder)
+        {
+            builder.Entity<CompanyBank>(b =>
+            {
+                b.HasKey(cb => cb.Id);
+                b.Property(cb => cb.Name).IsRequired();
+                b.Property(cb => cb.Address).IsRequired();
+                b.Property(cb => cb.RoutingCode).IsRequired();
+                b.Property(cb => cb.SwiftCode).IsRequired();
+                b.Property(cb => cb.Created).IsRequired();
+                b.Property(cb => cb.Modified).IsRequired();
+                b.Navigation(cb => cb.CompanyAccounts);
+                b.ToTable("CompanyBanks");
+            });
+        }
+
+
+        private static void BuildCompanyAccounts(ModelBuilder builder)
+        {
+            builder.Entity<CompanyAccount>(b =>
+            {
+                b.HasKey(ca => ca.Id);
+                b.HasIndex(ca => ca.CompanyBankId);
+                b.Property(ca => ca.Currency).IsRequired();
+                b.Property(ca => ca.AccountNumber).IsRequired();
+                b.Property(ca => ca.Iban).IsRequired();
+                b.Property(ca => ca.IsDefault).IsRequired();
+                b.Property(ca => ca.IntermediaryBankName);
+                b.Property(ca => ca.IntermediaryBankAccountNumber);
+                b.Property(ca => ca.IntermediaryBankSwiftCode);
+                b.Property(ca => ca.IntermediaryBankAbaNo);
+                b.Property(cb => cb.Created).IsRequired();
+                b.Property(cb => cb.Modified).IsRequired();
+                b.HasOne(ca => ca.CompanyBank).WithMany(cb => cb.CompanyAccounts).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                b.ToTable("CompanyAccounts");
             });
         }
 
