@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         MainPassengerName = voucher.MainPassengerName,
                         BannerUrl = voucher.BannerUrl,
                         LogoUrl = voucher.LogoUrl,
-                        SpecialValues = voucher.SpecialValues.ToDictionary(s => s.Key, s => s.Value)
+                        SpecialValues = voucher.SpecialValues?.ToDictionary(s => s.Key, s => s.Value)
                     };
 
                     return await _notificationsService.Send(agent: agent,
