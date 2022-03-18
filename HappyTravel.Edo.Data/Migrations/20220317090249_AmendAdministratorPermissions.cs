@@ -91,6 +91,12 @@ namespace HappyTravel.Edo.Data.Migrations
                         | AdministratorPermissions.GeneratePaymentLinkReport) 
                     }
                 });
+            
+            
+            // Add AdministratorInvitation permission to System Administrator role
+            var addPermissionSql =
+                "update \"AdministratorRoles\" set \"Permissions\" = \"Permissions\" | 1 where \"Name\" = 'System Administrator';";
+            migrationBuilder.Sql(addPermissionSql);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
