@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 
                 var refundNotificationResult = await _bookingDocumentsMailingService.SendPaymentRefundNotification(paymentRefundMail, 
                     agent.Email,
-                    ApiCaller.InternalServiceAccount);
+                    new SlimAgentContext(booking.AgentId, booking.AgencyId));
 
                 if (refundNotificationResult.IsFailure)
                     return Result.Failure<Payment>(refundNotificationResult.Error);

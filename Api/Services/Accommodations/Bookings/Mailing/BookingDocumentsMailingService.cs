@@ -158,8 +158,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, ApiCaller apiCaller) 
-            => _notificationsService.Send(apiCaller: apiCaller,
+        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, SlimAgentContext agentContext) 
+            => _notificationsService.Send(agent: agentContext,
             messageData: payload,
             notificationType: NotificationTypes.PaymentRefund,
             email: email);

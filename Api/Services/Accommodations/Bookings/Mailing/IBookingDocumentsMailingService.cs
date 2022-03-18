@@ -17,6 +17,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         
         Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email, ApiCaller apiCaller);
         
-        Task<Result> SendPaymentRefundNotification(PaymentRefundMail paymentRefund, string email, ApiCaller apiCaller);
+        Task<Result> SendPaymentRefundNotification(PaymentRefundMail paymentRefund, string email, SlimAgentContext agent);
     }
 }
