@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 using HappyTravel.Edo.Api.Services.Company;
-using HappyTravel.Edo.Data.Company;
+using HappyTravel.Edo.Api.Models.Company;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -157,21 +157,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
             static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, CompanyAccount companyAccount, BankDetails bankDetails)
             {
-                var companyBank = companyAccount.CompanyBank;
+                var intermediaryBank = companyAccount.IntermediaryBank;
 
                 var sellerDetails = new BookingInvoiceData.SellerInfo(companyName: bankDetails.CompanyName,
-                    bankName: companyBank.Name,
-                    bankAddress: companyBank.Address,
+                    bankName: companyAccount.BankName,
+                    bankAddress: companyAccount.BankAddress,
                     accountNumber: companyAccount.AccountNumber,
                     iban: companyAccount.Iban,
-                    routingCode: companyBank.RoutingCode,
-                    swiftCode: companyBank.SwiftCode,
-                    intermediaryBankDetails: companyAccount.IntermediaryBankName is null
+                    routingCode: companyAccount.RoutingCode,
+                    swiftCode: companyAccount.SwiftCode,
+                    intermediaryBankDetails: intermediaryBank is null
                         ? null
-                        : new IntermediaryBankDetails(bankName: companyAccount.IntermediaryBankName,
-                            swiftCode: companyAccount.IntermediaryBankSwiftCode,
-                            accountNumber: companyAccount.IntermediaryBankAccountNumber,
-                            abaNo: companyAccount.IntermediaryBankAbaNo));
+                        : new IntermediaryBankDetails(bankName: intermediaryBank.BankName,
+                            swiftCode: intermediaryBank.SwiftCode,
+                            accountNumber: intermediaryBank.AccountNumber,
+                            abaNo: intermediaryBank.AbaNo));
 
                 return sellerDetails;
             }

@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         public async Task<Result> Send(string templateId, IEnumerable<string> recipientAddresses, DataWithCompanyInfo messageData)
         {
-            var (_, isFailure, companyInfo, _) = await _companyService.Get();
+            var (_, isFailure, companyInfo, _) = await _companyService.GetCompanyInfo();
             messageData.CompanyInfo = isFailure ? new CompanyInfo() : companyInfo;
 
             return await _mailSender.Send(templateId, recipientAddresses, messageData);
