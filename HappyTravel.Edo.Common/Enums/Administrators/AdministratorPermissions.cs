@@ -31,6 +31,6 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
         SupplierManagement = 16777216,
         BookingView = 33554432,
         ManageBookingByReferenceCode = 67108864,
-        GeneratePaymentLinkReport = 134217728
+        PaymentLinkReportGeneration = 134217728
     }
 }

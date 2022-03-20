@@ -16,17 +16,17 @@ namespace HappyTravel.Edo.Data.Migrations
             
             // Update AccountManager role
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Account manager", "Permissions",
-                AdministratorPermissions.ViewAgencies
+                (int) (AdministratorPermissions.ViewAgencies
                 | AdministratorPermissions.ViewAgents
                 | AdministratorPermissions.AgencyVerification
                 | AdministratorPermissions.AgencyBalanceObservation
                 | AdministratorPermissions.AgencyManagement
                 | AdministratorPermissions.MarketingReportGeneration
-                | AdministratorPermissions.BookingReportGeneration);
+                | AdministratorPermissions.BookingReportGeneration));
             
             // Update FinanceManager role
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Finance manager", "Permissions",
-                AdministratorPermissions.AccountReplenish
+                (int) (AdministratorPermissions.AccountReplenish
                 | AdministratorPermissions.OfflinePayment
                 | AdministratorPermissions.ViewAgencies
                 | AdministratorPermissions.ViewAgents
@@ -37,29 +37,29 @@ namespace HappyTravel.Edo.Data.Migrations
                 | AdministratorPermissions.BookingReportGeneration
                 | AdministratorPermissions.FinanceReportGeneration
                 | AdministratorPermissions.MarketingReportGeneration
-                | AdministratorPermissions.ManageBookingByReferenceCode);
+                | AdministratorPermissions.ManageBookingByReferenceCode));
             
             // Update PaymentLinkManager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Payment link manager", "Permissions",
-                AdministratorPermissions.PaymentLinkGeneration);
+                (int) AdministratorPermissions.PaymentLinkGeneration);
             
             // Update BookingManager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Booking manager", "Permissions",
-                AdministratorPermissions.BookingManagement
-                | AdministratorPermissions.BookingReportGeneration);
+                (int) (AdministratorPermissions.BookingManagement
+                | AdministratorPermissions.BookingReportGeneration));
             
             // Update Accommodation Mapping Manager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Accommodation Mapping Manager", "Permissions",
-                AdministratorPermissions.AccommodationsMerge
+                (int) (AdministratorPermissions.AccommodationsMerge
                 | AdministratorPermissions.AccommodationsManagement
-                | AdministratorPermissions.LocationsManagement);
+                | AdministratorPermissions.LocationsManagement));
             
             // Add super-admin role
             migrationBuilder.InsertData("AdministratorRoles", new string[] { "Name", "Permissions" },
                 new object[,]
                 {
-                    { (string) "Super-admin", 
-                        (AdministratorPermissions) (AdministratorPermissions.MarkupManagement
+                    { "Super-admin", 
+                        (int) (AdministratorPermissions.MarkupManagement
                         | AdministratorPermissions.BookingManagement
                         | AdministratorPermissions.BookingReportGeneration
                         | AdministratorPermissions.FinanceReportGeneration
@@ -84,11 +84,11 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.InsertData("AdministratorRoles", new string[] { "Name", "Permissions" },
                 new object[,]
                 {
-                    { (string) "Reports manager", 
-                        (AdministratorPermissions) (AdministratorPermissions.BookingReportGeneration
+                    { "Reports manager", 
+                        (int) (AdministratorPermissions.BookingReportGeneration
                         | AdministratorPermissions.FinanceReportGeneration
                         | AdministratorPermissions.MarketingReportGeneration
-                        | AdministratorPermissions.GeneratePaymentLinkReport) 
+                        | AdministratorPermissions.PaymentLinkReportGeneration) 
                     }
                 });
             
