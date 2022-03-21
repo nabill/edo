@@ -38,14 +38,14 @@ namespace HappyTravel.Edo.Data.Migrations
                 | AdministratorPermissions.OfflinePayment
                 | AdministratorPermissions.ViewAgencies
                 | AdministratorPermissions.ViewAgents
+                | AdministratorPermissions.ViewBookings
                 | AdministratorPermissions.AgencyBalanceObservation
                 | AdministratorPermissions.AgencyBalanceReplenishAndSubtract
                 | AdministratorPermissions.PaymentLinkGeneration
                 | AdministratorPermissions.BalanceManualCorrection
                 | AdministratorPermissions.BookingReportGeneration
                 | AdministratorPermissions.FinanceReportGeneration
-                | AdministratorPermissions.MarketingReportGeneration
-                | AdministratorPermissions.ManageBookingByReferenceCode));
+                | AdministratorPermissions.MarketingReportGeneration));
             
             // Update PaymentLinkManager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Payment link manager", "Permissions",
@@ -54,7 +54,8 @@ namespace HappyTravel.Edo.Data.Migrations
             // Update BookingManager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Booking manager", "Permissions",
                 (int) (AdministratorPermissions.BookingManagement
-                | AdministratorPermissions.BookingReportGeneration));
+                | AdministratorPermissions.BookingReportGeneration
+                | AdministratorPermissions.ViewBookings));
             
             // Update Accommodation Mapping Manager
             migrationBuilder.UpdateData("AdministratorRoles", "Name", "Accommodation Mapping Manager", "Permissions",
@@ -80,6 +81,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         | AdministratorPermissions.AdministratorManagement
                         | AdministratorPermissions.ViewAgencies
                         | AdministratorPermissions.ViewAgents
+                        | AdministratorPermissions.ViewBookings
                         | AdministratorPermissions.PaymentLinkGeneration
                         | AdministratorPermissions.AccountReplenish
                         | AdministratorPermissions.OfflinePayment
@@ -95,8 +97,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     { "Reports manager", 
                         (int) (AdministratorPermissions.BookingReportGeneration
                         | AdministratorPermissions.FinanceReportGeneration
-                        | AdministratorPermissions.MarketingReportGeneration
-                        | AdministratorPermissions.PaymentLinkReportGeneration) 
+                        | AdministratorPermissions.MarketingReportGeneration) 
                     }
                 });
             

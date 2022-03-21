@@ -29,8 +29,6 @@ namespace HappyTravel.Edo.Common.Enums.Administrators
         AdministratorRoleManagement = 4194304,
         AdministratorNotificationManagement = 8388608,
         SupplierManagement = 16777216,
-        BookingView = 33554432,
-        ManageBookingByReferenceCode = 67108864,
-        PaymentLinkReportGeneration = 134217728
+        ViewBookings = 33554432
     }
 }
