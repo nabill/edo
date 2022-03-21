@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         }
 
 
-        public async Task<Result> GenerateInvoice(Data.Bookings.Booking booking)
+        public async Task<Result> GenerateInvoice(Booking booking)
         {
             var (_, isRootFailure, rootAgency, rootError) = await _adminAgencyManagementService.GetRoot(booking.AgencyId);
             if (isRootFailure)
