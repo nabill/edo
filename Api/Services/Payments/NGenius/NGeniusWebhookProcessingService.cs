@@ -43,7 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EventTypes.FullAuthReversalFailed => PaymentStatuses.Failed,
                 EventTypes.RefundFailed => PaymentStatuses.Failed,
                 EventTypes.PartialRefundFailed => PaymentStatuses.Failed,
-                EventTypes.ThreeDsNotAuthenticated => PaymentStatuses.Failed
+                EventTypes.ThreeDsNotAuthenticated => PaymentStatuses.Failed,
+                _ => throw new System.NotImplementedException("")
             };
 
             using var disposable = _logger.BeginScope(new Dictionary<string, object>

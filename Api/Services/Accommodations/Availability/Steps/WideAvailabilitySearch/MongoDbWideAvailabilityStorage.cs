@@ -93,7 +93,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 query = filters.Direction switch
                 {
                     "asc" => query.OrderBy(x => x.MinPrice),
-                    "desc" => query.OrderByDescending(x => x.MinPrice)
+                    "desc" => query.OrderByDescending(x => x.MinPrice),
+                    _ => query
                 };
             }
             else

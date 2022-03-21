@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 queryable = options.Direction switch
                 {
                     "asc" => queryable.OrderBy(x => x.MinPrice),
-                    "desc" => queryable.OrderByDescending(x => x.MinPrice)
+                    "desc" => queryable.OrderByDescending(x => x.MinPrice),
+                    _ => queryable
                 };
             }
 

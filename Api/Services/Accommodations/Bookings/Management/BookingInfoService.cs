@@ -274,14 +274,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 };
 
 
-            Task<AccommodationBookingInfo.BookingAgentInformation> GetAgentInformation(int agentId, int agencyId)
+            Task<BookingAgentInformation> GetAgentInformation(int agentId, int agencyId)
             {
                 var agencyInfoQuery = from agent in _context.Agents
                     join relation in _context.AgentAgencyRelations on agent.Id equals relation.AgentId
                     join agency in _context.Agencies on relation.AgencyId equals agency.Id
                     where agent.Id == booking.AgentId && agency.Id == booking.AgencyId
                     let agentName = $"{agent.FirstName} {agent.LastName}"
-                    select new AccommodationBookingInfo.BookingAgentInformation(agentName,
+                    select new BookingAgentInformation(agentName,
                         agency.Name, agent.Email);
 
                 return agencyInfoQuery.SingleOrDefaultAsync();
