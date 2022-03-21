@@ -11,6 +11,14 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Delete all mentions of Booking Auditor Role in admins from dev environment
+            migrationBuilder.Sql("update \"Administrators\" " +
+                "set \"AdministratorRoleIds\" = array_remove(\"AdministratorRoleIds\", 14)");
+            
+            // Delete all mentions of Booking Auditor Role in admins from prod environment
+            migrationBuilder.Sql("update \"Administrators\" " +
+                "set \"AdministratorRoleIds\" = array_remove(\"AdministratorRoleIds\", 7)");
+            
             // Delete BookingAuditor role
             migrationBuilder.DeleteData("AdministratorRoles", "Name", "Booking auditor");
             
