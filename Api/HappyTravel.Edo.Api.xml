@@ -317,6 +317,7 @@
             Sets thresholds for balance notifications
             </summary>
             <param name="agencyAccountId">Id of the agency account</param>
+            <param name="info">Balance notification setting info</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgencyMarkupController.SetPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.Agency.SetAgencyMarkupRequest)">
             <summary>
@@ -888,6 +889,7 @@
             Creates markup policy.
             </summary>
             <param name="agentId">Agent id</param>
+            <param name="request">Set agent markup request</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.RemovePolicy(System.Int32)">
@@ -1507,7 +1509,7 @@
                 Executes payment for link via Ngenius.
             </summary>
             <param name="code">Payment link code.</param>
-            <param name="token">Payment token.</param>
+            <param name="request">NGenius pay by link request.</param>
             <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.RefreshStatusInNGenius(System.String)">

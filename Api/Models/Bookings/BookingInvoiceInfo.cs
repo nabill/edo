@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
 
@@ -23,13 +24,13 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         }
 
 
-        public BookingInvoiceData.BuyerInfo BuyerDetails { get; }
+        public BuyerInfo BuyerDetails { get; }
         public DateTime PayDueDate { get; }
         public string ReferenceCode { get; }
         public string SupplierReferenceCode { get; }
-        public List<BookingInvoiceData.InvoiceItemInfo> InvoiceItems { get; }
+        public List<InvoiceItemInfo> InvoiceItems { get; }
         public MoneyAmount TotalPrice { get; }
-        public BookingInvoiceData.SellerInfo SellerDetails { get; }
+        public SellerInfo SellerDetails { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public DateTime? DeadlineDate { get; }

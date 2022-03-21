@@ -1,19 +1,19 @@
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public class InvoiceData : DataWithCompanyInfo
     {
         public string Number { get; set; }
-        public BookingInvoiceData.BuyerInfo BuyerDetails { get; set; }
+        public BuyerInfo BuyerDetails { get; set; }
         public string InvoiceDate { get; set; }
         public List<InvoiceItem> InvoiceItems { get; set; }
         public string TotalPrice { get; set; }
         public string CurrencyCode { get; set; }
         public string ReferenceCode { get; set; }
         public string SupplierReferenceCode { get; set; }
-        public BookingInvoiceData.SellerInfo SellerDetails { get; set; }
+        public SellerInfo SellerDetails { get; set; }
         public string PayDueDate { get; set; }
 
         public string CheckInDate { get; set; }
