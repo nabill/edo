@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
+using BookingStatusHistoryEntry = HappyTravel.Edo.Api.Models.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
 
-        Task<List<BookingStatusHistory>> GetBookingStatusHistory(int bookingId);
+        Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId);
 
         Task<Result<List<BookingConfirmationHistoryEntry>>> GetBookingConfirmationHistory(string referenceCode);
     }

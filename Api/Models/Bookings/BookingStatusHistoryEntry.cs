@@ -3,9 +3,9 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Bookings;
 
-public readonly struct BookingStatusHistory
+public readonly struct BookingStatusHistoryEntry
 {
-    public BookingStatusHistory(int id, int bookingId, string userId, ApiCallerTypes apiCallerType, int? agencyId, DateTimeOffset createdAt, 
+    public BookingStatusHistoryEntry(int id, int bookingId, string userId, ApiCallerTypes apiCallerType, int? agencyId, DateTimeOffset createdAt, 
         BookingStatuses status, BookingChangeInitiators initiator, BookingChangeSources source, BookingChangeEvents @event, string reason, 
         string? agentName)
     {

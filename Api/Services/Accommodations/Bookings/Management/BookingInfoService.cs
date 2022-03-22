@@ -19,6 +19,7 @@ using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
+using BookingStatusHistoryEntry = HappyTravel.Edo.Api.Models.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -163,13 +164,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
         
-        public Task<List<BookingStatusHistory>> GetBookingStatusHistory(int bookingId)
+        public Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId)
         {
             var query = from entry in _context.BookingStatusHistory
                 where entry.BookingId == bookingId
                 orderby entry.Id
                 let agent = _context.Agents.SingleOrDefault(a => a.Id.ToString() == entry.UserId && entry.Initiator == BookingChangeInitiators.Agent)
-                select new BookingStatusHistory(entry.Id,
+                select new BookingStatusHistoryEntry(entry.Id,
                     entry.BookingId,
                     entry.UserId,
                     entry.ApiCallerType,

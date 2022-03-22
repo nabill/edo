@@ -21,6 +21,7 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using BookingStatusHistoryEntry = HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
