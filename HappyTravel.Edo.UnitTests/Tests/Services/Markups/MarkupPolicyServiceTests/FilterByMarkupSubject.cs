@@ -10,88 +10,88 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 {
     public class FilterByMarkupSubject
     {
-        [Fact]
-        public void Markups_for_specific_agent_country_should_be_returned()
-        {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1, 
-                AgentId = 1, 
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
+        // [Fact]
+        // public void Markups_for_specific_agent_country_should_be_returned()
+        // {
+        //     var markupSubject = new MarkupSubjectInfo
+        //     {
+        //         AgencyAncestors = new List<int>(),
+        //         AgencyId = 1,
+        //         AgentId = 1,
+        //         CountryHtId = "Russia",
+        //         LocalityHtId = "Moscow"
+        //     };
 
-            var markupDestination = GetDummyMarkupDestination();
+        //     var markupDestination = GetDummyMarkupDestination();
 
-            var markupPolicies = new List<MarkupPolicy>
-            {
-                new()
-                {
-                    Id = 1,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
-                    SubjectScopeId = "Russia",
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                },
-                new()
-                {
-                    Id = 2,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
-                    SubjectScopeId = "Ukraine",
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                }
-            };
-            
-            var service = MarkupPolicyServiceMock.Create(markupPolicies);
-            
-            var policies = service.Get(markupSubject, markupDestination);
-            
-            Assert.Single(policies);
-            Assert.Equal(1, policies[0].Id);
-        }
+        //     var markupPolicies = new List<MarkupPolicy>
+        //     {
+        //         new()
+        //         {
+        //             Id = 1,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Country,
+        //             SubjectScopeId = "Russia",
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         },
+        //         new()
+        //         {
+        //             Id = 2,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Country,
+        //             SubjectScopeId = "Ukraine",
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         }
+        //     };
+
+        //     var service = MarkupPolicyServiceMock.Create(markupPolicies);
+
+        //     var policies = service.Get(markupSubject, markupDestination);
+
+        //     Assert.Single(policies);
+        //     Assert.Equal(1, policies[0].Id);
+        // }
 
 
-        [Fact]
-        public void Markups_for_specific_agent_locality_should_be_returned()
-        {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1,
-                AgentId = 1,
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
+        // [Fact]
+        // public void Markups_for_specific_agent_locality_should_be_returned()
+        // {
+        //     var markupSubject = new MarkupSubjectInfo
+        //     {
+        //         AgencyAncestors = new List<int>(),
+        //         AgencyId = 1,
+        //         AgentId = 1,
+        //         CountryHtId = "Russia",
+        //         LocalityHtId = "Moscow"
+        //     };
 
-            var markupDestination = GetDummyMarkupDestination();
+        //     var markupDestination = GetDummyMarkupDestination();
 
-            var markupPolicies = new List<MarkupPolicy>
-            {
-                new()
-                {
-                    Id = 1,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
-                    SubjectScopeId = "Moscow",
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                },
-                new()
-                {
-                    Id = 2,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Locality,
-                    SubjectScopeId = "Ufa",
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                }
-            };
+        //     var markupPolicies = new List<MarkupPolicy>
+        //     {
+        //         new()
+        //         {
+        //             Id = 1,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+        //             SubjectScopeId = "Moscow",
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         },
+        //         new()
+        //         {
+        //             Id = 2,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Locality,
+        //             SubjectScopeId = "Ufa",
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         }
+        //     };
 
-            var service = MarkupPolicyServiceMock.Create(markupPolicies);
+        //     var service = MarkupPolicyServiceMock.Create(markupPolicies);
 
-            var policies = service.Get(markupSubject, markupDestination);
+        //     var policies = service.Get(markupSubject, markupDestination);
 
-            Assert.Single(policies);
-            Assert.Equal(1, policies[0].Id);
-        }
+        //     Assert.Single(policies);
+        //     Assert.Equal(1, policies[0].Id);
+        // }
 
-        
+
         [Fact]
         public void Markups_for_specific_agency_should_be_returned()
         {
@@ -132,61 +132,61 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             Assert.Equal(1, policies[0].Id);
         }
 
-        
-        [Fact]
-        public void Markups_for_specific_agent_should_be_returned()
-        {
-            var markupSubject = new MarkupSubjectInfo
-            {
-                AgencyAncestors = new List<int>(),
-                AgencyId = 1,
-                AgentId = 1,
-                CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
-            };
 
-            var markupDestination = GetDummyMarkupDestination();
+        // [Fact]
+        // public void Markups_for_specific_agent_should_be_returned()
+        // {
+        //     var markupSubject = new MarkupSubjectInfo
+        //     {
+        //         AgencyAncestors = new List<int>(),
+        //         AgencyId = 1,
+        //         AgentId = 1,
+        //         CountryHtId = "Russia",
+        //         LocalityHtId = "Moscow"
+        //     };
 
-            var markupPolicies = new List<MarkupPolicy>
-            {
-                new()
-                {
-                    Id = 1,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                },
-                new()
-                {
-                    Id = 2,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                    SubjectScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global,
-                },
-                new()
-                {
-                    Id = 3,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                    SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 2).ToString(),
-                    DestinationScopeType = DestinationMarkupScopeTypes.Global
-                }
-            };
+        //     var markupDestination = GetDummyMarkupDestination();
 
-            var service = MarkupPolicyServiceMock.Create(markupPolicies);
+        //     var markupPolicies = new List<MarkupPolicy>
+        //     {
+        //         new()
+        //         {
+        //             Id = 1,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+        //             SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 1).ToString(),
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         },
+        //         new()
+        //         {
+        //             Id = 2,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+        //             SubjectScopeId = AgentInAgencyId.Create(agentId: 2, agencyId: 1).ToString(),
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global,
+        //         },
+        //         new()
+        //         {
+        //             Id = 3,
+        //             SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+        //             SubjectScopeId = AgentInAgencyId.Create(agentId: 1, agencyId: 2).ToString(),
+        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
+        //         }
+        //     };
 
-            var policies = service.Get(markupSubject, markupDestination);
+        //     var service = MarkupPolicyServiceMock.Create(markupPolicies);
 
-            Assert.Single(policies);
-            Assert.Equal(1, policies[0].Id);
-        }
-        
-        
+        //     var policies = service.Get(markupSubject, markupDestination);
+
+        //     Assert.Single(policies);
+        //     Assert.Equal(1, policies[0].Id);
+        // }
+
+
         [Fact]
         public void Markups_by_ancestors_should_be_returned()
         {
             var markupSubject = new MarkupSubjectInfo
             {
-                AgencyAncestors = new List<int>{2, 3},
+                AgencyAncestors = new List<int> { 2, 3 },
                 AgencyId = 1,
                 AgentId = 1,
                 CountryHtId = "Russia",
@@ -238,7 +238,49 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
         }
 
 
-        private MarkupDestinationInfo GetDummyMarkupDestination() 
+        [Fact]
+        public void Markups_for_specific_region_should_be_returned()
+        {
+            var markupSubject = new MarkupSubjectInfo
+            {
+                AgencyAncestors = new List<int>(),
+                AgencyId = 1,
+                AgentId = 1,
+                CountryHtId = "Russia",
+                LocalityHtId = "Moscow",
+                RegionId = 8
+            };
+
+            var markupDestination = GetDummyMarkupDestination();
+
+            var markupPolicies = new List<MarkupPolicy>
+            {
+                new()
+                {
+                    Id = 1,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Region,
+                    SubjectScopeId = "8",
+                    DestinationScopeType = DestinationMarkupScopeTypes.Global
+                },
+                new()
+                {
+                    Id = 2,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Region,
+                    SubjectScopeId = "1",
+                    DestinationScopeType = DestinationMarkupScopeTypes.Global
+                }
+            };
+
+            var service = MarkupPolicyServiceMock.Create(markupPolicies);
+
+            var policies = service.Get(markupSubject, markupDestination);
+
+            Assert.Single(policies);
+            Assert.Equal(1, policies[0].Id);
+        }
+
+
+        private MarkupDestinationInfo GetDummyMarkupDestination()
             => new()
             {
                 AccommodationHtId = "President Hotel",

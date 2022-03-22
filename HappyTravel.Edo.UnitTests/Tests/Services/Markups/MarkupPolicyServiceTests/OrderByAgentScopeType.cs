@@ -16,16 +16,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             var markupSubject = new MarkupSubjectInfo
             {
                 AgencyAncestors = new List<int>(),
-                AgencyId = 1, 
-                AgentId = 1, 
+                AgencyId = 1,
+                AgentId = 1,
                 CountryHtId = "Russia",
-                LocalityHtId = "Moscow"
+                LocalityHtId = "Moscow",
+                RegionId = 8
             };
 
             var markupDestination = new MarkupDestinationInfo
             {
-                AccommodationHtId = "President Hotel", 
-                CountryHtId = "UAE", 
+                AccommodationHtId = "President Hotel",
+                CountryHtId = "UAE",
                 LocalityHtId = "Dubai"
             };
 
@@ -42,6 +43,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 7,
                     SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Global
+                },
+                new()
+                {
+                    Id = 3,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Region,
+                    SubjectScopeId = "8",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
@@ -68,14 +76,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             };
 
             var service = MarkupPolicyServiceMock.Create(markupPolicies);
-            
+
             var policies = service.Get(markupSubject, markupDestination);
-            
+
             Assert.Equal(SubjectMarkupScopeTypes.Global, policies[0].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Country, policies[1].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Locality, policies[2].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Agency, policies[3].SubjectScopeType);
-            Assert.Equal(SubjectMarkupScopeTypes.Agent, policies[4].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Region, policies[1].SubjectScopeType);
+            // Assert.Equal(SubjectMarkupScopeTypes.Country, policies[1].SubjectScopeType);
+            // Assert.Equal(SubjectMarkupScopeTypes.Locality, policies[2].SubjectScopeType);
+            Assert.Equal(SubjectMarkupScopeTypes.Agency, policies[2].SubjectScopeType);
+            // Assert.Equal(SubjectMarkupScopeTypes.Agent, policies[4].SubjectScopeType);
         }
     }
 }
