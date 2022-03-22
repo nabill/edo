@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
 
             var searchIndexDefinition = Builders<AccommodationAvailabilityResult>.IndexKeys.Combine(
                 Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
-                Builders<AccommodationAvailabilityResult>.IndexKeys.Text(f => f.SupplierCode));
+                Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
 
             var ttlIndexDefinition = Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
             var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};

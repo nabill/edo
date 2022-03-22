@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
             var emptyOptions = Options.Create(new PaymentLinkOptions());
             var companyServiceMock = new Mock<ICompanyService>();
-            companyServiceMock.Setup(c => c.Get())
+            companyServiceMock.Setup(c => c.GetCompanyInfo())
                 .Returns(Task.FromResult(Result.Success(new CompanyInfo())));
 
             var dateTimeProvider = new DefaultDateTimeProvider();

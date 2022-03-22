@@ -31,6 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// Creates markup policy.
         /// </summary>
         /// <param name="agentId">Agent id</param>
+        /// <param name="request">Set agent markup request</param>
         /// <returns></returns>
         [HttpPut]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

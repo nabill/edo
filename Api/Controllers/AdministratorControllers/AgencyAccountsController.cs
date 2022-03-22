@@ -198,11 +198,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// Sets thresholds for balance notifications
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
+        /// <param name="info">Balance notification setting info</param>
         [HttpPut("agency-accounts/{agencyAccountId}/balance-notification-settings")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.FinanceReportGeneration)]
-        public async Task<IActionResult> SetBalanceNotificationSettings(int agencyAccountId, [FromBody] BalanceNotificationSettingInfo info)
+        public async Task<IActionResult> SetBalanceNotificationSettings([FromRoute] int agencyAccountId, [FromBody] BalanceNotificationSettingInfo info)
         {
             var (isSuccess, _, error) = await _balanceNotificationsManagementService.Set(agencyAccountId, info.Thresholds);
             

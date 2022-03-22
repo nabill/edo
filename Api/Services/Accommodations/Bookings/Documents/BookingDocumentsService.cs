@@ -23,7 +23,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 using HappyTravel.Edo.Api.Services.Company;
-using HappyTravel.Edo.Data.Company;
+using HappyTravel.Edo.Api.Models.Company;
+using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -83,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
                 bannerUrl: bannerMaybe.HasValue ? bannerMaybe.Value.Url : null,
                 logoUrl: logoMaybe.HasValue ? logoMaybe.Value.Url : null,
-                roomDetails: booking.Rooms.Select(r => new BookingVoucherData.RoomInfo(r.ContractDescription,
+                roomDetails: booking.Rooms.Select(r => new RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
                     r.DeadlineDate?.DateTime,
@@ -96,15 +98,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             );
         }
 
-        private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in Accommodation details)
+        private static Models.Bookings.Vouchers.AccommodationInfo GetAccommodationInfo(in Accommodation details)
         {
             var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.CountryCode, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
-            return new BookingVoucherData.AccommodationInfo(details.Name, in location,
+            return new Models.Bookings.Vouchers.AccommodationInfo(details.Name, in location,
                 details.Contacts, details.Schedule.CheckInTime, details.Schedule.CheckOutTime);
         }
 
 
-        public async Task<Result> GenerateInvoice(Data.Bookings.Booking booking)
+        public async Task<Result> GenerateInvoice(Booking booking)
         {
             var (_, isRootFailure, rootAgency, rootError) = await _adminAgencyManagementService.GetRoot(booking.AgencyId);
             if (isRootFailure)
@@ -137,11 +139,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             return Result.Success();
 
 
-            static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
+            static List<InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
                 return bookingRooms
                     .Select((room, counter) =>
-                        new BookingInvoiceData.InvoiceItemInfo(counter + 1,
+                        new InvoiceItemInfo(counter + 1,
                             accommodationName,
                             room.ContractDescription,
                             room.Price,
@@ -155,28 +157,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             }
 
 
-            static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, CompanyAccount companyAccount, BankDetails bankDetails)
+            static SellerInfo GetSellerDetails(Booking booking, CompanyAccount companyAccount, BankDetails bankDetails)
             {
-                var companyBank = companyAccount.CompanyBank;
+                var intermediaryBank = companyAccount.IntermediaryBank;
 
-                var sellerDetails = new BookingInvoiceData.SellerInfo(companyName: bankDetails.CompanyName,
-                    bankName: companyBank.Name,
-                    bankAddress: companyBank.Address,
+                var sellerDetails = new SellerInfo(companyName: bankDetails.CompanyName,
+                    bankName: companyAccount.BankName,
+                    bankAddress: companyAccount.BankAddress,
                     accountNumber: companyAccount.AccountNumber,
                     iban: companyAccount.Iban,
-                    routingCode: companyBank.RoutingCode,
-                    swiftCode: companyBank.SwiftCode,
-                    intermediaryBankDetails: companyAccount.IntermediaryBankName is null
+                    routingCode: companyAccount.RoutingCode,
+                    swiftCode: companyAccount.SwiftCode,
+                    intermediaryBankDetails: intermediaryBank is null
                         ? null
-                        : new IntermediaryBankDetails(bankName: companyAccount.IntermediaryBankName,
-                            swiftCode: companyAccount.IntermediaryBankSwiftCode,
-                            accountNumber: companyAccount.IntermediaryBankAccountNumber,
-                            abaNo: companyAccount.IntermediaryBankAbaNo));
+                        : new IntermediaryBankDetails(bankName: intermediaryBank.BankName,
+                            swiftCode: intermediaryBank.SwiftCode,
+                            accountNumber: intermediaryBank.AccountNumber,
+                            abaNo: intermediaryBank.AbaNo));
 
                 return sellerDetails;
             }
 
-            static BookingInvoiceData.BuyerInfo GetBuyerInfo(AgencyInfo agency) => new BookingInvoiceData.BuyerInfo(agency.Name,
+            static BuyerInfo GetBuyerInfo(AgencyInfo agency) => new BuyerInfo(agency.Name,
                 agency.Address,
                 agency.Phone,
                 agency.BillingEmail);
