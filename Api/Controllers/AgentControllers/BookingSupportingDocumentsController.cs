@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Documents;
 using Microsoft.AspNetCore.Mvc;
+using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {

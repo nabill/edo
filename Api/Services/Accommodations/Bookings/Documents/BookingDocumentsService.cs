@@ -22,6 +22,10 @@ using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
+using HappyTravel.Edo.Api.Services.Company;
+using HappyTravel.Edo.Api.Models.Company;
+using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -33,7 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             IInvoiceService invoiceService,
             IReceiptService receiptService,
             IImageFileService imageFileService,
-            IAdminAgencyManagementService adminAgencyManagementService)
+            IAdminAgencyManagementService adminAgencyManagementService,
+            ICompanyService companyService)
         {
             _context = context;
             _bankDetails = bankDetails.Value;
@@ -42,6 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             _receiptService = receiptService;
             _imageFileService = imageFileService;
             _adminAgencyManagementService = adminAgencyManagementService;
+            _companyService = companyService;
         }
 
 
@@ -79,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
                 bannerUrl: bannerMaybe.HasValue ? bannerMaybe.Value.Url : null,
                 logoUrl: logoMaybe.HasValue ? logoMaybe.Value.Url : null,
-                roomDetails: booking.Rooms.Select(r => new BookingVoucherData.RoomInfo(r.ContractDescription,
+                roomDetails: booking.Rooms.Select(r => new RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
                     r.DeadlineDate?.DateTime,
@@ -92,23 +98,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             );
         }
 
-        private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in Accommodation details)
+        private static Models.Bookings.Vouchers.AccommodationInfo GetAccommodationInfo(in Accommodation details)
         {
             var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.CountryCode, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
-            return new BookingVoucherData.AccommodationInfo(details.Name, in location,
+            return new Models.Bookings.Vouchers.AccommodationInfo(details.Name, in location,
                 details.Contacts, details.Schedule.CheckInTime, details.Schedule.CheckOutTime);
         }
 
 
-        public async Task<Result> GenerateInvoice(Data.Bookings.Booking booking)
+        public async Task<Result> GenerateInvoice(Booking booking)
         {
             var (_, isRootFailure, rootAgency, rootError) = await _adminAgencyManagementService.GetRoot(booking.AgencyId);
             if (isRootFailure)
                 return Result.Failure(rootError);
 
+            var (_, isAccountFailure, companyAccount, accountError) = await _companyService.GetDefaultBankAccount(booking.Currency);
+            if (isAccountFailure)
+            {
+                if (booking.Currency != Currencies.USD)
+                    (_, isAccountFailure, companyAccount, accountError) = await _companyService.GetDefaultBankAccount(Currencies.USD);
+
+                if (isAccountFailure)
+                    return Result.Failure(accountError);
+            }    
+
             var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(rootAgency),
-                GetSellerDetails(booking, _bankDetails),
+                GetSellerDetails(booking, companyAccount, _bankDetails),
                 booking.ReferenceCode,
                 booking.SupplierReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
@@ -123,11 +139,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             return Result.Success();
 
 
-            static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
+            static List<InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
                 return bookingRooms
                     .Select((room, counter) =>
-                        new BookingInvoiceData.InvoiceItemInfo(counter + 1,
+                        new InvoiceItemInfo(counter + 1,
                             accommodationName,
                             room.ContractDescription,
                             room.Price,
@@ -141,32 +157,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             }
 
 
-            static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, BankDetails bankDetails)
+            static SellerInfo GetSellerDetails(Booking booking, CompanyAccount companyAccount, BankDetails bankDetails)
             {
-                if (!bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
-                    accountData = bankDetails.AccountDetails[Currencies.USD];
+                var intermediaryBank = companyAccount.IntermediaryBank;
 
-                if (!bankDetails.IntermediaryBankDetails.TryGetValue(booking.Currency, out var intermediaryBankData))
-                    intermediaryBankData = null;
-
-                var sellerDetails = new BookingInvoiceData.SellerInfo(companyName: bankDetails.CompanyName,
-                    bankName: bankDetails.BankName,
-                    bankAddress: bankDetails.BankAddress,
-                    accountNumber: accountData.AccountNumber,
-                    iban: accountData.Iban,
-                    routingCode: bankDetails.RoutingCode,
-                    swiftCode: bankDetails.SwiftCode,
-                    intermediaryBankDetails: intermediaryBankData is null
+                var sellerDetails = new SellerInfo(companyName: bankDetails.CompanyName,
+                    bankName: companyAccount.BankName,
+                    bankAddress: companyAccount.BankAddress,
+                    accountNumber: companyAccount.AccountNumber,
+                    iban: companyAccount.Iban,
+                    routingCode: companyAccount.RoutingCode,
+                    swiftCode: companyAccount.SwiftCode,
+                    intermediaryBankDetails: intermediaryBank is null
                         ? null
-                        : new IntermediaryBankDetails(bankName: intermediaryBankData.BankName,
-                            swiftCode: intermediaryBankData.SwiftCode,
-                            accountNumber: intermediaryBankData.AccountNumber,
-                            abaNo: intermediaryBankData.AbaNo));
+                        : new IntermediaryBankDetails(bankName: intermediaryBank.BankName,
+                            swiftCode: intermediaryBank.SwiftCode,
+                            accountNumber: intermediaryBank.AccountNumber,
+                            abaNo: intermediaryBank.AbaNo));
 
                 return sellerDetails;
             }
 
-            static BookingInvoiceData.BuyerInfo GetBuyerInfo(AgencyInfo agency) => new BookingInvoiceData.BuyerInfo(agency.Name,
+            static BuyerInfo GetBuyerInfo(AgencyInfo agency) => new BuyerInfo(agency.Name,
                 agency.Address,
                 agency.Phone,
                 agency.BillingEmail);
@@ -236,5 +248,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         private readonly IReceiptService _receiptService;
         private readonly IImageFileService _imageFileService;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
+        private readonly ICompanyService _companyService;
     }
 }

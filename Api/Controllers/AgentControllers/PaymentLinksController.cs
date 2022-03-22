@@ -26,13 +26,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
             IPaymentLinksProcessingService paymentLinksProcessingService,
-            ICreditCardsManagementService cardsManagementService,
-            INGeniusPaymentService nGeniusPaymentService)
+            ICreditCardsManagementService cardsManagementService)
         {
             _paymentLinkService = paymentLinkService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
             _cardsManagementService = cardsManagementService;
-            _nGeniusPaymentService = nGeniusPaymentService;
         }
 
 
@@ -168,13 +166,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
-        
+
+
         /// <summary>
         ///     Executes payment for link via Ngenius.
         /// </summary>
         /// <param name="code">Payment link code.</param>
-        /// <param name="token">Payment token.</param>
+        /// <param name="request">NGenius pay by link request.</param>
         /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         [HttpPost("{code}/ngenius/pay")]
         [AllowAnonymous]
@@ -239,6 +237,5 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly ICreditCardsManagementService _cardsManagementService;
         private readonly IPaymentLinkService _paymentLinkService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
-        private readonly INGeniusPaymentService _nGeniusPaymentService;
     }
 }

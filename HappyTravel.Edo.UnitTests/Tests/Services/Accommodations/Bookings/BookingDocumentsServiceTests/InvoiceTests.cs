@@ -5,8 +5,10 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
@@ -50,11 +52,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     (
                         new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
                         new BookingInvoiceData(
-                            new BookingInvoiceData.BuyerInfo(),
-                            new BookingInvoiceData.SellerInfo(),
+                            new BuyerInfo(),
+                            new SellerInfo(),
                             It.IsAny<string>(),
                             It.IsAny<string>(),
-                            new List<BookingInvoiceData.InvoiceItemInfo>(),
+                            new List<InvoiceItemInfo>(),
                             new MoneyAmount(),
                             It.IsAny<DateTime>(),
                             It.IsAny<DateTime>(),
@@ -75,7 +77,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 invoiceServiceMock.Object,
                 Mock.Of<IReceiptService>(),
                 Mock.Of<IImageFileService>(),
-                Mock.Of<IAdminAgencyManagementService>());
+                Mock.Of<IAdminAgencyManagementService>(),
+                Mock.Of<ICompanyService>());
         }
     }
 }

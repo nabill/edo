@@ -99,7 +99,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             var result = await _connectorClient.Book(request, GetCallOptions());
             
             return result.Result.IsFailure
-                ? Result.Failure<Booking, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
+                ? Result.Failure<Booking, ProblemDetails>(result.Result.Error)
                 : result.Result.Value;
         });
     }

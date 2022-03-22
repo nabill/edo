@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var result = await _companyService.Get();
+            var result = await _companyService.GetCompanyInfo();
 
             return OkOrBadRequest(result);
         }
