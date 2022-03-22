@@ -90,21 +90,21 @@ namespace HappyTravel.Edo.Data.Migrations
                     "SO", "ZA", "SS", "SD", "SZ", "TZ", "TG", "TN", "TN",
                     "EH", "ZM", "ZW"
                 }),
-            (new InternalRegion("Far east"), new []
+            (new InternalRegion("Far East"), new []
                 {
                     "IO", "BN", "KH", "CN", "TF", "HK", "ID", "JP", "LA",
                     "MO", "MY", "MN", "MM", "KR", "PH", "PW", "SG", "KP",
                     "TW", "TH", "TL", "VN"
                 }),
-            (new InternalRegion("Gcc"), new []
+            (new InternalRegion("GCC"), new []
                 {
                     "BH", "KW", "OM", "QA", "SA", "AE"
                 }),
-            (new InternalRegion("Middle east"), new []
+            (new InternalRegion("Middle East"), new []
                 {
                     "EG", "IR", "IQ", "IL", "JO", "LB", "PS", "SY", "YE"
                 }),
-            (new InternalRegion("Sub continent"), new []
+            (new InternalRegion("Subcontinent"), new []
                 {
                     "AF", "BD", "BT", "IN", "MV", "NP", "PK", "LK"
                 }),
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     "SM", "RS", "SK", "SI", "ES", "SJ", "SE", "CH", "TR",
                     "GB", "VA"
                 }),
-            (new InternalRegion("Cis"), new []
+            (new InternalRegion("CIS"), new []
                 {
                     "AM", "AZ", "BY", "EE", "GE", "KZ", "KG", "LV", "LT",
                     "MD", "RU", "TJ", "TM", "UA", "UZ"
@@ -128,11 +128,11 @@ namespace HappyTravel.Edo.Data.Migrations
                     "KI", "MH", "FM", "NR", "NC", "NZ", "NU", "NF", "MP",
                     "PG", "PN", "WS", "SB", "TK", "TO", "TV", "VU", "WF"
                 }),
-            (new InternalRegion("North america"), new []
+            (new InternalRegion("North America"), new []
                 {
                     "AQ", "BM", "CA", "GL", "PM", "US", "UM"
                 }),
-            (new InternalRegion("Latin america"), new []
+            (new InternalRegion("Latin America"), new []
                 {
                     "AI", "AG", "AR", "AW", "BS", "BB", "BZ", "BO", "BQ",
                     "BR", "KY", "CL", "CO", "CR", "CU", "CW", "DM", "DO",
