@@ -8,8 +8,9 @@ namespace HappyTravel.Edo.Common.Enums.Markup
     {
         NotSpecified = 0,
         Global = 1,
-        Country = 2,
-        Locality = 3,
+        Region = 2,
+        Country = 3,
+        Locality = 4,
         Agency = 5,
         Agent = 6
     }

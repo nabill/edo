@@ -25,28 +25,28 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public RefundMoneyTests()
         {
             var entityLockerMock = new Mock<IEntityLocker>();
-    
+
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
-    
+
             var edoContextMock = MockEdoContextFactory.Create();
             var edoContextMock1 = edoContextMock;
             var mockedEdoContext = edoContextMock.Object;
-    
+
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
                 mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
-    
+
             var dateTimeProviderMock = new Mock<IDateTimeProvider>();
             dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(CancellationDate);
-    
+
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, mockedEdoContext,
                 dateTimeProviderMock.Object, Mock.Of<IBalanceManagementNotificationsService>());
-    
+
             var strategy = new ExecutionStrategyMock();
-    
+
             var dbFacade = new Mock<DatabaseFacade>(mockedEdoContext);
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-    
+
             edoContextMock1
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
@@ -58,15 +58,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         ParentId = null,
                     },
                 }));
-    
+
             edoContextMock1
                 .Setup(c => c.AgencyAccounts)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
                     _account,
                 }));
-    
-   
+
+
             edoContextMock1
                 .Setup(c => c.Payments)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Payment>
@@ -74,43 +74,43 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                     _payment,
                 }));
         }
-    
-    
+
+
         [Fact]
         public async Task Successful_refund_should_rise_balance()
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
-            
-            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(),  CancellationDate, paymentService, "reason");
-    
+
+            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
+
             Assert.True(isSuccess);
             Assert.Equal(1100m, _account.Balance);
         }
-        
-        
+
+
         [Fact]
         public async Task Successful_refund_should_change_payment_status()
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
-            
+
             var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
-        
+
             Assert.True(isSuccess);
             Assert.Equal(PaymentStatuses.Refunded, _payment.Status);
         }
-        
-        
+
+
         [Fact]
         public async Task Refund_booking_with_not_existing_agency_account_should_fail()
         {
             var paymentService = CreatePaymentServiceWithInvalidAccount();
-            
-            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(),  CancellationDate, paymentService, "reason");
-        
+
+            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
+
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
-            
-            
+
+
             IPaymentCallbackService CreatePaymentServiceWithInvalidAccount()
             {
                 var paymentServiceMock = new Mock<IPaymentCallbackService>();
@@ -128,21 +128,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 return paymentServiceMock.Object;
             }
         }
-        
-        
+
+
         [Fact]
         public async Task Refund_booking_without_payment_should_fail()
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
-            
+
             var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
-        
+
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
         }
-        
-        
-        
+
+
+
         private IPaymentCallbackService CreatePaymentServiceWithRefundableAmount(MoneyAmount moneyAmount)
         {
             var paymentServiceMock = new Mock<IPaymentCallbackService>();
@@ -159,14 +159,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             return paymentServiceMock.Object;
         }
-    
-    
+
+
         public void Dispose()
         {
-    
+
         }
-    
-    
+
+
         private readonly AgencyAccount _account = new()
         {
             Id = 1,
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             AgencyId = 1,
             IsActive = true
         };
-    
+
         private readonly Payment _payment = new()
         {
             Id = 1,
@@ -187,6 +187,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private static readonly DateTimeOffset CancellationDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
     }
 }
