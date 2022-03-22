@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
             in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, string mainPassengerName, string referenceCode,
-            string supplierReferenceCode, string propertyOwnerConfirmationCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails, 
+            string supplierReferenceCode, string propertyOwnerConfirmationCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails,
             List<KeyValuePair<string, string>> specialValues)
         {
             AgentName = agentName;
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public int BookingId { get; }
         public string AgentName { get; }
-        public AccommodationInfo Accommodation {get;}
+        public AccommodationInfo Accommodation { get; }
         public int NightCount { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public SlimLocationInfo Location { get; }
             public string Name { get; }
         }
-        
+
         public readonly struct RoomInfo
         {
             public RoomInfo(string type, BoardBasisTypes boardBasis, string mealPlan,
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 Remarks = remarks;
                 SupplierRoomReferenceCode = supplierRoomReferenceCode;
             }
-            
+
             public string Type { get; }
             public BoardBasisTypes BoardBasis { get; }
             public string MealPlan { get; }

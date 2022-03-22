@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = BookingStatuses.Cancelled,
                 PaymentStatus = It.IsAny<BookingPaymentStatuses>()
             };
-            
+
             var bookingDocumentsService = CreateBookingDocumentsService();
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(booking, default);
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = BookingStatuses.Confirmed,
                 PaymentStatus = BookingPaymentStatuses.NotPaid
             };
-            
+
             var bookingDocumentsService = CreateBookingDocumentsService();
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(booking, default);
@@ -70,9 +70,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 1,
                 AgentId = 1,
                 Status = BookingStatuses.Confirmed,
-                PaymentStatus = BookingPaymentStatuses.Authorized
+                PaymentStatus = BookingPaymentStatuses.Authorized,
+                SpecialValues = new List<KeyValuePair<string, string>>() { }
             };
-            
+
             var bookingDocumentsService = CreateBookingDocumentsService();
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(booking, default);
@@ -94,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                         Id = 1
                     }
                 }));
-            
+
             var accommodation = new Accommodation(htId: string.Empty,
                 name: string.Empty,
                 accommodationAmenities: new List<string>(0),
@@ -120,11 +121,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 type: PropertyTypes.Hotels,
                 suppliers: new List<SupplierInfo>(0),
                 modified: DateTime.UtcNow);
-            
+
             var accommodationMapperClient = new Mock<IAccommodationMapperClient>();
             accommodationMapperClient.Setup(c => c.GetAccommodation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(accommodation);
-            
+
             return new BookingDocumentsService(
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),

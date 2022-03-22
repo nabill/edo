@@ -24,8 +24,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             _documentsService = documentsService;
             _notificationsService = notificationsService;
         }
-        
-        
+
+
         public Task<Result> SendVoucher(Booking booking, string email, string languageCode, SlimAgentContext agent)
         {
             return _documentsService.GenerateVoucher(booking, languageCode)
@@ -48,12 +48,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         MainPassengerName = voucher.MainPassengerName,
                         BannerUrl = voucher.BannerUrl,
                         LogoUrl = voucher.LogoUrl,
-                        SpecialValues = voucher.SpecialValues
+                        SpecialValues = voucher.SpecialValues.ToDictionary(s => s.Key, s => s.Value)
                     };
 
-                    return await _notificationsService.Send(agent: agent, 
-                        messageData: voucherData, 
-                        notificationType: NotificationTypes.BookingVoucher, 
+                    return await _notificationsService.Send(agent: agent,
+                        messageData: voucherData,
+                        notificationType: NotificationTypes.BookingVoucher,
                         email: email);
                 });
         }
@@ -117,8 +117,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     return Result.Success();
                 });
         }
-        
-        
+
+
         public async Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email, ApiCaller apiCaller)
         {
             var (registrationInfo, paymentReceipt) = receipt;
@@ -156,12 +156,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         notificationType: NotificationTypes.SuccessfulPaymentReceipt,
                         email: email);
         }
-        
-        
-        private static string FormatPrice(MoneyAmount moneyAmount) 
+
+
+        private static string FormatPrice(MoneyAmount moneyAmount)
             => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
-        
+
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
     }
