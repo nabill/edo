@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 defaultValue: 0);
 
             // Delete all regions
-            var deleteAllRegionsSql = "FROM \"Regions\" WHERE \"Id\" <> -1;";
+            var deleteAllRegionsSql = "DELETE FROM \"Regions\"";
             migrationBuilder.Sql(deleteAllRegionsSql);
 
             #region Set "Unknown" region to all countries and agencies
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Data.Migrations
             #endregion
 
             #region Add new regions and match countries and agencies with them
-            foreach (var (region, countries) in RegionCountriesMapper.Where(rc => rc.Item1.Id.Equals(1)))
+            foreach (var (region, countries) in RegionCountriesMapper.Where(rc => !rc.Item1.Id.Equals(1)))
             {
                 migrationBuilder.InsertData(
                     table: "Regions",
