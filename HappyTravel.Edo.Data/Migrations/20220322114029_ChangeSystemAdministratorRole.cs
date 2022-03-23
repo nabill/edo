@@ -12,6 +12,10 @@ namespace HappyTravel.Edo.Data.Migrations
             // Add AdministratorManagement and MarkupManagement permission to System Administrator role
             migrationBuilder.Sql("update \"AdministratorRoles\" set \"Permissions\" = \"Permissions\" | 131072 | 8" +
                 " where \"Name\" = 'System Administrator';");
+            
+            // Add AgentManagement permission to Account Manager
+            migrationBuilder.Sql("update \"AdministratorRoles\" set \"Permissions\" = \"Permissions\" | 4096" +
+                " where \"Name\" = 'Account manager';");
                 
             // Add notification types to super admin role
             migrationBuilder.Sql("update \"AdministratorRoles\" set \"NotificationTypes\" = '{2,6,7,16,17,18,19,22,23,33,34}'" +
