@@ -136,6 +136,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IAgencyService _agencyService;
     }
 }

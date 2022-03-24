@@ -8,6 +8,9 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Data.StaticData;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Money.Enums;
+using HappyTravel.Edo.Data.Company;
+using HappyTravel.Edo.Api.Infrastructure.ModelExtensions;
 
 namespace HappyTravel.Edo.Api.Services.Company
 {
@@ -20,9 +23,9 @@ namespace HappyTravel.Edo.Api.Services.Company
         }
 
 
-        public async Task<Result<CompanyInfo>> Get()
+        public async Task<Result<CompanyInfo>> GetCompanyInfo()
         {
-            var key = _flow.BuildKey(nameof(CompanyService), nameof(Get));
+            var key = _flow.BuildKey(nameof(CompanyService), nameof(GetCompanyInfo));
             var info = await _flow.GetOrSetAsync(key, async () =>
             {
                 var companyInfo = await _context.StaticData
@@ -36,6 +39,22 @@ namespace HappyTravel.Edo.Api.Services.Company
 
             return info ?? Result.Failure<CompanyInfo>("Could not find company information");
         }
+
+
+        public async Task<Result<Models.Company.CompanyAccount>> GetDefaultBankAccount(Currencies currency)
+        {
+            var key = _flow.BuildKey(nameof(CompanyService), nameof(GetDefaultBankAccount), currency.ToString());
+            var account = await _flow.GetOrSetAsync(key, async () => 
+            {
+                var account = await _context.CompanyAccounts.Include(ca => ca.CompanyBank)
+                    .SingleOrDefaultAsync(ca => ca.Currency == currency && ca.IsDefault);
+
+                return account.ToCompanyAccount();
+            }, CompanyInfoCacheLifeTime);
+
+            return account ?? Result.Failure<Models.Company.CompanyAccount>($"Could not find a default bank account for {currency} currency");
+        }
+
 
         private static readonly TimeSpan CompanyInfoCacheLifeTime = TimeSpan.FromHours(1); 
         
