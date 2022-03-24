@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
         private AgentContext GetAgentForAgency(int agencyId)
         {
-            return new AgentContext(1, "", "", "", "", "", agencyId, "", true, InAgencyPermissions.All, "", "", new());
+            return new AgentContext(1, "", "", "", "", "", agencyId, "", true, InAgencyPermissions.All, "", "", 1, new());
         }
 
         public void Dispose()
