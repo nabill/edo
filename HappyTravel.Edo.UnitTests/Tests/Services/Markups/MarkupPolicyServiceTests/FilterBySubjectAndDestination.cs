@@ -55,6 +55,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
         }
 
 
+        // This tests will be uncommented at the second stage of work on markups - Issue - AA #1310
+
         // [Fact]
         // public void Specific_agency_country_and_hotel_country()
         // {

@@ -9,6 +9,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 {
     public class OrderByDestinationScopeType
     {
+        // This tests will be uncommented at the second stage of work on markups - Issue - AA #1310
+
         // [Fact]
         // public void Ordering_by_subject_scope_type()
         // {

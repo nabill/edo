@@ -79,6 +79,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
             var policies = service.Get(markupSubject, markupDestination);
 
+            // This tests will be uncommented at the second stage of work on markups - Issue - AA #1310
             Assert.Equal(SubjectMarkupScopeTypes.Global, policies[0].SubjectScopeType);
             // Assert.Equal(SubjectMarkupScopeTypes.Country, policies[1].SubjectScopeType);
             // Assert.Equal(SubjectMarkupScopeTypes.Locality, policies[2].SubjectScopeType);

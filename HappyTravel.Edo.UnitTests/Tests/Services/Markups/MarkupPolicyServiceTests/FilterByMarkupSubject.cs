@@ -10,6 +10,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 {
     public class FilterByMarkupSubject
     {
+        // This tests will be uncommented at the second stage of work on markups - Issue - AA #1310
+
         // [Fact]
         // public void Markups_for_specific_agent_country_should_be_returned()
         // {

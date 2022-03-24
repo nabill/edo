@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
             {
+                // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
                 SubjectMarkupScopeTypes.Global => true,
                 SubjectMarkupScopeTypes.Region => policy.SubjectScopeId == info.RegionId.ToString(),
                 SubjectMarkupScopeTypes.Country => false, // policy.SubjectScopeId == info.CountryHtId,
