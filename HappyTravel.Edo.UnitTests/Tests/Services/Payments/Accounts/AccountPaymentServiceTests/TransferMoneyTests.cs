@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
@@ -43,7 +44,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                Mock.Of<IDateTimeProvider>(), Mock.Of<IBalanceManagementNotificationsService>());
+                Mock.Of<IDateTimeProvider>(), Mock.Of<IBalanceManagementNotificationsService>(),
+                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -242,7 +244,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
         private AgentContext GetAgentForAgency(int agencyId)
         {
-            return new AgentContext(1, "", "", "", "", "", agencyId, "", true, InAgencyPermissions.All, "", "", new());
+            return new AgentContext(1, "", "", "", "", "", agencyId, "", true, InAgencyPermissions.All, "", "", 1, new());
         }
 
         public void Dispose()

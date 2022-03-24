@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20220314114437_AddNotificationTypeForRefund")]
+    partial class AddNotificationTypeForRefund
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,10 +106,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("PreferredPaymentMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RegionId")
-                        .IsRequired()
                         .HasColumnType("integer");
 
                     b.Property<string>("VatNumber")
@@ -656,91 +654,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BookingStatusHistory", (string)null);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Company.CompanyAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("CompanyBankId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Iban")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntermediaryBankAbaNo")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntermediaryBankAccountNumber")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntermediaryBankName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IntermediaryBankSwiftCode")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyBankId");
-
-                    b.ToTable("CompanyAccounts", (string)null);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Company.CompanyBank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoutingCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SwiftCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CompanyBanks", (string)null);
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Documents.Invoice", b =>
@@ -1641,22 +1554,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Company.CompanyAccount", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Company.CompanyBank", "CompanyBank")
-                        .WithMany("CompanyAccounts")
-                        .HasForeignKey("CompanyBankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CompanyBank");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Company.CompanyBank", b =>
-                {
-                    b.Navigation("CompanyAccounts");
                 });
 #pragma warning restore 612, 618
         }

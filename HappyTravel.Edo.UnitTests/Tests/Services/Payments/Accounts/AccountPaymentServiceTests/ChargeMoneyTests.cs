@@ -6,6 +6,8 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -37,7 +39,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
     
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                new DefaultDateTimeProvider(), Mock.Of<IBalanceManagementNotificationsService>());
+                new DefaultDateTimeProvider(), Mock.Of<IBalanceManagementNotificationsService>(),
+                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>());
     
             var strategy = new ExecutionStrategyMock();
     
@@ -94,8 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentServiceMock.Object);
         
             Assert.True(isSuccess);
-            paymentServiceMock.Verify(p=>p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
-            
+            paymentServiceMock.Verify(p => p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
+
             Mock<IPaymentCallbackService> CreatePaymentServiceMock()
             {
                 var paymentServiceMock = new Mock<IPaymentCallbackService>();
@@ -236,6 +239,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         
         private readonly EdoContext _mockedEdoContext;
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
     }
 }

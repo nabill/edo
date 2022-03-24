@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
-        
+
         public DbSet<BookingRequest> BookingRequests { get; set; }
 
         public DbSet<UserInvitation> UserInvitations { get; set; }
@@ -73,19 +73,19 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Invoice> Invoices { get; set; }
 
         public virtual DbSet<Receipt> Receipts { get; set; }
-        
+
         public virtual DbSet<AgentSystemSettings> AgentSystemSettings { get; set; }
-        
+
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
 
         public DbSet<UploadedImage> UploadedImages { get; set; }
-        
+
         public DbSet<ApiClient> ApiClients { get; set; }
         public virtual DbSet<DisplayMarkupFormula> DisplayMarkupFormulas { get; set; }
         public virtual DbSet<BookingStatusHistoryEntry> BookingStatusHistory { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationOptions> NotificationOptions { get; set; }
-        
+
         public virtual DbSet<AgentRole> AgentRoles { get; set; }
         public virtual DbSet<AdministratorRole> AdministratorRoles { get; set; }
         public DbSet<DefaultNotificationOptions> DefaultNotificationOptions { get; set; }
@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Data
         {
             using (var command = CreateCommand(commandText))
             {
-                return (T) await command.ExecuteScalarAsync();
+                return (T)await command.ExecuteScalarAsync();
             }
         }
 
@@ -298,6 +298,7 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValue(true);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
+                agency.Property(a => a.RegionId).IsRequired();
                 agency.Property(a => a.Address).IsRequired();
                 agency.Property(a => a.City).IsRequired();
                 agency.Property(a => a.CountryCode).IsRequired();
@@ -461,7 +462,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("AgentAgencyRelations");
 
-                relation.HasKey(r => new {r.AgentId, r.AgencyId});
+                relation.HasKey(r => new { r.AgentId, r.AgencyId });
                 relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
@@ -530,7 +531,7 @@ namespace HappyTravel.Edo.Data
             });
 
         }
-        
+
 
         private void BuildPayment(ModelBuilder builder)
         {
@@ -655,7 +656,7 @@ namespace HappyTravel.Edo.Data
                 i.HasKey(i => i.Id);
                 i.Property(i => i.ParentReferenceCode).IsRequired();
                 i.Property(i => i.Number).IsRequired();
-                i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+                i.HasIndex(i => new { i.ServiceSource, i.ServiceType, i.ParentReferenceCode });
                 i.HasIndex(i => i.Number);
             });
         }
@@ -668,13 +669,13 @@ namespace HappyTravel.Edo.Data
                 receipt.HasKey(i => i.Id);
                 receipt.Property(i => i.ParentReferenceCode).IsRequired();
                 receipt.Property(i => i.Number).IsRequired();
-                receipt.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+                receipt.HasIndex(i => new { i.ServiceSource, i.ServiceType, i.ParentReferenceCode });
                 receipt.HasIndex(i => i.InvoiceId);
                 receipt.Property(i => i.InvoiceId).IsRequired();
             });
         }
-        
-        
+
+
         private void BuildAgentSystemSettings(ModelBuilder builder)
         {
             builder.Entity<AgentSystemSettings>(settings =>
@@ -715,19 +716,19 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<MaterializationBonusLog>(log =>
             {
-                log.HasKey(x => new {x.ReferenceCode, x.PolicyId});
+                log.HasKey(x => new { x.ReferenceCode, x.PolicyId });
             });
         }
-        
-        
+
+
         private void BuildApiClients(ModelBuilder builder)
         {
             builder.Entity<ApiClient>(ac =>
             {
                 ac.Property(a => a.Name).IsRequired();
                 ac.Property(a => a.PasswordHash).IsRequired();
-                ac.Property(a=> a.AgencyId).IsRequired();
-                ac.Property(a=> a.AgentId).IsRequired();
+                ac.Property(a => a.AgencyId).IsRequired();
+                ac.Property(a => a.AgentId).IsRequired();
 
                 ac.HasIndex(a => new { a.Name, a.PasswordHash });
                 ac.HasIndex(a => a.AgencyId);
@@ -740,7 +741,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<DisplayMarkupFormula>(b =>
             {
-                b.HasIndex(f => new {f.AgencyId, f.AgentId}).IsUnique();
+                b.HasIndex(f => new { f.AgencyId, f.AgentId }).IsUnique();
                 b.Property(f => f.DisplayFormula).IsRequired();
             });
         }
@@ -783,10 +784,10 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<NotificationOptions>(b =>
             {
-                b.HasIndex(o => new {o.AgencyId, o.UserId, o.UserType, o.Type}).IsUnique();
+                b.HasIndex(o => new { o.AgencyId, o.UserId, o.UserType, o.Type }).IsUnique();
             });
         }
-        
+
 
         private static void BuildDefaultNotificationOptions(ModelBuilder builder)
         {
