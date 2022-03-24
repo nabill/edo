@@ -282,24 +282,26 @@ You can manage bookings as follows:
 
 You need a client reference code to work with a particular booking, such as for cancellation.
 
-#### Booking state updates
+#### Booking status updates
 
-At this moment the API has no tools to notify you about booking state changes, except [a direct booking retails request](/index.html#tag/Bookings/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get). We recommend to check states no more often than once per second for recently created bookings and bookings before a check-in, and no more often than once per hour for all other cases.
+You can check the status of a booking with the [Get booking info](/index.html#tag/Bookings/paths/~1api~11.0~1bookings~1{clientReferenceCode}/get) endpoint. At this moment, the API does not automatically notify you about booking status changes.
 
-#### Booking states
+For recently created bookings and before check-in, we recommend that you do not check the status more than once per second. In all other cases, we recommend that you do not check more than once per hour.
 
-| State | Description |
+#### Booking status descriptions
+
+| Status | Description |
 |-------|-------------|
-| Created | Registred in the system |
-| WaitingForResponse | Status change requested, but not finished |
-| Pending | Registred at supplier's system, but still has not achieved any final state |
-| Confirmed | Confirmed by an accommodation |
-| Cancelled | Cancelled after confirmation with application of suitable cancellation policies |
-| Rejected | Rejected due technical reasons |
-| Invalid | A booking request has inconsistent data and can not be created or confirmed |
-| Discarded | Cancelled without a penalty, if there are unresolvable issues on supplier's side |
-| ManualCorrectionNeeded | There are differences in booking details across Happytravel's and supplier's data sources. All MCN bookings investigated by Happytravel's reservation team. |
-| PendingCancellation | Cancellation has been requested and still in progress |
+| Created | Registered in the HappyTravel system but not yet finalized. |
+| WaitingForResponse | Status change requested but not yet complete. |
+| Pending | Booking registered in the supplier's system but does not have a final status yet. |
+| Confirmed | Confirmed by the accommodation. |
+| Cancelled | Cancelled after confirmation (cancellation policies apply). |
+| Rejected | Rejected for technical reasons. |
+| Invalid | Booking request has inconsistent data and cannot be created or confirmed. |
+| Discarded | Cancelled without penalty because of unresolvable issues on the supplier's side. |
+| ManualCorrectionNeeded | Booking details do not match between the data sources for HappyTravel and the supplier. HappyTravel's reservation team investigates all bookings with this status. |
+| PendingCancellation | Cancellation has been requested and is still in progress. |
 
 #### Booking cancellation policies
 
@@ -379,7 +381,7 @@ Here are example requests in the typical order.
 <details>
   <summary>Request</summary>
 
-The `top` parameter is 1 to make the response example shorter. In reality, a larger number is common.
+The `top` parameter is `1` to make the response example shorter. In reality, a larger number is common.
 
 ```curl
 curl --location --request GET 'https://api-dev.happytravel.com/api/1.0/static/accommodations?top=1' \
@@ -1363,154 +1365,163 @@ curl --location --request POST 'https://api-dev.happytravel.com/api/1.0/bookings
 
 </details>
 
+## Integration testing checklist
 
-## API Integration Testing Checklist
+The section contains the recommended base cases for testing integration with the API.
 
-The section contains recommended base cases for testing integration with the API. In return we expect a document with a filled table for all following scenarios and a description of hehavior of your system. 
-
+Please fill out the blanks in the table for each test case and include the items for _10._ and _11._ below.
 
 1. Country search (more than 1000 hotels)
 
-| Field Name | Example |
-|------------|--------------|
-| Country ID | Country_3862 |
-| Stay dates | May 5-7, 2022 |
-| Source market | AE |
-| Contract conditions | 1 Room, 2 Adults |
-| Search ID	| ab72b222-cc9e-4411-8211-a4135d941f81 |
-| Expected result | Works correct with a large number of accommodations |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Country ID | Country_3862 |
+    | Stay dates | 2022-05-05 to 2022-05-07 |
+    | Source market | AE |
+    | Contract conditions | 1 room, 2 adults |
+    | Search ID | ab72b222-cc9e-4411-8211-a4135d941f81 |
+    | Expected result | Works correctly and returns a large number of accommodations |
+    | Actual result | |
+    | Comments | |
 
-2. Booking before a deadline with 2 adults 
+2. Booking before a deadline with 2 adults
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
-| Stay dates | May 5-7, 2022 |
-| Source Market | DE |
-| Contract conditions | 1 Room, 2 Adults |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
+    | Stay dates | 2022-05-05 to 2022-05-07 |
+    | Source market | DE |
+    | Contract conditions | 1 room, 2 adults |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | |
+    | Actual result | |
+    | Comments | |
 
-3. Booking with a non-refundable rate and 1 adult
+3. Booking with a non-refundable rate for 1 adult
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
-| Stay dates | June 20-27, 2022 |
-| Source Market | GB (UK) |
-| Contract conditions | 1 room, 1 adult
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
+    | Stay dates | 2022-06-20 to 2022-06-27 |
+    | Source market | GB (UK) |
+    | Contract conditions | 1 room, 1 adult |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | |
+    | Actual result | |
+    | Comments | |
 
 4. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
-| Stay dates | April 15-19, 2022 |
-| Source market | AE |
-| Contract conditions | 1 Room, 2 Adults and 1 Child |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
+    | Stay dates | 2022-04-15 to 2022-04-19 |
+    | Source market | AE |
+    | Contract conditions | 1 room, 2 adults, and 1 child |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | |
+    | Actual result | |
+    | Comments | |
 
-5. Booking with two rooms
+5. Booking two rooms
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
-| Stay dates | April 20-21, 2022 |
-| Source Market | GB (UK) |
-| Contract conditions | Room 1: 2 Adults, Room 2: 1 Adult and 2 Children |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | `{ "status": 400, "detail": "'Room Details Count' must be less than or equal to '1'." }` |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
+    | Stay dates | 2022-04-20 to 2022-04-21 |
+    | Source market | GB (UK) |
+    | Contract conditions | Room 1: 2 adults, Room 2: 1 adult and 2 children |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | `{ "status": 400, "detail": "'Room Details Count' must be less than or equal to '1'." }` |
+    | Actual result | |
+    | Comments | |
 
-6. Unconfirmed booking with a Pending status
+6. Unconfirmed booking with a `Pending` status
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 3 (Accommodation_12004146) |
-| Stay dates | April 19-21, 2022 |
-| Source Market | GB (UK) |
-| Contract conditions | 1 Room,	1 Adult |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004146) |
+    | Stay dates | 2022-04-19 to 2022-04-21 |
+    | Source market | GB (UK) |
+    | Contract conditions | 1 room, 1 adult |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | |
+    | Actual result | |
+    | Comments | |
 
 7. Empty search result
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 5 (Accommodation_12004142) |
-| Stay dates | June 5-7, 2022 |
-| Source Market | DE |
-| Contract conditions | 1 Room, 2 Adults |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | Empty search result |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 5 (Accommodation_12004142) |
+    | Stay dates | 2022-06-05 to 2022-06-07 |
+    | Source market | DE |
+    | Contract conditions | 1 room, 2 adults |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | Empty search result |
+    | Actual result | |
+    | Comments | |
 
-8. Cancellation of booking before a deadline without a penalty
+8. Cancellation of a booking before the deadline without a penalty
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
-| Stay dates | May 13-77, 2022 |
-| Source Market | DE |
-| Contract conditions | 1 Room, 3 Adults |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | Empty search result |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
+    | Stay dates | 2022-05-13 to 2022-05-17 |
+    | Source market | DE |
+    | Contract conditions | 1 room, 3 adults |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | Empty search result |
+    | Actual result | |
+    | Comments | |
 
-9. Cancellation of booking after a deadline with a penalty
+9. Cancellation of a booking after the deadline with a penalty
 
-| Field Name | Example |
-|------------|--------------|
-| Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
-| Stay dates | une 20-27, 2022 |
-| Source Market | GB (UK) |
-| Contract conditions | 1 Room, 1 Adult |
-| Search ID	| |
-| Client reference code | |
-| Booking status | |
-| Expected result | Empty search result |
-| Actual result | |
-| Comments | |
+    Endpoint:
 
+    | Field name | Example |
+    |------------|--------------|
+    | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
+    | Stay dates | 2022-06-20 to 2022-06-27 |
+    | Source market | GB (UK) |
+    | Contract conditions | 1 room, 1 adult |
+    | Search ID | |
+    | Client reference code | |
+    | Booking status | |
+    | Expected result | Empty search result |
+    | Actual result | |
+    | Comments | |
 
-10. Attach a voucher for any of successful bookings.
+10. Attach the vouchers for any successful bookings.
 
-11. Describe behaviour of your system, when a search request on `api/1.0/availabilities/searches` returns `isComplete: false`.
+11. Describe the behavior of your system when a search request to `api/1.0/availabilities/searches` returns `isComplete: false`.
