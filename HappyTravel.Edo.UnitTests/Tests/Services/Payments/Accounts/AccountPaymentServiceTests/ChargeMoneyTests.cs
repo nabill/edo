@@ -97,8 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentServiceMock.Object);
         
             Assert.True(isSuccess);
-            paymentServiceMock.Verify(p=>p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
-            
+            paymentServiceMock.Verify(p => p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
+
             Mock<IPaymentCallbackService> CreatePaymentServiceMock()
             {
                 var paymentServiceMock = new Mock<IPaymentCallbackService>();
@@ -239,6 +239,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         
         private readonly EdoContext _mockedEdoContext;
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
     }
 }

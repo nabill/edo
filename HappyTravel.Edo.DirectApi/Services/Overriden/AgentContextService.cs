@@ -58,6 +58,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         agentAgencyRelation.AgentRoleIds,
                         CountryHtId = agency.CountryHtId,
                         LocalityHtId = agency.LocalityHtId,
+                        RegionId = agency.RegionId,
                         AgencyAncestors = agency.Ancestors
                     })
                 .SingleOrDefaultAsync();
@@ -77,6 +78,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds),
                 countryHtId: data.CountryHtId,
                 localityHtId: data.LocalityHtId,
+                regionId: data.RegionId,
                 agencyAncestors: data.AgencyAncestors);
         }
         

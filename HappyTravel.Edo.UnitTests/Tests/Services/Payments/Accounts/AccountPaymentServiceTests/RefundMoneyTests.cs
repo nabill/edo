@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Successful_refund_should_change_payment_status()
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
-
+            
             var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
         
             Assert.True(isSuccess);
@@ -179,7 +179,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             return paymentServiceMock.Object;
         }
-
+    
     
         public void Dispose()
         {
@@ -212,6 +212,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         };
 
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
     }
 }
