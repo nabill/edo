@@ -180,16 +180,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             return paymentServiceMock.Object;
         }
 
-
-        // private IAccountPaymentService CreateAccountPaymentServiceForRefunds()
-        // {
-        //
-        //     return new AccountPaymentService();
-        // }
-        
-        
-        
-    
     
         public void Dispose()
         {
