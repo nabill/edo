@@ -10,9 +10,9 @@ namespace HappyTravel.Edo.Data.Notifications
         public ReceiverTypes Receiver { get; set; }
         public int UserId { get; set; }
         public int? AgencyId { get; set; }
-        public JsonDocument Message { get; set; }
+        public JsonDocument? Message { get; set; }
         public NotificationTypes Type { get; set; }
-        public JsonDocument SendingSettings { get; set; }
+        public JsonDocument? SendingSettings { get; set; }
         public SendingStatuses SendingStatus { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset? Received { get; set; }
