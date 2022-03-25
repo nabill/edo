@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public int BookingId { get; set; }
         public int AgentId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public string BookingDetails {get; set; }
+        public string BookingDetails { get; set; } = string.Empty;
     }
 }
