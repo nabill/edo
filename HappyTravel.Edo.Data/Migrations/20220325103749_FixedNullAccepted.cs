@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HappyTravel.Edo.Data.Agents;
+﻿using System.Collections.Generic;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -37,7 +35,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "Bookings",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "",
+                defaultValueSql: "'[]'::jsonb",
                 oldClrType: typeof(string),
                 oldType: "jsonb",
                 oldNullable: true);
@@ -72,15 +70,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 oldType: "text",
                 oldNullable: true);
 
-            migrationBuilder.AlterColumn<AgentAccommodationBookingSettings>(
-                name: "AccommodationBookingSettings",
-                table: "AgentSystemSettings",
-                type: "jsonb",
-                nullable: false,
-                oldClrType: typeof(AgentAccommodationBookingSettings),
-                oldType: "jsonb",
-                oldNullable: true);
-
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "AgentRoles",
@@ -89,16 +78,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<int[]>(
-                name: "AgentRoleIds",
-                table: "AgentAgencyRelations",
-                type: "integer[]",
-                nullable: false,
-                defaultValue: new int[0],
-                oldClrType: typeof(int[]),
-                oldType: "integer[]",
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<List<int>>(
@@ -145,7 +124,8 @@ namespace HappyTravel.Edo.Data.Migrations
                 type: "jsonb",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "jsonb");
+                oldType: "jsonb",
+                oldDefaultValueSql: "'[]'::jsonb");
 
             migrationBuilder.AlterColumn<AccommodationLocation>(
                 name: "Location",
@@ -173,14 +153,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 oldClrType: typeof(string),
                 oldType: "text");
 
-            migrationBuilder.AlterColumn<AgentAccommodationBookingSettings>(
-                name: "AccommodationBookingSettings",
-                table: "AgentSystemSettings",
-                type: "jsonb",
-                nullable: true,
-                oldClrType: typeof(AgentAccommodationBookingSettings),
-                oldType: "jsonb");
-
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "AgentRoles",
@@ -188,14 +160,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "text");
-
-            migrationBuilder.AlterColumn<int[]>(
-                name: "AgentRoleIds",
-                table: "AgentAgencyRelations",
-                type: "integer[]",
-                nullable: true,
-                oldClrType: typeof(int[]),
-                oldType: "integer[]");
 
             migrationBuilder.AlterColumn<List<int>>(
                 name: "Ancestors",

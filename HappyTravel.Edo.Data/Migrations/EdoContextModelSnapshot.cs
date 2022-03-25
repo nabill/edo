@@ -207,7 +207,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int[]>("AgentRoleIds")
-                        .IsRequired()
                         .HasColumnType("integer[]");
 
                     b.Property<bool>("IsActive")
@@ -269,7 +268,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<AgentAccommodationBookingSettings>("AccommodationBookingSettings")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.HasKey("AgentId", "AgencyId");
@@ -497,7 +495,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Rooms")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb");
 
                     b.Property<List<KeyValuePair<string, string>>>("SpecialValues")
                         .HasColumnType("jsonb");

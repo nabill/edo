@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20220325101250_FixedNullAccepted")]
+    [Migration("20220325103749_FixedNullAccepted")]
     partial class FixedNullAccepted
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -209,7 +209,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int[]>("AgentRoleIds")
-                        .IsRequired()
                         .HasColumnType("integer[]");
 
                     b.Property<bool>("IsActive")
@@ -271,7 +270,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<AgentAccommodationBookingSettings>("AccommodationBookingSettings")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.HasKey("AgentId", "AgencyId");
@@ -499,7 +497,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Rooms")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb");
 
                     b.Property<List<KeyValuePair<string, string>>>("SpecialValues")
                         .HasColumnType("jsonb");
