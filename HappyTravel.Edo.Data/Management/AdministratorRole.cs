@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Data.Management
     public class AdministratorRole
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public AdministratorPermissions Permissions { get; set; }
-        public NotificationTypes[] NotificationTypes { get; set; }
+        public NotificationTypes[]? NotificationTypes { get; set; }
     }
 }
