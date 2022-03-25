@@ -9,14 +9,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public static MarkupPolicySettings GetSettings(this MarkupPolicy policy)
         {
             // TODO Cleanup the model: https://github.com/happy-travel/agent-app-project/issues/777
-            var locationScopeId = policy.SubjectScopeType == SubjectMarkupScopeTypes.Country || policy.SubjectScopeType == SubjectMarkupScopeTypes.Locality
+            var locationScopeId = policy.SubjectScopeType == SubjectMarkupScopeTypes.Region || policy.SubjectScopeType == SubjectMarkupScopeTypes.Country || policy.SubjectScopeType == SubjectMarkupScopeTypes.Locality
                 ? policy.SubjectScopeId
                 : null;
-            
-            return new(description: policy.Description, 
+
+            return new(description: policy.Description,
                 functionType: policy.FunctionType,
                 value: policy.Value,
-                currency: policy.Currency, 
+                currency: policy.Currency,
                 locationScopeId: locationScopeId,
                 destinationScopeId: policy.DestinationScopeId);
         }
