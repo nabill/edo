@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             _context = context;
             _templateService = templateService;
-            _dateTimeProvider = dateTimeProvider; ;
+            _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _administratorContext = administratorContext;
             _markupPolicyAuditService = markupPolicyAuditService;
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return policy is null
                 ? Result.Failure("Could not find agency policy")
-                : await Remove(policy.Id); ;
+                : await Remove(policy.Id);
         }
 
 
@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<Result<SubjectMarkupScopeTypes>> GetAgentMarkupScopeType(MarkupPolicySettings settings)
         {
-            if (settings.LocationScopeType != SubjectMarkupScopeTypes.NotSpecified)
+            if (settings.LocationScopeType == SubjectMarkupScopeTypes.Region)
                 return settings.LocationScopeType;
 
             var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(settings.LocationScopeId);
