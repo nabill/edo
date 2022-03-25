@@ -12,6 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 AgencyId = agentContext.AgencyId,
                 CountryHtId = agentContext.CountryHtId,
                 LocalityHtId = agentContext.LocalityHtId,
+                RegionId = agentContext.RegionId,
                 AgencyAncestors = agentContext.AgencyAncestors
             };
     }

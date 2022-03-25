@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         Country = 2,
         Locality = 3,
         Agency = 5,
-        Agent = 6
+        Agent = 6,
+        Region = 7,
     }
 }
