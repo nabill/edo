@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.ApiClients;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,8 +41,42 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
                 HasDirectContractsFilter = settings.AdditionalSearchFilters.HasFlag(SearchFilters.DirectContractsOnly)
             };
         }
-        
-        
+
+
+        public async Task<GeneratedApiClient> GenerateApiClient(AgentContext agent)
+        {
+            var apiClient = await _context.ApiClients
+                .SingleOrDefaultAsync(a => a.AgencyId == agent.AgencyId && a.AgentId == agent.AgentId);
+
+            var password = PasswordGenerator.Generate();
+
+            var newApiClient = new ApiClient
+            {
+                AgencyId = agent.AgencyId,
+                AgentId = agent.AgentId,
+                Name = GenericApiClientName,
+                PasswordHash = HashGenerator.ComputeSha256(password)
+            };
+            
+            if (Equals(apiClient, default))
+            {
+                _context.ApiClients.Add(newApiClient);
+            }
+            else
+            {
+                apiClient.Name = newApiClient.Name;
+                apiClient.PasswordHash = newApiClient.PasswordHash;
+                _context.ApiClients.Add(apiClient);
+            }
+
+            await _context.SaveChangesAsync();
+            
+            return new GeneratedApiClient(GenericApiClientName, password);
+        }
+
+
+        private const string GenericApiClientName = "ApiClient";
+
         private readonly EdoContext _context;
         private readonly IAccommodationBookingSettingsService _bookingSettingsService;
     }

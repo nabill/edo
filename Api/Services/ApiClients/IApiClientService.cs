@@ -8,5 +8,7 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
     public interface IApiClientService
     {
         public Task<Result<ApiClientInfo>> GetCurrent(AgentContext agent);
+
+        public Task<GeneratedApiClient> GenerateApiClient(AgentContext agent);
     }
 }

@@ -35,6 +35,22 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _apiClientService.GetCurrent(agent));
         }
+
+
+        /// <summary>
+        /// Generate a new api client for current agent
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(GeneratedApiClient), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> Generate()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return Ok(await _apiClientService.GenerateApiClient(agent));
+            
+        }
         
         
         private readonly IApiClientService _apiClientService;
