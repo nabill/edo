@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// Generate a new api client for current agent
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("generate")]
         [ProducesResponseType(typeof(GeneratedApiClient), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]

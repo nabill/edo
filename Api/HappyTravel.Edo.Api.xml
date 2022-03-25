@@ -1057,6 +1057,12 @@
              Gets api client info for current agent
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ApiClientsController.Generate">
+            <summary>
+            Generate a new api client for current agent
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
                 Starts availability search and returns an identifier to fetch results later
@@ -3059,6 +3065,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.HasDirectContractsFilter">
             <summary>
             Is direct contracts only available for the client
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.GeneratedApiClient.Name">
+            <summary>
+            Name for generated api client
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.GeneratedApiClient.Password">
+            <summary>
+             Password for generated api client
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">

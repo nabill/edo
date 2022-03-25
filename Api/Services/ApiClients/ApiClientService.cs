@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.ApiClients;
@@ -49,24 +48,23 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
                 .SingleOrDefaultAsync(a => a.AgencyId == agent.AgencyId && a.AgentId == agent.AgentId);
 
             var password = PasswordGenerator.Generate();
-
-            var newApiClient = new ApiClient
-            {
-                AgencyId = agent.AgencyId,
-                AgentId = agent.AgentId,
-                Name = GenericApiClientName,
-                PasswordHash = HashGenerator.ComputeSha256(password)
-            };
+            var passwordHash = HashGenerator.ComputeSha256(password);
             
             if (Equals(apiClient, default))
             {
-                _context.ApiClients.Add(newApiClient);
+                _context.ApiClients.Add(new ApiClient
+                {
+                    AgencyId = agent.AgencyId,
+                    AgentId = agent.AgentId,
+                    Name = GenericApiClientName,
+                    PasswordHash = passwordHash
+                });
             }
             else
             {
-                apiClient.Name = newApiClient.Name;
-                apiClient.PasswordHash = newApiClient.PasswordHash;
-                _context.ApiClients.Add(apiClient);
+                apiClient.Name = GenericApiClientName;
+                apiClient.PasswordHash = passwordHash;
+                _context.Update(apiClient);
             }
 
             await _context.SaveChangesAsync();
