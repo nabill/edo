@@ -1,9 +1,8 @@
-﻿using System;
+﻿using HappyTravel.Edo.Api.Models.Accommodations;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.EdoContracts.General.Enums;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
@@ -73,6 +72,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         ///     Client booking reference code
         /// </summary>
-        public string ClientReferenceCode { get; }
+        public string? ClientReferenceCode { get; }
     }
 }
