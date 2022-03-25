@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Data.Management
         public ManagementEventType Type { get; set; }
         public DateTimeOffset Created { get; set; }
         public int AdministratorId { get; set; }
-        public string EventData { get; set; }
+        public string EventData { get; set; } = string.Empty;
     }
 }

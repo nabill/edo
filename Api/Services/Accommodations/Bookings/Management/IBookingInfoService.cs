@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using BookingStatusHistoryEntry = HappyTravel.Edo.Api.Models.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
