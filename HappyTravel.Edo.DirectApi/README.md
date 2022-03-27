@@ -1378,13 +1378,15 @@ Please fill out the blanks in the table for each test case and include the items
     | Field name | Example |
     |------------|--------------|
     | Country ID | Country_3862 |
-    | Stay dates | 2022-05-05 to 2022-05-07 |
+    | Stay dates | May 5-7, 2022 |
     | Source market | AE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | ab72b222-cc9e-4411-8211-a4135d941f81 |
     | Expected result | Works correctly and returns a large number of accommodations |
     | Actual result | |
     | Comments | |
+
+    For the API, the date should be in the order `YYYY-MM-DD`. Example: May 7, 2022 is `2022-05-07`.
 
 2. Booking before a deadline with 2 adults
 
@@ -1399,8 +1401,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 3. Booking with a non-refundable rate for 1 adult
@@ -1416,8 +1417,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 4. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
@@ -1433,8 +1433,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 5. Booking two rooms
@@ -1467,8 +1466,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 7. Empty search result
@@ -1501,8 +1499,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | Empty search result |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 9. Cancellation of a booking after the deadline with a penalty
@@ -1518,8 +1515,7 @@ Please fill out the blanks in the table for each test case and include the items
     | Search ID | |
     | Client reference code | |
     | Booking status | |
-    | Expected result | Empty search result |
-    | Actual result | |
+    | Result | |
     | Comments | |
 
 10. Attach the vouchers for any successful bookings.
