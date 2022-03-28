@@ -32,8 +32,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="settings">Markup settings</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicySettings settings)
         {
@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>List of location markups</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetPolicies()
             => Ok(await _policyManager.GetLocationPolicies());
@@ -62,8 +62,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>List of markup regions</returns>
         [HttpGet("regions")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<Region>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetRegions()
             => Ok(await _markupLocationService.GetRegions(LanguageCode));
@@ -76,8 +76,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
         [HttpPut("{policyId:int}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> ModifyPolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
         {
@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="policyId">Id of the policy to delete.</param>
         /// <returns></returns>
         [HttpDelete("{policyId:int}")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
         {
