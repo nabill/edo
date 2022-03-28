@@ -3487,6 +3487,11 @@
                 Location of agent from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeType">
+            <summary>
+                Type of location scope of agent from the mapper
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
             <summary>
                 Destination of booking from the mapper
