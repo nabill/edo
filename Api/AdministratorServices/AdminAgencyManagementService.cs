@@ -199,11 +199,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 return GenericValidator<ManagementEditAgencyRequest>.Validate(v =>
                 {
-                    v.RuleFor(c => c.Address).NotEmpty();
-                    v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
-                    v.RuleFor(c => c.Phone).NotEmpty();
-                    v.RuleFor(c => c.LegalAddress).NotEmpty();
-                    v.RuleFor(c => c.PreferredPaymentMethod).NotEmpty();
+                    v.RuleFor(r => r.Address).NotEmpty();
+                    v.RuleFor(r => r.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
+                    v.RuleFor(r => r.Phone).NotEmpty();
+                    v.RuleFor(r => r.LegalAddress).NotEmpty();
+                    v.RuleFor(r => r.PreferredPaymentMethod).NotEmpty();
+                    v.RuleFor(r => r.LocalityHtId).NotEmpty();
                 }, request);
             }
 

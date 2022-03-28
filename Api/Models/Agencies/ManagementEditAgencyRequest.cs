@@ -35,27 +35,27 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     Fax number. Only digits, length between 3 and 30.
         /// </summary>
-        public string Fax { get; }
+        public string? Fax { get; }
 
         /// <summary>
         ///     Postal code.
         /// </summary>
-        public string PostalCode { get; }
+        public string? PostalCode { get; }
 
         /// <summary>
         ///     Agency site url.
         /// </summary>
-        public string Website { get; }
+        public string? Website { get; }
 
         /// <summary>
         /// E-mail for billing operations
         /// </summary>
-        public string BillingEmail { get; }
+        public string? BillingEmail { get; }
 
         /// <summary>
         ///     Vat number of an agency
         /// </summary>
-        public string VatNumber { get; }
+        public string? VatNumber { get; }
 
         /// <summary>
         ///     Preferable way to do payments.
