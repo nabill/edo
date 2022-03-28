@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -186,11 +187,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
             string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            return await GetAgency(agencyId)
+            return await Validate(request)
+                .Bind(() => GetAgency(agencyId))
                 .Tap(Edit)
                 .Tap(AddLocalityInfo)
                 .Tap(SaveChanges)
                 .Bind(GetUpdatedAgencyInfo);
+
+            
+            Result Validate(ManagementEditAgencyRequest request)
+            {
+                return GenericValidator<ManagementEditAgencyRequest>.Validate(v =>
+                {
+                    v.RuleFor(c => c.Address).NotEmpty();
+                    v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
+                    v.RuleFor(c => c.Phone).NotEmpty();
+                    v.RuleFor(c => c.LegalAddress).NotEmpty();
+                    v.RuleFor(c => c.PreferredPaymentMethod).NotEmpty();
+                }, request);
+            }
 
 
             void Edit(Agency agency)
