@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Policy description.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; } = string.Empty;
 
-        public MarkupFunctionType FunctionType { get; }
+        public MarkupFunctionType? FunctionType { get; } = MarkupFunctionType.Percent;
         public decimal Value { get; }
 
         /// <summary>
@@ -51,6 +51,6 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Destination of booking from the mapper
         /// </summary>
-        public string DestinationScopeId { get; }
+        public string? DestinationScopeId { get; } = string.Empty;
     }
 }
