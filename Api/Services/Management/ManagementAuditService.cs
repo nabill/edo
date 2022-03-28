@@ -23,13 +23,14 @@ namespace HappyTravel.Edo.Api.Services.Management
         public async Task<Result> Write<TEventData>(ManagementEventType eventType, TEventData eventData)
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
-            if (isFailure)
-                return Result.Failure(error);
+            
+            // TODO temporary putting admin as 0 for agent tokens
+            var adminId = isFailure ? 0 : admin.Id;
 
             var logEntry = new ManagementAuditLogEntry
             {
                 Created = _dateTimeProvider.UtcNow(),
-                AdministratorId = admin.Id,
+                AdministratorId = adminId,
                 Type = eventType,
                 EventData = JsonConvert.SerializeObject(eventData)
             };

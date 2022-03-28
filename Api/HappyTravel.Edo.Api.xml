@@ -3067,16 +3067,6 @@
             Is direct contracts only available for the client
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.GeneratedApiClient.Name">
-            <summary>
-            Name for generated api client
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.GeneratedApiClient.Password">
-            <summary>
-             Password for generated api client
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
                 Required. Check-in date.
