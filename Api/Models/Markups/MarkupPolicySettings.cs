@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// </summary>
         public string? Description { get; } = string.Empty;
 
-        public MarkupFunctionType? FunctionType { get; } = MarkupFunctionType.Percent;
+        public MarkupFunctionType FunctionType { get; }
         public decimal Value { get; }
 
         /// <summary>
