@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.AdministratorServices.Locations;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums.Administrators;
@@ -17,12 +19,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class LocationMarkupsController : BaseController
     {
-        public LocationMarkupsController(IAdminMarkupPolicyManager policyManager)
+        public LocationMarkupsController(IAdminMarkupPolicyManager policyManager, IMarkupLocationService markupLocationService)
         {
             _policyManager = policyManager;
+            _markupLocationService = markupLocationService;
         }
-        
-        
+
+
+        /// <summary>
+        ///     Gets a list of markup regions.
+        /// </summary>
+        /// <returns>List of markup regions</returns>
+        [HttpGet("regions")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(List<Region>), StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> GetRegions()
+            => Ok(await _markupLocationService.GetRegions(LanguageCode));
+
+
         /// <summary>
         /// Gets agent location markup policies
         /// </summary>
@@ -32,9 +47,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetPolicies()
-        {
-            return Ok(await _policyManager.GetLocationPolicies());
-        }
+            => Ok(await _policyManager.GetLocationPolicies());
 
 
         /// <summary>
@@ -54,8 +67,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Deletes location policy.
         /// </summary>
@@ -73,8 +86,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Updates policy settings.
         /// </summary>
@@ -93,8 +106,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         private readonly IAdminMarkupPolicyManager _policyManager;
+        private readonly IMarkupLocationService _markupLocationService;
     }
 }

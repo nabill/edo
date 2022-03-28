@@ -572,6 +572,12 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetRegions">
+            <summary>
+                Gets a list of markup regions.
+            </summary>
+            <returns>List of markup regions</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetPolicies">
             <summary>
             Gets agent location markup policies
