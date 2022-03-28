@@ -27,30 +27,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets a list of markup regions.
-        /// </summary>
-        /// <returns>List of markup regions</returns>
-        [HttpGet("regions")]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(List<Region>), StatusCodes.Status200OK)]
-        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetRegions()
-            => Ok(await _markupLocationService.GetRegions(LanguageCode));
-
-
-        /// <summary>
-        /// Gets agent location markup policies
-        /// </summary>
-        /// <returns>List of location markups</returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
-        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetPolicies()
-            => Ok(await _policyManager.GetLocationPolicies());
-
-
-        /// <summary>
         /// Creates location markup policy.
         /// </summary>
         /// <param name="settings">Markup settings</param>
@@ -70,22 +46,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Deletes location policy.
+        /// Gets agent location markup policies
         /// </summary>
-        /// <param name="policyId">Id of the policy to delete.</param>
-        /// <returns></returns>
-        [HttpDelete("{policyId:int}")]
+        /// <returns>List of location markups</returns>
+        [HttpGet]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
-        {
-            var (_, isFailure, error) = await _policyManager.RemoveLocationPolicy(policyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
+        public async Task<IActionResult> GetPolicies()
+            => Ok(await _policyManager.GetLocationPolicies());
 
-            return NoContent();
-        }
+
+        /// <summary>
+        ///     Gets a list of markup regions.
+        /// </summary>
+        /// <returns>List of markup regions</returns>
+        [HttpGet("regions")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(List<Region>), StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> GetRegions()
+            => Ok(await _markupLocationService.GetRegions(LanguageCode));
 
 
         /// <summary>
@@ -101,6 +82,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> ModifyPolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
         {
             var (_, isFailure, error) = await _policyManager.ModifyLocationPolicy(policyId, policySettings);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Deletes location policy.
+        /// </summary>
+        /// <param name="policyId">Id of the policy to delete.</param>
+        /// <returns></returns>
+        [HttpDelete("{policyId:int}")]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
+        {
+            var (_, isFailure, error) = await _policyManager.RemoveLocationPolicy(policyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

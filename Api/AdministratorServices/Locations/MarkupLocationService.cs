@@ -21,8 +21,9 @@ namespace Api.AdministratorServices.Locations
 
         public Task<List<Region>> GetRegions(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarkupLocationService), RegionsKeyBase, languageCode), async ()
-               => (await _context.Regions.ToListAsync())
-               .Select(r => new Region(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString())).ToList(), DefaultLocationCachingTime);
+               => await _context.Regions
+                    .Select(r => new Region(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString()))
+                    .ToListAsync(), DefaultLocationCachingTime);
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
