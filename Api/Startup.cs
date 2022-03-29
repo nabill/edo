@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api
                     var host = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration);
                     options.ConfigurationOptions = new ConfigurationOptions
                     {
-                        EndPoints = {new DnsEndPoint(host, 6379)},
+                        EndPoints = { new DnsEndPoint(host, 6379) },
                         AsyncTimeout = 15000, // set to 15 seconds before we stop storing large objects in Redis
                     };
                 })
@@ -107,9 +107,9 @@ namespace HappyTravel.Edo.Api
                 .AddDbContextCheck<EdoContext>()
                 .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-            
+
             services.AddProblemDetailsErrorHandling();
-            
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api
                 // Use fully qualified object names
                 options.CustomSchemaIds(x => x.FullName);
             });
-            
+
             services.AddNotificationCenter(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));
 
             services.AddMvcCore(options =>
@@ -252,7 +252,7 @@ namespace HappyTravel.Edo.Api
             headersOptions.KnownNetworks.Clear();
             headersOptions.KnownProxies.Clear();
             app.UseForwardedHeaders(headersOptions);
-            
+
             app.UseRouting()
                 .UseHttpMetrics()
                 .UseAuthentication()
