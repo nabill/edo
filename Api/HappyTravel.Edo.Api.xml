@@ -572,12 +572,6 @@
             </summary>
             <param name="codeHash">Invitation code hash.</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetPolicies">
-            <summary>
-            Gets agent location markup policies
-            </summary>
-            <returns>List of location markups</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
             Creates location markup policy.
@@ -585,12 +579,17 @@
             <param name="settings">Markup settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.RemovePolicy(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetPolicies">
             <summary>
-                Deletes location policy.
+            Gets agent location markup policies
             </summary>
-            <param name="policyId">Id of the policy to delete.</param>
-            <returns></returns>
+            <returns>List of location markups</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetRegions">
+            <summary>
+                Gets a list of markup regions.
+            </summary>
+            <returns>List of markup regions</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
@@ -598,6 +597,13 @@
             </summary>
             <param name="policyId">Id of the policy.</param>
             <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes location policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.Merge(HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.AccommodationsMergeRequest,System.Threading.CancellationToken)">

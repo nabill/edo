@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
 
             await service.Execute(booking, default, default);
 
-            _supplierConnectorManagerMock.Verify(x => x.Get(supplierCode));
+            _supplierConnectorManagerMock.Verify(x => x.Get(supplierCode, null));
         }
 
 
@@ -95,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 .ReturnsAsync((request, default));
 
             _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<string>()))
+                .Setup(x => x.Get(It.IsAny<string>(), It.IsAny<ClientTypes?>()))
                 .Returns(_supplierConnectorMock.Object);
         }
 
