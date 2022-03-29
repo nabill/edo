@@ -13,12 +13,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ? policy.SubjectScopeId
                 : null;
 
-            return new(description: policy.Description,
-                functionType: policy.FunctionType,
-                value: policy.Value,
-                currency: policy.Currency,
-                locationScopeId: locationScopeId,
-                destinationScopeId: policy.DestinationScopeId);
+            return new MarkupPolicySettings(
+                policy.Description,
+                policy.FunctionType,
+                policy.Value,
+                policy.Currency,
+                locationScopeId!,
+                policy.SubjectScopeType,
+                policy.DestinationScopeId);
         }
     }
 }
