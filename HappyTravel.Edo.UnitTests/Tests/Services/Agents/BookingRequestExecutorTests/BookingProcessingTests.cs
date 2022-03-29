@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.CreditCards.Services;
 using HappyTravel.Edo.Data.Bookings;
@@ -75,7 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _creditCardProvider = new Mock<ICreditCardProvider>();
 
             _supplierConnectorManagerMock
-                .Setup(x => x.Get(It.IsAny<string>()))
+                .Setup(x => x.Get(It.IsAny<string>(), It.IsAny<ClientTypes?>()))
                 .Returns(_supplierConnectorMock.Object);
             
             var request = Utility.CreateAccommodationBookingRequest();

@@ -28,13 +28,15 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
         
-        public ISupplierConnector Get(string supplierCode)
+        public ISupplierConnector Get(string supplierCode, ClientTypes? clientType = null)
         {
             var (_, isFailure, supplier, error) = _supplierStorage.Get(supplierCode);
             if (isFailure)
                 throw new Exception($"Cannot get supplier `{supplierCode}` with error: {error}");
+
+            clientType ??= _supplierConnectorOptions.CurrentValue.ClientType;
             
-            return _supplierConnectorOptions.CurrentValue.ClientType switch
+            return clientType switch
             {
                 ClientTypes.WebApi => GetRestApiConnector(supplier),
                 ClientTypes.Grpc => GetGrpcConnector(supplier),

@@ -8,9 +8,23 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicySettings
     {
         [JsonConstructor]
-        public MarkupPolicySettings(string description, MarkupFunctionType functionType, decimal value,
+        public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
+            Currencies currency, string locationScopeId, string? destinationScopeId,
+            SubjectMarkupScopeTypes locationScopeType)
+        {
+            Description = description;
+            FunctionType = functionType;
+            Value = value;
+            Currency = currency;
+            LocationScopeId = locationScopeId;
+            LocationScopeType = locationScopeType;
+            DestinationScopeId = destinationScopeId;
+        }
+
+
+        public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
             Currencies currency, string locationScopeId = "", SubjectMarkupScopeTypes locationScopeType = SubjectMarkupScopeTypes.NotSpecified,
-            string destinationScopeId = "")
+            string? destinationScopeId = null)
         {
             Description = description;
             FunctionType = functionType;
@@ -25,7 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Policy description.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         public MarkupFunctionType FunctionType { get; }
         public decimal Value { get; }
@@ -51,6 +65,6 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Destination of booking from the mapper
         /// </summary>
-        public string DestinationScopeId { get; }
+        public string? DestinationScopeId { get; }
     }
 }
