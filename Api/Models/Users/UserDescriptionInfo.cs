@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Users
     {
         [JsonConstructor]
         public UserDescriptionInfo(string title, string firstName, string lastName,
-            string position, string email)
+            string position, string? email)
         {
             Title = title;
             FirstName = firstName;
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Models.Users
         /// <summary>
         ///     Email
         /// </summary>
-        public string Email { get; }
+        public string? Email { get; }
 
         public override int GetHashCode()
             => (Title, FirstName, LastName, Position, Email).GetHashCode();
