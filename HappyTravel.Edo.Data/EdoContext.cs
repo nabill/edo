@@ -426,6 +426,8 @@ namespace HappyTravel.Edo.Data
         private static void BuildRegion(ModelBuilder builder)
         {
             builder.Entity<Region>()
+                .ToTable("Markets");
+            builder.Entity<Region>()
                 .HasKey(c => c.Id);
             builder.Entity<Region>()
                 .Property(c => c.Id)
