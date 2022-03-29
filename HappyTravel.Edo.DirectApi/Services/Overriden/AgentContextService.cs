@@ -41,27 +41,26 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         private async ValueTask<AgentContext> GetAgentContextByDirectApiClientId(string clientId)
         {
             var data = await (from agent in _context.Agents
-                              from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                              from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agentAgencyRelation.AgentId
-                                  && a.AgencyId == agentAgencyRelation.AgencyId && a.DirectApiClientId == clientId)
-                              from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                              select new
-                              {
-                                  AgentId = agent.Id,
-                                  FirstName = agent.FirstName,
-                                  LastName = agent.LastName,
-                                  Email = agent.Email,
-                                  Title = agent.Title,
-                                  Position = agent.Position,
-                                  AgencyId = agency.Id,
-                                  AgencyName = agency.Name,
-                                  IsMaster = agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                                  agentAgencyRelation.AgentRoleIds,
-                                  CountryHtId = agency.CountryHtId,
-                                  LocalityHtId = agency.LocalityHtId,
-                                  MarketId = agency.MarketId,
-                                  AgencyAncestors = agency.Ancestors
-                              })
+                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                    from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agentAgencyRelation.AgentId
+                        && a.AgencyId == agentAgencyRelation.AgencyId && a.DirectApiClientId == clientId)
+                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                    select new {
+                        AgentId = agent.Id,
+                        FirstName = agent.FirstName,
+                        LastName = agent.LastName,
+                        Email = agent.Email,
+                        Title = agent.Title,
+                        Position = agent.Position,
+                        AgencyId = agency.Id,
+                        AgencyName = agency.Name,
+                        IsMaster = agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
+                        agentAgencyRelation.AgentRoleIds,
+                        CountryHtId = agency.CountryHtId,
+                        LocalityHtId = agency.LocalityHtId,
+                        MarketId = agency.MarketId,
+                        AgencyAncestors = agency.Ancestors
+                    })
                 .SingleOrDefaultAsync();
 
             if (data is null)
@@ -90,8 +89,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 return 0;
 
             var permissionList = await (from agentRole in _context.AgentRoles
-                                        where agentRoleIds.Contains(agentRole.Id)
-                                        select agentRole.Permissions)
+                    where agentRoleIds.Contains(agentRole.Id)
+                    select agentRole.Permissions)
                 .ToListAsync();
 
             return permissionList.Aggregate((a, b) => a | b);
