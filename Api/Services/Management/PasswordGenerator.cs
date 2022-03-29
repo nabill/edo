@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace HappyTravel.Edo.Api.Infrastructure;
+namespace HappyTravel.Edo.Api.Services.Management;
 
 public static class PasswordGenerator
 {
@@ -15,29 +15,13 @@ public static class PasswordGenerator
 
         var chars = new List<char>(RequiredLength);
 
-        var requiredSymbolsList = new List<string>
+        for (var i = 0; i < RequiredLength - RequiredSymbols.Count; i++)
         {
-            UpperCaseLetters,
-            LowerCaseLetters,
-            Digits,
-            NonAlphanumericSymbols
-        };
-
-        var allowedSymbols = new Dictionary<int, string>
-        {
-            {0, UpperCaseLetters},
-            {1, LowerCaseLetters},
-            {2, Digits},
-            {3, NonAlphanumericSymbols}
-        };
-
-        for (var i = 0; i < RequiredLength - requiredSymbolsList.Count; i++)
-        {
-            var selectedSymbols = allowedSymbols[random.Next(0, allowedSymbols.Count)];
+            var selectedSymbols = AllowedSymbols[random.Next(0, AllowedSymbols.Count)];
             chars.Add(selectedSymbols[random.Next(0, selectedSymbols.Length)]);
         }
 
-        foreach (var symbol in requiredSymbolsList)
+        foreach (var symbol in RequiredSymbols)
         {
             chars.Insert(random.Next(0, chars.Count), symbol[random.Next(0, symbol.Length)]);
         }
@@ -50,6 +34,22 @@ public static class PasswordGenerator
     private const string LowerCaseLetters = "abcdefghijkmnopqrstuvwxyz";
     private const string Digits = "0123456789";
     private const string NonAlphanumericSymbols = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+    
+    private static readonly List<string> RequiredSymbols = new()
+    {
+        UpperCaseLetters,
+        LowerCaseLetters,
+        Digits,
+        NonAlphanumericSymbols
+    };
+
+    private static readonly Dictionary<int, string> AllowedSymbols = new()
+    {
+        {0, UpperCaseLetters},
+        {1, LowerCaseLetters},
+        {2, Digits},
+        {3, NonAlphanumericSymbols}
+    };
 
     private const int RequiredLength = 20;
 }

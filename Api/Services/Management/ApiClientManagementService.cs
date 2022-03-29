@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        public async Task<Result<ApiClientData>> GenerateApiClient(int agencyId, int agentId)
+        public async Task<Result<ApiClientData>> Generate(int agencyId, int agentId)
         {
             var name = GenericApiClientName + agencyId;
             var password = PasswordGenerator.Generate();
