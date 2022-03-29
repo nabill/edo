@@ -1390,13 +1390,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 2. Booking before a deadline with 2 adults
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
     | Stay dates | 2022-05-05 to 2022-05-07 |
-    | Source market | DE |
+    | Nationality and residency | DE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | |
     | Client reference code | |
@@ -1406,13 +1406,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 3. Booking with a non-refundable rate for 1 adult
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
     | Stay dates | 2022-06-20 to 2022-06-27 |
-    | Source market | GB (UK) |
+    | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
     | Client reference code | |
@@ -1422,13 +1422,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 4. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
     | Stay dates | 2022-04-15 to 2022-04-19 |
-    | Source market | AE |
+    | Nationality and residency | AE |
     | Contract conditions | 1 room, 2 adults, and 1 child |
     | Search ID | |
     | Client reference code | |
@@ -1438,13 +1438,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 5. Booking two rooms
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
     | Stay dates | 2022-04-20 to 2022-04-21 |
-    | Source market | GB (UK) |
+    | Nationality and residency | GB (UK) |
     | Contract conditions | Room 1: 2 adults, Room 2: 1 adult and 2 children |
     | Search ID | |
     | Client reference code | |
@@ -1455,13 +1455,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 6. Unconfirmed booking with a `Pending` status
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004146) |
     | Stay dates | 2022-04-19 to 2022-04-21 |
-    | Source market | GB (UK) |
+    | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
     | Client reference code | |
@@ -1471,13 +1471,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 7. Empty search result
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 5 (Accommodation_12004142) |
     | Stay dates | 2022-06-05 to 2022-06-07 |
-    | Source market | DE |
+    | Nationality and residency | DE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | |
     | Client reference code | |
@@ -1488,13 +1488,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 8. Cancellation of a booking before the deadline without a penalty
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
     | Stay dates | 2022-05-13 to 2022-05-17 |
-    | Source market | DE |
+    | Nationality and residency | DE |
     | Contract conditions | 1 room, 3 adults |
     | Search ID | |
     | Client reference code | |
@@ -1504,13 +1504,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 9. Cancellation of a booking after the deadline with a penalty
 
-    Endpoint:
+    Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
     | Stay dates | 2022-06-20 to 2022-06-27 |
-    | Source market | GB (UK) |
+    | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
     | Client reference code | |
