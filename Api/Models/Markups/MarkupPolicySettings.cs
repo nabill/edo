@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
 
         public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
             Currencies currency, string locationScopeId = "", SubjectMarkupScopeTypes locationScopeType = SubjectMarkupScopeTypes.NotSpecified,
-            string? destinationScopeId = "")
+            string? destinationScopeId = null)
         {
             Description = description;
             FunctionType = functionType;
