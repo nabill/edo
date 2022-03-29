@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
     {
         Task<List<Country>> GetCountries(string query, string languageCode);
 
-        Task<List<Region>> GetRegions(string languageCode);
+        Task<List<Market>> GetMarkets(string languageCode);
     }
 }

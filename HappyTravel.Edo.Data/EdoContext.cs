@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
-        public DbSet<Region> Regions { get; set; }
+        public DbSet<Market> Markets { get; set; }
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
 
         public DbSet<BookingRequest> BookingRequests { get; set; }
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Data
                 .IncrementsBy(1);
 
             BuildCountry(builder);
-            BuildRegion(builder);
+            BuildMarket(builder);
             BuildAgent(builder);
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
@@ -298,7 +298,7 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValue(true);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
-                agency.Property(a => a.RegionId).IsRequired();
+                agency.Property(a => a.MarketId).IsRequired();
                 agency.Property(a => a.Address).IsRequired();
                 agency.Property(a => a.City).IsRequired();
                 agency.Property(a => a.CountryCode).IsRequired();
@@ -418,21 +418,19 @@ namespace HappyTravel.Edo.Data
                 .HasColumnType("jsonb")
                 .IsRequired();
             builder.Entity<Country>()
-                .Property(c => c.RegionId)
+                .Property(c => c.MarketId)
                 .IsRequired();
         }
 
 
-        private static void BuildRegion(ModelBuilder builder)
+        private static void BuildMarket(ModelBuilder builder)
         {
-            builder.Entity<Region>()
-                .ToTable("Markets");
-            builder.Entity<Region>()
+            builder.Entity<Market>()
                 .HasKey(c => c.Id);
-            builder.Entity<Region>()
+            builder.Entity<Market>()
                 .Property(c => c.Id)
                 .IsRequired();
-            builder.Entity<Region>()
+            builder.Entity<Market>()
                 .Property(c => c.Names)
                 .HasColumnType("jsonb")
                 .IsRequired();

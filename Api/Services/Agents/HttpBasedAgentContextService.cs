@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         inAgencyPermissions,
                         agency.CountryHtId,
                         agency.LocalityHtId,
-                        agency.RegionId,
+                        agency.MarketId,
                         agency.Ancestors))
                 .SingleOrDefaultAsync();
         }
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         inAgencyPermissions,
                         agency.CountryHtId,
                         agency.LocalityHtId,
-                        agency.RegionId,
+                        agency.MarketId,
                         agency.Ancestors))
                 .SingleOrDefaultAsync();
         }

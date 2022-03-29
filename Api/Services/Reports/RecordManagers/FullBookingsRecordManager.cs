@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
                     join agent in _context.Agents on booking.AgentId equals agent.Id
                     join country in _context.Countries on agency.CountryCode equals country.Code
-                    join region in _context.Regions on country.RegionId equals region.Id
+                    join market in _context.Markets on country.MarketId equals market.Id
                     where
                         booking.CheckOutDate >= fromDate &&
                         booking.CheckOutDate < endDate
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                         AgencyCity = agency.City,
                         AgencyCountry = country.Names,
                         AgentName = $"{agent.FirstName} {agent.LastName}",
-                        AgencyRegion = region.Names,
+                        AgencyMarket = market.Names,
                         PaymentMethod = booking.PaymentType,
                         AccommodationName = booking.AccommodationName,
                         ConfirmationNumber = booking.SupplierReferenceCode,

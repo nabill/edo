@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<List<MarkupInfo>> GetLocationPolicies()
         {
             return _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Region ||
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Market ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Locality)
                 .OrderBy(p => p.FunctionType)
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .FirstOrDefaultAsync(p => p.Id == policyId);
 
-            if (policy.SubjectScopeType is not (SubjectMarkupScopeTypes.Region or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Locality))
+            if (policy.SubjectScopeType is not (SubjectMarkupScopeTypes.Market or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Locality))
                 return Result.Failure($"Policy '{policyId}' not found or not local");
 
             var (_, isFailure, agentMarkupScopeType, error) = await GetAgentMarkupScopeType(settings);
@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var isLocationPolicy = await _context.MarkupPolicies
                 .AnyAsync(p =>
-                    (p.SubjectScopeType == SubjectMarkupScopeTypes.Region || p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
+                    (p.SubjectScopeType == SubjectMarkupScopeTypes.Market || p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Locality) && p.Id == policyId);
 
             return isLocationPolicy
@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 agentId = agentInAgencyId.AgentId;
             }
 
-            if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Region)
+            if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Market)
                 locationId = policy.SubjectScopeId;
 
             return new MarkupPolicyData(new MarkupPolicySettings(policy.Description, policy.FunctionType, policy.Value, policy.Currency, policy.DestinationScopeId),
@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<Result<SubjectMarkupScopeTypes>> GetAgentMarkupScopeType(MarkupPolicySettings settings)
         {
-            if (settings.LocationScopeType == SubjectMarkupScopeTypes.Region)
+            if (settings.LocationScopeType == SubjectMarkupScopeTypes.Market)
                 return settings.LocationScopeType;
 
             var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(settings.LocationScopeId);
