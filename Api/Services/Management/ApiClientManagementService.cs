@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.ApiClients;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -118,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        private readonly string GenericApiClientName = "ApiClient";
+        private const string GenericApiClientName = "ApiClient";
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
