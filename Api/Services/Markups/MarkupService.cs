@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ToList();
 
             var percentSum = percentPolicies.Sum(p => p.Value);
-            if (percentSum < 0)
+            if (percentSum <= 0)
             {
                 var policiesSlim = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
                 _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(policiesSlim));
@@ -77,9 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private readonly ICurrencyRateService _currencyRateService;
-
         private readonly IMarkupPolicyService _markupPolicyService;
-
         private readonly ILogger<MarkupService> _logger;
     }
 }
