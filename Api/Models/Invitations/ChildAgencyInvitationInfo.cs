@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Invitations
     public readonly struct ChildAgencyInvitationInfo
     {
         [JsonConstructor]
-        public ChildAgencyInvitationInfo(string name, string address, string billingEmail, string countryName, string fax, string phone,
-            string postalCode, string website, string vatNumber)
+        public ChildAgencyInvitationInfo(string name, string address, string billingEmail, string countryName, string? fax, string phone,
+            string? postalCode, string? website, string? vatNumber)
         {
             Name = name;
             Address = address;
@@ -45,17 +45,17 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// <summary>
         ///     Fax number. Only digits, length between 3 and 30.
         /// </summary>
-        public string Fax { get; }
+        public string? Fax { get; }
 
         /// <summary>
         ///     Postal code.
         /// </summary>
-        public string PostalCode { get; }
+        public string? PostalCode { get; }
 
         /// <summary>
         ///     Agency site url.
         /// </summary>
-        public string Website { get; }
+        public string? Website { get; }
 
         /// <summary>
         /// E-mail for billing operations
@@ -65,6 +65,6 @@ namespace HappyTravel.Edo.Api.Models.Invitations
         /// <summary>
         /// Value added tax identification number
         /// </summary>
-        public string VatNumber { get; }
+        public string? VatNumber { get; }
     }
 }
