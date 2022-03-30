@@ -751,17 +751,19 @@
             <param name="code">Supplier code</param>
             <param name="supplier">Supplier data</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Activate(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Activate(System.String,System.String)">
             <summary>
             Activates a supplier
             </summary>
             <param name="code">Supplier code</param>
+            <param name="reason">Reason for activating the supplier</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Deactivate(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Deactivate(System.String,System.String)">
             <summary>
             Deactivates a supplier
             </summary>
             <param name="code">Supplier code</param>
+            <param name="reason">Reason for deactivating the supplier</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
