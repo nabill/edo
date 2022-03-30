@@ -19,17 +19,17 @@ namespace HappyTravel.Edo.Api.Extensions
 
         public static UserInvitationData ToUserInvitationData(this CreateChildAgencyInvitationRequest request, int[] roleIds)
             => new (request.UserRegistrationInfo,
-                new RegistrationAgencyInfo(request.ChildAgencyRegistrationInfo.Name,
-                    request.ChildAgencyRegistrationInfo.Address,
-                    request.ChildAgencyRegistrationInfo.BillingEmail,
-                    request.ChildAgencyRegistrationInfo.Fax,
-                    request.ChildAgencyRegistrationInfo.Phone,
-                    request.ChildAgencyRegistrationInfo.PostalCode,
-                    request.ChildAgencyRegistrationInfo.Website,
-                    request.ChildAgencyRegistrationInfo.VatNumber,
-                    string.Empty,
-                    PaymentTypes.None,
-                    null),
+                new RegistrationAgencyInfo(name: request.ChildAgencyRegistrationInfo.Name,
+                    address: string.Empty,
+                    billingEmail: string.Empty,
+                    fax: null,
+                    phone: string.Empty,
+                    postalCode: null,
+                    website: null,
+                    vatNumber: null,
+                    legalAddress: string.Empty,
+                    preferredPaymentMethod: PaymentTypes.None,
+                    localityHtId: string.Empty),
                 roleIds);
 
         
