@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static UserInvitationData ToUserInvitationData(this CreateChildAgencyInvitationRequest request, int[] roleIds)
-            => new (request.UserRegistrationInfo,
+            => new (userRegistrationInfo: request.UserRegistrationInfo,
                 new RegistrationAgencyInfo(name: request.ChildAgencyRegistrationInfo.Name,
                     address: string.Empty,
                     billingEmail: string.Empty,
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     legalAddress: string.Empty,
                     preferredPaymentMethod: PaymentTypes.None,
                     localityHtId: string.Empty),
-                roleIds);
+                roleIds: roleIds);
 
         
         public static UserInvitationData ToUserInvitationData(this SendAgentInvitationRequest request)
