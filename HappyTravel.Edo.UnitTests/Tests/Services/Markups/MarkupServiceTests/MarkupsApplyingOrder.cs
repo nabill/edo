@@ -15,6 +15,7 @@ using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NetTopologySuite.Utilities;
@@ -35,22 +36,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var edoContextMock = MockEdoContextFactory.Create();
             edoContextMock.Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(_agencies));
-            
+
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
                 .Returns(new ValueTask<Result<decimal>>(Result.Success((decimal)1)));
 
             var markupPolicyStorage = new MarkupPolicyStorage(Mock.Of<IOptionsMonitor<MarkupPolicyStorageOptions>>(_ => _.CurrentValue ==
-                new MarkupPolicyStorageOptions {Timeout = TimeSpan.FromMilliseconds(1)}));
+                new MarkupPolicyStorageOptions { Timeout = TimeSpan.FromMilliseconds(1) }));
             markupPolicyStorage.Set(allPolicies);
-    
+
             _markupPolicyService = new MarkupPolicyService(markupPolicyStorage);
 
-            _markupService = new MarkupService(_markupPolicyService, currencyRateServiceMock.Object);
+            _markupService = new MarkupService(_markupPolicyService, currencyRateServiceMock.Object, new NullLogger<MarkupService>());
         }
-    
-    
+
+
         [Fact]
         public void Policies_should_be_ordered_by_scope()
         {
@@ -59,39 +60,39 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].SubjectScopeType, policies[i + 1].SubjectScopeType));
             }
-    
+
             bool ScopeOrderIsCorrect(SubjectMarkupScopeTypes firstScope, SubjectMarkupScopeTypes secondScope)
             {
                 return firstScope switch
                 {
                     SubjectMarkupScopeTypes.Global => true,
                     SubjectMarkupScopeTypes.Country => secondScope is not SubjectMarkupScopeTypes.Global,
-                    SubjectMarkupScopeTypes.Locality => secondScope is not SubjectMarkupScopeTypes.Global 
+                    SubjectMarkupScopeTypes.Locality => secondScope is not SubjectMarkupScopeTypes.Global
                         and not SubjectMarkupScopeTypes.Country,
-                    SubjectMarkupScopeTypes.Agency => secondScope is not SubjectMarkupScopeTypes.Global 
+                    SubjectMarkupScopeTypes.Agency => secondScope is not SubjectMarkupScopeTypes.Global
                         and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality,
-                    SubjectMarkupScopeTypes.Agent => secondScope is not SubjectMarkupScopeTypes.Global 
-                        and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality 
+                    SubjectMarkupScopeTypes.Agent => secondScope is not SubjectMarkupScopeTypes.Global
+                        and not SubjectMarkupScopeTypes.Country and not SubjectMarkupScopeTypes.Locality
                         and not SubjectMarkupScopeTypes.Agency,
                     _ => throw new AssertionFailedException("Unexpected scope type")
                 };
             }
         }
-        
+
 
         [Fact]
         public void Agencies_policies_should_be_ordered_by_agency_tree()
         {
             var policies = _markupPolicyService.Get(MarkupSubject, default);
             var agencyPolicies = policies.Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency).ToList();
-            
+
             for (var i = 0; i < agencyPolicies.Count - 1; i++)
             {
                 Assert.True(int.Parse(agencyPolicies[i].SubjectScopeId) == MarkupSubject.AgencyAncestors[i]);
             }
         }
-    
-        
+
+
         private readonly IEnumerable<MarkupPolicy> _agentPolicies = new[]
         {
             new MarkupPolicy
@@ -111,7 +112,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 Value = 100
             },
         };
-        
+
         private readonly IEnumerable<MarkupPolicy> _globalPolicies = new[]
         {
             new MarkupPolicy
@@ -129,7 +130,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 Value = 900,
             },
         };
-        
+
         private readonly IEnumerable<MarkupPolicy> _agencyPolicies = new[]
         {
             new MarkupPolicy
@@ -138,7 +139,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 SubjectScopeId = $"{MarkupSubject.AgencyId}",
                 FunctionType = MarkupFunctionType.Percent,
-                Value = 900 
+                Value = 900
             },
             new MarkupPolicy
             {
@@ -165,14 +166,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             {
                 Id = MarkupSubject.AgencyId,
                 Name = "Child agency",
-                Ancestors = new List<int> {2000, 1000},
+                Ancestors = new List<int> { 2000, 1000 },
                 LocalityHtId = "Locality_01"
             },
             new Agency
             {
                 Id = 1000,
                 Name = "Parent agency",
-                Ancestors = new List<int>{2000},
+                Ancestors = new List<int> { 2000 },
                 LocalityHtId = "Locality_02",
                 CountryHtId = "Country_01"
             },
@@ -188,15 +189,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         public void Dispose() { }
 
 
-        private static readonly MarkupSubjectInfo MarkupSubject = new ()
+        private static readonly MarkupSubjectInfo MarkupSubject = new()
         {
             AgentId = 1,
             AgencyId = 1,
-            AgencyAncestors = new List<int>{ 2000, 1000 },
+            AgencyAncestors = new List<int> { 2000, 1000 },
             CountryHtId = "Country_01"
         };
 
-        
+
         private readonly MarkupPolicyService _markupPolicyService;
         private readonly MarkupService _markupService;
     }
