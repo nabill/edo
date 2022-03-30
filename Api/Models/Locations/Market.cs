@@ -10,7 +10,7 @@
 
 
         /// <summary>
-        ///     Market UN M.49 code.
+        ///     Market id.
         /// </summary>
         public int Id { get; }
 

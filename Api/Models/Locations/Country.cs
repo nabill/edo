@@ -21,7 +21,7 @@
         public string Name { get; }
 
         /// <summary>
-        ///     Country's market UN M.49 code.
+        ///     Country's market id.
         /// </summary>
         public int MarketId { get; }
     }
