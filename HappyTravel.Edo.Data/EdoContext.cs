@@ -77,6 +77,8 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgentSystemSettings> AgentSystemSettings { get; set; }
 
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
+        
+        public virtual DbSet<AgencySupplierSettings> AgencySupplierSettings { get; set; }
 
         public DbSet<UploadedImage> UploadedImages { get; set; }
 
@@ -232,6 +234,7 @@ namespace HappyTravel.Edo.Data
             BuildReceipts(builder);
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
+            BuildAgencySupplierSettings(builder);
             BuildUploadedImages(builder);
             BuildBookingMarkup(builder);
             BuildMaterializationBonusLog(builder);
@@ -692,6 +695,15 @@ namespace HappyTravel.Edo.Data
             {
                 settings.HasKey(r => r.AgencyId);
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
+            });
+        }
+        
+        private void BuildAgencySupplierSettings(ModelBuilder builder)
+        {
+            builder.Entity<AgencySupplierSettings>(settings =>
+            {
+                settings.HasKey(r => r.AgencyId);
+                settings.Property(r => r.EnabledSuppliers).HasColumnType("jsonb");
             });
         }
 
