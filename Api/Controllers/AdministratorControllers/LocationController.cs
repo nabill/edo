@@ -34,9 +34,11 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddMarket([FromBody] JsonDocument namesRequest)
+        public async Task<IActionResult> AddMarket([FromBody] IDictionary<string, string> namesRequest)
         {
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(LanguageCode, namesRequest);
+            var jsonDoc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(LanguageCode, jsonDoc);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -65,9 +67,11 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> UpdateMarket(int marketId, [FromBody] JsonDocument namesRequest)
+        public async Task<IActionResult> UpdateMarket(int marketId, [FromBody] IDictionary<string, string> namesRequest)
         {
-            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(LanguageCode, marketId, namesRequest);
+            var jsonDoc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(LanguageCode, marketId, jsonDoc);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
