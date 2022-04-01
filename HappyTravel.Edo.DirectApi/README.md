@@ -1373,7 +1373,7 @@ Please fill out the blanks in the table for each test case and include the items
 
 1. Country search (more than 1000 hotels)
 
-    Endpoint: _Wide Availability: Start search_ and _Wide availability: Get results_
+    Endpoints: _Wide Availability: Start search_ and _Wide availability: Get results_
 
     | Field name | Example |
     |------------|--------------|
