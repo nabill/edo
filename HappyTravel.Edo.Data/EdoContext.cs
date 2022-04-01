@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
-        public DbSet<Market> Markets { get; set; }
+        public virtual DbSet<Market> Markets { get; set; }
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
 
         public DbSet<BookingRequest> BookingRequests { get; set; }
