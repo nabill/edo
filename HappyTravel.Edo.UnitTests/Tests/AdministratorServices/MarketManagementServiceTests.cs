@@ -14,15 +14,15 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
 {
-    public class LocationServiceTests
+    public class MarketManagementServiceTests
     {
-        public LocationServiceTests()
+        public MarketManagementServiceTests()
         {
             _edoContextMock = MockEdoContextFactory.Create();
             SetupInitialData();
 
             var fakeDoubleFlow = new FakeDoubleFlow();
-            _locationService = new LocationService(_edoContextMock.Object, fakeDoubleFlow);
+            _marketManagementService = new MarketManagementService(_edoContextMock.Object, fakeDoubleFlow);
 
             var strategy = new ExecutionStrategyMock();
 
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var languageCode = "en";
             var namesRequest = JsonDocument.Parse("{\"en\": \"Far East\"}");
 
-            var (_, isFailure, error) = await _locationService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var languageCode = "kz";
             var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
 
-            var (_, isFailure, error) = await _locationService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "en";
 
-            var markets = await _locationService.GetMarkets(languageCode, It.IsAny<CancellationToken>());
+            var markets = await _marketManagementService.GetMarkets(languageCode, It.IsAny<CancellationToken>());
 
             Assert.Equal(markets.Count, 2);
         }
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var languageCode = "en";
             var namesRequest = JsonDocument.Parse("{\"en\": \"Far East\"}");
 
-            var (_, isFailure, error) = await _locationService.UpdateMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketId = 2;
             var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
 
-            var (_, isFailure, error) = await _locationService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketId = 3;
             var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
 
-            var (_, isFailure, error) = await _locationService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var marketId = 2;
 
-            var (_, isFailure, error) = await _locationService.RemoveMarket(marketId, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.RemoveMarket(marketId, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -136,6 +136,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         }
 
         private readonly Mock<EdoContext> _edoContextMock;
-        private readonly ILocationService _locationService;
+        private readonly IMarketManagementService _marketManagementService;
     }
 }

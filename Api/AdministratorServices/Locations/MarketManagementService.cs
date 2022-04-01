@@ -16,9 +16,9 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 
 namespace Api.AdministratorServices.Locations
 {
-    public class LocationService : ILocationService
+    public class MarketManagementService : IMarketManagementService
     {
-        public LocationService(EdoContext context, IDoubleFlow flow)
+        public MarketManagementService(EdoContext context, IDoubleFlow flow)
         {
             _context = context;
             _flow = flow;
@@ -44,7 +44,7 @@ namespace Api.AdministratorServices.Locations
 
 
         public Task<List<Market>> GetMarkets(string languageCode, CancellationToken cancellationToken = default)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), MarketsKeyBase, languageCode), async ()
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase, languageCode), async ()
                => await _context.Markets
                     .Select(r => new Market(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString()!))
                     .ToListAsync(cancellationToken), DefaultLocationCachingTime)!;

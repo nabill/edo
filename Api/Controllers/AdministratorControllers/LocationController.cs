@@ -19,9 +19,9 @@ namespace Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class LocationController : BaseController
     {
-        public LocationController(ILocationService locationService)
+        public LocationController(IMarketManagementService marketManagementService)
         {
-            _locationService = locationService;
+            _marketManagementService = marketManagementService;
         }
 
 
@@ -36,7 +36,7 @@ namespace Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> AddMarket([FromBody] JsonDocument namesRequest)
         {
-            var (_, isFailure, error) = await _locationService.AddMarket(LanguageCode, namesRequest);
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(LanguageCode, namesRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -52,7 +52,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarkets()
-            => Ok(await _locationService.GetMarkets(LanguageCode));
+            => Ok(await _marketManagementService.GetMarkets(LanguageCode));
 
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> UpdateMarket(int marketId, [FromBody] JsonDocument namesRequest)
         {
-            var (_, isFailure, error) = await _locationService.UpdateMarket(LanguageCode, marketId, namesRequest);
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(LanguageCode, marketId, namesRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -86,7 +86,7 @@ namespace Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemoveMarket([FromRoute] int marketId)
         {
-            var (_, isFailure, error) = await _locationService.RemoveMarket(marketId);
+            var (_, isFailure, error) = await _marketManagementService.RemoveMarket(marketId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -94,6 +94,6 @@ namespace Api.Controllers.AdministratorControllers
         }
 
 
-        private readonly ILocationService _locationService;
+        private readonly IMarketManagementService _marketManagementService;
     }
 }

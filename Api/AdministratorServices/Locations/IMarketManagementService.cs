@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Models.Locations;
 
 namespace Api.AdministratorServices.Locations
 {
-    public interface ILocationService
+    public interface IMarketManagementService
     {
         Task<Result> AddMarket(string languageCode, JsonDocument namesRequest, CancellationToken cancellationToken = default);
         Task<List<Market>> GetMarkets(string languageCode, CancellationToken cancellationToken = default);

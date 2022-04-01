@@ -110,7 +110,7 @@ using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
-using AdminLocationServices = Api.AdministratorServices.Locations;
+using Api.AdministratorServices.Locations;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -670,7 +670,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
-            services.AddTransient<AdminLocationServices.ILocationService, AdminLocationServices.LocationService>();
+            services.AddTransient<IMarketManagementService, MarketManagementService>();
 
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
