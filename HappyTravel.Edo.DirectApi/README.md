@@ -1373,13 +1373,13 @@ Please fill out the blanks in the table for each test case and include the items
 
 1. Country search (more than 1000 hotels)
 
-    Endpoint:
+    Endpoint: _Wide Availability: Start search_ and _Wide availability: Get results_
 
     | Field name | Example |
     |------------|--------------|
     | Country ID | Country_3862 |
     | Stay dates | May 5-7, 2022 |
-    | Source market | AE |
+    | Nationality and residency | AE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | ab72b222-cc9e-4411-8211-a4135d941f81 |
     | Expected result | Works correctly and returns a large number of accommodations |
