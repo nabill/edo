@@ -6,6 +6,6 @@ namespace Api.AdministratorServices.Locations
 {
     public interface IMarkupLocationService
     {
-        Task<List<Region>> GetRegions(string languageCode);
+        Task<List<Market>> GetMarkets(string languageCode);
     }
 }

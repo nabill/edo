@@ -58,15 +58,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets a list of markup regions.
+        ///     Gets a list of markup markets.
         /// </summary>
-        /// <returns>List of markup regions</returns>
-        [HttpGet("regions")]
-        [ProducesResponseType(typeof(List<Region>), StatusCodes.Status200OK)]
+        /// <returns>List of markup markets</returns>
+        [HttpGet("markets")]
+        [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetRegions()
-            => Ok(await _markupLocationService.GetRegions(LanguageCode));
+        public async Task<IActionResult> GetMarkets()
+            => Ok(await _markupLocationService.GetMarkets(LanguageCode));
 
 
         /// <summary>

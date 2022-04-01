@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     {
                         Code = "en",
                         Names = JsonDocument.Parse("{\"en\": \"Russian Federation\"}"),
-                        RegionId = 1
+                        MarketId = 1
                     }
                 }));
 
@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                 => _notificationServiceMock
                     .Setup(x => x.Send(It.IsAny<DataWithCompanyInfo>(), It.IsAny<NotificationTypes>()))
                     .Callback<DataWithCompanyInfo, NotificationTypes>((data, _)
-                        => actualMailData = (AccountBalanceManagementNotificationData) data);
+                        => actualMailData = (AccountBalanceManagementNotificationData)data);
         }
 
 
