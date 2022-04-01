@@ -52,7 +52,6 @@ using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
-using IdentityModel;
 using IdentityServer4.AccessTokenValidation;
 using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +63,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
-using Newtonsoft.Json;
 using Polly;
 using Polly.Extensions.Http;
 using Amazon;
@@ -112,7 +110,7 @@ using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
-using Api.AdministratorServices.Locations;
+using AdminLocationServices = Api.AdministratorServices.Locations;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -672,7 +670,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
-            services.AddTransient<IMarkupLocationService, MarkupLocationService>();
+            services.AddTransient<AdminLocationServices.ILocationService, AdminLocationServices.LocationService>();
 
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>

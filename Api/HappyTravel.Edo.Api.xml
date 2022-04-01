@@ -585,12 +585,6 @@
             </summary>
             <returns>List of location markups</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.GetMarkets">
-            <summary>
-                Gets a list of markup markets.
-            </summary>
-            <returns>List of markup markets</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
                 Updates policy settings.
@@ -3252,12 +3246,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.MarketId">
             <summary>
-                Country's market UN M.49 code.
+                Country's market id.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Market.Id">
             <summary>
-                Market UN M.49 code.
+                Market id.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Market.Name">
@@ -3958,6 +3952,34 @@
             <remarks>
             This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
             </remarks>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationController.AddMarket(System.Text.Json.JsonDocument)">
+            <summary>
+                Creates market.
+            </summary>
+            <param name="namesRequest">Names request</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationController.GetMarkets">
+            <summary>
+                Gets a list of markup markets.
+            </summary>
+            <returns>List of markup markets</returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationController.UpdateMarket(System.Int32,System.Text.Json.JsonDocument)">
+            <summary>
+                Updates market by id.
+            </summary>
+            <param name="marketId">Market's id</param>
+            <param name="namesRequest">Names request</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationController.RemoveMarket(System.Int32)">
+            <summary>
+                Deletes market by id.
+            </summary>
+            <param name="marketId">Market's id</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

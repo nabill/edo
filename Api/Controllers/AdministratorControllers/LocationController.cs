@@ -1,42 +1,42 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Api.AdministratorServices.Locations;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
+namespace Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/location-markups")]
+    [Route("api/{v:apiVersion}/admin/locations")]
     [Produces("application/json")]
-    public class LocationMarkupsController : BaseController
+    public class LocationController : BaseController
     {
-        public LocationMarkupsController(IAdminMarkupPolicyManager policyManager)
+        public LocationController(ILocationService locationService)
         {
-            _policyManager = policyManager;
+            _locationService = locationService;
         }
 
 
         /// <summary>
-        /// Creates location markup policy.
+        ///     Creates market.
         /// </summary>
-        /// <param name="settings">Markup settings</param>
+        /// <param name="namesRequest">Names request</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("markets")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicySettings settings)
+        public async Task<IActionResult> AddMarket([FromBody] JsonDocument namesRequest)
         {
-            var (_, isFailure, error) = await _policyManager.AddLocationPolicy(settings);
+            var (_, isFailure, error) = await _locationService.AddMarket(LanguageCode, namesRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -45,30 +45,29 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        /// Gets agent location markup policies
+        ///     Gets a list of markup markets.
         /// </summary>
-        /// <returns>List of location markups</returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        /// <returns>List of markup markets</returns>
+        [HttpGet("markets")]
+        [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetPolicies()
-            => Ok(await _policyManager.GetLocationPolicies());
+        public async Task<IActionResult> GetMarkets()
+            => Ok(await _locationService.GetMarkets(LanguageCode));
 
 
         /// <summary>
-        ///     Updates policy settings.
+        ///     Updates market by id.
         /// </summary>
-        /// <param name="policyId">Id of the policy.</param>
-        /// <param name="policySettings">Updated settings.</param>
+        /// <param name="marketId">Market's id</param>
+        /// <param name="namesRequest">Names request</param>
         /// <returns></returns>
-        [HttpPut("{policyId:int}")]
+        [HttpPut("markets/{marketId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyPolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
+        public async Task<IActionResult> UpdateMarket(int marketId, [FromBody] JsonDocument namesRequest)
         {
-            var (_, isFailure, error) = await _policyManager.ModifyLocationPolicy(policyId, policySettings);
+            var (_, isFailure, error) = await _locationService.UpdateMarket(LanguageCode, marketId, namesRequest);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -77,17 +76,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Deletes location policy.
+        ///     Deletes market by id.
         /// </summary>
-        /// <param name="policyId">Id of the policy to delete.</param>
+        /// <param name="marketId">Market's id</param>
         /// <returns></returns>
-        [HttpDelete("{policyId:int}")]
+        [HttpDelete("markets/{marketId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> RemovePolicy([FromRoute] int policyId)
+        public async Task<IActionResult> RemoveMarket([FromRoute] int marketId)
         {
-            var (_, isFailure, error) = await _policyManager.RemoveLocationPolicy(policyId);
+            var (_, isFailure, error) = await _locationService.RemoveMarket(marketId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -95,6 +94,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        private readonly IAdminMarkupPolicyManager _policyManager;
+        private readonly ILocationService _locationService;
     }
 }
