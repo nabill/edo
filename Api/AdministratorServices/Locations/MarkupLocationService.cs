@@ -19,16 +19,16 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<List<Region>> GetRegions(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarkupLocationService), RegionsKeyBase, languageCode), async ()
-               => await _context.Regions
-                    .Select(r => new Region(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString()))
+        public Task<List<Market>> GetMarkets(string languageCode)
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarkupLocationService), MarketsKeyBase, languageCode), async ()
+               => await _context.Markets
+                    .Select(r => new Market(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString()))
                     .ToListAsync(), DefaultLocationCachingTime);
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
 
-        private const string RegionsKeyBase = "Regions";
+        private const string MarketsKeyBase = "Markets";
 
         private readonly EdoContext _context;
         private readonly IDoubleFlow _flow;

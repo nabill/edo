@@ -22,20 +22,20 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public Task<List<Country>> GetCountries(string query, string languageCode) 
+        public Task<List<Country>> GetCountries(string query, string languageCode)
             => _countryService.Get(query, languageCode);
 
 
-        public Task<List<Region>> GetRegions(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async ()
-                => (await _context.Regions.ToListAsync())
-                .Select(r => new Region(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString())).ToList(), DefaultLocationCachingTime);
+        public Task<List<Market>> GetMarkets(string languageCode)
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), MarketsKeyBase, languageCode), async ()
+                => (await _context.Markets.ToListAsync())
+                .Select(r => new Market(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString())).ToList(), DefaultLocationCachingTime);
 
 
-        
+
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
 
-        private const string RegionsKeyBase = "Regions";
+        private const string MarketsKeyBase = "Markets";
 
         private readonly EdoContext _context;
         private readonly CountryService _countryService;

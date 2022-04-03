@@ -241,7 +241,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
 
 
         [Fact]
-        public void Markups_for_specific_region_should_be_returned()
+        public void Markups_for_specific_market_should_be_returned()
         {
             var markupSubject = new MarkupSubjectInfo
             {
@@ -250,7 +250,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgentId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow",
-                RegionId = 8
+                MarketId = 8
             };
 
             var markupDestination = GetDummyMarkupDestination();
@@ -260,14 +260,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 new()
                 {
                     Id = 1,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Region,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Market,
                     SubjectScopeId = "8",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
                 {
                     Id = 2,
-                    SubjectScopeType = SubjectMarkupScopeTypes.Region,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Market,
                     SubjectScopeId = "1",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 }
