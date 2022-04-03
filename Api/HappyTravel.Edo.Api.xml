@@ -1059,6 +1059,12 @@
              Gets api client info for current agent
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ApiClientsController.Generate">
+            <summary>
+            Generate a new api client for current agent
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
                 Starts availability search and returns an identifier to fetch results later

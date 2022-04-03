@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.ApiClients;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -39,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
                 HasDirectContractsFilter = settings.AdditionalSearchFilters.HasFlag(SearchFilters.DirectContractsOnly)
             };
         }
-        
-        
+
+
         private readonly EdoContext _context;
         private readonly IAccommodationBookingSettingsService _bookingSettingsService;
     }
