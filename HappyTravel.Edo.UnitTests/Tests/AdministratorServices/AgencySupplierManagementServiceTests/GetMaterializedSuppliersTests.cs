@@ -26,14 +26,14 @@ public class GetMaterializedSuppliersTests
             new() { Code = "illusions", IsEnabled = false }
         };
 
-        var agencySupplierSettings = new List<AgencySupplierSettings>(0);
+        var agencySystemSettings = new List<AgencySystemSettings>(0);
         
-        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySupplierSettings);
+        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
 
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
 
-        Assert.Equal(true, suppliers["netstorming"]);
-        Assert.Equal(false, suppliers["illusions"]);
+        Assert.True(suppliers["netstorming"]);
+        Assert.False(suppliers["illusions"]);
     }
     
     
@@ -47,7 +47,7 @@ public class GetMaterializedSuppliersTests
             new() { Code = "etg", IsEnabled = false }
         };
 
-        var agencySupplierSettings = new List<AgencySupplierSettings>()
+        var agencySystemSettings = new List<AgencySystemSettings>()
         {
             new()
             {
@@ -60,13 +60,13 @@ public class GetMaterializedSuppliersTests
             }
         };
         
-        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySupplierSettings);
+        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
 
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
 
-        Assert.Equal(true, suppliers["netstorming"]);
-        Assert.Equal(false, suppliers["illusions"]);
-        Assert.Equal(false, suppliers["etg"]);
+        Assert.True(suppliers["netstorming"]);
+        Assert.False(suppliers["illusions"]);
+        Assert.False(suppliers["etg"]);
     }
     
     
@@ -78,7 +78,7 @@ public class GetMaterializedSuppliersTests
             new() { Code = "netstorming", IsEnabled = false }
         };
 
-        var agencySupplierSettings = new List<AgencySupplierSettings>
+        var agencySystemSettings = new List<AgencySystemSettings>
         {
             new()
             {
@@ -90,11 +90,11 @@ public class GetMaterializedSuppliersTests
             }
         };
         
-        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySupplierSettings);
+        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
 
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
 
-        Assert.Equal(false, suppliers["netstorming"]);
+        Assert.False(suppliers["netstorming"]);
     }
     
     
@@ -106,7 +106,7 @@ public class GetMaterializedSuppliersTests
             new() { Code = "netstorming", IsEnabled = true }
         };
 
-        var agencySupplierSettings = new List<AgencySupplierSettings>
+        var agencySystemSettings = new List<AgencySystemSettings>
         {
             new()
             {
@@ -118,15 +118,15 @@ public class GetMaterializedSuppliersTests
             }
         };
         
-        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySupplierSettings);
+        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
 
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
 
-        Assert.Equal(false, suppliers["netstorming"]);
+        Assert.False(suppliers["netstorming"]);
     }
     
     
-    private IAgencySupplierManagementService CreateAgencySupplierManagementService(List<SlimSupplier> defaultSuppliers, List<AgencySupplierSettings> agencySupplierSettings)
+    private IAgencySupplierManagementService CreateAgencySupplierManagementService(List<SlimSupplier> defaultSuppliers, List<AgencySystemSettings> agencySupplierSettings)
     {
         var suppliersOptionsStorage = GetSupplierOptionsStorage(defaultSuppliers);
         var dbContext = GetDbContext(agencySupplierSettings);
@@ -143,7 +143,7 @@ public class GetMaterializedSuppliersTests
     }
     
 
-    private EdoContext GetDbContext(List<AgencySupplierSettings> agencySupplierSettings)
+    private EdoContext GetDbContext(List<AgencySystemSettings> agencySystemSettings)
     {
         var edoContextMock = new Mock<EdoContext>(new DbContextOptions<EdoContext>());
 
@@ -154,8 +154,8 @@ public class GetMaterializedSuppliersTests
         edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
 
         edoContextMock
-            .Setup(c => c.AgencySupplierSettings)
-            .Returns(DbSetMockProvider.GetDbSetMock(agencySupplierSettings));
+            .Setup(c => c.AgencySystemSettings)
+            .Returns(DbSetMockProvider.GetDbSetMock(agencySystemSettings));
         
         return edoContextMock.Object;
     }

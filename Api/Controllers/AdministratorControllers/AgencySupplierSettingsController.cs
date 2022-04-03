@@ -27,6 +27,15 @@ public class AgencySupplierSettingsController : BaseController
     {
         return Ok(await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId));
     }
+    
+    
+    [HttpPut("{agencyId}/suppliers")]
+    [ProducesResponseType(typeof(Dictionary<string, bool>), StatusCodes.Status200OK)]
+    [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+    public async Task<IActionResult> Put(int agencyId, Dictionary<string, bool> enabledSuppliers)
+    {
+        return Ok(await _agencySupplierManagementService.SaveSuppliers(agencyId, enabledSuppliers));
+    }
 
 
     private readonly IAgencySupplierManagementService _agencySupplierManagementService;

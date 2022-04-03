@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +24,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
-        var agencySettings = await _context.AgencySupplierSettings
+        var agencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
         if (Equals(agencySettings, default))
@@ -57,6 +58,51 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         }
 
         return materializedSettings;
+    }
+
+
+    public async Task<Result> SaveSuppliers(int agencyId, Dictionary<string, bool> enabledSuppliers)
+    {
+        return await Validate()
+            .Tap(AddOrUpdate);
+        
+        
+        Result Validate()
+        {
+            var defaultSuppliers = GetDefaultSuppliers().Value;
+            
+            foreach (var (name, isEnabled) in enabledSuppliers)
+            {
+                if (!defaultSuppliers.ContainsKey(name))
+                    return Result.Failure($"Supplier {name} does not exist in the system");
+                
+                if (isEnabled && !defaultSuppliers[name])
+                    return Result.Failure($"Supplier {name} is disabled in the system");
+            }
+            
+            return Result.Success();
+        }
+
+
+        async Task AddOrUpdate()
+        {
+            var agencySystemSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+            if (Equals(agencySystemSettings, default))
+            {
+                var settings = new AgencySystemSettings
+                {
+                    AgencyId = agencyId,
+                    EnabledSuppliers = enabledSuppliers
+                };
+                _context.Add(settings);
+            }
+            else
+            {
+                agencySystemSettings.EnabledSuppliers = enabledSuppliers;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 
 
