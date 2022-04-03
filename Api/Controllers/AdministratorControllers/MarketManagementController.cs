@@ -17,9 +17,9 @@ namespace Api.Controllers.AdministratorControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/admin/locations")]
     [Produces("application/json")]
-    public class LocationController : BaseController
+    public class MarketManagementController : BaseController
     {
-        public LocationController(IMarketManagementService marketManagementService)
+        public MarketManagementController(IMarketManagementService marketManagementService)
         {
             _marketManagementService = marketManagementService;
         }
@@ -67,11 +67,11 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> UpdateMarket(int marketId, [FromBody] IDictionary<string, string> namesRequest)
+        public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] IDictionary<string, string> namesRequest)
         {
             var jsonDoc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
-            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(LanguageCode, marketId, jsonDoc);
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(LanguageCode, marketId, jsonDoc);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

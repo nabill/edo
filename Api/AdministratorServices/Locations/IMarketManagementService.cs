@@ -11,7 +11,7 @@ namespace Api.AdministratorServices.Locations
     {
         Task<Result> AddMarket(string languageCode, JsonDocument namesRequest, CancellationToken cancellationToken = default);
         Task<List<Market>> GetMarkets(string languageCode, CancellationToken cancellationToken = default);
-        Task<Result> UpdateMarket(string languageCode, int marketId, JsonDocument namesRequest, CancellationToken cancellationToken = default);
+        Task<Result> ModifyMarket(string languageCode, int marketId, JsonDocument namesRequest, CancellationToken cancellationToken = default);
         Task<Result> RemoveMarket(int marketId, CancellationToken cancellationToken = default);
     }
 }

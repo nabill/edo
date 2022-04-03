@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var languageCode = "en";
             var namesRequest = JsonDocument.Parse("{\"en\": \"Far East\"}");
 
-            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketId = 2;
             var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
 
-            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketId = 3;
             var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
 
-            var (_, isFailure, error) = await _marketManagementService.UpdateMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }

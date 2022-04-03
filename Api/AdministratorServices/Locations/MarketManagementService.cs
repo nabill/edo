@@ -27,10 +27,10 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> AddMarket(string languageCode, JsonDocument namesRequest, CancellationToken cancellationToken = default)
         {
-            return GeneralValidate(languageCode, namesRequest)
-                .Tap(AddInternalMarket);
+            return Validate(languageCode, namesRequest)
+                .Tap(Add);
 
-            async Task AddInternalMarket()
+            async Task Add()
             {
                 var newMarket = new MarketContext()
                 {
@@ -50,13 +50,13 @@ namespace Api.AdministratorServices.Locations
                     .ToListAsync(cancellationToken), DefaultLocationCachingTime)!;
 
 
-        public Task<Result> UpdateMarket(string languageCode, int marketId, JsonDocument namesRequest, CancellationToken cancellationToken = default)
+        public Task<Result> ModifyMarket(string languageCode, int marketId, JsonDocument namesRequest, CancellationToken cancellationToken = default)
         {
-            return GeneralValidate(languageCode, namesRequest)
+            return Validate(languageCode, namesRequest)
                 .BindWithTransaction(_context, () => GetMarketById(marketId)
-                    .Bind(UpdateInternalMarket));
+                    .Bind(Update));
 
-            async Task<Result> UpdateInternalMarket(MarketContext marketContext)
+            async Task<Result> Update(MarketContext marketContext)
             {
                 marketContext.Names = namesRequest;
 
@@ -72,9 +72,9 @@ namespace Api.AdministratorServices.Locations
         {
             return Result.Success()
                 .BindWithTransaction(_context, () => GetMarketById(marketId)
-                    .Bind(RemoveInternalMarket));
+                    .Bind(Remove));
 
-            async Task<Result> RemoveInternalMarket(MarketContext marketContext)
+            async Task<Result> Remove(MarketContext marketContext)
             {
                 _context.Remove(marketContext);
                 await _context.SaveChangesAsync();
@@ -90,13 +90,13 @@ namespace Api.AdministratorServices.Locations
                 .SingleOrDefaultAsync(m => m.Id == marketId);
 
             if (market == default)
-                return Result.Failure<MarketContext>("Could not found a market.");
+                return Result.Failure<MarketContext>($"Market with Id {marketId} not found");
 
             return Result.Success(market);
         }
 
 
-        private Result GeneralValidate(string languageCode, JsonDocument namesRequest)
+        private Result Validate(string languageCode, JsonDocument namesRequest)
         {
             var value = new JsonElement();
             var hasCurrentLanguageCode = namesRequest.RootElement.TryGetProperty(languageCode, out value);
