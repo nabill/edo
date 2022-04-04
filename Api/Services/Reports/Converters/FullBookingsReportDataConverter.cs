@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 AgencyName = data.AgencyName,
                 AgencyCity = data.AgencyCity,
                 AgencyCountry = GetJsonProperty(data.AgencyCountry, "en"),
-                AgencyMarket = GetJsonProperty(data.AgencyMarket, "en"),
+                AgencyMarket = data.AgencyMarket.GetValueOrDefault("en"),
                 AgentName = data.AgentName,
                 PaymentMethod = EnumFormatters.FromDescription(data.PaymentMethod),
                 GuestName = data.GuestName,

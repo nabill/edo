@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+﻿using HappyTravel.MultiLanguage;
 
 namespace HappyTravel.Edo.Data.Locations
 {
     public class Market
     {
         public int Id { get; set; }
-        public JsonDocument Names { get; set; } = null!;
+        public MultiLanguage<string> Names { get; set; } = null!;
     }
 }

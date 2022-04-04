@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Api.AdministratorServices.Locations;
+using Api.Models.Locations;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Locations;
@@ -37,9 +37,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_should_return_success()
         {
             var languageCode = "en";
-            var market = new MultiLanguage<string> { En = "Far East" };
+            var marketRequest = new MarketRequest(null, new MultiLanguage<string> { En = "Far East" });
 
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, market, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -49,9 +49,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_without_necessary_language_code_should_return_fail()
         {
             var languageCode = "kz";
-            var market = new MultiLanguage<string> { Ru = "Дальний восток" };
+            var marketRequest = new MarketRequest(null, new MultiLanguage<string> { Ru = "Дальний восток" });
 
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, market, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -72,9 +72,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Update_market_should_return_success()
         {
             var languageCode = "en";
-            var market = new MultiLanguage<string> { En = "Far East" };
+            var marketId = 1;
+            var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { En = "Far East" });
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, 1, market, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -85,9 +86,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "kz";
             var marketId = 2;
-            var market = new MultiLanguage<string> { Ru = "Дальний восток" };
+            var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { Ru = "Дальний восток" });
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, market, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -98,9 +99,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "ru";
             var marketId = 3;
-            var market = new MultiLanguage<string> { En = "Дальний восток" };
+            var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { En = "Дальний восток" });
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, market, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -109,9 +110,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Delete_market_should_return_success()
         {
-            var marketId = 2;
+            var marketRequest = MarketRequest.CreateEmpty(2);
 
-            var (_, isFailure, error) = await _marketManagementService.RemoveMarket(marketId, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.RemoveMarket(marketRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -126,12 +127,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
                     new Market
                     {
                         Id = 1,
-                        Names = JsonDocument.Parse("{\"en\": \"Unknown\"}"),
+                        Names = new MultiLanguage<string> { En = "Unknown" },
                     },
                     new Market
                     {
                         Id = 2,
-                        Names = JsonDocument.Parse("{\"en\": \"Africa\"}"),
+                        Names = new MultiLanguage<string> { En = "Africa" }
                     }
                 }));
         }

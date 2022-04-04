@@ -3959,11 +3959,11 @@
             This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
             </remarks>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(HappyTravel.MultiLanguage.MultiLanguage{System.String})">
+        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
             <summary>
                 Creates market.
             </summary>
-            <param name="market">Market</param>
+            <param name="marketRequest">Market request</param>
             <returns></returns>
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.GetMarkets">
@@ -3972,12 +3972,12 @@
             </summary>
             <returns>List of markup markets</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.ModifyMarket(System.Int32,HappyTravel.MultiLanguage.MultiLanguage{System.String})">
+        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.ModifyMarket(System.Int32,Api.Models.Locations.MarketRequest)">
             <summary>
                 Updates market by id.
             </summary>
             <param name="marketId">Market's id</param>
-            <param name="market">Market</param>
+            <param name="marketRequest">Market request</param>
             <returns></returns>
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.RemoveMarket(System.Int32)">
