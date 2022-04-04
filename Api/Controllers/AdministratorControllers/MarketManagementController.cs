@@ -33,7 +33,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> AddMarket([FromBody] MarketRequest marketRequest)
-            => NoContentOrBadRequest(await _marketManagementService.AddMarket(LanguageCode, marketRequest));
+            => NoContentOrBadRequest(await _marketManagementService.Add(LanguageCode, marketRequest));
 
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarkets()
-            => Ok(await _marketManagementService.GetMarkets(LanguageCode));
+            => Ok(await _marketManagementService.Get());
 
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] MarketRequest marketRequest)
-            => NoContentOrBadRequest(await _marketManagementService.ModifyMarket(LanguageCode, new MarketRequest(marketId, marketRequest)));
+            => NoContentOrBadRequest(await _marketManagementService.Update(LanguageCode, new MarketRequest(marketId, marketRequest)));
 
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemoveMarket([FromRoute] int marketId)
-            => NoContentOrBadRequest(await _marketManagementService.RemoveMarket(MarketRequest.CreateEmpty(marketId)));
+            => NoContentOrBadRequest(await _marketManagementService.Remove(marketId));
 
 
         private readonly IMarketManagementService _marketManagementService;

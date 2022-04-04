@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Data;
-using MarketData = HappyTravel.Edo.Data.Locations.Market;
+using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -25,14 +24,14 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<Result> AddMarket(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
+        public Task<Result> Add(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, marketRequest)
                 .Tap(Add);
 
             async Task Add()
             {
-                var newMarket = new MarketData()
+                var newMarket = new Market()
                 {
                     Names = marketRequest.Names!
                 };
@@ -43,20 +42,20 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<List<Market>> GetMarkets(string languageCode, CancellationToken cancellationToken = default)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase, languageCode), async ()
-               => await _context.Markets
-                    .Select(r => new Market(r.Id, r.Names.GetValueOrDefault(languageCode)))
+        public Task<List<Market>> Get(CancellationToken cancellationToken = default)
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase), async ()
+                => await _context.Markets
+                    .Select(r => new Market { Id = r.Id, Names = r.Names })
                     .ToListAsync(cancellationToken), DefaultLocationCachingTime)!;
 
 
-        public Task<Result> ModifyMarket(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
+        public Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, marketRequest)
                 .BindWithTransaction(_context, () => GetMarketById(marketRequest.MarketId!.Value, cancellationToken)
                     .Bind(Update));
 
-            async Task<Result> Update(MarketData marketData)
+            async Task<Result> Update(Market marketData)
             {
                 marketData.Names = marketRequest.Names!;
 
@@ -68,13 +67,13 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<Result> RemoveMarket(MarketRequest marketRequest, CancellationToken cancellationToken = default)
+        public Task<Result> Remove(int marketId, CancellationToken cancellationToken = default)
         {
             return Result.Success()
-                .BindWithTransaction(_context, () => GetMarketById(marketRequest.MarketId!.Value, cancellationToken)
+                .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
                     .Bind(Remove));
 
-            async Task<Result> Remove(MarketData marketData)
+            async Task<Result> Remove(Market marketData)
             {
                 _context.Remove(marketData);
                 await _context.SaveChangesAsync(cancellationToken);
@@ -84,13 +83,13 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        private async Task<Result<MarketData>> GetMarketById(int marketId, CancellationToken cancellationToken)
+        private async Task<Result<Market>> GetMarketById(int marketId, CancellationToken cancellationToken)
         {
             var market = await _context.Markets
                 .SingleOrDefaultAsync(m => m.Id == marketId, cancellationToken);
 
             if (market == default)
-                return Result.Failure<MarketData>($"Market with Id {marketId} not found");
+                return Result.Failure<Market>($"Market with Id {marketId} was not found");
 
             return Result.Success(market);
         }
