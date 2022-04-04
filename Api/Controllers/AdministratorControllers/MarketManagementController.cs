@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using HappyTravel.MultiLanguage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,16 +35,8 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddMarket([FromBody] IDictionary<string, string> namesRequest)
-        {
-            var jsonDoc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(LanguageCode, jsonDoc);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
+        public async Task<IActionResult> AddMarket([FromBody] MultiLanguage<string> namesRequest)
+            => NoContentOrBadRequest(await _marketManagementService.AddMarket(LanguageCode, namesRequest));
 
 
         /// <summary>
@@ -67,16 +60,8 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] IDictionary<string, string> namesRequest)
-        {
-            var jsonDoc = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(LanguageCode, marketId, jsonDoc);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
+        public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] MultiLanguage<string> namesRequest)
+            => NoContentOrBadRequest(await _marketManagementService.ModifyMarket(LanguageCode, marketId, namesRequest));
 
 
         /// <summary>
@@ -89,13 +74,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemoveMarket([FromRoute] int marketId)
-        {
-            var (_, isFailure, error) = await _marketManagementService.RemoveMarket(marketId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
+            => NoContentOrBadRequest(await _marketManagementService.RemoveMarket(marketId));
 
 
         private readonly IMarketManagementService _marketManagementService;

@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
+using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
@@ -36,7 +37,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_should_return_success()
         {
             var languageCode = "en";
-            var namesRequest = JsonDocument.Parse("{\"en\": \"Far East\"}");
+            var namesRequest = new MultiLanguage<string> { En = "Far East" };
 
             var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
 
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_without_necessary_language_code_should_return_fail()
         {
             var languageCode = "kz";
-            var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
+            var namesRequest = new MultiLanguage<string> { Ru = "Дальний восток" };
 
             var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
 
@@ -71,7 +72,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Update_market_should_return_success()
         {
             var languageCode = "en";
-            var namesRequest = JsonDocument.Parse("{\"en\": \"Far East\"}");
+            var namesRequest = new MultiLanguage<string> { En = "Far East" };
 
             var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
 
@@ -84,7 +85,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "kz";
             var marketId = 2;
-            var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
+            var namesRequest = new MultiLanguage<string> { Ru = "Дальний восток" };
 
             var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 
@@ -97,7 +98,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "ru";
             var marketId = 3;
-            var namesRequest = JsonDocument.Parse("{\"ru\": \"Дальний восток\"}");
+            var namesRequest = new MultiLanguage<string> { En = "Дальний восток" };
 
             var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
 

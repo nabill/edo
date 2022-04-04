@@ -13,6 +13,7 @@ using MarketContext = HappyTravel.Edo.Data.Locations.Market;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.MultiLanguage;
 
 namespace Api.AdministratorServices.Locations
 {
@@ -25,7 +26,7 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<Result> AddMarket(string languageCode, JsonDocument namesRequest, CancellationToken cancellationToken = default)
+        public Task<Result> AddMarket(string languageCode, MultiLanguage<string> namesRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, namesRequest)
                 .Tap(Add);
@@ -34,7 +35,7 @@ namespace Api.AdministratorServices.Locations
             {
                 var newMarket = new MarketContext()
                 {
-                    Names = namesRequest
+                    Names = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)))
                 };
 
                 _context.Add(newMarket);
@@ -50,7 +51,7 @@ namespace Api.AdministratorServices.Locations
                     .ToListAsync(cancellationToken), DefaultLocationCachingTime)!;
 
 
-        public Task<Result> ModifyMarket(string languageCode, int marketId, JsonDocument namesRequest, CancellationToken cancellationToken = default)
+        public Task<Result> ModifyMarket(string languageCode, int marketId, MultiLanguage<string> namesRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, namesRequest)
                 .BindWithTransaction(_context, () => GetMarketById(marketId)
@@ -58,7 +59,7 @@ namespace Api.AdministratorServices.Locations
 
             async Task<Result> Update(MarketContext marketContext)
             {
-                marketContext.Names = namesRequest;
+                marketContext.Names = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)namesRequest, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
                 _context.Update(marketContext);
                 await _context.SaveChangesAsync();
@@ -96,11 +97,11 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        private Result Validate(string languageCode, JsonDocument namesRequest)
+        private Result Validate(string languageCode, MultiLanguage<string> namesRequest)
         {
-            var value = new JsonElement();
-            var hasCurrentLanguageCode = namesRequest.RootElement.TryGetProperty(languageCode, out value);
-            var hasDefaultLanguageCode = namesRequest.RootElement.TryGetProperty(LocalizationHelper.DefaultLanguageCode, out value);
+            var value = string.Empty;
+            var hasCurrentLanguageCode = namesRequest.TryGetValue(languageCode, out value);
+            var hasDefaultLanguageCode = namesRequest.TryGetValue(LocalizationHelper.DefaultLanguageCode, out value);
 
             if (!hasCurrentLanguageCode && !hasDefaultLanguageCode)
                 return Result.Failure("Request need to be contained at least current language code or default language code");
