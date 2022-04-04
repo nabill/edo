@@ -29,14 +29,14 @@ namespace Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Creates market.
         /// </summary>
-        /// <param name="namesRequest">Names request</param>
+        /// <param name="market">Market</param>
         /// <returns></returns>
         [HttpPost("markets")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddMarket([FromBody] MultiLanguage<string> namesRequest)
-            => NoContentOrBadRequest(await _marketManagementService.AddMarket(LanguageCode, namesRequest));
+        public async Task<IActionResult> AddMarket([FromBody] MultiLanguage<string> market)
+            => NoContentOrBadRequest(await _marketManagementService.AddMarket(LanguageCode, market));
 
 
         /// <summary>
@@ -54,14 +54,14 @@ namespace Api.Controllers.AdministratorControllers
         ///     Updates market by id.
         /// </summary>
         /// <param name="marketId">Market's id</param>
-        /// <param name="namesRequest">Names request</param>
+        /// <param name="market">Market</param>
         /// <returns></returns>
         [HttpPut("markets/{marketId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] MultiLanguage<string> namesRequest)
-            => NoContentOrBadRequest(await _marketManagementService.ModifyMarket(LanguageCode, marketId, namesRequest));
+        public async Task<IActionResult> ModifyMarket(int marketId, [FromBody] MultiLanguage<string> market)
+            => NoContentOrBadRequest(await _marketManagementService.ModifyMarket(LanguageCode, marketId, market));
 
 
         /// <summary>

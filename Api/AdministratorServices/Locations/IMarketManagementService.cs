@@ -10,9 +10,9 @@ namespace Api.AdministratorServices.Locations
 {
     public interface IMarketManagementService
     {
-        Task<Result> AddMarket(string languageCode, MultiLanguage<string> namesRequest, CancellationToken cancellationToken = default);
+        Task<Result> AddMarket(string languageCode, MultiLanguage<string> market, CancellationToken cancellationToken = default);
         Task<List<Market>> GetMarkets(string languageCode, CancellationToken cancellationToken = default);
-        Task<Result> ModifyMarket(string languageCode, int marketId, MultiLanguage<string> namesRequest, CancellationToken cancellationToken = default);
+        Task<Result> ModifyMarket(string languageCode, int marketId, MultiLanguage<string> market, CancellationToken cancellationToken = default);
         Task<Result> RemoveMarket(int marketId, CancellationToken cancellationToken = default);
     }
 }

@@ -37,9 +37,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_should_return_success()
         {
             var languageCode = "en";
-            var namesRequest = new MultiLanguage<string> { En = "Far East" };
+            var market = new MultiLanguage<string> { En = "Far East" };
 
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, market, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -49,9 +49,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_without_necessary_language_code_should_return_fail()
         {
             var languageCode = "kz";
-            var namesRequest = new MultiLanguage<string> { Ru = "Дальний восток" };
+            var market = new MultiLanguage<string> { Ru = "Дальний восток" };
 
-            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.AddMarket(languageCode, market, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -72,9 +72,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Update_market_should_return_success()
         {
             var languageCode = "en";
-            var namesRequest = new MultiLanguage<string> { En = "Far East" };
+            var market = new MultiLanguage<string> { En = "Far East" };
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, 1, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, 1, market, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -85,9 +85,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "kz";
             var marketId = 2;
-            var namesRequest = new MultiLanguage<string> { Ru = "Дальний восток" };
+            var market = new MultiLanguage<string> { Ru = "Дальний восток" };
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, market, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -98,9 +98,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             var languageCode = "ru";
             var marketId = 3;
-            var namesRequest = new MultiLanguage<string> { En = "Дальний восток" };
+            var market = new MultiLanguage<string> { En = "Дальний восток" };
 
-            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, namesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.ModifyMarket(languageCode, marketId, market, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }

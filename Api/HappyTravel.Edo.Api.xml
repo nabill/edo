@@ -3963,7 +3963,7 @@
             <summary>
                 Creates market.
             </summary>
-            <param name="namesRequest">Names request</param>
+            <param name="market">Market</param>
             <returns></returns>
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.GetMarkets">
@@ -3977,7 +3977,7 @@
                 Updates market by id.
             </summary>
             <param name="marketId">Market's id</param>
-            <param name="namesRequest">Names request</param>
+            <param name="market">Market</param>
             <returns></returns>
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.RemoveMarket(System.Int32)">
