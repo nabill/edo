@@ -671,6 +671,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
             services.AddTransient<IMarketManagementService, MarketManagementService>();
+            services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
 
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
