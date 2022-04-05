@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_should_return_success()
         {
             var languageCode = "en";
-            var marketRequest = new MarketRequest(null, new MultiLanguage<string> { En = "Far East" });
+            var marketRequest = new MarketRequest(DefualtMarketId, new MultiLanguage<string> { En = "Far East" });
 
             var (_, isFailure, error) = await _marketManagementService.Add(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Add_market_without_necessary_language_code_should_return_fail()
         {
             var languageCode = "kz";
-            var marketRequest = new MarketRequest(null, new MultiLanguage<string> { Ru = "Дальний восток" });
+            var marketRequest = new MarketRequest(DefualtMarketId, new MultiLanguage<string> { Ru = "Дальний восток" });
 
             var (_, isFailure, error) = await _marketManagementService.Add(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
@@ -135,6 +135,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
                     }
                 }));
         }
+
+
+        private const int DefualtMarketId = 0;
 
         private readonly Mock<EdoContext> _edoContextMock;
         private readonly IMarketManagementService _marketManagementService;
