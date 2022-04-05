@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public Task<List<Market>> GetMarkets(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), MarketsKeyBase, languageCode), async ()
                 => (await _context.Markets.ToListAsync())
-                .Select(r => new Market(r.Id, r.Names.RootElement.GetProperty(languageCode).GetString())).ToList(), DefaultLocationCachingTime);
+                .Select(r => new Market(r.Id, r.Names.GetValueOrDefault(languageCode))).ToList(), DefaultLocationCachingTime)!;
 
 
 

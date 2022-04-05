@@ -19,10 +19,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class LocationMarkupsController : BaseController
     {
-        public LocationMarkupsController(IAdminMarkupPolicyManager policyManager, IMarkupLocationService markupLocationService)
+        public LocationMarkupsController(IAdminMarkupPolicyManager policyManager)
         {
             _policyManager = policyManager;
-            _markupLocationService = markupLocationService;
         }
 
 
@@ -55,18 +54,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetPolicies()
             => Ok(await _policyManager.GetLocationPolicies());
-
-
-        /// <summary>
-        ///     Gets a list of markup markets.
-        /// </summary>
-        /// <returns>List of markup markets</returns>
-        [HttpGet("markets")]
-        [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetMarkets()
-            => Ok(await _markupLocationService.GetMarkets(LanguageCode));
 
 
         /// <summary>
@@ -109,6 +96,5 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         private readonly IAdminMarkupPolicyManager _policyManager;
-        private readonly IMarkupLocationService _markupLocationService;
     }
 }
