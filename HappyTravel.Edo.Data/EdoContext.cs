@@ -37,6 +37,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
         public virtual DbSet<Market> Markets { get; set; }
+        public virtual DbSet<Region> Regions { get; set; }
         public virtual DbSet<Bookings.Booking> Bookings { get; set; }
 
         public DbSet<BookingRequest> BookingRequests { get; set; }
@@ -205,6 +206,7 @@ namespace HappyTravel.Edo.Data
 
             BuildCountry(builder);
             BuildMarket(builder);
+            BuildRegion(builder);
             BuildAgent(builder);
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
@@ -431,6 +433,20 @@ namespace HappyTravel.Edo.Data
                 .Property(c => c.Id)
                 .IsRequired();
             builder.Entity<Market>()
+                .Property(c => c.Names)
+                .HasColumnType("jsonb")
+                .IsRequired();
+        }
+
+
+        private static void BuildRegion(ModelBuilder builder)
+        {
+            builder.Entity<Region>()
+                .HasKey(c => c.Id);
+            builder.Entity<Region>()
+                .Property(c => c.Id)
+                .IsRequired();
+            builder.Entity<Region>()
                 .Property(c => c.Names)
                 .HasColumnType("jsonb")
                 .IsRequired();
