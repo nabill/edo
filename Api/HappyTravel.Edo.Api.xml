@@ -1435,9 +1435,9 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetMarkets">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetRegions">
             <summary>
-                Returns a list of markets.
+                Returns a list of regions.
             </summary>
             <returns></returns>
         </member>
@@ -3255,6 +3255,11 @@
                 Country's market id.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.RegionId">
+            <summary>
+                Country's region id.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Market.Id">
             <summary>
                 Market id.
@@ -3288,6 +3293,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Value">
             <summary>
                 The combined value from prediction country, locality, and name values to display for a user.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Id">
+            <summary>
+                Region id.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Name">
+            <summary>
+                The dictionary of Region names on supported languages.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.Administrators.AdministratorInfo.Id">

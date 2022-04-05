@@ -33,14 +33,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Returns a list of markets.
+        ///     Returns a list of regions.
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("markets")]
-        [ProducesResponseType(typeof(List<Market>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMarkets()
-            => Ok(await _service.GetMarkets(LanguageCode));
+        [HttpGet("regions")]
+        [ProducesResponseType(typeof(List<Region>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetRegions()
+            => Ok(await _service.GetRegions(LanguageCode));
 
 
         private readonly ILocationService _service;

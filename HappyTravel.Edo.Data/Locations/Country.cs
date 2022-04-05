@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Data.Locations
         public string Code { get; set; } = string.Empty;
         public JsonDocument Names { get; set; } = null!;
         public int MarketId { get; set; }
+        public int RegionId { get; set; }
     }
 }
