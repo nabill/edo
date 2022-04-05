@@ -22,8 +22,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _edoContextMock = MockEdoContextFactory.Create();
             SetupInitialData();
 
-            var fakeDoubleFlow = new FakeDoubleFlow();
-            _marketManagementService = new MarketManagementService(_edoContextMock.Object, fakeDoubleFlow);
+            var marketManagementStorageMock = new Mock<IMarketManagementStorage>();
+            marketManagementStorageMock.Setup(m => m.Get(It.IsAny<CancellationToken>())).ReturnsAsync(markets);
+
+            _marketManagementService = new MarketManagementService(_edoContextMock.Object, marketManagementStorageMock.Object);
 
             var strategy = new ExecutionStrategyMock();
 
@@ -121,20 +123,23 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             _edoContextMock
                 .Setup(c => c.Markets)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<Market>
-                {
-                    new Market
-                    {
-                        Id = 1,
-                        Names = new MultiLanguage<string> { En = "Unknown" },
-                    },
-                    new Market
-                    {
-                        Id = 2,
-                        Names = new MultiLanguage<string> { En = "Africa" }
-                    }
-                }));
+                .Returns(DbSetMockProvider.GetDbSetMock(markets));
         }
+
+
+        private readonly List<Market> markets = new()
+        {
+            new Market
+            {
+                Id = 1,
+                Names = new MultiLanguage<string> { En = "Unknown" },
+            },
+            new Market
+            {
+                Id = 2,
+                Names = new MultiLanguage<string> { En = "Africa" }
+            }
+        };
 
 
         private const int DefualtMarketId = 0;

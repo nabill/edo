@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FloxDc.CacheFlow;
-using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
@@ -17,17 +13,18 @@ namespace Api.AdministratorServices.Locations
 {
     public class MarketManagementService : IMarketManagementService
     {
-        public MarketManagementService(EdoContext context, IDoubleFlow flow)
+        public MarketManagementService(EdoContext context, IMarketManagementStorage marketStorage)
         {
             _context = context;
-            _flow = flow;
+            _marketStorage = marketStorage;
         }
 
 
         public Task<Result> Add(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, marketRequest)
-                .Tap(Add);
+                .Tap(Add)
+                .Tap(() => _marketStorage.Refresh(cancellationToken));
 
             async Task Add()
             {
@@ -43,17 +40,15 @@ namespace Api.AdministratorServices.Locations
 
 
         public Task<List<Market>> Get(CancellationToken cancellationToken = default)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase), async ()
-                => await _context.Markets
-                    .Select(r => new Market { Id = r.Id, Names = r.Names })
-                    .ToListAsync(cancellationToken), DefaultLocationCachingTime)!;
+            => _marketStorage.Get(cancellationToken);
 
 
         public Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
             return Validate(languageCode, marketRequest)
                 .BindWithTransaction(_context, () => GetMarketById(marketRequest.MarketId!.Value, cancellationToken)
-                    .Bind(Update));
+                    .Bind(Update))
+                .Tap(() => _marketStorage.Refresh(cancellationToken));
 
             async Task<Result> Update(Market marketData)
             {
@@ -71,7 +66,8 @@ namespace Api.AdministratorServices.Locations
         {
             return Result.Success()
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
-                    .Bind(Remove));
+                    .Bind(Remove))
+                .Tap(() => _marketStorage.Refresh(cancellationToken));
 
             async Task<Result> Remove(Market marketData)
             {
@@ -85,7 +81,12 @@ namespace Api.AdministratorServices.Locations
 
         private async Task<Result<Market>> GetMarketById(int marketId, CancellationToken cancellationToken)
         {
-            var market = await _context.Markets
+            var market = await _marketStorage.Get(marketId, cancellationToken);
+
+            if (market is not null)
+                return Result.Success(market);
+
+            market = await _context.Markets
                 .SingleOrDefaultAsync(m => m.Id == marketId, cancellationToken);
 
             if (market == default)
@@ -111,11 +112,7 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
-
-        private const string MarketsKeyBase = "Markets";
-
         private readonly EdoContext _context;
-        private readonly IDoubleFlow _flow;
+        private readonly IMarketManagementStorage _marketStorage;
     }
 }
