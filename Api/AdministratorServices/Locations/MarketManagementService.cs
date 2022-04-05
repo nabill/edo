@@ -81,12 +81,7 @@ namespace Api.AdministratorServices.Locations
 
         private async Task<Result<Market>> GetMarketById(int marketId, CancellationToken cancellationToken)
         {
-            var market = await _marketStorage.Get(marketId, cancellationToken);
-
-            if (market is not null)
-                return Result.Success(market);
-
-            market = await _context.Markets
+            var market = await _context.Markets
                 .SingleOrDefaultAsync(m => m.Id == marketId, cancellationToken);
 
             if (market == default)
