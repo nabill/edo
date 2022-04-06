@@ -22,6 +22,7 @@ using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
+using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -86,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     new Country
                     {
                         Code = "en",
-                        Names = JsonDocument.Parse("{\"en\": \"Russian Federation\"}"),
+                        Names = new MultiLanguage<string> { En = "Russian Federation" },
                         MarketId = 1
                     }
                 }));

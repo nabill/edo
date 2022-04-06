@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var (_, isFailure, countriesResponse) = await marketManagementService.GetCountries(countryRequest, It.IsAny<CancellationToken>());
 
             Assert.Equal(countriesResponse.Count, countriesById.Count);
-            Assert.All(countriesResponse, m => Assert.NotNull(m.Names.RootElement.GetProperty("en")));
+            Assert.All(countriesResponse, m => Assert.NotNull(m.Names.GetValueOrDefault("en")));
         }
 
 
@@ -245,37 +245,37 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             new Country
             {
                 Code = "RU",
-                Names = JsonDocument.Parse("{\"en\": \"Russia\"}"),
+                Names = new MultiLanguage<string> { En = "Russia" },
                 MarketId = 2
             },
             new Country
             {
                 Code = "KZ",
-                Names = JsonDocument.Parse("{\"en\": \"Kazakhstan\"}"),
+                Names = new MultiLanguage<string> { En = "Kazakhstan" },
                 MarketId = 2
             },
             new Country
             {
                 Code = "KR",
-                Names = JsonDocument.Parse("{\"en\": \"Kyrgyzstan\"}"),
+                Names = new MultiLanguage<string> { En = "Kyrgyzstan" },
                 MarketId = 2
             },
             new Country
             {
                 Code = "GB",
-                Names = JsonDocument.Parse("{\"en\": \"Great Britan\"}"),
+                Names = new MultiLanguage<string> { En = "Great Britan" },
                 MarketId = 1
             },
             new Country
             {
                 Code = "US",
-                Names = JsonDocument.Parse("{\"en\": \"United States\"}"),
+                Names = new MultiLanguage<string> { En = "United States" },
                 MarketId = 1
             },
             new Country
             {
                 Code = "AL",
-                Names = JsonDocument.Parse("{\"en\": \"Albania\"}"),
+                Names = new MultiLanguage<string> { En = "Albania" },
                 MarketId = 3
             },
         };
