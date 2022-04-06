@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using Api.Models.Locations;
+using FluentValidation;
+using System;
+using System.Linq;
 
 namespace Api.AdministratorServices.Locations
 {
@@ -25,6 +28,7 @@ namespace Api.AdministratorServices.Locations
             return Validate(languageCode, marketRequest)
                 .Tap(Add)
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
+
 
             async Task Add()
             {
@@ -50,6 +54,7 @@ namespace Api.AdministratorServices.Locations
                     .Bind(Update))
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
 
+
             async Task<Result> Update(Market marketData)
             {
                 marketData.Names = marketRequest.Names!;
@@ -64,10 +69,27 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Remove(int marketId, CancellationToken cancellationToken = default)
         {
-            return Result.Success()
+            return RemoveValidate()
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
                     .Bind(Remove))
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
+
+
+            Result RemoveValidate()
+                => GenericValidator<int>.Validate(v =>
+                    {
+                        v.RuleFor(m => m)
+                            .GreaterThan(0)
+                            .MustAsync(IsNotUnknown())
+                            .WithMessage("Removing unknown market is forbidden");
+
+
+                        Func<int, CancellationToken, Task<bool>> IsNotUnknown()
+                            => async (marketId, cancellationToken)
+                                => await _context.Markets
+                                    .AnyAsync(m => m.Id == marketId && !m.Names.En.Contains(UnknownMarketEnName), cancellationToken);
+                    }, marketId);
+
 
             async Task<Result> Remove(Market marketData)
             {
@@ -76,6 +98,92 @@ namespace Api.AdministratorServices.Locations
 
                 return Result.Success();
             }
+        }
+
+
+        public Task<Result> AddCountries(CountryRequest request, CancellationToken cancellationToken)
+        {
+            return AddValidate()
+                .Tap(SetUnkownToDifferences)
+                .Tap(Add)
+                .Tap(() => _marketStorage.RefreshCountries(request.MarketId!.Value, cancellationToken));
+
+
+            Result AddValidate()
+                => GenericValidator<CountryRequest>.Validate(async v =>
+                    {
+                        v.RuleFor(r => r.MarketId)
+                            .NotNull()
+                            .MustAsync(IsExist())
+                            .WithMessage($"Market with Id {request.MarketId} was not found");
+
+                        var unknownMarketId = await FindUnknownMarketId(cancellationToken);
+
+                        v.RuleFor(r => r.CountryCodes)
+                            .NotEmpty()
+                            .ForEach(c => c
+                                .MustAsync(CheckCountryAvailability(request.MarketId!.Value, unknownMarketId))
+                                .WithMessage("One or many of the country's codes are not available"));
+
+
+                        Func<string, CancellationToken, Task<bool>> CheckCountryAvailability(int currentMarketId, int unknownMarketId)
+                            => async (countryCode, cancellationToken)
+                                => await _context.Countries
+                                    .AnyAsync(c => c.Code == countryCode && (c.MarketId == currentMarketId || c.MarketId == unknownMarketId), cancellationToken);
+                    }, request);
+
+
+            async Task SetUnkownToDifferences()
+            {
+                var unknownMarketId = await FindUnknownMarketId(cancellationToken);
+
+                var countriesDifferences = await _context.Countries
+                    .Where(m => m.MarketId == request.MarketId && !request.CountryCodes!.Contains(m.Code))
+                    .ToListAsync(cancellationToken);
+
+                countriesDifferences.ForEach(c =>
+                {
+                    c.MarketId = unknownMarketId;
+                });
+
+                await _context.SaveChangesAsync();
+            }
+
+
+            async Task Add()
+            {
+                var countries = await _context.Countries
+                    .Where(m => request.CountryCodes!.Contains(m.Code))
+                    .ToListAsync(cancellationToken);
+
+                countries.ForEach(c =>
+                {
+                    c.MarketId = request.MarketId!.Value;
+                });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        public Task<Result<List<Country>>> GetCountries(CountryRequest request, CancellationToken cancellationToken)
+        {
+            return RemoveValidate()
+                .Bind(Get);
+
+
+            Result RemoveValidate()
+                => GenericValidator<CountryRequest>.Validate(v =>
+                    {
+                        v.RuleFor(r => r.MarketId)
+                                .NotNull()
+                                .MustAsync(IsExist())
+                                .WithMessage($"Market with Id {request.MarketId} was not found");
+                    }, request);
+
+
+            async Task<Result<List<Country>>> Get()
+                => await _marketStorage.GetCountries(request.MarketId!.Value, cancellationToken);
         }
 
 
@@ -89,6 +197,18 @@ namespace Api.AdministratorServices.Locations
 
             return Result.Success(market);
         }
+
+
+        private Func<int?, CancellationToken, Task<bool>> IsExist()
+            => async (marketId, cancellationToken)
+                => await _context.Markets.AnyAsync(m => m.Id == marketId, cancellationToken);
+
+
+        private async Task<int> FindUnknownMarketId(CancellationToken cancellationToken)
+            => await _context.Markets
+                .Where(m => m.Names.En.Contains(UnknownMarketEnName))
+                .Select(m => m.Id)
+                .SingleAsync(cancellationToken);
 
 
         private Result Validate(string languageCode, MarketRequest marketRequest)
@@ -106,6 +226,8 @@ namespace Api.AdministratorServices.Locations
             return Result.Success();
         }
 
+
+        private const string UnknownMarketEnName = "Unknown";
 
         private readonly EdoContext _context;
         private readonly IMarketManagementStorage _marketStorage;

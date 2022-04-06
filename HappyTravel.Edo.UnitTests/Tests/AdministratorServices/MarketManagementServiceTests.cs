@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Api.AdministratorServices.Locations;
@@ -22,10 +24,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _edoContextMock = MockEdoContextFactory.Create();
             SetupInitialData();
 
-            var marketManagementStorageMock = new Mock<IMarketManagementStorage>();
-            marketManagementStorageMock.Setup(m => m.Get(It.IsAny<CancellationToken>())).ReturnsAsync(markets);
+            _marketManagementStorageMock = new Mock<IMarketManagementStorage>();
+            _marketManagementStorageMock.Setup(m => m.Get(It.IsAny<CancellationToken>())).ReturnsAsync(markets);
 
-            _marketManagementService = new MarketManagementService(_edoContextMock.Object, marketManagementStorageMock.Object);
+            _marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
 
             var strategy = new ExecutionStrategyMock();
 
@@ -38,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Add_market_should_return_success()
         {
-            var languageCode = "en";
+            const string languageCode = "en";
             var marketRequest = new MarketRequest(DefualtMarketId, new MultiLanguage<string> { En = "Far East" });
 
             var (_, isFailure, error) = await _marketManagementService.Add(languageCode, marketRequest, It.IsAny<CancellationToken>());
@@ -50,7 +52,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Add_market_without_necessary_language_code_should_return_fail()
         {
-            var languageCode = "kz";
+            const string languageCode = "kz";
             var marketRequest = new MarketRequest(DefualtMarketId, new MultiLanguage<string> { Ru = "Дальний восток" });
 
             var (_, isFailure, error) = await _marketManagementService.Add(languageCode, marketRequest, It.IsAny<CancellationToken>());
@@ -62,18 +64,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Get_market_should_return_success()
         {
-            var markets = await _marketManagementService.Get(It.IsAny<CancellationToken>());
+            var marketsResponse = await _marketManagementService.Get(It.IsAny<CancellationToken>());
 
-            Assert.Equal(markets.Count, 2);
-            Assert.All(markets, m => Assert.NotNull(m.Names.En));
+            Assert.Equal(marketsResponse.Count, markets.Count);
+            Assert.All(marketsResponse, m => Assert.NotNull(m.Names.En));
         }
 
 
         [Fact]
         public async Task Update_market_should_return_success()
         {
-            var languageCode = "en";
-            var marketId = 1;
+            const string languageCode = "en";
+            const int marketId = 1;
             var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { En = "Far East" });
 
             var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
@@ -85,8 +87,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Update_market_without_necessary_language_code_should_return_fail()
         {
-            var languageCode = "kz";
-            var marketId = 2;
+            const string languageCode = "kz";
+            const int marketId = 2;
             var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { Ru = "Дальний восток" });
 
             var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
@@ -98,8 +100,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Update_market_with_wrong_marketId_should_return_fail()
         {
-            var languageCode = "ru";
-            var marketId = 3;
+            const string languageCode = "ru";
+            const int marketId = 4;
             var marketRequest = new MarketRequest(marketId, new MultiLanguage<string> { En = "Дальний восток" });
 
             var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
@@ -111,11 +113,98 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         [Fact]
         public async Task Delete_market_should_return_success()
         {
-            var marketId = 2;
+            const int marketId = 2;
 
             var (_, isFailure, error) = await _marketManagementService.Remove(marketId, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Delete_unknown_market_should_return_fail()
+        {
+            const int marketId = 1;
+
+            var (_, isFailure, error) = await _marketManagementService.Remove(marketId, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Get_countries_should_return_success()
+        {
+            const int marketId = 2;
+            var countriesById = countries.Where(c => c.MarketId == marketId).ToList();
+            var countryRequest = CountryRequest.CreateEmpty(marketId);
+            _marketManagementStorageMock
+                .Setup(m => m.GetCountries(marketId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(countriesById);
+            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
+
+
+            var (_, isFailure, countriesResponse) = await marketManagementService.GetCountries(countryRequest, It.IsAny<CancellationToken>());
+
+            Assert.Equal(countriesResponse.Count, countriesById.Count);
+            Assert.All(countriesResponse, m => Assert.NotNull(m.Names.RootElement.GetProperty("en")));
+        }
+
+
+        [Fact]
+        public async Task Get_countries_with_wrong_marketId_should_return_fail()
+        {
+            const int marketId = 4;
+            var countriesById = countries.Where(c => c.MarketId == marketId).ToList();
+            var countryRequest = CountryRequest.CreateEmpty(marketId);
+            _marketManagementStorageMock
+                .Setup(m => m.GetCountries(marketId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(countriesById);
+            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
+
+
+            var (_, isFailure, response, error) = await marketManagementService.GetCountries(countryRequest, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Add_countries_to_market_should_return_success()
+        {
+            const int marketId = 2;
+            var listCodes = new List<string> { "GB", "US" };
+            var countriesRequest = new CountryRequest(marketId, listCodes);
+
+            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+
+            Assert.False(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Add_countries_with_wrong_marketId_should_return_fail()
+        {
+            const int marketId = 4;
+            var listCodes = new List<string> { "GB", "US" };
+            var countriesRequest = new CountryRequest(marketId, listCodes);
+
+            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Add_countries_to_market_with_wrong_country_code_should_return_fail()
+        {
+            const int marketId = 2;
+            var listCodes = new List<string> { "GB", "US", "AL" };
+            var countriesRequest = new CountryRequest(marketId, listCodes);
+
+            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
         }
 
 
@@ -124,6 +213,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _edoContextMock
                 .Setup(c => c.Markets)
                 .Returns(DbSetMockProvider.GetDbSetMock(markets));
+
+            _edoContextMock
+                .Setup(c => c.Countries)
+                .Returns(DbSetMockProvider.GetDbSetMock(countries));
         }
 
 
@@ -137,14 +230,61 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             new Market
             {
                 Id = 2,
-                Names = new MultiLanguage<string> { En = "Africa" }
+                Names = new MultiLanguage<string> { En = "CIS" }
+            },
+            new Market
+            {
+                Id = 3,
+                Names = new MultiLanguage<string> { En = "Africa"}
             }
+        };
+
+
+        private readonly List<Country> countries = new()
+        {
+            new Country
+            {
+                Code = "RU",
+                Names = JsonDocument.Parse("{\"en\": \"Russia\"}"),
+                MarketId = 2
+            },
+            new Country
+            {
+                Code = "KZ",
+                Names = JsonDocument.Parse("{\"en\": \"Kazakhstan\"}"),
+                MarketId = 2
+            },
+            new Country
+            {
+                Code = "KR",
+                Names = JsonDocument.Parse("{\"en\": \"Kyrgyzstan\"}"),
+                MarketId = 2
+            },
+            new Country
+            {
+                Code = "GB",
+                Names = JsonDocument.Parse("{\"en\": \"Great Britan\"}"),
+                MarketId = 1
+            },
+            new Country
+            {
+                Code = "US",
+                Names = JsonDocument.Parse("{\"en\": \"United States\"}"),
+                MarketId = 1
+            },
+            new Country
+            {
+                Code = "AL",
+                Names = JsonDocument.Parse("{\"en\": \"Albania\"}"),
+                MarketId = 3
+            },
         };
 
 
         private const int DefualtMarketId = 0;
 
         private readonly Mock<EdoContext> _edoContextMock;
+        private readonly Mock<IMarketManagementStorage> _marketManagementStorageMock;
         private readonly IMarketManagementService _marketManagementService;
     }
 }
