@@ -15,15 +15,15 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
         {
             _supplierOptionsStorage = supplierOptionsStorage;
         }
-        
-        
+
+
         public FullBookingsReportRow Convert(FullBookingsReportData data)
         {
             var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(data.SupplierCode);
             var supplierName = isFailure
                 ? string.Empty
                 : supplier.Name;
-            
+
             return new()
             {
                 Created = DateTimeFormatters.ToDateString(data.Created),
@@ -32,8 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 InvoiceNumber = data.InvoiceNumber,
                 AgencyName = data.AgencyName,
                 AgencyCity = data.AgencyCity,
-                AgencyCountry = GetJsonProperty(data.AgencyCountry, "en"),
-                AgencyRegion = GetJsonProperty(data.AgencyRegion, "en"),
+                AgencyCountry = data.AgencyCountry.GetValueOrDefault("en"),
+                AgencyMarket = data.AgencyMarket.GetValueOrDefault("en"),
                 AgentName = data.AgentName,
                 PaymentMethod = EnumFormatters.FromDescription(data.PaymentMethod),
                 GuestName = data.GuestName,

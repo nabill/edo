@@ -49,11 +49,11 @@ public class SuppliersController : BaseController
     /// </summary>
     /// <param name="supplier">A new supplier info</param>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.SupplierManagement)]
     public async Task<IActionResult> Add([FromBody] RichSupplier supplier)
-        => OkOrBadRequest(await _supplierOptionsClient.Add(supplier));
+        => NoContentOrBadRequest(await _supplierOptionsClient.Add(supplier));
 
 
     /// <summary>
@@ -62,34 +62,36 @@ public class SuppliersController : BaseController
     /// <param name="code">Supplier code</param>
     /// <param name="supplier">Supplier data</param>
     [HttpPut("{code}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Modify([FromRoute] string code, [FromBody] RichSupplier supplier)
-        => OkOrBadRequest(await _supplierOptionsClient.Modify(code, supplier));
+        => NoContentOrBadRequest(await _supplierOptionsClient.Modify(code, supplier));
 
 
     /// <summary>
     /// Activates a supplier
     /// </summary>
     /// <param name="code">Supplier code</param>
+    /// <param name="reason">Reason for activating the supplier</param>
     [HttpPost("{code}/activate")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-    public async Task<IActionResult> Activate([FromRoute] string code)
-        => OkOrBadRequest(await _supplierOptionsClient.Activate(code));
-    
-    
+    public async Task<IActionResult> Activate([FromRoute] string code, [FromQuery] string reason)
+        => NoContentOrBadRequest(await _supplierOptionsClient.Activate(code, reason));
+
+
     /// <summary>
     /// Deactivates a supplier
     /// </summary>
     /// <param name="code">Supplier code</param>
+    /// <param name="reason">Reason for deactivating the supplier</param>
     [HttpPost("{code}/deactivate")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-    public async Task<IActionResult> Deactivate([FromRoute] string code)
-        => OkOrBadRequest(await _supplierOptionsClient.Deactivate(code));
+    public async Task<IActionResult> Deactivate([FromRoute] string code, [FromQuery] string reason)
+        => NoContentOrBadRequest(await _supplierOptionsClient.Deactivate(code, reason));
     
     
     private readonly ISupplierOptionsClient _supplierOptionsClient;

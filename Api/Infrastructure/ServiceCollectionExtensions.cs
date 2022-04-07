@@ -52,7 +52,6 @@ using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
-using IdentityModel;
 using IdentityServer4.AccessTokenValidation;
 using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +63,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
-using Newtonsoft.Json;
 using Polly;
 using Polly.Extensions.Http;
 using Amazon;
@@ -112,6 +110,7 @@ using Microsoft.Extensions.Hosting;
 using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
+using Api.AdministratorServices.Locations;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -126,7 +125,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     options.Authority = authorityUrl;
                     options.Audience = apiName;
                     options.RequireHttpsMetadata = true;
-                    options.Events = new JwtBearerEvents {
+                    options.Events = new JwtBearerEvents
+                    {
                         OnMessageReceived = context =>
                         {
                             var func = !context.Request.Path.StartsWithSegments("/signalr")
@@ -160,17 +160,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ClientSecret = clientSecret,
                 });
             });
-            
+
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
-            
+
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
             });
-            
+
             services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
@@ -189,7 +189,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.AccessTokenClient, client =>
             {
                 client.BaseAddress = new Uri(authorityUrl);
-            }); 
+            });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.AccessTokenClient, client =>
             {
@@ -256,7 +256,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
-            services.Configure<PropertyOwnerMailingOptions>(options => 
+            services.Configure<PropertyOwnerMailingOptions>(options =>
             {
                 options.ReservationsOfficeBackupEmail = reservationsOfficeBackupEmail;
             });
@@ -265,9 +265,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #region tag processing options
 
             services.Configure<TagProcessingOptions>(configuration.GetSection("TagProcessing"));
-            
+
             #endregion
-            
+
             services.Configure<BookingStatusUpdateOptions>(configuration.GetSection("BookingStatusUpdate"));
 
             var databaseOptions = vaultClient.Get(configuration["Edo:Database:Options"]).GetAwaiter().GetResult();
@@ -287,10 +287,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
-            
+
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
             services.Configure<SupplierConnectorOptions>(configuration.GetSection("SupplierConnectorOptions"));
-            
+
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
@@ -331,7 +331,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ReturnUrl = payfortUrlsOptions["return"];
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
-            
+
             services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
 
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
@@ -367,7 +367,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.AesKey = Convert.FromBase64String(urlGenerationOptions["aesKey"]);
                 options.AesIV = Convert.FromBase64String(urlGenerationOptions["aesIV"]);
             });
-            
+
             services.Configure<PaymentProcessorOption>(configuration.GetSection("PaymentProcessor"));
             services.Configure<MarkupPolicyStorageOptions>(configuration.GetSection("MarkupPolicyStorageOptions"));
             services.Configure<DiscountStorageOptions>(configuration.GetSection("DiscountStorageOptions"));
@@ -390,9 +390,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.NGenius, c => { c.BaseAddress = new Uri(nGeniusOptions["host"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
-            
+
             #endregion
-            
+
             return services;
         }
 
@@ -401,7 +401,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         {
             services.AddScoped<IdempotentFunctionExecutor>();
             services.AddScoped<IdempotentBookingExecutor>();
-            
+
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration)));
             services.AddSingleton<IDistributedLocker, RedisDistributedLocker>();
@@ -414,7 +414,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAgencyVerificationService, AgencyVerificationService>();
-            
+
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
             services.AddTransient<IAgentRolesService, AgentRolesService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
@@ -425,14 +425,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingCreditCardPaymentService, BookingCreditCardPaymentService>();
             services.AddTransient<IBookingAccountPaymentService, BookingAccountPaymentService>();
             services.AddTransient<IBookingPaymentCallbackService, BookingPaymentCallbackService>();
-            
+
             services.AddScoped<IAgentContextService, HttpBasedAgentContextService>();
             services.AddScoped<IAgentContextInternal, HttpBasedAgentContextService>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-            
+
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
@@ -456,7 +456,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAdminInvitationCreateService, AdminInvitationCreateService>();
 
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
-            
+
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddScoped<IEntityLocker, EntityLocker>();
@@ -468,7 +468,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IMarkupPolicyService, MarkupPolicyService>();
             services.AddTransient<IMarkupService, MarkupService>();
-            
+
             services.AddTransient<IDisplayedMarkupFormulaService, DisplayedMarkupFormulaService>();
             services.AddTransient<IMarkupBonusMaterializationService, MarkupBonusMaterializationService>();
             services.AddTransient<IMarkupBonusDisplayService, MarkupBonusDisplayService>();
@@ -478,7 +478,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IChildAgencyMarkupPolicyManager, ChildAgencyMarkupPolicyManager>();
             services.AddTransient<IMarkupPolicyAuditService, MarkupPolicyAuditService>();
             services.AddScoped<IAdminMarkupPolicyManager, AdminMarkupPolicyManager>();
-            
+
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
             services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
 
@@ -494,11 +494,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<IAgentRolesAssignmentService, AgentRolesAssignmentService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
-            
+
             services.AddTransient<IBookingNotificationService, BookingNotificationService>();
             services.AddTransient<IBookingDocumentsMailingService, BookingDocumentsMailingService>();
             services.AddTransient<IBookingReportsService, BookingReportsService>();
-            
+
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
@@ -506,13 +506,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IWideAvailabilityPriceProcessor, WideAvailabilityPriceProcessor>();
             services.AddTransient<IWideAvailabilityAccommodationsStorage, WideAvailabilityAccommodationsStorage>();
-            
+
             services.AddTransient<IRoomSelectionService, RoomSelectionService>();
             services.AddTransient<IRoomSelectionPriceProcessor, RoomSelectionPriceProcessor>();
-            
+
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
             services.AddTransient<IBookingEvaluationPriceProcessor, BookingEvaluationPriceProcessor>();
-            
+
             services.AddTransient<ISupplierBookingManagementService, SupplierBookingManagementService>();
             services.AddTransient<IFinancialAccountBookingFlow, FinancialAccountBookingFlow>();
             services.AddTransient<IBankCreditCardBookingFlow, BankCreditCardBookingFlow>();
@@ -521,16 +521,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingRequestExecutor, BookingRequestExecutor>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
-            
+
             services.AddTransient<IBookingRecordsUpdater, BookingRecordsUpdater>();
             services.AddTransient<IBookingRegistrationService, BookingRegistrationService>();
             services.AddTransient<IBookingChangeLogService, BookingChangeLogService>();
-            
+
             services.AddTransient<IBookingMoneyReturnService, BookingMoneyReturnService>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
             services.AddTransient<IAppliedBookingMarkupRecordsManager, AppliedBookingMarkupRecordsManager>();
-            
+
             services.AddTransient<IAgentBookingDocumentsService, AgentBookingDocumentsService>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
@@ -670,7 +670,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocalityInfoService, LocalityInfoService>();
             services.AddTransient<IDirectApiClientManagementService, DirectApiClientManagementService>();
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
-            
+            services.AddTransient<IMarketManagementService, MarketManagementService>();
+            services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
+
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
@@ -710,7 +712,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     TargetCurrency = Currencies.USD
                 }
             });
-            
+
             return services;
         }
 
@@ -777,8 +779,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return services;
         }
-        
-        
+
+
         private const int ConnectorClientHandlerLifeTimeMinutes = 5;
         private const int ConnectorClientRequestTimeoutSeconds = 130;
     }

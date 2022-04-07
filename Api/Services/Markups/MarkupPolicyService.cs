@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agencyId = subjectInfo.AgencyId;
             var agencyTreeIds = subjectInfo.AgencyAncestors;
             agencyTreeIds.Add(agencyId);
-            
+
             var policies = _markupPolicyStorage.Get(policy =>
                 IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, destinationInfo)
             );
@@ -32,15 +32,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ThenBy(p => p.DestinationScopeType)
                 .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
                 .ToList();
-            
+
             static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
             {
+                // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
                 SubjectMarkupScopeTypes.Global => true,
-                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryHtId,
-                SubjectMarkupScopeTypes.Locality => policy.SubjectScopeId == info.LocalityHtId,
+                SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
+                SubjectMarkupScopeTypes.Country => false, // policy.SubjectScopeId == info.CountryHtId,
+                SubjectMarkupScopeTypes.Locality => false, // policy.SubjectScopeId == info.LocalityHtId,
                 SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
-                SubjectMarkupScopeTypes.Agent => policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+                SubjectMarkupScopeTypes.Agent => false, // policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -48,8 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
             {
                 var destinationScopeId = policy.DestinationScopeId;
-                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.CountryHtId
-                    || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;
+                return string.IsNullOrWhiteSpace(destinationScopeId); /*|| destinationScopeId == info.CountryHtId
+                    || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
             }
         }
 

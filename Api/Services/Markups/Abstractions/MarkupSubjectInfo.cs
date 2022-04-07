@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Abstractions
     {
         public string CountryHtId { get; init; }
         public string LocalityHtId { get; init; }
+        public int MarketId { get; init; }
         public int AgencyId { get; init; }
         public int AgentId { get; init; }
         public List<int> AgencyAncestors { get; init; }

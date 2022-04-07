@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public AgentContext(int agentId, string firstName, string lastName, string email,
             string title, string position, int agencyId, string agencyName, bool isMaster,
             InAgencyPermissions inAgencyPermissions, string countryHtId, string localityHtId,
-            List<int> agencyAncestors)
+            int marketId, List<int> agencyAncestors)
         {
             AgentId = agentId;
             FirstName = firstName;
@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             InAgencyPermissions = inAgencyPermissions;
             CountryHtId = countryHtId;
             LocalityHtId = localityHtId;
+            MarketId = marketId;
             AgencyAncestors = agencyAncestors;
         }
 
@@ -59,6 +60,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public InAgencyPermissions InAgencyPermissions { get; }
         public string CountryHtId { get; }
         public string LocalityHtId { get; }
+        public int MarketId { get; }
         public List<int> AgencyAncestors { get; }
         public string Title { get; }
         public string Position { get; }

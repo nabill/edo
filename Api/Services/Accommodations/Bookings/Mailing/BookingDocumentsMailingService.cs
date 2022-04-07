@@ -158,7 +158,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private static string FormatPrice(MoneyAmount moneyAmount)
+        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, SlimAgentContext agentContext) 
+            => _notificationsService.Send(agent: agentContext,
+            messageData: payload,
+            notificationType: NotificationTypes.PaymentRefund,
+            email: email);
+
+
+        private static string FormatPrice(MoneyAmount moneyAmount) 
             => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
 

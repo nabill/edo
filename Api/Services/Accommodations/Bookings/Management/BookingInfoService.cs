@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using Grpc.Core;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -18,6 +19,7 @@ using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
+using BookingStatusHistoryEntry = HappyTravel.Edo.Api.Models.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -162,11 +164,60 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
         
-        public Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId) 
-            => _context.BookingStatusHistory
-                .Where(bsh => bsh.BookingId == bookingId)
-                .OrderBy(bsh => bsh.Id)
-                .ToListAsync();
+        public Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId)
+        {
+            var query = from entry in _context.BookingStatusHistory
+                where entry.BookingId == bookingId
+                orderby entry.Id
+                let agent = _context.Agents.SingleOrDefault(a => a.Id.ToString() == entry.UserId && entry.Initiator == BookingChangeInitiators.Agent)
+                select new BookingStatusHistoryEntry(entry.Id,
+                    entry.BookingId,
+                    entry.UserId,
+                    entry.ApiCallerType,
+                    entry.AgencyId,
+                    entry.CreatedAt,
+                    entry.Status,
+                    entry.Initiator,
+                    entry.Source,
+                    entry.Event,
+                    entry.Reason,
+                    agent != null
+                        ? $"{agent.FirstName} {agent.LastName}"
+                        : null
+                );
+
+            return query.ToListAsync();
+        }
+        
+        
+        public Task<List<AdministratorBookingStatusHistoryEntry>> GetAdministratorBookingStatusHistory(int bookingId)
+        {
+            var query = from entry in _context.BookingStatusHistory
+                where entry.BookingId == bookingId
+                orderby entry.Id
+                let agent = _context.Agents.SingleOrDefault(a => a.Id.ToString() == entry.UserId && entry.Initiator == BookingChangeInitiators.Agent)
+                let admin = _context.Administrators.SingleOrDefault(a => a.Id.ToString() == entry.UserId && entry.Initiator == BookingChangeInitiators.Administrator)
+                select new AdministratorBookingStatusHistoryEntry(entry.Id,
+                    entry.BookingId,
+                    entry.UserId,
+                    entry.ApiCallerType,
+                    entry.AgencyId,
+                    entry.CreatedAt,
+                    entry.Status,
+                    entry.Initiator,
+                    entry.Source,
+                    entry.Event,
+                    entry.Reason,
+                    agent != null
+                        ? $"{agent.FirstName} {agent.LastName}"
+                        : null,
+                    admin != null
+                        ? $"{admin.FirstName} {admin.LastName}"
+                        : null
+                );
+
+            return query.ToListAsync();
+        }
 
 
         public async Task<Result<List<BookingConfirmationHistoryEntry>>> GetBookingConfirmationHistory(string referenceCode)

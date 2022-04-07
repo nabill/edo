@@ -4,6 +4,6 @@ namespace HappyTravel.Edo.Data.Agents
     {
         public int AgencyId { get; set; }
 
-        public AgencyAccommodationBookingSettings AccommodationBookingSettings { get; set; }
+        public AgencyAccommodationBookingSettings? AccommodationBookingSettings { get; set; }
     }
 }

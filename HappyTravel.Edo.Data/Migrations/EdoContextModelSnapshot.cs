@@ -5,6 +5,7 @@ using System.Text.Json;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -43,6 +44,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<List<int>>("Ancestors")
+                        .IsRequired()
                         .HasColumnType("integer[]");
 
                     b.Property<string>("BillingEmail")
@@ -82,6 +84,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("LocalityHtId")
                         .HasColumnType("text");
+
+                    b.Property<int>("MarketId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Modified")
                         .HasColumnType("timestamp with time zone");
@@ -244,6 +249,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Permissions")
@@ -337,12 +343,14 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FileName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("Updated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -373,6 +381,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ReferenceCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -408,6 +417,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<List<CancellationPolicy>>("CancellationPolicies")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
                         .HasDefaultValueSql("'[]'::jsonb");
@@ -459,6 +469,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasDefaultValue("en");
 
                     b.Property<AccommodationLocation>("Location")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<string>("MainPassengerName")
@@ -484,7 +495,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Rooms")
-                        .HasColumnType("jsonb");
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::jsonb");
 
                     b.Property<List<KeyValuePair<string, string>>>("SpecialValues")
                         .HasColumnType("jsonb");
@@ -873,7 +887,10 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
-                    b.Property<JsonDocument>("Names")
+                    b.Property<int>("MarketId")
+                        .HasColumnType("integer");
+
+                    b.Property<MultiLanguage<string>>("Names")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
@@ -883,6 +900,23 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Countries");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Market", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<MultiLanguage<string>>("Names")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Markets");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>
@@ -959,6 +993,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int[]>("NotificationTypes")

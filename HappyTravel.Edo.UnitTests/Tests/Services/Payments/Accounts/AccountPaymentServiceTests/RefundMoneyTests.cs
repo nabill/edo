@@ -5,10 +5,13 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -29,6 +32,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
     
             var edoContextMock = MockEdoContextFactory.Create();
+            
+            edoContextMock
+                .Setup(c => c.Agents)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<Agent>
+                {
+                    new Agent
+                    {
+                        Id = 1,
+                        Email = "email"
+                    },
+                }));
+            
             var edoContextMock1 = edoContextMock;
             var mockedEdoContext = edoContextMock.Object;
     
@@ -37,9 +52,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
     
             var dateTimeProviderMock = new Mock<IDateTimeProvider>();
             dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(CancellationDate);
+
+            var bookingRecordManagerMock = new Mock<IBookingRecordManager>();
+            bookingRecordManagerMock.Setup(b => b.Get(It.IsAny<string>()))
+                .ReturnsAsync(Booking);
     
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, mockedEdoContext,
-                dateTimeProviderMock.Object, Mock.Of<IBalanceManagementNotificationsService>());
+                dateTimeProviderMock.Object, Mock.Of<IBalanceManagementNotificationsService>(),
+                bookingRecordManagerMock.Object, Mock.Of<IBookingDocumentsMailingService>());
     
             var strategy = new ExecutionStrategyMock();
     
@@ -185,8 +205,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         };
 
         private static readonly DateTimeOffset CancellationDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        private static readonly Booking Booking = new Booking 
+        { 
+            AgentId = 1,
+            ReferenceCode = "ReferenceCode"
+        };
 
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", new());
+        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
     }
 }

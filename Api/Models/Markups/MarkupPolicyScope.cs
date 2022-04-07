@@ -27,22 +27,22 @@ namespace HappyTravel.Edo.Api.Models.Markups
                 v.RuleFor(s => s.AgencyId).NotEmpty()
                     .When(t => t.Type == SubjectMarkupScopeTypes.Agency)
                     .WithMessage("AgencyId is required");
-                
+
                 v.RuleFor(s => s.AgencyId).NotEmpty()
                     .When(t => t.Type == SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgencyId is required");
                 v.RuleFor(s => s.AgentId).NotEmpty()
                     .When(t => t.Type == SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgentId is required");
-                
+
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == SubjectMarkupScopeTypes.Country || t.Type == SubjectMarkupScopeTypes.Locality)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Market || t.Type == SubjectMarkupScopeTypes.Country || t.Type == SubjectMarkupScopeTypes.Locality)
                     .WithMessage("LocationId is required");
-                
+
                 v.RuleFor(s => s.AgencyId).Empty()
                     .When(t => t.Type != SubjectMarkupScopeTypes.Agency && t.Type != SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgencyId must be empty");
-                
+
                 v.RuleFor(s => s.AgentId).Empty()
                     .When(t => t.Type != SubjectMarkupScopeTypes.Agent)
                     .WithMessage("AgentId must be empty");
@@ -56,6 +56,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
             agentScopeId = Type switch
             {
                 SubjectMarkupScopeTypes.Global => "",
+                SubjectMarkupScopeTypes.Market => LocationId,
                 SubjectMarkupScopeTypes.Country => LocationId,
                 SubjectMarkupScopeTypes.Locality => LocationId,
                 SubjectMarkupScopeTypes.Agency => AgencyId.ToString(),
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
             agencyId = AgencyId;
             agentId = AgentId;
         }
-        
+
 
         /// <summary>
         ///     Scope type.
@@ -81,7 +82,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         ///     Agent id for agent scope type
         /// </summary>
         public int? AgentId { get; }
-        
+
         /// <summary>
         ///     Location id for location scope type
         /// </summary>

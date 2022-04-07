@@ -4,7 +4,7 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <AssemblyName>HappyTravel.Edo.Api</AssemblyName>
     <LangVersion>10</LangVersion>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -25,21 +25,21 @@
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.MessagePack" Version="1.10.0" />
     <PackageReference Include="HappyTravel.AmazonS3Client" Version="1.1.0" />
-    <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.2" />
+    <PackageReference Include="HappyTravel.ConsulKeyValueClient.ConfigurationProvider" Version="1.6.3" />
     <PackageReference Include="HappyTravel.CurrencyConverter" Version="1.0.7" />
     <PackageReference Include="HappyTravel.DataFormatters" Version="1.3.1" />
-    <PackageReference Include="HappyTravel.EdoContracts" Version="2.5.1" />
+    <PackageReference Include="HappyTravel.EdoContracts" Version="2.5.2" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.2.3" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.4.0" />
     <PackageReference Include="HappyTravel.MapperContracts" Version="1.1.5" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
-    <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="0.4.0" />
-    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="0.8.0" />
-    <PackageReference Include="HappyTravel.Telemetry" Version="0.15.6" />
+    <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="0.5.2" />
+    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="0.8.1" />
+    <PackageReference Include="HappyTravel.Telemetry" Version="0.15.7" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="10.4.0" />
     <PackageReference Include="FluentValidator.Core" Version="1.0.1" />
-    <PackageReference Include="IdentityModel.AspNetCore" Version="4.1.3" />
+    <PackageReference Include="IdentityModel.AspNetCore" Version="4.2.0" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.2-rc56" />
     <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.2-rc56" />
@@ -56,7 +56,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
     <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.0.152" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.14.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.15.0" />
     <PackageReference Include="shortid" Version="3.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.3" />

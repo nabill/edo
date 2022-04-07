@@ -7,8 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct RegistrationAgencyInfo
     {
         [JsonConstructor]
-        public RegistrationAgencyInfo(string name, string address, string billingEmail, string fax,
-            string phone, string postalCode, string website, string vatNumber, string legalAddress, PaymentTypes preferredPaymentMethod,
+        public RegistrationAgencyInfo(string name, string address, string billingEmail, string? fax,
+            string phone, string? postalCode, string? website, string? vatNumber, string legalAddress, PaymentTypes preferredPaymentMethod,
             string localityHtId)
         {
             Name = name;
@@ -47,17 +47,17 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         ///     Fax number. Only digits, length between 3 and 30.
         /// </summary>
-        public string Fax { get; }
+        public string? Fax { get; }
 
         /// <summary>
         ///     Postal code.
         /// </summary>
-        public string PostalCode { get; }
+        public string? PostalCode { get; }
 
         /// <summary>
         ///     Agency site url.
         /// </summary>
-        public string Website { get; }
+        public string? Website { get; }
 
         /// <summary>
         /// E-mail for billing operations
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         /// Value added tax identification number
         /// </summary>
-        public string VatNumber { get; }
+        public string? VatNumber { get; }
 
         /// <summary>
         ///     Agency address.
