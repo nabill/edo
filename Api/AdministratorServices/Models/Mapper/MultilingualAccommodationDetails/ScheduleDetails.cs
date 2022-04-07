@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public struct ScheduleDetails
+public class ScheduleDetails
 {
     public string CheckInTime { get; init; }
     public string CheckOutTime { get; init; }

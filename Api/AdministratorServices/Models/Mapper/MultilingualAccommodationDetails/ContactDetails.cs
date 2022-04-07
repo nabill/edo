@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public struct ContactDetails
+public class ContactDetails
 {
     public List<string> Emails { get; init; }
     public List<string> Faxes { get; init; }

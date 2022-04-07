@@ -4,7 +4,7 @@ using GeoPoint = HappyTravel.Geography.GeoPoint;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public struct MultilingualLocationDetails
+public class MultilingualLocationDetails
 {
     public string? CountryCode { get; init; }
     public MultiLanguage.MultiLanguage<string>? Country { get; init;}
