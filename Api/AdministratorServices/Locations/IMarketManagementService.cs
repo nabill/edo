@@ -13,7 +13,7 @@ namespace Api.AdministratorServices.Locations
         Task<List<Market>> Get(CancellationToken cancellationToken = default);
         Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default);
         Task<Result> Remove(int marketId, CancellationToken cancellationToken = default);
-        Task<Result> AddCountries(CountryRequest countryRequest, CancellationToken cancellationToken = default);
-        Task<Result<List<Country>>> GetCountries(CountryRequest request, CancellationToken cancellationToken = default);
+        Task<Result> UpdateMarketCountries(CountryRequest countryRequest, CancellationToken cancellationToken = default);
+        Task<Result<List<Country>>> GetMarketCountries(CountryRequest request, CancellationToken cancellationToken = default);
     }
 }

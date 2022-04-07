@@ -52,18 +52,18 @@ namespace Api.AdministratorServices.Locations
             => await _context.Markets.ToListAsync(cancellationToken);
 
 
-        public async Task RefreshCountries(int marketId, CancellationToken cancellationToken)
+        public async Task RefreshMarketCountries(int marketId, CancellationToken cancellationToken)
         {
-            var countries = await LoadCountriesFromDatabase(cancellationToken);
+            var countries = await LoadCountriesFromDatabase(marketId, cancellationToken);
             await _flow.SetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase, marketId.ToString()), countries, DefaultLocationCachingTime, cancellationToken);
         }
 
 
-        private async Task<List<Country>> LoadCountriesFromDatabase(CancellationToken cancellationToken)
-            => await _context.Countries.ToListAsync(cancellationToken);
+        private async Task<List<Country>> LoadCountriesFromDatabase(int marketId, CancellationToken cancellationToken)
+            => await _context.Countries.Where(c => c.MarketId == marketId).ToListAsync(cancellationToken);
 
 
-        private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
+        private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromMinutes(10);
 
         private const string MarketsKeyBase = "Markets";
 

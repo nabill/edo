@@ -75,7 +75,7 @@ namespace Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Adds countries to market.
+        ///     Update the composition of the market countries
         /// </summary>
         /// <param name="marketId">Market's id</param>
         /// <param name="countryRequest">Country request</param>
@@ -84,8 +84,8 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> AddCountries([FromRoute] int marketId, [FromBody] CountryRequest countryRequest)
-            => NoContentOrBadRequest(await _marketManagementService.AddCountries(new CountryRequest(marketId, countryRequest)));
+        public async Task<IActionResult> UpdateMarketCountries([FromRoute] int marketId, [FromBody] CountryRequest countryRequest)
+            => NoContentOrBadRequest(await _marketManagementService.UpdateMarketCountries(new CountryRequest(marketId, countryRequest)));
 
 
         /// <summary>
@@ -96,8 +96,8 @@ namespace Api.Controllers.AdministratorControllers
         [HttpGet("{marketId:int}/countries")]
         [ProducesResponseType(typeof(List<Country>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetCountries([FromRoute] int marketId)
-            => OkOrBadRequest(await _marketManagementService.GetCountries(CountryRequest.CreateEmpty(marketId)));
+        public async Task<IActionResult> GetMarketCountries([FromRoute] int marketId)
+            => OkOrBadRequest(await _marketManagementService.GetMarketCountries(CountryRequest.CreateEmpty(marketId)));
 
 
         private readonly IMarketManagementService _marketManagementService;

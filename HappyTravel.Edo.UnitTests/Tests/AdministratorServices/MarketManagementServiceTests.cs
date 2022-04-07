@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
 
 
-            var (_, isFailure, countriesResponse) = await marketManagementService.GetCountries(countryRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, countriesResponse) = await marketManagementService.GetMarketCountries(countryRequest, It.IsAny<CancellationToken>());
 
             Assert.Equal(countriesResponse.Count, countriesById.Count);
             Assert.All(countriesResponse, m => Assert.NotNull(m.Names.GetValueOrDefault("en")));
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
 
 
-            var (_, isFailure, response, error) = await marketManagementService.GetCountries(countryRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, response, error) = await marketManagementService.GetMarketCountries(countryRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var listCodes = new List<string> { "GB", "US" };
             var countriesRequest = new CountryRequest(marketId, listCodes);
 
-            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarketCountries(countriesRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -189,7 +189,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var listCodes = new List<string> { "GB", "US" };
             var countriesRequest = new CountryRequest(marketId, listCodes);
 
-            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarketCountries(countriesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var listCodes = new List<string> { "GB", "US", "AL" };
             var countriesRequest = new CountryRequest(marketId, listCodes);
 
-            var (_, isFailure, error) = await _marketManagementService.AddCountries(countriesRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, error) = await _marketManagementService.UpdateMarketCountries(countriesRequest, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
