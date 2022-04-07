@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public class MultilingualTextualDescriptionDetails
+public record MultilingualTextualDescriptionDetails
 {
     public MultiLanguage.MultiLanguage<string> Description { get; init; }
     public TextualDescriptionTypes Type { get; init; }

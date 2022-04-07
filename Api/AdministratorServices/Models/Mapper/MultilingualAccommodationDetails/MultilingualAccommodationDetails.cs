@@ -4,7 +4,7 @@ using UniqueAccommodationCodes = HappyTravel.MapperContracts.Public.Accommodatio
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public class MultilingualAccommodationDetails
+public record MultilingualAccommodationDetails
 {
     public string? SupplierCode { get; init; }
     public MultiLanguage.MultiLanguage<string>? Name { get; init; }
