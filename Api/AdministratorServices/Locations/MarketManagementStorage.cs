@@ -26,7 +26,7 @@ namespace Api.AdministratorServices.Locations
                     .ToListAsync(cancellationToken), DefaultLocationCachingTime, cancellationToken)!;
 
 
-        public Task<List<Country>> GetCountries(int marketId, CancellationToken cancellationToken)
+        public Task<List<Country>> GetMarketCountries(int marketId, CancellationToken cancellationToken)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(MarketManagementService), MarketsKeyBase, marketId.ToString()), async ()
                 => await _context.Countries
                     .Where(c => c.MarketId == marketId)
@@ -48,8 +48,8 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        private async Task<List<Market>> LoadFromDatabase(CancellationToken cancellationToken)
-            => await _context.Markets.ToListAsync(cancellationToken);
+        private Task<List<Market>> LoadFromDatabase(CancellationToken cancellationToken)
+            => _context.Markets.ToListAsync(cancellationToken);
 
 
         public async Task RefreshMarketCountries(int marketId, CancellationToken cancellationToken)
@@ -59,8 +59,8 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        private async Task<List<Country>> LoadCountriesFromDatabase(int marketId, CancellationToken cancellationToken)
-            => await _context.Countries.Where(c => c.MarketId == marketId).ToListAsync(cancellationToken);
+        private Task<List<Country>> LoadCountriesFromDatabase(int marketId, CancellationToken cancellationToken)
+            => _context.Countries.Where(c => c.MarketId == marketId).ToListAsync(cancellationToken);
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromMinutes(10);

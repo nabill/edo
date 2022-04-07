@@ -6,7 +6,7 @@ namespace Api.Models.Locations
     public readonly struct CountryRequest
     {
         [JsonConstructor]
-        public CountryRequest(int? marketId, List<string>? countryCodes)
+        public CountryRequest(int marketId, List<string> countryCodes)
         {
             MarketId = marketId;
             CountryCodes = countryCodes;
@@ -17,9 +17,7 @@ namespace Api.Models.Locations
         { }
 
 
-        public int? MarketId { get; }
-        public List<string>? CountryCodes { get; }
-
-        public static CountryRequest CreateEmpty(int marketId) => new(marketId, null);
+        public int MarketId { get; }
+        public List<string> CountryCodes { get; }
     }
 }

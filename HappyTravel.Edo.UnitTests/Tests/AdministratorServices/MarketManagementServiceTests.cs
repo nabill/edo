@@ -137,14 +137,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             const int marketId = 2;
             var countriesById = countries.Where(c => c.MarketId == marketId).ToList();
-            var countryRequest = CountryRequest.CreateEmpty(marketId);
             _marketManagementStorageMock
-                .Setup(m => m.GetCountries(marketId, It.IsAny<CancellationToken>()))
+                .Setup(m => m.GetMarketCountries(marketId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(countriesById);
             var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
 
 
-            var (_, isFailure, countriesResponse) = await marketManagementService.GetMarketCountries(countryRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, countriesResponse) = await marketManagementService.GetMarketCountries(marketId, It.IsAny<CancellationToken>());
 
             Assert.Equal(countriesResponse.Count, countriesById.Count);
             Assert.All(countriesResponse, m => Assert.NotNull(m.Names.GetValueOrDefault("en")));
@@ -156,14 +155,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         {
             const int marketId = 4;
             var countriesById = countries.Where(c => c.MarketId == marketId).ToList();
-            var countryRequest = CountryRequest.CreateEmpty(marketId);
             _marketManagementStorageMock
-                .Setup(m => m.GetCountries(marketId, It.IsAny<CancellationToken>()))
+                .Setup(m => m.GetMarketCountries(marketId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(countriesById);
             var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
 
 
-            var (_, isFailure, response, error) = await marketManagementService.GetMarketCountries(countryRequest, It.IsAny<CancellationToken>());
+            var (_, isFailure, response, error) = await marketManagementService.GetMarketCountries(marketId, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }

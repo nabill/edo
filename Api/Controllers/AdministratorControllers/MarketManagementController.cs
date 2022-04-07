@@ -97,7 +97,7 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<Country>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarketCountries([FromRoute] int marketId)
-            => OkOrBadRequest(await _marketManagementService.GetMarketCountries(CountryRequest.CreateEmpty(marketId)));
+            => OkOrBadRequest(await _marketManagementService.GetMarketCountries(marketId));
 
 
         private readonly IMarketManagementService _marketManagementService;
