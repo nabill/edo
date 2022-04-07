@@ -42,8 +42,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"direct-connectivity-report-suppliers-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns agency wise direct connectivity report
         /// </summary>
@@ -62,8 +62,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"direct-connectivity-report-agencies-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns agencies productivity report
         /// </summary>
@@ -82,8 +82,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"agencies-productivity-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns full bookings report
         /// </summary>
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
-        
+
         /// <summary>
         ///     Returns confirmed bookings report
         /// </summary>
@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
-        
+
         /// <summary>
         ///     Returns hotel wise booking report 
         /// </summary>
@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
-        
+
         /// <summary>
         ///     Returns cancellation deadline report 
         /// </summary>
@@ -201,8 +201,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"cancellation-deadline-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns third party suppliers report 
         /// </summary>
@@ -221,8 +221,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"third-party-suppliers-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns vcc bookings report 
         /// </summary>
@@ -241,8 +241,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"vcc-bookings-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         [HttpGet("hotel-productivity-report")]
         [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -258,8 +258,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"hotel-productivity-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         /// <summary>
         ///     Returns cancelled bookings report 
         /// </summary>
@@ -278,8 +278,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 FileDownloadName = $"cancelled-bookings-report-{from:g}-{end:g}.csv"
             };
         }
-        
-        
+
+
         private readonly IReportService _reportService;
     }
 }

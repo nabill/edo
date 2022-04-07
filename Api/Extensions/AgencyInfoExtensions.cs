@@ -6,20 +6,21 @@ using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.MultiLanguage;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
     public static class AgencyInfoExtensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, JsonDocument countryNames, string languageCode, string markupFormula)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, MultiLanguage<string> countryNames, string languageCode, string markupFormula)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
                 address: agency.Address,
                 billingEmail: agency.BillingEmail,
                 city: agency.City,
                 countryCode: agency.CountryCode,
-                countryName: countryNames.RootElement.GetProperty(languageCode).GetString(),
+                countryName: countryNames.GetValueOrDefault(languageCode),
                 fax: agency.Fax,
                 phone: agency.Phone,
                 postalCode: agency.PostalCode,
