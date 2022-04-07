@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 
-public struct PoiDetails
+public record PoiDetails
 {
     public string? Name { get; init; }
     public string? Description { get; init;}
