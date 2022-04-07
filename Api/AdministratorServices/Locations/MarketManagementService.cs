@@ -101,6 +101,7 @@ namespace Api.AdministratorServices.Locations
 
             return ValidateUpdate()
                 .Tap(SetDifferencesToUnkownMarket)
+                .Tap(RefreshUnknownMarketCountries)
                 .Tap(Update)
                 .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken));
 
@@ -138,6 +139,7 @@ namespace Api.AdministratorServices.Locations
                     c.MarketId = unknownMarketId;
                 });
 
+                _context.UpdateRange(countriesDifferences);
                 await _context.SaveChangesAsync();
             }
 
@@ -153,6 +155,7 @@ namespace Api.AdministratorServices.Locations
                     c.MarketId = request.MarketId;
                 });
 
+                _context.UpdateRange(countries);
                 await _context.SaveChangesAsync();
             }
 
@@ -162,6 +165,10 @@ namespace Api.AdministratorServices.Locations
                     .Where(m => m.Id == UnknownMarketId)
                     .Select(m => m.Id)
                     .Single();
+
+
+            async Task RefreshUnknownMarketCountries()
+                => await _marketStorage.RefreshMarketCountries(UnknownMarketId, cancellationToken);
         }
 
 
