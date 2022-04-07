@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
+using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 
@@ -40,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        public AdminAgencyManagementService GetAgencyManagementService(EdoContext context) 
+        public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
             => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>());
 
 
@@ -60,9 +61,9 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
             var agentService = new Api.Services.Agents.AgentService(context, Mock.Of<IDateTimeProvider>());
 
-            return new AgencyVerificationService(context, 
+            return new AgencyVerificationService(context,
                 accountManagementServiceMock.Object,
-                Mock.Of<IManagementAuditService>(), 
+                Mock.Of<IManagementAuditService>(),
                 Mock.Of<INotificationService>(),
                 new DefaultDateTimeProvider(),
                 agentService);
@@ -302,7 +303,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
             new Data.Locations.Country
             {
                 Code = "AF",
-                Names = JsonDocument.Parse("{\"ar\": \"أفغانستان\", \"cn\": \"阿富汗\", \"en\": \"Afghanistan\", \"es\": \"Afganistán\", \"fr\": \"Afghanistan\", \"ru\": \"Афганистан\"}")
+                Names = new MultiLanguage<string>
+                {
+                    Ar = "أفغانستان",
+                    En = "Afghanistan",
+                    Es = "Afganistán",
+                    Fr = "Afghanistan",
+                    Ru = "Афганистан"
+                }
             },
         };
     }

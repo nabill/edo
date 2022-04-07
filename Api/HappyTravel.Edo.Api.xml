@@ -4002,5 +4002,20 @@
             <param name="marketId">Market's id</param>
             <returns></returns>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.UpdateMarketCountries(System.Int32,Api.Models.Locations.CountryRequest)">
+            <summary>
+                Update the composition of the market countries
+            </summary>
+            <param name="marketId">Market's id</param>
+            <param name="countryRequest">Country request</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.GetMarketCountries(System.Int32)">
+            <summary>
+                Gets a list of countries by market id.
+            </summary>
+            <param name="marketId">Market's id</param>
+            <returns>List of countries of market</returns>
+        </member>
     </members>
 </doc>

@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             return _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode, query), async ()
                 => await _context.Countries
                     .Where(c => EF.Functions.ILike(c.Code, query) || EF.Functions.ILike((string)(object)c.Names, @$"%""{languageCode}"":%""%{query}%"))
-                    .Select(c => new Country(c.Code, c.Names.RootElement.GetProperty(languageCode).GetString(), c.MarketId, c.RegionId))
+                    .Select(c => new Country(c.Code, c.Names.GetValueOrDefault(languageCode), c.MarketId, c.RegionId))
                     .ToListAsync(), DefaultLocationCachingTime);
         }
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var cacheKey = _flow.BuildKey(nameof(CountryService), CountriesKeyBase, languageCode);
             return _flow.GetOrSetAsync(cacheKey, async ()
                     => (await _context.Countries.ToListAsync())
-                    .Select(c => new Country(c.Code, c.Names.RootElement.GetProperty(languageCode).GetString(), c.MarketId, c.RegionId)).ToList(),
+                    .Select(c => new Country(c.Code, c.Names.GetValueOrDefault(languageCode), c.MarketId, c.RegionId)).ToList(),
                 DefaultLocationCachingTime);
         }
 
