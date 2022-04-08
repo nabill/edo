@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Mapping
         public string SupplierCode { get; init; }
         public string LocalityHtId { get; init; }
         public string CountryHtId { get; init; }
-        
+        public int RegionId { get; init; }
     }
 }

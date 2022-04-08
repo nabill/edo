@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 accommodation: availability.Accommodation,
                 countryHtId: availability.CountryHtId,
                 localityHtId: availability.LocalityHtId,
-                evaluationToken: availability.EvaluationToken);
+                evaluationToken: availability.EvaluationToken,
+                regionId: availability.RegionId);
         }
     }
 }

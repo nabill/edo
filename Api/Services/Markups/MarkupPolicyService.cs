@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
             {
                 var destinationScopeId = policy.DestinationScopeId;
-                return string.IsNullOrWhiteSpace(destinationScopeId); /*|| destinationScopeId == info.CountryHtId
-                    || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
+                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.RegionId.ToString();
+                /*|| destinationScopeId == info.CountryHtId || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
             }
         }
 

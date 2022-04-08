@@ -2144,6 +2144,11 @@
             Token to use between 3-rd step and booking to avoid double bookings
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.RegionId">
+            <summary>
+            Country code of accommodation
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.

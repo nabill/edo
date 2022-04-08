@@ -31,7 +31,7 @@
     <PackageReference Include="HappyTravel.EdoContracts" Version="2.5.2" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.2.3" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.4.0" />
-    <PackageReference Include="HappyTravel.MapperContracts" Version="1.1.5" />
+    <PackageReference Include="HappyTravel.MapperContracts" Version="1.2.0" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="0.5.2" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="0.8.1" />

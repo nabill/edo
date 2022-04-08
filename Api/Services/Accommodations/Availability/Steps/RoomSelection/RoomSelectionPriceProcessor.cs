@@ -16,8 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             _priceProcessor = priceProcessor;
         }
-        
-        
+
+
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailability availabilityDetails)
         {
             var convertedRoomContractSets = new List<RoomContractSet>(availabilityDetails.RoomContractSets.Count);
@@ -26,10 +26,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
                     async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                     GetCurrency);
-                    
+
                 if (isFailure)
                     return Result.Failure<SingleAccommodationAvailability, ProblemDetails>(error);
-                    
+
                 convertedRoomContractSets.Add(convertedRoomContractSet);
             }
 
@@ -38,7 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 roomContractSets: convertedRoomContractSets,
                 htId: availabilityDetails.HtId,
                 countryHtId: availabilityDetails.CountryHtId,
-                localityHtId: availabilityDetails.LocalityHtId);
+                localityHtId: availabilityDetails.LocalityHtId,
+                regionId: availabilityDetails.RegionId);
         }
 
 
@@ -61,7 +62,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 roomContractSets: convertedRoomContractSets,
                 htId: response.HtId,
                 countryHtId: response.CountryHtId,
-                localityHtId: response.LocalityHtId);
+                localityHtId: response.LocalityHtId,
+                regionId: response.RegionId);
         }
 
 
@@ -73,7 +75,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 roomContractSets: roomContractSets,
                 htId: source.HtId,
                 countryHtId: source.CountryHtId,
-                localityHtId: source.LocalityHtId);
+                localityHtId: source.LocalityHtId,
+                regionId: source.RegionId);
         }
 
 
@@ -82,7 +85,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             {
                 AccommodationHtId = availability.HtId,
                 CountryHtId = availability.CountryHtId,
-                LocalityHtId = availability.LocalityHtId
+                LocalityHtId = availability.LocalityHtId,
+                RegionId = availability.RegionId
             };
 
 
@@ -92,8 +96,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 ? null
                 : roomContractSet.Rate.Currency;
         }
-        
-        
+
+
         private readonly IPriceProcessor _priceProcessor;
     }
 }
