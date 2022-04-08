@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 countryHtId: value.CountryHtId,
                 localityHtId: value.LocalityHtId,
                 evaluationToken: value.EvaluationToken,
-                regionId: value.RegionId);
+                marketId: value.MarketId);
         }
 
 
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 countryHtId: value.CountryHtId,
                 localityHtId: value.LocalityHtId,
                 evaluationToken: value.EvaluationToken,
-                regionId: value.RegionId);
+                marketId: value.MarketId);
         }
 
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 AccommodationHtId = availability.Accommodation.HtId,
                 CountryHtId = availability.CountryHtId,
                 LocalityHtId = availability.LocalityHtId,
-                RegionId = availability.RegionId
+                MarketId = availability.MarketId
             };
 
 

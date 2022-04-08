@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
                     localityHtId: slimAccommodationAvailability.LocalityHtId,
-                    regionId: slimAccommodationAvailability.RegionId));
+                    marketId: slimAccommodationAvailability.MarketId));
             }
 
             return convertedResults;
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
                     localityHtId: slimAccommodationAvailability.LocalityHtId,
-                    regionId: slimAccommodationAvailability.RegionId));
+                    marketId: slimAccommodationAvailability.MarketId));
             }
 
             return convertedResults;
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
                     countryHtId: accommodationAvailability.CountryHtId,
                     localityHtId: accommodationAvailability.LocalityHtId,
-                    regionId: accommodationAvailability.RegionId));
+                    marketId: accommodationAvailability.MarketId));
             }
 
             return convertedResults;
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 CountryHtId = availability.CountryHtId,
                 LocalityHtId = availability.LocalityHtId,
                 AccommodationHtId = availability.HtId,
-                RegionId = availability.RegionId
+                MarketId = availability.MarketId
             };
 
 

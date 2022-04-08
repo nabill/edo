@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplySearchSettings);
 
 
-            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId, int RegionId)>>
+            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId, string CountryHtId, string LocalityHtId, int MarketId)>>
                 GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     {
                         return r.Result.RoomContractSets
                             .Select(rs => (Source: r.SupplierCode, RoomContractSet: rs, r.Result.AvailabilityId, r.Result.HtId,
-                                CountryHtId: r.Result.CountryHtId, LocalityHtId: r.Result.LocalityHtId, r.Result.RegionId));
+                                CountryHtId: r.Result.CountryHtId, LocalityHtId: r.Result.LocalityHtId, r.Result.MarketId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     countryHtId: result.CountryHtId,
                     localityHtId: result.LocalityHtId,
                     evaluationToken: evaluationToken,
-                    regionId: result.RegionId);
+                    marketId: result.MarketId);
             }
 
 
@@ -268,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     countryHtId: availability.CountryHtId,
                     localityHtId: availability.LocalityHtId,
                     evaluationToken: availability.EvaluationToken,
-                    regionId: availability.RegionId);
+                    marketId: availability.MarketId);
             }
 
 

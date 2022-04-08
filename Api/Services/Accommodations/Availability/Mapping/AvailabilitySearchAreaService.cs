@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                         SupplierCode = supplierInfo.Value,
                         CountryHtId = location.CountryHtId,
                         LocalityHtId = location.LocalityHtId,
-                        RegionId = _edoContext.Countries
+                        MarketId = _edoContext.Countries
                             .Where(c => c.Code == location.CountryCode)
                             .Select(c => c.MarketId)
                             .FirstOrDefault()
