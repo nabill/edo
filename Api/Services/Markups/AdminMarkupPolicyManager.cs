@@ -217,9 +217,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<Result<SubjectMarkupScopeTypes>> GetAgentMarkupScopeType(MarkupPolicySettings settings)
         {
             if (settings.LocationScopeType == SubjectMarkupScopeTypes.Market)
-                return settings.LocationScopeType;
+                return settings.LocationScopeType.Value;
 
-            var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(settings.LocationScopeId);
+            var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(settings.LocationScopeId!);
             if (isFailure)
                 return Result.Failure<SubjectMarkupScopeTypes>(error.Detail);
 

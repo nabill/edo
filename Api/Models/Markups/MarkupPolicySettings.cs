@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Markups
     {
         [JsonConstructor]
         public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
-            Currencies currency, string locationScopeId, string? destinationScopeId,
-            SubjectMarkupScopeTypes locationScopeType)
+            Currencies currency, string? locationScopeId, string? destinationScopeId,
+            SubjectMarkupScopeTypes? locationScopeType, DestinationMarkupScopeTypes destinationScopeTypes)
         {
             Description = description;
             FunctionType = functionType;
@@ -19,12 +19,13 @@ namespace HappyTravel.Edo.Api.Models.Markups
             LocationScopeId = locationScopeId;
             LocationScopeType = locationScopeType;
             DestinationScopeId = destinationScopeId;
+            DestinationScopeType = destinationScopeTypes;
         }
 
 
         public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
-            Currencies currency, string locationScopeId = "", SubjectMarkupScopeTypes locationScopeType = SubjectMarkupScopeTypes.NotSpecified,
-            string? destinationScopeId = null)
+            Currencies currency, string? locationScopeId = "", SubjectMarkupScopeTypes? locationScopeType = SubjectMarkupScopeTypes.NotSpecified,
+            string? destinationScopeId = null, DestinationMarkupScopeTypes? destinationScopeType = DestinationMarkupScopeTypes.NotSpecified)
         {
             Description = description;
             FunctionType = functionType;
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
             LocationScopeId = locationScopeId;
             LocationScopeType = locationScopeType;
             DestinationScopeId = destinationScopeId;
+            DestinationScopeType = destinationScopeType;
         }
 
 
@@ -53,18 +55,24 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         ///     Location of agent from the mapper
         /// </summary>
-        public string LocationScopeId { get; }
+        public string? LocationScopeId { get; }
 
 
         /// <summary>
         ///     Type of location scope of agent from the mapper
         /// </summary>
-        public SubjectMarkupScopeTypes LocationScopeType { get; }
+        public SubjectMarkupScopeTypes? LocationScopeType { get; }
 
 
         /// <summary>
         ///     Destination of booking from the mapper
         /// </summary>
         public string? DestinationScopeId { get; }
+
+
+        /// <summary>
+        ///     Destination type of booking from the mapper
+        /// </summary>
+        public DestinationMarkupScopeTypes? DestinationScopeType { get; }
     }
 }
