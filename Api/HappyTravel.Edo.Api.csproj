@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.3" />
     <PackageReference Include="CsvHelper" Version="27.2.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.17.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.1" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.MessagePack" Version="1.10.0" />
@@ -35,7 +35,7 @@
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="0.5.2" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="0.8.1" />
-    <PackageReference Include="HappyTravel.Telemetry" Version="0.15.7" />
+    <PackageReference Include="HappyTravel.Telemetry" Version="0.16.0" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="10.4.0" />
     <PackageReference Include="FluentValidator.Core" Version="1.0.1" />
@@ -45,13 +45,13 @@
     <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.2-rc56" />
     <PackageReference Include="Imageflow.Net" Version="0.7.24" />
     <PackageReference Include="LocationNameNormalizer" Version="1.6.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="6.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="6.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="6.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
@@ -59,7 +59,7 @@
     <PackageReference Include="Sentry.AspNetCore" Version="3.16.0" />
     <PackageReference Include="shortid" Version="3.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.4" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
     <PackageReference Include="Tsutsujigasaki.GrpcContracts" Version="0.3.0" />
   </ItemGroup>
