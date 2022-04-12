@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.3" />
     <PackageReference Include="CsvHelper" Version="27.2.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.17.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.1" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.10.0" />
     <PackageReference Include="FloxDc.CacheFlow.MessagePack" Version="1.10.0" />
