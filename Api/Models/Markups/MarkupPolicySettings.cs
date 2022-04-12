@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         [JsonConstructor]
         public MarkupPolicySettings(string? description, MarkupFunctionType functionType, decimal value,
             Currencies currency, string? locationScopeId, string? destinationScopeId,
-            SubjectMarkupScopeTypes? locationScopeType, DestinationMarkupScopeTypes destinationScopeTypes)
+            SubjectMarkupScopeTypes? locationScopeType, DestinationMarkupScopeTypes? destinationScopeType)
         {
             Description = description;
             FunctionType = functionType;
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
             LocationScopeId = locationScopeId;
             LocationScopeType = locationScopeType;
             DestinationScopeId = destinationScopeId;
-            DestinationScopeType = destinationScopeTypes;
+            DestinationScopeType = destinationScopeType;
         }
 
 
