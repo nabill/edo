@@ -54,6 +54,7 @@
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
+    <PackageReference Include="NATS.Client.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
     <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.0.152" />
     <PackageReference Include="Sentry.AspNetCore" Version="3.16.0" />
