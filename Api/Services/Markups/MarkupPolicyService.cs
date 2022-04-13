@@ -43,6 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
                 SubjectMarkupScopeTypes.Agent => false, // policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+                SubjectMarkupScopeTypes.NotSpecified => false,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
