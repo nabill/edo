@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> SetGlobalPolicy(SetGlobalMarkupRequest request)
+        public async Task<Result> AddGlobalPolicy(SetGlobalMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
@@ -94,7 +94,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Market ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Locality)
+                    p.SubjectScopeType == SubjectMarkupScopeTypes.Locality ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Market ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Locality)
                 .OrderBy(p => p.FunctionType)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
@@ -120,33 +123,78 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
             async Task<Result> AddDestinationPolicy()
-            {
-                return await Add(new MarkupPolicyData(settings,
+                => await Add(new MarkupPolicyData(settings,
                     new MarkupPolicyScope(SubjectMarkupScopeTypes.NotSpecified, locationId: settings.LocationScopeId ?? string.Empty)));
-            }
+
+
+            Result ValidateLocality(MarkupPolicySettings settings)
+                => GenericValidator<MarkupPolicySettings>.Validate(v =>
+                    {
+                        v.When(m => m.LocationScopeId is null && m.LocationScopeType is null, () =>
+                        {
+                            v.RuleFor(s => s.DestinationScopeId)
+                                .NotNull();
+                            v.RuleFor(s => s.DestinationScopeType)
+                                .NotNull();
+                        }).Otherwise(() =>
+                        {
+                            v.RuleFor(s => s.DestinationScopeId)
+                                .Null();
+                            v.RuleFor(s => s.DestinationScopeType)
+                                .Null();
+                        });
+                    }, settings);
         }
 
 
-        public async Task<Result> ModifyLocationPolicy(int policyId, MarkupPolicySettings settings)
+        public async Task<Result> UpdateLocationPolicy(int policyId, MarkupPolicySettings settings)
         {
             var policy = await _context.MarkupPolicies
                 .FirstOrDefaultAsync(p => p.Id == policyId);
 
-            if (policy.SubjectScopeType is not (SubjectMarkupScopeTypes.Market or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Locality))
-                return Result.Failure($"Policy '{policyId}' not found or not local");
+            return await ValidateLocality(settings)
+                .TapIf(settings.LocationScopeType is not null, async () => await UpdatePolicy())
+                .TapIf(settings.DestinationScopeType is not null, async () => await UpdateDestinationPolicy());
 
-            var (_, isFailure, agentMarkupScopeType, error) = await GetAgentMarkupScopeType(settings);
-            if (isFailure)
-                return Result.Failure(error);
 
-            if (policy.SubjectScopeType != agentMarkupScopeType)
-                return Result.Failure($"It is not allowed change location to a new type");
+            async Task<Result> UpdatePolicy()
+            {
+                var (_, isFailure, agentMarkupScopeType, error) = await GetAgentMarkupScopeType(settings);
+                if (isFailure)
+                    return Result.Failure(error);
 
-            return await Modify(policyId, settings);
+                if (policy.SubjectScopeType != agentMarkupScopeType)
+                    return Result.Failure($"It is not allowed change location to a new type");
+
+                return await Modify(policyId, settings);
+            }
+
+
+            async Task<Result> UpdateDestinationPolicy()
+                => await Modify(policyId, settings);
+
+
+            Result ValidateLocality(MarkupPolicySettings settings)
+                => GenericValidator<MarkupPolicySettings>.Validate(v =>
+                    {
+                        v.When(m => m.LocationScopeId is null && m.LocationScopeType is null, () =>
+                        {
+                            v.RuleFor(s => s.DestinationScopeId)
+                                .NotNull();
+                            v.RuleFor(s => s.DestinationScopeType)
+                                .NotNull();
+                        }).Otherwise(() =>
+                        {
+                            v.RuleFor(s => s.DestinationScopeId)
+                                .Null();
+                            v.RuleFor(s => s.DestinationScopeType)
+                                .Null();
+                        });
+                    }, settings);
         }
 
 
-        public async Task<Result> SetAgencyPolicy(int agencyId, SetAgencyMarkupRequest request)
+        public async Task<Result> AddAgencyPolicy(int agencyId, SetAgencyMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
@@ -207,25 +255,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ? await Remove(policyId)
                 : Result.Failure($"Policy '{policyId}' not found or not local");
         }
-
-
-        private Result ValidateLocality(MarkupPolicySettings settings)
-            => GenericValidator<MarkupPolicySettings>.Validate(v =>
-                {
-                    v.When(m => m.LocationScopeId is null && m.LocationScopeType is null, () =>
-                    {
-                        v.RuleFor(s => s.DestinationScopeId)
-                            .NotNull();
-                        v.RuleFor(s => s.DestinationScopeType)
-                            .NotNull();
-                    }).Otherwise(() =>
-                    {
-                        v.RuleFor(s => s.DestinationScopeId)
-                            .Null();
-                        v.RuleFor(s => s.DestinationScopeType)
-                            .Null();
-                    });
-                }, settings);
 
 
         private static Result<MarkupPolicyData> GetPolicyData(MarkupPolicy policy)

@@ -55,12 +55,13 @@ namespace HappyTravel.Edo.Api.Models.Markups
             type = Type;
             agentScopeId = Type switch
             {
-                SubjectMarkupScopeTypes.Global => "",
+                SubjectMarkupScopeTypes.Global => string.Empty,
                 SubjectMarkupScopeTypes.Market => LocationId,
                 SubjectMarkupScopeTypes.Country => LocationId,
                 SubjectMarkupScopeTypes.Locality => LocationId,
                 SubjectMarkupScopeTypes.Agency => AgencyId.ToString(),
                 SubjectMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
+                SubjectMarkupScopeTypes.NotSpecified => string.Empty,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), Type, "Wrong AgentMarkupScopeType")
             };
             agencyId = AgencyId;
