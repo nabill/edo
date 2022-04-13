@@ -37,19 +37,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Set(int agentId, SetAgentMarkupRequest request, AgentContext agent)
         {
-            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD);
             var agentInAgencyId = AgentInAgencyId.Create(agentId, agent.AgencyId);
-            
+            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD, agentInAgencyId.ToString());
+
             return ValidateSettings(request)
                 .Map(() => GetAgentPolicy(agentInAgencyId))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
-            
-            Result ValidateSettings(SetAgentMarkupRequest request) 
-                => request.Percent > 0 
-                    ? Result.Success() 
+
+            Result ValidateSettings(SetAgentMarkupRequest request)
+                => request.Percent > 0
+                    ? Result.Success()
                     : Result.Failure("Markup cannot be negative");
 
 
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var (_, isFailure, destinationScopeType, error) = await GetDestinationScopeType(settings.DestinationScopeId);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
-                
+
                 var now = _dateTimeProvider.UtcNow();
 
                 if (policy is null)
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     {
                         Description = settings.Description,
                         SubjectScopeType = SubjectMarkupScopeTypes.Agent,
-                        SubjectScopeId = agentInAgencyId.ToString(),
+                        SubjectScopeId = settings.LocationScopeId,
                         DestinationScopeType = destinationScopeType,
                         DestinationScopeId = settings.DestinationScopeId,
                         Currency = settings.Currency,
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     policy.Value = request.Percent;
                     _context.MarkupPolicies.Update(policy);
                 }
-                
+
                 await _context.SaveChangesAsync();
                 return policy;
             }
@@ -98,14 +98,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Remove(int agentId, AgentContext agent)
         {
-            return Result.Success(AgentInAgencyId.Create(agentId, agent.AgencyId)) 
+            return Result.Success(AgentInAgencyId.Create(agentId, agent.AgencyId))
                 .Map(GetPolicy)
                 .Map(DeletePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
-            Task<MarkupPolicy> GetPolicy(AgentInAgencyId agentId) 
+            Task<MarkupPolicy> GetPolicy(AgentInAgencyId agentId)
                 => GetAgentPolicy(agentId);
 
 
@@ -148,8 +148,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
             return _displayedMarkupFormulaService.UpdateAgentFormula(agentInAgencyId.AgentId, agentInAgencyId.AgencyId);
         }
-        
-        
+
+
         // TODO Replace code duplication: https://github.com/happy-travel/agent-app-project/issues/777
         private async Task<Result<DestinationMarkupScopeTypes>> GetDestinationScopeType(string destinationScopeId)
         {
