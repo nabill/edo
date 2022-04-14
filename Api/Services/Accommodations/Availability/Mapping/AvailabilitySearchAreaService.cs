@@ -1,23 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Api.AdministratorServices.Locations;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
-using HappyTravel.Edo.Data;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
     public class AvailabilitySearchAreaService : IAvailabilitySearchAreaService
     {
-        public AvailabilitySearchAreaService(IAccommodationMapperClient client, EdoContext edoContext)
+        public AvailabilitySearchAreaService(IAccommodationMapperClient client, IMarketManagementStorage marketStorage)
         {
             _client = client;
-            _edoContext = edoContext;
+            _marketStorage = marketStorage;
         }
 
 
-        public async Task<Result<SearchArea>> GetSearchArea(List<string> htIds, string languageCode)
+        public async Task<Result<SearchArea>> GetSearchArea(List<string> htIds, string languageCode, CancellationToken cancellationToken)
         {
             var (_, isFailure, mappings, error) = await _client.GetMappings(htIds, languageCode);
             if (isFailure)
@@ -32,9 +33,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             foreach (var mapping in mappings)
             {
                 locations.Add(mapping.Location);
+                var market = await _marketStorage.Get(mapping.Location.CountryCode, cancellationToken);
 
                 foreach (var accommodationMapping in mapping.AccommodationMappings)
-                    FillSupplierCodes(accommodationMapping, codes, mapping.Location);
+                    FillSupplierCodes(accommodationMapping, codes, mapping.Location, market?.Id ?? -1);
             }
 
             return new SearchArea
@@ -44,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             };
 
 
-            void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<string, List<SupplierCodeMapping>> dictionary, Location location)
+            void FillSupplierCodes(in AccommodationMapping accommodationMapping, Dictionary<string, List<SupplierCodeMapping>> dictionary, Location location, int marketId)
             {
                 foreach (var supplierInfo in accommodationMapping.SupplierCodes)
                 {
@@ -54,10 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                         SupplierCode = supplierInfo.Value,
                         CountryHtId = location.CountryHtId,
                         LocalityHtId = location.LocalityHtId,
-                        MarketId = _edoContext.Countries
-                            .Where(c => c.Code == location.CountryCode)
-                            .Select(c => c.MarketId)
-                            .FirstOrDefault()
+                        MarketId = marketId
                     };
 
                     var supplierCode = supplierInfo.Key;
@@ -72,6 +71,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
 
         private readonly IAccommodationMapperClient _client;
-        private readonly EdoContext _edoContext;
+        private readonly IMarketManagementStorage _marketStorage;
     }
 }
