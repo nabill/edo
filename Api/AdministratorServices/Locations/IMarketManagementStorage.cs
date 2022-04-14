@@ -10,7 +10,9 @@ namespace Api.AdministratorServices.Locations
         Task<List<Market>> Get(CancellationToken cancellationToken);
         Task<List<Country>> GetMarketCountries(int marketId, CancellationToken cancellationToken);
         Task<Market?> Get(int marketId, CancellationToken cancellationToken);
+        Task<Market?> Get(string countryCode, CancellationToken cancellationToken);
         Task Refresh(CancellationToken cancellationToken);
         Task RefreshMarketCountries(int marketId, CancellationToken cancellationToken);
+        Task RefreshCountry(Country country, CancellationToken cancellationToken);
     }
 }

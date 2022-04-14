@@ -66,9 +66,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> UpdatePolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
+        public async Task<IActionResult> ModifyPolicy(int policyId, [FromBody] MarkupPolicySettings policySettings)
         {
-            var (_, isFailure, error) = await _policyManager.UpdateLocationPolicy(policyId, policySettings);
+            var (_, isFailure, error) = await _policyManager.ModifyLocationPolicy(policyId, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

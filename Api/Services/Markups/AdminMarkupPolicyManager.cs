@@ -168,12 +168,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> UpdateLocationPolicy(int policyId, MarkupPolicySettings settings)
+        public async Task<Result> ModifyLocationPolicy(int policyId, MarkupPolicySettings settings)
         {
             var policy = await _context.MarkupPolicies
                 .FirstOrDefaultAsync(p => p.Id == policyId);
 
-            return await ValidateUpdateLocation((settings, policy))
+            return await ValidateModifyLocation((settings, policy))
                 .Tap(UpdatePolicy);
 
 
@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 => await Update(policyId, settings);
 
 
-            Result ValidateUpdateLocation((MarkupPolicySettings settings, MarkupPolicy? policy) entity)
+            Result ValidateModifyLocation((MarkupPolicySettings settings, MarkupPolicy? policy) entity)
                 => GenericValidator<(MarkupPolicySettings settings, MarkupPolicy? policy)>.Validate(v =>
                     {
                         v.RuleFor(t => t.policy)

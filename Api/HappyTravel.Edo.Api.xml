@@ -585,7 +585,7 @@
             </summary>
             <returns>List of location markups</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.UpdatePolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.LocationMarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
                 Updates policy settings.
             </summary>
