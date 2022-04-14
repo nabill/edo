@@ -38,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<Result> Set(int agencyId, SetAgencyMarkupRequest request, AgentContext agent)
         {
-            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD);
-            
+            var settings = new MarkupPolicySettings(string.Empty, MarkupFunctionType.Percent, request.Percent, Currencies.USD, agencyId.ToString());
+
             return ValidateSettings(request)
                 .Bind(() => GetForChildAgency(agencyId, agent))
                 .Bind(SavePolicy)
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var (_, isFailure, destinationScopeType, error) = await GetDestinationScopeType(settings.DestinationScopeId);
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
-                
+
                 var now = _dateTimeProvider.UtcNow();
 
                 if (policy is null)
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         DestinationScopeType = destinationScopeType,
                         DestinationScopeId = settings.DestinationScopeId,
                         SubjectScopeType = SubjectMarkupScopeTypes.Agency,
-                        SubjectScopeId = agencyId.ToString(),
+                        SubjectScopeId = settings.LocationScopeId,
                         Currency = settings.Currency,
                         Created = now,
                         Modified = now,
@@ -75,9 +75,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 else
                 {
                     policy.Value = request.Percent;
-                     _context.MarkupPolicies.Update(policy);
+                    _context.MarkupPolicies.Update(policy);
                 }
-               
+
                 await _context.SaveChangesAsync();
                 return policy;
             }
@@ -117,9 +117,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result<AgencyMarkupInfo?>> Get(int agencyId, AgentContext agentContext)
         {
             var (_, isFailure, markupPolicy, error) = await GetForChildAgency(agencyId, agentContext);
-            if (isFailure) 
+            if (isFailure)
                 return Result.Failure<AgencyMarkupInfo?>(error);
-               
+
             return markupPolicy is null
                 ? null
                 : new AgencyMarkupInfo { Percent = markupPolicy.Value };
@@ -153,8 +153,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ? Result.Success()
                 : Result.Failure("Cannot set negative markup for a child agency");
         }
-        
-        
+
+
         private Task<Result<MarkupPolicy>> GetForChildAgency(int agencyId, AgentContext agent)
         {
             return Result.Success(agencyId)
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        
+
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
             => _displayedMarkupFormulaService.UpdateAgencyFormula(int.Parse(policy.SubjectScopeId));
 

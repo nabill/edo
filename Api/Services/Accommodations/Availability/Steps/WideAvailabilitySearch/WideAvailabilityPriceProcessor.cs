@@ -17,8 +17,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             _priceProcessor = priceProcessor;
         }
-        
-        
+
+
         public async Task<List<AccommodationAvailabilityResult>> ApplyMarkups(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
@@ -32,10 +32,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         roomContractSet,
                         async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                         _ => GetMarkupDestinationInfo(slimAccommodationAvailability));
-                    
+
                     convertedRoomContractSets.Add(convertedRoomContractSet);
                 }
-                
+
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: slimAccommodationAvailability.SearchId,
                     supplierCode: slimAccommodationAvailability.SupplierCode,
                     created: slimAccommodationAvailability.Created,
@@ -48,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     htId: slimAccommodationAvailability.HtId,
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
-                    localityHtId: slimAccommodationAvailability.LocalityHtId));
+                    localityHtId: slimAccommodationAvailability.LocalityHtId,
+                    marketId: slimAccommodationAvailability.MarketId));
             }
 
             return convertedResults;
@@ -66,10 +67,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     var (_, isFailure, convertedRoomContractSet, error) = await _priceProcessor.ConvertCurrencies(roomContractSet,
                         async (rcs, function) => await RoomContractSetPriceProcessor.ProcessPrices(rcs, function),
                         GetCurrency);
-                    
+
                     if (isFailure)
                         return Result.Failure<List<AccommodationAvailabilityResult>, ProblemDetails>(error);
-                    
+
                     convertedRoomContractSets.Add(convertedRoomContractSet);
                 }
 
@@ -85,13 +86,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     htId: slimAccommodationAvailability.HtId,
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
-                    localityHtId: slimAccommodationAvailability.LocalityHtId));
+                    localityHtId: slimAccommodationAvailability.LocalityHtId,
+                    marketId: slimAccommodationAvailability.MarketId));
             }
 
             return convertedResults;
         }
-        
-        
+
+
         public List<AccommodationAvailabilityResult> AlignPrices(List<AccommodationAvailabilityResult> results)
         {
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
@@ -111,13 +113,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     htId: accommodationAvailability.HtId,
                     supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
                     countryHtId: accommodationAvailability.CountryHtId,
-                    localityHtId: accommodationAvailability.LocalityHtId));
+                    localityHtId: accommodationAvailability.LocalityHtId,
+                    marketId: accommodationAvailability.MarketId));
             }
 
             return convertedResults;
         }
-        
-        
+
+
         private static Currencies? GetCurrency(RoomContractSet roomContractSet)
         {
             return roomContractSet.Rate.Currency == Currencies.NotSpecified
@@ -127,11 +130,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         private static MarkupDestinationInfo GetMarkupDestinationInfo(AccommodationAvailabilityResult availability)
-            => new ()
+            => new()
             {
                 CountryHtId = availability.CountryHtId,
                 LocalityHtId = availability.LocalityHtId,
-                AccommodationHtId = availability.HtId
+                AccommodationHtId = availability.HtId,
+                MarketId = availability.MarketId
             };
 
 

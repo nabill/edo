@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public RoomContractSetAvailability(string availabilityId, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, int numberOfNights,
-            in SlimAccommodation accommodation, in RoomContractSet roomContractSet, List<PaymentTypes> availablePaymentMethods, 
-            string countryHtId, string localityHtId, string evaluationToken)
+            in SlimAccommodation accommodation, in RoomContractSet roomContractSet, List<PaymentTypes> availablePaymentMethods,
+            string countryHtId, string localityHtId, string evaluationToken, int marketId)
         {
             AvailabilityId = availabilityId;
             CheckInDate = checkInDate;
@@ -22,8 +22,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CountryHtId = countryHtId;
             LocalityHtId = localityHtId;
             EvaluationToken = evaluationToken;
+            MarketId = marketId;
         }
-        
+
         /// <summary>
         ///     The availability ID.
         /// </summary>
@@ -58,12 +59,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// List of available payment methods
         /// </summary>
         public List<PaymentTypes> AvailablePaymentMethods { get; }
-        
+
         /// <summary>
         /// Country of accommodation
         /// </summary>
         public string CountryHtId { get; }
-        
+
         /// <summary>
         /// Locality of accommodation
         /// </summary>
@@ -73,5 +74,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Token to use between 3-rd step and booking to avoid double bookings
         /// </summary>
         public string EvaluationToken { get; }
+
+        /// <summary>
+        /// Country code of accommodation
+        /// </summary>
+        public int MarketId { get; }
     }
 }
