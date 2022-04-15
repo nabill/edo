@@ -45,6 +45,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                     from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agentAgencyRelation.AgentId
                         && a.AgencyId == agentAgencyRelation.AgencyId && a.DirectApiClientId == clientId)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                    from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
                     select new {
                         AgentId = agent.Id,
                         FirstName = agent.FirstName,
@@ -58,7 +59,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         agentAgencyRelation.AgentRoleIds,
                         CountryHtId = agency.CountryHtId,
                         LocalityHtId = agency.LocalityHtId,
-                        MarketId = agency.MarketId,
+                        MarketId = country.MarketId,
                         AgencyAncestors = agency.Ancestors
                     })
                 .SingleOrDefaultAsync();

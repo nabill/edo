@@ -300,7 +300,6 @@ namespace HappyTravel.Edo.Data
                     .HasDefaultValue(true);
                 agency.HasIndex(a => a.Ancestors)
                     .HasMethod("gin");
-                agency.Property(a => a.MarketId).IsRequired();
                 agency.Property(a => a.Address).IsRequired();
                 agency.Property(a => a.City).IsRequired();
                 agency.Property(a => a.CountryCode).IsRequired();
