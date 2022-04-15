@@ -715,13 +715,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     TargetCurrency = Currencies.USD
                 }
             });
-
+            
+            var natsEndpoints = configuration.GetValue<string>("Nats:Endpoints").Split(";");
             services.AddNatsClient(options =>
             {
-                options.Servers = new[]
-                {
-                    "nats://localhost:4222"
-                };
+                options.Servers = natsEndpoints;
             });
 
             return services;
