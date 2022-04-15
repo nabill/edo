@@ -128,14 +128,54 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
         // }
 
 
-        // private MarkupSubjectInfo GetDummyMarkupSubject()
-        //     => new()
-        //     {
-        //         AgencyAncestors = new List<int>(),
-        //         AgencyId = 1,
-        //         AgentId = 1,
-        //         CountryHtId = "Russia",
-        //         LocalityHtId = "Moscow"
-        //     };
+        [Fact]
+        public void Markups_for_hotel_market_should_be_returned()
+        {
+            var markupSubject = GetDummyMarkupSubject();
+
+            var markupDestination = new MarkupDestinationInfo
+            {
+                AccommodationHtId = "President Hotel",
+                CountryHtId = "UAE",
+                LocalityHtId = "Dubai",
+                MarketId = 2
+            };
+
+            var markupPolicies = new List<MarkupPolicy>
+            {
+                new()
+                {
+                    Id = 1,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Market,
+                    DestinationScopeId = "2"
+                },
+                new()
+                {
+                    Id = 2,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Market,
+                    DestinationScopeId = "1"
+                }
+            };
+
+            var service = MarkupPolicyServiceMock.Create(markupPolicies);
+
+            var policies = service.Get(markupSubject, markupDestination);
+
+            Assert.Single(policies);
+            Assert.Equal(1, policies[0].Id);
+        }
+
+
+        private MarkupSubjectInfo GetDummyMarkupSubject()
+            => new()
+            {
+                AgencyAncestors = new List<int>(),
+                AgencyId = 1,
+                AgentId = 1,
+                CountryHtId = "Russia",
+                LocalityHtId = "Moscow"
+            };
     }
 }

@@ -2144,6 +2144,11 @@
             Token to use between 3-rd step and booking to avoid double bookings
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.MarketId">
+            <summary>
+            Country code of accommodation
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
@@ -3478,6 +3483,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
             <summary>
                 Destination of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeType">
+            <summary>
+                Destination type of booking from the mapper
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">

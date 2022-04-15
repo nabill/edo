@@ -13,17 +13,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         Task<Result> RemoveGlobalPolicy();
 
-        Task<Result> SetGlobalPolicy(SetGlobalMarkupRequest settings);
+        Task<Result> AddGlobalPolicy(SetGlobalMarkupRequest settings);
 
         Task<List<MarkupInfo>> GetLocationPolicies();
 
         Task<Result> AddLocationPolicy(MarkupPolicySettings settings);
-       
+
         Task<Result> RemoveLocationPolicy(int policyId);
 
         Task<Result> ModifyLocationPolicy(int policyId, MarkupPolicySettings settings);
 
-        Task<Result> SetAgencyPolicy(int agencyId, SetAgencyMarkupRequest request);
+        Task<Result> AddAgencyPolicy(int agencyId, SetAgencyMarkupRequest request);
 
         Task<AgencyMarkupInfo?> GetForAgency(int agencyId);
 

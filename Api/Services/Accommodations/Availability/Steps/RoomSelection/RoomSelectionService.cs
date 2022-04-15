@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IServiceScopeFactory serviceScopeFactory,
             IWideAvailabilitySearchStateStorage stateStorage,
             IBookingAnalyticsService bookingAnalyticsService,
-            IAccommodationMapperClient mapperClient, 
+            IAccommodationMapperClient mapperClient,
             ILogger<RoomSelectionService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -50,8 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var results = await _stateStorage.GetStates(searchId, settings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
-        
-        
+
+
         public async Task<Result<AgentAccommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, AgentContext agent, string languageCode)
         {
             Baggage.AddSearchId(searchId);
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var accommodation = await _mapperClient.GetAccommodation(htId, languageCode);
             if (accommodation.IsFailure)
                 return accommodation.Error;
-            
+
             _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
 
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             Baggage.AddSearchId(searchId);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
-            
+
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, htId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
@@ -105,11 +105,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplierCode: source, supplierAccommodationCode: result.SupplierAccommodationCode, 
+                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplierCode: source, supplierAccommodationCode: result.SupplierAccommodationCode,
                         availabilityId: result.AvailabilityId, settings: searchSettings, agent: agent, languageCode: languageCode,
-                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId);
+                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId, result.MarketId);
             }
-            
+
 
             async Task<Result<List<(string Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, string htId, AgentContext agent)
             {
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return results.ToList();
             }
 
-            
+
             IEnumerable<RoomContractSet> MapToRoomContractSets(SingleAccommodationAvailability accommodationAvailability)
             {
                 return accommodationAvailability.RoomContractSets
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
 
-            bool SettingsFilter(RoomContractSet roomSet) 
+            bool SettingsFilter(RoomContractSet roomSet)
                 => RoomContractSetSettingsChecker.IsDisplayAllowed(roomSet, checkInDate, searchSettings, _dateTimeProvider);
         }
 

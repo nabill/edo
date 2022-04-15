@@ -20,8 +20,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             _policyManager = policyManager;
         }
-        
-        
+
+
         /// <summary>
         /// Gets global markup policy
         /// </summary>
@@ -34,8 +34,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             return Ok(await _policyManager.GetGlobalPolicy());
         }
-        
-        
+
+
         /// <summary>
         ///     Deletes global policy.
         /// </summary>
@@ -52,8 +52,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Updates global policy settings.
         /// </summary>
@@ -65,14 +65,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> SetPolicy([FromBody] SetGlobalMarkupRequest policySettings)
         {
-            var (_, isFailure, error) = await _policyManager.SetGlobalPolicy(policySettings);
+            var (_, isFailure, error) = await _policyManager.AddGlobalPolicy(policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
-        
-        
+
+
         private readonly IAdminMarkupPolicyManager _policyManager;
     }
 }

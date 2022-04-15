@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             string htId, string supplierCode, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
-            AgentContext agent, string languageCode, string countryHtId, string localityHtId)
+            AgentContext agent, string languageCode, string countryHtId, string localityHtId, int marketId)
         {
             return await ExecuteRequest()
                 .Tap(Publish)
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest() 
+            Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
                 => _supplierConnectorManager.Get(supplierCode).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
             
@@ -77,9 +77,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var roomContractSets = availabilityDetails.RoomContractSets
                     .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Code, r.IsDirectContract))
                     .ToList();
-                
+
                 return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
-                    roomContractSets: roomContractSets, htId: htId, countryHtId: countryHtId, localityHtId: localityHtId);
+                    roomContractSets: roomContractSets, htId: htId, countryHtId: countryHtId, localityHtId: localityHtId, marketId: marketId);
             }
 
 
@@ -91,15 +91,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => RoomSelectionPolicyProcessor.Process(availabilityDetails, settings.CancellationPolicyProcessSettings);
 
 
-            Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response) 
+            Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response)
                 => _priceProcessor.ApplyMarkups(response, agent);
-            
-            
-            SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability response) 
+
+
+            SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability response)
                 => _priceProcessor.AlignPrices(response);
 
 
-            Task SaveToCache(SingleAccommodationAvailability details) 
+            Task SaveToCache(SingleAccommodationAvailability details)
                 => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierCode);
         }
         
