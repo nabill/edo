@@ -13,7 +13,8 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "EnabledSuppliers",
                 table: "AgencySystemSettings",
                 type: "jsonb",
-                nullable: true);
+                nullable: false,
+                defaultValue: new Dictionary<string, bool>());
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

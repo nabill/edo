@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20220401143945_AddEnabledSuppliersToAgencySystemSettings")]
-    partial class AddEnabledSuppliersToAgencySystemSettings
+    [Migration("20220418143449_FillEnabledSupplierSettingsFromAgencySystemSettings")]
+    partial class FillEnabledSupplierSettingsFromAgencySystemSettings
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

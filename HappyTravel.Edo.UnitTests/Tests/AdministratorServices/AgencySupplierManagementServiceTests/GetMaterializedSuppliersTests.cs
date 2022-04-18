@@ -27,11 +27,10 @@ public class GetMaterializedSuppliersTests
         };
 
         var agencySystemSettings = new List<AgencySystemSettings>(0);
-        
         var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
-
+        
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
-
+        
         Assert.True(suppliers["netstorming"]);
         Assert.False(suppliers["illusions"]);
     }
