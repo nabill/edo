@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         v.RuleFor(s => Math.Abs(s.Value))
                             .GreaterThanOrEqualTo(0.1m)
                             .WithMessage(valueValidatorMessage)
-                            .LessThanOrEqualTo(100)
+                            .LessThanOrEqualTo(100m)
                             .WithMessage(valueValidatorMessage);
 
                         v.When(m => m.LocationScopeId is null || m.LocationScopeType is null, () =>
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         v.RuleFor(t => Math.Abs(t.settings.Value))
                             .GreaterThanOrEqualTo(0.1m)
                             .WithMessage(valueValidatorMessage)
-                            .LessThanOrEqualTo(100)
+                            .LessThanOrEqualTo(100m)
                             .WithMessage(valueValidatorMessage);
 
                         v.RuleFor(t => t.policy)
