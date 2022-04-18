@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 
                         v.RuleFor(s => Math.Abs(s.Value))
-                            .GreaterThan(0)
+                            .GreaterThanOrEqualTo(0.1m)
                             .WithMessage(valueValidatorMessage)
                             .LessThanOrEqualTo(100)
                             .WithMessage(valueValidatorMessage);
@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 
                         v.RuleFor(t => Math.Abs(t.settings.Value))
-                            .GreaterThan(0)
+                            .GreaterThanOrEqualTo(0.1m)
                             .WithMessage(valueValidatorMessage)
                             .LessThanOrEqualTo(100)
                             .WithMessage(valueValidatorMessage);
