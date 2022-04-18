@@ -49,8 +49,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns>Agency availability search settings</returns>
         [HttpGet("{agencyId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgencyAccommodationBookingSettingsInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AgencyAccommodationBookingSettingsInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agencyId)
@@ -73,8 +73,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpPut("{agencyId}/system-settings/availability-search")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAccommodationBookingSettingsInfo settings, [FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId, settings));
@@ -86,12 +86,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpDelete("{agencyId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> DeleteSystemSettings([FromRoute] int agencyId)
             => NoContentOrBadRequest(await _systemSettingsManagementService.DeleteAvailabilitySearchSettings(agencyId));
-        
+
 
         /// <summary>
         ///     Gets a list of agents in the agency
@@ -99,8 +99,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns>List of agents</returns>
         [HttpGet("{agencyId}/agents")]
-        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewAgents)]
         public async Task<IActionResult> GetAgents([FromRoute] int agencyId)
         {
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{agencyId}/child-agencies")]
-        [ProducesResponseType(typeof(List<AgencyInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
             => Ok(await _agencyManagementService.GetChildAgencies(agencyId, LanguageCode));
@@ -130,8 +130,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for deactivation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/deactivate")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
@@ -151,8 +151,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="request">Request data for activation.</param>
         /// <returns></returns>
         [HttpPost("{agencyId}/activate")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> ActivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
@@ -313,9 +313,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         [HttpDelete("{agencyId}")]
-        [ProducesResponseType(typeof(FileStreamResult), (int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.NoContent)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
-        public async Task<IActionResult> Delete([FromRoute] int agencyId) 
+        public async Task<IActionResult> Delete([FromRoute] int agencyId)
             => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
 
 

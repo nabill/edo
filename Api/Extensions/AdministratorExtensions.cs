@@ -13,5 +13,9 @@ namespace HappyTravel.Edo.Api.Extensions
                 position: administrator.Position,
                 administratorRoleIds: administrator.AdministratorRoleIds,
                 isActive: administrator.IsActive);
+
+
+        public static string GetFullName(this Administrator administrator)
+            => $"{administrator.LastName} {administrator.FirstName}";
     }
 }

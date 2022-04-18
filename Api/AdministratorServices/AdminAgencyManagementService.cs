@@ -49,21 +49,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result<AgencyInfo>> Get(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             var agencyInfo = await (
-                    from a in _context.Agencies
-                    join c in _context.Countries on a.CountryCode equals c.Code
-                    join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
-                    where a.Id == agencyId
-                    select a.ToAgencyInfo(a.ContractKind,
-                        ra.VerificationState,
-                        ra.Verified != null
-                            ? ra.Verified.Value.DateTime
+                    from agency in _context.Agencies
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join rootAgency in _context.Agencies on agency.Ancestors.Any() ?
+                        agency.Ancestors[0] :
+                        agency.Id equals rootAgency.Id
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
+                    from markupFormula in _context.DisplayMarkupFormulas
+                        .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                        .DefaultIfEmpty()
+                    where agency.Id == agencyId
+                    select agency.ToAgencyInfo(agency.ContractKind,
+                        rootAgency.VerificationState,
+                        rootAgency.Verified != null
+                            ? rootAgency.Verified.Value.DateTime
                             : null,
-                        c.Names,
+                        country.Names,
                         languageCode,
                         markupFormula == null
                             ? string.Empty
-                            : markupFormula.DisplayFormula))
+                            : markupFormula.DisplayFormula,
+                        admin.GetFullName()))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -78,40 +84,47 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public IQueryable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
-            => from a in _context.Agencies
-               join c in _context.Countries on a.CountryCode equals c.Code
-               from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
-               where a.ParentId == null
+            => from agency in _context.Agencies
+               join country in _context.Countries on agency.CountryCode equals country.Code
+               join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
+               from markupFormula in _context.DisplayMarkupFormulas
+                   .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                   .DefaultIfEmpty()
+               where agency.ParentId == null
                select new AdminViewAgencyInfo
                {
-                   Id = a.Id,
-                   Name = a.Name,
-                   City = a.City,
-                   CountryName = c.Names.GetValueOrDefault(languageCode),
-                   Created = a.Created.DateTime,
-                   VerificationState = a.VerificationState,
-                   AccountManagerName = string.Empty,
-                   IsActive = a.IsActive
+                   Id = agency.Id,
+                   Name = agency.Name,
+                   City = agency.City,
+                   CountryName = country.Names.GetValueOrDefault(languageCode),
+                   Created = agency.Created.DateTime,
+                   VerificationState = agency.VerificationState,
+                   AccountManagerName = admin.GetFullName(),
+                   IsActive = agency.IsActive
                };
 
 
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (
-                    from a in _context.Agencies
-                    join c in _context.Countries on a.CountryCode equals c.Code
-                    join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
-                    where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(a.ContractKind,
-                        ra.VerificationState,
-                        ra.Verified != null
-                            ? ra.Verified.Value.DateTime
+                    from agency in _context.Agencies
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join rootAgency in _context.Agencies on agency.Ancestors[0] equals rootAgency.Id
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
+                    from markupFormula in _context.DisplayMarkupFormulas
+                        .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                        .DefaultIfEmpty()
+                    where agency.ParentId == parentAgencyId
+                    select agency.ToAgencyInfo(agency.ContractKind,
+                        rootAgency.VerificationState,
+                        rootAgency.Verified != null
+                            ? rootAgency.Verified.Value.DateTime
                             : null,
-                        c.Names,
+                        country.Names,
                         languageCode,
                         markupFormula == null
                             ? string.Empty
-                            : markupFormula.DisplayFormula))
+                            : markupFormula.DisplayFormula,
+                        admin.GetFullName()))
                 .ToListAsync();
 
 
