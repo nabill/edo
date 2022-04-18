@@ -4038,5 +4038,25 @@
             <param name="marketId">Market's id</param>
             <returns>List of countries of market</returns>
         </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
+            <summary>
+            Id of account manager
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.Position">
+            <summary>
+            Position
+            </summary>
+        </member>
     </members>
 </doc>

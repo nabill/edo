@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -38,14 +39,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => SetActivityState(administratorId, initiator, false);
 
 
-        public Task<List<AdministratorInfo>> GetAccountManagers()
+        public Task<List<AccountManager>> GetAccountManagers()
             => _context.Administrators
-                .Join(_context.Agencies
-                    .Where(agency => agency.AccountManagerId != null),
-                    admin => admin.Id,
-                    agency => agency.AccountManagerId,
-                    (admin, agency) => admin)
-                .Select(a => a.ToAdministratorInfo())
+                .Where(a => a.AdministratorRoleIds.Contains(1) && a.IsActive)
+                .Select(a => a.ToAccountManager())
                 .ToListAsync();
 
 
