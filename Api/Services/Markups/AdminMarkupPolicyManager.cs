@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -122,19 +123,27 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result> AddDestinationPolicy()
                 => await Add(new MarkupPolicyData(settings,
-                    new MarkupPolicyScope(SubjectMarkupScopeTypes.NotSpecified, locationId: settings.LocationScopeId ?? string.Empty)));
+                    new MarkupPolicyScope(SubjectMarkupScopeTypes.Global, locationId: settings.LocationScopeId ?? string.Empty)));
 
 
             Result ValidateAddLocation(MarkupPolicySettings settings)
                 => GenericValidator<MarkupPolicySettings>.Validate(v =>
                     {
+                        var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
+
+                        v.RuleFor(s => Math.Abs(s.Value))
+                            .GreaterThanOrEqualTo(0.1m)
+                            .WithMessage(valueValidatorMessage)
+                            .LessThanOrEqualTo(100m)
+                            .WithMessage(valueValidatorMessage);
+
                         v.When(m => m.LocationScopeId is null || m.LocationScopeType is null, () =>
                         {
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(MarketMarkupIsNotExist()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market)
-                                .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists!"); ;
+                                .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!"); ;
 
                             v.RuleFor(m => m.DestinationScopeType)
                                 .NotNull()
@@ -152,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             v.RuleFor(m => m.LocationScopeId)
                                 .MustAsync(MarketMarkupIsNotExist()!)
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market)
-                                .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists!");
+                                .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!");
 
                             v.RuleFor(m => m.LocationScopeType)
                                 .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country) ||
@@ -164,7 +173,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             System.Func<string, System.Threading.CancellationToken, Task<bool>> MarketMarkupIsNotExist()
             => async (marketId, cancelationToken)
-                => !(await _context.Markets.AnyAsync(m => m.Id.ToString() == marketId, cancelationToken));
+                => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == marketId, cancelationToken)) &&
+                    await _context.Markets.AnyAsync(m => m.Id.ToString() == marketId, cancelationToken);
         }
 
 
@@ -184,6 +194,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Result ValidateModifyLocation((MarkupPolicySettings settings, MarkupPolicy? policy) entity)
                 => GenericValidator<(MarkupPolicySettings settings, MarkupPolicy? policy)>.Validate(v =>
                     {
+                        var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
+
+                        v.RuleFor(t => Math.Abs(t.settings.Value))
+                            .GreaterThanOrEqualTo(0.1m)
+                            .WithMessage(valueValidatorMessage)
+                            .LessThanOrEqualTo(100m)
+                            .WithMessage(valueValidatorMessage);
+
                         v.RuleFor(t => t.policy)
                             .NotNull()
                             .WithMessage($"Markup policy with Id {policyId} was not found!");
