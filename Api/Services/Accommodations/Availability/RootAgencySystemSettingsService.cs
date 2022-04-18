@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 return contractKind switch
                 {
-                    ContractKind.CashPayments => TimeSpan.FromDays(-3),
+                    ContractKind.CashPayments => TimeSpan.FromDays(-2),
                     ContractKind.CreditPayments => TimeSpan.FromDays(-1),
                     ContractKind.CreditCardPayments => TimeSpan.FromDays(-1),
                     null => DefaultPolicyDateShift,
