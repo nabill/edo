@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result> AddDestinationPolicy()
                 => await Add(new MarkupPolicyData(settings,
-                    new MarkupPolicyScope(SubjectMarkupScopeTypes.NotSpecified, locationId: settings.LocationScopeId ?? string.Empty)));
+                    new MarkupPolicyScope(SubjectMarkupScopeTypes.Global, locationId: settings.LocationScopeId ?? string.Empty)));
 
 
             Result ValidateAddLocation(MarkupPolicySettings settings)
