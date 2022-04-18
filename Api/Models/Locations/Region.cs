@@ -1,6 +1,6 @@
-﻿namespace HappyTravel.Edo.Api.Models.Locations
+namespace HappyTravel.Edo.Api.Models.Locations
 {
-    public readonly struct Region
+    public class Region
     {
         public Region(int id, string name)
         {
@@ -10,12 +10,12 @@
 
 
         /// <summary>
-        ///     Region UN M.49 code.
+        ///     Region id.
         /// </summary>
         public int Id { get; }
 
         /// <summary>
-        ///     The dictionary of region names on supported languages.
+        ///     The dictionary of Region names on supported languages.
         /// </summary>
         public string Name { get; }
     }

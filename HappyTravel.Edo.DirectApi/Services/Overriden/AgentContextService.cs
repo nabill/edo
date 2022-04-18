@@ -32,19 +32,20 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 getValueFunction: async () => await GetAgentContextByDirectApiClientId(clientId),
                 AgentContextCacheLifeTime);
         }
-        
-        
-        private string GetKey(string name) 
+
+
+        private string GetKey(string name)
             => _flow.BuildKey(nameof(AgentContextService), nameof(GetAgent), name);
-        
-        
+
+
         private async ValueTask<AgentContext> GetAgentContextByDirectApiClientId(string clientId)
         {
-            var data =  await (from agent in _context.Agents
+            var data = await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agentDirectApiRelation in _context.AgentDirectApiClientRelations.Where(a => a.AgentId == agentAgencyRelation.AgentId
                         && a.AgencyId == agentAgencyRelation.AgencyId && a.DirectApiClientId == clientId)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                    from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
                     select new {
                         AgentId = agent.Id,
                         FirstName = agent.FirstName,
@@ -58,7 +59,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         agentAgencyRelation.AgentRoleIds,
                         CountryHtId = agency.CountryHtId,
                         LocalityHtId = agency.LocalityHtId,
-                        RegionId = agency.RegionId,
+                        MarketId = country.MarketId,
                         AgencyAncestors = agency.Ancestors
                     })
                 .SingleOrDefaultAsync();
@@ -78,16 +79,16 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 inAgencyPermissions: await GetAggregateInAgencyPermissions(data.AgentRoleIds),
                 countryHtId: data.CountryHtId,
                 localityHtId: data.LocalityHtId,
-                regionId: data.RegionId,
+                marketId: data.MarketId,
                 agencyAncestors: data.AgencyAncestors);
         }
-        
-        
+
+
         private async Task<InAgencyPermissions> GetAggregateInAgencyPermissions(int[] agentRoleIds)
         {
             if (agentRoleIds is null || !agentRoleIds.Any())
                 return 0;
-            
+
             var permissionList = await (from agentRole in _context.AgentRoles
                     where agentRoleIds.Contains(agentRole.Id)
                     select agentRole.Permissions)
@@ -96,9 +97,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             return permissionList.Aggregate((a, b) => a | b);
         }
 
-        
+
         private static readonly TimeSpan AgentContextCacheLifeTime = TimeSpan.FromMinutes(2);
-        
+
 
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IMemoryFlow _flow;

@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     .WithMessage("AgentId is required");
 
                 v.RuleFor(s => s.LocationId).NotEmpty()
-                    .When(t => t.Type == SubjectMarkupScopeTypes.Region || t.Type == SubjectMarkupScopeTypes.Country || t.Type == SubjectMarkupScopeTypes.Locality)
+                    .When(t => t.Type == SubjectMarkupScopeTypes.Market || t.Type == SubjectMarkupScopeTypes.Country || t.Type == SubjectMarkupScopeTypes.Locality)
                     .WithMessage("LocationId is required");
 
                 v.RuleFor(s => s.AgencyId).Empty()
@@ -55,12 +55,13 @@ namespace HappyTravel.Edo.Api.Models.Markups
             type = Type;
             agentScopeId = Type switch
             {
-                SubjectMarkupScopeTypes.Global => "",
-                SubjectMarkupScopeTypes.Region => LocationId,
+                SubjectMarkupScopeTypes.Global => string.Empty,
+                SubjectMarkupScopeTypes.Market => LocationId,
                 SubjectMarkupScopeTypes.Country => LocationId,
                 SubjectMarkupScopeTypes.Locality => LocationId,
                 SubjectMarkupScopeTypes.Agency => AgencyId.ToString(),
                 SubjectMarkupScopeTypes.Agent => AgentInAgencyId.Create(AgentId.Value, AgencyId.Value).ToString(),
+                SubjectMarkupScopeTypes.NotSpecified => string.Empty,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), Type, "Wrong AgentMarkupScopeType")
             };
             agencyId = AgencyId;

@@ -2,10 +2,11 @@
 {
     public readonly struct Country
     {
-        public Country(string code, string name, int regionId)
+        public Country(string code, string name, int marketId, int regionId)
         {
             Code = code;
             Name = name;
+            MarketId = marketId;
             RegionId = regionId;
         }
 
@@ -21,7 +22,12 @@
         public string Name { get; }
 
         /// <summary>
-        ///     Country's region UN M.49 code.
+        ///     Country's market id.
+        /// </summary>
+        public int MarketId { get; }
+
+        /// <summary>
+        ///     Country's region id.
         /// </summary>
         public int RegionId { get; }
     }

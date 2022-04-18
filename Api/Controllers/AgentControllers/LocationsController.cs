@@ -27,22 +27,22 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("countries")]
-        [ProducesResponseType(typeof(List<Country>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCountries([FromQuery] string query) 
+        [ProducesResponseType(typeof(List<Country>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCountries([FromQuery] string query)
             => Ok(await _service.GetCountries(query, LanguageCode));
 
 
         /// <summary>
-        ///     Returns a list of world regions.
+        ///     Returns a list of regions.
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("regions")]
-        [ProducesResponseType(typeof(List<Region>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetRegions() 
+        [ProducesResponseType(typeof(List<Region>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetRegions()
             => Ok(await _service.GetRegions(LanguageCode));
 
-        
+
         private readonly ILocationService _service;
     }
 }

@@ -22,8 +22,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             _policyManager = policyManager;
         }
-        
-        
+
+
         /// <summary>
         /// Creates markup policy.
         /// </summary>
@@ -36,14 +36,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> SetPolicy([FromRoute] int agencyId, [FromBody] SetAgencyMarkupRequest settings)
         {
-            var (_, isFailure, error) = await _policyManager.SetAgencyPolicy(agencyId, settings);
+            var (_, isFailure, error) = await _policyManager.AddAgencyPolicy(agencyId, settings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         /// Gets markup policies for the agency.
         /// </summary>
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet]
         [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId) 
+        public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId)
             => Ok(await _policyManager.GetForAgency(agencyId));
 
 
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
-        public async Task<IActionResult> RemovePolicy([FromRoute]int agencyId)
+        public async Task<IActionResult> RemovePolicy([FromRoute] int agencyId)
         {
             var (_, isFailure, error) = await _policyManager.RemoveAgencyPolicy(agencyId);
             if (isFailure)
@@ -73,8 +73,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         private readonly IAdminMarkupPolicyManager _policyManager;
     }
 }

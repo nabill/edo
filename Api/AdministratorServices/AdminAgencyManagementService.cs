@@ -52,17 +52,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
                     where a.Id == agencyId
-                    select a.ToAgencyInfo(a.ContractKind, 
-                        ra.VerificationState, 
+                    select a.ToAgencyInfo(a.ContractKind,
+                        ra.VerificationState,
                         ra.Verified != null
                             ? ra.Verified.Value.DateTime
-                            : null, 
-                        c.Names, 
+                            : null,
+                        c.Names,
                         languageCode,
-                        markupFormula == null 
-                            ? string.Empty 
+                        markupFormula == null
+                            ? string.Empty
                             : markupFormula.DisplayFormula))
                 .SingleOrDefaultAsync();
 
@@ -79,20 +79,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public IQueryable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
             => from a in _context.Agencies
-                join c in _context.Countries on a.CountryCode equals c.Code
-                from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
-                where a.ParentId == null
-                select new AdminViewAgencyInfo
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    City = a.City,
-                    CountryName = c.Names.RootElement.GetProperty(languageCode).GetString(),
-                    Created = a.Created.DateTime,
-                    VerificationState = a.VerificationState,
-                    AccountManagerName = string.Empty,
-                    IsActive = a.IsActive
-                };
+               join c in _context.Countries on a.CountryCode equals c.Code
+               from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
+               where a.ParentId == null
+               select new AdminViewAgencyInfo
+               {
+                   Id = a.Id,
+                   Name = a.Name,
+                   City = a.City,
+                   CountryName = c.Names.GetValueOrDefault(languageCode),
+                   Created = a.Created.DateTime,
+                   VerificationState = a.VerificationState,
+                   AccountManagerName = string.Empty,
+                   IsActive = a.IsActive
+               };
 
 
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
@@ -100,17 +100,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     from a in _context.Agencies
                     join c in _context.Countries on a.CountryCode equals c.Code
                     join ra in _context.Agencies on a.Ancestors[0] equals ra.Id
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()  
+                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty()
                     where a.ParentId == parentAgencyId
-                    select a.ToAgencyInfo(a.ContractKind, 
-                        ra.VerificationState, 
+                    select a.ToAgencyInfo(a.ContractKind,
+                        ra.VerificationState,
                         ra.Verified != null
                             ? ra.Verified.Value.DateTime
-                            : null, 
-                        c.Names, 
+                            : null,
+                        c.Names,
                         languageCode,
-                        markupFormula == null 
-                            ? string.Empty 
+                        markupFormula == null
+                            ? string.Empty
                             : markupFormula.DisplayFormula))
                 .ToListAsync();
 
@@ -194,7 +194,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Tap(SaveChanges)
                 .Bind(GetUpdatedAgencyInfo);
 
-            
+
             Result Validate(ManagementEditAgencyRequest request)
             {
                 return GenericValidator<ManagementEditAgencyRequest>.Validate(v =>
@@ -269,8 +269,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<Agency> GetRootAgency(Agency currentAgency)
             {
-                var rootAgencyId = currentAgency.Ancestors.Any() 
-                    ? currentAgency.Ancestors.First() 
+                var rootAgencyId = currentAgency.Ancestors.Any()
+                    ? currentAgency.Ancestors.First()
                     : currentAgency.Id;
                 return _context.Agencies.SingleAsync(ra => ra.Id == rootAgencyId);
             }

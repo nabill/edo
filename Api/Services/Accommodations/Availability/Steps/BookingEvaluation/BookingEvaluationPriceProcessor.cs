@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         {
             _priceProcessor = priceProcessor;
         }
-        
-        
-        public Task<RoomContractSetAvailability> ApplyMarkups(RoomContractSetAvailability response, AgentContext agent, Action<MarkupApplicationResult<RoomContractSetAvailability>> logAction) 
+
+
+        public Task<RoomContractSetAvailability> ApplyMarkups(RoomContractSetAvailability response, AgentContext agent, Action<MarkupApplicationResult<RoomContractSetAvailability>> logAction)
             => _priceProcessor.ApplyMarkups(agent.ToMarkupSubjectInfo(), response, ProcessPrices, GetMarkupDestinationInfo, logAction);
 
-        
-        public Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails) 
+
+        public Task<Result<RoomContractSetAvailability, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability availabilityDetails)
             => _priceProcessor.ConvertCurrencies(availabilityDetails, ProcessPrices, GetCurrency);
 
 
@@ -38,7 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 availablePaymentMethods: value.AvailablePaymentMethods,
                 countryHtId: value.CountryHtId,
                 localityHtId: value.LocalityHtId,
-                evaluationToken: value.EvaluationToken);
+                evaluationToken: value.EvaluationToken,
+                marketId: value.MarketId);
         }
 
 
@@ -55,7 +56,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 availablePaymentMethods: value.AvailablePaymentMethods,
                 countryHtId: value.CountryHtId,
                 localityHtId: value.LocalityHtId,
-                evaluationToken: value.EvaluationToken);
+                evaluationToken: value.EvaluationToken,
+                marketId: value.MarketId);
         }
 
 
@@ -64,7 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 AccommodationHtId = availability.Accommodation.HtId,
                 CountryHtId = availability.CountryHtId,
-                LocalityHtId = availability.LocalityHtId
+                LocalityHtId = availability.LocalityHtId,
+                MarketId = availability.MarketId
             };
 
 
@@ -73,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ? null
                 : availabilityDetails.RoomContractSet.Rate.Currency;
 
-        
+
         private readonly IPriceProcessor _priceProcessor;
     }
 }
