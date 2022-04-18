@@ -3995,6 +3995,12 @@
             </summary>
             <returns>List of account managers' info</returns>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,System.Nullable{System.Int32})">
+            <summary>
+                Add account manager to agency
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
             <summary>
                 Creates market.
