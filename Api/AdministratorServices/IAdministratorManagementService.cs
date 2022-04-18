@@ -11,5 +11,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<List<AdministratorInfo>> GetAll();
         Task<Result> Activate(int administratorId, Administrator initiator);
         Task<Result> Deactivate(int administratorId, Administrator initiator);
+        Task<List<AdministratorInfo>> GetAccountManagers();
     }
 }

@@ -38,6 +38,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => SetActivityState(administratorId, initiator, false);
 
 
+        public Task<List<AdministratorInfo>> GetAccountManagers()
+            => _context.Administrators
+                .Join(_context.Agencies
+                    .Where(agency => agency.AccountManagerId != null),
+                    admin => admin.Id,
+                    agency => agency.AccountManagerId,
+                    (admin, agency) => admin)
+                .Select(a => a.ToAdministratorInfo())
+                .ToListAsync();
+
+
         private Task<Result> SetActivityState(int administratorId, Administrator initiator, bool isActive)
         {
             return Get(administratorId)
@@ -56,7 +67,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<Result> WriteAuditLog(Administrator administrator)
                 => _managementAuditService.Write(ManagementEventType.AdministratorChangeActivityState,
-                    new AdministratorChangeActivityStateEventData {AdministratorId = initiator.Id, NewActivityState = isActive});
+                    new AdministratorChangeActivityStateEventData { AdministratorId = initiator.Id, NewActivityState = isActive });
         }
 
 
