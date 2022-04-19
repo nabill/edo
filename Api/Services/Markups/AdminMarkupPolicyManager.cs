@@ -112,7 +112,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result> AddPolicy()
                 => await Add(new MarkupPolicyData(settings,
                     new MarkupPolicyScope(settings.LocationScopeType ?? SubjectMarkupScopeTypes.Global,
-                        locationId: settings.LocationScopeId ?? string.Empty)));
+                        locationId: settings.LocationScopeId ?? string.Empty,
+                        agencyId: (settings.LocationScopeType == SubjectMarkupScopeTypes.Agency) ?
+                            int.Parse(settings.LocationScopeId!) : 0)));
 
 
             Result ValidateAddLocation(MarkupPolicySettings settings)
@@ -131,7 +133,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(MarketMarkupIsNotExist()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market &&
+                                    m.LocationScopeType is null)
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!"); ;
 
                             v.RuleFor(m => m.DestinationScopeType)
@@ -143,6 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
                                 .MustAsync(AgencyIsExist()!)
+                                .WithMessage(m => $"Agency with Id {m.LocationScopeId} doesn't exist!")
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency);
                         }).Otherwise(() =>
                         {
