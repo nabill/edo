@@ -39,7 +39,7 @@ namespace Api.Controllers.AdministratorControllers
         ///     Add account manager to agency
         /// </summary>
         /// <returns></returns>
-        [HttpGet("agencies/{agencyId}/account-manager")]
+        [HttpPut("agencies/{agencyId}/account-manager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
