@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IDisplayedMarkupFormulaService displayedMarkupFormulaService,
             IAdministratorContext administratorContext,
             IMarkupPolicyAuditService markupPolicyAuditService,
-            IAccommodationMapperClient mapperClient, IMessageBus messageBus)
+            IAccommodationMapperClient mapperClient,
+            IMessageBus messageBus)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
