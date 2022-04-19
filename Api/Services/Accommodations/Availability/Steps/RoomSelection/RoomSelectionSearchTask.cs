@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             void Publish(AccommodationAvailability availabilityDetails)
             {
-                _messageBus.Publish(NatsTopics.RoomSelection, new 
+                _messageBus.Publish(MessageBusTopics.RoomSelection, new 
                 {
                     SearchId = searchId,
                     SupplierCode = supplierCode,

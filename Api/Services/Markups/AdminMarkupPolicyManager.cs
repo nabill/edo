@@ -430,7 +430,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Map(SavePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created))
                 .Bind(UpdateDisplayedMarkupFormula)
-                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
             async Task<MarkupPolicy> SavePolicy()
             {
@@ -465,7 +465,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Map(DeletePolicy)
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted))
                 .Bind(UpdateDisplayedMarkupFormula)
-                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -498,7 +498,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await UpdatePolicy()
                 .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified))
                 .Bind(UpdateDisplayedMarkupFormula)
-                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {

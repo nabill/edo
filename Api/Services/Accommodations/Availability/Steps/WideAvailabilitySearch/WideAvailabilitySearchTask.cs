@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             void Publish(EdoContracts.Accommodations.Availability availability)
             {
-                _messageBus.Publish(NatsTopics.AvailabilitySearch, new 
+                _messageBus.Publish(MessageBusTopics.AvailabilitySearch, new 
                 {
                     SearchId = searchId,
                     SupplierCode = supplier.Code,

@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula)
-                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
 
             Result ValidateSettings(SetAgentMarkupRequest request)
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Map(DeletePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula)
-                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
 
             Task<MarkupPolicy> GetPolicy(AgentInAgencyId agentId)

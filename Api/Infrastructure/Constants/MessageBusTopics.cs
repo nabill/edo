@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Api.Infrastructure.Constants;
 
-public static class NatsTopics
+public static class MessageBusTopics
 {
     public const string AvailabilitySearch = "AvailabilitySearch";
     public const string RoomSelection = "RoomSelection";

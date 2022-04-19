@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _connection.SubscribeAsync(NatsTopics.MarkupPolicyUpdated, (_, _) => UpdateStorage());
+            _connection.SubscribeAsync(MessageBusTopics.MarkupPolicyUpdated, (_, _) => UpdateStorage());
             UpdateStorage();
         }
 
