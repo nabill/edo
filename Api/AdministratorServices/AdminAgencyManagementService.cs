@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -69,7 +70,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        admin.GetFullName()))
+                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                    CountryName = country.Names.GetValueOrDefault(languageCode),
                    Created = agency.Created.DateTime,
                    VerificationState = agency.VerificationState,
-                   AccountManagerName = admin.GetFullName(),
+                   AccountManagerName = PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null),
                    IsActive = agency.IsActive
                };
 
@@ -124,7 +125,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        admin.GetFullName()))
+                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
                 .ToListAsync();
 
 

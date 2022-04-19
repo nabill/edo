@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -178,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        admin.GetFullName()))
+                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
