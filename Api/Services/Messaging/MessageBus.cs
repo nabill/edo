@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using NATS.Client;
@@ -19,6 +20,15 @@ public class MessageBus : IMessageBus
         Task.Run(() =>
         {
             _connection.Publish(topic, Encoding.UTF8.GetBytes(_serializer.SerializeObject(message)));
+        });
+    }
+
+
+    public void Publish(string topic)
+    {
+        Task.Run(() =>
+        {
+            _connection.Publish(topic, Array.Empty<byte>());
         });
     }
 

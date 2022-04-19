@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -57,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             void Publish(AccommodationAvailability availabilityDetails)
             {
-                _messageBus.Publish(MessageBusTopicName, new 
+                _messageBus.Publish(NatsTopics.RoomSelection, new 
                 {
                     SearchId = searchId,
                     SupplierCode = supplierCode,
@@ -102,9 +103,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Task SaveToCache(SingleAccommodationAvailability details)
                 => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierCode);
         }
-        
-        
-        private const string MessageBusTopicName = "RoomSelection";
         
         
         private readonly IRoomSelectionPriceProcessor _priceProcessor;

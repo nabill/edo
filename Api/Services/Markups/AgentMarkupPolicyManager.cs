@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.Agent;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Services.Messaging;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -25,13 +27,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
     {
         public AgentMarkupPolicyManager(EdoContext context, IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService, IMarkupPolicyAuditService markupPolicyAuditService,
-            IAccommodationMapperClient mapperClient)
+            IAccommodationMapperClient mapperClient, IMessageBus messageBus)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _markupPolicyAuditService = markupPolicyAuditService;
             _mapperClient = mapperClient;
+            _messageBus = messageBus;
         }
 
 
@@ -44,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Map(() => GetAgentPolicy(agentInAgencyId))
                 .Bind(SavePolicy)
                 .Tap(WriteAuditLog)
-                .Bind(UpdateDisplayedMarkupFormula);
+                .Bind(UpdateDisplayedMarkupFormula)
+                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
 
 
             Result ValidateSettings(SetAgentMarkupRequest request)
@@ -102,7 +106,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Map(GetPolicy)
                 .Map(DeletePolicy)
                 .Tap(WriteAuditLog)
-                .Bind(UpdateDisplayedMarkupFormula);
+                .Bind(UpdateDisplayedMarkupFormula)
+                .Tap(() => _messageBus.Publish(NatsTopics.MarkupPolicyUpdated));
 
 
             Task<MarkupPolicy> GetPolicy(AgentInAgencyId agentId)
@@ -176,5 +181,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
         private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
         private readonly IAccommodationMapperClient _mapperClient;
+        private readonly IMessageBus _messageBus;
     }
 }
