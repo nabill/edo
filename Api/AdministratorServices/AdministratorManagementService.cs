@@ -91,7 +91,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Func<int?, CancellationToken, Task<bool>> AccountManagerIsExist()
                 => (accountManagerId, cancellationToken)
                     => _context.Administrators
-                        .AnyAsync(a => a.Id == accountManagerId, cancellationToken);
+                        .AnyAsync(a => a.Id == accountManagerId &&
+                            a.AdministratorRoleIds.Contains(AccountManagerRoleId) && a.IsActive, cancellationToken);
         }
 
 
