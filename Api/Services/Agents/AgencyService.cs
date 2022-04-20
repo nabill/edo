@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -158,24 +159,30 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async Task<Result<AgencyInfo>> GetAgencyInfo(int agencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             var agencyInfo = await (
-                    from a in _context.Agencies
-                    join c in _context.Countries on a.CountryCode equals c.Code
-                    join ra in _context.Agencies on a.Ancestors.Any() ? a.Ancestors[0] : a.Id equals ra.Id
-                    from markupFormula in _context.DisplayMarkupFormulas.Where(f => f.AgencyId == a.Id && f.AgentId == null).DefaultIfEmpty() 
-                    where a.Id == agencyId
-                    select a.ToAgencyInfo(a.ContractKind, 
-                        ra.VerificationState, 
-                        ra.Verified != null
-                            ? ra.Verified.Value.DateTime
-                            : null, 
-                        c.Names, 
-                        languageCode, 
-                        markupFormula == null 
-                            ? string.Empty 
-                            : markupFormula.DisplayFormula))
+                    from agency in _context.Agencies
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join rootAgency in _context.Agencies on agency.Ancestors.Any() ?
+                        agency.Ancestors[0] :
+                        agency.Id equals rootAgency.Id
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
+                    from markupFormula in _context.DisplayMarkupFormulas
+                        .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                        .DefaultIfEmpty()
+                    where agency.Id == agencyId
+                    select agency.ToAgencyInfo(agency.ContractKind,
+                        rootAgency.VerificationState,
+                        rootAgency.Verified != null
+                            ? rootAgency.Verified.Value.DateTime
+                            : null,
+                        country.Names,
+                        languageCode,
+                        markupFormula == null
+                            ? string.Empty
+                            : markupFormula.DisplayFormula,
+                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
                 .SingleOrDefaultAsync();
 
-            return agencyInfo.Equals(default) 
+            return agencyInfo.Equals(default)
                 ? Result.Failure<AgencyInfo>("Could not find specified agency")
                 : agencyInfo;
         }

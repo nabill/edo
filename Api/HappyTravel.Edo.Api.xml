@@ -2454,6 +2454,11 @@
             Agency preferred currency
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.AccountManagerName">
+            <summary>
+            Name of the account manager
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -3984,6 +3989,12 @@
             This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
             </remarks>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Get">
+            <summary>
+                Gets all account managers
+            </summary>
+            <returns>List of account managers' info</returns>
+        </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
             <summary>
                 Creates market.
@@ -4026,6 +4037,26 @@
             </summary>
             <param name="marketId">Market's id</param>
             <returns>List of countries of market</returns>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
+            <summary>
+            Id of account manager
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.AccountManager.Position">
+            <summary>
+            Position
+            </summary>
         </member>
     </members>
 </doc>

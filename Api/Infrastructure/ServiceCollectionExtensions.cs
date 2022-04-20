@@ -721,7 +721,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNatsClient(options =>
             {
                 options.Servers = natsEndpoints;
-            });
+                options.MaxReconnect = NATS.Client.Options.ReconnectForever;
+            }, ServiceLifetime.Singleton);
 
             return services;
         }
