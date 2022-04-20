@@ -15,20 +15,20 @@ public class MessageBus : IMessageBus
     }
     
     
-    public void Publish<T>(string topic, T message)
+    public void Publish<T>(string topicName, T message)
     {
         Task.Run(() =>
         {
-            _connection.Publish(topic, Encoding.UTF8.GetBytes(_serializer.SerializeObject(message)));
+            _connection.Publish(topicName, Encoding.UTF8.GetBytes(_serializer.SerializeObject(message)));
         });
     }
 
 
-    public void Publish(string topic)
+    public void Publish(string topicName)
     {
         Task.Run(() =>
         {
-            _connection.Publish(topic, Array.Empty<byte>());
+            _connection.Publish(topicName, Array.Empty<byte>());
         });
     }
 
