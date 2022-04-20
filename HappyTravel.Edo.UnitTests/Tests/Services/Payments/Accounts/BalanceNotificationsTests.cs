@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Notifications.Enums;
@@ -63,6 +64,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                 }));
 
             edoContextMock
+                .Setup(c => c.Administrators)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<Administrator>
+                {
+                    new Administrator
+                    {
+                        Id = 1,
+                        FirstName = "AgentFirstName1",
+                        LastName = "AgentLastName1"
+                    },
+                    new Administrator
+                    {
+                        Id = 2,
+                        FirstName = "AgencyFirstName2",
+                        LastName = "AgentLastName2"
+                    }
+                }));
+
+            edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
                 {
@@ -70,13 +89,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
                     {
                         Id = 1,
                         Name = "AgencyName1",
-                        CountryCode = "en"
+                        CountryCode = "en",
+                        AccountManagerId = 1
                     },
                     new Agency
                     {
                         Id = 2,
                         Name = "AgencyName2",
-                        CountryCode = "en"
+                        CountryCode = "en",
+                        AccountManagerId = 1
                     }
                 }));
 

@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         /// Name of the account manager
         /// </summary>
-        public string AccountManagerName { get; init; }
+        public string? AccountManagerName { get; init; }
 
         /// <summary>
         /// Agency creation date
