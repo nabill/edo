@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
+using Api.Models.Management.Administrators;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Models.Management.Administrators;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +27,7 @@ namespace Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>List of account managers' info</returns>
         [HttpGet("account-managers")]
-        [ProducesResponseType(typeof(List<AdministratorInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<AccountManager>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
         public async Task<IActionResult> Get()

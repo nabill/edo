@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task<List<AccountManager>> GetAccountManagers(CancellationToken cancellationToken)
             => _context.Administrators
-                .Where(a => a.AdministratorRoleIds.Contains(AccountManagerRole) && a.IsActive)
+                .Where(a => a.AdministratorRoleIds.Contains(AccountManagerRoleId) && a.IsActive)
                 .Select(a => a.ToAccountManager())
                 .ToListAsync(cancellationToken);
 
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 ?? Result.Failure<Administrator>("Administrator with specified Id does not exist");
 
 
-        private const int AccountManagerRole = 1;
+        private const int AccountManagerRoleId = 1;
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;

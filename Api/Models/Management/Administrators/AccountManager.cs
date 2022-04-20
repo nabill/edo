@@ -1,6 +1,6 @@
 namespace Api.Models.Management.Administrators
 {
-    public class AccountManager
+    public readonly struct AccountManager
     {
         public AccountManager(int id, string firstName, string lastName, string position)
         {
