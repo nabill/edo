@@ -3997,7 +3997,7 @@
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,System.Nullable{System.Int32})">
             <summary>
-                Add account manager to agency
+                Adds an account manager to the agency
             </summary>
             <returns></returns>
         </member>

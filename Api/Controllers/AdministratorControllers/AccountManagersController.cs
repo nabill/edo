@@ -35,7 +35,7 @@ namespace Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Add account manager to agency
+        ///     Adds an account manager to the agency
         /// </summary>
         /// <returns></returns>
         [HttpPut("agencies/{agencyId}/account-manager")]
