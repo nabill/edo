@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -38,6 +39,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => SetActivityState(administratorId, initiator, false);
 
 
+        public Task<List<AccountManager>> GetAccountManagers()
+            => _context.Administrators
+                .Where(a => a.AdministratorRoleIds.Contains(AccountManagerRoleId) && a.IsActive)
+                .Select(a => a.ToAccountManager())
+                .ToListAsync();
+
+
         private Task<Result> SetActivityState(int administratorId, Administrator initiator, bool isActive)
         {
             return Get(administratorId)
@@ -56,7 +64,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task<Result> WriteAuditLog(Administrator administrator)
                 => _managementAuditService.Write(ManagementEventType.AdministratorChangeActivityState,
-                    new AdministratorChangeActivityStateEventData {AdministratorId = initiator.Id, NewActivityState = isActive});
+                    new AdministratorChangeActivityStateEventData { AdministratorId = initiator.Id, NewActivityState = isActive });
         }
 
 
@@ -64,6 +72,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => await _context.Administrators.SingleOrDefaultAsync(a => a.Id == administratorId)
                 ?? Result.Failure<Administrator>("Administrator with specified Id does not exist");
 
+
+        private const int AccountManagerRoleId = 1;
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
