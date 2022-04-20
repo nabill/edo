@@ -33,5 +33,6 @@ namespace HappyTravel.Edo.Data.Agents
         public string LegalAddress { get; set; } = string.Empty;
         public PaymentTypes PreferredPaymentMethod { get; set; }
         public bool IsContractUploaded { get; set; }
+        public int? AccountManagerId { get; set; }
     }
 }
