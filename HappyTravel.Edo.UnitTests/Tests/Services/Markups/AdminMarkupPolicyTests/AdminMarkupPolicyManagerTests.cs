@@ -126,6 +126,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
 
         [Fact]
+        public async Task Add_destination_agency_markup_which_already_exist_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                "1", "1", SubjectMarkupScopeTypes.Agency, DestinationMarkupScopeTypes.Market);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
         public async Task Add_destination_agency_markup_with_unexpected_type_should_return_fail()
         {
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
@@ -310,7 +322,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
                 Currency = Currencies.USD,
                 FunctionType = MarkupFunctionType.Percent,
                 Description = "Markup 1",
-                SubjectScopeId = "1171",
+                SubjectScopeId = "1",
                 SubjectScopeType = SubjectMarkupScopeTypes.Agency,
                 DestinationScopeId = "1",
                 DestinationScopeType = DestinationMarkupScopeTypes.Market
