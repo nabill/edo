@@ -27,20 +27,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public class AdminMarkupPolicyManager : IAdminMarkupPolicyManager
     {
         public AdminMarkupPolicyManager(EdoContext context,
-            IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService,
             IAdministratorContext administratorContext,
-            IMarkupPolicyAuditService markupPolicyAuditService,
-            IAccommodationMapperClient mapperClient)
+            IMarkupPolicyAuditService markupPolicyAuditService)
         {
             _context = context;
-            _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _administratorContext = administratorContext;
             _markupPolicyAuditService = markupPolicyAuditService;
-            _mapperClient = mapperClient;
         }
 
 
@@ -226,7 +222,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country) ||
                                 d.Equals(DestinationMarkupScopeTypes.Locality))
                             .WithMessage($"Markup policy with Id {policyId} is not destination's location!")
-                            .When(t => t.policy is not null && t.policy.SubjectScopeType == SubjectMarkupScopeTypes.NotSpecified);
+                            .When(t => t.policy is not null && (t.policy.SubjectScopeType == SubjectMarkupScopeTypes.NotSpecified ||
+                                t.policy.SubjectScopeType == SubjectMarkupScopeTypes.Global));
 
                         v.RuleFor(t => t.policy!.SubjectScopeType)
                             .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country) ||
@@ -301,67 +298,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        // private static Result<MarkupPolicyData> GetPolicyData(MarkupPolicy policy)
-        // {
-        //     int? agencyId = null, agentId = null;
-        //     string? locationId = null;
-
-        //     if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && int.TryParse(policy.SubjectScopeId, out var parsedId))
-        //         agencyId = parsedId;
-
-        //     if (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent)
-        //     {
-        //         var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
-        //         agencyId = agentInAgencyId.AgencyId;
-        //         agentId = agentInAgencyId.AgentId;
-        //     }
-
-        //     if (policy.SubjectScopeType is SubjectMarkupScopeTypes.Locality or SubjectMarkupScopeTypes.Country or SubjectMarkupScopeTypes.Market)
-        //         locationId = policy.SubjectScopeId;
-
-        //     return new MarkupPolicyData(new MarkupPolicySettings(policy.Description, policy.FunctionType, policy.Value, policy.Currency, policy.DestinationScopeId),
-        //         new MarkupPolicyScope(policy.SubjectScopeType, agencyId, agentId, locationId));
-        // }
-
-
-        // private async Task<Result<SubjectMarkupScopeTypes>> GetAgentMarkupScopeType(MarkupPolicySettings settings)
-        // {
-        //     if (settings.LocationScopeType == SubjectMarkupScopeTypes.Market)
-        //         return settings.LocationScopeType.Value;
-
-        //     var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(settings.LocationScopeId!);
-        //     if (isFailure)
-        //         return Result.Failure<SubjectMarkupScopeTypes>(error.Detail);
-
-        //     return value.Type switch
-        //     {
-        //         MapperLocationTypes.Country => SubjectMarkupScopeTypes.Country,
-        //         MapperLocationTypes.Locality => SubjectMarkupScopeTypes.Locality,
-        //         _ => Result.Failure<SubjectMarkupScopeTypes>($"Type {value.Type} is not suitable")
-        //     };
-        // }
-
-
-        private async Task<Result<DestinationMarkupScopeTypes>> GetDestinationScopeType(string? destinationScopeId)
-        {
-            // If destinationScopeId is not provided, treat it as Global
-            if (string.IsNullOrWhiteSpace(destinationScopeId))
-                return DestinationMarkupScopeTypes.Global;
-
-            var (_, isFailure, value, error) = await _mapperClient.GetSlimLocationDescription(destinationScopeId);
-            if (isFailure)
-                return Result.Failure<DestinationMarkupScopeTypes>(error.Detail);
-
-            return value.Type switch
-            {
-                MapperLocationTypes.Country => DestinationMarkupScopeTypes.Country,
-                MapperLocationTypes.Locality => DestinationMarkupScopeTypes.Locality,
-                MapperLocationTypes.Accommodation => DestinationMarkupScopeTypes.Accommodation,
-                _ => Result.Failure<DestinationMarkupScopeTypes>($"Type {value.Type} is not suitable")
-            };
-        }
-
-
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
             return policy.SubjectScopeType switch
@@ -421,14 +357,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var destinationScopeTypeValue = policyData.Settings.DestinationScopeType;
 
-            if (policyData.Settings.DestinationScopeType is null)
-            {
-                var destinationScopeType = await GetDestinationScopeType(policyData.Settings.DestinationScopeId);
-                if (destinationScopeType.IsFailure)
-                    return Result.Failure(destinationScopeType.Error);
-
-                destinationScopeTypeValue = destinationScopeType.Value;
-            }
+            if (string.IsNullOrWhiteSpace(policyData.Settings.DestinationScopeId))
+                destinationScopeTypeValue = DestinationMarkupScopeTypes.Global;
 
             var (_, isFailure, markupPolicy, error) = await Result.Success()
                 .Map(SavePolicy)
@@ -497,10 +427,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<Result> Update(int policyId, MarkupPolicySettings settings)
         {
-            var destinationScopeType = await GetDestinationScopeType(settings.DestinationScopeId);
-            if (destinationScopeType.IsFailure)
-                return Result.Failure(destinationScopeType.Error);
-
             var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
             if (policy == null)
                 return Result.Failure($"Policy '{policyId}' was not found or not local");
@@ -520,14 +446,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Value = settings.Value;
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
-                // policy.SubjectScopeId = settings.LocationScopeId;
-                // No SubjectScopeType here because changing its type is not allowed
-                // policy.DestinationScopeId = settings.DestinationScopeId;
-                // policy.DestinationScopeType = destinationScopeType.Value;
-
-                // var policyData = GetPolicyData(policy);
-                // if (policyData.IsFailure)
-                //     return Result.Failure<MarkupPolicy>(policyData.Error);
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
@@ -536,12 +454,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
-        private readonly IAccommodationMapperClient _mapperClient;
     }
 }
