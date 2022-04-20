@@ -20,7 +20,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
-        var (_, isFailure, defaultSuppliers, error) = GetDefaultSuppliers();
+        var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
@@ -28,32 +28,14 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
         if (Equals(agencySettings, default))
-            return defaultSuppliers;
+            return enabledSuppliers.ToDictionary(s => s, _ => true);
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
         var materializedSettings = new Dictionary<string, bool>();
 
-        foreach (var (supplierCode, defaultOption) in defaultSuppliers)
+        foreach (var supplierCode in enabledSuppliers)
         {
-            bool materializedOption;
-            
-            if (!agencySuppliers.TryGetValue(supplierCode, out var agencyOption))
-            {
-                materializedOption = defaultOption;
-            }
-            else if (!defaultOption)
-            {
-                materializedOption = false;
-            }
-            else if (!agencyOption)
-            {
-                materializedOption = false;
-            }
-            else
-            {
-                materializedOption = true;
-            }
-
+            var materializedOption = !agencySuppliers.TryGetValue(supplierCode, out var agencyOption) || agencyOption;
             materializedSettings.Add(supplierCode, materializedOption);
         }
 
@@ -61,7 +43,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    public async Task<Result> SaveSuppliers(int agencyId, Dictionary<string, bool> enabledSuppliers)
+    public async Task<Result> SaveSuppliers(int agencyId, Dictionary<string, bool> suppliers)
     {
         return await Validate()
             .Tap(AddOrUpdate);
@@ -69,15 +51,12 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         
         Result Validate()
         {
-            var defaultSuppliers = GetDefaultSuppliers().Value;
+            var enabledSuppliers = GetEnabledSuppliers().Value;
             
-            foreach (var (name, isEnabled) in enabledSuppliers)
+            foreach (var (name, _) in suppliers)
             {
-                if (!defaultSuppliers.ContainsKey(name))
-                    return Result.Failure($"Supplier {name} does not exist in the system");
-                
-                if (isEnabled && !defaultSuppliers[name])
-                    return Result.Failure($"Supplier {name} is disabled in the system");
+                if (!enabledSuppliers.Contains(name))
+                    return Result.Failure($"Supplier {name} does not exist or is disabled in the system");
             }
             
             return Result.Success();
@@ -92,13 +71,13 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
                 var settings = new AgencySystemSettings
                 {
                     AgencyId = agencyId,
-                    EnabledSuppliers = enabledSuppliers
+                    EnabledSuppliers = suppliers
                 };
                 _context.Add(settings);
             }
             else
             {
-                agencySystemSettings.EnabledSuppliers = enabledSuppliers;
+                agencySystemSettings.EnabledSuppliers = suppliers;
             }
 
             await _context.SaveChangesAsync();
@@ -106,12 +85,12 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<Dictionary<string, bool>> GetDefaultSuppliers()
+    private Result<List<string>> GetEnabledSuppliers()
     {
         var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
         return isFailure
-            ? Result.Failure<Dictionary<string, bool>>(error)
-            : suppliers.ToDictionary(s => s.Code, s => s.IsEnabled);
+            ? Result.Failure<List<string>>(error)
+            : suppliers.Where(s => s.IsEnabled).Select(s => s.Code).ToList();
     }
 
     
