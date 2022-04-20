@@ -111,6 +111,8 @@ using ProtoBuf.Grpc.ClientFactory;
 using StackExchange.Redis;
 using Tsutsujigasaki.GrpcContracts.Services;
 using Api.AdministratorServices.Locations;
+using HappyTravel.Edo.Api.Services.Messaging;
+using NATS.Client;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -673,6 +675,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMarketManagementService, MarketManagementService>();
             services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
+            services.AddTransient<IMessageBus, MessageBus>();
 
             var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
             services.AddSupplierOptionsProvider(options =>
@@ -712,6 +715,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     SourceCurrency = Currencies.OMR,
                     TargetCurrency = Currencies.USD
                 }
+            });
+            
+            var natsEndpoints = configuration.GetValue<string>("Nats:Endpoints").Split(";");
+            services.AddNatsClient(options =>
+            {
+                options.Servers = natsEndpoints;
             });
 
             return services;
