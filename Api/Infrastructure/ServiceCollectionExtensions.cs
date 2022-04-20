@@ -680,7 +680,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSupplierOptionsProvider(options =>
             {
                 options.IdentityClientName = HttpClientNames.AccessTokenClient;
-                options.Endpoint = endpoint;
+                options.BaseEndpoint = endpoint;
                 options.StorageTimeout = TimeSpan.FromSeconds(60);
                 options.UpdaterInterval = TimeSpan.FromSeconds(60);
             });

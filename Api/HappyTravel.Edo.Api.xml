@@ -759,6 +759,17 @@
             <param name="code">Supplier code</param>
             <param name="reason">Reason for deactivating the supplier</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.GetPriorities">
+            <summary>
+            Gets supplier priorities
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.ModifyPriorities(HappyTravel.SupplierOptionsClient.Models.SupplierPriorityByTypes)">
+            <summary>
+            Modifies supplier priorities
+            </summary>
+            <param name="supplierPriorityByTypes">Supplier priorities</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
