@@ -34,6 +34,18 @@ namespace Api.Controllers.AdministratorControllers
             => Ok(await _administratorManagementService.GetAccountManagers());
 
 
+        /// <summary>
+        ///     Adds an account manager to the agency
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("agencies/{agencyId}/account-manager")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        public async Task<IActionResult> Add([FromRoute] int agencyId, [FromQuery] int? accountManagerId)
+            => NoContentOrBadRequest(await _administratorManagementService.AddAccountManager(agencyId, accountManagerId));
+
+
         private readonly IAdministratorManagementService _administratorManagementService;
     }
 }

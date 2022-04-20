@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Management.Administrators;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
@@ -39,11 +43,57 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => SetActivityState(administratorId, initiator, false);
 
 
-        public Task<List<AccountManager>> GetAccountManagers()
+        public Task<List<AccountManager>> GetAccountManagers(CancellationToken cancellationToken)
             => _context.Administrators
                 .Where(a => a.AdministratorRoleIds.Contains(AccountManagerRoleId) && a.IsActive)
                 .Select(a => a.ToAccountManager())
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
+
+
+        public Task<Result> AddAccountManager(int agencyId, int? accountManagerId, CancellationToken cancellationToken)
+        {
+            return ValidateAddManager()
+                .Tap(AddManager);
+
+
+            Result ValidateAddManager()
+                => GenericValidator<(int agencyId, int? accountManagerId)>.Validate(v =>
+                {
+                    v.RuleFor(t => t.agencyId)
+                        .MustAsync(AgencyIsExist())
+                        .WithMessage(t => $"Agency with Id {t.agencyId} doesn't exist!");
+
+                    v.RuleFor(t => t.accountManagerId)
+                        .MustAsync(AccountManagerIsExist())
+                        .WithMessage(t => $"Account manager with Id {t.accountManagerId} doesn't exist!")
+                        .When(t => t.accountManagerId is not null);
+                }, (agencyId, accountManagerId));
+
+
+            async Task AddManager()
+            {
+                var agency = await _context.Agencies
+                    .SingleAsync(a => a.Id == agencyId, cancellationToken);
+
+                agency.AccountManagerId = accountManagerId;
+
+                _context.Update(agency);
+                await _context.SaveChangesAsync();
+            }
+
+
+            Func<int, CancellationToken, Task<bool>> AgencyIsExist()
+                => (agencyId, cancellationToken)
+                    => _context.Agencies
+                        .AnyAsync(a => a.Id == agencyId, cancellationToken);
+
+
+            Func<int?, CancellationToken, Task<bool>> AccountManagerIsExist()
+                => (accountManagerId, cancellationToken)
+                    => _context.Administrators
+                        .AnyAsync(a => a.Id == accountManagerId &&
+                            a.AdministratorRoleIds.Contains(AccountManagerRoleId) && a.IsActive, cancellationToken);
+        }
 
 
         private Task<Result> SetActivityState(int administratorId, Administrator initiator, bool isActive)
