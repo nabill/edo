@@ -676,11 +676,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
             services.AddTransient<IMessageBus, MessageBus>();
 
-            var endpoint = configuration.GetValue<string>("SupplierOptionsProvider:Endpoint");
+            var suppliersEndpoint = configuration.GetValue<string>("Suppliers:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
                 options.IdentityClientName = HttpClientNames.AccessTokenClient;
-                options.BaseEndpoint = endpoint;
+                options.BaseEndpoint = suppliersEndpoint;
                 options.StorageTimeout = TimeSpan.FromSeconds(60);
                 options.UpdaterInterval = TimeSpan.FromSeconds(60);
             });
