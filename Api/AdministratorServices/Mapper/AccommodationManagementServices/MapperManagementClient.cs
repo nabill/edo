@@ -13,7 +13,6 @@ using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccomm
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

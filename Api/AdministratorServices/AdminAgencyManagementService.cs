@@ -51,14 +51,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             var agencyInfo = await (
                     from agency in _context.Agencies
-                    join country in _context.Countries on agency.CountryCode equals country.Code
                     join rootAgency in _context.Agencies on agency.Ancestors.Any() ?
                         agency.Ancestors[0] :
                         agency.Id equals rootAgency.Id
-                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
                     from markupFormula in _context.DisplayMarkupFormulas
                         .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
                         .DefaultIfEmpty()
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
+                    from admin in admn.DefaultIfEmpty()
                     where agency.Id == agencyId
                     select agency.ToAgencyInfo(agency.ContractKind,
                         rootAgency.VerificationState,
@@ -70,7 +71,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
+                        admin != null ?
+                            PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
@@ -86,11 +89,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public IQueryable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
             => from agency in _context.Agencies
-               join country in _context.Countries on agency.CountryCode equals country.Code
-               join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
                from markupFormula in _context.DisplayMarkupFormulas
                    .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
                    .DefaultIfEmpty()
+               join country in _context.Countries on agency.CountryCode equals country.Code
+               join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
+               from admin in admn.DefaultIfEmpty()
                where agency.ParentId == null
                select new AdminViewAgencyInfo
                {
@@ -100,7 +104,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                    CountryName = country.Names.GetValueOrDefault(languageCode),
                    Created = agency.Created.DateTime,
                    VerificationState = agency.VerificationState,
-                   AccountManagerName = PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null),
+                   AccountManagerName = admin != null ?
+                       PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                       null,
                    IsActive = agency.IsActive
                };
 
@@ -108,12 +114,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (
                     from agency in _context.Agencies
-                    join country in _context.Countries on agency.CountryCode equals country.Code
                     join rootAgency in _context.Agencies on agency.Ancestors[0] equals rootAgency.Id
-                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
                     from markupFormula in _context.DisplayMarkupFormulas
                         .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
                         .DefaultIfEmpty()
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
+                    from admin in admn.DefaultIfEmpty()
                     where agency.ParentId == parentAgencyId
                     select agency.ToAgencyInfo(agency.ContractKind,
                         rootAgency.VerificationState,
@@ -125,7 +132,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
+                        admin != null ?
+                            PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null))
                 .ToListAsync();
 
 

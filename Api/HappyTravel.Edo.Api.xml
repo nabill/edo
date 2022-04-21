@@ -759,6 +759,17 @@
             <param name="code">Supplier code</param>
             <param name="reason">Reason for deactivating the supplier</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.GetPriorities">
+            <summary>
+            Gets supplier priorities
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.ModifyPriorities(HappyTravel.SupplierOptionsClient.Models.SupplierPriorityByTypes)">
+            <summary>
+            Modifies supplier priorities
+            </summary>
+            <param name="supplierPriorityByTypes">Supplier priorities</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgenciesController.GetSelfAgency">
             <summary>
                 Gets current agent's agency.
@@ -3994,6 +4005,12 @@
                 Gets all account managers
             </summary>
             <returns>List of account managers' info</returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,System.Nullable{System.Int32})">
+            <summary>
+                Adds an account manager to the agency
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
             <summary>
