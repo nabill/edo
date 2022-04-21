@@ -52,8 +52,12 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             .Tap(AddOrUpdate);
         
         
-        Result Validate()
+        async Task<Result> Validate()
         {
+            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
+            if (Equals(agency, default))
+                return Result.Failure($"Agency {agencyId} does not exist");
+            
             var enabledSuppliers = GetEnabledSupplierCodes().Value;
             
             foreach (var (name, _) in suppliers)
@@ -81,6 +85,9 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             else
             {
                 agencySystemSettings.EnabledSuppliers = suppliers;
+                _context.Attach(agencySystemSettings)
+                    .Property(s => s.EnabledSuppliers)
+                    .IsModified = true;
             }
 
             await _context.SaveChangesAsync();
