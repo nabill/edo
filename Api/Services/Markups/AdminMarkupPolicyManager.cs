@@ -48,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<GlobalMarkupInfo?> GetGlobalPolicy()
         {
             var policy = await _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global)
                 .SingleOrDefaultAsync();
 
             return policy is null
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> RemoveGlobalPolicy()
         {
             var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
+                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global);
 
             return policy is null
                 ? Result.Failure("Could not find global policy")
@@ -71,7 +73,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> AddGlobalPolicy(SetGlobalMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global);
+                .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global);
 
             var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
                 request.Percent, Currencies.USD, null);

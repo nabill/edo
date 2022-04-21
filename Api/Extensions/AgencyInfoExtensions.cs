@@ -13,7 +13,8 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AgencyInfoExtensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, MultiLanguage<string> countryNames, string languageCode, string markupFormula)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, MultiLanguage<string> countryNames,
+            string languageCode, string markupFormula, string? accountManagerName)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
                 address: agency.Address,
@@ -37,6 +38,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 preferredPaymentMethod: agency.PreferredPaymentMethod,
                 isContractUploaded: agency.IsContractUploaded,
                 markupDisplayFormula: markupFormula,
-                preferredCurrency: agency.PreferredCurrency);
+                preferredCurrency: agency.PreferredCurrency,
+                accountManagerName: accountManagerName);
     }
 }
