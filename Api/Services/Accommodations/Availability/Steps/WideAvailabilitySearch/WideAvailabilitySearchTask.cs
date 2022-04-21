@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             void Publish(EdoContracts.Accommodations.Availability availability)
             {
-                _messageBus.Publish(MessageBusTopicName, new 
+                _messageBus.Publish(MessageBusTopics.AvailabilitySearch, new 
                 {
                     SearchId = searchId,
                     SupplierCode = supplier.Code,
@@ -249,9 +250,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private const string MessageBusTopicName = "AvailabilitySearch";
-
-
         private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;

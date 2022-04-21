@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.Agency;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
@@ -13,7 +14,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Services.Messaging;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -30,13 +31,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService,
             IAdministratorContext administratorContext,
-            IMarkupPolicyAuditService markupPolicyAuditService)
+            IMarkupPolicyAuditService markupPolicyAuditService,
+            IMessageBus messageBus)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
             _administratorContext = administratorContext;
             _markupPolicyAuditService = markupPolicyAuditService;
+            _messageBus = messageBus;
         }
 
 
@@ -373,14 +376,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (string.IsNullOrWhiteSpace(policyData.Settings.DestinationScopeId))
                 destinationScopeTypeValue = DestinationMarkupScopeTypes.Global;
 
-            var (_, isFailure, markupPolicy, error) = await Result.Success()
+            return await Result.Success()
                 .Map(SavePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created));
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Created))
+                .Bind(UpdateDisplayedMarkupFormula)
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
             async Task<MarkupPolicy> SavePolicy()
             {
@@ -411,14 +411,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private async Task<Result> Remove(int policyId)
         {
-            var (_, isFailure, markupPolicy, error) = await GetPolicy()
+            return await GetPolicy()
                 .Map(DeletePolicy)
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted));
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Deleted))
+                .Bind(UpdateDisplayedMarkupFormula)
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -438,19 +435,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
+
         private async Task<Result> Update(int policyId, MarkupPolicySettings settings)
         {
             var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
             if (policy == null)
                 return Result.Failure($"Policy '{policyId}' was not found or not local");
 
-            var (_, isFailure, markupPolicy, error) = await UpdatePolicy()
-                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified));
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return await UpdateDisplayedMarkupFormula(markupPolicy);
+            return await UpdatePolicy()
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventOperationType.Modified))
+                .Bind(UpdateDisplayedMarkupFormula)
+                .Tap(() => _messageBus.Publish(MessageBusTopics.MarkupPolicyUpdated));
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
@@ -472,5 +467,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
+        private readonly IMessageBus _messageBus;
     }
 }
