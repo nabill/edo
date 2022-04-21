@@ -27,11 +27,8 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         var agencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
-        if (Equals(agencySettings, default))
+        if (Equals(agencySettings, default) || Equals(agencySettings.EnabledSuppliers, null))
             return enabledSuppliers.ToDictionary(s => s, _ => true);
-
-        if (Equals(agencySettings.EnabledSuppliers, null))
-            return new Dictionary<string, bool>();
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
         var materializedSettings = new Dictionary<string, bool>();
