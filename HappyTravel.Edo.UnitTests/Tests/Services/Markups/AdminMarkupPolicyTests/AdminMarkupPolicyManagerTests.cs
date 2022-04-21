@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Messaging;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -43,7 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
             _adminMarkupPolicyManager = new AdminMarkupPolicyManager(_edoContextMock.Object,
                 Mock.Of<IDateTimeProvider>(), Mock.Of<IDisplayedMarkupFormulaService>(),
-                administratorContext, auditServiceMock.Object);
+                administratorContext, auditServiceMock.Object, Mock.Of<IMessageBus>());
 
             var strategy = new ExecutionStrategyMock();
 
