@@ -166,11 +166,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from markupFormula in _context.DisplayMarkupFormulas
                         .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
                         .DefaultIfEmpty()
-                    from country in _context.Countries
-                        .Where(c => c.Code == agency.CountryCode)
-                    from admin in _context.Administrators
-                        .Where(a => a.Id == agency.AccountManagerId)
-                        .DefaultIfEmpty()
+                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
+                    from admin in admn.DefaultIfEmpty()
                     where agency.Id == agencyId
                     select agency.ToAgencyInfo(agency.ContractKind,
                         rootAgency.VerificationState,
@@ -182,7 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        !string.IsNullOrWhiteSpace(admin.FirstName) && !string.IsNullOrWhiteSpace(admin.LastName) ?
+                        admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                             null))
                 .SingleOrDefaultAsync();
