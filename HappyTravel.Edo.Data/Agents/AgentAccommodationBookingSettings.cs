@@ -20,5 +20,7 @@ namespace HappyTravel.Edo.Data.Agents
         public bool IsDirectContractFlagVisible { get; set; }
         
         public SearchFilters AdditionalSearchFilters { get; set; }
+        
+        public int? CustomDeadlineShift { get; set; }
     }
 }

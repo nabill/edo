@@ -69,15 +69,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             SearchFilters additionalSearchFilters = agentSettingsValue?.AdditionalSearchFilters ?? default;
 
-            var cancellationPolicyProcessSettings = rootAgencySettings.CancellationPolicyProcessSettings;
-
-            if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
-            {
-                cancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
-                {
-                    PolicyStartDateShift = TimeSpan.FromDays(agencySettings.Value.CustomDeadlineShift.Value)
-                };
-            }
+            var cancellationPolicyProcessSettings =
+                MergeCancellationPolicyProcessSettings(rootAgencySettings.CancellationPolicyProcessSettings, agencySettings, agentSettings);
 
             return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
                 aprMode: aprMode.Value,
@@ -86,6 +79,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
                 isDirectContractFlagVisible: isDirectContractFlagVisible,
                 additionalSearchFilters: additionalSearchFilters);
+        }
+
+
+        private static CancellationPolicyProcessSettings MergeCancellationPolicyProcessSettings(CancellationPolicyProcessSettings rootSettings, 
+            Maybe<AgencyAccommodationBookingSettings> agencySettings, Maybe<AgentAccommodationBookingSettings> agentSettings)
+        {
+            if (!agencySettings.HasValue && !agentSettings.HasValue)
+                return rootSettings;
+
+            var shift = 0;
+            
+            if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
+                shift += agencySettings.Value.CustomDeadlineShift.Value;
+            
+            if (agentSettings.HasValue && agentSettings.Value.CustomDeadlineShift.HasValue)
+                shift += agentSettings.Value.CustomDeadlineShift.Value;
+            
+            return new CancellationPolicyProcessSettings
+            {
+                PolicyStartDateShift = TimeSpan.FromDays(shift)
+            };
         }
 
 
