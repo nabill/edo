@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Value = value;
             Currency = currency;
             LocationScopeId = locationScopeId ?? string.Empty;
-            LocationScopeType = SubjectMarkupScopeTypes.NotSpecified;
+            LocationScopeType = SubjectMarkupScopeTypes.Global;
             DestinationScopeId = string.Empty;
-            DestinationScopeType = DestinationMarkupScopeTypes.NotSpecified;
+            DestinationScopeType = DestinationMarkupScopeTypes.Global;
         }
 
 

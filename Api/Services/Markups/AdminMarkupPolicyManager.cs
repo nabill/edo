@@ -47,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global)
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
                 .SingleOrDefaultAsync();
 
             return policy is null
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global);
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified));
 
             return policy is null
                 ? Result.Failure("Could not find global policy")
@@ -72,7 +74,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Global);
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified));
 
             var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
                 request.Percent, Currencies.USD, null);
@@ -254,7 +257,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> AddAgencyPolicy(int agencyId, SetAgencyMarkupRequest request)
         {
             var policy = await _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency)
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
                 .Where(p => p.SubjectScopeId == agencyId.ToString())
                 .SingleOrDefaultAsync();
 
@@ -278,7 +283,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<AgencyMarkupInfo?> GetForAgency(int agencyId)
         {
             var policy = await _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString() &&
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
                 .SingleOrDefaultAsync();
 
             return policy is null
@@ -290,7 +297,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> RemoveAgencyPolicy(int agencyId)
         {
             var policy = await _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString())
+                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString() &&
+                    (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
                 .SingleOrDefaultAsync();
 
             return policy is null
