@@ -160,13 +160,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agencyInfo = await (
                     from agency in _context.Agencies
-                    join country in _context.Countries on agency.CountryCode equals country.Code
                     join rootAgency in _context.Agencies on agency.Ancestors.Any() ?
                         agency.Ancestors[0] :
                         agency.Id equals rootAgency.Id
-                    join admin in _context.Administrators on agency.AccountManagerId equals admin.Id
                     from markupFormula in _context.DisplayMarkupFormulas
                         .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                        .DefaultIfEmpty()
+                    from country in _context.Countries
+                        .Where(c => c.Code == agency.CountryCode)
+                    from admin in _context.Administrators
+                        .Where(a => a.Id == agency.AccountManagerId)
                         .DefaultIfEmpty()
                     where agency.Id == agencyId
                     select agency.ToAgencyInfo(agency.ContractKind,
@@ -179,7 +182,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
-                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)))
+                        !string.IsNullOrWhiteSpace(admin.FirstName) && !string.IsNullOrWhiteSpace(admin.LastName) ?
+                            PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null))
                 .SingleOrDefaultAsync();
 
             return agencyInfo.Equals(default)
