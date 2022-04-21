@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Data.Agents
 
         public AgencyAccommodationBookingSettings? AccommodationBookingSettings { get; set; }
 
-        public Dictionary<string, bool> EnabledSuppliers { get; set; } = new();
+        public Dictionary<string, bool>? EnabledSuppliers { get; set; }
     }
 }

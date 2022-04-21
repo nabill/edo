@@ -47,12 +47,16 @@ namespace HappyTravel.Edo.Data.Migrations
                "illusionsDirect"
             };
 
+            migrationBuilder.Sql("update \"AgencySystemSettings\" set \"EnabledSuppliers\" = '{}'");
+            
             foreach (var supplier in suppliers)
             {
                 migrationBuilder.Sql("update \"AgencySystemSettings\" set \"EnabledSuppliers\" = " +
                     " jsonb_set(\"EnabledSuppliers\"::jsonb, '{\"" + supplier + "\"}', to_jsonb(true))::jsonb" +
                     " where \"AccommodationBookingSettings\"->'EnabledSuppliers' @> '[\"" + supplier + "\"]'::jsonb");
             }
+            
+            migrationBuilder.Sql("update \"AgencySystemSettings\" set \"EnabledSuppliers\" = null where \"EnabledSuppliers\" = '{}'");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

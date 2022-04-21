@@ -20,7 +20,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
-        var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
+        var (_, isFailure, enabledSuppliers, error) = GetEnabledSupplierCodes();
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
@@ -29,6 +29,9 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
         if (Equals(agencySettings, default))
             return enabledSuppliers.ToDictionary(s => s, _ => true);
+
+        if (Equals(agencySettings.EnabledSuppliers, null))
+            return new Dictionary<string, bool>();
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
         var materializedSettings = new Dictionary<string, bool>();
@@ -51,7 +54,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         
         Result Validate()
         {
-            var enabledSuppliers = GetEnabledSuppliers().Value;
+            var enabledSuppliers = GetEnabledSupplierCodes().Value;
             
             foreach (var (name, _) in suppliers)
             {
@@ -85,7 +88,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<List<string>> GetEnabledSuppliers()
+    private Result<List<string>> GetEnabledSupplierCodes()
     {
         var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
         return isFailure

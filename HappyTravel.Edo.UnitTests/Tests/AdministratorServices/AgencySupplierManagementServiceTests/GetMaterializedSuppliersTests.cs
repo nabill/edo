@@ -123,6 +123,31 @@ public class GetMaterializedSuppliersTests
 
         Assert.False(suppliers["netstorming"]);
     }
+
+
+    [Fact]
+    public async Task Null_in_settings_disables_all_suppliers()
+    {
+        var defaultSuppliers = new List<SlimSupplier>()
+        {
+            new() { Code = "netstorming", IsEnabled = true }
+        };
+
+        var agencySystemSettings = new List<AgencySystemSettings>
+        {
+            new()
+            {
+                AgencyId = 1,
+                EnabledSuppliers = null
+            }
+        };
+        
+        var service = CreateAgencySupplierManagementService(defaultSuppliers, agencySystemSettings);
+
+        var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
+
+        Assert.Empty(suppliers);
+    }
     
     
     private IAgencySupplierManagementService CreateAgencySupplierManagementService(List<SlimSupplier> defaultSuppliers, List<AgencySystemSettings> agencySupplierSettings)

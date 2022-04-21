@@ -22,19 +22,21 @@ public class AgencySupplierSettingsController : BaseController
 
     [HttpGet("{agencyId}/suppliers")]
     [ProducesResponseType(typeof(Dictionary<string, bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
     public async Task<IActionResult> Get(int agencyId)
     {
-        return Ok(await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId));
+        return OkOrBadRequest(await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId));
     }
     
     
     [HttpPut("{agencyId}/suppliers")]
-    [ProducesResponseType(typeof(Dictionary<string, bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
     public async Task<IActionResult> Put(int agencyId, Dictionary<string, bool> enabledSuppliers)
     {
-        return Ok(await _agencySupplierManagementService.SaveSuppliers(agencyId, enabledSuppliers));
+        return NoContentOrBadRequest(await _agencySupplierManagementService.SaveSuppliers(agencyId, enabledSuppliers));
     }
 
 
