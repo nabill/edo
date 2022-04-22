@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IMarkupBonusMaterializationService
     {
-        Task<List<int>> GetForMaterialize(DateTime dateTime);
+        Task<List<int>> GetForMaterialize(DateTimeOffset dateTime);
 
         Task<Result<BatchOperationResult>> Materialize(List<int> appliedMarkups);
     }

@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCancellation([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetBookingsForCancellation([FromQuery]DateTimeOffset? date)
         {
             if (date is null)
                 return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCapture([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetBookingsForCapture([FromQuery]DateTimeOffset? date)
         {
             if (date is null)
                 return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCharge([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetBookingsForCharge([FromQuery]DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetBookingsToNotify([FromQuery]DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -221,7 +221,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetAppliedMarkupsForMaterialization([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetAppliedMarkupsForMaterialization([FromQuery]DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
@@ -276,7 +276,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetPaymentsForRefund([FromQuery]DateTime? date)
+        public async Task<IActionResult> GetPaymentsForRefund([FromQuery]DateTimeOffset? date)
             => Ok(await _refundService.GetPaymentsForRefund(date));
 
 
