@@ -42,14 +42,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public Task<List<int>> GetForCapture(DateTime date)
+        public Task<List<int>> GetForCapture(DateTimeOffset date)
         {
-            date = date.Date;
-
             return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
                 .Where(b => b.CheckInDate <= date 
-                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value <= date))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -67,13 +65,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public Task<List<int>> GetForCharge(DateTime date)
+        public Task<List<int>> GetForCharge(DateTimeOffset date)
         {
-            date = date.Date;
-
             return _context.Bookings
                 .Where(IsBookingValidForChargePredicate)
-                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date)
+                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value <= date)
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -137,12 +133,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public Task<List<int>> GetForNotification(DateTime date)
+        public Task<List<int>> GetForNotification(DateTimeOffset date)
         {
-            date = date.Date.AddDays(DaysBeforeNotification);
+            date = date.AddDays(DaysBeforeNotification);
             return _context.Bookings
                 .Where(IsBookingValidForDeadlineNotification)
-                .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date == date))
+                .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value == date))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -180,12 +176,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public Task<List<int>> GetForCancellation(DateTime date)
+        public Task<List<int>> GetForCancellation(DateTimeOffset date)
         {
-            date = date.Date;
             return _context.Bookings
                 .Where(IsBookingValidForCancelPredicate)
-                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date)
+                .Where(b => b.DeadlineDate.HasValue && b.DeadlineDate.Value <= date)
                 .Select(booking => booking.Id)
                 .ToListAsync();
         }
@@ -326,7 +321,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
-            PaymentStatusesForNotification.Contains(booking.PaymentStatus);
+            PaymentStatusesForNotification.Contains(booking.PaymentStatus) &&
+            booking.DeadlineNotificationSent == null;
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new()
         {
@@ -353,7 +349,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             BookingStatuses.Pending, BookingStatuses.WaitingForResponse
         };
 
-
+        
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly ISupplierBookingManagementService _supplierBookingManagementService;

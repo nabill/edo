@@ -8,6 +8,8 @@ using HappyTravel.Edo.Notifications.Enums;
 using HappyTravel.EdoContracts.General;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Data;
 using DateTimeFormatters = HappyTravel.DataFormatters.DateTimeFormatters;
 using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
@@ -17,10 +19,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingNotificationService : IBookingNotificationService
     {
         public BookingNotificationService(IBookingRecordManager bookingRecordManager, 
-            INotificationService notificationService)
+            INotificationService notificationService, EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _bookingRecordManager = bookingRecordManager;
             _notificationService = notificationService;
+            _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -43,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         public Task<Result> NotifyDeadlineApproaching(int bookingId, string email)
         {
             return _bookingRecordManager.Get(bookingId)
-                .Bind(async booking => 
+                .Bind(async booking =>
                 {
                     var roomDescriptions = booking.Rooms
                         .Select(r => r.ContractDescription);
@@ -51,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                     var passengers = booking.Rooms
                         .SelectMany(r => r.Passengers)
                         .Select(p => $"{p.FirstName} {p.LastName}");
-                    
+
                     var deadlineData = new BookingDeadlineData
                     {
                         BookingId = booking.Id,
@@ -63,10 +67,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
 
-                    return await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
-                                messageData: deadlineData,
-                                notificationType: NotificationTypes.DeadlineApproaching,
-                                email: email);
+                    await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                        messageData: deadlineData,
+                        notificationType: NotificationTypes.DeadlineApproaching,
+                        email: email);
+
+                    booking.DeadlineNotificationSent = _dateTimeProvider.UtcNow();
+                    _context.Update(booking);
+
+                    await _context.SaveChangesAsync();
+                    
+                    return Result.Success();
                 });
         }
 
@@ -165,5 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly INotificationService _notificationService;
+        private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
