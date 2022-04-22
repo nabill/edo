@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Api.Infrastructure.ModelExtensions;
 using Api.Services.Markups.Notifications;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -470,7 +471,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
-                var oldPolicy = policy;
+                var oldPolicy = policy.Clone();
 
                 policy.Description = settings.Description;
                 policy.FunctionType = MarkupFunctionType.Percent;
