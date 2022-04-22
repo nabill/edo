@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Services.Markups.Notifications;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -44,7 +45,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
             _adminMarkupPolicyManager = new AdminMarkupPolicyManager(_edoContextMock.Object,
                 Mock.Of<IDateTimeProvider>(), Mock.Of<IDisplayedMarkupFormulaService>(),
-                administratorContext, auditServiceMock.Object, Mock.Of<IMessageBus>());
+                administratorContext, auditServiceMock.Object, Mock.Of<IMessageBus>(),
+                Mock.Of<IAdminMarkupPolicyNotifications>());
 
             var strategy = new ExecutionStrategyMock();
 

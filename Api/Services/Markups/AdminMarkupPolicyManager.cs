@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Services.Markups.Notifications;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -11,7 +12,6 @@ using HappyTravel.Edo.Api.Models.Markups.Agency;
 using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
 using HappyTravel.Edo.Api.Models.Markups.Global;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Messaging;
@@ -19,7 +19,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
-using HappyTravel.MapperContracts.Internal.Mappings.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IDisplayedMarkupFormulaService displayedMarkupFormulaService,
             IAdministratorContext administratorContext,
             IMarkupPolicyAuditService markupPolicyAuditService,
-            IMessageBus messageBus)
+            IMessageBus messageBus,
+            IAdminMarkupPolicyNotifications notifications)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -40,6 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _administratorContext = administratorContext;
             _markupPolicyAuditService = markupPolicyAuditService;
             _messageBus = messageBus;
+            _notifications = notifications;
         }
 
 
@@ -413,6 +414,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
+
+                await _notifications.NotifyMarkupAddedOrModified(policy, null);
+
                 return policy;
             }
         }
@@ -458,6 +462,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
+                var oldPolicy = policy;
+
                 policy.Description = settings.Description;
                 policy.FunctionType = MarkupFunctionType.Percent;
                 policy.Value = settings.Value;
@@ -466,6 +472,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
+
+                await _notifications.NotifyMarkupAddedOrModified(policy, oldPolicy);
+
                 return policy;
             }
         }
@@ -477,5 +486,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
         private readonly IMessageBus _messageBus;
+        private readonly IAdminMarkupPolicyNotifications _notifications;
     }
 }
