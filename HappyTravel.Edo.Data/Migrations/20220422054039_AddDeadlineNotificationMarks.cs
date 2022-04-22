@@ -5,19 +5,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddNotificationMarks : Migration
+    public partial class AddDeadlineNotificationMarks : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "DeadlineNotificationSent",
                 table: "Bookings",
-                type: "timestamp with time zone",
-                nullable: true);
-
-            migrationBuilder.AddColumn<DateTimeOffset>(
-                name: "BookingReportSent",
-                table: "Agencies",
                 type: "timestamp with time zone",
                 nullable: true);
         }
@@ -27,10 +21,6 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.DropColumn(
                 name: "DeadlineNotificationSent",
                 table: "Bookings");
-
-            migrationBuilder.DropColumn(
-                name: "BookingReportSent",
-                table: "Agencies");
         }
     }
 }

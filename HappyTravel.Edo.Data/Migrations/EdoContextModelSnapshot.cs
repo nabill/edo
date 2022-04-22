@@ -53,9 +53,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("BillingEmail")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("BookingReportSent")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");

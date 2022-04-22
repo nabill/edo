@@ -17,8 +17,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20220422045741_AddNotificationMarks")]
-    partial class AddNotificationMarks
+    [Migration("20220422054039_AddDeadlineNotificationMarks")]
+    partial class AddDeadlineNotificationMarks
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,9 +54,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("BillingEmail")
                         .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("BookingReportSent")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("City")
                         .IsRequired()
