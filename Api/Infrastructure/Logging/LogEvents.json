@@ -112,5 +112,6 @@
     {"Id": 1130, "name": "DiscountStorageRefreshed", "level": "Debug", "template": "Discount storage refreshed. Was set {Count} entities", "argumentTypes": ["int"]},
     {"Id": 1131, "name": "DiscountStorageUpdateCompleted", "level": "Debug", "template": "Discount storage update completed"},
     {"Id": 1132, "name": "DiscountStorageUpdateFailed", "level": "Error", "template": "Discount storage update failed"},
-    {"Id": 1133, "name": "MarkupPoliciesSumLessThanZero", "level": "Warning", "template": "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}", "argumentTypes": ["int", "decimal", "string"]}
+    {"Id": 1133, "name": "MarkupPoliciesSumLessThanZero", "level": "Warning", "template": "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}", "argumentTypes": ["int", "decimal", "string"]},
+    {"Id": 1134, "name": "PositiveDeadlineShift", "level": "Warning", "template": "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; Result shift: {ResultShift};", "argumentTypes": ["int", "int", "int"]}
 ]

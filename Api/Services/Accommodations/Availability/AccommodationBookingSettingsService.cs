@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.SupplierOptionsProvider;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -20,7 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
-            ISupplierOptionsStorage supplierOptionsStorage
+            ISupplierOptionsStorage supplierOptionsStorage,
+            ILogger<AccommodationBookingSettingsService> logger
             )
         {
             _doubleFlow = doubleFlow;
@@ -28,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             _agencySystemSettingsService = agencySystemSettingsService;
             _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
             _supplierOptionsStorage = supplierOptionsStorage;
+            _logger = logger;
         }
 
 
@@ -46,60 +50,65 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 return MergeSettings(agentSettings, agencySettings, rootAgencySettings);
             }, SettingsCacheLifetime);
-        }
-
-
-        private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
-            Maybe<AgencyAccommodationBookingSettings> agencySettings, RootAgencyAccommodationBookingSettings rootAgencySettings)
-        {
-            var agentSettingsValue = agentSettings.HasValue 
-                ? agentSettings.Value
-                : null;
-            var agencySettingsValue = agencySettings.HasValue 
-                ? agencySettings.Value
-                : null;
-
-            List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
-            AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
-            PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
-                DefaultPassedDeadlineOffersMode;
-
-            bool isSupplierVisible = agentSettingsValue?.IsSupplierVisible == true || agencySettingsValue?.IsSupplierVisible == true;
-            bool isDirectContractFlagVisible = agentSettingsValue?.IsDirectContractFlagVisible == true || agencySettingsValue?.IsDirectContractFlagVisible == true;
-
-            SearchFilters additionalSearchFilters = agentSettingsValue?.AdditionalSearchFilters ?? default;
-
-            var cancellationPolicyProcessSettings =
-                MergeCancellationPolicyProcessSettings(rootAgencySettings.CancellationPolicyProcessSettings, agencySettings, agentSettings);
-
-            return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
-                aprMode: aprMode.Value,
-                passedDeadlineOffersMode: passedDeadlineOffersMode.Value,
-                isSupplierVisible: isSupplierVisible,
-                cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
-                isDirectContractFlagVisible: isDirectContractFlagVisible,
-                additionalSearchFilters: additionalSearchFilters);
-        }
-
-
-        private static CancellationPolicyProcessSettings MergeCancellationPolicyProcessSettings(CancellationPolicyProcessSettings rootSettings, 
-            Maybe<AgencyAccommodationBookingSettings> agencySettings, Maybe<AgentAccommodationBookingSettings> agentSettings)
-        {
-            if (!agencySettings.HasValue && !agentSettings.HasValue)
-                return rootSettings;
-
-            var shift = 0;
             
-            if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
-                shift += agencySettings.Value.CustomDeadlineShift.Value;
             
-            if (agentSettings.HasValue && agentSettings.Value.CustomDeadlineShift.HasValue)
-                shift += agentSettings.Value.CustomDeadlineShift.Value;
-            
-            return new CancellationPolicyProcessSettings
+            AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings, RootAgencyAccommodationBookingSettings rootAgencySettings)
             {
-                PolicyStartDateShift = TimeSpan.FromDays(shift)
-            };
+                var agentSettingsValue = agentSettings.HasValue 
+                    ? agentSettings.Value
+                    : null;
+                var agencySettingsValue = agencySettings.HasValue 
+                    ? agencySettings.Value
+                    : null;
+
+                List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
+                AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
+                PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
+                    DefaultPassedDeadlineOffersMode;
+
+                bool isSupplierVisible = agentSettingsValue?.IsSupplierVisible == true || agencySettingsValue?.IsSupplierVisible == true;
+                bool isDirectContractFlagVisible = agentSettingsValue?.IsDirectContractFlagVisible == true || agencySettingsValue?.IsDirectContractFlagVisible == true;
+
+                SearchFilters additionalSearchFilters = agentSettingsValue?.AdditionalSearchFilters ?? default;
+
+                var cancellationPolicyProcessSettings =
+                    MergeCancellationPolicyProcessSettings(rootAgencySettings.CancellationPolicyProcessSettings, agencySettings, agentSettings);
+
+                return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
+                    aprMode: aprMode.Value,
+                    passedDeadlineOffersMode: passedDeadlineOffersMode.Value,
+                    isSupplierVisible: isSupplierVisible,
+                    cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
+                    isDirectContractFlagVisible: isDirectContractFlagVisible,
+                    additionalSearchFilters: additionalSearchFilters);
+            }
+
+
+            CancellationPolicyProcessSettings MergeCancellationPolicyProcessSettings(CancellationPolicyProcessSettings rootSettings,
+                Maybe<AgencyAccommodationBookingSettings> agencySettings, Maybe<AgentAccommodationBookingSettings> agentSettings)
+            {
+                if (!agencySettings.HasValue && !agentSettings.HasValue)
+                    return rootSettings;
+
+                var shift = rootSettings.PolicyStartDateShift.Days;
+
+                if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
+                    shift += agencySettings.Value.CustomDeadlineShift.Value;
+
+                if (agentSettings.HasValue && agentSettings.Value.CustomDeadlineShift.HasValue)
+                    shift += agentSettings.Value.CustomDeadlineShift.Value;
+
+                if (shift > 0)
+                {
+                    _logger.LogPositiveDeadlineShift(agent.AgentId, agent.AgencyId, shift);
+                    shift = 0;
+                }
+
+                return new CancellationPolicyProcessSettings
+                {
+                    PolicyStartDateShift = TimeSpan.FromDays(shift)
+                };
+            }
         }
 
 
@@ -123,6 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
+        private readonly ILogger<AccommodationBookingSettingsService> _logger;
         
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;

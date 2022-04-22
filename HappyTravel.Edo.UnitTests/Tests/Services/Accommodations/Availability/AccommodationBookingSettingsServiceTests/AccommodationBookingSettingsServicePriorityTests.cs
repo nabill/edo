@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
         
             var settings = await service.Get(_agentContext);
         
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -187,7 +187,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var supplierOptionsStorage = GetSupplierOptionsStorage();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                supplierOptionsStorage, default);
 
             var settings = await service.Get(_agentContext);
 

@@ -458,10 +458,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             DiscountStorageUpdateFailed = LoggerMessage.Define(LogLevel.Error,
                 new EventId(1132, "DiscountStorageUpdateFailed"),
                 "Discount storage update failed");
-
+            
             MarkupPoliciesSumLessThanZero = LoggerMessage.Define<int, decimal, string>(LogLevel.Warning,
                 new EventId(1133, "MarkupPoliciesSumLessThanZero"),
-                "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}");            
+                "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}");
+            
+            PositiveDeadlineShift = LoggerMessage.Define<int, int, int>(LogLevel.Warning,
+                new EventId(1134, "PositiveDeadlineShift"),
+                "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; Result shift: {ResultShift};");
+            
         }
     
                 
@@ -803,9 +808,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogDiscountStorageUpdateFailed(this ILogger logger, Exception exception = null)
             => DiscountStorageUpdateFailed(logger, exception);
-    
+                
          public static void LogMarkupPoliciesSumLessThanZero(this ILogger logger, int AgentId, decimal TotalPercentage, string Policies, Exception exception = null)
             => MarkupPoliciesSumLessThanZero(logger, AgentId, TotalPercentage, Policies, exception);
+                
+         public static void LogPositiveDeadlineShift(this ILogger logger, int AgentId, int AgencyId, int ResultShift, Exception exception = null)
+            => PositiveDeadlineShift(logger, AgentId, AgencyId, ResultShift, exception);
+    
+    
         
         private static readonly Action<ILogger, Exception> GeoCoderException;
         
@@ -1032,7 +1042,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> DiscountStorageUpdateCompleted;
         
         private static readonly Action<ILogger, Exception> DiscountStorageUpdateFailed;
-
+        
         private static readonly Action<ILogger, int, decimal, string, Exception> MarkupPoliciesSumLessThanZero;
+        
+        private static readonly Action<ILogger, int, int, int, Exception> PositiveDeadlineShift;
     }
 }
