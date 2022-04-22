@@ -93,6 +93,29 @@ public class SuppliersController : BaseController
     public async Task<IActionResult> Deactivate([FromRoute] string code, [FromQuery] string reason)
         => NoContentOrBadRequest(await _supplierOptionsClient.Deactivate(code, reason));
     
+
+    /// <summary>
+    /// Gets supplier priorities
+    /// </summary>
+    [HttpGet("priorities")]
+    [ProducesResponseType(typeof(SupplierPriorityByTypes), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+    public async Task<IActionResult> GetPriorities()
+        => OkOrBadRequest(await _supplierOptionsClient.GetPriorities());
     
+
+    /// <summary>
+    /// Modifies supplier priorities
+    /// </summary>
+    /// <param name="supplierPriorityByTypes">Supplier priorities</param>
+    [HttpPut("priorities")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+    public async Task<IActionResult> ModifyPriorities([FromBody] SupplierPriorityByTypes supplierPriorityByTypes)
+        => NoContentOrBadRequest(await _supplierOptionsClient.ModifyPriorities(supplierPriorityByTypes));
+
+
     private readonly ISupplierOptionsClient _supplierOptionsClient;
 }
