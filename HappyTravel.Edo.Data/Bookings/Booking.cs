@@ -55,5 +55,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public bool IsAdvancePurchaseRate { get; set; }
         public bool IsPackage { get; set; }
         public List<KeyValuePair<string, string>>? SpecialValues { get; set; }
+        public DateTimeOffset? DeadlineNotificationSent { get; set; }
     }
 }

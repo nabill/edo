@@ -9,19 +9,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 {
     public interface IBookingsProcessingService
     {
-        Task<List<int>> GetForCapture(DateTime date);
+        Task<List<int>> GetForCapture(DateTimeOffset date);
 
         Task<Result<BatchOperationResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount);
 
-        Task<List<int>> GetForCharge(DateTime date);
+        Task<List<int>> GetForCharge(DateTimeOffset date);
 
         Task<Result<BatchOperationResult>> Charge(List<int> bookingIds, ServiceAccount serviceAccount);
 
-        Task<List<int>> GetForNotification(DateTime date);
+        Task<List<int>> GetForNotification(DateTimeOffset date);
 
         Task<Result<BatchOperationResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);
 
-        Task<List<int>> GetForCancellation(DateTime date);
+        Task<List<int>> GetForCancellation(DateTimeOffset date);
 
         Task<Result<BatchOperationResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount);
 

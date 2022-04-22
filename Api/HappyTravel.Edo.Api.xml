@@ -1318,7 +1318,7 @@
                 NGenius webhook
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for cancellation
             </summary>
@@ -1331,7 +1331,7 @@
             <param name="bookingIds">List of booking ids for cancellation</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
@@ -1345,7 +1345,7 @@
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCharge(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCharge(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for payment charge by deadline date
             </summary>
@@ -1359,7 +1359,7 @@
             <param name="bookingIds">List of booking ids for charge</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
@@ -1391,7 +1391,7 @@
             </summary>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetAppliedMarkupsForMaterialization(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetAppliedMarkupsForMaterialization(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Get applied markups for materialization
             </summary>
@@ -1411,7 +1411,7 @@
                 Refresh booking statuses
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTime})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Get payment ids for refund
             </summary>
