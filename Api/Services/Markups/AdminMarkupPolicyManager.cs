@@ -150,8 +150,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
-                                .MustAsync(AgencyIsExist()!)
-                                .WithMessage(m => $"Agency with Id {m.LocationScopeId} doesn't exist!")
+                                .MustAsync(AgencyAndMarketAreExist()!)
+                                .WithMessage(m => $"Agency with Id {m.LocationScopeId} or Market with id {m.DestinationScopeId} doesn't exist!")
                                 .MustAsync(AgencyDestinationMarkupIsNotExist()!)
                                 .WithMessage(m => $"Markup policy with current settings already exist!")
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency &&
@@ -184,9 +184,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         await _context.Markets.AnyAsync(m => m.Id.ToString() == marketId, cancelationToken);
 
 
-            System.Func<string, System.Threading.CancellationToken, Task<bool>> AgencyIsExist()
+            System.Func<string, System.Threading.CancellationToken, Task<bool>> AgencyAndMarketAreExist()
                 => async (agencyId, cancelationToken)
-                    => await _context.Agencies.AnyAsync(m => m.Id.ToString() == agencyId, cancelationToken);
+                    => await _context.Agencies.AnyAsync(m => m.Id.ToString() == agencyId, cancelationToken) &&
+                        await _context.Markets.AnyAsync(m => m.Id.ToString() == settings.DestinationScopeId, cancelationToken);
 
 
             System.Func<string, System.Threading.CancellationToken, Task<bool>> AgencyDestinationMarkupIsNotExist()

@@ -175,6 +175,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
 
         [Fact]
+        public async Task Add_destination_agency_markup_with_wrong_marketId_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                "1", "5", SubjectMarkupScopeTypes.Agency, DestinationMarkupScopeTypes.Market);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
         public async Task Add_destinaion_markup_already_exists_should_return_fail()
         {
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, 2, Currencies.USD,
