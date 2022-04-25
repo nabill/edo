@@ -90,23 +90,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 if (!agencySettings.HasValue && !agentSettings.HasValue)
                     return rootSettings;
 
-                var shift = rootSettings.PolicyStartDateShift.Days;
+                var rootShift = rootSettings.PolicyStartDateShift.Days;
+                var agencyShift = 0;
+                var agentShift = 0;
 
                 if (agencySettings.HasValue && agencySettings.Value.CustomDeadlineShift.HasValue)
-                    shift += agencySettings.Value.CustomDeadlineShift.Value;
+                    agencyShift = agencySettings.Value.CustomDeadlineShift.Value;
 
                 if (agentSettings.HasValue && agentSettings.Value.CustomDeadlineShift.HasValue)
-                    shift += agentSettings.Value.CustomDeadlineShift.Value;
+                    agentShift = agentSettings.Value.CustomDeadlineShift.Value;
 
-                if (shift > 0)
+                var totalShift = rootShift + agencyShift + agentShift;
+                
+                if (totalShift > 0)
                 {
-                    _logger.LogPositiveDeadlineShift(agent.AgentId, agent.AgencyId, shift);
-                    shift = 0;
+                    _logger.LogTotalDeadlineShiftIsPositive(agent.AgentId, agent.AgencyId, rootShift, agencyShift, agentShift);
+                    totalShift = 0;
                 }
 
                 return new CancellationPolicyProcessSettings
                 {
-                    PolicyStartDateShift = TimeSpan.FromDays(shift)
+                    PolicyStartDateShift = TimeSpan.FromDays(totalShift)
                 };
             }
         }

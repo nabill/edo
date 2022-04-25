@@ -463,9 +463,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1133, "MarkupPoliciesSumLessThanZero"),
                 "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}");
             
-            PositiveDeadlineShift = LoggerMessage.Define<int, int, int>(LogLevel.Warning,
-                new EventId(1134, "PositiveDeadlineShift"),
-                "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; Result shift: {ResultShift};");
+            TotalDeadlineShiftIsPositive = LoggerMessage.Define<int, int, int, int, int>(LogLevel.Warning,
+                new EventId(1134, "TotalDeadlineShiftIsPositive"),
+                "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; RootShift: {RootShift}; AgencyShift: {AgencyShift}; AgentShift: {AgentShift};");
             
         }
     
@@ -812,8 +812,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogMarkupPoliciesSumLessThanZero(this ILogger logger, int AgentId, decimal TotalPercentage, string Policies, Exception exception = null)
             => MarkupPoliciesSumLessThanZero(logger, AgentId, TotalPercentage, Policies, exception);
                 
-         public static void LogPositiveDeadlineShift(this ILogger logger, int AgentId, int AgencyId, int ResultShift, Exception exception = null)
-            => PositiveDeadlineShift(logger, AgentId, AgencyId, ResultShift, exception);
+         public static void LogTotalDeadlineShiftIsPositive(this ILogger logger, int AgentId, int AgencyId, int RootShift, int AgencyShift, int AgentShift, Exception exception = null)
+            => TotalDeadlineShiftIsPositive(logger, AgentId, AgencyId, RootShift, AgencyShift, AgentShift, exception);
     
     
         
@@ -1045,6 +1045,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, int, decimal, string, Exception> MarkupPoliciesSumLessThanZero;
         
-        private static readonly Action<ILogger, int, int, int, Exception> PositiveDeadlineShift;
+        private static readonly Action<ILogger, int, int, int, int, int, Exception> TotalDeadlineShiftIsPositive;
     }
 }
