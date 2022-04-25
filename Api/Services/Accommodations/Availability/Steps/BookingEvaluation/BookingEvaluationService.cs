@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(error);
 
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                var evaluationToken = ShortId.Generate(new GenerationOptions { UseSpecialCharacters = false });
+                var evaluationToken = ShortId.Generate(new GenerationOptions(useSpecialCharacters: false));
                 return availabilityData.ToRoomContractSetAvailability(supplier.Name,
                     supplierCode: supplier.Code,
                     paymentMethods: paymentMethods,
