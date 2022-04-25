@@ -1,11 +1,11 @@
+using Api.Models.Mailing;
 using HappyTravel.Edo.Data.Markup;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Api.Services.Markups.Notifications
 {
     public interface IAdminMarkupPolicyNotifications
     {
-        Task NotifyMarkupAddedOrModified(MarkupPolicy newPolicy, MarkupPolicy? oldPolicy);
+        Task NotifyMarkupAddedOrModified(MarkupPolicy policy, MarkupChangedData changedData);
     }
 }

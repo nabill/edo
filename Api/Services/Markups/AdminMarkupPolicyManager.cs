@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Api.Infrastructure.ModelExtensions;
+using Api.Models.Mailing;
 using Api.Services.Markups.Notifications;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -424,7 +424,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
 
-                await _notifications.NotifyMarkupAddedOrModified(policy, null);
+                var markupChangedData = new MarkupChangedData(policy, MarkupPolicyEventOperationType.Created);
+                await _notifications.NotifyMarkupAddedOrModified(policy, markupChangedData);
 
                 return policy;
             }
@@ -453,6 +454,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
+
+                var markupChangedData = new MarkupChangedData(policy, MarkupPolicyEventOperationType.Deleted);
+                await _notifications.NotifyMarkupAddedOrModified(policy, markupChangedData);
+
                 return policy;
             }
         }
@@ -471,18 +476,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
-                var oldPolicy = policy.Clone();
+                var markupChangedData = new MarkupChangedData(policy, MarkupPolicyEventOperationType.Modified);
 
                 policy.Description = settings.Description;
-                policy.FunctionType = MarkupFunctionType.Percent;
                 policy.Value = settings.Value;
-                policy.Currency = settings.Currency;
+                // policy.FunctionType = MarkupFunctionType.Percent;
+                // policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
 
-                await _notifications.NotifyMarkupAddedOrModified(policy, oldPolicy);
+                await _notifications.NotifyMarkupAddedOrModified(policy, markupChangedData);
 
                 return policy;
             }
