@@ -25,7 +25,7 @@
       <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="5.5.0" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.3.1" />
-      <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.3.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.3.1" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.0" />
     </ItemGroup>
 
