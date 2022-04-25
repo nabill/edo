@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.SupplierOptionsProvider;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -20,14 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
-            ISupplierOptionsStorage supplierOptionsStorage
-            )
+            IAgencySupplierManagementService agencySupplierManagementService
+        )
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
             _agencySystemSettingsService = agencySystemSettingsService;
             _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
-            _supplierOptionsStorage = supplierOptionsStorage;
+            _agencySupplierManagementService = agencySupplierManagementService;
         }
 
 
@@ -44,22 +44,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
                 var rootAgencySettings = await _rootAgencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
 
-                return MergeSettings(agentSettings, agencySettings, rootAgencySettings);
+                return await MergeSettings(agentSettings, agencySettings, rootAgencySettings, agent.AgencyId);
             }, SettingsCacheLifetime);
         }
 
 
-        private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
-            Maybe<AgencyAccommodationBookingSettings> agencySettings, RootAgencyAccommodationBookingSettings rootAgencySettings)
+        private async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
+            Maybe<AgencyAccommodationBookingSettings> agencySettings, RootAgencyAccommodationBookingSettings rootAgencySettings, int agencyId)
         {
-            var agentSettingsValue = agentSettings.HasValue 
+            var agentSettingsValue = agentSettings.HasValue
                 ? agentSettings.Value
                 : null;
-            var agencySettingsValue = agencySettings.HasValue 
+            var agencySettingsValue = agencySettings.HasValue
                 ? agencySettings.Value
                 : null;
 
-            List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? agencySettingsValue?.EnabledSuppliers ?? GetEnabledConnectors();
+            List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? (await GetEnabledConnectors(agencyId));
             AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                 DefaultPassedDeadlineOffersMode;
@@ -89,27 +89,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private List<string> GetEnabledConnectors()
+        // TODO refactor when materialized agent settings will be ready
+        private async Task<List<string>> GetEnabledConnectors(int agencyId)
         {
-            var (_, isFailure, suppliers, _) = _supplierOptionsStorage.GetAll();
-            if (isFailure)
-                return new List<string>(0);
-            
-            return suppliers.Where(s => s.IsEnabled)
-                .Select(x => x.Code)
-                .ToList();
+            var suppliers = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
+            return suppliers.Value.Select(s => s.Key).ToList();
         }
-
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
 
         private const AprMode DefaultAprMode = AprMode.DisplayOnly;
-        
+
         private readonly IDoubleFlow _doubleFlow;
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
-        
+        private readonly IAgencySupplierManagementService _agencySupplierManagementService;
+
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;
     }

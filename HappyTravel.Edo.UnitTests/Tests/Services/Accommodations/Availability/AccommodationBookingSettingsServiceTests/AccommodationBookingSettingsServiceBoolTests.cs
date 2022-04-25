@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -27,10 +28,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var supplierOptionsStorage = GetSupplierOptionsStorage();
+            var agencySupplierManagementService = GetAgencySupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                agencySupplierManagementService);
 
             var settings = await service.Get(_agentContext);
 
@@ -64,10 +65,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var supplierOptionsStorage = GetSupplierOptionsStorage();
+            var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                agencySupplierManagementService);
         
             var settings = await service.Get(_agentContext);
         
@@ -101,10 +102,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var supplierOptionsStorage = GetSupplierOptionsStorage();
+            var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                agencySupplierManagementService);
         
             var settings = await service.Get(_agentContext);
         
@@ -139,10 +140,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var supplierOptionsStorage = GetSupplierOptionsStorage();
+            var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                supplierOptionsStorage);
+                agencySupplierManagementService);
         
             var settings = await service.Get(_agentContext);
         
@@ -188,19 +189,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             return (agentMock.Object, agencyMock.Object, rootAgencySettingsMock.Object);
         }
 
-
-        private ISupplierOptionsStorage GetSupplierOptionsStorage()
+        
+        private IAgencySupplierManagementService GetAgencySupplierManagementService()
         {
-            var mock = new Mock<ISupplierOptionsStorage>();
-            mock.Setup(m => m.GetAll())
-                .Returns(new List<SlimSupplier>
+            var mock = new Mock<IAgencySupplierManagementService>();
+            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
+                .Returns(Task.FromResult(Result.Success(new Dictionary<string, bool>()
                 {
-                    new()
-                    {
-                        Code = "Supplier1",
-                        IsEnabled = true
-                    }
-                });
+                    { "netstorming", true },
+                    { "illusions", true },
+                    { "etg", false }
+                })));
             return mock.Object;
         }
 

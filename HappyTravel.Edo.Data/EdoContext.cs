@@ -707,8 +707,10 @@ namespace HappyTravel.Edo.Data
             {
                 settings.HasKey(r => r.AgencyId);
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
+                settings.Property(r => r.EnabledSuppliers).HasColumnType("jsonb");
             });
         }
+        
 
         private void BuildUploadedImages(ModelBuilder builder)
         {

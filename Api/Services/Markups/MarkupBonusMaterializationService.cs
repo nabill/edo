@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<List<int>> GetForMaterialize(DateTime dateTime)
+        public Task<List<int>> GetForMaterialize(DateTimeOffset dateTime)
         {
             var query =
                 from appliedMarkup in _context.AppliedBookingMarkups
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 where 
                     booking.Status == BookingStatuses.Confirmed &&
                     booking.PaymentStatus == BookingPaymentStatuses.Captured &&
-                    booking.CheckOutDate.Date >= dateTime && 
+                    booking.CheckOutDate >= dateTime && 
                     appliedMarkup.Paid == null &&
                     (policy.SubjectScopeType == SubjectMarkupScopeTypes.Agent ||
                     policy.SubjectScopeType == SubjectMarkupScopeTypes.Agency && parentId != null)

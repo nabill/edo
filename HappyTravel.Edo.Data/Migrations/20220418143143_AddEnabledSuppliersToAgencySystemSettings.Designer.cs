@@ -5,9 +5,9 @@ using System.Text.Json;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -16,13 +16,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20220418143143_AddEnabledSuppliersToAgencySystemSettings")]
+    partial class AddEnabledSuppliersToAgencySystemSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.4")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
@@ -38,9 +39,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AccountManagerId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -109,6 +107,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("PreferredPaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RegionId")
                         .HasColumnType("integer");
 
                     b.Property<string>("VatNumber")
@@ -448,9 +449,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("DeadlineDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeadlineNotificationSent")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("HtId")
@@ -894,10 +892,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
-                    b.Property<int>("MarketId")
-                        .HasColumnType("integer");
-
-                    b.Property<MultiLanguage<string>>("Names")
+                    b.Property<JsonDocument>("Names")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
@@ -907,23 +902,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Countries");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Market", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<MultiLanguage<string>>("Names")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Markets");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>
