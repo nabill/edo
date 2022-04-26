@@ -72,13 +72,6 @@ namespace Api.Services.Markups.Notifications
                     from market in _context.Markets.Where(m => m.Id.ToString() == policy.DestinationScopeId)
                     select Tuple.Create<Administrator, Agency, Market>(admin, agency, market))
                 .SingleAsync();
-                
-            var data = await _context.Administrators
-                .Join(_context.Agencies.Where(agency => agency.Id.ToString() == messageData.LocationScopeId),
-                    admin => admin.Id,
-                    agency => agency.AccountManagerId,
-                    (admin, agency) => Tuple.Create<Administrator, Agency>(admin, agency))
-                .SingleAsync();
 
             messageData.LocationScopeName = targetAgency?.Name;
             messageData.DestinationScopeName = targetMarket?.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode);

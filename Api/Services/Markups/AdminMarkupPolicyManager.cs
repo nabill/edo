@@ -480,8 +480,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 policy.Description = settings.Description;
                 policy.Value = settings.Value;
-                // policy.FunctionType = MarkupFunctionType.Percent;
-                // policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
                 _context.Update(policy);
