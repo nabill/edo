@@ -9,8 +9,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.SupplierOptionsClient.Models;
-using HappyTravel.SupplierOptionsProvider;
 using Xunit;
 using Moq;
 
@@ -31,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -68,7 +66,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
         
             var settings = await service.Get(_agentContext);
         
@@ -105,7 +103,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
         
             var settings = await service.Get(_agentContext);
         
@@ -143,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService();
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
         
             var settings = await service.Get(_agentContext);
         

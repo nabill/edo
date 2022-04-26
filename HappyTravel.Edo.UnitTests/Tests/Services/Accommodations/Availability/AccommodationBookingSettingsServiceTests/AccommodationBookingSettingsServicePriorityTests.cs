@@ -12,8 +12,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.SupplierOptionsClient.Models;
-using HappyTravel.SupplierOptionsProvider;
 using Xunit;
 using Moq;
 
@@ -40,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
         
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
         
             var settings = await service.Get(_agentContext);
         
@@ -74,7 +72,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -95,7 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -123,7 +121,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -160,7 +158,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -197,7 +195,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService);
+                agencySupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
