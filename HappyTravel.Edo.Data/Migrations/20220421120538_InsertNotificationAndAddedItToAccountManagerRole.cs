@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     "AgentEmailTemplateId", "AdminEmailTemplateId", "PropertyOwnerEmailTemplateId" },
                 values: new object[,]
                 {
-                    { NotificationTypes.MarkupSetUpOrChanged, 3, false, 1, null, "d-1fffdcff817f4ec395b244d600ab832e", null }
+                    { (int)NotificationTypes.MarkupSetUpOrChanged, 3, false, 1, null, "d-1fffdcff817f4ec395b244d600ab832e", null }
                 });
 
             migrationBuilder.UpdateData(
@@ -23,9 +23,9 @@ namespace HappyTravel.Edo.Data.Migrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "NotificationTypes",
-                value: new NotificationTypes[] {
-                    NotificationTypes.AdministratorInvitation, NotificationTypes.MasterAgentSuccessfulRegistration,
-                    NotificationTypes.MarkupSetUpOrChanged
+                value: new object[] {
+                    (int)NotificationTypes.AdministratorInvitation, (int)NotificationTypes.MasterAgentSuccessfulRegistration,
+                    (int)NotificationTypes.MarkupSetUpOrChanged
                 }
             );
         }
