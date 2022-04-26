@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 EnabledSuppliers = settings.EnabledSuppliers.ToBoolDictionary(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
-                AdditionalSearchFilters = settings.AdditionalSearchFilters
+                AdditionalSearchFilters = settings.AdditionalSearchFilters,
+                CustomDeadlineShift = settings.CustomDeadlineShift
             };
 
 
@@ -52,7 +53,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 EnabledSuppliers = settings.EnabledSuppliers.ToList(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
-                AdditionalSearchFilters = settings.AdditionalSearchFilters
+                AdditionalSearchFilters = settings.AdditionalSearchFilters,
+                CustomDeadlineShift = settings.CustomDeadlineShift
             };
         
 

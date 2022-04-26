@@ -3866,6 +3866,11 @@
             These filters apply to existing search filters during availability search
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.CustomDeadlineShift">
+            <summary>
+            Custom deadline shift for an agent
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Users.UserDescriptionInfo.Title">
             <summary>
                 Title, Mr, Mrs etc.
