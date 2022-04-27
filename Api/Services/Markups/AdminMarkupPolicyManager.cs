@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .NotNull()
                                 .MustAsync(DestinationMarkupDoesNotExist()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
-                                    m.DestinationScopeType == DestinationMarkupScopeTypes.Locality || m.LocationScopeType is null)
+                                    m.LocationScopeType is null)
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(DestinationMarketExists()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market && m.LocationScopeType is null)
@@ -150,8 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                             v.RuleFor(m => m.DestinationScopeType)
                                 .NotNull()
-                                .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country) ||
-                                    d.Equals(DestinationMarkupScopeTypes.Locality))
+                                .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country))
                                 .WithMessage($"Request's destinationScopeType must be Market, Country or Locality");
 
                             v.RuleFor(m => m.LocationScopeId)
@@ -181,8 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.LocationScopeType)
-                                .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country) ||
-                                    d.Equals(SubjectMarkupScopeTypes.Locality))
+                                .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
                                 .WithMessage($"Request's locationScopeType must be Market, Country or Locality");
                         });
                     }, settings);
