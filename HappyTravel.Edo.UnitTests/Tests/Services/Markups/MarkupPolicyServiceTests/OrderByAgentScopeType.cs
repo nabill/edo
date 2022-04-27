@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgentId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow",
+                CountryCode = "RU",
                 MarketId = 8
             };
 
@@ -56,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 {
                     Id = 5,
                     SubjectScopeType = SubjectMarkupScopeTypes.Country,
-                    SubjectScopeId = "Russia",
+                    SubjectScopeId = "RU",
                     DestinationScopeType = DestinationMarkupScopeTypes.Global
                 },
                 new()
