@@ -35,5 +35,10 @@ namespace HappyTravel.Edo.Api.Models.Settings
         /// These filters apply to existing search filters during availability search
         /// </summary>
         public SearchFilters AdditionalSearchFilters { get; init; }
+        
+        /// <summary>
+        /// Custom deadline shift for an agent
+        /// </summary>
+        public int? CustomDeadlineShift { get; init; }
     }
 }

@@ -42,6 +42,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         PropertyOwnerBookingConfirmation = 32,
         AccountBalanceManagementNotification = 33,
         BookingStatusChangedToPendingOrWaitingForResponse = 34,
-        PaymentRefund = 35
+        PaymentRefund = 35,
+        MarkupSetUpOrChanged = 36
     }
 }

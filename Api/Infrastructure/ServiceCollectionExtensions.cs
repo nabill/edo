@@ -113,6 +113,7 @@ using Tsutsujigasaki.GrpcContracts.Services;
 using Api.AdministratorServices.Locations;
 using HappyTravel.Edo.Api.Services.Messaging;
 using NATS.Client;
+using Api.Services.Markups.Notifications;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -479,6 +480,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAgentMarkupPolicyManager, AgentMarkupPolicyManager>();
             services.AddScoped<IChildAgencyMarkupPolicyManager, ChildAgencyMarkupPolicyManager>();
             services.AddTransient<IMarkupPolicyAuditService, MarkupPolicyAuditService>();
+            services.AddTransient<IAdminMarkupPolicyNotifications, AdminMarkupPolicyNotifications>();
             services.AddScoped<IAdminMarkupPolicyManager, AdminMarkupPolicyManager>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
@@ -716,7 +718,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     TargetCurrency = Currencies.USD
                 }
             });
-            
+
             var natsEndpoints = configuration.GetValue<string>("Nats:Endpoints").Split(";");
             services.AddNatsClient(options =>
             {

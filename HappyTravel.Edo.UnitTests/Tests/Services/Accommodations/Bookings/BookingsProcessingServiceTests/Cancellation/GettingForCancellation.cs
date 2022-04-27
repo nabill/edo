@@ -25,14 +25,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             Assert.True(DoesCollectionHasAllEnumValues(bookingPaymentStatuses));
         }
-        
+
         [Fact]
         public async Task Should_not_return_paid_bookings()
         {
             var service = CreateProcessingService();
 
-            var forCancel = await service.GetForCancellation(DateTime.MinValue);
-            
+            var forCancel = await service.GetForCancellation(DateTimeOffset.MinValue);
+
             Assert.DoesNotContain(1, forCancel);
             Assert.DoesNotContain(2, forCancel);
             Assert.DoesNotContain(3, forCancel);
@@ -41,8 +41,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             Assert.DoesNotContain(15, forCancel);
             Assert.DoesNotContain(16, forCancel);
         }
-        
-        
+
+
         [Fact]
         public async Task Should_return_unpaid_confirmed_bookings_in_deadline()
         {
@@ -50,22 +50,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var date = new DateTime(2021, 10, 28);
 
             var forCancel = await service.GetForCancellation(date);
-            
+
             Assert.Contains(4, forCancel);
             Assert.Contains(5, forCancel);
             Assert.Contains(6, forCancel);
             Assert.Contains(7, forCancel);
             Assert.Contains(12, forCancel);
         }
-        
-        
+
+
         [Fact]
         public async Task Should_not_return_unconfirmed_bookings()
         {
             var service = CreateProcessingService();
 
-            var forCancel = await service.GetForCancellation(DateTime.MinValue);
-            
+            var forCancel = await service.GetForCancellation(DateTimeOffset.MinValue);
+
             Assert.DoesNotContain(1, forCancel);
             Assert.DoesNotContain(3, forCancel);
             Assert.DoesNotContain(8, forCancel);
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IDateTimeProvider>());
         }
 
-        
+
         private bool DoesCollectionHasAllEnumValues<TEnum>(IEnumerable<TEnum> collection)
             where TEnum : Enum
         {
@@ -111,15 +111,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             return availablePaymentStatuses.SequenceEqual(valuesInCollection);
         }
 
-        
-        private static readonly Booking[] Bookings = 
+
+        private static readonly Booking[] Bookings =
         {
             new Booking {Id = 1, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.VirtualAccount},
             new Booking {Id = 2, PaymentStatus = BookingPaymentStatuses.Authorized, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.VirtualAccount},
             new Booking {Id = 3, PaymentStatus = BookingPaymentStatuses.Captured, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.VirtualAccount},
             new Booking {Id = 4, PaymentStatus = BookingPaymentStatuses.Refunded, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard, DeadlineDate = new DateTime(2021, 10, 28)},
             new Booking {Id = 5, PaymentStatus = BookingPaymentStatuses.Voided, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard, DeadlineDate = new DateTime(2021, 10, 27)},
-            new Booking {Id = 6, PaymentStatus = BookingPaymentStatuses.Voided, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard, DeadlineDate = new DateTime(2021, 8, 28)}, 
+            new Booking {Id = 6, PaymentStatus = BookingPaymentStatuses.Voided, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard, DeadlineDate = new DateTime(2021, 8, 28)},
             new Booking {Id = 7, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.Confirmed, PaymentType = PaymentTypes.CreditCard, DeadlineDate = new DateTime(2020, 10, 28)},
             new Booking {Id = 8, PaymentStatus = BookingPaymentStatuses.NotPaid, Status = BookingStatuses.Pending, PaymentType = PaymentTypes.CreditCard},
             new Booking {Id = 9, PaymentStatus = BookingPaymentStatuses.Refunded, Status = BookingStatuses.Cancelled, PaymentType = PaymentTypes.VirtualAccount},
