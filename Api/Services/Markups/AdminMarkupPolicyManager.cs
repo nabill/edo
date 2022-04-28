@@ -139,14 +139,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(DestinationMarkupDoesNotExist()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
+                                .When(m => (m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country) &&
                                     m.LocationScopeType is null)
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!")
                                 .MustAsync(CountryExists()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country && m.LocationScopeType is null, ApplyConditionTo.CurrentValidator)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Country with code {m.DestinationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.DestinationScopeType)
