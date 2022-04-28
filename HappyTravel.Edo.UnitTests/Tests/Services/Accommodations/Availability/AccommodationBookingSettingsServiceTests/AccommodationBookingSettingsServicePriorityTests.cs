@@ -32,23 +32,23 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 { "illusions", false },
                 { "etg", true }
             };
-        
+
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
-        
+
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
                 agencySupplierManagementService, default);
-        
+
             var settings = await service.Get(_agentContext);
-        
+
             Assert.Equal(DefaultAprMode, settings.AprMode);
             Assert.Equal(DefaultPassedDeadlineOffersMode, settings.PassedDeadlineOffersMode);
             Assert.Equal(default, settings.AdditionalSearchFilters);
             Assert.Equal(2, settings.EnabledConnectors.Count);
             Assert.Equal("netstorming", settings.EnabledConnectors[0]);
             Assert.Equal("etg", settings.EnabledConnectors[1]);
-            
+
         }
 
 
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         public async Task AdditionalSearchFilters_setting_must_apply_exactly_when_agent_settings_found()
         {
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
-                .From(new AgentAccommodationBookingSettings{ AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
+                .From(new AgentAccommodationBookingSettings { AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
 
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier1", "supplier2"},
+                    EnabledSuppliers = new List<string> { "supplier1", "supplier2" },
                     AprMode = AprMode.CardPurchasesOnly,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier3", "supplier4"},
+                    EnabledSuppliers = new List<string> { "supplier3", "supplier4" },
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     (string _, Func<Task<AccommodationBookingSettings>> b, TimeSpan _, CancellationToken _) => b());
 
             mock.Setup(m => m.Options)
-                .Returns(new FlowOptions {CacheKeyDelimiter = ", "});
+                .Returns(new FlowOptions { CacheKeyDelimiter = ", " });
 
             return mock.Object;
         }
@@ -232,11 +232,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentMock = new Mock<IAgentSystemSettingsService>();
             agentMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<AgentContext>()))
                 .Returns(() => Task.FromResult(agentSettings));
-            
+
             var agencyMock = new Mock<IAgencySystemSettingsService>();
             agencyMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<int>()))
                 .Returns(() => Task.FromResult(agencySettings));
-            
+
             var rootAgencySettingsMock = new Mock<IRootAgencySystemSettingsService>();
             rootAgencySettingsMock.Setup(m => m.GetAccommodationBookingSettings(It.IsAny<int>()))
                 .Returns(() => Task.FromResult(rootAgencySettings));
@@ -249,15 +249,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var enabledSuppliers = defaultSuppliers.Where(s => s.Value)
                 .ToDictionary(s => s.Key, s => s.Value);
-            
+
             var mock = new Mock<IAgencySupplierManagementService>();
             mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
                 .Returns(Task.FromResult(Result.Success(enabledSuppliers)));
             return mock.Object;
         }
-        
 
-        private readonly AgentContext _agentContext = new(1, "fn", "ln", "email", "title", "pos", 1, "aname", default, default, "", "", 1, new());
+
+        private readonly AgentContext _agentContext =
+            new(1, "fn", "ln", "email", "title", "pos", 1, "aname",
+                default, default, string.Empty, string.Empty, string.Empty, 1, new());
 
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;

@@ -28,12 +28,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public BalanceManagementNotifications()
         {
             var entityLockerMock = new Mock<IEntityLocker>();
-    
+
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
-            
+
             var edoContextMock = MockEdoContextFactory.Create();
             _mockedEdoContext = edoContextMock.Object;
-    
+
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
@@ -41,13 +41,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 new DefaultDateTimeProvider(), _balanceManagementNotificationsServiceMock.Object, Mock.Of<IBookingRecordManager>(),
                 Mock.Of<IBookingDocumentsMailingService>());
-    
+
             var strategy = new ExecutionStrategyMock();
-    
+
             var dbFacade = new Mock<DatabaseFacade>(_mockedEdoContext);
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-    
+
             edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Agency>
@@ -69,26 +69,26 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             edoContextMock
                 .Setup(c => c.Detach(_account));
-            
+
             edoContextMock
                 .Setup(c => c.Payments)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Payment>()));
         }
 
-    
-    
+
+
         [Fact]
         public async Task Successful_charge_should_call_notification_with_correct_parameters()
         {
             var chargingAmount = new MoneyAmount(100, Currencies.USD);
             var paymentService = CreatePaymentServiceWithMoneyAmount(chargingAmount);
-            
+
             var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
-    
+
             _balanceManagementNotificationsServiceMock.Verify(x => x.SendNotificationIfRequired(It.IsAny<AgencyAccount>(), chargingAmount));
         }
-    
-    
+
+
         private IPaymentCallbackService CreatePaymentServiceWithMoneyAmount(MoneyAmount moneyAmount)
         {
             var paymentServiceMock = new Mock<IPaymentCallbackService>();
@@ -105,14 +105,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             return paymentServiceMock.Object;
         }
-    
-    
+
+
         public void Dispose()
         {
-    
+
         }
 
-    
+
         private readonly AgencyAccount _account = new()
         {
             Id = 1,
@@ -122,10 +122,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             IsActive = true
         };
 
-        
+
         private readonly EdoContext _mockedEdoContext;
         private readonly Mock<IBalanceManagementNotificationsService> _balanceManagementNotificationsServiceMock;
         private readonly AccountPaymentService _accountPaymentService;
-        private readonly AgentContext _agent = new(1, "", "", "", "", "", 1, "", true, InAgencyPermissions.All, "", "", 1, new());
+        private readonly AgentContext _agent =
+            new(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
+                1, string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 1, new());
     }
 }
