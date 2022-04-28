@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                     m.LocationScopeType is null)
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(DestinationMarketExists()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market && m.LocationScopeType is null)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market && m.LocationScopeType is null, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.DestinationScopeType)
@@ -177,7 +177,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!")
                                 .MustAsync(LocationMarketExists()!)
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market)
-                                .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!");
+                                .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!")
+                                .MustAsync(LocationCountryExists()!)
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
+                                .WithMessage(m => $"Country with code {m.LocationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.LocationScopeType)
                                 .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
@@ -208,7 +211,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Func<string, CancellationToken, Task<bool>> LocationMarketExists()
                 => async (scopeId, cancelationToken)
-                    => await _context.Markets.AnyAsync(m => m.Id.ToString() == settings.DestinationScopeId, cancelationToken);
+                    => await _context.Markets.AnyAsync(m => m.Id.ToString() == settings.LocationScopeId, cancelationToken);
+
+
+            Func<string, CancellationToken, Task<bool>> LocationCountryExists()
+                => async (scopeId, cancelationToken)
+                    => await _context.Countries.AnyAsync(m => m.Code == settings.LocationScopeId, cancelationToken);
 
 
             Func<string, CancellationToken, Task<bool>> AgencyDestinationMarkupDoesNotExist()
