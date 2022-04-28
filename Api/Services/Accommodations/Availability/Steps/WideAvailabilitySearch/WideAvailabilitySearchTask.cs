@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             void Publish(EdoContracts.Accommodations.Availability availability)
             {
-                _messageBus.Publish(MessageBusTopics.AvailabilitySearch, new 
+                _messageBus.Publish(MessageBusTopics.AvailabilitySearch, new
                 {
                     SearchId = searchId,
                     SupplierCode = supplier.Code,
@@ -109,12 +109,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     agent.AgencyId
                 });
             }
-            
-            
+
+
             List<AccommodationAvailabilityResult> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var htIdMapping = accommodationCodeMappings
-                    .ToDictionary(m => m.SupplierCode, m => (m.AccommodationHtId, m.CountryHtId, m.LocalityHtId, m.MarketId));
+                    .ToDictionary(m => m.SupplierCode, m => (m.AccommodationHtId, m.CountryHtId, m.LocalityHtId, m.MarketId, m.CountryCode));
 
                 var now = _dateTimeProvider.UtcNow();
                 return details
@@ -145,7 +145,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             supplierAccommodationCode: accommodationAvailability.AccommodationId,
                             countryHtId: htId.CountryHtId,
                             localityHtId: htId.LocalityHtId,
-                            marketId: htId.MarketId);
+                            marketId: htId.MarketId,
+                            countryCode: htId.CountryCode);
                     })
                     .Where(a => !a.Equals(default) && a.RoomContractSets.Any())
                     .ToList();
@@ -248,8 +249,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return resultedFilter;
             }
         }
-        
-        
+
+
         private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;

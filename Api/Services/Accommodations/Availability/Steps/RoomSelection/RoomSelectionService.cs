@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .Create(scope.ServiceProvider)
                     .GetSupplierAvailability(searchId: searchId, htId: htId, supplierCode: source, supplierAccommodationCode: result.SupplierAccommodationCode,
                         availabilityId: result.AvailabilityId, settings: searchSettings, agent: agent, languageCode: languageCode,
-                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId, result.MarketId);
+                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId, result.MarketId, result.CountryCode);
             }
 
 

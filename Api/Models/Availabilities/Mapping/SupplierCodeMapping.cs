@@ -7,5 +7,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Mapping
         public string LocalityHtId { get; init; }
         public string CountryHtId { get; init; }
         public int MarketId { get; init; }
+        public string CountryCode { get; init; }
     }
 }

@@ -289,7 +289,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
-                LocalityHtId = "Dubai"
+                LocalityHtId = "Dubai",
+                CountryCode = "AE"
             };
     }
 }
