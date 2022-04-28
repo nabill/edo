@@ -93,6 +93,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
 
         [Fact]
+        public async Task Add_destination_markup_with_wrong_country_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                null, "GB", null, DestinationMarkupScopeTypes.Country);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
         public async Task Add_location_markup_with_wrong_market_should_return_fail()
         {
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
