@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
                     localityHtId: slimAccommodationAvailability.LocalityHtId,
-                    marketId: slimAccommodationAvailability.MarketId));
+                    marketId: slimAccommodationAvailability.MarketId,
+                    countryCode: slimAccommodationAvailability.CountryCode));
             }
 
             return convertedResults;
@@ -87,7 +86,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: slimAccommodationAvailability.SupplierAccommodationCode,
                     countryHtId: slimAccommodationAvailability.CountryHtId,
                     localityHtId: slimAccommodationAvailability.LocalityHtId,
-                    marketId: slimAccommodationAvailability.MarketId));
+                    marketId: slimAccommodationAvailability.MarketId,
+                    countryCode: slimAccommodationAvailability.CountryCode));
             }
 
             return convertedResults;
@@ -114,7 +114,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     supplierAccommodationCode: accommodationAvailability.SupplierAccommodationCode,
                     countryHtId: accommodationAvailability.CountryHtId,
                     localityHtId: accommodationAvailability.LocalityHtId,
-                    marketId: accommodationAvailability.MarketId));
+                    marketId: accommodationAvailability.MarketId,
+                    countryCode: accommodationAvailability.CountryCode));
             }
 
             return convertedResults;
@@ -135,7 +136,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 CountryHtId = availability.CountryHtId,
                 LocalityHtId = availability.LocalityHtId,
                 AccommodationHtId = availability.HtId,
-                MarketId = availability.MarketId
+                MarketId = availability.MarketId,
+                CountryCode = availability.CountryCode
             };
 
 

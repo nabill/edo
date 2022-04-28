@@ -2157,6 +2157,11 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.MarketId">
             <summary>
+            Market of accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.CountryCode">
+            <summary>
             Country code of accommodation
             </summary>
         </member>

@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider) 
+        public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider)
             => new(priceProcessor: serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
             supplierConnectorManager: serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
             roomSelectionStorage: serviceProvider.GetRequiredService<IRoomSelectionStorage>(),
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             string htId, string supplierCode, string supplierAccommodationCode, string availabilityId, AccommodationBookingSettings settings,
-            AgentContext agent, string languageCode, string countryHtId, string localityHtId, int marketId)
+            AgentContext agent, string languageCode, string countryHtId, string localityHtId, int marketId, string countryCode)
         {
             return await ExecuteRequest()
                 .Tap(Publish)
@@ -55,10 +55,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
                 => _supplierConnectorManager.Get(supplierCode).GetAvailability(availabilityId, supplierAccommodationCode, languageCode);
 
-            
+
             void Publish(AccommodationAvailability availabilityDetails)
             {
-                _messageBus.Publish(MessageBusTopics.RoomSelection, new 
+                _messageBus.Publish(MessageBusTopics.RoomSelection, new
                 {
                     SearchId = searchId,
                     SupplierCode = supplierCode,
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     agent.AgencyId
                 });
             }
-            
+
 
             Result<SingleAccommodationAvailability, ProblemDetails> Convert(AccommodationAvailability availabilityDetails)
             {
@@ -79,8 +79,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .Select(r => r.ToRoomContractSet(supplier.Name, supplier.Code, r.IsDirectContract))
                     .ToList();
 
-                return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId, checkInDate: availabilityDetails.CheckInDate,
-                    roomContractSets: roomContractSets, htId: htId, countryHtId: countryHtId, localityHtId: localityHtId, marketId: marketId);
+                return new SingleAccommodationAvailability(availabilityId: availabilityDetails.AvailabilityId,
+                    checkInDate: availabilityDetails.CheckInDate,
+                    roomContractSets: roomContractSets,
+                    htId: htId,
+                    countryHtId: countryHtId,
+                    localityHtId: localityHtId,
+                    marketId: marketId,
+                    countryCode: countryCode);
             }
 
 
@@ -103,8 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             Task SaveToCache(SingleAccommodationAvailability details)
                 => _roomSelectionStorage.SaveResult(searchId, htId, details, supplierCode);
         }
-        
-        
+
+
         private readonly IRoomSelectionPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;

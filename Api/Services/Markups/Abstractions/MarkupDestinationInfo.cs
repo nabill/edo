@@ -6,5 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Abstractions
         public string LocalityHtId { get; init; }
         public string AccommodationHtId { get; init; }
         public int MarketId { get; init; }
+        public string CountryCode { get; init; }
     }
 }
