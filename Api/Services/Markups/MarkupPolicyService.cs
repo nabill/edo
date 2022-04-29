@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Markup;
@@ -23,7 +22,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
             agencyTreeIds.Add(agencyId);
 
             var policies = _markupPolicyStorage.Get(policy =>
-                IsApplicableBySubject(policy, subjectInfo) && IsApplicableByObject(policy, destinationInfo)
+                IsApplicableBySubject(policy, subjectInfo) &&
+                IsApplicableByObject(policy, destinationInfo) &&
+                IsNotApplicableBySupplier(policy, destinationInfo)
             );
 
             return policies
@@ -33,27 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
                 .ToList();
 
-            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
-            {
-                // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
-                SubjectMarkupScopeTypes.Global => true,
-                SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
-                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryCode,
-                SubjectMarkupScopeTypes.Locality => false, // policy.SubjectScopeId == info.LocalityHtId,
-                SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
-                    || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
-                SubjectMarkupScopeTypes.Agent => false, // policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
-                SubjectMarkupScopeTypes.NotSpecified => false,
-                _ => throw new ArgumentOutOfRangeException()
-            };
 
-
-            static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
-            {
-                var destinationScopeId = policy.DestinationScopeId;
-                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString() ||
-                    destinationScopeId == info.CountryCode; // || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
-            }
+            static bool IsNotApplicableBySupplier(MarkupPolicy policy, MarkupDestinationInfo info)
+                => string.IsNullOrWhiteSpace(policy.SupplierCode);
         }
 
 
@@ -76,31 +59,32 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ThenBy(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId != string.Empty ? agencyTreeIds.IndexOf(int.Parse(p.SubjectScopeId)) : 0)
                 .ToList();
 
-            static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
-            {
-                // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
-                SubjectMarkupScopeTypes.Global => true,
-                SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
-                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryCode,
-                SubjectMarkupScopeTypes.Locality => false, // policy.SubjectScopeId == info.LocalityHtId,
-                SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
-                    || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
-                SubjectMarkupScopeTypes.Agent => false, // policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
-                SubjectMarkupScopeTypes.NotSpecified => false,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-
-            static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
-            {
-                var destinationScopeId = policy.DestinationScopeId;
-                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString() ||
-                    destinationScopeId == info.CountryCode; // || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
-            }
-
 
             static bool IsApplicableBySupplier(MarkupPolicy policy, MarkupDestinationInfo info)
                 => policy.SupplierCode == info.SupplierCode;
+        }
+
+
+        private static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
+        {
+            // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
+            SubjectMarkupScopeTypes.Global => true,
+            SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
+            SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryCode,
+            SubjectMarkupScopeTypes.Locality => false, // policy.SubjectScopeId == info.LocalityHtId,
+            SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
+                || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
+            SubjectMarkupScopeTypes.Agent => false, // policy.SubjectScopeId == AgentInAgencyId.Create(info.AgentId, info.AgencyId).ToString(),
+            SubjectMarkupScopeTypes.NotSpecified => false,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+
+        private static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
+        {
+            var destinationScopeId = policy.DestinationScopeId;
+            return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString() ||
+                destinationScopeId == info.CountryCode; // || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
         }
 
 
