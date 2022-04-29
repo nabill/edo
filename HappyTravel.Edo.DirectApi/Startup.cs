@@ -73,8 +73,8 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureApiVersioning();
             services.ConfigureSwagger();
             services.ConfigureCache(Configuration);
-            services.ConfigureHttpClients(Configuration, HostEnvironment, vaultClient, authorityOptions["authorityUrl"]);
-            services.ConfigureServiceOptions(Configuration, HostEnvironment, vaultClient);
+            services.ConfigureHttpClients(Configuration, vaultClient, authorityOptions["authorityUrl"]);
+            services.ConfigureServiceOptions(Configuration, vaultClient);
             services.ConfigureUserEventLogging(Configuration, vaultClient);
             services.AddServices(HostEnvironment, Configuration, vaultClient);
             services.AddSignalR().AddStackExchangeRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration));

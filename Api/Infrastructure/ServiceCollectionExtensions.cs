@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -18,7 +17,6 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
@@ -44,7 +42,6 @@ using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Versioning;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
@@ -114,13 +111,13 @@ using Api.AdministratorServices.Locations;
 using HappyTravel.Edo.Api.Services.Messaging;
 using NATS.Client;
 using Api.Services.Markups.Notifications;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IHostEnvironment environment, string apiName, string authorityUrl)
+        public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, string apiName, string authorityUrl)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -146,7 +143,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration,
             IVaultClient vaultClient, string authorityUrl)
         {
             var clientOptions = vaultClient.Get(configuration["Edo:IdentityClient:Options"]).GetAwaiter().GetResult();
@@ -227,8 +224,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
                 })
-                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
+                .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
                 .UseHttpClientMetrics();
 
             return services;
@@ -236,7 +233,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static IServiceCollection ConfigureServiceOptions(this IServiceCollection services, IConfiguration configuration,
-            IHostEnvironment environment, VaultClient.VaultClient vaultClient)
+            VaultClient.VaultClient vaultClient)
         {
             #region mailing setting
 
@@ -759,6 +756,31 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
+        private static IAsyncPolicy<HttpResponseMessage> GetConnectorRetryPolicy(IServiceProvider serviceProvider)
+        {
+            return Policy<HttpResponseMessage>
+                .Handle<HttpRequestException>()
+                .OrResult(msg => ConnectorRetryStatuses.Contains(msg.StatusCode))
+                .WaitAndRetryAsync(new[]
+                    {
+                        TimeSpan.FromMilliseconds(500),
+                        TimeSpan.FromMilliseconds(1000),
+                        TimeSpan.FromMilliseconds(3000)
+                    },
+                    (handler, timeSpan, retryAttempt, context) =>
+                    {
+                        var errorMessage = handler.Exception?.Message
+                            ?? $"{handler.Result.StatusCode} {handler.Result.Content.ReadAsStringAsync().Result}";
+
+                        serviceProvider.GetRequiredService<ILogger<HttpClient>>()
+                            .LogWarning(
+                                "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}",
+                                timeSpan.TotalMilliseconds, errorMessage, retryAttempt);
+                    }
+                );
+        }
+
+
         private static IServiceCollection AddCreditCardProvider(this IServiceCollection services, IConfiguration configuration, VaultClient.VaultClient vaultClient)
         {
             var creditCardProvider = configuration.GetValue<CreditCardProviderTypes>("CreditCardProvider");
@@ -792,6 +814,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return services;
         }
+        
+        
+        private static readonly HashSet<HttpStatusCode> ConnectorRetryStatuses = new()
+        {
+            HttpStatusCode.ServiceUnavailable,
+            HttpStatusCode.Unauthorized
+        };
 
 
         private const int ConnectorClientHandlerLifeTimeMinutes = 5;
