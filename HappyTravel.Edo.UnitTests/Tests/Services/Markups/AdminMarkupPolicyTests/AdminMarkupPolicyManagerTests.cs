@@ -314,7 +314,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, 2, Currencies.USD,
                 null, null, null, null);
 
-            var (_, isFailure, error) = await _adminMarkupPolicyManager.ModifyLocationPolicy(6, settings);
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.ModifyLocationPolicy(7, settings);
 
             Assert.True(isFailure);
         }
