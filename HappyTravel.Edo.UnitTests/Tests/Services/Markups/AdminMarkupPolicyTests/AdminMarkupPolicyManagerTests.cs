@@ -129,10 +129,34 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
 
         [Fact]
+        public async Task Add_location_markup_already_exists_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                "RU", null, SubjectMarkupScopeTypes.Country, null);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
         public async Task Add_location_markup_with_unexpected_type_should_return_fail()
         {
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
                 "4", null, SubjectMarkupScopeTypes.Agent, null);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Add_destination_markup_already_exists_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                null, "2", null, DestinationMarkupScopeTypes.Market);
 
             var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
 
@@ -473,7 +497,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
                 Value = 1,
                 Currency = Currencies.USD,
                 FunctionType = MarkupFunctionType.Percent,
-                Description = "Markup 3",
+                Description = "Markup 4",
                 SubjectScopeId = string.Empty,
                 SubjectScopeType = SubjectMarkupScopeTypes.Global,
                 DestinationScopeId = "3",
@@ -485,9 +509,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
                 Value = 1,
                 Currency = Currencies.USD,
                 FunctionType = MarkupFunctionType.Percent,
-                Description = "Markup 3",
+                Description = "Markup 5",
                 SubjectScopeId = "456",
                 SubjectScopeType = SubjectMarkupScopeTypes.Agent,
+                DestinationScopeId = string.Empty,
+                DestinationScopeType = DestinationMarkupScopeTypes.Global
+            },
+            new MarkupPolicy
+            {
+                Id = 6,
+                Value = 1,
+                Currency = Currencies.USD,
+                FunctionType = MarkupFunctionType.Percent,
+                Description = "Markup 6",
+                SubjectScopeId = "RU",
+                SubjectScopeType = SubjectMarkupScopeTypes.Country,
                 DestinationScopeId = string.Empty,
                 DestinationScopeType = DestinationMarkupScopeTypes.Global
             }
