@@ -227,6 +227,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
                 .UseHttpClientMetrics();
 
             return services;
