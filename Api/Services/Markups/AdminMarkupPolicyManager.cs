@@ -139,14 +139,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(DestinationMarkupDoesNotExist()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
+                                .When(m => (m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country) &&
                                     m.LocationScopeType is null)
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!")
                                 .MustAsync(CountryExists()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country && m.LocationScopeType is null, ApplyConditionTo.CurrentValidator)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Country with code {m.DestinationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.DestinationScopeType)
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .MustAsync(SubjectMarkupDoesNotExist()!)
                                 .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
-                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market)
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!")
                                 .MustAsync(CountryExists()!)
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
