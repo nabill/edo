@@ -351,7 +351,7 @@ public static partial class LoggerExtensions
     static partial void TotalDeadlineShiftIsPositive(ILogger logger, int AgentId, int AgencyId, int RootShift, int AgencyShift, int AgentShift);
     
     [LoggerMessage(0, LogLevel.Warning, "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}")]
-    static partial void ConnectorClientDelay(ILogger logger, int Delay, string Message, int Retry);
+    static partial void ConnectorClientDelay(ILogger logger, double Delay, string Message, int Retry);
     
     
     
@@ -700,6 +700,6 @@ public static partial class LoggerExtensions
     public static void LogTotalDeadlineShiftIsPositive(this ILogger logger, int AgentId, int AgencyId, int RootShift, int AgencyShift, int AgentShift)
         => TotalDeadlineShiftIsPositive(logger, AgentId, AgencyId, RootShift, AgencyShift, AgentShift);
     
-    public static void LogConnectorClientDelay(this ILogger logger, int Delay, string Message, int Retry)
+    public static void LogConnectorClientDelay(this ILogger logger, double Delay, string Message, int Retry)
         => ConnectorClientDelay(logger, Delay, Message, Retry);
 }

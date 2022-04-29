@@ -114,5 +114,5 @@
     {"Id": 1132, "name": "DiscountStorageUpdateFailed", "level": "Error", "template": "Discount storage update failed"},
     {"Id": 1133, "name": "MarkupPoliciesSumLessThanZero", "level": "Warning", "template": "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}", "argumentTypes": ["int", "decimal", "string"]},
     {"Id": 1134, "name": "TotalDeadlineShiftIsPositive", "level": "Warning", "template": "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; RootShift: {RootShift}; AgencyShift: {AgencyShift}; AgentShift: {AgentShift};", "argumentTypes": ["int", "int", "int", "int", "int"]},
-    {"Id": 1140, "name": "ConnectorClientDelay", "level": "Warning", "template": "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}", "argumentTypes": ["int", "string", "int"]}
+    {"Id": 1140, "name": "ConnectorClientDelay", "level": "Warning", "template": "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}", "argumentTypes": ["double", "string", "int"]}
 ]

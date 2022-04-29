@@ -111,6 +111,7 @@ using Api.AdministratorServices.Locations;
 using HappyTravel.Edo.Api.Services.Messaging;
 using NATS.Client;
 using Api.Services.Markups.Notifications;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -772,10 +773,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         var errorMessage = handler.Exception?.Message
                             ?? $"{handler.Result.StatusCode} {handler.Result.Content.ReadAsStringAsync().Result}";
 
-                        serviceProvider.GetRequiredService<ILogger<HttpClient>>()
-                            .LogWarning(
-                                "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}",
-                                timeSpan.TotalMilliseconds, errorMessage, retryAttempt);
+                        var logger = serviceProvider.GetRequiredService<ILogger<HttpClient>>();
+                        logger.LogConnectorClientDelay(timeSpan.TotalMilliseconds, errorMessage, retryAttempt);
                     }
                 );
         }
