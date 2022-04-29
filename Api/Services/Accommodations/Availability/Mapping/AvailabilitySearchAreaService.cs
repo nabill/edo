@@ -56,7 +56,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                         SupplierCode = supplierInfo.Value,
                         CountryHtId = location.CountryHtId,
                         LocalityHtId = location.LocalityHtId,
-                        MarketId = marketId
+                        MarketId = marketId,
+                        CountryCode = location.CountryCode
                     };
 
                     var supplierCode = supplierInfo.Key;

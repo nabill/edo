@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
                 SubjectMarkupScopeTypes.Global => true,
                 SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
-                SubjectMarkupScopeTypes.Country => false, // policy.SubjectScopeId == info.CountryHtId,
+                SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryCode,
                 SubjectMarkupScopeTypes.Locality => false, // policy.SubjectScopeId == info.LocalityHtId,
                 SubjectMarkupScopeTypes.Agency => policy.SubjectScopeId == info.AgencyId.ToString()
                     || info.AgencyAncestors.Contains(int.Parse(policy.SubjectScopeId)),
@@ -51,8 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
             {
                 var destinationScopeId = policy.DestinationScopeId;
-                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString();
-                /*|| destinationScopeId == info.CountryHtId || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
+                return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString() ||
+                    destinationScopeId == info.CountryCode; // || destinationScopeId == info.LocalityHtId || destinationScopeId == info.AccommodationHtId;*/
             }
         }
 

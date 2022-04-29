@@ -102,10 +102,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             => _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Market ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Locality ||
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Market ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Locality)
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
                 .OrderBy(p => p.FunctionType)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
@@ -140,23 +138,26 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         {
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
-                                .MustAsync(MarketMarkupDoesNotExist()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market &&
+                                .MustAsync(DestinationMarkupDoesNotExist()!)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country ||
                                     m.LocationScopeType is null)
-                                .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!"); ;
+                                .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
+                                .MustAsync(MarketExists()!)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
+                                .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!")
+                                .MustAsync(CountryExists()!)
+                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country && m.LocationScopeType is null, ApplyConditionTo.CurrentValidator)
+                                .WithMessage(m => $"Country with code {m.DestinationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.DestinationScopeType)
                                 .NotNull()
-                                .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country) ||
-                                    d.Equals(DestinationMarkupScopeTypes.Locality))
-                                .WithMessage($"Request's destinationScopeType must be Market,Country or Locality");
+                                .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country))
+                                .WithMessage($"Request's destinationScopeType must be Market, Country");
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
                                 .MustAsync(AgencyExists()!)
                                 .WithMessage(m => $"Agency with Id {m.LocationScopeId} doesn't exist!")
-                                .MustAsync(MarketExists()!)
-                                .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!")
                                 .MustAsync(AgencyDestinationMarkupDoesNotExist()!)
                                 .WithMessage(m => $"Markup policy with current settings already exist!")
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency &&
@@ -171,22 +172,30 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
-                                .MustAsync(MarketMarkupDoesNotExist()!)
+                                .MustAsync(SubjectMarkupDoesNotExist()!)
+                                .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!")
+                                .MustAsync(MarketExists()!)
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market)
-                                .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!");
+                                .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!")
+                                .MustAsync(CountryExists()!)
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
+                                .WithMessage(m => $"Country with code {m.LocationScopeId} doesn't exist!");
 
                             v.RuleFor(m => m.LocationScopeType)
-                                .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country) ||
-                                    d.Equals(SubjectMarkupScopeTypes.Locality))
-                                .WithMessage($"Request's locationScopeType must be Market,Country or Locality");
+                                .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
+                                .WithMessage($"Request's locationScopeType must be Market, Country");
                         });
                     }, settings);
 
 
-            Func<string, CancellationToken, Task<bool>> MarketMarkupDoesNotExist()
-                => async (marketId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == marketId, cancelationToken)) &&
-                        await _context.Markets.AnyAsync(m => m.Id.ToString() == marketId, cancelationToken);
+            Func<string, CancellationToken, Task<bool>> DestinationMarkupDoesNotExist()
+                => async (scopeId, cancelationToken)
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == scopeId, cancelationToken));
+
+
+            Func<string, CancellationToken, Task<bool>> SubjectMarkupDoesNotExist()
+                => async (scopeId, cancelationToken)
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == scopeId, cancelationToken));
 
 
             Func<string, CancellationToken, Task<bool>> AgencyExists()
@@ -195,8 +204,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
             Func<string, CancellationToken, Task<bool>> MarketExists()
-                => async (agencyId, cancelationToken)
-                    => await _context.Markets.AnyAsync(m => m.Id.ToString() == settings.DestinationScopeId, cancelationToken);
+                => async (scopeId, cancelationToken)
+                    => await _context.Markets.AnyAsync(m => m.Id.ToString() == scopeId, cancelationToken);
+
+
+            Func<string, CancellationToken, Task<bool>> CountryExists()
+                => async (scopeId, cancelationToken)
+                    => await _context.Countries.AnyAsync(m => m.Code == scopeId, cancelationToken);
 
 
             Func<string, CancellationToken, Task<bool>> AgencyDestinationMarkupDoesNotExist()
@@ -248,15 +262,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             .Null();
 
                         v.RuleFor(t => t.policy!.DestinationScopeType)
-                            .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country) ||
-                                d.Equals(DestinationMarkupScopeTypes.Locality))
+                            .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country))
                             .WithMessage($"Markup policy with Id {policyId} is not destination's location!")
                             .When(t => t.policy is not null && (t.policy.SubjectScopeType == SubjectMarkupScopeTypes.NotSpecified ||
                                 t.policy.SubjectScopeType == SubjectMarkupScopeTypes.Global));
 
                         v.RuleFor(t => t.policy!.SubjectScopeType)
-                            .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country) ||
-                                d.Equals(SubjectMarkupScopeTypes.Locality))
+                            .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
                             .WithMessage($"Markup policy with Id {policyId} is not location!")
                             .When(t => t.policy is not null && (t.policy.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified ||
                                 t.policy.DestinationScopeType == DestinationMarkupScopeTypes.Global));
@@ -323,8 +335,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var isLocationPolicy = await _context.MarkupPolicies
                 .AnyAsync(p =>
                     (p.SubjectScopeType == SubjectMarkupScopeTypes.Market || p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
-                    p.SubjectScopeType == SubjectMarkupScopeTypes.Locality || p.DestinationScopeType == DestinationMarkupScopeTypes.Market ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.Country || p.DestinationScopeType == DestinationMarkupScopeTypes.Locality)
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.Market || p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
                     && p.Id == policyId);
 
             return isLocationPolicy

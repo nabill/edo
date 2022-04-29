@@ -93,10 +93,34 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
 
 
         [Fact]
+        public async Task Add_destination_markup_with_wrong_country_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                null, "GB", null, DestinationMarkupScopeTypes.Country);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
         public async Task Add_location_markup_with_wrong_market_should_return_fail()
         {
             var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
                 "5", null, SubjectMarkupScopeTypes.Market, null);
+
+            var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Add_location_markup_with_wrong_country_should_return_fail()
+        {
+            var settings = new MarkupPolicySettings("Description", MarkupFunctionType.Percent, -1, Currencies.USD,
+                "GB", null, SubjectMarkupScopeTypes.Country, null);
 
             var (_, isFailure, error) = await _adminMarkupPolicyManager.AddLocationPolicy(settings);
 
@@ -267,6 +291,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
                 .Returns(DbSetMockProvider.GetDbSetMock(markets));
 
             _edoContextMock
+                .Setup(c => c.Countries)
+                .Returns(DbSetMockProvider.GetDbSetMock(countries));
+
+            _edoContextMock
                 .Setup(c => c.Agencies)
                 .Returns(DbSetMockProvider.GetDbSetMock(agencies));
 
@@ -304,6 +332,19 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             {
                 Id = 4,
                 Names = new MultiLanguage<string> { En = "Europe"}
+            }
+        };
+
+
+        private readonly List<Country> countries = new()
+        {
+            new Country
+            {
+                Code = "RU"
+            },
+            new Country
+            {
+                Code = "KZ"
             }
         };
 

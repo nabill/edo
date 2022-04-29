@@ -12,45 +12,46 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
     {
         // This tests will be uncommented at the second stage of work on markups - Issue - AA #1310
 
-        // [Fact]
-        // public void Markups_for_specific_agent_country_should_be_returned()
-        // {
-        //     var markupSubject = new MarkupSubjectInfo
-        //     {
-        //         AgencyAncestors = new List<int>(),
-        //         AgencyId = 1,
-        //         AgentId = 1,
-        //         CountryHtId = "Russia",
-        //         LocalityHtId = "Moscow"
-        //     };
+        [Fact]
+        public void Markups_for_specific_agent_country_should_be_returned()
+        {
+            var markupSubject = new MarkupSubjectInfo
+            {
+                AgencyAncestors = new List<int>(),
+                AgencyId = 1,
+                AgentId = 1,
+                CountryHtId = "Russia",
+                LocalityHtId = "Moscow",
+                CountryCode = "RU"
+            };
 
-        //     var markupDestination = GetDummyMarkupDestination();
+            var markupDestination = GetDummyMarkupDestination();
 
-        //     var markupPolicies = new List<MarkupPolicy>
-        //     {
-        //         new()
-        //         {
-        //             Id = 1,
-        //             SubjectScopeType = SubjectMarkupScopeTypes.Country,
-        //             SubjectScopeId = "Russia",
-        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
-        //         },
-        //         new()
-        //         {
-        //             Id = 2,
-        //             SubjectScopeType = SubjectMarkupScopeTypes.Country,
-        //             SubjectScopeId = "Ukraine",
-        //             DestinationScopeType = DestinationMarkupScopeTypes.Global
-        //         }
-        //     };
+            var markupPolicies = new List<MarkupPolicy>
+            {
+                new()
+                {
+                    Id = 1,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "RU",
+                    DestinationScopeType = DestinationMarkupScopeTypes.Global
+                },
+                new()
+                {
+                    Id = 2,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Country,
+                    SubjectScopeId = "UK",
+                    DestinationScopeType = DestinationMarkupScopeTypes.Global
+                }
+            };
 
-        //     var service = MarkupPolicyServiceMock.Create(markupPolicies);
+            var service = MarkupPolicyServiceMock.Create(markupPolicies);
 
-        //     var policies = service.Get(markupSubject, markupDestination);
+            var policies = service.Get(markupSubject, markupDestination);
 
-        //     Assert.Single(policies);
-        //     Assert.Equal(1, policies[0].Id);
-        // }
+            Assert.Single(policies);
+            Assert.Equal(1, policies[0].Id);
+        }
 
 
         // [Fact]
@@ -250,6 +251,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
                 AgentId = 1,
                 CountryHtId = "Russia",
                 LocalityHtId = "Moscow",
+                CountryCode = "RU",
                 MarketId = 8
             };
 
@@ -287,7 +289,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
             {
                 AccommodationHtId = "President Hotel",
                 CountryHtId = "UAE",
-                LocalityHtId = "Dubai"
+                LocalityHtId = "Dubai",
+                CountryCode = "AE"
             };
     }
 }
