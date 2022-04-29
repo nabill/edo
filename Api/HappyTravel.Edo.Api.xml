@@ -2165,6 +2165,11 @@
             Country code of accommodation
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.SupplierCode">
+            <summary>
+            Supplier code of accommodation
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
             <summary>
                 The accommodation location description.
