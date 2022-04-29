@@ -5,15 +5,15 @@ namespace HappyTravel.Edo.Common.Enums
     public enum PaymentTypes
     {
         [Description("Other")] 
-        None = 0,
+        NotSpecified = 0,
         
-        [Description("Virtual Account")] 
-        VirtualAccount = 1,
+        [Description("Offline")] 
+        Offline = 1,
         
         [Description("Credit Card")] 
         CreditCard = 2,
         
-        [Description("Offline")] 
-        Offline = 3,
+        [Description("VirtualAccount")] 
+        VirtualAccount = 3,
     }
 }
