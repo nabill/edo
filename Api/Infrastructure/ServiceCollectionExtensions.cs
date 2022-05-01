@@ -760,11 +760,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         private static IAsyncPolicy<HttpResponseMessage> GetConnectorRetryPolicy(IServiceProvider serviceProvider)
         {
+            var jitter = new Random();
+            
             return Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
                 .OrResult(msg => ConnectorRetryStatuses.Contains(msg.StatusCode))
                 .WaitAndRetryAsync(3, 
-                    attempt => TimeSpan.FromMilliseconds(attempt * 500),
+                    attempt => TimeSpan.FromMilliseconds(attempt * 500 + jitter.Next(0, 100)),
                     (handler, timeSpan, retryAttempt, _) =>
                     {
                         var errorMessage = handler.Exception?.Message
