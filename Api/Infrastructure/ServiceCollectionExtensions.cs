@@ -763,13 +763,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             return Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
                 .OrResult(msg => ConnectorRetryStatuses.Contains(msg.StatusCode))
-                .WaitAndRetryAsync(new[]
-                    {
-                        TimeSpan.FromMilliseconds(500),
-                        TimeSpan.FromMilliseconds(1000),
-                        TimeSpan.FromMilliseconds(3000)
-                    },
-                    (handler, timeSpan, retryAttempt, context) =>
+                .WaitAndRetryAsync(3, 
+                    attempt => TimeSpan.FromMilliseconds(attempt * 500),
+                    (handler, timeSpan, retryAttempt, _) =>
                     {
                         var errorMessage = handler.Exception?.Message
                             ?? $"{handler.Result.StatusCode} {handler.Result.Content.ReadAsStringAsync().Result}";
