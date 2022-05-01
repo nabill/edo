@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .MustAsync(SubjectMarkupDoesNotExist()!)
                                 .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
-                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market)
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
                                 .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!")
                                 .MustAsync(CountryExists()!)
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
