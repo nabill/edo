@@ -113,6 +113,7 @@ using NATS.Client;
 using Api.Services.Markups.Notifications;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using Microsoft.Extensions.Logging;
+using Api.Services.Markups;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -481,6 +482,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMarkupPolicyAuditService, MarkupPolicyAuditService>();
             services.AddTransient<IAdminMarkupPolicyNotifications, AdminMarkupPolicyNotifications>();
             services.AddScoped<IAdminMarkupPolicyManager, AdminMarkupPolicyManager>();
+            services.AddScoped<ISupplierMarkupPolicyManager, SupplierMarkupPolicyManager>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
             services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
@@ -761,11 +763,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
         private static IAsyncPolicy<HttpResponseMessage> GetConnectorRetryPolicy(IServiceProvider serviceProvider)
         {
             var jitter = new Random();
-            
+
             return Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
                 .OrResult(msg => ConnectorRetryStatuses.Contains(msg.StatusCode))
-                .WaitAndRetryAsync(3, 
+                .WaitAndRetryAsync(3,
                     attempt => TimeSpan.FromMilliseconds(attempt * 500 + jitter.Next(0, 100)),
                     (handler, timeSpan, retryAttempt, _) =>
                     {
@@ -812,8 +814,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return services;
         }
-        
-        
+
+
         private static readonly HashSet<HttpStatusCode> ConnectorRetryStatuses = new()
         {
             HttpStatusCode.ServiceUnavailable,

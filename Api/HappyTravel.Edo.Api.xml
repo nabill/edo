@@ -4070,6 +4070,34 @@
             <param name="marketId">Market's id</param>
             <returns>List of countries of market</returns>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.AddPolicy(Api.Models.Markups.Supplier.SupplierMarkupRequest)">
+            <summary>
+                Creates supplier markup policy.
+            </summary>
+            <param name="request">Markup request</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.GetPolicies">
+            <summary>
+                Gets supplier markup policies
+            </summary>
+            <returns>List of supplier markups</returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.ModifyPolicy(System.Int32,Api.Models.Markups.Supplier.SupplierMarkupRequest)">
+            <summary>
+                Updates supplier markup policy.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="request">Updated request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.RemovePolicy(System.Int32)">
+            <summary>
+                Deletes supplier policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
         <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
             <summary>
             Id of account manager
@@ -4088,6 +4116,41 @@
         <member name="P:Api.Models.Management.Administrators.AccountManager.Position">
             <summary>
             Position
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.Description">
+            <summary>
+                Policy's description.
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.Value">
+            <summary>
+                Policy's value.
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.LocationScopeId">
+            <summary>
+                Location of agent from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.LocationScopeType">
+            <summary>
+                Type of location scope of agent from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.DestinationScopeId">
+            <summary>
+                Destination of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.DestinationScopeType">
+            <summary>
+                Destination type of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.SupplierCode">
+            <summary>
+                Supplier code from the mapper
             </summary>
         </member>
     </members>
