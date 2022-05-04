@@ -9,9 +9,9 @@ namespace Api.Services.Markups
 {
     public interface ISupplierMarkupPolicyManager
     {
-        Task<Result> Add(SupplierMarkupRequest request, CancellationToken cancellationToken = default);
-        Task<Result> Modify(int policyId, SupplierMarkupRequest request, CancellationToken cancellationToken = default);
-        Task<Result> Remove(int policyId, CancellationToken cancellationToken = default);
-        Task<List<MarkupInfo>> Get(CancellationToken cancellationToken = default);
+        Task<Result> Add(SupplierMarkupRequest request, CancellationToken cancellationToken);
+        Task<Result> Modify(int policyId, SupplierMarkupRequest request, CancellationToken cancellationToken);
+        Task<Result> Remove(int policyId, CancellationToken cancellationToken);
+        Task<List<MarkupInfo>> Get(CancellationToken cancellationToken);
     }
 }

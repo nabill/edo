@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Collections.Generic;
 using Api.Services.Markups;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -46,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "KZ",
                 DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
         }
@@ -58,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "KZ",
                 DestinationMarkupScopeTypes.Country, string.Empty);
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -70,7 +71,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 0, "KZ",
                 DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -82,7 +83,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "GB",
                 DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -94,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "RU",
                 DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -106,7 +107,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "2",
                 DestinationMarkupScopeTypes.Market, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Add(request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -118,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "2",
                  DestinationMarkupScopeTypes.Market, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(7, request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(7, request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -130,7 +131,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "2",
                  DestinationMarkupScopeTypes.Market, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(2, request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(2, request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -142,7 +143,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 0, "RU",
                  DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(2, request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(2, request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -154,7 +155,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "1",
                  DestinationMarkupScopeTypes.Market, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(1, request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(1, request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }
@@ -166,7 +167,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.AdminMarkupPolicyTest
             var request = new SupplierMarkupRequest("Description", 10, "RU",
                  DestinationMarkupScopeTypes.Country, "jumeirah");
 
-            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(3, request);
+            var (_, isFailure, error) = await _supplierMarkupPolicyManager.Modify(3, request, It.IsAny<CancellationToken>());
 
             Assert.True(isFailure);
         }

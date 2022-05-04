@@ -4070,32 +4070,36 @@
             <param name="marketId">Market's id</param>
             <returns>List of countries of market</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.AddPolicy(Api.Models.Markups.Supplier.SupplierMarkupRequest)">
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.AddPolicy(Api.Models.Markups.Supplier.SupplierMarkupRequest,System.Threading.CancellationToken)">
             <summary>
                 Creates supplier markup policy.
             </summary>
             <param name="request">Markup request</param>
+            <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.GetPolicies">
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.GetPolicies(System.Threading.CancellationToken)">
             <summary>
                 Gets supplier markup policies
             </summary>
+            <param name="cancellationToken">Cancellation token</param>
             <returns>List of supplier markups</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.ModifyPolicy(System.Int32,Api.Models.Markups.Supplier.SupplierMarkupRequest)">
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.ModifyPolicy(System.Int32,Api.Models.Markups.Supplier.SupplierMarkupRequest,System.Threading.CancellationToken)">
             <summary>
                 Updates supplier markup policy.
             </summary>
             <param name="policyId">Id of the policy.</param>
             <param name="request">Updated request.</param>
+            <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.RemovePolicy(System.Int32)">
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.RemovePolicy(System.Int32,System.Threading.CancellationToken)">
             <summary>
                 Deletes supplier policy.
             </summary>
             <param name="policyId">Id of the policy to delete.</param>
+            <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
         </member>
         <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
