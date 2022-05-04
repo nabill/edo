@@ -52,67 +52,29 @@ namespace Api.Services.Markups
                     {
                         var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 
-                        v.RuleFor(s => Math.Abs(s.Value))
+                        v.RuleFor(r => Math.Abs(r.Value))
                             .GreaterThanOrEqualTo(0.1m)
                             .WithMessage(valueValidatorMessage)
                             .LessThanOrEqualTo(100m)
                             .WithMessage(valueValidatorMessage);
 
-                        v.RuleFor(s => s.SupplierCode)
+                        v.RuleFor(r => r.SupplierCode)
                             .NotNull()
                             .NotEmpty();
 
-                        v.When(m => m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Agency, () =>
-                        {
-                            v.RuleFor(m => m.DestinationScopeId)
-                                .NotNull()
-                                .MustAsync(DestinationMarkupDoesNotExist()!)
-                                .When(m => (m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country) &&
-                                    m.LocationScopeType is null)
-                                .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
-                                .MustAsync(MarketExists()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
-                                .WithMessage(m => $"Market with id {m.DestinationScopeId} doesn't exist!")
-                                .MustAsync(CountryExists()!)
-                                .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
-                                .WithMessage(m => $"Country with code {m.DestinationScopeId} doesn't exist!");
+                        v.RuleFor(r => r.DestinationScopeId)
+                            .NotNull()
+                            .MustAsync(DestinationMarkupDoesNotExist()!)
+                            .When(r => r.DestinationScopeType == DestinationMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
+                            .WithMessage(r => $"Destination markup policy with DestinationScopeId {r.DestinationScopeId} already exists or unexpected value!")
+                            .MustAsync(CountryExists()!)
+                            .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
+                            .WithMessage(m => $"Country with code {m.DestinationScopeId} doesn't exist!");
 
-                            v.RuleFor(m => m.DestinationScopeType)
-                                .NotNull()
-                                .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country))
-                                .WithMessage($"Request's destinationScopeType must be Market, Country");
-
-                            v.RuleFor(m => m.LocationScopeId)
-                                .NotNull()
-                                .MustAsync(AgencyExists()!)
-                                .WithMessage(m => $"Agency with Id {m.LocationScopeId} doesn't exist!")
-                                .MustAsync(AgencyDestinationMarkupDoesNotExist()!)
-                                .WithMessage(m => $"Markup policy with current settings already exist!")
-                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency &&
-                                    m.DestinationScopeId is not null);
-                        }).Otherwise(() =>
-                        {
-                            v.RuleFor(s => s.DestinationScopeId)
-                                .Null();
-
-                            v.RuleFor(s => s.DestinationScopeType)
-                                .Null();
-
-                            v.RuleFor(m => m.LocationScopeId)
-                                .NotNull()
-                                .MustAsync(SubjectMarkupDoesNotExist()!)
-                                .WithMessage(m => $"Location markup policy with LocationScopeId {m.LocationScopeId} already exists or unexpected value!")
-                                .MustAsync(MarketExists()!)
-                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
-                                .WithMessage(m => $"Market with id {m.LocationScopeId} doesn't exist!")
-                                .MustAsync(CountryExists()!)
-                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Country, ApplyConditionTo.CurrentValidator)
-                                .WithMessage(m => $"Country with code {m.LocationScopeId} doesn't exist!");
-
-                            v.RuleFor(m => m.LocationScopeType)
-                                .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
-                                .WithMessage($"Request's locationScopeType must be Market, Country");
-                        });
+                        v.RuleFor(m => m.DestinationScopeType)
+                            .NotNull()
+                            .Must(d => d.Equals(DestinationMarkupScopeTypes.Country))
+                            .WithMessage($"Request's destinationScopeType must be Country");
                     }, request);
 
 
@@ -122,32 +84,9 @@ namespace Api.Services.Markups
                         .AnyAsync(m => m.DestinationScopeId == scopeId && m.SupplierCode == request.SupplierCode, cancelationToken));
 
 
-            Func<string, CancellationToken, Task<bool>> SubjectMarkupDoesNotExist()
-                => async (scopeId, cancelationToken)
-                    => !(await _context.MarkupPolicies
-                        .AnyAsync(m => m.SubjectScopeId == scopeId && m.SupplierCode == request.SupplierCode, cancelationToken));
-
-
-            Func<string, CancellationToken, Task<bool>> AgencyExists()
-                => async (agencyId, cancelationToken)
-                    => await _context.Agencies.AnyAsync(m => m.Id.ToString() == agencyId, cancelationToken);
-
-
-            Func<string, CancellationToken, Task<bool>> MarketExists()
-                => async (scopeId, cancelationToken)
-                    => await _context.Markets.AnyAsync(m => m.Id.ToString() == scopeId, cancelationToken);
-
-
             Func<string, CancellationToken, Task<bool>> CountryExists()
                 => async (scopeId, cancelationToken)
                     => await _context.Countries.AnyAsync(m => m.Code == scopeId, cancelationToken);
-
-
-            Func<string, CancellationToken, Task<bool>> AgencyDestinationMarkupDoesNotExist()
-                => async (agencyId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == agencyId &&
-                        m.SubjectScopeType == request.LocationScopeType && m.DestinationScopeId == request.DestinationScopeId &&
-                        m.DestinationScopeType == request.DestinationScopeType && m.SupplierCode == request.SupplierCode, cancelationToken));
 
 
             async Task<Result> AddPolicy()
@@ -167,10 +106,10 @@ namespace Api.Services.Markups
                         Currency = Currencies.USD,
                         Created = now,
                         Modified = now,
-                        SubjectScopeType = request.LocationScopeType ?? SubjectMarkupScopeTypes.Global,
-                        SubjectScopeId = request.LocationScopeId,
+                        SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                        SubjectScopeId = string.Empty,
                         DestinationScopeId = request.DestinationScopeId,
-                        DestinationScopeType = request.DestinationScopeType ?? DestinationMarkupScopeTypes.Global,
+                        DestinationScopeType = request.DestinationScopeType,
                         FunctionType = MarkupFunctionType.Percent,
                         Value = request.Value
                     };
@@ -212,32 +151,36 @@ namespace Api.Services.Markups
                             .NotNull()
                             .WithMessage($"Markup policy with Id {policyId} was not found!");
 
-                        v.RuleFor(t => t.request.LocationScopeId)
-                            .Null();
-
-                        v.RuleFor(t => t.request.LocationScopeType)
-                            .Null();
-
                         v.RuleFor(t => t.request.DestinationScopeId)
-                            .Null();
+                            .Must(d => d.Equals(policy!.DestinationScopeId))
+                            .WithMessage($"Modifying DestinationScopeId is prohibited!")
+                            .When(t => t.policy is not null);
 
                         v.RuleFor(t => t.request.DestinationScopeType)
-                            .Null();
+                            .Must(d => d.Equals(policy!.DestinationScopeType))
+                            .WithMessage($"Modifying DestinationScopeType is prohibited!")
+                            .When(t => t.policy is not null);
 
                         v.RuleFor(t => t.request.SupplierCode)
-                            .Null();
+                            .Must(d => d.Equals(policy!.SupplierCode))
+                            .WithMessage($"Modifying SupplierCode is prohibited!")
+                            .When(t => t.policy is not null);
 
                         v.RuleFor(t => t.policy!.DestinationScopeType)
-                            .Must(d => d.Equals(DestinationMarkupScopeTypes.Market) || d.Equals(DestinationMarkupScopeTypes.Country))
-                            .WithMessage($"Markup policy with Id {policyId} is not destination's location!")
-                            .When(t => t.policy is not null && (t.policy.SubjectScopeType == SubjectMarkupScopeTypes.NotSpecified ||
-                                t.policy.SubjectScopeType == SubjectMarkupScopeTypes.Global));
+                            .Must(d => d.Equals(DestinationMarkupScopeTypes.Country))
+                            .WithMessage($"Markup policy with Id {policyId} is not supplier country markup!")
+                            .When(t => t.policy is not null);
 
                         v.RuleFor(t => t.policy!.SubjectScopeType)
-                            .Must(d => d.Equals(SubjectMarkupScopeTypes.Market) || d.Equals(SubjectMarkupScopeTypes.Country))
-                            .WithMessage($"Markup policy with Id {policyId} is not location!")
-                            .When(t => t.policy is not null && (t.policy.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified ||
-                                t.policy.DestinationScopeType == DestinationMarkupScopeTypes.Global));
+                            .Must(d => d.Equals(SubjectMarkupScopeTypes.Global))
+                            .WithMessage($"Markup policy with Id {policyId} is not supplier country markup!")
+                            .When(t => t.policy is not null);
+
+                        v.RuleFor(t => t.policy!.SupplierCode)
+                            .NotNull()
+                            .NotEmpty()
+                            .WithMessage($"Markup policy with Id {policyId} is not supplier country markup!")
+                            .When(t => t.policy is not null);
                     }, (request, policy));
 
 
