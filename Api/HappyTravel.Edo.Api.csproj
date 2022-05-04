@@ -31,9 +31,9 @@
     <PackageReference Include="HappyTravel.EdoContracts" Version="2.5.4" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.2.3" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.4.0" />
-    <PackageReference Include="HappyTravel.MapperContracts" Version="1.2.1" />
-    <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.0" />
-    <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="1.0.2" />
+    <PackageReference Include="HappyTravel.MapperContracts" Version="1.3.0" />
+    <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
+    <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="1.0.5" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.0.1" />
     <PackageReference Include="HappyTravel.Telemetry" Version="0.16.0" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
@@ -57,7 +57,7 @@
     <PackageReference Include="NATS.Client.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
     <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.0.152" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.16.0" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.17.0" />
     <PackageReference Include="shortid" Version="4.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.4" />
