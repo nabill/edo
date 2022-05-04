@@ -106,8 +106,8 @@ namespace Api.AdministratorServices.Locations
                 .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken));
 
 
-            Result ValidateUpdate()
-                => GenericValidator<CountryRequest>.Validate(v =>
+            Task<Result> ValidateUpdate()
+                => GenericValidator<CountryRequest>.ValidateAsync(v =>
                     {
                         v.RuleFor(r => r.MarketId)
                             .NotNull()
@@ -178,8 +178,8 @@ namespace Api.AdministratorServices.Locations
                 .Bind(Get);
 
 
-            Result ValidateGet()
-                => GenericValidator<int>.Validate(v =>
+            Task<Result> ValidateGet()
+                => GenericValidator<int>.ValidateAsync(v =>
                     {
                         v.RuleFor(r => r)
                                 .NotNull()
