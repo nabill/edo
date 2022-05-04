@@ -45,19 +45,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await priceProcessFunc(details, percentMarkupFunction);
 
 
-            decimal GetLevelsPercentSum(Func<MarkupSubjectInfo, MarkupDestinationInfo, List<MarkupPolicy>> policyGetFunc)
+            decimal GetLevelsPercentSum(Func<MarkupSubjectInfo, MarkupDestinationInfo, List<MarkupPolicy>> getPolicyFunc)
             {
-                var policies = policyGetFunc(subject, destinationInfo);
+                var policies = getPolicyFunc(subject, destinationInfo);
 
                 var percentPolicies = policies
                     .Where(p => p.FunctionType == MarkupFunctionType.Percent)
                     .ToList();
-
                 var percentSum = percentPolicies.Sum(p => p.Value);
+
                 if (percentSum <= 0)
                 {
-                    var policiesSlim = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
-                    _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(policiesSlim));
+                    var slimPolicies = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
+                    _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(slimPolicies));
 
                     percentSum = 0;
                 }

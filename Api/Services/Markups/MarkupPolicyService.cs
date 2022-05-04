@@ -22,8 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             agencyTreeIds.Add(agencyId);
 
             var policies = _markupPolicyStorage.Get(policy =>
-                IsApplicableBySubject(policy, subjectInfo) &&
-                IsApplicableByObject(policy, destinationInfo) &&
+                IsApplicableByLocation(policy, subjectInfo) &&
+                IsApplicableByDestination(policy, destinationInfo) &&
                 IsNotApplicableBySupplier(policy, destinationInfo)
             );
 
@@ -47,8 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             agencyTreeIds.Add(agencyId);
 
             var policies = _markupPolicyStorage.Get(policy =>
-                IsApplicableBySubject(policy, subjectInfo) &&
-                IsApplicableByObject(policy, destinationInfo) &&
+                IsApplicableByLocation(policy, subjectInfo) &&
+                IsApplicableByDestination(policy, destinationInfo) &&
                 IsApplicableBySupplier(policy, destinationInfo)
             );
 
@@ -65,9 +65,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private static bool IsApplicableBySubject(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
+        private static bool IsApplicableByLocation(MarkupPolicy policy, MarkupSubjectInfo info) => policy.SubjectScopeType switch
         {
-            // This code will be uncommented at the second stage of work on markups - Issue - AA #1310
             SubjectMarkupScopeTypes.Global => true,
             SubjectMarkupScopeTypes.Market => policy.SubjectScopeId == info.MarketId.ToString(),
             SubjectMarkupScopeTypes.Country => policy.SubjectScopeId == info.CountryCode,
@@ -80,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         };
 
 
-        private static bool IsApplicableByObject(MarkupPolicy policy, MarkupDestinationInfo info)
+        private static bool IsApplicableByDestination(MarkupPolicy policy, MarkupDestinationInfo info)
         {
             var destinationScopeId = policy.DestinationScopeId;
             return string.IsNullOrWhiteSpace(destinationScopeId) || destinationScopeId == info.MarketId.ToString() ||
