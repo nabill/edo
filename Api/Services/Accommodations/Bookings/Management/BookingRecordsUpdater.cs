@@ -316,7 +316,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             booking.ConfirmationDate = date;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
-            _context.Detach(booking); ;
+            _context.Detach(booking);
         }
 
 
