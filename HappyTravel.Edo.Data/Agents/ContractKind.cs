@@ -2,8 +2,9 @@ namespace HappyTravel.Edo.Data.Agents
 {
     public enum ContractKind
     {
-        CashPayments = 1,
-        CreditPayments = 2,
-        CreditCardPayments = 3
+        NotSpecified = 0,
+        OfflineOrCreditCardPayments = 1,
+        CreditCardPayments = 2,
+        VirtualAccountOrCreditCardPayments = 3
     }
 }
