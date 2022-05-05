@@ -9,10 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
-using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.MapperContracts.Public.Accommodations.Management.ManualCorrection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -113,10 +113,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
         
 
-        public async Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, MultilingualAccommodationDetails accommodation,
+        public async Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, AccommodationManualCorrectionRequest accommodationManualCorrectionRequest,
             CancellationToken cancellationToken = default)
         {
-            using var requestContent = new StringContent(JsonSerializer.Serialize(accommodation, JsonSerializerOptions), Encoding.UTF8, "application/json");
+            using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationManualCorrectionRequest, JsonSerializerOptions), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/manual-correction";
             
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
