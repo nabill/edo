@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -28,30 +29,41 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc,
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
-            var policies = _markupPolicyService.Get(subject, destinationInfo);
-
-            // Addition markups are not applied for now
-            var percentPolicies = policies
-                .Where(p => p.FunctionType == MarkupFunctionType.Percent)
-                .ToList();
-
-            var percentSum = percentPolicies.Sum(p => p.Value);
-            if (percentSum <= 0)
-            {
-                var policiesSlim = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
-                _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(policiesSlim));
-
-                percentSum = 0;
-            }
+            var firstLevelPercentSum = GetLevelsPercentSum(_markupPolicyService.Get);
+            var secondLevelPercentSum = GetLevelsPercentSum(_markupPolicyService.GetSecondLevel);
 
             PriceProcessFunction percentMarkupFunction = (initialPrice) =>
             {
-                var value = initialPrice.Amount * (100 + percentSum) / 100;
+                // First level markups appliement
+                var value = initialPrice.Amount * (100 + firstLevelPercentSum) / 100;
+                // Second level markups appliement
+                value = value * (100 + secondLevelPercentSum) / 100;
                 return new ValueTask<MoneyAmount>(new MoneyAmount(value, initialPrice.Currency));
             };
 
 
             return await priceProcessFunc(details, percentMarkupFunction);
+
+
+            decimal GetLevelsPercentSum(Func<MarkupSubjectInfo, MarkupDestinationInfo, List<MarkupPolicy>> getPolicyFunc)
+            {
+                var policies = getPolicyFunc(subject, destinationInfo);
+
+                var percentPolicies = policies
+                    .Where(p => p.FunctionType == MarkupFunctionType.Percent)
+                    .ToList();
+                var percentSum = percentPolicies.Sum(p => p.Value);
+
+                if (percentSum <= 0)
+                {
+                    var slimPolicies = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
+                    _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(slimPolicies));
+
+                    percentSum = 0;
+                }
+
+                return percentSum;
+            }
 
             // TODO: Restore markup bonuses addition https://github.com/happy-travel/agent-app-project/issues/1242
             // var currentData = details;

@@ -9,5 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public interface IMarkupPolicyService
     {
         List<MarkupPolicy> Get(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo);
+        List<MarkupPolicy> GetSecondLevel(MarkupSubjectInfo subjectInfo, MarkupDestinationInfo destinationInfo);
     }
 }
