@@ -10,10 +10,10 @@ namespace HappyTravel.Edo.Common.Enums
         [Description("Offline")] 
         Offline = 1,
         
-        [Description("Credit Card")] 
+        [Description("Credit card")] 
         CreditCard = 2,
         
-        [Description("VirtualAccount")] 
+        [Description("Virtual account")] 
         VirtualAccount = 3,
     }
 }
