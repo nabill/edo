@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             catch (Exception ex)
             {
-                _logger.LogSupplierAvailabilitySearchException(supplier.ConnectorUrl, ex);
+                _logger.LogSupplierAvailabilitySearchException(ex, supplier.ConnectorUrl);
                 var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }

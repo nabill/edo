@@ -51,6 +51,57 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupPolicyServiceTe
         }
 
 
+        [Fact]
+        public void Supplier_markups_for_hotel_country_should_be_returned()
+        {
+            var markupSubject = GetDummyMarkupSubject();
+
+            var markupDestination = new MarkupDestinationInfo
+            {
+                AccommodationHtId = "President Hotel",
+                CountryHtId = "UAE",
+                LocalityHtId = "Dubai",
+                CountryCode = "AE",
+                SupplierCode = "jumeirah"
+            };
+
+            var markupPolicies = new List<MarkupPolicy>
+            {
+                new()
+                {
+                    Id = 1,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Country,
+                    DestinationScopeId = "AE",
+                    SupplierCode = "jumeirah"
+                },
+                new()
+                {
+                    Id = 2,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Country,
+                    DestinationScopeId = "AE",
+                    SupplierCode = "colombus"
+                },
+                new()
+                {
+                    Id = 3,
+                    SubjectScopeType = SubjectMarkupScopeTypes.Global,
+                    DestinationScopeType = DestinationMarkupScopeTypes.Country,
+                    DestinationScopeId = "RU",
+                    SupplierCode = "colombus"
+                }
+            };
+
+            var service = MarkupPolicyServiceMock.Create(markupPolicies);
+
+            var policies = service.GetSecondLevel(markupSubject, markupDestination);
+
+            Assert.Single(policies);
+            Assert.Equal(1, policies[0].Id);
+        }
+
+
         // [Fact]
         // public void Markups_for_hotel_locality_should_be_returned()
         // {
