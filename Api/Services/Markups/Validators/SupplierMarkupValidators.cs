@@ -14,8 +14,8 @@ namespace Api.Services.Markups.Validators
 {
     public static class SupplierMarkupValidators
     {
-        public static Result ValidateAdd(SupplierMarkupRequest request, EdoContext context)
-                => GenericValidator<SupplierMarkupRequest>.Validate(v =>
+        public static Task<Result> ValidateAdd(SupplierMarkupRequest request, EdoContext context)
+                => GenericValidator<SupplierMarkupRequest>.ValidateAsync(v =>
                     {
                         var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 
@@ -56,8 +56,8 @@ namespace Api.Services.Markups.Validators
                     }, request);
 
 
-        public static Result ValidateModify((SupplierMarkupRequest request, MarkupPolicy? policy) entity)
-            => GenericValidator<(SupplierMarkupRequest request, MarkupPolicy? policy)>.Validate(v =>
+        public static Task<Result> ValidateModify((SupplierMarkupRequest request, MarkupPolicy? policy) entity)
+            => GenericValidator<(SupplierMarkupRequest request, MarkupPolicy? policy)>.ValidateAsync(v =>
                 {
                     var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 
