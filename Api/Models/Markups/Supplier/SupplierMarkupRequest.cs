@@ -23,24 +23,20 @@ namespace Api.Models.Markups.Supplier
         /// </summary>
         public string Description { get; init; }
 
-
         /// <summary>
         ///     Policy's value.
         /// </summary>
         public decimal Value { get; init; }
-
 
         /// <summary>
         ///     Destination of booking from the mapper
         /// </summary>
         public string DestinationScopeId { get; init; }
 
-
         /// <summary>
         ///     Destination type of booking from the mapper
         /// </summary>
         public DestinationMarkupScopeTypes DestinationScopeType { get; init; }
-
 
         /// <summary>
         ///     Supplier code from the mapper
