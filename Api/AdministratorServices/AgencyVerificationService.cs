@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -36,18 +37,32 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> VerifyAsFullyAccessed(int agencyId, ContractKind contractKind, string verificationReason)
         {
+            var agencySettings = await GetAgencySettings(agencyId);
+            
             return await GetAgency(agencyId)
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractTypeValid, "Invalid contract type")
+                .Ensure(IsContractTypeNotEmpty, "Contract type cannot be empty")
+                .Ensure(IsAprModeValidForOfflineContract, "For OfflineOrCreditCardPayments AprMode should be set to CardAndAccountPurchases")
+                .Ensure(IsPassedDeadlineOfferModeValidForOfflineContract, "For OfflineOrCreditCardPayments PassedDeadlineOfferMode should be set to CardAndAccountPurchases")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
                 .Tap(SetContractType)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
             
             
-            bool IsContractTypeValid(Agency _) 
+            bool IsContractTypeNotEmpty(Agency _) 
                 => !contractKind.Equals(default(ContractKind));
+
+
+            bool IsAprModeValidForOfflineContract(Agency agency) 
+                => contractKind != ContractKind.OfflineOrCreditCardPayments || 
+                    agencySettings.Value is { AccommodationBookingSettings.AprMode: AprMode.CardAndAccountPurchases };
+
+            
+            bool IsPassedDeadlineOfferModeValidForOfflineContract(Agency agency) 
+                => contractKind != ContractKind.OfflineOrCreditCardPayments || 
+                    agencySettings.Value is { AccommodationBookingSettings.PassedDeadlineOffersMode: PassedDeadlineOffersMode.CardAndAccountPurchases};
             
             
             async Task SetContractType(Agency agency)
@@ -162,6 +177,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Failure<Agency>("Could not find agency with specified id");
 
             return Result.Success(agency);
+        }
+        
+        
+        private async Task<Result<AgencySystemSettings>> GetAgencySettings(int agencyId)
+        {
+            var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
+
+            if (settings == null)
+                return Result.Failure<AgencySystemSettings>("Could not find settings for agency with specified id");
+
+            return Result.Success(settings);
         }
 
 
