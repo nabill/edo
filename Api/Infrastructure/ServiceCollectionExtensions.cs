@@ -567,16 +567,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
-
-            var useMongoDbStorage = configuration.GetValue<bool>("WideAvailabilityStorage:UseMongoDbStorage");
-            if (useMongoDbStorage)
-            {
-                services.AddMongoDbStorage(environment, configuration, vaultClient);
-                services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
-            }
-            else
-                services.AddTransient<IWideAvailabilityStorage, RedisWideAvailabilityStorage>();
-
+            
+            services.AddMongoDbStorage(environment, configuration, vaultClient);
+            services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
+            
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 
             services.AddTransient<IRootAgencySystemSettingsService, RootAgencySystemSettingsService>();
