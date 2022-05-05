@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var bookings = new []
             {
                 CreateBooking(id: 1, paymentMethod: PaymentTypes.Offline),
-                CreateBooking(id: 2, paymentMethod: PaymentTypes.None),
+                CreateBooking(id: 2, paymentMethod: PaymentTypes.NotSpecified),
                 CreateBooking(id: 3, paymentMethod: PaymentTypes.VirtualAccount),
                 CreateBooking(id: 4, paymentMethod: PaymentTypes.CreditCard),
             };

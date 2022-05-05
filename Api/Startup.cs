@@ -98,9 +98,9 @@ namespace HappyTravel.Edo.Api
 
             var (apiName, authorityUrl) = GetApiNameAndAuthority(Configuration, HostingEnvironment, vaultClient);
 
-            services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
-                .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient, authorityUrl)
-                .ConfigureAuthentication(Configuration, HostingEnvironment, apiName, authorityUrl)
+            services.ConfigureServiceOptions(Configuration, vaultClient)
+                .ConfigureHttpClients(Configuration, vaultClient, authorityUrl)
+                .ConfigureAuthentication(apiName, authorityUrl)
                 .AddServices(HostingEnvironment, Configuration, vaultClient);
 
             services.AddHealthChecks()

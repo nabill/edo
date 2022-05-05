@@ -137,7 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 LocalityHtId = availability.LocalityHtId,
                 AccommodationHtId = availability.HtId,
                 MarketId = availability.MarketId,
-                CountryCode = availability.CountryCode
+                CountryCode = availability.CountryCode,
+                SupplierCode = availability.SupplierCode
             };
 
 
