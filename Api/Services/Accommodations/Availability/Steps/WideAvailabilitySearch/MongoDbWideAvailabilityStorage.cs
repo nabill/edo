@@ -139,9 +139,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
 
-        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results)
+        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash)
             => results.Any()
-                ? _availabilityStorage.Add(results.Select(r => r.Map()))
+                ? _availabilityStorage.Add(results.Select(r => r.Map(requestHash)))
                 : Task.CompletedTask;
         
         

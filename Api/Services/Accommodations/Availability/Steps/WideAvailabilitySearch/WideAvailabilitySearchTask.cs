@@ -170,7 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results)
-                => _storage.SaveResults(searchId, supplier.Code, results);
+                => _storage.SaveResults(searchId, supplier.Code, results, availabilityRequest.ComputeHash());
 
 
             Task NotifyClient()

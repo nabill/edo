@@ -38,11 +38,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
 
             var ttlIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
             var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};
+            
+            var searchRequestIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.RequestHash);
 
             await collection.Indexes.CreateManyAsync(new []
             {
                 new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchIndexDefinition),
-                new CreateIndexModel<CachedAccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions)
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions),
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchRequestIndexDefinition)
             });
 
             return collection;
