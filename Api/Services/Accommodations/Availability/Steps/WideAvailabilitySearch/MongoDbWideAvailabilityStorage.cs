@@ -17,14 +17,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public class MongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
-        public MongoDbWideAvailabilityStorage(IMongoDbStorage<AccommodationAvailabilityResult> availabilityStorage, IDateTimeProvider dateTimeProvider, 
-            IAccommodationMapperClient mapperClient, IWideAvailabilityAccommodationsStorage accommodationsStorage, ISupplierOptionsStorage supplierOptionsStorage)
+        public MongoDbWideAvailabilityStorage(IMongoDbStorage<CachedAccommodationAvailabilityResult> availabilityStorage, IDateTimeProvider dateTimeProvider, 
+            IAccommodationMapperClient mapperClient, IWideAvailabilityAccommodationsStorage accommodationsStorage)
         {
             _availabilityStorage = availabilityStorage;
             _dateTimeProvider = dateTimeProvider;
             _mapperClient = mapperClient;
             _accommodationsStorage = accommodationsStorage;
-            _supplierOptionsStorage = supplierOptionsStorage;
         }
         
         
@@ -36,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .ToListAsync();
 
             return entities
+                .Select(r => r.Map())
                 .GroupBy(r => r.SupplierCode)
                 .Select(g => (g.Key, g.ToList()))
                 .ToList();
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results)
             => results.Any()
-                ? _availabilityStorage.Add(results)
+                ? _availabilityStorage.Add(results.Select(r => r.Map()))
                 : Task.CompletedTask;
         
         
@@ -149,10 +149,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
 
 
-        private readonly IMongoDbStorage<AccommodationAvailabilityResult> _availabilityStorage;
+        private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccommodationMapperClient _mapperClient;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
     }
 }

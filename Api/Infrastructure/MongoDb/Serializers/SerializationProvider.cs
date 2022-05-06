@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Serializers
 {
     public class SerializationProvider : IBsonSerializationProvider
     {
-        public IBsonSerializer GetSerializer(Type type) 
+        public IBsonSerializer? GetSerializer(Type type) 
             => type switch
             {
                 _ when type == typeof(Rate) => new RateSerializer(),
