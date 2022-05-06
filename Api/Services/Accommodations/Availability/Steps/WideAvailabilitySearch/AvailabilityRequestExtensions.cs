@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.Edo.Api.Models.Availabilities;
 
-namespace HappyTravel.Edo.Api.Models.Availabilities;
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 
 public static class AvailabilityRequestExtensions
 {

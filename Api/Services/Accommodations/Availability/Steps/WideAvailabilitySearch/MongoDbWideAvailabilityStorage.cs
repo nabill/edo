@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SupplierOptionsProvider;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
