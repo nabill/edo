@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions
             }
 
             services.AddSingleton<IMongoDbClient, MongoDbClient>();
-            services.AddSingleton<IMongoDbStorage<AccommodationAvailabilityResult>, AvailabilityStorage>();
+            services.AddSingleton<IMongoDbStorage<CachedAccommodationAvailabilityResult>, AvailabilityStorage>();
 
             return services;
         }

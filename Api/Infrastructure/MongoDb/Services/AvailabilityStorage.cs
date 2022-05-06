@@ -8,7 +8,7 @@ using MongoDB.Driver.Linq;
 
 namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
 {
-    public class AvailabilityStorage : IMongoDbStorage<AccommodationAvailabilityResult>
+    public class AvailabilityStorage : IMongoDbStorage<CachedAccommodationAvailabilityResult>
     {
         public AvailabilityStorage(IMongoDbClient client)
         {
@@ -16,33 +16,33 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
         }
 
 
-        public Task Add(IEnumerable<AccommodationAvailabilityResult> records) 
+        public Task Add(IEnumerable<CachedAccommodationAvailabilityResult> records) 
             => _collection.InsertManyAsync(records);
 
 
-        public Task Add(AccommodationAvailabilityResult record) 
+        public Task Add(CachedAccommodationAvailabilityResult record) 
             => _collection.InsertOneAsync(record);
 
 
-        public IMongoQueryable<AccommodationAvailabilityResult> Collection() 
+        public IMongoQueryable<CachedAccommodationAvailabilityResult> Collection() 
             => _collection.AsQueryable();
 
 
-        private static async Task<IMongoCollection<AccommodationAvailabilityResult>> GetOrCreateCollection(IMongoDbClient client)
+        private static async Task<IMongoCollection<CachedAccommodationAvailabilityResult>> GetOrCreateCollection(IMongoDbClient client)
         {
-            var collection = client.GetDatabase().GetCollection<AccommodationAvailabilityResult>(nameof(AccommodationAvailabilityResult));
+            var collection = client.GetDatabase().GetCollection<CachedAccommodationAvailabilityResult>(nameof(CachedAccommodationAvailabilityResult));
 
-            var searchIndexDefinition = Builders<AccommodationAvailabilityResult>.IndexKeys.Combine(
-                Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
-                Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
+            var searchIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
+                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
+                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
 
-            var ttlIndexDefinition = Builders<AccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
+            var ttlIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
             var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};
 
             await collection.Indexes.CreateManyAsync(new []
             {
-                new CreateIndexModel<AccommodationAvailabilityResult>(searchIndexDefinition),
-                new CreateIndexModel<AccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions)
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchIndexDefinition),
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions)
             });
 
             return collection;
@@ -51,6 +51,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
 
         private const int RecordTtlInMinutes = 45;
 
-        private readonly IMongoCollection<AccommodationAvailabilityResult> _collection;
+        private readonly IMongoCollection<CachedAccommodationAvailabilityResult> _collection;
     }
 }

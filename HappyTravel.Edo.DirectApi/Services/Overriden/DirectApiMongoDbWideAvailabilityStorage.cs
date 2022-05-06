@@ -15,13 +15,12 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
 {
     public class DirectApiMongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
-        public DirectApiMongoDbWideAvailabilityStorage(IMongoDbStorage<AccommodationAvailabilityResult> availabilityStorage)
+        public DirectApiMongoDbWideAvailabilityStorage(IMongoDbStorage<CachedAccommodationAvailabilityResult> availabilityStorage)
         {
             _availabilityStorage = availabilityStorage;
         }
 
-
-        // TODO: method added for compability with 2nd and 3rd steps. Need to refactor them for using filters instead of loading whole search results
+        
         public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<string> suppliers)
         {
             var entities = await _availabilityStorage.Collection()
@@ -29,6 +28,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 .ToListAsync();
 
             return entities
+                .Select(r => r.Map())
                 .GroupBy(r => r.SupplierCode)
                 .Select(g => (g.Key, g.ToList()))
                 .ToList();
@@ -59,16 +59,17 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                     .OrderBy(r => r.Created)
                     .ThenBy(r => r.HtId)
                     .ToListAsync())
+                .Select(r => r.Map())
                 .ToWideAvailabilityResults(searchSettings);
         }
 
 
         public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results)
             => results.Any()
-                ? _availabilityStorage.Add(results)
+                ? _availabilityStorage.Add(results.Select(r => r.Map()))
                 : Task.CompletedTask;
         
         
-        private readonly IMongoDbStorage<AccommodationAvailabilityResult> _availabilityStorage;
+        private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
     }
 }
