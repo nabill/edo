@@ -272,7 +272,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     localityHtId: availability.LocalityHtId,
                     evaluationToken: availability.EvaluationToken,
                     marketId: availability.MarketId,
-                    countryCode: availability.CountryCode);
+                    countryCode: availability.CountryCode,
+                    supplierCode: availability.SupplierCode);
             }
 
 

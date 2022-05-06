@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -39,16 +40,33 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettingsInfo settings)
         {
-            return await CheckAgencyExists(agencyId)
+            return await Validate()
                 .BindWithTransaction(_context, () => SetSettings()
                     .Bind(WriteToAuditLog));
+
+
+            async Task<Result> Validate()
+            {
+                var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
+                
+                if (agency == default)
+                    return Result.Failure("Agency doesn't exist");
+                
+                if (!agency.IsActive)
+                    return Result.Failure("Agency is not actve");
+
+                if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
+                    return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
+
+                return Result.Success();
+            }
 
 
             async Task<Result> SetSettings()
             {
                 if (settings.CustomDeadlineShift.HasValue && settings.CustomDeadlineShift >= 0) 
                     return Result.Failure("Deadline shift must be less than zero");
-                
+
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 if (existingSettings == default)
                 {
@@ -119,7 +137,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private Task<bool> DoesAgencyExistIncludingInactive(int agencyId)
             => _context.Agencies.AnyAsync(a => a.Id == agencyId);
-
+        
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
