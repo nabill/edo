@@ -123,8 +123,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             int.Parse(settings.LocationScopeId!) : 0)));
 
 
-            Result ValidateAddLocation(MarkupPolicySettings settings)
-                => GenericValidator<MarkupPolicySettings>.Validate(v =>
+            Task<Result> ValidateAddLocation(MarkupPolicySettings settings)
+                => GenericValidator<MarkupPolicySettings>.ValidateAsync(v =>
                     {
                         var valueValidatorMessage = "Markup policy value must be in range (-100..-0.1) or (0.1..100)";
 

@@ -661,12 +661,12 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.MultilingualAccommodationDetails.MultilingualAccommodationDetails,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.MapperContracts.Public.Accommodations.Management.ManualCorrection.AccommodationManualCorrectionRequest,System.Threading.CancellationToken)">
             <summary>
             Adds an accommodation data corrections. Values will be applied after the mapper updater is run
             </summary>
             <param name="htAccommodationId"></param>
-            <param name="accommodation"></param>
+            <param name="accommodationManualCorrectionRequest"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
@@ -2163,6 +2163,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.CountryCode">
             <summary>
             Country code of accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.SupplierCode">
+            <summary>
+            Supplier code of accommodation
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodation.Location">
@@ -4065,6 +4070,38 @@
             <param name="marketId">Market's id</param>
             <returns>List of countries of market</returns>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.AddPolicy(Api.Models.Markups.Supplier.SupplierMarkupRequest,System.Threading.CancellationToken)">
+            <summary>
+                Creates supplier markup policy.
+            </summary>
+            <param name="request">Markup request</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.GetPolicies(System.Threading.CancellationToken)">
+            <summary>
+                Gets supplier markup policies
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns>List of supplier markups</returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.ModifyPolicy(System.Int32,Api.Models.Markups.Supplier.SupplierMarkupRequest,System.Threading.CancellationToken)">
+            <summary>
+                Updates supplier markup policy.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="request">Updated request.</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.SupplierMarkupController.RemovePolicy(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+                Deletes supplier policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns></returns>
+        </member>
         <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
             <summary>
             Id of account manager
@@ -4083,6 +4120,31 @@
         <member name="P:Api.Models.Management.Administrators.AccountManager.Position">
             <summary>
             Position
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.Description">
+            <summary>
+                Policy's description.
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.Value">
+            <summary>
+                Policy's value.
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.DestinationScopeId">
+            <summary>
+                Destination of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.DestinationScopeType">
+            <summary>
+                Destination type of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.SupplierCode">
+            <summary>
+                Supplier code from the mapper
             </summary>
         </member>
     </members>

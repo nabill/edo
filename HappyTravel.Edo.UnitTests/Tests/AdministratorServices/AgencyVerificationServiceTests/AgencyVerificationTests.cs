@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, error) = await agencyVerificationService.VerifyAsFullyAccessed(7, ContractKind.CashPayments, "Test reason");
+            var (_, isFailure, error) = await agencyVerificationService.VerifyAsFullyAccessed(7, ContractKind.OfflineOrCreditCardPayments, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(20, ContractKind.CashPayments, "Test reason");
+            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(20, ContractKind.OfflineOrCreditCardPayments, "Test reason");
 
             var agency = context.Agencies.Single(c => c.Id == 20);
             Assert.False(isFailure);
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
-            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(3, ContractKind.CashPayments, "Test reason");
+            var (_, isFailure, _) = await agencyVerificationService.VerifyAsFullyAccessed(3, ContractKind.OfflineOrCreditCardPayments, "Test reason");
 
             var agency = context.Agencies.Single(c => c.Id == 3);
             Assert.True(isFailure);
@@ -126,8 +126,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
 
 
         [Theory]
-        [InlineData(ContractKind.CashPayments)]
-        [InlineData(ContractKind.CreditPayments)]
+        [InlineData(ContractKind.OfflineOrCreditCardPayments)]
+        [InlineData(ContractKind.CreditCardPayments)]
         public async Task Full_access_verification_must_set_contract_type(ContractKind contractKind)
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;

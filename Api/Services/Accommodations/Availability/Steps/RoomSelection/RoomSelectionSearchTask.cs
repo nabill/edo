@@ -86,7 +86,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     countryHtId: countryHtId,
                     localityHtId: localityHtId,
                     marketId: marketId,
-                    countryCode: countryCode);
+                    countryCode: countryCode,
+                    supplierCode: supplierCode);
             }
 
 
