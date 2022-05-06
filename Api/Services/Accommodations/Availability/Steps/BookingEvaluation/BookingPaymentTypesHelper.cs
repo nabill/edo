@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public static PaymentTypes GetDefaultPaymentType(ContractKind? contractKind)
             => contractKind switch
             {
-                ContractKind.CashPayments => PaymentTypes.Offline,
-                ContractKind.CreditCardPayments => PaymentTypes.CreditCard,
-                ContractKind.CreditPayments => PaymentTypes.VirtualAccount,
-                _ => PaymentTypes.None
+                ContractKind.OfflineOrCreditCardPayments => PaymentTypes.Offline,
+                ContractKind.VirtualAccountOrCreditCardPayments => PaymentTypes.CreditCard,
+                ContractKind.CreditCardPayments => PaymentTypes.VirtualAccount,
+                _ => PaymentTypes.NotSpecified
             };
 
 
@@ -71,9 +71,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         {
             return contractKind switch
             {
-                ContractKind.CashPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
-                ContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
-                ContractKind.CreditPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
+                ContractKind.OfflineOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                ContractKind.VirtualAccountOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
+                ContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
                 _ => throw new ArgumentOutOfRangeException(nameof(contractKind), $"Invalid value {contractKind}")
             };
         }

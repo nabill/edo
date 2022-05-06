@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     website: null,
                     vatNumber: null,
                     legalAddress: string.Empty,
-                    preferredPaymentMethod: PaymentTypes.None,
+                    preferredPaymentMethod: PaymentTypes.NotSpecified,
                     localityHtId: string.Empty),
                 roleIds: roleIds);
 
