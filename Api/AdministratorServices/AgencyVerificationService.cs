@@ -199,17 +199,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return Result.Success(agency);
         }
         
-        
-        private async Task<Result<AgencySystemSettings>> GetAgencySettings(int agencyId)
-        {
-            var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
-
-            if (settings == null)
-                return Result.Failure<AgencySystemSettings>("Could not find settings for agency with specified id");
-
-            return Result.Success(settings);
-        }
-
 
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
