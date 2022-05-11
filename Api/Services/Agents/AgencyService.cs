@@ -77,7 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 LocalityHtId = localityHtId,
                 City = localityInfo.LocalityName,
                 CountryCode = localityInfo.CountryIsoCode,
-                CountryHtId = localityInfo.CountryHtId
+                CountryHtId = localityInfo.CountryHtId,
+                ContractKind = ContractKind.NotSpecified
             };
             _context.Agencies.Add(agency);
 
