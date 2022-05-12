@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     Net price of a service before applying commission
         /// </summary>
-        public MoneyAmount? NetPrice { get; }
+        public MoneyAmount NetPrice { get; }
 
         /// <summary>
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
