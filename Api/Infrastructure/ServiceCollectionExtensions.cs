@@ -336,10 +336,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
 
-            var contractKindCommissionOptions = vaultClient.Get(configuration["Edo:ContractKindCommission"]).GetAwaiter().GetResult();
             services.Configure<ContractKindCommissionOptions>(options =>
             {
-                options.CreditCardPaymentsCommission = Decimal.Parse(contractKindCommissionOptions["CreditCardPayments"]);
+                options.CreditCardPaymentsCommission = configuration.GetValue<decimal>("ContractKindCommission:CreditCardPayments");
             });
 
             services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
