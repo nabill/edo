@@ -114,6 +114,7 @@ using Api.Services.Markups.Notifications;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using Microsoft.Extensions.Logging;
 using Api.Services.Markups;
+using Api.Infrastructure.Options;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -333,6 +334,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.TokenizationUrl = payfortUrlsOptions["tokenization"];
                 options.ReturnUrl = payfortUrlsOptions["return"];
                 options.ResultUrl = payfortUrlsOptions["result"];
+            });
+
+            var contractKindCommissionOptions = vaultClient.Get(configuration["Edo:ContractKindCommission"]).GetAwaiter().GetResult();
+            services.Configure<ContractKindCommissionOptions>(options =>
+            {
+                options.CreditCardPaymentsCommission = Decimal.Parse(contractKindCommissionOptions["CreditCardPayments"]);
             });
 
             services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
@@ -569,10 +576,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilitySearchStateStorage, WideAvailabilitySearchStateStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
-            
+
             services.AddMongoDbStorage(environment, configuration, vaultClient);
             services.AddTransient<IWideAvailabilityStorage, MongoDbWideAvailabilityStorage>();
-            
+
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
 
             services.AddTransient<IRootAgencySystemSettingsService, RootAgencySystemSettingsService>();

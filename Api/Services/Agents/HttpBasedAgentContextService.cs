@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,16 +62,27 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public async Task<ContractKind?> GetContractKind()
+        {
+            var agent = await GetAgent();
+
+            return await _context.Agencies
+                .Where(a => a.Id == agent.AgencyId)
+                .Select(a => a.ContractKind)
+                .SingleOrDefaultAsync();
+        }
+
+
         private async Task<AgentContext> GetAgentContext()
         {
             var clientId = _tokenInfoAccessor.GetClientId();
 
             if (clientId == TravelGateConnectorClientName)
                 return await GetForApiClient();
-            
+
             return await GetForFrontendClient();
 
-            
+
             async Task<AgentContext> GetForApiClient()
             {
                 var name = GetHeaderValue("X-Api-Client-Name");
@@ -87,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     async () => await GetAgentInfoByApiClientCredentials(name, passwordHash),
                     AgentContextCacheLifeTime);
 
-                string GetHeaderValue(string header) 
+                string GetHeaderValue(string header)
                     => _httpContextAccessor.HttpContext?.Request.Headers[header];
             }
 
@@ -109,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private string GetKey(string name) 
+        private string GetKey(string name)
             => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
 
