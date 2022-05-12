@@ -124,11 +124,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                     return Result.Failure<TResponse, ProblemDetails>(error);
                 }
 
-                return _serializer.Deserialize<TResponse>(jsonTextReader);
+                return _serializer.Deserialize<TResponse>(jsonTextReader) ?? throw new InvalidOperationException();
             }
             catch (Exception ex)
             {
-                _logger.LogConnectorClientException(requestFactory().RequestUri?.ToString(), await response?.Content?.ReadAsStringAsync(cancellationToken));
+                var uri = requestFactory().RequestUri?.ToString();
+                var content = response != null ? await response.Content.ReadAsStringAsync(cancellationToken) : null;
+                _logger.LogConnectorClientException(uri, content);
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
             finally
@@ -140,9 +142,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 
         private static HttpRequestMessage WithCustomHeaders(HttpRequestMessage request, Dictionary<string, string> headers)
         {
-            if (headers is null)
-                return request;
-
             foreach (var (key, value) in headers)
                 request.Headers.Add(key, value);
 
