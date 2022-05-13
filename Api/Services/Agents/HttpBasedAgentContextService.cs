@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<ContractKind?> GetContractKind()
+        public virtual async Task<ContractKind?> GetContractKind()
         {
             var agent = await GetAgent();
 
@@ -142,25 +142,25 @@ namespace HappyTravel.Edo.Api.Services.Agents
             // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByIdentityHash(identityHash);
             return await (from agent in _context.Agents
-                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
-                    where agentAgencyRelation.IsActive && agent.IdentityHash == identityHash
-                    select new AgentContext(agent.Id,
-                        agent.FirstName,
-                        agent.LastName,
-                        agent.Email,
-                        agent.Title,
-                        agent.Position,
-                        agency.Id,
-                        agency.Name,
-                        agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        inAgencyPermissions,
-                        agency.CountryHtId,
-                        agency.LocalityHtId,
-                        country.Code,
-                        country.MarketId,
-                        agency.Ancestors))
+                          from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                          from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                          from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
+                          where agentAgencyRelation.IsActive && agent.IdentityHash == identityHash
+                          select new AgentContext(agent.Id,
+                              agent.FirstName,
+                              agent.LastName,
+                              agent.Email,
+                              agent.Title,
+                              agent.Position,
+                              agency.Id,
+                              agency.Name,
+                              agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
+                              inAgencyPermissions,
+                              agency.CountryHtId,
+                              agency.LocalityHtId,
+                              country.Code,
+                              country.MarketId,
+                              agency.Ancestors))
                 .SingleOrDefaultAsync();
         }
 
@@ -170,26 +170,26 @@ namespace HappyTravel.Edo.Api.Services.Agents
             // TODO: there are too many requests to database, find a way to get rid of this query
             var inAgencyPermissions = await GetInAgencyPermissionsByApiClientCredentials(name, passwordHash);
             return await (from agent in _context.Agents
-                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
-                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
-                    where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
-                    select new AgentContext(agent.Id,
-                        agent.FirstName,
-                        agent.LastName,
-                        agent.Email,
-                        agent.Title,
-                        agent.Position,
-                        agency.Id,
-                        agency.Name,
-                        agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
-                        inAgencyPermissions,
-                        agency.CountryHtId,
-                        agency.LocalityHtId,
-                        country.Code,
-                        country.MarketId,
-                        agency.Ancestors))
+                          from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                          from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
+                          from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                          from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
+                          where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
+                          select new AgentContext(agent.Id,
+                              agent.FirstName,
+                              agent.LastName,
+                              agent.Email,
+                              agent.Title,
+                              agent.Position,
+                              agency.Id,
+                              agency.Name,
+                              agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
+                              inAgencyPermissions,
+                              agency.CountryHtId,
+                              agency.LocalityHtId,
+                              country.Code,
+                              country.MarketId,
+                              agency.Ancestors))
                 .SingleOrDefaultAsync();
         }
 
@@ -197,9 +197,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async Task<InAgencyPermissions> GetInAgencyPermissionsByIdentityHash(string identityHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
-                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    where agent.IdentityHash == identityHash
-                    select agentAgencyRelation.AgentRoleIds)
+                                      from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                                      where agent.IdentityHash == identityHash
+                                      select agentAgencyRelation.AgentRoleIds)
                 .SingleOrDefaultAsync();
 
             return await GetAggregateInAgencyPermissions(agentRoleIds);
@@ -209,11 +209,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async Task<InAgencyPermissions> GetInAgencyPermissionsByApiClientCredentials(string name, string passwordHash)
         {
             var agentRoleIds = await (from agent in _context.Agents
-                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
-                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
-                    where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
-                    select agentAgencyRelation.AgentRoleIds)
+                                      from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                                      from apiClient in _context.ApiClients.Where(a => a.Name == name && a.PasswordHash == passwordHash)
+                                      from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                                      where agentAgencyRelation.IsActive && agent.Id == apiClient.AgentId && agency.Id == apiClient.AgencyId
+                                      select agentAgencyRelation.AgentRoleIds)
                 .SingleOrDefaultAsync();
 
             return await GetAggregateInAgencyPermissions(agentRoleIds);
@@ -226,8 +226,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return 0;
 
             var permissionList = await (from agentRole in _context.AgentRoles
-                    where agentRoleIds.Contains(agentRole.Id)
-                    select agentRole.Permissions)
+                                        where agentRoleIds.Contains(agentRole.Id)
+                                        select agentRole.Permissions)
                 .ToListAsync();
 
             return permissionList.Aggregate((a, b) => a | b);

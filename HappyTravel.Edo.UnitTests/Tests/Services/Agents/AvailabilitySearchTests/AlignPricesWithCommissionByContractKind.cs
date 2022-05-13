@@ -34,25 +34,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             _edoContextMock = MockEdoContextFactory.Create();
             SetupInitialData();
 
-            var tokenInfoAccessorMock = new Mock<ITokenInfoAccessor>();
-            tokenInfoAccessorMock.Setup(x => x.GetIdentity())
+            _tokenInfoAccessorMock = new Mock<ITokenInfoAccessor>();
+            _tokenInfoAccessorMock.Setup(x => x.GetIdentity())
                 .Returns("hash");
 
-            var options = Options.Create(new ContractKindCommissionOptions
+            contractKindCommissionOptions = Options.Create(new ContractKindCommissionOptions
             {
                 CreditCardPaymentsCommission = 2m
             });
-            contractKindCommissionOptions = options.Value;
 
-            _agentContextService = new HttpBasedAgentContextService(_edoContextMock.Object, tokenInfoAccessorMock.Object,
+            _agentContextService = new HttpBasedAgentContextService(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
                 It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
 
             _roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
-                options);
+                contractKindCommissionOptions);
             _bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
-                options);
+                contractKindCommissionOptions);
             _wideAvailabilityPriceProcessor = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
-                options);
+                contractKindCommissionOptions);
         }
 
 
@@ -74,12 +73,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails);
 
             Assert.All(result.RoomContractSets, r
-                => Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, r.Rate.Commission));
+                => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission));
             Assert.All(result.RoomContractSets, r
                 => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)));
             Assert.All(result.RoomContractSets, s
                 => Assert.All(s.Rooms, r
-                    => Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, r.Rate.Commission)));
+                    => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission)));
             Assert.All(result.RoomContractSets, s
                 => Assert.All(s.Rooms, r
                     => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission))));
@@ -95,11 +94,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
 
             var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails);
 
-            Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, result.RoomContractSet.Rate.Commission);
+            Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, result.RoomContractSet.Rate.Commission);
             Assert.True(CommissionApplied(result.RoomContractSet.Rate.NetPrice.Amount,
                 result.RoomContractSet.Rate.FinalPrice.Amount, result.RoomContractSet.Rate.Commission));
             Assert.All(result.RoomContractSet.Rooms, r
-                    => Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, r.Rate.Commission));
+                    => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission));
             Assert.All(result.RoomContractSet.Rooms, r
                     => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)));
         }
@@ -120,18 +119,107 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
 
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, r
-                    => Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, r.Rate.Commission)));
+                    => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission)));
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, r
                     => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission))));
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, s
                     => Assert.All(s.Rooms, r
-                        => Assert.Equal(contractKindCommissionOptions.CreditCardPaymentsCommission, r.Rate.Commission))));
+                        => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission))));
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, s
                     => Assert.All(s.Rooms, r
                         => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)))));
+        }
+
+
+        [Fact]
+        public async Task Wide_availability_step_align_prices_should_apply_zero_commission_and_return_success()
+        {
+            var availabilityDetails = new List<AccommodationAvailabilityResult>()
+            {
+                new AccommodationAvailabilityResult(Guid.NewGuid(),
+                    "jumeirah", DateTimeOffset.Now, "id", roomContractSets, 0m,
+                    Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
+                    "countryHtId", "localityHtId", 2, "KZ")
+            };
+
+
+            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
+                It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
+            agentContextServiceMock.Setup(a => a.GetContractKind())
+                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
+            var wideAvailabilityPriceProcesso = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
+                contractKindCommissionOptions);
+            var result = await wideAvailabilityPriceProcesso.AlignPrices(availabilityDetails);
+
+            Assert.All(result, a
+                => Assert.All(a.RoomContractSets, r
+                    => Assert.Equal(ZeroCommission, r.Rate.Commission)));
+            Assert.All(result, a
+                => Assert.All(a.RoomContractSets, r
+                    => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission))));
+            Assert.All(result, a
+                => Assert.All(a.RoomContractSets, s
+                    => Assert.All(s.Rooms, r
+                        => Assert.Equal(ZeroCommission, r.Rate.Commission))));
+            Assert.All(result, a
+                => Assert.All(a.RoomContractSets, s
+                    => Assert.All(s.Rooms, r
+                        => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)))));
+        }
+
+
+        [Fact]
+        public async Task Room_selection_step_align_prices_should_apply_zero_commission_and_return_success()
+        {
+            var availabilityDetails = new SingleAccommodationAvailability("id", DateTimeOffset.Now, roomContractSets, "htId",
+                "countryHtId", "localityHtId", 2, "KZ", "jumeirah");
+
+            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
+                It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
+            agentContextServiceMock.Setup(a => a.GetContractKind())
+                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
+            var roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
+                contractKindCommissionOptions);
+            var result = await roomSelectionPriceProcessor.AlignPrices(availabilityDetails);
+
+            Assert.All(result.RoomContractSets, r
+                => Assert.Equal(ZeroCommission, r.Rate.Commission));
+            Assert.All(result.RoomContractSets, r
+                => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)));
+            Assert.All(result.RoomContractSets, s
+                => Assert.All(s.Rooms, r
+                    => Assert.Equal(ZeroCommission, r.Rate.Commission)));
+            Assert.All(result.RoomContractSets, s
+                => Assert.All(s.Rooms, r
+                    => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission))));
+        }
+
+
+        [Fact]
+        public async Task Booking_step_align_prices_should_apply_zero_commission_and_return_success()
+        {
+            var availabilityDetails = new RoomContractSetAvailability("id", DateTimeOffset.Now, DateTimeOffset.Now, 7,
+                new SlimAccommodation(), roomContractSets[0], new List<PaymentTypes>(), "countryHtId", "localityHtId",
+                "evaluationToken", 2, "KZ", "jumeirah");
+
+            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
+                        It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
+            agentContextServiceMock.Setup(a => a.GetContractKind())
+                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
+            var bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
+                contractKindCommissionOptions);
+            var result = await bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails);
+
+            Assert.Equal(ZeroCommission, result.RoomContractSet.Rate.Commission);
+            Assert.True(CommissionApplied(result.RoomContractSet.Rate.NetPrice.Amount,
+                result.RoomContractSet.Rate.FinalPrice.Amount, result.RoomContractSet.Rate.Commission));
+            Assert.All(result.RoomContractSet.Rooms, r
+                    => Assert.Equal(ZeroCommission, r.Rate.Commission));
+            Assert.All(result.RoomContractSet.Rooms, r
+                    => Assert.True(CommissionApplied(r.Rate.NetPrice.Amount, r.Rate.FinalPrice.Amount, r.Rate.Commission)));
         }
 
 
@@ -241,11 +329,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             }
         };
 
+        private const decimal ZeroCommission = 0m;
+
         private readonly Mock<EdoContext> _edoContextMock;
+        private readonly Mock<ITokenInfoAccessor> _tokenInfoAccessorMock;
         private readonly IAgentContextService _agentContextService;
         private readonly IRoomSelectionPriceProcessor _roomSelectionPriceProcessor;
         private readonly IBookingEvaluationPriceProcessor _bookingEvaluationPriceProcessor;
         private readonly IWideAvailabilityPriceProcessor _wideAvailabilityPriceProcessor;
-        private readonly ContractKindCommissionOptions contractKindCommissionOptions;
+        private readonly IOptions<ContractKindCommissionOptions> contractKindCommissionOptions;
     }
 }
