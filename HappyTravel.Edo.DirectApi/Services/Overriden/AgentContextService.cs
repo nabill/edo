@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Services.Overriden
@@ -63,7 +62,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         LocalityHtId = agency.LocalityHtId,
                         CountryCode = country.Code,
                         MarketId = country.MarketId,
-                        AgencyAncestors = agency.Ancestors
+                        AgencyAncestors = agency.Ancestors,
+                        AgencyContractKind = agency.ContractKind
                     })
                 .SingleOrDefaultAsync();
 
@@ -84,7 +84,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 localityHtId: data.LocalityHtId,
                 countryCode: data.CountryCode,
                 marketId: data.MarketId,
-                agencyAncestors: data.AgencyAncestors);
+                agencyAncestors: data.AgencyAncestors,
+                agencyContractKind: data.AgencyContractKind
+                );
         }
 
 

@@ -259,7 +259,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
         private readonly AgentContext _agentContext =
             new(1, "fn", "ln", "email", "title", "pos", 1, "aname",
-                default, default, string.Empty, string.Empty, string.Empty, 1, new());
+                default, default, string.Empty, string.Empty, string.Empty,
+                1, new(), ContractKind.VirtualAccountOrCreditCardPayments);
 
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;

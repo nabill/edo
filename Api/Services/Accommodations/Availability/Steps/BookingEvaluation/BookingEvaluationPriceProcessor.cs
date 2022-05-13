@@ -1,17 +1,13 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -19,11 +15,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public class BookingEvaluationPriceProcessor : IBookingEvaluationPriceProcessor
     {
         public BookingEvaluationPriceProcessor(IPriceProcessor priceProcessor,
-            EdoContext context,
             IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
         {
             _priceProcessor = priceProcessor;
-            _context = context;
             _contractKindCommissionOptions = contractKindCommissionOptions.Value;
         }
 
@@ -38,13 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
         public async Task<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability value, AgentContext agent)
         {
-            var contractKind = await _context.Agencies
-                .Where(a => a.Id == agent.AgencyId)
-                .Select(a => a.ContractKind)
-                .SingleOrDefaultAsync();
-
             var roomContractSet = RoomContractSetPriceProcessor.AlignPrices(value.RoomContractSet,
-                contractKind, _contractKindCommissionOptions);
+                agent.AgencyContractKind, _contractKindCommissionOptions);
             return new RoomContractSetAvailability(availabilityId: value.AvailabilityId,
                 checkInDate: value.CheckInDate,
                 checkOutDate: value.CheckOutDate,
@@ -100,7 +89,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         private readonly IPriceProcessor _priceProcessor;
-        private readonly EdoContext _context;
         private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
     }
 }

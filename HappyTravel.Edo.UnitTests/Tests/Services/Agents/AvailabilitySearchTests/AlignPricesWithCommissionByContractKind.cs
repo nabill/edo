@@ -5,10 +5,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
-using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
-using Microsoft.AspNetCore.Http;
-using CSharpFunctionalExtensions;
 using Moq;
 using Xunit;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -40,12 +37,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 CreditCardPaymentsCommission = 2m
             });
 
-            _roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
-                contractKindCommissionOptions);
-            _bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
-                contractKindCommissionOptions);
-            _wideAvailabilityPriceProcessor = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
-                contractKindCommissionOptions);
+            _roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), contractKindCommissionOptions);
+            _bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), contractKindCommissionOptions);
+            _wideAvailabilityPriceProcessor = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), contractKindCommissionOptions);
         }
 
 
@@ -56,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 "countryHtId", "localityHtId", 2, "KZ", "jumeirah");
             var agencyId = 1;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.CreditCardPayments);
 
             var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
@@ -81,7 +75,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 "evaluationToken", 2, "KZ", "jumeirah");
             var agencyId = 1;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.CreditCardPayments);
 
             var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
@@ -107,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             };
             var agencyId = 1;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.CreditCardPayments);
 
             var result = await _wideAvailabilityPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
@@ -140,7 +134,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             };
             var agencyId = 2;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.VirtualAccountOrCreditCardPayments);
 
             var result = await _wideAvailabilityPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
@@ -168,7 +162,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 "countryHtId", "localityHtId", 2, "KZ", "jumeirah");
             var agencyId = 2;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.VirtualAccountOrCreditCardPayments);
 
             var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
@@ -193,7 +187,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 "evaluationToken", 2, "KZ", "jumeirah");
             var agencyId = 2;
             var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
-                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>(), ContractKind.VirtualAccountOrCreditCardPayments);
 
             var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
