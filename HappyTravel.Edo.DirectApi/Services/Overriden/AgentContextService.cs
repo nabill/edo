@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Services.Overriden
@@ -31,6 +32,17 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 key: key,
                 getValueFunction: async () => await GetAgentContextByDirectApiClientId(clientId),
                 AgentContextCacheLifeTime);
+        }
+
+
+        public async Task<ContractKind?> GetContractKind()
+        {
+            var agent = await GetAgent();
+
+            return await _context.Agencies
+                .Where(a => a.Id == agent.AgencyId)
+                .Select(a => a.ContractKind)
+                .SingleOrDefaultAsync();
         }
 
 

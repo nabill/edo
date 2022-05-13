@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             Assert.Equal(0, cancellationPenalty.Amount);
         }
 
-        
+
         [Fact]
         public void No_policies_after_deadline_should_have_100_percent_penalty()
         {
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             Assert.Equal(100, cancellationPenalty.Amount);
         }
 
-        
+
         [Fact]
         public void Existing_policies_should_ignore_deadline_date()
         {
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
             Assert.Equal(50.54m, cancellationPenalty.Amount);
         }
-        
+
 
         [Theory]
         [InlineData(2, 0)]
@@ -140,8 +140,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
             Assert.Equal(expectedPenalty, cancellationPenalty.Amount);
         }
-        
-        
+
+
         [Theory]
         [InlineData("2019/01/01")]
         [InlineData("2021/01/01")]
@@ -169,14 +169,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
 
         private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy>? policies = null, bool isAdvancePurchaseRate = false) =>
-            new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(), isAdvancePurchaseRate, default);
+            new BookedRoom(default, default, price, default, default, default, default,
+                new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(),
+                isAdvancePurchaseRate, default, default, default);
 
 
-        private readonly Booking _booking = new Booking{Currency = Currencies.USD};
+        private readonly Booking _booking = new Booking { Currency = Currencies.USD };
 
         public void Dispose()
         {
-            
+
         }
     }
 }

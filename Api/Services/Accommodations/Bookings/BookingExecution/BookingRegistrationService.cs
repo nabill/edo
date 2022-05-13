@@ -37,8 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _requestStorage = requestStorage;
             _logger = logger;
         }
-        
-        
+
+
         public async Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
         {
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 {
                     var adultsCount = bookingRequest.RoomDetails[i].Passengers.Count(p => p.Age == null);
                     var childrenCount = bookingRequest.RoomDetails[i].Passengers.Count(p => p.Age != null);
-                    
+
                     if (availabilityInfo.AvailabilityRequest.RoomDetails[i].AdultsNumber != adultsCount ||
                         availabilityInfo.AvailabilityRequest.RoomDetails[i].ChildrenAges.Count != childrenCount)
                         return Result.Failure("Rooms does not correspond to search rooms");
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
-            Task SaveRequestInfo(Booking booking) 
+            Task SaveRequestInfo(Booking booking)
                 => _requestStorage.Set(booking.ReferenceCode, bookingRequest, availabilityInfo);
 
 
@@ -134,21 +134,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     Event = BookingChangeEvents.Create,
                     Source = BookingChangeSources.System
                 };
-                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created.DateTime, 
+                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created.DateTime,
                     agentContext.ToApiCaller(), changeReason);
             }
 
 
-            Task SaveMarkups(Booking booking) 
+            Task SaveMarkups(Booking booking)
                 => _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
 
 
-            Task CreateSupplierOrder(Booking booking) 
+            Task CreateSupplierOrder(Booking booking)
                 => _supplierOrderService.Add(referenceCode: booking.ReferenceCode,
-                    serviceType: ServiceTypes.HTL, 
-                    convertedPrice: availabilityInfo.ConvertedSupplierPrice, 
-                    supplierPrice: availabilityInfo.OriginalSupplierPrice, 
-                    deadline: availabilityInfo.SupplierDeadline, 
+                    serviceType: ServiceTypes.HTL,
+                    convertedPrice: availabilityInfo.ConvertedSupplierPrice,
+                    supplierPrice: availabilityInfo.OriginalSupplierPrice,
+                    deadline: availabilityInfo.SupplierDeadline,
                     supplierCode: booking.SupplierCode,
                     paymentType: availabilityInfo.CardRequirement is not null
                         ? SupplierPaymentType.CreditCard
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 IsPackage = availabilityInfo.RoomContractSet.IsPackageRate,
                 SpecialValues = new List<KeyValuePair<string, string>>(0)
             };
-            
+
             AddRequestInfo(bookingRequest);
             AddServiceDetails();
             AddAgentInfo();
@@ -205,6 +205,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             void AddServiceDetails()
             {
                 var rate = availabilityInfo.RoomContractSet.Rate;
+                booking.NetPrice = rate.NetPrice.Amount;
+                booking.Commission = rate.Commission;
                 booking.TotalPrice = rate.FinalPrice.Amount;
                 booking.Currency = rate.Currency;
             }
@@ -214,14 +216,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 booking.AgentId = agentContext.AgentId;
                 booking.AgencyId = agentContext.AgencyId;
             }
-            
+
             void AddRooms(List<RoomContract> roomContracts, List<BookingRoomDetails> bookingRequestRoomDetails)
             {
                 booking.Rooms = roomContracts
                     .Select((r, number) =>
                         new BookedRoom(r.Type,
                             r.IsExtraBedNeeded,
-                            r.Rate.FinalPrice, 
+                            r.Rate.FinalPrice,
                             r.BoardBasis,
                             r.MealPlan,
                             r.Deadline.Date,
@@ -230,7 +232,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                             r.Deadline,
                             GetCorrespondingPassengers(number),
                             r.IsAdvancePurchaseRate,
-                            string.Empty))
+                            string.Empty,
+                            r.Rate.Commission,
+                            r.Rate.NetPrice))
                     .ToList();
 
 
@@ -265,7 +269,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private static readonly TimeSpan BookingLockDuration = TimeSpan.FromMinutes(10);
 
-        
+
         private readonly EdoContext _context;
         private readonly ITagProcessor _tagProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
