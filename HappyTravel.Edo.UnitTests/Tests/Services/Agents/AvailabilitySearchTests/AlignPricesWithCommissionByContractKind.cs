@@ -24,6 +24,7 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
+using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTests
 {
@@ -34,33 +35,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             _edoContextMock = MockEdoContextFactory.Create();
             SetupInitialData();
 
-            _tokenInfoAccessorMock = new Mock<ITokenInfoAccessor>();
-            _tokenInfoAccessorMock.Setup(x => x.GetIdentity())
-                .Returns("hash");
-
             contractKindCommissionOptions = Options.Create(new ContractKindCommissionOptions
             {
                 CreditCardPaymentsCommission = 2m
             });
 
-            _agentContextService = new HttpBasedAgentContextService(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
-                It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
-
-            _roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
+            _roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
                 contractKindCommissionOptions);
-            _bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
+            _bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
                 contractKindCommissionOptions);
-            _wideAvailabilityPriceProcessor = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), _agentContextService,
+            _wideAvailabilityPriceProcessor = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), _edoContextMock.Object,
                 contractKindCommissionOptions);
-        }
-
-
-        [Fact]
-        public async Task Get_contract_kind_should_return_success()
-        {
-            var contractKind = await _agentContextService.GetContractKind();
-
-            Assert.Equal(ContractKind.CreditCardPayments, contractKind);
         }
 
 
@@ -69,8 +54,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
         {
             var availabilityDetails = new SingleAccommodationAvailability("id", DateTimeOffset.Now, roomContractSets, "htId",
                 "countryHtId", "localityHtId", 2, "KZ", "jumeirah");
+            var agencyId = 1;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-            var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails);
+            var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.All(result.RoomContractSets, r
                 => Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, r.Rate.Commission));
@@ -91,8 +79,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             var availabilityDetails = new RoomContractSetAvailability("id", DateTimeOffset.Now, DateTimeOffset.Now, 7,
                 new SlimAccommodation(), roomContractSets[0], new List<PaymentTypes>(), "countryHtId", "localityHtId",
                 "evaluationToken", 2, "KZ", "jumeirah");
+            var agencyId = 1;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-            var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails);
+            var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.Equal(contractKindCommissionOptions.Value.CreditCardPaymentsCommission, result.RoomContractSet.Rate.Commission);
             Assert.True(CommissionApplied(result.RoomContractSet.Rate.NetPrice.Amount,
@@ -114,8 +105,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                     Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
                     "countryHtId", "localityHtId", 2, "KZ")
             };
+            var agencyId = 1;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-            var result = await _wideAvailabilityPriceProcessor.AlignPrices(availabilityDetails);
+            var result = await _wideAvailabilityPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, r
@@ -144,15 +138,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                     Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
                     "countryHtId", "localityHtId", 2, "KZ")
             };
+            var agencyId = 2;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-
-            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
-                It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
-            agentContextServiceMock.Setup(a => a.GetContractKind())
-                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
-            var wideAvailabilityPriceProcesso = new WideAvailabilityPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
-                contractKindCommissionOptions);
-            var result = await wideAvailabilityPriceProcesso.AlignPrices(availabilityDetails);
+            var result = await _wideAvailabilityPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.All(result, a
                 => Assert.All(a.RoomContractSets, r
@@ -176,14 +166,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
         {
             var availabilityDetails = new SingleAccommodationAvailability("id", DateTimeOffset.Now, roomContractSets, "htId",
                 "countryHtId", "localityHtId", 2, "KZ", "jumeirah");
+            var agencyId = 2;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
-                It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
-            agentContextServiceMock.Setup(a => a.GetContractKind())
-                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
-            var roomSelectionPriceProcessor = new RoomSelectionPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
-                contractKindCommissionOptions);
-            var result = await roomSelectionPriceProcessor.AlignPrices(availabilityDetails);
+            var result = await _roomSelectionPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.All(result.RoomContractSets, r
                 => Assert.Equal(ZeroCommission, r.Rate.Commission));
@@ -204,14 +191,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             var availabilityDetails = new RoomContractSetAvailability("id", DateTimeOffset.Now, DateTimeOffset.Now, 7,
                 new SlimAccommodation(), roomContractSets[0], new List<PaymentTypes>(), "countryHtId", "localityHtId",
                 "evaluationToken", 2, "KZ", "jumeirah");
+            var agencyId = 2;
+            var agentContext = new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, agencyId,
+                string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 2, new List<int>());
 
-            var agentContextServiceMock = new Mock<HttpBasedAgentContextService>(_edoContextMock.Object, _tokenInfoAccessorMock.Object,
-                        It.IsAny<IHttpContextAccessor>(), new FakeMemoryFlow());
-            agentContextServiceMock.Setup(a => a.GetContractKind())
-                .ReturnsAsync(ContractKind.OfflineOrCreditCardPayments);
-            var bookingEvaluationPriceProcessor = new BookingEvaluationPriceProcessor(It.IsAny<IPriceProcessor>(), agentContextServiceMock.Object,
-                contractKindCommissionOptions);
-            var result = await bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails);
+            var result = await _bookingEvaluationPriceProcessor.AlignPrices(availabilityDetails, agentContext);
 
             Assert.Equal(ZeroCommission, result.RoomContractSet.Rate.Commission);
             Assert.True(CommissionApplied(result.RoomContractSet.Rate.NetPrice.Amount,

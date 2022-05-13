@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
@@ -6,8 +7,10 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
+using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -15,11 +18,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilityPriceProcessor : IWideAvailabilityPriceProcessor
     {
         public WideAvailabilityPriceProcessor(IPriceProcessor priceProcessor,
-            IAgentContextService agentContextService,
+            EdoContext context,
             IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
         {
             _priceProcessor = priceProcessor;
-            _agentContextService = agentContextService;
+            _context = context;
             _contractKindCommissionOptions = contractKindCommissionOptions.Value;
         }
 
@@ -101,9 +104,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results)
+        public async Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
-            var contractKind = await _agentContextService.GetContractKind();
+            var contractKind = await _context.Agencies
+                .Where(a => a.Id == agent.AgencyId)
+                .Select(a => a.ContractKind)
+                .SingleOrDefaultAsync();
+
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var accommodationAvailability in results)
             {
@@ -152,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IAgentContextService _agentContextService;
+        private readonly EdoContext _context;
         private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
     }
 }

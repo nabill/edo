@@ -62,17 +62,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public virtual async Task<ContractKind?> GetContractKind()
-        {
-            var agent = await GetAgent();
-
-            return await _context.Agencies
-                .Where(a => a.Id == agent.AgencyId)
-                .Select(a => a.ContractKind)
-                .SingleOrDefaultAsync();
-        }
-
-
         private async Task<AgentContext> GetAgentContext()
         {
             var clientId = _tokenInfoAccessor.GetClientId();

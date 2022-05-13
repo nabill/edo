@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> response)
-                => _priceProcessor.AlignPrices(response);
+                => _priceProcessor.AlignPrices(response, agent);
 
 
             List<AccommodationAvailabilityResult> ProcessPolicies(List<AccommodationAvailabilityResult> response)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
@@ -7,8 +8,10 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
+using HappyTravel.Edo.Data;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -16,11 +19,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public class BookingEvaluationPriceProcessor : IBookingEvaluationPriceProcessor
     {
         public BookingEvaluationPriceProcessor(IPriceProcessor priceProcessor,
-            IAgentContextService agentContextService,
+            EdoContext context,
             IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
         {
             _priceProcessor = priceProcessor;
-            _agentContextService = agentContextService;
+            _context = context;
             _contractKindCommissionOptions = contractKindCommissionOptions.Value;
         }
 
@@ -33,9 +36,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             => _priceProcessor.ConvertCurrencies(availabilityDetails, ProcessPrices, GetCurrency);
 
 
-        public async Task<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability value)
+        public async Task<RoomContractSetAvailability> AlignPrices(RoomContractSetAvailability value, AgentContext agent)
         {
-            var contractKind = await _agentContextService.GetContractKind();
+            var contractKind = await _context.Agencies
+                .Where(a => a.Id == agent.AgencyId)
+                .Select(a => a.ContractKind)
+                .SingleOrDefaultAsync();
 
             var roomContractSet = RoomContractSetPriceProcessor.AlignPrices(value.RoomContractSet,
                 contractKind, _contractKindCommissionOptions);
@@ -94,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IAgentContextService _agentContextService;
+        private readonly EdoContext _context;
         private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
     }
 }

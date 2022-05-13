@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability response)
-                => _priceProcessor.AlignPrices(response);
+                => _priceProcessor.AlignPrices(response, agent);
 
 
             Task SaveToCache(SingleAccommodationAvailability details)
