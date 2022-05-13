@@ -43,6 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.Converters
                 DepartureDate = DateTimeFormatters.ToDateString(data.DepartureDate),
                 ConfirmationNumber = data.ConfirmationNumber,
                 RoomsConfirmationNumbers = string.Join("; ", data.Rooms.Select(r => r.SupplierRoomReferenceCode)),
+                BookingAmount = data.BookingAmount,
                 OriginalAmount = data.OriginalAmount,
                 OriginalCurrency = data.OriginalCurrency,
                 ConvertedAmount = data.ConvertedAmount,
