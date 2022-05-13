@@ -56,8 +56,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Tap(AddManager);
 
 
-            Result ValidateAddManager()
-                => GenericValidator<(int agencyId, int? accountManagerId)>.Validate(v =>
+            async Task<Result> ValidateAddManager()
+                => await GenericValidator<(int agencyId, int? accountManagerId)>.ValidateAsync(v =>
                 {
                     v.RuleFor(t => t.agencyId)
                         .MustAsync(AgencyIsExist())

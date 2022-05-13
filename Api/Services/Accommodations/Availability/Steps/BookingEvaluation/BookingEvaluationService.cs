@@ -197,9 +197,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            DataWithMarkup<RoomContractSetAvailability> AlignPrices(DataWithMarkup<RoomContractSetAvailability> availabilityWithMarkup)
+            async Task<DataWithMarkup<RoomContractSetAvailability>> AlignPrices(DataWithMarkup<RoomContractSetAvailability> availabilityWithMarkup)
             {
-                var processedData = _priceProcessor.AlignPrices(availabilityWithMarkup.Data);
+                var processedData = await _priceProcessor.AlignPrices(availabilityWithMarkup.Data);
                 return new DataWithMarkup<RoomContractSetAvailability>(processedData,
                     availabilityWithMarkup.AppliedMarkups,
                     availabilityWithMarkup.ConvertedSupplierPrice,

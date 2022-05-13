@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 MakeBookedRoom("b"),
                 MakeBookedRoom("c")
             };
-            
+
             _bookings = new List<Booking>
             {
                 new()
@@ -45,18 +45,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     Rooms = _bookedRooms
                 }
             };
-            
+
             _updatedRoomsSameNumber = new List<SlimRoomOccupation>
             {
                 MakeSlimRoomOccupation("e"),
                 MakeSlimRoomOccupation("d"),
                 MakeSlimRoomOccupation("f")
             };
-            
+
             _updatedRoomsDifferentNumber = new List<SlimRoomOccupation>
             {
                 MakeSlimRoomOccupation("e"),
-                MakeSlimRoomOccupation("d"), 
+                MakeSlimRoomOccupation("d"),
             };
 
             _specialValues = new List<KeyValuePair<string, string>>
@@ -68,38 +68,39 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             _service = CreateBookingRecordsUpdaterService();
 
             static BookedRoom MakeBookedRoom(string supplierRoomReferenceCode) =>
-                new(default, default, default, default, default, default, default, default, default, default, default, supplierRoomReferenceCode);
+                new(default, default, default, default, default, default, default, default,
+                    default, default, default, supplierRoomReferenceCode, default, default);
 
             static SlimRoomOccupation MakeSlimRoomOccupation(string supplierRoomReferenceCode)
-                => new(RoomTypes.Single, new List<Pax>(), supplierRoomReferenceCode); 
+                => new(RoomTypes.Single, new List<Pax>(), supplierRoomReferenceCode);
         }
-        
-        
+
+
         [Fact]
         public async Task Updating_rooms_with_same_number_of_rooms_should_change_rooms_supplier_code()
         {
-            await _service.UpdateWithSupplierData(booking: _bookings.First(), 
-                supplierReferenceCode: default, 
-                updateModes: default, 
-                updatedRooms: _updatedRoomsSameNumber, 
-                specialValues:_specialValues);
-        
+            await _service.UpdateWithSupplierData(booking: _bookings.First(),
+                supplierReferenceCode: default,
+                updateModes: default,
+                updatedRooms: _updatedRoomsSameNumber,
+                specialValues: _specialValues);
+
             var rooms = _context.Bookings.First().Rooms;
             Assert.Equal(rooms[0].SupplierRoomReferenceCode, _updatedRoomsSameNumber[0].SupplierRoomReferenceCode);
             Assert.Equal(rooms[1].SupplierRoomReferenceCode, _updatedRoomsSameNumber[1].SupplierRoomReferenceCode);
             Assert.Equal(rooms[2].SupplierRoomReferenceCode, _updatedRoomsSameNumber[2].SupplierRoomReferenceCode);
         }
-        
-        
+
+
         [Fact]
         public async Task Updating_rooms_with_different_number_shouldnt_change_rooms_supplier_code()
         {
             await _service.UpdateWithSupplierData(booking: _bookings.First(),
-                supplierReferenceCode: default, 
-                updateModes: default, 
+                supplierReferenceCode: default,
+                updateModes: default,
                 updatedRooms: _updatedRoomsDifferentNumber,
                 specialValues: _specialValues);
-        
+
             var rooms = _context.Bookings.First().Rooms;
             Assert.Equal(_bookedRooms[0].SupplierRoomReferenceCode, rooms[0].SupplierRoomReferenceCode);
             Assert.Equal(_bookedRooms[1].SupplierRoomReferenceCode, rooms[1].SupplierRoomReferenceCode);
@@ -110,20 +111,20 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         private EdoContext CreateContext()
         {
             var context = MockEdoContextFactory.Create();
-            
+
             context
                 .Setup(x => x.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(_bookings));
 
             return context.Object;
         }
-        
-        
+
+
         private BookingRecordsUpdater CreateBookingRecordsUpdaterService()
         {
             return new(
-                Mock.Of<IDateTimeProvider>(), 
-                Mock.Of<IBookingInfoService>(), 
+                Mock.Of<IDateTimeProvider>(),
+                Mock.Of<IBookingInfoService>(),
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingMoneyReturnService>(),
                 Mock.Of<IBookingDocumentsMailingService>(),
@@ -131,11 +132,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<INotificationService>(),
                 Mock.Of<IBookingChangeLogService>(),
                 Mock.Of<IBookingAnalyticsService>(),
-                _context, 
+                _context,
                 Mock.Of<ILogger<BookingRecordsUpdater>>());
         }
-        
-        
+
+
         private readonly EdoContext _context;
         private readonly BookingRecordsUpdater _service;
         private readonly List<BookedRoom> _bookedRooms;

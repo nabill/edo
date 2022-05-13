@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .ToList();
                 var percentSum = percentPolicies.Sum(p => p.Value);
 
-                if (percentSum <= 0)
+                if (percentSum < 0)
                 {
                     var slimPolicies = policies.Select(p => new { Id = p.Id, Value = p.Value }).ToList();
                     _logger.LogMarkupPoliciesSumLessThanZero(subject.AgencyId, percentSum, JsonSerializer.Serialize(slimPolicies));
