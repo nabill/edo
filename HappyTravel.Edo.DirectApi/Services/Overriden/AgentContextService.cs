@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.DirectApi.Services.Overriden
@@ -35,17 +34,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
         }
 
 
-        public async Task<ContractKind?> GetContractKind()
-        {
-            var agent = await GetAgent();
-
-            return await _context.Agencies
-                .Where(a => a.Id == agent.AgencyId)
-                .Select(a => a.ContractKind)
-                .SingleOrDefaultAsync();
-        }
-
-
         private string GetKey(string name)
             => _flow.BuildKey(nameof(AgentContextService), nameof(GetAgent), name);
 
@@ -58,7 +46,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         && a.AgencyId == agentAgencyRelation.AgencyId && a.DirectApiClientId == clientId)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
                     from country in _context.Countries.Where(c => c.Code == agency.CountryCode)
-                    select new {
+                    select new
+                    {
                         AgentId = agent.Id,
                         FirstName = agent.FirstName,
                         LastName = agent.LastName,
@@ -73,7 +62,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                         LocalityHtId = agency.LocalityHtId,
                         CountryCode = country.Code,
                         MarketId = country.MarketId,
-                        AgencyAncestors = agency.Ancestors
+                        AgencyAncestors = agency.Ancestors,
+                        AgencyContractKind = agency.ContractKind
                     })
                 .SingleOrDefaultAsync();
 
@@ -94,7 +84,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
                 localityHtId: data.LocalityHtId,
                 countryCode: data.CountryCode,
                 marketId: data.MarketId,
-                agencyAncestors: data.AgencyAncestors);
+                agencyAncestors: data.AgencyAncestors,
+                agencyContractKind: data.AgencyContractKind
+                );
         }
 
 

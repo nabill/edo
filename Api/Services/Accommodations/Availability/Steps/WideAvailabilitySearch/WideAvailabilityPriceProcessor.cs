@@ -4,7 +4,6 @@ using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +14,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilityPriceProcessor : IWideAvailabilityPriceProcessor
     {
         public WideAvailabilityPriceProcessor(IPriceProcessor priceProcessor,
-            IAgentContextService agentContextService,
             IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
         {
             _priceProcessor = priceProcessor;
-            _agentContextService = agentContextService;
             _contractKindCommissionOptions = contractKindCommissionOptions.Value;
         }
 
@@ -101,15 +98,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results)
+        public async Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results, AgentContext agent)
         {
-            var contractKind = await _agentContextService.GetContractKind();
             var convertedResults = new List<AccommodationAvailabilityResult>(results.Count);
             foreach (var accommodationAvailability in results)
             {
                 // Currency can differ in different results
                 var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(accommodationAvailability.RoomContractSets,
-                    contractKind, _contractKindCommissionOptions);
+                    agent.AgencyContractKind, _contractKindCommissionOptions);
                 convertedResults.Add(new AccommodationAvailabilityResult(searchId: accommodationAvailability.SearchId,
                     supplierCode: accommodationAvailability.SupplierCode,
                     created: accommodationAvailability.Created,
@@ -152,7 +148,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IAgentContextService _agentContextService;
         private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
     }
 }

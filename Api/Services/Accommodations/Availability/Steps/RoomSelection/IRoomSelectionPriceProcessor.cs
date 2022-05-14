@@ -12,6 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         Task<SingleAccommodationAvailability> ApplyMarkups(SingleAccommodationAvailability response, AgentContext agent);
 
-        Task<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability availabilityDetails);
+        Task<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability availabilityDetails, AgentContext agent);
     }
 }

@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -11,7 +8,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,17 +55,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 key: key,
                 getValueFunction: async () => await GetAgentInfoByIdentityHash(identityHash),
                 AgentContextCacheLifeTime);
-        }
-
-
-        public virtual async Task<ContractKind?> GetContractKind()
-        {
-            var agent = await GetAgent();
-
-            return await _context.Agencies
-                .Where(a => a.Id == agent.AgencyId)
-                .Select(a => a.ContractKind)
-                .SingleOrDefaultAsync();
         }
 
 
@@ -160,7 +145,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                               agency.LocalityHtId,
                               country.Code,
                               country.MarketId,
-                              agency.Ancestors))
+                              agency.Ancestors,
+                              agency.ContractKind))
                 .SingleOrDefaultAsync();
         }
 
@@ -189,7 +175,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                               agency.LocalityHtId,
                               country.Code,
                               country.MarketId,
-                              agency.Ancestors))
+                              agency.Ancestors,
+                              agency.ContractKind))
                 .SingleOrDefaultAsync();
         }
 
