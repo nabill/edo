@@ -214,6 +214,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private readonly AccountPaymentService _accountPaymentService;
         private readonly AgentContext _agent =
             new(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
-                1, string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 1, new());
+                1, string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty,
+                string.Empty, 1, new(), ContractKind.VirtualAccountOrCreditCardPayments);
     }
 }

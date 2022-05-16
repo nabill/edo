@@ -161,8 +161,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 => _priceProcessor.ApplyMarkups(response, agent);
 
 
-            List<AccommodationAvailabilityResult> AlignPrices(List<AccommodationAvailabilityResult> response)
-                => _priceProcessor.AlignPrices(response);
+            Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> response)
+                => _priceProcessor.AlignPrices(response, agent);
 
 
             List<AccommodationAvailabilityResult> ProcessPolicies(List<AccommodationAvailabilityResult> response)
@@ -170,7 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results)
-                => _storage.SaveResults(searchId, supplier.Code, results);
+                => _storage.SaveResults(searchId, supplier.Code, results, HashGenerator.ComputeHash(availabilityRequest));
 
 
             Task NotifyClient()

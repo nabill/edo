@@ -1,5 +1,7 @@
+using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -14,6 +16,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 builder.Append(t.ToString("x2"));
 
             return builder.ToString();
+        }
+        
+        
+        public static string ComputeHash<T>(T source)
+        {
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(source);
+            return Convert.ToBase64String(bytes);
         }
     }
 }

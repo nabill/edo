@@ -1,20 +1,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Abstractions;
-using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
     public class RoomSelectionPriceProcessor : IRoomSelectionPriceProcessor
     {
-        public RoomSelectionPriceProcessor(IPriceProcessor priceProcessor)
+        public RoomSelectionPriceProcessor(IPriceProcessor priceProcessor,
+            IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
         {
             _priceProcessor = priceProcessor;
+            _contractKindCommissionOptions = contractKindCommissionOptions.Value;
         }
 
 
@@ -71,9 +74,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public SingleAccommodationAvailability AlignPrices(SingleAccommodationAvailability source)
+        public async Task<SingleAccommodationAvailability> AlignPrices(SingleAccommodationAvailability source, AgentContext agent)
         {
-            var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(source.RoomContractSets);
+            var roomContractSets = RoomContractSetPriceProcessor.AlignPrices(source.RoomContractSets,
+                agent.AgencyContractKind, _contractKindCommissionOptions);
             return new SingleAccommodationAvailability(availabilityId: source.AvailabilityId,
                 checkInDate: source.CheckInDate,
                 roomContractSets: roomContractSets,
@@ -107,5 +111,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
         private readonly IPriceProcessor _priceProcessor;
+        private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
     }
 }

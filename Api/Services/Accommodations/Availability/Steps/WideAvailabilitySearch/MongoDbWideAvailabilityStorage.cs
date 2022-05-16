@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
-using HappyTravel.SupplierOptionsProvider;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -139,9 +138,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
 
-        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results)
+        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash)
             => results.Any()
-                ? _availabilityStorage.Add(results.Select(r => r.Map()))
+                ? _availabilityStorage.Add(results.Select(r => r.Map(requestHash)))
                 : Task.CompletedTask;
         
         

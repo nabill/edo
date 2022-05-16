@@ -245,7 +245,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private AgentContext GetAgentForAgency(int agencyId)
         {
             return new AgentContext(1, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
-                agencyId, string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty, 1, new());
+                agencyId, string.Empty, true, InAgencyPermissions.All, string.Empty, string.Empty, string.Empty,
+                1, new(), ContractKind.VirtualAccountOrCreditCardPayments);
         }
 
         public void Dispose()

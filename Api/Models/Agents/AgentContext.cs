@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
@@ -8,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public AgentContext(int agentId, string firstName, string lastName, string email,
             string title, string position, int agencyId, string agencyName, bool isMaster,
             InAgencyPermissions inAgencyPermissions, string countryHtId, string localityHtId,
-            string countryCode, int marketId, List<int> agencyAncestors)
+            string countryCode, int marketId, List<int> agencyAncestors, ContractKind? agencyContractKind)
         {
             AgentId = agentId;
             FirstName = firstName;
@@ -25,6 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             CountryCode = countryCode;
             MarketId = marketId;
             AgencyAncestors = agencyAncestors;
+            AgencyContractKind = agencyContractKind ?? ContractKind.NotSpecified;
         }
 
 
@@ -66,5 +68,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public List<int> AgencyAncestors { get; }
         public string Title { get; }
         public string Position { get; }
+        public ContractKind AgencyContractKind { get; }
     }
 }
