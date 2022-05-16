@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -11,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         Task<Result> Cancel(string referenceCode, AgentContext agent);
 
         Task<Result> RefreshStatus(int bookingId, AgentContext agent);
+
+        Task<Result<AccommodationBookingInfo>> RecalculatePrices(string referenceCode, PaymentTypes paymentMethods, AgentContext agent, string languageCode);
     }
 }
