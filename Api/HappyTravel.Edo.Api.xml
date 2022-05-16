@@ -1969,6 +1969,16 @@
                 The list of available discounts.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Commission">
+            <summary>
+                Commission according to payment type or agency's contract kind
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.NetPrice">
+            <summary>
+                Net price of a service before applying commission
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.FinalPrice">
             <summary>
                 The final and total net price of a service. This is <b>the actual</b> value of a price.

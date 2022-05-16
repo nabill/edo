@@ -13,6 +13,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> ConvertCurrencies(List<AccommodationAvailabilityResult> results);
 
-        List<AccommodationAvailabilityResult> AlignPrices(List<AccommodationAvailabilityResult> results);
+        Task<List<AccommodationAvailabilityResult>> AlignPrices(List<AccommodationAvailabilityResult> results, AgentContext agent);
     }
 }

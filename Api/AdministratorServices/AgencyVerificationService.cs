@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -40,19 +41,53 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractTypeValid, "Invalid contract type")
+                .Ensure(IsContractTypeNotEmpty, "Contract type cannot be empty")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
                 .Tap(SetContractType)
+                .Tap(SetAprModeAndPassedDeadlineOffersMode)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
             
             
-            bool IsContractTypeValid(Agency _) 
+            bool IsContractTypeNotEmpty(Agency _) 
                 => !contractKind.Equals(default(ContractKind));
             
             
             async Task SetContractType(Agency agency)
             {
                 agency.ContractKind = contractKind;
+                await _context.SaveChangesAsync();
+            }
+            
+            
+            async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
+            {
+                if (contractKind != ContractKind.VirtualAccountOrCreditCardPayments)
+                    return;
+
+                var settings = await _context.AgencySystemSettings
+                    .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+
+                if (Equals(settings, default))
+                {
+                    _context.Add(new AgencySystemSettings
+                    {
+                        AccommodationBookingSettings = new AgencyAccommodationBookingSettings
+                        {
+                            AprMode = AprMode.CardAndAccountPurchases,
+                            PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
+                        },
+                        AgencyId = agencyId
+                    });
+                }
+                else
+                {
+                    settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
+                    settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
+
+                    _context.Update(settings);
+                }
+
                 await _context.SaveChangesAsync();
             }
         }
@@ -163,7 +198,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             return Result.Success(agency);
         }
-
+        
 
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
