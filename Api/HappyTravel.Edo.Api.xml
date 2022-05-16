@@ -1255,9 +1255,9 @@
             <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
             <returns>List of booking confirmation change events</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.RecalculatePrices(System.String,HappyTravel.Edo.Common.Enums.PaymentTypes)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.RecalculatePrice(System.String,HappyTravel.Edo.Common.Enums.PaymentTypes)">
             <summary>
-                Recalculate booking's prices after changing payment type
+                Recalculate booking's price after changing payment type
             </summary>
             <param name="referenceCode"></param>
             <param name="paymentType"></param>

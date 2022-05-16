@@ -83,14 +83,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
             var agentContext = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingInfo, error) = await _idempotentBookingExecutor.Execute(request: request,
+            return OkOrBadRequest(await _idempotentBookingExecutor.Execute(request: request,
                 bookingFunction: () => _financialAccountBookingFlow.BookByAccount(request, agentContext, LanguageCode, ClientIp),
-                languageCode: LanguageCode);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookingInfo);
+                languageCode: LanguageCode));
         }
 
 
@@ -107,14 +102,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> BookByOffline([FromBody] AccommodationBookingRequest request)
         {
             var agentContext = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingInfo, error) = await _idempotentBookingExecutor.Execute(request: request,
+            return OkOrBadRequest(await _idempotentBookingExecutor.Execute(request: request,
                 bookingFunction: () => _offlinePaymentBookingFlow.Book(request, agentContext, LanguageCode, ClientIp),
-                languageCode: LanguageCode);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookingInfo);
+                languageCode: LanguageCode));
         }
 
 
@@ -132,11 +122,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingDetails, error) = await _bankCreditCardBookingFlow.Finalize(referenceCode, agent, LanguageCode);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookingDetails);
+            return OkOrBadRequest(await _bankCreditCardBookingFlow.Finalize(referenceCode, agent, LanguageCode));
         }
 
 
@@ -153,11 +139,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _bookingManagementService.RefreshStatus(bookingId, agent);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok();
+            return OkOrBadRequest(await _bookingManagementService.RefreshStatus(bookingId, agent));
         }
 
 
@@ -174,11 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, agent);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
+            return NoContentOrBadRequest(await _bookingManagementService.Cancel(bookingId, agent));
         }
 
 
@@ -195,11 +173,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _bookingManagementService.Cancel(referenceCode, agent);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
+            return NoContentOrBadRequest(await _bookingManagementService.Cancel(referenceCode, agent));
         }
 
 
@@ -329,24 +303,20 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Recalculate booking's prices after changing payment type
+        ///     Recalculate booking's price after changing payment type
         /// </summary>
         /// <param name="referenceCode"></param>
         /// <param name="paymentType"></param>
         /// <returns></returns>
-        [HttpPost("{referenceCode}/recalculate-prices")]
+        [HttpPost("{referenceCode}/recalculate-price")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RecalculatePrices([FromRoute] string referenceCode, [FromQuery] PaymentTypes paymentType)
+        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromQuery] PaymentTypes paymentType)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingDetails, error) = await _bookingManagementService.RecalculatePrices(referenceCode, paymentType, agent, LanguageCode);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(bookingDetails);
+            return OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, paymentType, agent, LanguageCode));
         }
 
 

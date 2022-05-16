@@ -66,8 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> RecalculatePrices(string referenceCode,
-            PaymentTypes paymentMethods, AgentContext agent, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> RecalculatePrice(string referenceCode,
+            PaymentTypes paymentMethod, AgentContext agent, string languageCode)
         {
             return await GetBooking(referenceCode, agent)
                 .Map(Recalculate)
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 var commission = 0m;
 
-                switch (paymentMethods)
+                switch (paymentMethod)
                 {
                     case PaymentTypes.CreditCard:
                         commission = _contractKindCommissionOptions.CreditCardPaymentsCommission;
@@ -104,6 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
                 booking.TotalPrice = alignedFinalPrice.Amount;
                 booking.Commission = commission;
+                booking.PaymentType = paymentMethod;
 
                 return booking;
             }

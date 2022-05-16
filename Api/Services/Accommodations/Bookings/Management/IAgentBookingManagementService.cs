@@ -14,6 +14,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         Task<Result> RefreshStatus(int bookingId, AgentContext agent);
 
-        Task<Result<AccommodationBookingInfo>> RecalculatePrices(string referenceCode, PaymentTypes paymentMethods, AgentContext agent, string languageCode);
+        Task<Result<AccommodationBookingInfo>> RecalculatePrice(string referenceCode, PaymentTypes paymentMethods, AgentContext agent, string languageCode);
     }
 }
