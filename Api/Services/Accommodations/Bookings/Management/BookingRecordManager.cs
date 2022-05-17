@@ -17,11 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public Task<Result<Booking>> Get(string referenceCode)
+        public virtual Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
-        
+
 
         public Task<Result<Booking>> Get(int bookingId)
         {
