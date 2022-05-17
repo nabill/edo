@@ -128,7 +128,7 @@ namespace Api.Services.Markups
 
             return isSupplierPolicy
                 ? await Remove(policyId)
-                : Result.Failure($"Policy '{policyId}' was not found or not local");
+                : Result.Failure($"Policy '{policyId}' was not found or not supplier's markup");
 
 
             async Task<Result> Remove(int policyId)
