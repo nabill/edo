@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,23 +22,32 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
-        var (_, isFailure, enabledSuppliers, error) = GetEnabledSupplierCodes();
+        var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
         var agencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
-        if (Equals(agencySettings, default) || Equals(agencySettings.EnabledSuppliers, null))
-            return enabledSuppliers.ToDictionary(s => s, _ => true);
+        if (Equals(agencySettings?.EnabledSuppliers, null))
+            return enabledSuppliers
+                .Where(s => s.Value == EnablementState.Enabled)
+                .ToDictionary(s => s.Key, _ => true);
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
         var materializedSettings = new Dictionary<string, bool>();
 
-        foreach (var supplierCode in enabledSuppliers)
+        foreach (var (supplier, supplierOption) in enabledSuppliers)
         {
-            var materializedOption = !agencySuppliers.TryGetValue(supplierCode, out var agencyOption) || agencyOption;
-            materializedSettings.Add(supplierCode, materializedOption);
+            var settingExist = agencySuppliers.TryGetValue(supplier, out var agencyOption);
+            var materializedOption = supplierOption switch
+            {
+                EnablementState.TestOnly => agencyOption,
+                EnablementState.Enabled => agencyOption || !settingExist,
+                _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
+            };
+
+            materializedSettings.Add(supplier, materializedOption);
         }
 
         return materializedSettings;
@@ -55,11 +66,11 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             if (Equals(agency, default))
                 return Result.Failure($"Agency {agencyId} does not exist");
             
-            var enabledSuppliers = GetEnabledSupplierCodes().Value;
+            var enabledSuppliers = GetEnabledSuppliers().Value;
             
             foreach (var (name, _) in suppliers)
             {
-                if (!enabledSuppliers.Contains(name))
+                if (!enabledSuppliers.ContainsKey(name))
                     return Result.Failure($"Supplier {name} does not exist or is disabled in the system");
             }
             
@@ -92,12 +103,13 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<List<string>> GetEnabledSupplierCodes()
+    private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
     {
         var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
         return isFailure
-            ? Result.Failure<List<string>>(error)
-            : suppliers.Where(s => s.IsEnabled).Select(s => s.Code).ToList();
+            ? Result.Failure<Dictionary<string, EnablementState>>(error)
+            : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
+                .ToDictionary(s => s.Code, s => s.EnablementState);
     }
 
     
