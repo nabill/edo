@@ -51,7 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode))
                 .SingleOrDefaultAsync();
 
             return policy is null
@@ -100,10 +101,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public Task<List<MarkupInfo>> GetLocationPolicies()
             => _context.MarkupPolicies
-                .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Market ||
+                .Where(p => (p.SubjectScopeType == SubjectMarkupScopeTypes.Market ||
                     p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Market ||
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
+                    && string.IsNullOrEmpty(p.SupplierCode))
                 .OrderBy(p => p.FunctionType)
                 .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
                 .ToListAsync();
@@ -307,7 +309,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString() &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode))
                 .SingleOrDefaultAsync();
 
             return policy is null

@@ -70,7 +70,8 @@ namespace Api.Services.Markups
                         DestinationScopeId = request.DestinationScopeId,
                         DestinationScopeType = request.DestinationScopeType,
                         FunctionType = MarkupFunctionType.Percent,
-                        Value = request.Value
+                        Value = request.Value,
+                        SupplierCode = request.SupplierCode
                     };
 
                     _context.MarkupPolicies.Add(policy);

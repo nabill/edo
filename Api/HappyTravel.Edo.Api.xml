@@ -3526,6 +3526,11 @@
                 Destination type of booking from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.SupplierCode">
+            <summary>
+                Destination type of booking from the mapper
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
             <summary>
                 Account balance info
