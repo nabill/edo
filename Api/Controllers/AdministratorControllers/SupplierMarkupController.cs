@@ -38,6 +38,7 @@ namespace Api.Controllers.AdministratorControllers
             CancellationToken cancellationToken)
             => NoContentOrBadRequest(await _policyManager.Add(request, cancellationToken));
 
+
         /// <summary>
         ///     Gets supplier markup policies
         /// </summary>
