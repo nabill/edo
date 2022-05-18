@@ -66,7 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified));
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode));
 
             return policy is null
                 ? Result.Failure("Could not find global policy")
@@ -79,7 +80,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .SingleOrDefaultAsync(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Global &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified));
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode));
 
             var settings = new MarkupPolicySettings("Global markup", MarkupFunctionType.Percent,
                 request.Percent, Currencies.USD, null);
@@ -135,6 +137,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             .WithMessage(valueValidatorMessage)
                             .LessThanOrEqualTo(100m)
                             .WithMessage(valueValidatorMessage);
+
+                        v.RuleFor(s => s.SupplierCode)
+                            .Null();
 
                         v.When(m => m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Agency, () =>
                         {
@@ -251,6 +256,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                             .NotNull()
                             .WithMessage($"Markup policy with Id {policyId} was not found!");
 
+                        v.RuleFor(t => t.policy!.SupplierCode)
+                            .Null().WithMessage($"Markup policy with Id {policyId} is not is not location or destination's location!")
+                            .When(t => t.policy is not null);
+
+                        v.RuleFor(t => t.settings.SupplierCode)
+                            .Null().WithMessage("Supplier code must be null!");
+
                         v.RuleFor(t => t.settings.LocationScopeId)
                             .Null();
 
@@ -283,7 +295,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode))
                 .Where(p => p.SubjectScopeId == agencyId.ToString())
                 .SingleOrDefaultAsync();
 
@@ -324,7 +337,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var policy = await _context.MarkupPolicies
                 .Where(p => p.SubjectScopeType == SubjectMarkupScopeTypes.Agency && p.SubjectScopeId == agencyId.ToString() &&
                     (p.DestinationScopeType == DestinationMarkupScopeTypes.Global ||
-                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified))
+                    p.DestinationScopeType == DestinationMarkupScopeTypes.NotSpecified)
+                    && string.IsNullOrEmpty(p.SupplierCode))
                 .SingleOrDefaultAsync();
 
             return policy is null
@@ -339,7 +353,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .AnyAsync(p =>
                     (p.SubjectScopeType == SubjectMarkupScopeTypes.Market || p.SubjectScopeType == SubjectMarkupScopeTypes.Country ||
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Market || p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
-                    && p.Id == policyId);
+                    && p.Id == policyId && string.IsNullOrEmpty(p.SupplierCode));
 
             return isLocationPolicy
                 ? await Remove(policyId)
