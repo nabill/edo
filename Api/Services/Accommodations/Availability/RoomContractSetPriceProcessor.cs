@@ -104,14 +104,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 .Select(r => MoneyRounder.Ceil(r.Rate.FinalPrice.ApplyCommission(commission)))
                 .ToList();
 
-            var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregateValues(totalFinalPrice, roomFinalPrices);
+            var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregatedValues(totalFinalPrice, roomFinalPrices);
 
             var totalGrossPrice = MoneyRounder.Ceil(roomContractSet.Rate.Gross);
             var roomGrossPrices = roomContractSet.Rooms
                 .Select(r => MoneyRounder.Ceil(r.Rate.Gross))
                 .ToList();
 
-            var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregateValues(totalGrossPrice, roomGrossPrices);
+            var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregatedValues(totalGrossPrice, roomGrossPrices);
 
             var roomContracts = new List<RoomContract>(roomContractSet.Rooms.Count);
             for (var i = 0; i < roomContractSet.Rooms.Count; i++)

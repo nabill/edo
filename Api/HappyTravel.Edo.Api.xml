@@ -3929,7 +3929,7 @@
                 Email
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregateValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregatedValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
              <summary>
              Aligns full price with its containing parts
              </summary>

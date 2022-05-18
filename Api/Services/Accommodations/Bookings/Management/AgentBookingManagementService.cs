@@ -87,12 +87,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 }
 
                 var netPrice = new MoneyAmount(booking.NetPrice, booking.Currency);
-                var totalFinalPrice = MoneyRounder.Ceil(netPrice.ApplyCommission(commission));
+                var contractFinalPrice = MoneyRounder.Ceil(netPrice.ApplyCommission(commission));
                 var roomFinalPrices = booking.Rooms
                     .Select(r => MoneyRounder.Ceil(r.NetPrice.ApplyCommission(commission)))
                     .ToList();
 
-                var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregateValues(totalFinalPrice, roomFinalPrices);
+                var (alignedFinalPrice, alignedRoomFinalPrices) = PriceAligner.AlignAggregatedValues(contractFinalPrice, roomFinalPrices);
 
                 for (var i = 0; i < booking.Rooms.Count; i++)
                 {

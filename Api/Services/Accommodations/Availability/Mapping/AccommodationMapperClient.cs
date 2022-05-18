@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        public virtual async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
+        public async Task<List<SlimAccommodation>> GetAccommodations(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
         {
             if (htIds.Any())
             {

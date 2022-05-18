@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 new (30, Currencies.USD),
             };
 
-            Assert.Throws<NotSupportedException>(() => PriceAligner.AlignAggregateValues(aggregated, parts));
+            Assert.Throws<NotSupportedException>(() => PriceAligner.AlignAggregatedValues(aggregated, parts));
         }
 
 
@@ -33,10 +33,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 new (50, Currencies.USD),
             };
 
-            Assert.Throws<NotSupportedException>(() => PriceAligner.AlignAggregateValues(aggregated, parts));
+            Assert.Throws<NotSupportedException>(() => PriceAligner.AlignAggregatedValues(aggregated, parts));
         }
-        
-        
+
+
         [Theory]
         [InlineData(100.1, 50.1, 50)]
         [InlineData(12467.01, 1000, 11467.01)]
@@ -50,14 +50,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 new (part2, Currencies.USD),
             };
 
-            var aligned = PriceAligner.AlignAggregateValues(aggregatedAmount, partAmounts);
-            
+            var aligned = PriceAligner.AlignAggregatedValues(aggregatedAmount, partAmounts);
+
 
             Assert.Equal(aggregatedAmount, aligned.Aggregated);
             Assert.Equal(partAmounts, aligned.Parts);
         }
-        
-        
+
+
         [Theory]
         [InlineData(100, 50.1, 50, 100.1)] // Increase full price to match parts
         [InlineData(12467.1, 1000, 11467.01, 12467.11)] // Increase parts to match parts
@@ -72,12 +72,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 new (part2, Currencies.USD),
             };
 
-            var aligned = PriceAligner.AlignAggregateValues(aggregatedAmount, partAmounts);
-            
+            var aligned = PriceAligner.AlignAggregatedValues(aggregatedAmount, partAmounts);
+
             Assert.Equal(expectedAggregated, aligned.Aggregated.Amount);
         }
-        
-        
+
+
         [Theory]
         [InlineData(149.5, 49.9)] // Increase full price to match parts
         [InlineData(1360.15, 453.37)] // Increase parts to match parts
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations
                 new (partAmount, Currencies.USD)
             };
 
-            var aligned = PriceAligner.AlignAggregateValues(aggregatedAmount, partAmountsWithSamePrice);
+            var aligned = PriceAligner.AlignAggregatedValues(aggregatedAmount, partAmountsWithSamePrice);
             var alignedParts = aligned.Parts;
 
             Assert.Equal(alignedParts[0], alignedParts[1]);

@@ -308,7 +308,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="referenceCode"></param>
         /// <param name="paymentType"></param>
         /// <returns></returns>
-        [HttpPost("{referenceCode}/recalculate-price")]
+        [HttpPost("{referenceCode}/price/recalculate")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
