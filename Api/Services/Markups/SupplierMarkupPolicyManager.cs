@@ -70,7 +70,8 @@ namespace Api.Services.Markups
                         DestinationScopeId = request.DestinationScopeId,
                         DestinationScopeType = request.DestinationScopeType,
                         FunctionType = MarkupFunctionType.Percent,
-                        Value = request.Value
+                        Value = request.Value,
+                        SupplierCode = request.SupplierCode
                     };
 
                     _context.MarkupPolicies.Add(policy);
@@ -127,7 +128,7 @@ namespace Api.Services.Markups
 
             return isSupplierPolicy
                 ? await Remove(policyId)
-                : Result.Failure($"Policy '{policyId}' was not found or not local");
+                : Result.Failure($"Policy '{policyId}' was not found or not supplier's markup");
 
 
             async Task<Result> Remove(int policyId)
