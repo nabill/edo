@@ -22,6 +22,7 @@ using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using BookingStatusHistoryEntry = HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry;
+using Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
@@ -306,17 +307,17 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Recalculate booking's price after changing payment type
         /// </summary>
         /// <param name="referenceCode"></param>
-        /// <param name="paymentType"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("{referenceCode}/price/recalculate")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromQuery] PaymentTypes paymentType)
+        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromBody] BookingRecalculatePriceRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, paymentType, agent, LanguageCode));
+            return OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, request, agent, LanguageCode));
         }
 
 

@@ -24,6 +24,7 @@ using Moq;
 using Xunit;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using System;
+using Api.Models.Bookings;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTests
 {
@@ -68,8 +69,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
         {
             var agencyId = 1;
             var agentContext = MakeAgentContext(agencyId);
+            var request = new BookingRecalculatePriceRequest(PaymentTypes.CreditCard);
 
-            var (_, IsFailure, booking, error) = await _agentBookingManagementService.RecalculatePrice("any", PaymentTypes.CreditCard, agentContext, "en");
+            var (_, IsFailure, booking, error) = await _agentBookingManagementService.RecalculatePrice("any", request, agentContext, "en");
 
             Assert.False(IsFailure);
         }

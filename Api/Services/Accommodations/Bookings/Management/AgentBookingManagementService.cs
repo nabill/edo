@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
+using Api.Models.Bookings;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -67,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         public async Task<Result<AccommodationBookingInfo>> RecalculatePrice(string referenceCode,
-            PaymentTypes paymentMethod, AgentContext agent, string languageCode)
+            BookingRecalculatePriceRequest request, AgentContext agent, string languageCode)
         {
             return await GetBooking(referenceCode, agent)
                 .Map(Recalculate)
@@ -79,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 var commission = 0m;
 
-                switch (paymentMethod)
+                switch (request.PaymentType)
                 {
                     case PaymentTypes.CreditCard:
                         commission = _contractKindCommissionOptions.CreditCardPaymentsCommission;
@@ -104,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
                 booking.TotalPrice = alignedFinalPrice.Amount;
                 booking.Commission = commission;
-                booking.PaymentType = paymentMethod;
+                booking.PaymentType = request.PaymentType;
 
                 return booking;
             }
