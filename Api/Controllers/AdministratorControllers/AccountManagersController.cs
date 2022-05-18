@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Models.Agencies;
 using Api.Models.Management.Administrators;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Controllers;
@@ -42,8 +43,8 @@ namespace Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-        public async Task<IActionResult> Add([FromRoute] int agencyId, [FromQuery] int? accountManagerId)
-            => NoContentOrBadRequest(await _administratorManagementService.AddAccountManager(agencyId, accountManagerId));
+        public async Task<IActionResult> Add([FromRoute] int agencyId, [FromBody] AddAccountManagerRequest request)
+            => NoContentOrBadRequest(await _administratorManagementService.AddAccountManager(agencyId, request));
 
 
         private readonly IAdministratorManagementService _administratorManagementService;
