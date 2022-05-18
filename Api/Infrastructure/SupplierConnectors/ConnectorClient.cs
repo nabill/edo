@@ -87,53 +87,62 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         public async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(Func<HttpRequestMessage> requestFactory, string languageCode,
             CancellationToken cancellationToken)
         {
-            HttpResponseMessage response = null;
+            HttpResponseMessage responseMessage = new();
 
             try
             {
                 var connectorClient = _clientFactory.CreateClient(HttpClientNames.Connectors);
                 connectorClient.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-                response = await connectorClient.SendAsync(requestFactory(), cancellationToken);
+                responseMessage = await connectorClient.SendAsync(requestFactory(), cancellationToken);
 
-                await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                await using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken);
                 using var streamReader = new StreamReader(stream);
                 using var jsonTextReader = new JsonTextReader(streamReader);
 
-                if (!response.IsSuccessStatusCode)
+                ProblemDetails error;
+                if (!responseMessage.IsSuccessStatusCode)
                 {
-                    ProblemDetails error;
-
                     try
                     {
                         error = _serializer.Deserialize<ProblemDetails>(jsonTextReader)
-                            ?? ProblemDetailsBuilder.Build($"Connector error is not specified, status code: {response.StatusCode}", response.StatusCode);
+                            ?? ProblemDetailsBuilder.Build($"Connector error is not specified, status code: {responseMessage.StatusCode}", responseMessage.StatusCode);
                     }
                     catch (JsonReaderException)
                     {
                         streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
                         var responseBody = await streamReader.ReadToEndAsync();
-                        _logger.LogConnectorClientUnexpectedResponse(response.StatusCode, requestFactory().RequestUri, responseBody);
+                        _logger.LogConnectorClientUnexpectedResponse(responseMessage.StatusCode, requestFactory().RequestUri, responseBody);
 
-                        var reasonPhrase = string.IsNullOrWhiteSpace(response.ReasonPhrase)
-                            ? $"Connector error is not specified, status code: {response.StatusCode}"
-                            : response.ReasonPhrase;
+                        var reasonPhrase = string.IsNullOrWhiteSpace(responseMessage.ReasonPhrase)
+                            ? $"Connector error is not specified, status code: {responseMessage.StatusCode}"
+                            : responseMessage.ReasonPhrase;
 
-                        error = ProblemDetailsBuilder.Build(reasonPhrase, response.StatusCode);
+                        error = ProblemDetailsBuilder.Build(reasonPhrase, responseMessage.StatusCode);
                     }
                     
                     return Result.Failure<TResponse, ProblemDetails>(error);
                 }
 
-                return _serializer.Deserialize<TResponse>(jsonTextReader);
+                var response = _serializer.Deserialize<TResponse>(jsonTextReader);
+                if (response is null)
+                {
+                    error = ProblemDetailsBuilder.Build("The connector returned no errors, but received an empty response");
+                    return Result.Failure<TResponse, ProblemDetails>(error);
+                }
+
+                return response;
             }
             catch (Exception ex)
             {
-                _logger.LogConnectorClientException(requestFactory().RequestUri?.ToString(), await response?.Content?.ReadAsStringAsync(cancellationToken));
+                var requestUrl = requestFactory().RequestUri?.ToString();
+                var responseString = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogConnectorClientException(requestUrl, responseString);
+
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
             finally
             {
-                response?.Dispose();
+                responseMessage?.Dispose();
             }
         }
 

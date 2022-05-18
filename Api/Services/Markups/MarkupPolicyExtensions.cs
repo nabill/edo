@@ -21,7 +21,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.SubjectScopeId ?? string.Empty,
                 policy.SubjectScopeType,
                 policy.DestinationScopeId ?? string.Empty,
-                policy.DestinationScopeType);
+                policy.DestinationScopeType,
+                policy.SupplierCode);
         }
     }
 }
