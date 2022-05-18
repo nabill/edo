@@ -7,11 +7,11 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     internal static class WideAvailabilityResultExtensions
     {
-        internal static List<WideAvailabilityResult> MapFromEdoModels(this List<Api.Models.Accommodations.WideAvailabilityResult> results)
+        internal static List<WideAvailabilityResult> MapFromEdoModels(this List<Api.Models.Accommodations.AccommodationAvailabilityResult> results)
             => results.Select(r => r.MapFromEdoModel()).ToList();
 
 
-        private static WideAvailabilityResult MapFromEdoModel(this Api.Models.Accommodations.WideAvailabilityResult result)
+        private static WideAvailabilityResult MapFromEdoModel(this Api.Models.Accommodations.AccommodationAvailabilityResult result)
         {
             return new WideAvailabilityResult(accommodationId: result.HtId, 
                 roomContractSets: result.RoomContractSets.MapFromEdoModels(),
