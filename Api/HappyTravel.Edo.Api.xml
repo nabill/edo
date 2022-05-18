@@ -4036,7 +4036,7 @@
             </summary>
             <returns>List of account managers' info</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,System.Nullable{System.Int32})">
+        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,Api.Models.Agencies.AddAccountManagerRequest)">
             <summary>
                 Adds an account manager to the agency
             </summary>
@@ -4116,6 +4116,11 @@
             <param name="policyId">Id of the policy to delete.</param>
             <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
+        </member>
+        <member name="P:Api.Models.Agencies.AddAccountManagerRequest.AccountManagerId">
+            <summary>
+               Admin's id who will be set as account manager.
+            </summary>
         </member>
         <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
             <summary>

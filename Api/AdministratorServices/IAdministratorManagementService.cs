@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Api.Models.Agencies;
 using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Management.Administrators;
@@ -14,6 +15,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> Activate(int administratorId, Administrator initiator);
         Task<Result> Deactivate(int administratorId, Administrator initiator);
         Task<List<AccountManager>> GetAccountManagers(CancellationToken cancellationToken = default);
-        Task<Result> AddAccountManager(int agencyId, int? accountManagerId, CancellationToken cancellationToken = default);
+        Task<Result> AddAccountManager(int agencyId, AddAccountManagerRequest request, CancellationToken cancellationToken = default);
     }
 }
