@@ -21,11 +21,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         /// Result will contain 100 USD as full price (aggregated) and 50 USD + 50 USD as parts.
         /// </example>
         /// <exception cref="NotSupportedException">When aggregated price and its parts differ too much. This may be a sign of an error in client code</exception>
-        public static (MoneyAmount Aggregated, List<MoneyAmount> Parts) AlignAggregateValues(MoneyAmount aggregated, List<MoneyAmount> parts)
+        public static (MoneyAmount Aggregated, List<MoneyAmount> Parts) AlignAggregatedValues(MoneyAmount aggregated, List<MoneyAmount> parts)
         {
-            if (parts.Any(p=>p.Currency != aggregated.Currency))
+            if (parts.Any(p => p.Currency != aggregated.Currency))
                 throw new NotSupportedException($"Aggregated value and parts value currency mismatch");
-            
+
             var partsSum = new MoneyAmount(parts.Sum(p => p.Amount), aggregated.Currency);
             if (Math.Abs(aggregated.Amount - partsSum.Amount) > MaxSupportedAggregatePriceDifferenceThreshold)
                 throw new NotSupportedException($"Aggregated value {aggregated.Amount} differs from aggregate sum {partsSum.Amount} for mor than allowed threshold {MaxSupportedAggregatePriceDifferenceThreshold}");
@@ -42,8 +42,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             static (MoneyAmount Aggregated, List<MoneyAmount> Parts) Align(MoneyAmount aggregated, List<MoneyAmount> parts)
             {
                 var decimalDigitsCount = aggregated.Currency.GetDecimalDigitsCount();
-                var changeStep = (decimal) Math.Pow(0.1 ,decimalDigitsCount);
-                
+                var changeStep = (decimal)Math.Pow(0.1, decimalDigitsCount);
+
                 // When aggregated value is larger than sum of its parts, we increase each part amount until their sum will reach the aggregated amount.
                 // All parts amounts increased at once to preserve their price difference, which is especially important for cases when same service is repeated in one order.
                 while (parts.Sum(p => p.Amount) < aggregated.Amount)
@@ -56,8 +56,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 return (new MoneyAmount(parts.Sum(p => p.Amount), aggregated.Currency), parts);
             }
         }
-        
-        
-        private const decimal MaxSupportedAggregatePriceDifferenceThreshold = (decimal) 0.5;
+
+
+        private const decimal MaxSupportedAggregatePriceDifferenceThreshold = (decimal)0.5;
     }
 }
