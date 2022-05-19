@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Api.Models.Agencies;
 using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -50,7 +51,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .ToListAsync(cancellationToken);
 
 
-        public Task<Result> AddAccountManager(int agencyId, int? accountManagerId, CancellationToken cancellationToken)
+        public Task<Result> AddAccountManager(int agencyId, AddAccountManagerRequest request, CancellationToken cancellationToken)
         {
             return ValidateAddManager()
                 .Tap(AddManager);
@@ -67,7 +68,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         .MustAsync(AccountManagerIsExist())
                         .WithMessage(t => $"Account manager with Id {t.accountManagerId} doesn't exist!")
                         .When(t => t.accountManagerId is not null);
-                }, (agencyId, accountManagerId));
+                }, (agencyId, request.AccountManagerId));
 
 
             async Task AddManager()
@@ -75,7 +76,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var agency = await _context.Agencies
                     .SingleAsync(a => a.Id == agencyId, cancellationToken);
 
-                agency.AccountManagerId = accountManagerId;
+                agency.AccountManagerId = request.AccountManagerId;
 
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
