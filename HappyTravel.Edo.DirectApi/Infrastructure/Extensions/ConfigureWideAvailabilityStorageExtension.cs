@@ -11,13 +11,7 @@ namespace HappyTravel.Edo.DirectApi.Infrastructure.Extensions
 {
     internal static class ConfigureWideAvailabilityStorageExtension
     {
-        public static IServiceCollection ConfigureWideAvailabilityStorage(this IServiceCollection collection, IHostEnvironment hostEnvironment, IConfiguration configuration, IVaultClient vaultClient)
-        {
-            // using overridden wide availability storage services because static accommodation information is not needed in direct api
-            collection.AddMongoDbStorage(hostEnvironment, configuration, vaultClient);
-            collection.AddTransient<IWideAvailabilityStorage, DirectApiMongoDbWideAvailabilityStorage>();
-
-            return collection;
-        }
+        public static IServiceCollection ConfigureWideAvailabilityStorage(this IServiceCollection collection, IHostEnvironment hostEnvironment, IConfiguration configuration, IVaultClient vaultClient) 
+            => collection.AddMongoDbStorage(hostEnvironment, configuration, vaultClient);
     }
 }

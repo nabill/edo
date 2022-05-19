@@ -17,31 +17,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class MongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
         public MongoDbWideAvailabilityStorage(IMongoDbStorage<CachedAccommodationAvailabilityResult> availabilityStorage, IDateTimeProvider dateTimeProvider, 
-            IAccommodationMapperClient mapperClient, IWideAvailabilityAccommodationsStorage accommodationsStorage)
+            IAccommodationMapperClient mapperClient)
         {
             _availabilityStorage = availabilityStorage;
             _dateTimeProvider = dateTimeProvider;
             _mapperClient = mapperClient;
-            _accommodationsStorage = accommodationsStorage;
         }
         
         
         // TODO: method added for compability with 2nd and 3rd steps. Need to refactor them for using filters instead of loading whole search results
-        public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<string> suppliers)
+        public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, AccommodationBookingSettings searchSettings)
         {
             var entities = await _availabilityStorage.Collection()
-                .Where(r => r.SearchId == searchId && suppliers.Contains(r.SupplierCode))
+                .Where(r => r.SearchId == searchId && searchSettings.EnabledConnectors.Contains(r.SupplierCode))
                 .ToListAsync();
 
             return entities
-                .Select(r => r.Map())
+                .Select(r => r.Map(searchSettings))
                 .GroupBy(r => r.SupplierCode)
                 .Select(g => (g.Key, g.ToList()))
                 .ToList();
         }
 
 
-        public async Task<List<WideAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter filters, AccommodationBookingSettings searchSettings, List<string> suppliers, string languageCode)
+        public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, string languageCode)
         {
             var rows = await _availabilityStorage.Collection()
                 .Where(r => r.SearchId == searchId && suppliers.Contains(r.SupplierCode))
@@ -56,86 +55,67 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 htIds.Add(group.Key);
                 ids.Add(group.OrderBy(g => g.Created).First().Id);
             }
-            
-            await _accommodationsStorage.EnsureAccommodationsCached(htIds, languageCode);
-            
+
             var query = _availabilityStorage.Collection()
                 .Where(r => r.SearchId == searchId && ids.Contains(r.Id));
 
-            query = filters.Suppliers is not null
-                ? query.Where(r => filters.Suppliers.Contains(r.SupplierCode))
-                : query.Where(r => suppliers.Contains(r.SupplierCode));
+            if (filters is not null)
+            {
+                query = filters.Suppliers is not null
+                    ? query.Where(r => filters.Suppliers.Contains(r.SupplierCode))
+                    : query.Where(r => suppliers.Contains(r.SupplierCode));
 
-            if (filters.MinPrice is not null)
-                query = query.Where(r => r.MinPrice >= filters.MinPrice);
+                if (filters.MinPrice is not null)
+                    query = query.Where(r => r.MinPrice >= filters.MinPrice);
 
-            if (filters.MaxPrice is not null)
-                query = query.Where(r => r.MaxPrice <= filters.MaxPrice);
+                if (filters.MaxPrice is not null)
+                    query = query.Where(r => r.MaxPrice <= filters.MaxPrice);
 
-            if (filters.BoardBasisTypes is not null)
-                query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Rooms.Any(room => filters.BoardBasisTypes.Contains(room.BoardBasis))));
+                if (filters.BoardBasisTypes is not null)
+                    query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Rooms.Any(room => filters.BoardBasisTypes.Contains(room.BoardBasis))));
 
+                if (searchSettings.AprMode == AprMode.Hide)
+                    query = query.Where(r => r.RoomContractSets.Any(rcs => !rcs.IsAdvancePurchaseRate));
+
+                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                    query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
+
+                if (filters.Ratings is not null)
+                {
+                    var filteredHtIds = await GetAccommodationRatings(htIds, filters.Ratings);
+                    query = query.Where(r => filteredHtIds.Contains(r.HtId));
+                }
+            
+                if (filters.Order == "price")
+                {
+                    query = filters.Direction switch
+                    {
+                        "asc" => query.OrderBy(x => x.MinPrice),
+                        "desc" => query.OrderByDescending(x => x.MinPrice),
+                        _ => query
+                    };
+                }
+                else
+                {
+                    query = query
+                        .OrderBy(r => r.Created)
+                        .ThenBy(r => r.HtId);
+                }
+
+                query = query.Skip(filters.Skip)
+                    .Take(filters.Top);
+            }
+            
             if (searchSettings.AprMode == AprMode.Hide)
                 query = query.Where(r => r.RoomContractSets.Any(rcs => !rcs.IsAdvancePurchaseRate));
 
             if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= _dateTimeProvider.UtcNow()));
+                query = query.Where(r => r.RoomContractSets.Any(rcs => rcs.Deadline.Date == null || rcs.Deadline.Date >= DateTime.UtcNow));
 
-            if (filters.Ratings is not null)
-            {
-                var filteredHtIds = await GetAccommodationRatings(htIds, filters.Ratings);
-                query = query.Where(r => filteredHtIds.Contains(r.HtId));
-            }
+            var results = await query.ToListAsync();
             
-            if (filters.Order == "price")
-            {
-                query = filters.Direction switch
-                {
-                    "asc" => query.OrderBy(x => x.MinPrice),
-                    "desc" => query.OrderByDescending(x => x.MinPrice),
-                    _ => query
-                };
-            }
-            else
-            {
-                query = query
-                    .OrderBy(r => r.Created)
-                    .ThenBy(r => r.HtId);
-            }
-
-            var results = await query
-                .Skip(filters.Skip)
-                .Take(filters.Top)
-                .ToListAsync();
-            
-            return results
-                .Select(a =>
-                {
-                    var accommodation = _accommodationsStorage.GetAccommodation(a.HtId, languageCode);
-                    var roomContractSets = a.RoomContractSets
-                        .Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible))
-                        .ToList();
-
-                    if (searchSettings.AprMode == AprMode.Hide)
-                        roomContractSets = roomContractSets.Where(r => !r.IsAdvancePurchaseRate).ToList();
-
-                    if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                        roomContractSets = roomContractSets.Where(r => r.Deadline.Date == null || r.Deadline.Date >= _dateTimeProvider.UtcNow()).ToList();
-
-                    return new WideAvailabilityResult(accommodation: accommodation,
-                        roomContractSets: roomContractSets,
-                        minPrice: roomContractSets.Min(r => r.Rate.FinalPrice.Amount),
-                        maxPrice: roomContractSets.Max(r => r.Rate.FinalPrice.Amount),
-                        checkInDate: a.CheckInDate,
-                        checkOutDate: a.CheckOutDate,
-                        supplierCode: searchSettings.IsSupplierVisible
-                            ? a.SupplierCode
-                            : null,
-                        htId: a.HtId);
-                }).ToList();
+            return results.Select(a => a.Map(searchSettings)).ToList();
         }
-
-
 
 
         public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash)
@@ -151,6 +131,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccommodationMapperClient _mapperClient;
-        private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
+        
     }
 }
