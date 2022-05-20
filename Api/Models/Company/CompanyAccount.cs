@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.Models.Company;
 
-public record CompanyAccount
+public record CompanyAccountInfo
 {
     public Currencies Currency { get; init; }
     public string AccountNumber { get; init; }

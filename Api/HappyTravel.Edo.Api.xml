@@ -521,6 +521,30 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyBanks">
+            <summary>
+                Gets company banks list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Add(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
+            <summary>
+                Adds a new company bank
+            </summary>
+            <param name="bankInfo">A new company bank info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Edit(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo,System.Int32)">
+            <summary>
+                Edits an existing company bank
+            </summary>
+            <param name="bankInfo">New info for the company bank</param>
+            <param name="bankId"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Delete(System.Int32)">
+            <summary>
+                Deletes a company bank
+            </summary>
+            <param name="bankId">Id of the company bank to delete</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
             Creates new direct api client in identity service
