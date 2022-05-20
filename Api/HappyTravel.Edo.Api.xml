@@ -505,6 +505,15 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.NormalizeBookingsPrices">
+            <summary>
+                Normalize bookings' prices 
+                All net prices in booked rooms become equal to total prices
+                And commissions set to zero
+                NOTE: Do not request to this endpoint
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
             <summary>
                 Gets booking status changes history
@@ -1254,6 +1263,14 @@
             </summary>
             <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
             <returns>List of booking confirmation change events</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.RecalculatePrice(System.String,Api.Models.Bookings.BookingRecalculatePriceRequest)">
+            <summary>
+                Recalculate booking's price after changing payment type
+            </summary>
+            <param name="referenceCode"></param>
+            <param name="request"></param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
@@ -3921,7 +3938,7 @@
                 Email
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregateValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregatedValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
              <summary>
              Aligns full price with its containing parts
              </summary>

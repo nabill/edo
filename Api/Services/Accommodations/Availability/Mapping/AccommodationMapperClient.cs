@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                             _logger.LogError("Request for {HtIds} returned null", htIds);
                             return new List<SlimAccommodation>();
                         }
-                            
+
                         else if (results.Count != htIds.Count)
                         {
                             _logger.LogWarning("Returned {ActualCount} accommodations while expected {ExpectedCount}", results.Count, htIds.Count);
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     {
                         _logger.LogMapperClientErrorResponse(await response.Content.ReadAsStringAsync(cancellationToken), (int)response.StatusCode, htIds.ToArray());
                     }
-                        
+
                 }
                 catch (Exception ex)
                 {
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             return new List<SlimAccommodation>();
         }
 
-        
+
         public async Task<List<string>> FilterHtIdsByRating(List<string> htIds, List<AccommodationRatings> ratings, CancellationToken cancellationToken = default)
         {
             using var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
@@ -99,37 +99,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 return new List<string>(0);
             }
         }
-        
-        
+
+
         public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode, CancellationToken cancellationToken = default)
         {
             if (!htIds.Any())
                 return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Could not get mapping for an empty ids list");
-            
+
             var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
             return await Get<List<LocationMapping>>($"api/1.0/location-mappings?{htIdQuery}", cancellationToken);
         }
 
-        
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default) 
+
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string htId, string languageCode, CancellationToken cancellationToken = default)
             => await Get<Accommodation>($"api/1.0/accommodations/{htId}", cancellationToken);
 
 
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string supplierCode, string accommodationId, string languageCode, CancellationToken cancellationToken = default) 
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string supplierCode, string accommodationId, string languageCode, CancellationToken cancellationToken = default)
             => await Get<Accommodation>($"api/1.0/suppliers/{supplierCode}/accommodations/{accommodationId}", cancellationToken);
 
-        
-        public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default) 
+
+        public async Task<Result<SlimLocationDescription, ProblemDetails>> GetSlimLocationDescription(string htId, CancellationToken cancellationToken = default)
             => await Get<SlimLocationDescription>($"api/1.0/locations/{htId}/slim-description", cancellationToken);
 
-        public async Task<Result<LocalityInfo, ProblemDetails>> GetLocalityInfo(string localityHtId, CancellationToken cancellationToken = default) 
+        public async Task<Result<LocalityInfo, ProblemDetails>> GetLocalityInfo(string localityHtId, CancellationToken cancellationToken = default)
             => await Get<LocalityInfo>($"api/1.0/localities/{localityHtId}", cancellationToken);
-        
-        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default) 
+
+        public async Task<Result<List<string>, ProblemDetails>> GetAccommodationEmails(string htId, CancellationToken cancellationToken = default)
             => await Get<List<string>>($"api/1.0/accommodations/{htId}/email-addresses", cancellationToken);
 
 
-        private async Task<Result<TResponse, ProblemDetails>> Get<TResponse>(string url, CancellationToken cancellationToken) 
+        private async Task<Result<TResponse, ProblemDetails>> Get<TResponse>(string url, CancellationToken cancellationToken)
         {
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
                 if (response.IsSuccessStatusCode)
                     return await response.Content.ReadFromJsonAsync<TResponse>(_options, cancellationToken);
-                
+
                 ProblemDetails error;
 
                 try
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     _logger.LogMapperClientUnexpectedResponse(response.StatusCode, response.RequestMessage?.RequestUri, responseBody);
                     error = ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
                 }
-                
+
                 return Result.Failure<TResponse, ProblemDetails>(error);
             }
             // This is timeout exception
@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             }
         }
 
-        
+
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;
         private readonly JsonSerializerOptions _options;

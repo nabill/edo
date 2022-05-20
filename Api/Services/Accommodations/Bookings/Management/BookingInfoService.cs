@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class BookingInfoService : IBookingInfoService
     {
-        public BookingInfoService(EdoContext context, 
+        public BookingInfoService(EdoContext context,
             IBookingRecordManager bookingRecordManager,
             IAccommodationMapperClient accommodationMapperClient,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
@@ -39,12 +39,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _supplierOptionsStorage = supplierOptionsStorage;
             _dateTimeProvider = dateTimeProvider;
         }
-        
-        
+
+
         public IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>> GetAgencyBookingsInfo(AgentContext agentContext)
         {
             var suppliersDictionary = GetSuppliersDictionary();
-            
+
             return from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 where booking.AgencyId == agentContext.AgencyId && !BookingStatusesToHide.Contains(booking.Status)
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 };
         }
 
-        
+
         public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
             return await _bookingRecordManager.Get(referenceCode)
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             var bookingDataResult = await _bookingRecordManager.Get(bookingId)
                 .CheckPermissions(agentContext);
-            
+
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
@@ -104,10 +104,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             var bookingDataResult = await _bookingRecordManager.Get(referenceCode)
                 .CheckPermissions(agentContext);
-            
+
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
-            
+
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
@@ -115,13 +115,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return bookingInfo;
         }
 
-        
+
         public async Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(string referenceCode, string languageCode)
         {
             var bookingDataResult = await _bookingRecordManager.Get(referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
-            
+
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return bookingInfo;
         }
 
-        
+
         /// <summary>
         /// Gets all booking info of the current agent
         /// </summary>
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return bookingData;
         }
 
-        
+
         public Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId)
         {
             var query = from entry in _context.BookingStatusHistory
@@ -188,8 +188,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             return query.ToListAsync();
         }
-        
-        
+
+
         public Task<List<AdministratorBookingStatusHistoryEntry>> GetAdministratorBookingStatusHistory(int bookingId)
         {
             var query = from entry in _context.BookingStatusHistory
@@ -234,13 +234,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private Dictionary<string, string> GetSuppliersDictionary()
         {
             var (_, isFailure, suppliers, _) = _supplierOptionsStorage.GetAll();
-            return isFailure 
-                ? new Dictionary<string, string>(0) 
+            return isFailure
+                ? new Dictionary<string, string>(0)
                 : suppliers.ToDictionary(s => s.Code, s => s.Name);
         }
 
 
-        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
+        public async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
             var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode);
             if (isFailure)
@@ -248,13 +248,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             var settings = agentContext.HasValue
                 ? await _accommodationBookingSettingsService.Get(agentContext.Value)
-                : (AccommodationBookingSettings?) null;
-            
+                : (AccommodationBookingSettings?)null;
+
             var bookingDetails = GetDetails(booking, accommodation.ToEdoContract());
             var supplier = GetSupplier(booking, settings);
             var isDirectContract = GetDirectContractFlag(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
-            
+
             return new AccommodationBookingInfo(
                 bookingId: booking.Id,
                 bookingDetails: bookingDetails,
@@ -295,14 +295,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
                     isAdvancePurchaseRate: booking.IsAdvancePurchaseRate);
             }
-            
-            
+
+
             string? GetSupplier(Booking booking, AccommodationBookingSettings? settings)
             {
                 return settings switch
                 {
                     null => GetName(booking.SupplierCode),
-                    {IsSupplierVisible: true} => GetName(booking.SupplierCode),
+                    { IsSupplierVisible: true } => GetName(booking.SupplierCode),
                     _ => null
                 };
 
@@ -320,7 +320,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             static bool? GetDirectContractFlag(Booking booking, AccommodationBookingSettings? settings)
                 => settings switch
                 {
-                    {IsDirectContractFlagVisible: true} => booking.IsDirectContract,
+                    { IsDirectContractFlagVisible: true } => booking.IsDirectContract,
                     _ => null
                 };
 
@@ -345,11 +345,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             BookingStatuses.Created,
             BookingStatuses.Invalid
         };
-        
-        
+
+
         private static readonly List<BookingConfirmationHistoryEntry> EmptyBookingConfirmationHistory = new(0);
 
-        
+
         private readonly EdoContext _context;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
