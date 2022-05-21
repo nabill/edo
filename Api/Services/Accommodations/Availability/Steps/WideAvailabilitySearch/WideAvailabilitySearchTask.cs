@@ -81,8 +81,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 
                 var cachedResults = await _storage.GetResults(supplier.Code, searchId, searchSettings);
                 if (cachedResults.Any())
+                {
+                    _logger.LogFoundCachedResults(supplier.Code, searchId);
                     return cachedResults;
-                
+                }
+
                 var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
                 var supplierConnector = _supplierConnectorManager.Get(supplier.Code);
 
