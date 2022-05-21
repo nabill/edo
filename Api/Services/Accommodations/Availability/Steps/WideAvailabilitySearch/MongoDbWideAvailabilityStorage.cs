@@ -11,6 +11,7 @@ using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using NuGet.Packaging.Signing;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
@@ -136,14 +137,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         public Task<Guid> GetSearchId(string requestHash)
-            => _availabilityStorage.Collection()
-                .Where(r => r.RequestHash == requestHash)
+        {
+            var date = _dateTimeProvider.UtcNow().Subtract(_searchIdExpiredAfter);
+            
+            return _availabilityStorage.Collection()
+                .Where(r => r.RequestHash == requestHash && r.Created >= date)
                 .Select(r => r.SearchId)
                 .FirstOrDefaultAsync();
+        }
 
 
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
+
+
+        private readonly TimeSpan _searchIdExpiredAfter = TimeSpan.FromMinutes(30);
 
 
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
