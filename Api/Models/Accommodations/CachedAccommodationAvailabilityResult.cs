@@ -22,5 +22,5 @@ public record CachedAccommodationAvailabilityResult
     public string LocalityHtId { get; init; } = string.Empty;
     public int MarketId { get; init; }
     public string CountryCode { get; init; } = string.Empty;
-    public string RequestHash { get; set; } = string.Empty;
+    public string RequestHash { get; init; } = string.Empty;
 }
