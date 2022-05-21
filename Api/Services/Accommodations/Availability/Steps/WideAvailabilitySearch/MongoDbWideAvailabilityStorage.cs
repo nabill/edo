@@ -11,7 +11,6 @@ using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using NuGet.Packaging.Signing;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
