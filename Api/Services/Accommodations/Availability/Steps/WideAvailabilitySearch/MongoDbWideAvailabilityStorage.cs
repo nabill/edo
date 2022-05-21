@@ -120,10 +120,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash)
             => results.Any()
-                ? _availabilityStorage.Add(results.Select(r => r.Map(requestHash)))
+                ? _availabilityStorage.Add(results.Select(r => r.Map()))
                 : Task.CompletedTask;
-        
-        
+
+
+        public async Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings)
+        {
+            var cachedResults = await _availabilityStorage.Collection()
+                .Where(r => r.SupplierCode == supplierCode && r.SearchId == searchId)
+                .ToListAsync();
+
+            return cachedResults.Select(r => r.Map(searchSettings))
+                .ToList();
+        }
+
+
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
 

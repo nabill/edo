@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 public static class AccommodationAvailabilityResultExtensions
 {
-    public static CachedAccommodationAvailabilityResult Map(this AccommodationAvailabilityResult result, string requestHash)
+    public static CachedAccommodationAvailabilityResult Map(this AccommodationAvailabilityResult result)
     {
         return new CachedAccommodationAvailabilityResult
         {
@@ -22,8 +22,7 @@ public static class AccommodationAvailabilityResultExtensions
             CountryHtId = result.CountryHtId,
             LocalityHtId = result.LocalityHtId,
             MarketId = result.MarketId,
-            CountryCode = result.CountryCode,
-            RequestHash = requestHash
+            CountryCode = result.CountryCode
         };
     }
 }
