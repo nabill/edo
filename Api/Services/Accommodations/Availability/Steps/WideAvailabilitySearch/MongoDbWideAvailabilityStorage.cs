@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, string languageCode)
+        public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers)
         {
             var rows = await _availabilityStorage.Collection()
                 .Where(r => r.SearchId == searchId && suppliers.Contains(r.SupplierCode))
@@ -118,9 +118,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash)
+        public Task SaveResults(List<AccommodationAvailabilityResult> results, string requestHash)
             => results.Any()
-                ? _availabilityStorage.Add(results.Select(r => r.Map()))
+                ? _availabilityStorage.Add(results.Select(r => r.Map(requestHash)))
                 : Task.CompletedTask;
 
 
@@ -133,6 +133,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return cachedResults.Select(r => r.Map(searchSettings))
                 .ToList();
         }
+
+
+        public Task<Guid> GetSearchId(string requestHash)
+            => _availabilityStorage.Collection()
+                .Where(r => r.RequestHash == requestHash)
+                .Select(r => r.SearchId)
+                .FirstOrDefaultAsync();
 
 
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 

@@ -83,9 +83,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (cachedResults.Any())
                 {
                     _logger.LogFoundCachedResults(supplier.Code, searchId);
+                    Counters.WideSearchCacheHitCounter.Inc();
                     return cachedResults;
                 }
 
+                Counters.WideSearchCacheMissCounter.Inc();
                 var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
                 var supplierConnector = _supplierConnectorManager.Get(supplier.Code);
 
@@ -150,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results)
-                => _storage.SaveResults(searchId, supplier.Code, results, HashGenerator.ComputeHash(availabilityRequest));
+                => _storage.SaveResults(results, HashGenerator.ComputeHash(availabilityRequest));
 
 
             Task NotifyClient()

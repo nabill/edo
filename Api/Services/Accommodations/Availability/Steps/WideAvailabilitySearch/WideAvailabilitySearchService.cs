@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IAvailabilityRequestStorage requestStorage,
             ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage, 
             ISupplierOptionsStorage supplierOptionsStorage, IOptionsMonitor<SearchLimits> searchLimits, IWideAvailabilityPriceProcessor priceProcessor, 
-            IWideAvailabilityAccommodationsStorage accommodationsStorage, IDistributedFlow flow)
+            IWideAvailabilityAccommodationsStorage accommodationsStorage)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -47,7 +47,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _searchLimits = searchLimits;
             _priceProcessor = priceProcessor;
             _accommodationsStorage = accommodationsStorage;
-            _flow = flow;
         }
         
    
@@ -103,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
 
-            var result = await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers, languageCode);
+            var result = await _availabilityStorage.GetFilteredResults(searchId, options, searchSettings, suppliers);
             var (isSuccess, _, results, error) = await ConvertCurrencies(result)
                 .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
@@ -191,25 +190,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private async Task<Guid> GetSearchId(AvailabilityRequest request)
         {
-            var key = _flow.BuildKey(nameof(WideAvailabilitySearchService), "SearchId", HashGenerator.ComputeHash(request));
-            var searchId = await _flow.GetAsync<Guid>(key);
-            
-            if (Guid.Empty == searchId)
-            {
-                Counters.WideSearchCacheMissCounter.Inc();
-                searchId = Guid.NewGuid();
-                await _flow.SetAsync(key, searchId, TimeSpan.FromHours(SearchIdCacheHoursExpire));
-            }
-            else
-            {
-                Counters.WideSearchCacheHitCounter.Inc();
-            }
-
-            return searchId;
+            var searchId = await _availabilityStorage.GetSearchId(HashGenerator.ComputeHash(request));
+            return searchId == Guid.Empty
+                ? Guid.NewGuid()
+                : searchId;
         }
-
-
-        private const int SearchIdCacheHoursExpire = 1;
 
 
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
@@ -225,6 +210,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IOptionsMonitor<SearchLimits> _searchLimits;
         private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
-        private readonly IDistributedFlow _flow;
     }
 }

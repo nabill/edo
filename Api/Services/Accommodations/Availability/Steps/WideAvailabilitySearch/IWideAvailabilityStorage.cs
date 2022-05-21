@@ -11,8 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings);
 
-        Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, string languageCode);
+        Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers);
 
-        Task SaveResults(Guid searchId, string supplierCode, List<AccommodationAvailabilityResult> results, string requestHash);
+        Task SaveResults(List<AccommodationAvailabilityResult> results, string requestHash);
+
+        Task<Guid> GetSearchId(string requestHash);
     }
 }
