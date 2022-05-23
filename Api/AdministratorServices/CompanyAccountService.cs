@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private async Task<Result<CompanyBank>> GetBank(int bankId)
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
-                ?? Result.Failure<CompanyBank>("A bank with specified Id does not exist");
+                ?? Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
 
         private static Result ValidateBankInfo(CompanyBankInfo companyBankInfo)
             => GenericValidator<CompanyBankInfo>.Validate(v =>
