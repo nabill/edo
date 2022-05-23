@@ -24,10 +24,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             => _collection.InsertOneAsync(record);
 
 
-        public IMongoQueryable<CachedAccommodationAvailabilityResult> Queryable() 
-            => _collection.AsQueryable();
-
-
         public IMongoCollection<CachedAccommodationAvailabilityResult> Collection() 
             => _collection;
 
