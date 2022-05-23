@@ -152,6 +152,9 @@ public static partial class LoggerExtensions
     [LoggerMessage(1145, LogLevel.Error, "Supplier availability search exception on supplier '{Supplier}'")]
     static partial void SupplierAvailabilitySearchException(ILogger logger, System.Exception exception, string Supplier);
     
+    [LoggerMessage(1146, LogLevel.Information, "Found cached results for supplier '{Supplier}' and searchId '{SearchId}'")]
+    static partial void FoundCachedResults(ILogger logger, string Supplier, System.Guid SearchId);
+    
     [LoggerMessage(1150, LogLevel.Debug, "Successfully checked agency verification state for agent {Email}")]
     static partial void AgencyVerificationStateAuthorizationSuccess(ILogger logger, string Email);
     
@@ -501,6 +504,9 @@ public static partial class LoggerExtensions
     
     public static void LogSupplierAvailabilitySearchException(this ILogger logger, System.Exception exception, string Supplier)
         => SupplierAvailabilitySearchException(logger, exception, Supplier);
+    
+    public static void LogFoundCachedResults(this ILogger logger, string Supplier, System.Guid SearchId)
+        => FoundCachedResults(logger, Supplier, SearchId);
     
     public static void LogAgencyVerificationStateAuthorizationSuccess(this ILogger logger, string Email)
         => AgencyVerificationStateAuthorizationSuccess(logger, Email);

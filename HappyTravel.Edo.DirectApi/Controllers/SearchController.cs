@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.DirectApi.Controllers
         public async Task<ActionResult<WideAvailabilitySearchResult>> GetSearchResult(Guid searchId, CancellationToken cancellationToken)
         {
             var agent = await _agentContextService.GetAgent();
-            var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent, "en");
+            var (isSuccess, _, result, error) = await _wideSearchService.GetResult(searchId, agent);
 
             return isSuccess
                 ? result
