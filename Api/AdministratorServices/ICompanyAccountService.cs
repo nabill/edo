@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> AddBank(CompanyBankInfo bank);
         
-        Task<Result> EditBank(int bankId, CompanyBankInfo bank);
+        Task<Result> ModifyBank(int bankId, CompanyBankInfo bank);
         
-        Task<Result> DeleteBank(int id);
+        Task<Result> RemoveBank(int id);
     }
 }

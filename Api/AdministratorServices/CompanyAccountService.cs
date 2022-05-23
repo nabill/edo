@@ -43,12 +43,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
         }
 
-        public async Task<Result> EditBank(int bankId, CompanyBankInfo bankInfo)
+        public async Task<Result> ModifyBank(int bankId, CompanyBankInfo bankInfo)
         {
             return await ValidateBankInfo(bankInfo)
                 .Ensure(IsUnique, "A bank with the same name already exists")
                 .Bind(() => GetBank(bankId))
-                .Tap(Edit);
+                .Tap(Modify);
 
 
             async Task<bool> IsUnique()
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         && bank.Id != bankInfo.Id));
 
 
-            Task Edit(CompanyBank bank)
+            Task Modify(CompanyBank bank)
             {
                 bank.Name = bankInfo.Name;
                 bank.Address = bankInfo.Address;
@@ -69,18 +69,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
         }
         
-        public async Task<Result> DeleteBank(int bankId)
+        public async Task<Result> RemoveBank(int bankId)
         {
             return await GetBank(bankId)
                 .Ensure(IsUnused, "This bank is in use and cannot be deleted")
-                .Tap(Delete);
+                .Tap(Remove);
 
 
              async Task<bool> IsUnused(CompanyBank _)
                  => !await _context.CompanyAccounts.AnyAsync(account => account.IsDefault && account.CompanyBankId == bankId);
 
 
-            Task Delete(CompanyBank companyBank)
+            Task Remove(CompanyBank companyBank)
             {
                 _context.CompanyBanks.Remove(companyBank);
                 return _context.SaveChangesAsync();
