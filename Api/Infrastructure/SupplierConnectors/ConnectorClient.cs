@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
                 }
 
                 var response = _serializer.Deserialize<TResponse>(jsonTextReader);
-                if (response is null)
+                if (response is null && typeof(TResponse) != typeof(Unit))
                 {
                     error = ProblemDetailsBuilder.Build("The connector returned no errors, but received an empty response");
                     return Result.Failure<TResponse, ProblemDetails>(error);
