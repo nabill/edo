@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 ContractKind.OfflineOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
                 ContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.CreditCard },
-                ContractKind.VirtualAccountOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
+                ContractKind.VirtualAccountOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.CreditCard, PaymentTypes.VirtualAccount },
                 _ => throw new ArgumentOutOfRangeException(nameof(contractKind), $"Invalid value {contractKind}")
             };
         }
