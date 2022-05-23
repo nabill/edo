@@ -18,7 +18,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         _context = context;
         _supplierOptionsStorage = supplierOptionsStorage;
     }
-    
+
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
@@ -35,11 +35,16 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
                 .ToDictionary(s => s.Key, _ => true);
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
+        var rootAgencySuppliers = await GetRootSuppliers(agencyId, agencySuppliers);
+        var resultSuppliers = rootAgencySuppliers!
+            .Intersect(agencySuppliers)
+            .ToDictionary(a => a.Key, a => a.Value);
+
         var materializedSettings = new Dictionary<string, bool>();
 
         foreach (var (supplier, supplierOption) in enabledSuppliers)
         {
-            var settingExist = agencySuppliers.TryGetValue(supplier, out var agencyOption);
+            var settingExist = resultSuppliers.TryGetValue(supplier, out var agencyOption);
             var materializedOption = supplierOption switch
             {
                 EnablementState.TestOnly => agencyOption,
@@ -54,26 +59,47 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
+    public async Task<Dictionary<string, bool>?> GetRootSuppliers(int agencyId,
+        Dictionary<string, bool>? enabledSuppliers)
+    {
+        var rootAgencyId = await _context.Agencies
+            .Where(a => a.Id == agencyId)
+            .Select(a => a.ParentId)
+            .SingleOrDefaultAsync();
+
+        if (rootAgencyId == default)
+            return enabledSuppliers;
+
+        var rootAgencySettings = await _context.AgencySystemSettings
+            .SingleOrDefaultAsync(a => a.AgencyId == rootAgencyId);
+
+        if (Equals(rootAgencySettings?.EnabledSuppliers, null))
+            return enabledSuppliers;
+
+        return rootAgencySettings.EnabledSuppliers;
+    }
+
+
     public async Task<Result> SaveSuppliers(int agencyId, Dictionary<string, bool> suppliers)
     {
         return await Validate()
             .Tap(AddOrUpdate);
-        
-        
+
+
         async Task<Result> Validate()
         {
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
             if (Equals(agency, default))
                 return Result.Failure($"Agency {agencyId} does not exist");
-            
+
             var enabledSuppliers = GetEnabledSuppliers().Value;
-            
+
             foreach (var (name, _) in suppliers)
             {
                 if (!enabledSuppliers.ContainsKey(name))
                     return Result.Failure($"Supplier {name} does not exist or is disabled in the system");
             }
-            
+
             return Result.Success();
         }
 
@@ -112,7 +138,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
                 .ToDictionary(s => s.Code, s => s.EnablementState);
     }
 
-    
+
     private readonly EdoContext _context;
     private readonly ISupplierOptionsStorage _supplierOptionsStorage;
 }
