@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Company
                 var account = await _context.CompanyAccounts.Include(ca => ca.CompanyBank)
                     .SingleOrDefaultAsync(ca => ca.Currency == currency && ca.IsDefault);
 
-                return account.ToCompanyAccount();
+                return account?.ToCompanyAccountInfo();
             }, CompanyInfoCacheLifeTime);
 
             return account ?? Result.Failure<CompanyAccountInfo>($"Could not find a default bank account for {currency} currency");

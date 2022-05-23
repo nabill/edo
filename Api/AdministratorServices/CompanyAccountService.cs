@@ -14,9 +14,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CompanyAccountService : ICompanyAccountService
     {
-        public CompanyAccountService(EdoContext context)
+        public CompanyAccountService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public Task<List<CompanyBankInfo>> GetAllBanks()
@@ -38,7 +39,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Add()
             {
-                _context.CompanyBanks.Add(companyBankInfo.ToCompanyBank());
+                var newBank = companyBankInfo.ToCompanyBank();
+                newBank.Created = _dateTimeProvider.UtcNow();
+                newBank.Modified = _dateTimeProvider.UtcNow();
+                _context.CompanyBanks.Add(newBank);
                 return _context.SaveChangesAsync();
             }
         }
@@ -54,7 +58,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<bool> IsUnique()
                 => !await _context.CompanyBanks
                     .AnyAsync(bank => (bank.Name.ToLower() == bankInfo.Name.ToLower() 
-                        && bank.Id != bankInfo.Id));
+                        && bank.Id != bankId));
 
 
             Task Edit(CompanyBank bank)
@@ -63,8 +67,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 bank.Address = bankInfo.Address;
                 bank.RoutingCode = bankInfo.RoutingCode;
                 bank.SwiftCode = bankInfo.SwiftCode;
-                
-                _context.Update(bank);
+                bank.Modified = _dateTimeProvider.UtcNow();
+                _context.CompanyBanks.Update(bank);
                 return _context.SaveChangesAsync();
             }
         }
@@ -86,19 +90,111 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return _context.SaveChangesAsync();
             }
         }
-        
+
+
+        public Task<Result<List<CompanyAccountInfo>>> GetAccounts(int bankId)
+        {
+            return GetBank(bankId)
+                .Bind(_ => GetBankAccounts(bankId));
+        }
+
+
+        public Task<Result> AddAccount(int bankId, CompanyAccountInfo accountInfo)
+        {
+            return GetBank(bankId)
+                .Bind(_ =>  ValidateAccountInfo(accountInfo))
+                .Tap(Add);
+            
+            Task Add()
+            {
+                var newAccount = accountInfo.ToCompanyAccount();
+                newAccount.Created = _dateTimeProvider.UtcNow();
+                newAccount.Modified = _dateTimeProvider.UtcNow();
+                newAccount.IsDefault = false;
+                _context.CompanyAccounts.Add(newAccount);
+                return _context.SaveChangesAsync();
+            }
+        }
+
+
+        public async Task<Result> EditAccount(int bankId, int accountId, CompanyAccountInfo accountInfo)
+        {
+            return await ValidateAccountInfo(accountInfo)
+                .Bind(() => GetAccount(bankId, accountId))
+                .Tap(Edit);
+
+            Task Edit(CompanyAccount account)
+            {
+                account.Currency = accountInfo.Currency;
+                account.Iban = accountInfo.Iban;
+                account.AccountNumber = accountInfo.AccountNumber;
+                account.IntermediaryBankName = accountInfo.IntermediaryBank.BankName;
+                account.IntermediaryBankAccountNumber = accountInfo.IntermediaryBank.AccountNumber;
+                account.IntermediaryBankSwiftCode = accountInfo.IntermediaryBank.SwiftCode;
+                account.IntermediaryBankAbaNo = accountInfo.IntermediaryBank.AbaNo;
+                account.Modified = _dateTimeProvider.UtcNow();
+                
+                _context.Update(account);
+                return _context.SaveChangesAsync();
+            }
+        }
+
+
+        public async Task<Result> DeleteAccount(int bankId, int accountId)
+        {
+            return await GetAccount(bankId, accountId)
+                .Ensure(IsNotDefault, "This account is selected as default and cannot be deleted")
+                .Tap(Delete);
+
+
+            bool IsNotDefault(CompanyAccount account)
+                => !account.IsDefault;
+
+
+            Task Delete(CompanyAccount companyAccount)
+            {
+                _context.CompanyAccounts.Remove(companyAccount);
+                return _context.SaveChangesAsync();
+            }
+        }
+
+
         private async Task<Result<CompanyBank>> GetBank(int bankId)
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
                 ?? Result.Failure<CompanyBank>("A bank with specified Id does not exist");
+        
+        private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
+            => await _context.CompanyAccounts
+                    .SingleOrDefaultAsync(r => r.Id == accountId || r.CompanyBankId == bankId)
+                ?? Result.Failure<CompanyAccount>("An account with specified Id and CompanyBankId does not exist");
 
+        private async Task<Result<List<CompanyAccountInfo>>> GetBankAccounts(int bankId)
+            => await _context.CompanyAccounts
+                .Where(r => r.CompanyBankId == bankId)
+                .Select(r => r.ToCompanyAccountInfo())
+                .ToListAsync();
+        
         private static Result ValidateBankInfo(CompanyBankInfo companyBankInfo)
             => GenericValidator<CompanyBankInfo>.Validate(v =>
                 {
                     v.RuleFor(r => r.Name).NotEmpty();
+                    v.RuleFor(r => r.Address).NotEmpty();
+                    v.RuleFor(r => r.RoutingCode).NotEmpty();
+                    v.RuleFor(r => r.SwiftCode).NotEmpty();
+                },
+                companyBankInfo);
+        
+        private static Result ValidateAccountInfo(CompanyAccountInfo companyBankInfo)
+            => GenericValidator<CompanyAccountInfo>.Validate(v =>
+                {
+                    v.RuleFor(r => r.Currency).NotEmpty();
+                    v.RuleFor(r => r.AccountNumber).NotEmpty();
+                    v.RuleFor(r => r.Iban).NotEmpty();
                 },
                 companyBankInfo);
         
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

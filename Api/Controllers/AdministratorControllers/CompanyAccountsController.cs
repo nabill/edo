@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> Add([FromBody]CompanyBankInfo bankInfo)
+        public async Task<IActionResult> AddBank([FromBody]CompanyBankInfo bankInfo)
             => OkOrBadRequest(await _companyAccountService.AddBank(bankInfo));
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> Edit([FromBody] CompanyBankInfo bankInfo, [FromRoute] int bankId)
+        public async Task<IActionResult> EditBank([FromBody] CompanyBankInfo bankInfo, [FromRoute] int bankId)
             => OkOrBadRequest(await _companyAccountService.EditBank(bankId, bankInfo));
 
 
@@ -65,9 +65,56 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> Delete([FromRoute] int bankId)
+        public async Task<IActionResult> DeleteBank([FromRoute] int bankId)
             => OkOrBadRequest(await _companyAccountService.DeleteBank(bankId));
         
+        /// <summary>
+        ///     Gets company accounts list for bank
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        [HttpGet("company/banks/{bankId:int}/accounts")]
+        [ProducesResponseType(typeof(List<CompanyAccountInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> GetCompanyAccounts([FromRoute] int bankId) 
+            => OkOrBadRequest(await _companyAccountService.GetAccounts(bankId));
+        
+        /// <summary>
+        ///     Adds a new company account for bank
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountInfo">A new company bank info</param>
+        [HttpPost("company/banks/{bankId:int}/accounts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> AddAccount([FromBody]CompanyAccountInfo accountInfo, [FromRoute] int bankId)
+            => OkOrBadRequest(await _companyAccountService.AddAccount(bankId, accountInfo));
+        
+        /// <summary>
+        ///     Deletes a company bank
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountId">Id of the company account to delete</param>
+        [HttpDelete("company/banks/{bankId:int}/accounts/{accountId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> DeleteAccount([FromRoute] int bankId, [FromRoute] int accountId)
+            => OkOrBadRequest(await _companyAccountService.DeleteAccount(bankId, accountId));
+        
+        /// <summary>
+        ///     Edits an existing company bank
+        /// </summary>
+        /// <param name="accountInfo">New info for the company account</param>
+        /// <param name="bankId"></param>
+        /// <param name="accountId"></param>
+        [HttpPut("company/banks/{bankId:int}/accounts/{accountId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> EditAccount([FromBody] CompanyAccountInfo accountInfo, [FromRoute] int bankId, [FromRoute] int accountId)
+            => OkOrBadRequest(await _companyAccountService.EditAccount(bankId, accountId, accountInfo));
         
         private readonly ICompanyAccountService _companyAccountService;
     }
