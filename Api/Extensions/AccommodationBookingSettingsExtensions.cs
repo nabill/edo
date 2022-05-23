@@ -9,11 +9,10 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AccommodationBookingSettingsExtensions
     {
         public static AgencyAccommodationBookingSettingsInfo ToAgencyAccommodationBookingSettingsInfo(this AgencyAccommodationBookingSettings settings)
-            => new ()
+            => new()
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToBoolDictionary(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 CustomDeadlineShift = settings.CustomDeadlineShift
@@ -21,7 +20,7 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgentAccommodationBookingSettingsInfo ToAgentAccommodationBookingSettingsInfo(this AgentAccommodationBookingSettings settings)
-            => new ()
+            => new()
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
@@ -34,11 +33,10 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgencyAccommodationBookingSettings ToAgencyAccommodationBookingSettings(this AgencyAccommodationBookingSettingsInfo settings)
-            => new ()
+            => new()
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToList(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 CustomDeadlineShift = settings.CustomDeadlineShift
@@ -46,7 +44,7 @@ namespace HappyTravel.Edo.Api.Extensions
 
 
         public static AgentAccommodationBookingSettings ToAgentAccommodationBookingSettings(this AgentAccommodationBookingSettingsInfo settings)
-            => new ()
+            => new()
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
@@ -56,7 +54,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 AdditionalSearchFilters = settings.AdditionalSearchFilters,
                 CustomDeadlineShift = settings.CustomDeadlineShift
             };
-        
+
 
         public static Dictionary<string, bool> ToBoolDictionary(this List<string> suppliers)
         {
