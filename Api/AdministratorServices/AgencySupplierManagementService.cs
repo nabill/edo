@@ -36,9 +36,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
         var rootAgencySuppliers = await GetRootSuppliers(agencyId, agencySuppliers);
-        var resultSuppliers = rootAgencySuppliers!
-            .Intersect(agencySuppliers)
-            .ToDictionary(a => a.Key, a => a.Value);
+        var resultSuppliers = GetIntersection(rootAgencySuppliers!, agencySuppliers);
 
         var materializedSettings = new Dictionary<string, bool>();
 
@@ -136,6 +134,35 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             ? Result.Failure<Dictionary<string, EnablementState>>(error)
             : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
                 .ToDictionary(s => s.Code, s => s.EnablementState);
+    }
+
+
+    public Dictionary<string, bool> GetIntersection(Dictionary<string, bool> rootAgencySuppliers,
+        Dictionary<string, bool> childAgencySuppliers)
+    {
+        var result = new Dictionary<string, bool>();
+
+        foreach (var (rootKey, rootValue) in rootAgencySuppliers)
+        {
+            var (childKey, childValue) = childAgencySuppliers.FirstOrDefault(s => s.Key == rootKey);
+            if (childKey == null)
+            {
+                result.Add(rootKey, rootValue);
+                continue;
+            }
+
+            var resultValue = (!rootValue) ? rootValue : childValue;
+            result.Add(rootKey, resultValue);
+        }
+
+        var childLeftSuppliers = childAgencySuppliers
+            .Where(s => !result.ContainsKey(s.Key))
+            .ToDictionary(s => s.Key, s => s.Value);
+
+        if (childLeftSuppliers != default)
+            result = result.Union(childLeftSuppliers).ToDictionary(s => s.Key, s => s.Value);
+
+        return result;
     }
 
 
