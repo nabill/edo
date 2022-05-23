@@ -120,31 +120,48 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings)
         {
-            var cachedResults = await _availabilityStorage.Collection()
-                .Where(r => r.SupplierCode == supplierCode && r.SearchId == searchId)
-                .ToListAsync();
+            var filter = GetSearchIdSupplierFilterDefinition(searchId, supplierCode);
+            var cursor = await _availabilityStorage.Collection().FindAsync(filter);
+            var results = await cursor.ToListAsync();
 
-            return cachedResults.Select(r => r.Map(searchSettings))
+            return results.Select(r => r.Map(searchSettings))
                 .ToList();
         }
 
 
-        public Task<Guid> GetSearchId(string requestHash)
+        public async Task<Guid> GetSearchId(string requestHash)
         {
             var date = _dateTimeProvider.UtcNow().Subtract(_searchIdExpiredAfter);
+            var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
+            var projection = Builders<CachedAccommodationAvailabilityResult>.Projection
+                .Expression(x => new CachedAccommodationAvailabilityResult
+                {
+                    SearchId = x.SearchId
+                });
+
+            var filter = filterBuilder.And(new[]
+            {
+                filterBuilder.Eq(x => x.RequestHash, requestHash),
+                filterBuilder.Gte(x => x.Created, date)
+            });
+
+            var options = new FindOptions<CachedAccommodationAvailabilityResult>
+            {
+                Projection = projection,
+                Limit = 1
+            };
             
-            return _availabilityStorage.Collection()
-                .Where(r => r.RequestHash == requestHash && r.Created >= date)
-                .Select(r => r.SearchId)
-                .FirstOrDefaultAsync();
+            var cursor = await _availabilityStorage.Collection().FindAsync(filter);
+            var results = await cursor.ToListAsync();
+            
+            return results
+                .Select(x => x.SearchId)
+                .FirstOrDefault();
         }
 
 
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
-
-
-        private readonly TimeSpan _searchIdExpiredAfter = TimeSpan.FromMinutes(30);
 
 
         private static FilterDefinition<CachedAccommodationAvailabilityResult> GetSearchIdSupplierFilterDefinition(Guid searchId, IEnumerable<string> suppliers)
@@ -155,6 +172,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 filterBuilder.Eq(x => x.SearchId, searchId),
                 filterBuilder.In(x => x.SupplierCode, suppliers)
+            });
+        }
+        
+        
+        private static FilterDefinition<CachedAccommodationAvailabilityResult> GetSearchIdSupplierFilterDefinition(Guid searchId, string supplierCode)
+        {
+            var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
+            
+            return filterBuilder.And(new[]
+            {
+                filterBuilder.Eq(x => x.SearchId, searchId),
+                filterBuilder.Eq(x => x.SupplierCode, supplierCode)
             });
         }
 
@@ -185,6 +214,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             return new ValueTuple<List<ObjectId>, List<string>>(ids, htIds);
         }
+        
+        
+        private readonly TimeSpan _searchIdExpiredAfter = TimeSpan.FromMinutes(30);
 
 
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
