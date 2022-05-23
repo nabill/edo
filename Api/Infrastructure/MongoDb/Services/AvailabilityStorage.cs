@@ -24,8 +24,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             => _collection.InsertOneAsync(record);
 
 
-        public IMongoQueryable<CachedAccommodationAvailabilityResult> Collection() 
+        public IMongoQueryable<CachedAccommodationAvailabilityResult> Queryable() 
             => _collection.AsQueryable();
+
+
+        public IMongoCollection<CachedAccommodationAvailabilityResult> Collection() 
+            => _collection;
 
 
         private static async Task<IMongoCollection<CachedAccommodationAvailabilityResult>> GetOrCreateCollection(IMongoDbClient client)
@@ -33,6 +37,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             var collection = client.GetDatabase().GetCollection<CachedAccommodationAvailabilityResult>(nameof(CachedAccommodationAvailabilityResult));
 
             var searchIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
+                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Id),
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
 
