@@ -33,15 +33,14 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId, AgentContext agent, string languageCode)
+        public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId, AgentContext agent)
         {
             var isComplete = await IsComplete(searchId, agent);
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var result = await _availabilityStorage.GetFilteredResults(searchId: searchId, 
                 filters: null, 
                 searchSettings: searchSettings, 
-                suppliers: searchSettings.EnabledConnectors,
-                languageCode: languageCode);
+                suppliers: searchSettings.EnabledConnectors);
             
             return new WideAvailabilitySearchResult(searchId, isComplete, result.MapFromEdoModels());
         }

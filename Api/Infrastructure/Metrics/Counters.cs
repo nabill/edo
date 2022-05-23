@@ -38,6 +38,16 @@ namespace HappyTravel.Edo.Api.Infrastructure.Metrics
             {
                 LabelNames = new [] {"step", "supplier", "errorCode"}
             });
+
+
+        public static readonly Counter WideSearchCacheHitCounter = Prometheus.Metrics.CreateCounter(
+            ApplicationPrefix + "_wide_search_cache_hit_counter",
+            "Wide search cache hit counter");
+        
+        
+        public static readonly Counter WideSearchCacheMissCounter = Prometheus.Metrics.CreateCounter(
+            ApplicationPrefix + "_wide_search_cache_miss_counter",
+            "Wide search cache miss counter");
         
         
         public static readonly Histogram SupplierRequestHistogram = Prometheus.Metrics.CreateHistogram(
