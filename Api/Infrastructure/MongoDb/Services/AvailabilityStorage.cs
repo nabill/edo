@@ -24,8 +24,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             => _collection.InsertOneAsync(record);
 
 
-        public IMongoQueryable<CachedAccommodationAvailabilityResult> Collection() 
-            => _collection.AsQueryable();
+        public IMongoCollection<CachedAccommodationAvailabilityResult> Collection() 
+            => _collection;
 
 
         private static async Task<IMongoCollection<CachedAccommodationAvailabilityResult>> GetOrCreateCollection(IMongoDbClient client)
@@ -35,6 +35,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             var searchIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
+            
+            var idIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
+                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
+                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Id));
 
             var ttlIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
             var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};
@@ -45,7 +49,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             {
                 new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchIndexDefinition),
                 new CreateIndexModel<CachedAccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions),
-                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchRequestIndexDefinition)
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchRequestIndexDefinition),
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(idIndexDefinition)
             });
 
             return collection;
