@@ -9,6 +9,4 @@ public record CompanyBankInfo
     public string Address { get; init; } = string.Empty;
     public string RoutingCode { get; init; } = string.Empty;
     public string SwiftCode { get; init; } = string.Empty;
-    public DateTimeOffset Created { get; init; }
-    public DateTimeOffset Modified { get; init; }
 }

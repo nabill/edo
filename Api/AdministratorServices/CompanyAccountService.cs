@@ -41,10 +41,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Add()
             {
-                var newBank = companyBankInfo.ToCompanyBank();
-                newBank.Created = _dateTimeProvider.UtcNow();
-                newBank.Modified = _dateTimeProvider.UtcNow();
-                _context.CompanyBanks.Add(newBank);
+                var bank = companyBankInfo.ToCompanyBank();
+                bank.Created = _dateTimeProvider.UtcNow();
+                bank.Modified = _dateTimeProvider.UtcNow();
+                _context.CompanyBanks.Add(bank);
                 return _context.SaveChangesAsync();
             }
         }

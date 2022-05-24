@@ -49,8 +49,6 @@ public static class CompanyAccountExtensions
             RoutingCode = companyBank.RoutingCode,
             SwiftCode = companyBank.SwiftCode,
             Address = companyBank.Address,
-            Created = companyBank.Created,
-            Modified = companyBank.Modified,
         };
     }
     
@@ -62,8 +60,6 @@ public static class CompanyAccountExtensions
             RoutingCode = companyBank.RoutingCode,
             SwiftCode = companyBank.SwiftCode,
             Address = companyBank.Address,
-            Created = companyBank.Created,
-            Modified = companyBank.Modified,
         };
     }
 }
