@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             _dateTimeProvider = dateTimeProvider;
         }
 
+
         public Task<List<CompanyBankInfo>> GetAllBanks()
         {
             return _context.CompanyBanks.Select(companyBank => companyBank.ToCompanyBankInfo()).ToListAsync();
@@ -37,6 +38,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 => !await _context.CompanyBanks
                     .AnyAsync(bank => bank.Name.ToLower() == companyBankInfo.Name.ToLower());
 
+
             Task Add()
             {
                 var newBank = companyBankInfo.ToCompanyBank();
@@ -47,21 +49,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
         }
 
-        public async Task<Result> EditBank(int bankId, CompanyBankInfo bankInfo)
+
+        public async Task<Result> ModifyBank(int bankId, CompanyBankInfo bankInfo)
         {
             return await ValidateBankInfo(bankInfo)
                 .Ensure(IsUnique, "A bank with the same name already exists")
                 .Bind(() => GetBank(bankId))
-                .Tap(Edit);
+                .Tap(Modify);
 
 
             async Task<bool> IsUnique()
                 => !await _context.CompanyBanks
-                    .AnyAsync(bank => (bank.Name.ToLower() == bankInfo.Name.ToLower() 
+                    .AnyAsync(bank => (bank.Name.ToLower() == bankInfo.Name.ToLower()
                         && bank.Id != bankId));
 
 
-            Task Edit(CompanyBank bank)
+            Task Modify(CompanyBank bank)
             {
                 bank.Name = bankInfo.Name;
                 bank.Address = bankInfo.Address;
@@ -72,19 +75,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return _context.SaveChangesAsync();
             }
         }
-        
-        public async Task<Result> DeleteBank(int bankId)
+
+
+        public async Task<Result> RemoveBank(int bankId)
         {
             return await GetBank(bankId)
                 .Ensure(IsUnused, "This bank is in use and cannot be deleted")
-                .Tap(Delete);
+                .Tap(Remove);
 
 
-             async Task<bool> IsUnused(CompanyBank _)
-                 => !await _context.CompanyAccounts.AnyAsync(account => account.IsDefault && account.CompanyBankId == bankId);
+            async Task<bool> IsUnused(CompanyBank _)
+                => !await _context.CompanyAccounts.AnyAsync(account => account.IsDefault && account.CompanyBankId == bankId);
 
 
-            Task Delete(CompanyBank companyBank)
+            Task Remove(CompanyBank companyBank)
             {
                 _context.CompanyBanks.Remove(companyBank);
                 return _context.SaveChangesAsync();
@@ -102,9 +106,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> AddAccount(int bankId, CompanyAccountInfo accountInfo)
         {
             return GetBank(bankId)
-                .Bind(_ =>  ValidateAccountInfo(accountInfo))
+                .Bind(_ => ValidateAccountInfo(accountInfo))
                 .Tap(Add);
-            
+
+
             Task Add()
             {
                 var newAccount = accountInfo.ToCompanyAccount();
@@ -117,13 +122,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> EditAccount(int bankId, int accountId, CompanyAccountInfo accountInfo)
+        public async Task<Result> ModifyAccount(int bankId, int accountId, CompanyAccountInfo accountInfo)
         {
             return await ValidateAccountInfo(accountInfo)
                 .Bind(() => GetAccount(bankId, accountId))
-                .Tap(Edit);
+                .Tap(Modify);
 
-            Task Edit(CompanyAccount account)
+
+            Task Modify(CompanyAccount account)
             {
                 account.Currency = accountInfo.Currency;
                 account.Iban = accountInfo.Iban;
@@ -133,25 +139,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 account.IntermediaryBankSwiftCode = accountInfo.IntermediaryBank.SwiftCode;
                 account.IntermediaryBankAbaNo = accountInfo.IntermediaryBank.AbaNo;
                 account.Modified = _dateTimeProvider.UtcNow();
-                
+
                 _context.Update(account);
                 return _context.SaveChangesAsync();
             }
         }
 
 
-        public async Task<Result> DeleteAccount(int bankId, int accountId)
+        public async Task<Result> RemoveAccount(int bankId, int accountId)
         {
             return await GetAccount(bankId, accountId)
                 .Ensure(IsNotDefault, "This account is selected as default and cannot be deleted")
-                .Tap(Delete);
+                .Tap(Remove);
+
+            bool IsNotDefault(CompanyAccount account) => !account.IsDefault;
 
 
-            bool IsNotDefault(CompanyAccount account)
-                => !account.IsDefault;
-
-
-            Task Delete(CompanyAccount companyAccount)
+            Task Remove(CompanyAccount companyAccount)
             {
                 _context.CompanyAccounts.Remove(companyAccount);
                 return _context.SaveChangesAsync();
@@ -162,19 +166,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private async Task<Result<CompanyBank>> GetBank(int bankId)
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
-                ?? Result.Failure<CompanyBank>("A bank with specified Id does not exist");
-        
+                ?? Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
+
+
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
             => await _context.CompanyAccounts
                     .SingleOrDefaultAsync(r => r.Id == accountId || r.CompanyBankId == bankId)
                 ?? Result.Failure<CompanyAccount>("An account with specified Id and CompanyBankId does not exist");
+
 
         private async Task<Result<List<CompanyAccountInfo>>> GetBankAccounts(int bankId)
             => await _context.CompanyAccounts
                 .Where(r => r.CompanyBankId == bankId)
                 .Select(r => r.ToCompanyAccountInfo())
                 .ToListAsync();
-        
+
+
         private static Result ValidateBankInfo(CompanyBankInfo companyBankInfo)
             => GenericValidator<CompanyBankInfo>.Validate(v =>
                 {
@@ -184,7 +191,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.SwiftCode).NotEmpty();
                 },
                 companyBankInfo);
-        
+
+
         private static Result ValidateAccountInfo(CompanyAccountInfo companyBankInfo)
             => GenericValidator<CompanyAccountInfo>.Validate(v =>
                 {
@@ -193,7 +201,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.Iban).NotEmpty();
                 },
                 companyBankInfo);
-        
+
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
     }

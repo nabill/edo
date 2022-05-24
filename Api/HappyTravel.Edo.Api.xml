@@ -532,16 +532,16 @@
             </summary>
             <param name="bankInfo">A new company bank info</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.EditBank(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyBank(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo,System.Int32)">
             <summary>
-                Edits an existing company bank
+                Modifies an existing company bank
             </summary>
             <param name="bankInfo">New info for the company bank</param>
-            <param name="bankId"></param>
+            <param name="bankId">Id of the company bank to modify</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.DeleteBank(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveBank(System.Int32)">
             <summary>
-                Deletes a company bank
+                Removes a company bank
             </summary>
             <param name="bankId">Id of the company bank to delete</param>
         </member>
@@ -558,20 +558,20 @@
             <param name="bankId">Id of the company bank</param>
             <param name="accountInfo">A new company bank info</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.DeleteAccount(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveAccount(System.Int32,System.Int32)">
             <summary>
-                Deletes a company bank
+                Removes a company bank
             </summary>
             <param name="bankId">Id of the company bank</param>
-            <param name="accountId">Id of the company account to delete</param>
+            <param name="accountId">Id of the company account to remove</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.EditAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32,System.Int32)">
             <summary>
-                Edits an existing company bank
+                Modifies an existing company bank
             </summary>
             <param name="accountInfo">New info for the company account</param>
-            <param name="bankId"></param>
-            <param name="accountId"></param>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to modify</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>

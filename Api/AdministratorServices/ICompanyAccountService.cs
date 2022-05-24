@@ -11,16 +11,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> AddBank(CompanyBankInfo bank);
         
-        Task<Result> EditBank(int bankId, CompanyBankInfo bank);
+        Task<Result> ModifyBank(int bankId, CompanyBankInfo bank);
         
-        Task<Result> DeleteBank(int id);
+        Task<Result> RemoveBank(int id);
 
         Task<Result<List<CompanyAccountInfo>>> GetAccounts(int bankId);
 
         Task<Result> AddAccount(int bankId, CompanyAccountInfo accountInfo);
 
-        Task<Result> DeleteAccount(int bankId, int accountId);
+        Task<Result> RemoveAccount(int bankId, int accountId);
 
-        Task<Result> EditAccount(int bankId, int accountId, CompanyAccountInfo accountInfo);
+        Task<Result> ModifyAccount(int bankId, int accountId, CompanyAccountInfo accountInfo);
+     
     }
 }
