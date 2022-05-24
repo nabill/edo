@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             }
 
 
-            static SellerInfo GetSellerDetails(Booking booking, CompanyAccount companyAccount, BankDetails bankDetails)
+            static SellerInfo GetSellerDetails(Booking booking, CompanyAccountInfo companyAccount, BankDetails bankDetails)
             {
                 var intermediaryBank = companyAccount.IntermediaryBank;
 

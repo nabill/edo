@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Company
     public interface ICompanyService
     {
         Task<Result<CompanyInfo>> GetCompanyInfo();
-        Task<Result<CompanyAccount>> GetDefaultBankAccount(Currencies currency);
+        Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency);
     }
 }
