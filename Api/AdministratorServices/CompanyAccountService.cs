@@ -167,14 +167,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             return await GetAccount(bankId, accountId)
                 .Tap(SetDefault);
-                
+
+
             async Task SetDefault(CompanyAccount companyAccount)
             {
-                var currencyAccounts = await _context.CompanyAccounts.Where(ca => ca.Currency == companyAccount.Currency).ToListAsync();
+                var currencyAccounts = await _context.CompanyAccounts
+                    .Where(ca => ca.Currency == companyAccount.Currency && ca.Id != accountId)
+                    .ToListAsync();
                 foreach (var currencyAccount in currencyAccounts)
                 {
                     currencyAccount.IsDefault = false;
                 }
+
                 _context.CompanyAccounts.UpdateRange(currencyAccounts);
                 companyAccount.IsDefault = true;
                 _context.CompanyAccounts.Update(companyAccount);
@@ -191,7 +195,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
             => await _context.CompanyAccounts
-                    .SingleOrDefaultAsync(r => r.Id == accountId || r.CompanyBankId == bankId)
+                    .SingleOrDefaultAsync(r => r.Id == accountId && r.CompanyBankId == bankId)
                 ?? Result.Failure<CompanyAccount>($"An account Id {accountId} and CompanyBankId {bankId} does not exist");
 
 
@@ -219,7 +223,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.Currency).NotEmpty();
                     v.RuleFor(r => r.AccountNumber).NotEmpty();
                     v.RuleFor(r => r.Iban).NotEmpty();
-                    
+
                     v.RuleFor(r => r.IntermediaryBank!.AccountNumber).NotEmpty().When(r => r.IntermediaryBank is not null);
                     v.RuleFor(r => r.IntermediaryBank!.BankName).NotEmpty().When(r => r.IntermediaryBank is not null);
                     v.RuleFor(r => r.IntermediaryBank!.SwiftCode).NotEmpty().When(r => r.IntermediaryBank is not null);

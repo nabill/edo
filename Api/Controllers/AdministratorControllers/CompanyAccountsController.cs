@@ -118,11 +118,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => NoContentOrBadRequest(await _companyAccountService.ModifyAccount(bankId, accountId, accountInfo));
         
         /// <summary>
-        ///     Edits an existing company bank
+        ///     Sets a company bank account as default
         /// </summary>
-        /// <param name="accountInfo">New info for the company account</param>
-        /// <param name="bankId"></param>
-        /// <param name="accountId"></param>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountId">Id of the company account to set default</param>
         [HttpPost("company/banks/{bankId:int}/accounts/{accountId:int}/set-default")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

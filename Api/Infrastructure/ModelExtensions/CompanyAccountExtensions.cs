@@ -14,6 +14,7 @@ public static class CompanyAccountExtensions
             AccountNumber = companyAccount.AccountNumber,
             Iban = companyAccount.Iban,
             CompanyBank = companyAccount.CompanyBank?.ToCompanyBankInfo(),
+            IsDefault = companyAccount.IsDefault,
             IntermediaryBank = new IntermediaryBank
             {
                 BankName = companyAccount.IntermediaryBankName,
