@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Company
         }
 
 
-        public async Task<Result<Models.Company.CompanyAccount>> GetDefaultBankAccount(Currencies currency)
+        public async Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency)
         {
             var key = _flow.BuildKey(nameof(CompanyService), nameof(GetDefaultBankAccount), currency.ToString());
             var account = await _flow.GetOrSetAsync(key, async () => 
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Company
                 return account.ToCompanyAccount();
             }, CompanyInfoCacheLifeTime);
 
-            return account ?? Result.Failure<Models.Company.CompanyAccount>($"Could not find a default bank account for {currency} currency");
+            return account ?? Result.Failure<CompanyAccountInfo>($"Could not find a default bank account for {currency} currency");
         }
 
 

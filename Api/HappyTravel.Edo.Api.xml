@@ -505,12 +505,45 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.NormalizeBookingsPrices">
+            <summary>
+                Normalize bookings' prices 
+                All net prices in booked rooms become equal to total prices
+                And commissions set to zero
+                NOTE: Do not request to this endpoint
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
             <summary>
                 Gets booking status changes history
             </summary>
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyBanks">
+            <summary>
+                Gets company banks list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Add(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
+            <summary>
+                Adds a new company bank
+            </summary>
+            <param name="bankInfo">A new company bank info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyBank(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo,System.Int32)">
+            <summary>
+                Modifies an existing company bank
+            </summary>
+            <param name="bankInfo">New info for the company bank</param>
+            <param name="bankId">Id of the company bank to modify</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveBank(System.Int32)">
+            <summary>
+                Removes a company bank
+            </summary>
+            <param name="bankId">Id of the company bank to delete</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
@@ -1254,6 +1287,14 @@
             </summary>
             <param name="referenceCode">Booking reference code for retrieving confirmation change history</param>
             <returns>List of booking confirmation change events</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.RecalculatePrice(System.String,Api.Models.Bookings.BookingRecalculatePriceRequest)">
+            <summary>
+                Recalculate booking's price after changing payment type
+            </summary>
+            <param name="referenceCode"></param>
+            <param name="request"></param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
@@ -3526,6 +3567,11 @@
                 Destination type of booking from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.SupplierCode">
+            <summary>
+                Destination type of booking from the mapper
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
             <summary>
                 Account balance info
@@ -3916,7 +3962,7 @@
                 Email
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregateValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Availability.PriceAligner.AlignAggregatedValues(HappyTravel.Money.Models.MoneyAmount,System.Collections.Generic.List{HappyTravel.Money.Models.MoneyAmount})">
              <summary>
              Aligns full price with its containing parts
              </summary>
@@ -4031,7 +4077,7 @@
             </summary>
             <returns>List of account managers' info</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,System.Nullable{System.Int32})">
+        <member name="M:Api.Controllers.AdministratorControllers.AccountManagersController.Add(System.Int32,Api.Models.Agencies.AddAccountManagerRequest)">
             <summary>
                 Adds an account manager to the agency
             </summary>
@@ -4111,6 +4157,11 @@
             <param name="policyId">Id of the policy to delete.</param>
             <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
+        </member>
+        <member name="P:Api.Models.Agencies.AddAccountManagerRequest.AccountManagerId">
+            <summary>
+               Admin's id who will be set as account manager.
+            </summary>
         </member>
         <member name="P:Api.Models.Management.Administrators.AccountManager.Id">
             <summary>

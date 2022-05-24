@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             string languageCode)
         {
             Baggage.AddSearchId(searchId);
-            var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
             return isFailure 
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, enabledSuppliers);
+                var selectedResult = await _roomSelectionStorage.GetResult(searchId, htId, searchSettings.EnabledConnectors);
                 var selectedRoomSet = selectedResult
                     .SelectMany(r =>
                     {
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var selectedResults = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
+                var selectedResults = (await _availabilityStorage.GetResults(searchId, searchSettings))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierCode, a)))
                     .Where(r => r.a.HtId == htId)
                     .ToList();

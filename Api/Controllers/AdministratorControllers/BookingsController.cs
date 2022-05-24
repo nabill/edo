@@ -43,18 +43,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _bookingRecordManager = bookingRecordManager;
             _dateTimeProvider = dateTimeProvider;
         }
-        
-        
+
+
         /// <summary>
         ///     Gets all bookings
         /// </summary>
         /// <returns>List of bookings</returns>
         [HttpGet("accommodations/bookings")]
         [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgencyBookings() 
+        public IEnumerable<BookingSlim> GetAgencyBookings()
             => _bookingService.GetAllBookings();
 
 
@@ -65,10 +65,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns>List of bookings</returns>
         [HttpGet("agencies/{agencyId}/accommodations/bookings")]
         [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId) 
+        public IEnumerable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId)
             => _bookingService.GetAgencyBookings(agencyId);
 
 
@@ -79,10 +79,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns>List of bookings</returns>
         [HttpGet("agents/{agentId}/accommodations/bookings")]
         [ProducesResponseType(typeof(List<BookingSlim>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgentBookings([FromRoute] int agentId) 
+        public IEnumerable<BookingSlim> GetAgentBookings([FromRoute] int agentId)
             => _bookingService.GetAgentBookings(agentId);
 
 
@@ -92,8 +92,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="referenceCode">Booking reference code</param>
         /// <returns>Booking Info</returns>
         [HttpGet("bookings/{referenceCode}")]
-        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
@@ -128,8 +128,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="bookingId">Id of booking to cancel</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/discard")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> Discard(int bookingId)
         {
@@ -148,8 +148,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="bookingId">Id of booking to cancel</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> Refresh(int bookingId)
         {
@@ -187,8 +187,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="bookingId">Id of booking to cancel</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/cancel")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> Cancel(int bookingId)
         {
@@ -208,8 +208,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="cancellationRequest">Cancellation request</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/cancel-manually")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> CancelManually(int bookingId, [FromBody] ManualBookingCancellationRequest cancellationRequest)
         {
@@ -230,8 +230,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="rejectionRequest">Rejection request</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/reject-manually")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> Reject(int bookingId, [FromBody] ManualBookingRejectionRequest rejectionRequest)
         {
@@ -251,8 +251,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="confirmationRequest">Confirmation request</param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{bookingId}/confirm-manually")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> ConfirmManually(int bookingId, [FromBody] ManualBookingConfirmationRequest confirmationRequest)
         {
@@ -264,23 +264,40 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Fills empty htId in bookings
         /// </summary>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/fill-empty-htids")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
         public async Task<IActionResult> FillEmptyHtIds()
         {
             await _fixHtIdService.FillEmptyHtIds();
             return NoContent();
         }
-        
-        
+
+
+        /// <summary>
+        ///     Normalize bookings' prices 
+        ///     All net prices in booked rooms become equal to total prices
+        ///     And commissions set to zero
+        ///     NOTE: Do not request to this endpoint
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/price/normalize")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> NormalizeBookingsPrices()
+        {
+            await _bookingService.NormalizeBookingsPrices();
+            return NoContent();
+        }
+
+
         /// <summary>
         ///     Gets booking status changes history
         /// </summary>
@@ -289,7 +306,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("accommodations/bookings/{bookingId}/status-history")]
         [ProducesResponseType(typeof(List<AdministratorBookingStatusHistoryEntry>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
-        public async Task<ActionResult<List<AdministratorBookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId) 
+        public async Task<ActionResult<List<AdministratorBookingStatusHistoryEntry>>> GetBookingStatusHistory(int bookingId)
             => await _bookingInfoService.GetAdministratorBookingStatusHistory(bookingId);
 
 

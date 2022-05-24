@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,30 +18,63 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         _context = context;
         _supplierOptionsStorage = supplierOptionsStorage;
     }
-    
+
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
-        var (_, isFailure, enabledSuppliers, error) = GetEnabledSupplierCodes();
+        var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
         var agencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
-        if (Equals(agencySettings, default) || Equals(agencySettings.EnabledSuppliers, null))
-            return enabledSuppliers.ToDictionary(s => s, _ => true);
+        if (Equals(agencySettings?.EnabledSuppliers, null))
+            return enabledSuppliers
+                .Where(s => s.Value == EnablementState.Enabled)
+                .ToDictionary(s => s.Key, _ => true);
 
         var agencySuppliers = agencySettings.EnabledSuppliers;
+        var rootAgencySuppliers = await GetRootSuppliers(agencyId, agencySuppliers);
+        var resultSuppliers = GetIntersection(rootAgencySuppliers!, agencySuppliers);
+
         var materializedSettings = new Dictionary<string, bool>();
 
-        foreach (var supplierCode in enabledSuppliers)
+        foreach (var (supplier, supplierOption) in enabledSuppliers)
         {
-            var materializedOption = !agencySuppliers.TryGetValue(supplierCode, out var agencyOption) || agencyOption;
-            materializedSettings.Add(supplierCode, materializedOption);
+            var settingExist = resultSuppliers.TryGetValue(supplier, out var agencyOption);
+            var materializedOption = supplierOption switch
+            {
+                EnablementState.TestOnly => agencyOption,
+                EnablementState.Enabled => agencyOption || !settingExist,
+                _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
+            };
+
+            materializedSettings.Add(supplier, materializedOption);
         }
 
         return materializedSettings;
+    }
+
+
+    public async Task<Dictionary<string, bool>?> GetRootSuppliers(int agencyId,
+        Dictionary<string, bool>? enabledSuppliers)
+    {
+        var rootAgencyId = await _context.Agencies
+            .Where(a => a.Id == agencyId)
+            .Select(a => a.ParentId)
+            .SingleOrDefaultAsync();
+
+        if (rootAgencyId == default)
+            return enabledSuppliers;
+
+        var rootAgencySettings = await _context.AgencySystemSettings
+            .SingleOrDefaultAsync(a => a.AgencyId == rootAgencyId);
+
+        if (Equals(rootAgencySettings?.EnabledSuppliers, null))
+            return enabledSuppliers;
+
+        return rootAgencySettings.EnabledSuppliers;
     }
 
 
@@ -47,22 +82,22 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     {
         return await Validate()
             .Tap(AddOrUpdate);
-        
-        
+
+
         async Task<Result> Validate()
         {
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
             if (Equals(agency, default))
                 return Result.Failure($"Agency {agencyId} does not exist");
-            
-            var enabledSuppliers = GetEnabledSupplierCodes().Value;
-            
+
+            var enabledSuppliers = GetEnabledSuppliers().Value;
+
             foreach (var (name, _) in suppliers)
             {
-                if (!enabledSuppliers.Contains(name))
+                if (!enabledSuppliers.ContainsKey(name))
                     return Result.Failure($"Supplier {name} does not exist or is disabled in the system");
             }
-            
+
             return Result.Success();
         }
 
@@ -92,15 +127,45 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<List<string>> GetEnabledSupplierCodes()
+    private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
     {
         var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
         return isFailure
-            ? Result.Failure<List<string>>(error)
-            : suppliers.Where(s => s.IsEnabled).Select(s => s.Code).ToList();
+            ? Result.Failure<Dictionary<string, EnablementState>>(error)
+            : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
+                .ToDictionary(s => s.Code, s => s.EnablementState);
     }
 
-    
+
+    public Dictionary<string, bool> GetIntersection(Dictionary<string, bool> rootAgencySuppliers,
+        Dictionary<string, bool> childAgencySuppliers)
+    {
+        var result = new Dictionary<string, bool>();
+
+        foreach (var (rootKey, rootValue) in rootAgencySuppliers)
+        {
+            var (childKey, childValue) = childAgencySuppliers.FirstOrDefault(s => s.Key == rootKey);
+            if (childKey == null)
+            {
+                result.Add(rootKey, rootValue);
+                continue;
+            }
+
+            var resultValue = (!rootValue) ? rootValue : childValue;
+            result.Add(rootKey, resultValue);
+        }
+
+        var childLeftSuppliers = childAgencySuppliers
+            .Where(s => !result.ContainsKey(s.Key))
+            .ToDictionary(s => s.Key, s => s.Value);
+
+        if (childLeftSuppliers != default)
+            result = result.Union(childLeftSuppliers).ToDictionary(s => s.Key, s => s.Value);
+
+        return result;
+    }
+
+
     private readonly EdoContext _context;
     private readonly ISupplierOptionsStorage _supplierOptionsStorage;
 }

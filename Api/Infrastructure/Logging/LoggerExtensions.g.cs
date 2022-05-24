@@ -152,6 +152,9 @@ public static partial class LoggerExtensions
     [LoggerMessage(1145, LogLevel.Error, "Supplier availability search exception on supplier '{Supplier}'")]
     static partial void SupplierAvailabilitySearchException(ILogger logger, System.Exception exception, string Supplier);
     
+    [LoggerMessage(1146, LogLevel.Information, "Found cached results for supplier '{Supplier}' and searchId '{SearchId}'")]
+    static partial void FoundCachedResults(ILogger logger, string Supplier, System.Guid SearchId);
+    
     [LoggerMessage(1150, LogLevel.Debug, "Successfully checked agency verification state for agent {Email}")]
     static partial void AgencyVerificationStateAuthorizationSuccess(ILogger logger, string Email);
     
@@ -257,100 +260,100 @@ public static partial class LoggerExtensions
     [LoggerMessage(1806, LogLevel.Warning, "Request to a mapper management endpoint failed with timeout")]
     static partial void MapperManagementClientRequestTimeout(ILogger logger, System.Exception exception);
     
-    [LoggerMessage(0, LogLevel.Debug, "MarkupPolicyStorage refreshed. Was set {Count} entities")]
+    [LoggerMessage(1090, LogLevel.Debug, "MarkupPolicyStorage refreshed. Was set {Count} entities")]
     static partial void MarkupPolicyStorageRefreshed(ILogger logger, int Count);
     
-    [LoggerMessage(0, LogLevel.Debug, "Markup policy storage update completed")]
+    [LoggerMessage(1091, LogLevel.Debug, "Markup policy storage update completed")]
     static partial void MarkupPolicyStorageUpdateCompleted(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Error, "Markup policy storage update failed")]
+    [LoggerMessage(1092, LogLevel.Error, "Markup policy storage update failed")]
     static partial void MarkupPolicyStorageUpdateFailed(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Error, "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`")]
+    [LoggerMessage(1093, LogLevel.Error, "Currency conversion failed. Source currency: `{Source}`, target currency: `{Target}`. Error: `{Error}`")]
     static partial void CurrencyConversionFailed(ILogger logger, HappyTravel.Money.Enums.Currencies Source, HappyTravel.Money.Enums.Currencies Target, string Error);
     
-    [LoggerMessage(0, LogLevel.Information, "NGenius webhook processing started")]
+    [LoggerMessage(1095, LogLevel.Information, "NGenius webhook processing started")]
     static partial void NGeniusWebhookProcessingStarted(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Information, "Started updating payment by NGenius webhook")]
+    [LoggerMessage(1096, LogLevel.Information, "Started updating payment by NGenius webhook")]
     static partial void NGeniusWebhookPaymentUpdate(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Information, "Started updating payment link by NGenius webhook")]
+    [LoggerMessage(1097, LogLevel.Information, "Started updating payment link by NGenius webhook")]
     static partial void NGeniusWebhookPaymentLinkUpdate(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Error, "Booking {ReferenceCode} exceeded time limit")]
+    [LoggerMessage(1098, LogLevel.Error, "Booking {ReferenceCode} exceeded time limit")]
     static partial void BookingExceededTimeLimit(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Generated invoice number {InvoiceNumber} for booking {ReferenceCode}")]
+    [LoggerMessage(1100, LogLevel.Information, "Generated invoice number {InvoiceNumber} for booking {ReferenceCode}")]
     static partial void InvoiceGenerated(ILogger logger, string InvoiceNumber, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Сredit card booking flow started for htId {HtId}")]
+    [LoggerMessage(1103, LogLevel.Information, "Сredit card booking flow started for htId {HtId}")]
     static partial void CreditCardBookingFlowStarted(ILogger logger, string HtId);
     
-    [LoggerMessage(0, LogLevel.Information, "Vcc issue started for booking {ReferenceCode}")]
+    [LoggerMessage(1104, LogLevel.Information, "Vcc issue started for booking {ReferenceCode}")]
     static partial void VccIssueStarted(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card authorization started. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1110, LogLevel.Information, "Credit card authorization started. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardAuthorizationStarted(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card authorization success. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1111, LogLevel.Information, "Credit card authorization success. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardAuthorizationSuccess(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card authorization failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
+    [LoggerMessage(1112, LogLevel.Information, "Credit card authorization failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
     static partial void CreditCardAuthorizationFailure(ILogger logger, string ReferenceCode, string Error);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card capturing started. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1113, LogLevel.Information, "Credit card capturing started. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardCapturingStarted(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card capturing success. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1114, LogLevel.Information, "Credit card capturing success. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardCapturingSuccess(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Error, "Credit card capturing failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
+    [LoggerMessage(1115, LogLevel.Error, "Credit card capturing failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
     static partial void CreditCardCapturingFailure(ILogger logger, string ReferenceCode, string Error);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card voiding started. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1116, LogLevel.Information, "Credit card voiding started. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardVoidingStarted(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card voiding success. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1117, LogLevel.Information, "Credit card voiding success. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardVoidingSuccess(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Error, "Credit card voiding failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
+    [LoggerMessage(1118, LogLevel.Error, "Credit card voiding failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
     static partial void CreditCardVoidingFailure(ILogger logger, string ReferenceCode, string Error);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card refunding started. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1119, LogLevel.Information, "Credit card refunding started. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardRefundingStarted(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card refunding success. ReferenceCode: {ReferenceCode}")]
+    [LoggerMessage(1120, LogLevel.Information, "Credit card refunding success. ReferenceCode: {ReferenceCode}")]
     static partial void CreditCardRefundingSuccess(ILogger logger, string ReferenceCode);
     
-    [LoggerMessage(0, LogLevel.Error, "Credit card refunding failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
+    [LoggerMessage(1121, LogLevel.Error, "Credit card refunding failed. ReferenceCode: {ReferenceCode}, Error: {Error}")]
     static partial void CreditCardRefundingFailure(ILogger logger, string ReferenceCode, string Error);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card processing payment started")]
+    [LoggerMessage(1122, LogLevel.Information, "Credit card processing payment started")]
     static partial void CreditCardProcessingPaymentStarted(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Information, "Credit card processing payment success")]
+    [LoggerMessage(1123, LogLevel.Information, "Credit card processing payment success")]
     static partial void CreditCardProcessingPaymentSuccess(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Error, "Credit card processing payment failed. Error: {Error}")]
+    [LoggerMessage(1124, LogLevel.Error, "Credit card processing payment failed. Error: {Error}")]
     static partial void CreditCardProcessingPaymentFailure(ILogger logger, string Error);
     
-    [LoggerMessage(0, LogLevel.Debug, "Discount storage refreshed. Was set {Count} entities")]
+    [LoggerMessage(1130, LogLevel.Debug, "Discount storage refreshed. Was set {Count} entities")]
     static partial void DiscountStorageRefreshed(ILogger logger, int Count);
     
-    [LoggerMessage(0, LogLevel.Debug, "Discount storage update completed")]
+    [LoggerMessage(1131, LogLevel.Debug, "Discount storage update completed")]
     static partial void DiscountStorageUpdateCompleted(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Error, "Discount storage update failed")]
+    [LoggerMessage(1132, LogLevel.Error, "Discount storage update failed")]
     static partial void DiscountStorageUpdateFailed(ILogger logger);
     
-    [LoggerMessage(0, LogLevel.Warning, "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}")]
+    [LoggerMessage(1133, LogLevel.Warning, "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}")]
     static partial void MarkupPoliciesSumLessThanZero(ILogger logger, int AgentId, decimal TotalPercentage, string Policies);
     
-    [LoggerMessage(0, LogLevel.Warning, "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; RootShift: {RootShift}; AgencyShift: {AgencyShift}; AgentShift: {AgentShift};")]
+    [LoggerMessage(1134, LogLevel.Warning, "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; RootShift: {RootShift}; AgencyShift: {AgencyShift}; AgentShift: {AgentShift};")]
     static partial void TotalDeadlineShiftIsPositive(ILogger logger, int AgentId, int AgencyId, int RootShift, int AgencyShift, int AgentShift);
     
-    [LoggerMessage(0, LogLevel.Warning, "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}")]
+    [LoggerMessage(1140, LogLevel.Warning, "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}")]
     static partial void ConnectorClientDelay(ILogger logger, double Delay, string Message, int Retry);
     
     
@@ -501,6 +504,9 @@ public static partial class LoggerExtensions
     
     public static void LogSupplierAvailabilitySearchException(this ILogger logger, System.Exception exception, string Supplier)
         => SupplierAvailabilitySearchException(logger, exception, Supplier);
+    
+    public static void LogFoundCachedResults(this ILogger logger, string Supplier, System.Guid SearchId)
+        => FoundCachedResults(logger, Supplier, SearchId);
     
     public static void LogAgencyVerificationStateAuthorizationSuccess(this ILogger logger, string Email)
         => AgencyVerificationStateAuthorizationSuccess(logger, Email);
