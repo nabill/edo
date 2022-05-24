@@ -9,7 +9,7 @@ public record CompanyAccountInfo
     public string AccountNumber { get; init; }
     public string Iban { get; init; }
     public CompanyBankInfo? CompanyBank { get; init; }
-    public IntermediaryBank IntermediaryBank { get; init; }
+    public IntermediaryBank? IntermediaryBank { get; init; }
     
     public bool IsDefault { get; init; }
 }

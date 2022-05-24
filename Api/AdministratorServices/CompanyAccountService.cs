@@ -134,10 +134,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 account.Currency = accountInfo.Currency;
                 account.Iban = accountInfo.Iban;
                 account.AccountNumber = accountInfo.AccountNumber;
-                account.IntermediaryBankName = accountInfo.IntermediaryBank.BankName;
-                account.IntermediaryBankAccountNumber = accountInfo.IntermediaryBank.AccountNumber;
-                account.IntermediaryBankSwiftCode = accountInfo.IntermediaryBank.SwiftCode;
-                account.IntermediaryBankAbaNo = accountInfo.IntermediaryBank.AbaNo;
+                account.IntermediaryBankName = accountInfo.IntermediaryBank?.BankName;
+                account.IntermediaryBankAccountNumber = accountInfo.IntermediaryBank?.AccountNumber;
+                account.IntermediaryBankSwiftCode = accountInfo.IntermediaryBank?.SwiftCode;
+                account.IntermediaryBankAbaNo = accountInfo.IntermediaryBank?.AbaNo;
                 account.Modified = _dateTimeProvider.UtcNow();
 
                 _context.Update(account);
@@ -199,6 +199,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.Currency).NotEmpty();
                     v.RuleFor(r => r.AccountNumber).NotEmpty();
                     v.RuleFor(r => r.Iban).NotEmpty();
+                    
+                    v.RuleFor(r => r.IntermediaryBank!.AccountNumber).NotEmpty().When(r => r.IntermediaryBank is not null);
+                    v.RuleFor(r => r.IntermediaryBank!.BankName).NotEmpty().When(r => r.IntermediaryBank is not null);
+                    v.RuleFor(r => r.IntermediaryBank!.SwiftCode).NotEmpty().When(r => r.IntermediaryBank is not null);
+                    v.RuleFor(r => r.IntermediaryBank!.AbaNo).NotEmpty().When(r => r.IntermediaryBank is not null);
                 },
                 companyBankInfo);
 
