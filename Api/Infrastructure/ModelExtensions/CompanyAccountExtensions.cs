@@ -30,6 +30,7 @@ public static class CompanyAccountExtensions
     {
         return new CompanyBankInfo
         {
+            Id = companyBank.Id,
             Name = companyBank.Name,
             RoutingCode = companyBank.RoutingCode,
             SwiftCode = companyBank.SwiftCode,
