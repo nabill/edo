@@ -573,6 +573,14 @@
             <param name="bankId">Id of the company bank</param>
             <param name="accountId">Id of the company account to modify</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.SetDefault(System.Int32,System.Int32)">
+            <summary>
+                Edits an existing company bank
+            </summary>
+            <param name="accountInfo">New info for the company account</param>
+            <param name="bankId"></param>
+            <param name="accountId"></param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
             Creates new direct api client in identity service
