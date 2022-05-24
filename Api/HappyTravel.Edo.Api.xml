@@ -3472,6 +3472,16 @@
                 Verify reason.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ContractKindChangeRequest.ContractKind">
+            <summary>
+            Contract type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.ContractKindChangeRequest.Reason">
+            <summary>
+            Verify reason.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.ManualBookingCancellationRequest.CancellationDate">
             <summary>
             Date when booking was actually cancelled on supplier end. This value affects applied cancellation penalties
