@@ -98,15 +98,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task<Result<List<CompanyAccountInfo>>> GetAccounts(int bankId)
         {
-            return GetBank(bankId)
-                .Bind(_ => GetBankAccounts(bankId));
+            return IsBankExists(bankId)
+                .Bind(() => GetBankAccounts(bankId));
         }
 
 
         public Task<Result> AddAccount(int bankId, CompanyAccountInfo accountInfo)
         {
-            return GetBank(bankId)
-                .Bind(_ => ValidateAccountInfo(accountInfo))
+            return IsBankExists(bankId)
+                .Bind(() => ValidateAccountInfo(accountInfo))
                 .Tap(Add);
 
 
@@ -167,6 +167,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
                 ?? Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
+        
+        private async Task<Result> IsBankExists(int bankId)
+            => await _context.CompanyBanks
+                .AnyAsync(r => r.Id == bankId) 
+                ? Result.Success()
+                : Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
 
 
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
