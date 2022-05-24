@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
             => await _context.CompanyAccounts
                     .SingleOrDefaultAsync(r => r.Id == accountId && r.CompanyBankId == bankId)
-                ?? Result.Failure<CompanyAccount>($"An account Id {accountId} and CompanyBankId {bankId} does not exist");
+                ?? Result.Failure<CompanyAccount>($"An account Id {accountId} in bank Id {bankId} does not exist");
 
 
         private async Task<Result<List<CompanyAccountInfo>>> GetBankAccounts(int bankId)
