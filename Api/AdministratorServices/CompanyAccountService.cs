@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> RemoveBank(int bankId)
         {
             return await GetBank(bankId)
-                .Ensure(IsUnused, "This bank is in use and cannot be deleted")
+                .Ensure(IsUnused, "This bank is in use and cannot be removed")
                 .Tap(Remove);
 
 
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 account.IntermediaryBankAbaNo = accountInfo.IntermediaryBank?.AbaNo;
                 account.Modified = _dateTimeProvider.UtcNow();
 
-                _context.Update(account);
+                _context.CompanyAccounts.Update(account);
                 return _context.SaveChangesAsync();
             }
         }
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result> RemoveAccount(int bankId, int accountId)
         {
             return await GetAccount(bankId, accountId)
-                .Ensure(IsNotDefault, "This account is selected as default and cannot be deleted")
+                .Ensure(IsNotDefault, "This account is selected as default and cannot be removed")
                 .Tap(Remove);
 
             bool IsNotDefault(CompanyAccount account) => !account.IsDefault;
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
             => await _context.CompanyAccounts
                     .SingleOrDefaultAsync(r => r.Id == accountId || r.CompanyBankId == bankId)
-                ?? Result.Failure<CompanyAccount>("An account with specified Id and CompanyBankId does not exist");
+                ?? Result.Failure<CompanyAccount>($"An account Id {accountId} and CompanyBankId {bankId} does not exist");
 
 
         private async Task<Result<List<CompanyAccountInfo>>> GetBankAccounts(int bankId)
