@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private static Result ValidateBankInfo(CompanyBankInfo companyBankInfo)
             => GenericValidator<CompanyBankInfo>.Validate(v =>
                 {
-                    v.RuleFor(r => r.Name).NotEmpty(); v.RuleFor(r => r.Name).NotEmpty();
+                    v.RuleFor(r => r.Name).NotEmpty();
                     v.RuleFor(r => r.Address).NotEmpty();
                     v.RuleFor(r => r.RoutingCode).NotEmpty();
                     v.RuleFor(r => r.SwiftCode).NotEmpty();
