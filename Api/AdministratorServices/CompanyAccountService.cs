@@ -14,9 +14,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CompanyAccountService : ICompanyAccountService
     {
-        public CompanyAccountService(EdoContext context)
+        public CompanyAccountService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public Task<List<CompanyBankInfo>> GetAllBanks()
@@ -38,7 +39,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Add()
             {
-                _context.CompanyBanks.Add(companyBankInfo.ToCompanyBank());
+                var bank = companyBankInfo.ToCompanyBank();
+                bank.Created = _dateTimeProvider.UtcNow();
+                bank.Modified = _dateTimeProvider.UtcNow();
+                _context.CompanyBanks.Add(bank);
                 return _context.SaveChangesAsync();
             }
         }
@@ -63,7 +67,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 bank.Address = bankInfo.Address;
                 bank.RoutingCode = bankInfo.RoutingCode;
                 bank.SwiftCode = bankInfo.SwiftCode;
-                
+                bank.Modified = _dateTimeProvider.UtcNow();
                 _context.Update(bank);
                 return _context.SaveChangesAsync();
             }
@@ -103,5 +107,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 companyBankInfo);
         
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
