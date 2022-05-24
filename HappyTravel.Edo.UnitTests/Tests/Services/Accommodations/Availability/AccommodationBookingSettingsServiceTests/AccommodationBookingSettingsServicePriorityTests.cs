@@ -147,7 +147,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier3", "supplier4" },
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
@@ -184,7 +183,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySettings = Maybe<AgencyAccommodationBookingSettings>
                 .From(new AgencyAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier3", "supplier4" },
                     AprMode = AprMode.Hide,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
