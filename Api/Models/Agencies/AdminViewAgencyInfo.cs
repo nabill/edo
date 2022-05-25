@@ -37,9 +37,14 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public bool IsActive { get; init; }
 
         /// <summary>
-        /// Account manager info
+        /// Account manager id
         /// </summary>
-        public SlimAccountManager? AccountManager { get; init; }
+        public int? AccountManagerId { get; init; }
+
+        /// <summary>
+        /// Account manager full name
+        /// </summary>
+        public string? AccountManagerName { get; init; }
 
         /// <summary>
         /// Agency creation date

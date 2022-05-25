@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Api.Models.Management.Administrators;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.DataFormatters;
@@ -105,8 +104,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                    CountryName = country.Names.GetValueOrDefault(languageCode),
                    Created = agency.Created.DateTime,
                    VerificationState = agency.VerificationState,
-                   AccountManager = admin != null ?
-                       new SlimAccountManager(admin.Id, PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null)) :
+                   AccountManagerId = admin != null ?
+                       admin.Id :
+                       null,
+                   AccountManagerName = admin != null ?
+                       PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                        null,
                    IsActive = agency.IsActive
                };
