@@ -116,19 +116,21 @@ using Microsoft.Extensions.Logging;
 using Api.Services.Markups;
 using Api.Infrastructure.Options;
 using Api.AdministratorServices;
+using HappyTravel.Edo.Common.Infrastructure.Options;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, string apiName, string authorityUrl)
+        public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, AuthorityOptions authorityOptions)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = authorityUrl;
-                    options.Audience = apiName;
+                    options.Authority = authorityOptions.AuthorityUrl;
+                    options.Audience = authorityOptions.Audience;
                     options.RequireHttpsMetadata = true;
+                    options.AutomaticRefreshInterval = authorityOptions.AutomaticRefreshInterval;
                     options.Events = new JwtBearerEvents
                     {
                         OnMessageReceived = context =>
