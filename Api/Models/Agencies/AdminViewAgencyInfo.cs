@@ -1,4 +1,5 @@
 ﻿using System;
+using Api.Models.Management.Administrators;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -36,9 +37,9 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public bool IsActive { get; init; }
 
         /// <summary>
-        /// Name of the account manager
+        /// Account manager info
         /// </summary>
-        public string? AccountManagerName { get; init; }
+        public SlimAccountManager? AccountManager { get; init; }
 
         /// <summary>
         /// Agency creation date
