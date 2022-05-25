@@ -2381,9 +2381,9 @@
             Activity status
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManagerName">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManager">
             <summary>
-            Name of the account manager
+            Account manager info
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Created">
@@ -4176,6 +4176,16 @@
         <member name="P:Api.Models.Management.Administrators.AccountManager.Position">
             <summary>
             Position
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.SlimAccountManager.Id">
+            <summary>
+            Id of account manager
+            </summary>
+        </member>
+        <member name="P:Api.Models.Management.Administrators.SlimAccountManager.Name">
+            <summary>
+            Full name
             </summary>
         </member>
         <member name="P:Api.Models.Markups.Supplier.SupplierMarkupRequest.Description">
