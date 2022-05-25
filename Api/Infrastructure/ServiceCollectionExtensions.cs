@@ -115,6 +115,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using Microsoft.Extensions.Logging;
 using Api.Services.Markups;
 using Api.Infrastructure.Options;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -679,6 +680,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMarketManagementService, MarketManagementService>();
             services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
+            services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
 
             var suppliersEndpoint = configuration.GetValue<string>("Suppliers:Endpoint");

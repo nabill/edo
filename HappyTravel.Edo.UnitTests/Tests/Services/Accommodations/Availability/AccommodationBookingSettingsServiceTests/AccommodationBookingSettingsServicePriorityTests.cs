@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
 using Xunit;
 using Moq;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.AccommodationBookingSettingsServiceTests
 {
@@ -105,11 +106,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [Fact]
         public async Task Agent_settings_must_apply_when_only_agent_settings_found()
         {
-            var expectedSupplierOptions = new List<string> { "supplier1", "supplier2" };
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier1", "supplier2" },
                     AprMode = AprMode.CardPurchasesOnly,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
@@ -127,20 +126,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
             Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
-
-            for (int i = 0; i < expectedSupplierOptions.Count; i++)
-                Assert.Equal(expectedSupplierOptions[i], settings.EnabledConnectors[i]);
         }
 
 
         [Fact]
         public async Task Agent_settings_must_apply_when_agent_and_agency_settings_found()
         {
-            var expectedSupplierOptions = new List<string> { "supplier1", "supplier2" };
             var agentSettings = Maybe<AgentAccommodationBookingSettings>
                 .From(new AgentAccommodationBookingSettings
                 {
-                    EnabledSuppliers = new List<string> { "supplier1", "supplier2" },
                     AprMode = AprMode.CardPurchasesOnly,
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                 });
@@ -163,9 +157,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
             Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
-
-            for (int i = 0; i < expectedSupplierOptions.Count; i++)
-                Assert.Equal(expectedSupplierOptions[i], settings.EnabledConnectors[i]);
         }
 
 
@@ -243,12 +234,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         }
 
 
-        private IAgencySupplierManagementService GetAgencySupplierManagementService(Dictionary<string, bool> defaultSuppliers)
+        private IAgentSupplierManagementService GetAgencySupplierManagementService(Dictionary<string, bool> defaultSuppliers)
         {
             var enabledSuppliers = defaultSuppliers.Where(s => s.Value)
                 .ToDictionary(s => s.Key, s => s.Value);
 
-            var mock = new Mock<IAgencySupplierManagementService>();
+            var mock = new Mock<IAgentSupplierManagementService>();
             mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
                 .Returns(Task.FromResult(Result.Success(enabledSuppliers)));
             return mock.Object;

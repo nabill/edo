@@ -13,6 +13,7 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Logging;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
-            IAgencySupplierManagementService agencySupplierManagementService,
+            IAgentSupplierManagementService agentSupplierManagementService,
             ILogger<AccommodationBookingSettingsService> logger
             )
         {
@@ -30,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             _agentSystemSettingsService = agentSystemSettingsService;
             _agencySystemSettingsService = agencySystemSettingsService;
             _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
-            _agencySupplierManagementService = agencySupplierManagementService;
+            _agentSupplierManagementService = agentSupplierManagementService;
             _logger = logger;
         }
 
@@ -50,19 +51,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 return await MergeSettings(agentSettings, agencySettings, rootAgencySettings, agent.AgencyId);
             }, SettingsCacheLifetime);
-            
-            
-            async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings, 
+
+
+            async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings,
                 RootAgencyAccommodationBookingSettings rootAgencySettings, int agencyId)
             {
-                var agentSettingsValue = agentSettings.HasValue 
+                var agentSettingsValue = agentSettings.HasValue
                     ? agentSettings.Value
                     : null;
-                var agencySettingsValue = agencySettings.HasValue 
+                var agencySettingsValue = agencySettings.HasValue
                     ? agencySettings.Value
                     : null;
 
-                List<string> enabledConnectors = agentSettingsValue?.EnabledSuppliers ?? await GetEnabledConnectors(agencyId);
+                List<string> enabledConnectors = await GetEnabledConnectors(agencyId, agent.AgentId);
                 AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
                 PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
                     DefaultPassedDeadlineOffersMode;
@@ -102,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     agentShift = agentSettings.Value.CustomDeadlineShift.Value;
 
                 var totalShift = rootShift + agencyShift + agentShift;
-                
+
                 if (totalShift > 0)
                 {
                     _logger.LogTotalDeadlineShiftIsPositive(agent.AgentId, agent.AgencyId, rootShift, agencyShift, agentShift);
@@ -118,10 +119,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
         // TODO refactor when materialized agent settings will be ready
-        private async Task<List<string>> GetEnabledConnectors(int agencyId)
+        private async Task<List<string>> GetEnabledConnectors(int agencyId, int agentId)
         {
-            var suppliers = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
-            return suppliers.Value.Select(s => s.Key).ToList();
+            var (_, isFailure, agentSuppliers) = await _agentSupplierManagementService.GetMaterializedSuppliers(agentId);
+            return agentSuppliers.Where(s => s.Value).Select(s => s.Key).ToList();
         }
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
@@ -132,8 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly ILogger<AccommodationBookingSettingsService> _logger;
-        private readonly IAgencySupplierManagementService _agencySupplierManagementService;
-
+        private readonly IAgentSupplierManagementService _agentSupplierManagementService;
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;
     }
