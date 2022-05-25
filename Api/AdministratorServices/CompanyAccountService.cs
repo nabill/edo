@@ -131,7 +131,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Modify(CompanyAccount account)
             {
-                account.Currency = accountInfo.Currency;
                 account.Iban = accountInfo.Iban;
                 account.AccountNumber = accountInfo.AccountNumber;
                 account.IntermediaryBankName = accountInfo.IntermediaryBank?.BankName;
