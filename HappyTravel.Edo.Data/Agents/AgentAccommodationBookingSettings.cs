@@ -6,6 +6,11 @@ namespace HappyTravel.Edo.Data.Agents
 {
     public class AgentAccommodationBookingSettings
     {
+        /// <summary>
+        /// Enabled suppliers list
+        /// </summary>
+        public List<string> EnabledSuppliers { get; set; }
+
         public AprMode? AprMode { get; set; }
 
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
