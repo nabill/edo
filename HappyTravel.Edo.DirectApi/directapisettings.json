@@ -10,9 +10,6 @@
     "ContractsS3FolderName": "contracts",
     "ImagesS3FolderName": "images"
   },
-  "Authority": {
-    "Options": "edo"
-  },
   "ConnectionStrings": {
     "Edo": "Server={0};Port={1};Database=edo;Userid={2};Password={3}"
   },
