@@ -2381,9 +2381,14 @@
             Activity status
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManager">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManagerId">
             <summary>
-            Account manager info
+            Account manager id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.AccountManagerName">
+            <summary>
+            Account manager full name
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Created">
