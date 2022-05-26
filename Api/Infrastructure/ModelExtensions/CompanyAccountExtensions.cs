@@ -32,11 +32,11 @@ public static class CompanyAccountExtensions
             Currency = companyAccountInfo.Currency,
             AccountNumber = companyAccountInfo.AccountNumber,
             Iban = companyAccountInfo.Iban,
-            CompanyBankId = companyAccountInfo.CompanyBank.Id,
-            IntermediaryBankName = companyAccountInfo.IntermediaryBank.BankName,
-            IntermediaryBankAccountNumber = companyAccountInfo.IntermediaryBank.AccountNumber,
-            IntermediaryBankSwiftCode = companyAccountInfo.IntermediaryBank.SwiftCode,
-            IntermediaryBankAbaNo = companyAccountInfo.IntermediaryBank.AbaNo,
+            CompanyBankId = companyAccountInfo.CompanyBank?.Id ?? default,
+            IntermediaryBankName = companyAccountInfo.IntermediaryBank?.BankName,
+            IntermediaryBankAccountNumber = companyAccountInfo.IntermediaryBank?.AccountNumber,
+            IntermediaryBankSwiftCode = companyAccountInfo.IntermediaryBank?.SwiftCode,
+            IntermediaryBankAbaNo = companyAccountInfo.IntermediaryBank?.AbaNo,
             IsDefault = companyAccountInfo.IsDefault
         };
     }
