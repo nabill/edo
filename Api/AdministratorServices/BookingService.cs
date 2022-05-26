@@ -72,24 +72,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task NormalizeBookingsPrices()
-        {
-            var bookings = await _context.Bookings.ToListAsync();
-
-            bookings.ForEach(b =>
-            {
-                b.Rooms.ForEach(r =>
-                {
-                    r.NetPrice = r.NetPrice == default ? r.Price : r.NetPrice;
-                    r.Commission = r.Commission == default ? 0m : r.Commission;
-                });
-            });
-
-            _context.UpdateRange(bookings);
-            await _context.SaveChangesAsync();
-        }
-
-
         private readonly EdoContext _context;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }

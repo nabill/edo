@@ -505,15 +505,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.NormalizeBookingsPrices">
-            <summary>
-                Normalize bookings' prices 
-                All net prices in booked rooms become equal to total prices
-                And commissions set to zero
-                NOTE: Do not request to this endpoint
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
             <summary>
                 Gets booking status changes history
