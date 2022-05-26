@@ -2336,6 +2336,11 @@
             Check out date
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.ExpiredAfter">
+            <summary>
+            Expiration date
+            </summary>>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.SupplierCode">
             <summary>
             Supplier code
