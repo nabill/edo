@@ -16,6 +16,7 @@ public record CachedAccommodationAvailabilityResult
     public decimal MaxPrice { get; init; }
     public DateTimeOffset CheckInDate { get; init; }
     public DateTimeOffset CheckOutDate { get; init; }
+    public DateTimeOffset ExpiredAfter { get; init; }
     public string HtId { get; init; } = string.Empty;
     public string SupplierAccommodationCode { get; init; } = string.Empty;
     public string CountryHtId { get; init; } = string.Empty;

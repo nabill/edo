@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<Guid> GetSearchId(string requestHash)
         {
-            var date = _dateTimeProvider.UtcNow().Subtract(_searchIdExpiredAfter);
+            var date = _dateTimeProvider.UtcNow().Subtract(_searchIdExpirationBuffer);
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
             var projection = Builders<CachedAccommodationAvailabilityResult>.Projection
                 .Expression(x => new CachedAccommodationAvailabilityResult
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var filter = filterBuilder.And(new[]
             {
                 filterBuilder.Eq(x => x.RequestHash, requestHash),
-                filterBuilder.Gte(x => x.Created, date)
+                filterBuilder.Gte(x => x.ExpiredAfter, date)
             });
 
             var options = new FindOptions<CachedAccommodationAvailabilityResult>
@@ -216,12 +216,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        private readonly TimeSpan _searchIdExpiredAfter = TimeSpan.FromMinutes(30);
+        private readonly TimeSpan _searchIdExpirationBuffer = TimeSpan.FromMinutes(15);
 
 
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccommodationMapperClient _mapperClient;
-        
     }
 }

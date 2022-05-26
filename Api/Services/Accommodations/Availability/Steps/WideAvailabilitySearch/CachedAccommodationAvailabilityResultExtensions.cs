@@ -20,6 +20,7 @@ public static class CachedAccommodationAvailabilityResultExtensions
             maxPrice: result.MaxPrice,
             checkInDate: result.CheckInDate,
             checkOutDate: result.CheckOutDate,
+            expiredAfter: result.ExpiredAfter,
             htId: result.HtId,
             supplierAccommodationCode: result.SupplierAccommodationCode,
             countryHtId: result.CountryHtId,
