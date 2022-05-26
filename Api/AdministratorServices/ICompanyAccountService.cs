@@ -22,6 +22,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> RemoveAccount(int bankId, int accountId);
 
         Task<Result> ModifyAccount(int bankId, int accountId, CompanyAccountInfo accountInfo);
-     
+
+        Task<Result> SetAccountAsDefault(int bankId, int accountId);
+       
     }
 }
