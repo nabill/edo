@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> Add([FromBody]CompanyBankInfo bankInfo)
+        public async Task<IActionResult> AddBank([FromBody]CompanyBankInfo bankInfo)
             => NoContentOrBadRequest(await _companyAccountService.AddBank(bankInfo));
 
 
@@ -69,6 +69,56 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> RemoveBank([FromRoute] int bankId)
             => NoContentOrBadRequest(await _companyAccountService.RemoveBank(bankId));
         
+        /// <summary>
+        ///     Gets company accounts list for bank
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        [HttpGet("company/banks/{bankId:int}/accounts")]
+        [ProducesResponseType(typeof(List<CompanyAccountInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> GetCompanyAccounts([FromRoute] int bankId) 
+            => OkOrBadRequest(await _companyAccountService.GetAccounts(bankId));
+        
+        /// <summary>
+        ///     Adds a new company account for bank
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountInfo">A new company bank info</param>
+        [HttpPost("company/banks/{bankId:int}/accounts")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> AddAccount([FromBody]CompanyAccountInfo accountInfo, [FromRoute] int bankId)
+            => NoContentOrBadRequest(await _companyAccountService.AddAccount(bankId, accountInfo));
+        
+        /// <summary>
+        ///     Removes company bank account
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountId">Id of the company account to remove</param>
+        [HttpDelete("company/banks/{bankId:int}/accounts/{accountId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> RemoveAccount([FromRoute] int bankId, [FromRoute] int accountId)
+            => NoContentOrBadRequest(await _companyAccountService.RemoveAccount(bankId, accountId));
+        
+        /// <summary>
+        ///     Modifies an existing company bank account
+        /// </summary>
+        /// <remarks>
+        ///     Currency modification is ignored.
+        /// </remarks>
+        /// <param name="accountInfo">New info for the company account</param>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountId">Id of the company account to modify</param>
+        [HttpPut("company/banks/{bankId:int}/accounts/{accountId:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> ModifyAccount([FromBody] CompanyAccountInfo accountInfo, [FromRoute] int bankId, [FromRoute] int accountId)
+            => NoContentOrBadRequest(await _companyAccountService.ModifyAccount(bankId, accountId, accountInfo));
         
         private readonly ICompanyAccountService _companyAccountService;
     }

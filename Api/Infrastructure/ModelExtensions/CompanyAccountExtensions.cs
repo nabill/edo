@@ -5,17 +5,16 @@ namespace HappyTravel.Edo.Api.Infrastructure.ModelExtensions;
 
 public static class CompanyAccountExtensions
 {
-    public static CompanyAccountInfo ToCompanyAccount(this CompanyAccount companyAccount)
+    public static CompanyAccountInfo ToCompanyAccountInfo(this CompanyAccount companyAccount)
     {
         return new CompanyAccountInfo
         {
+            Id = companyAccount.Id,
             Currency = companyAccount.Currency,
             AccountNumber = companyAccount.AccountNumber,
             Iban = companyAccount.Iban,
-            BankAddress = companyAccount.CompanyBank.Address,
-            BankName = companyAccount.CompanyBank.Name,
-            RoutingCode = companyAccount.CompanyBank.RoutingCode,
-            SwiftCode = companyAccount.CompanyBank.SwiftCode,
+            CompanyBank = companyAccount.CompanyBank?.ToCompanyBankInfo(),
+            IsDefault = companyAccount.IsDefault,
             IntermediaryBank = new IntermediaryBank
             {
                 BankName = companyAccount.IntermediaryBankName,
@@ -23,6 +22,22 @@ public static class CompanyAccountExtensions
                 SwiftCode = companyAccount.IntermediaryBankSwiftCode,
                 AbaNo = companyAccount.IntermediaryBankAbaNo
             }
+        };
+    }
+    
+    public static CompanyAccount ToCompanyAccount(this CompanyAccountInfo companyAccountInfo)
+    {
+        return new CompanyAccount
+        {
+            Currency = companyAccountInfo.Currency,
+            AccountNumber = companyAccountInfo.AccountNumber,
+            Iban = companyAccountInfo.Iban,
+            CompanyBankId = companyAccountInfo.CompanyBank.Id,
+            IntermediaryBankName = companyAccountInfo.IntermediaryBank.BankName,
+            IntermediaryBankAccountNumber = companyAccountInfo.IntermediaryBank.AccountNumber,
+            IntermediaryBankSwiftCode = companyAccountInfo.IntermediaryBank.SwiftCode,
+            IntermediaryBankAbaNo = companyAccountInfo.IntermediaryBank.AbaNo,
+            IsDefault = companyAccountInfo.IsDefault
         };
     }
     

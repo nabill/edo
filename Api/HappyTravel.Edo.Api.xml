@@ -526,7 +526,7 @@
                 Gets company banks list
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Add(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.AddBank(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
             <summary>
                 Adds a new company bank
             </summary>
@@ -544,6 +544,34 @@
                 Removes a company bank
             </summary>
             <param name="bankId">Id of the company bank to delete</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyAccounts(System.Int32)">
+            <summary>
+                Gets company accounts list for bank
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.AddAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32)">
+            <summary>
+                Adds a new company account for bank
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountInfo">A new company bank info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveAccount(System.Int32,System.Int32)">
+            <summary>
+                Removes a company bank
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to remove</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32,System.Int32)">
+            <summary>
+                Modifies an existing company bank
+            </summary>
+            <param name="accountInfo">New info for the company account</param>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to modify</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
