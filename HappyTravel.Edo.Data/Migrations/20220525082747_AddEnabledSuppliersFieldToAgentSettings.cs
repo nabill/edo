@@ -16,15 +16,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "AgentSystemSettings",
                 type: "jsonb",
                 nullable: true);
-
-            var context = new EdoContextFactory().CreateDbContext(Array.Empty<string>());
-            var agentSettings = context.AgentSystemSettings.ToList();
-            agentSettings.ForEach(a
-                => a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers.Add(s, true))
-            );
-
-            context.UpdateRange(agentSettings);
-            context.SaveChanges();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
