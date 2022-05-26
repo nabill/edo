@@ -162,6 +162,30 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public async Task<Result> SetAccountAsDefault(int bankId, int accountId)
+        {
+            return await GetAccount(bankId, accountId)
+                .Tap(SetDefault);
+
+
+            async Task SetDefault(CompanyAccount companyAccount)
+            {
+                var currencyAccounts = await _context.CompanyAccounts
+                    .Where(ca => ca.Currency == companyAccount.Currency && ca.Id != accountId)
+                    .ToListAsync();
+                foreach (var currencyAccount in currencyAccounts)
+                {
+                    currencyAccount.IsDefault = false;
+                }
+
+                _context.CompanyAccounts.UpdateRange(currencyAccounts);
+                companyAccount.IsDefault = true;
+                _context.CompanyAccounts.Update(companyAccount);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
         private async Task<Result<CompanyBank>> GetBank(int bankId)
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
@@ -204,7 +228,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.Currency).NotEmpty();
                     v.RuleFor(r => r.AccountNumber).NotEmpty();
                     v.RuleFor(r => r.Iban).NotEmpty();
-                    
+
                     v.RuleFor(r => r.IntermediaryBank!.AccountNumber).NotEmpty().When(r => r.IntermediaryBank is not null);
                     v.RuleFor(r => r.IntermediaryBank!.BankName).NotEmpty().When(r => r.IntermediaryBank is not null);
                     v.RuleFor(r => r.IntermediaryBank!.SwiftCode).NotEmpty().When(r => r.IntermediaryBank is not null);

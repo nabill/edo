@@ -120,6 +120,18 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> ModifyAccount([FromBody] CompanyAccountInfo accountInfo, [FromRoute] int bankId, [FromRoute] int accountId)
             => NoContentOrBadRequest(await _companyAccountService.ModifyAccount(bankId, accountId, accountInfo));
         
+        /// <summary>
+        ///     Sets a company bank account as default
+        /// </summary>
+        /// <param name="bankId">Id of the company bank</param>
+        /// <param name="accountId">Id of the company account to set default</param>
+        [HttpPost("company/banks/{bankId:int}/accounts/{accountId:int}/set-default")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> SetAccountAsDefault([FromRoute] int bankId, [FromRoute] int accountId)
+            => NoContentOrBadRequest(await _companyAccountService.SetAccountAsDefault(bankId, accountId));
+        
         private readonly ICompanyAccountService _companyAccountService;
     }
 }
