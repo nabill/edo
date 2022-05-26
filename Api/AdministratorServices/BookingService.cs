@@ -6,8 +6,6 @@ using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.SupplierOptionsProvider;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -40,31 +38,31 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 : suppliers.ToDictionary(s => s.Code, s => s.Name);
 
             var query = from booking in _context.Bookings
-                        join agent in _context.Agents on booking.AgentId equals agent.Id
-                        join agency in _context.Agencies on booking.AgencyId equals agency.Id
-                        select new BookingSlim
-                        {
-                            Id = booking.Id,
-                            ReferenceCode = booking.ReferenceCode,
-                            HtId = booking.HtId,
-                            AccommodationName = booking.AccommodationName,
-                            AgencyId = booking.AgencyId,
-                            AgentId = booking.AgentId,
-                            AgencyName = agency.Name,
-                            AgentName = $"{agent.FirstName} {agent.LastName}",
-                            Created = booking.Created,
-                            Currency = booking.Currency,
-                            PaymentStatus = booking.PaymentStatus,
-                            PaymentType = booking.PaymentType,
-                            TotalPrice = booking.TotalPrice,
-                            CheckInDate = booking.CheckInDate,
-                            CheckOutDate = booking.CheckOutDate,
-                            DeadlineDate = booking.DeadlineDate,
-                            Status = booking.Status,
-                            Supplier = suppliersDictionary[booking.SupplierCode],
-                            SupplierCode = booking.SupplierCode,
-                            CancellationDate = booking.Cancelled
-                        };
+                join agent in _context.Agents on booking.AgentId equals agent.Id
+                join agency in _context.Agencies on booking.AgencyId equals agency.Id
+                select new BookingSlim
+                {
+                    Id = booking.Id,
+                    ReferenceCode = booking.ReferenceCode,
+                    HtId = booking.HtId,
+                    AccommodationName = booking.AccommodationName,
+                    AgencyId = booking.AgencyId,
+                    AgentId = booking.AgentId,
+                    AgencyName = agency.Name,
+                    AgentName = $"{agent.FirstName} {agent.LastName}",
+                    Created = booking.Created,
+                    Currency = booking.Currency,
+                    PaymentStatus = booking.PaymentStatus,
+                    PaymentType = booking.PaymentType,
+                    TotalPrice = booking.TotalPrice,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    DeadlineDate = booking.DeadlineDate,
+                    Status = booking.Status,
+                    Supplier = suppliersDictionary[booking.SupplierCode],
+                    SupplierCode = booking.SupplierCode,
+                    CancellationDate = booking.Cancelled
+                };
 
             return expression == null
                 ? query
