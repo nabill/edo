@@ -23,17 +23,10 @@ namespace Api.AdministratorServices
         }
 
 
-        public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agentId)
+        public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId, int agentId)
         {
             var agentSettings = await _context.AgentSystemSettings
                 .SingleOrDefaultAsync(a => a.AgentId == agentId);
-
-            var agencyId = (agentSettings is null)
-                ? await _context.AgentAgencyRelations
-                    .Where(a => a.AgentId == agentId)
-                    .Select(a => a.AgencyId)
-                    .FirstOrDefaultAsync()
-                : agentSettings.AgencyId;
 
             var (_, isFailure, agencySuppliers) = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
 
@@ -46,10 +39,9 @@ namespace Api.AdministratorServices
         }
 
 
-        public async Task<Result> SaveSuppliers(int agentId, Dictionary<string, bool> suppliers)
+        public async Task<Result> SaveSuppliers(int agencyId, int agentId, Dictionary<string, bool> suppliers)
         {
             return await Validate()
-                .Map(GetAgencyId)
                 .Tap(AddOrUpdate);
 
 
@@ -71,14 +63,7 @@ namespace Api.AdministratorServices
             }
 
 
-            async Task<int> GetAgencyId()
-                => await _context.AgentAgencyRelations
-                    .Where(a => a.AgentId == agentId)
-                    .Select(a => a.AgencyId)
-                    .FirstOrDefaultAsync();
-
-
-            async Task AddOrUpdate(int agencyId)
+            async Task AddOrUpdate()
             {
                 var agentSystemSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(a => a.AgentId == agentId);
                 if (Equals(agentSystemSettings, default))

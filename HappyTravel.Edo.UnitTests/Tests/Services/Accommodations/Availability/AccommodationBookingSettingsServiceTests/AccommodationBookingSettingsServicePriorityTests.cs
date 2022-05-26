@@ -240,7 +240,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 .ToDictionary(s => s.Key, s => s.Value);
 
             var mock = new Mock<IAgentSupplierManagementService>();
-            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
+            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(Result.Success(enabledSuppliers)));
             return mock.Object;
         }

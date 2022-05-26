@@ -118,10 +118,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        // TODO refactor when materialized agent settings will be ready
         private async Task<List<string>> GetEnabledConnectors(int agencyId, int agentId)
         {
-            var (_, isFailure, agentSuppliers) = await _agentSupplierManagementService.GetMaterializedSuppliers(agentId);
+            var (_, isFailure, agentSuppliers) = await _agentSupplierManagementService.GetMaterializedSuppliers(agencyId, agentId);
             return agentSuppliers.Where(s => s.Value).Select(s => s.Key).ToList();
         }
 

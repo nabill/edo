@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         private IAgentSupplierManagementService GetAgentSupplierManagementService()
         {
             var mock = new Mock<IAgentSupplierManagementService>();
-            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
+            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(Result.Success(new Dictionary<string, bool>()
                 {
                     { "netstorming", true },

@@ -12,7 +12,7 @@ namespace Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/agents/")]
+    [Route("api/{v:apiVersion}/admin/agencies/")]
     [Produces("application/json")]
     public class AgentSupplierSettingsController : BaseController
     {
@@ -22,20 +22,20 @@ namespace Api.Controllers.AdministratorControllers
         }
 
 
-        [HttpGet("{agentId}/suppliers")]
+        [HttpGet("{agencyId}/agents/{agentId}/suppliers")]
         [ProducesResponseType(typeof(Dictionary<string, bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Get(int agentId)
-            => OkOrBadRequest(await _agentSupplierManagementService.GetMaterializedSuppliers(agentId));
+        public async Task<IActionResult> Get(int agencyId, int agentId)
+            => OkOrBadRequest(await _agentSupplierManagementService.GetMaterializedSuppliers(agencyId, agentId));
 
 
-        [HttpPut("{agentId}/suppliers")]
+        [HttpPut("{agencyId}/agents/{agentId}/suppliers")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> Put(int agentId, Dictionary<string, bool> enabledSuppliers)
-            => NoContentOrBadRequest(await _agentSupplierManagementService.SaveSuppliers(agentId, enabledSuppliers));
+        public async Task<IActionResult> Put(int agencyId, int agentId, Dictionary<string, bool> enabledSuppliers)
+            => NoContentOrBadRequest(await _agentSupplierManagementService.SaveSuppliers(agencyId, agentId, enabledSuppliers));
 
 
         private readonly IAgentSupplierManagementService _agentSupplierManagementService;
