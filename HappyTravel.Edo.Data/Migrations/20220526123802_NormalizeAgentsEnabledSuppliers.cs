@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -12,8 +13,14 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             var context = new EdoContextFactory().CreateDbContext(Array.Empty<string>());
             var agentSettings = context.AgentSystemSettings.ToList();
-            agentSettings.ForEach(a
-                => a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers.Add(s, true))
+            agentSettings.ForEach(a => 
+                {
+                    if(a.AccommodationBookingSettings.EnabledSuppliers.Count > 0)
+                    {
+                        a.EnabledSuppliers = new Dictionary<string, bool>();
+                        a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers.Add(s, true));
+                    }
+                }
             );
 
             context.UpdateRange(agentSettings);
