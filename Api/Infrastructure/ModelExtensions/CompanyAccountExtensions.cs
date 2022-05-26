@@ -25,18 +25,18 @@ public static class CompanyAccountExtensions
         };
     }
     
-    public static CompanyAccount ToCompanyAccount(this CompanyAccountInfo companyAccountInfo)
+    public static CompanyAccount ToCompanyAccount(this CompanyAccountInfo companyAccountInfo, int bankId)
     {
         return new CompanyAccount
         {
             Currency = companyAccountInfo.Currency,
             AccountNumber = companyAccountInfo.AccountNumber,
             Iban = companyAccountInfo.Iban,
-            CompanyBankId = companyAccountInfo.CompanyBank.Id,
-            IntermediaryBankName = companyAccountInfo.IntermediaryBank.BankName,
-            IntermediaryBankAccountNumber = companyAccountInfo.IntermediaryBank.AccountNumber,
-            IntermediaryBankSwiftCode = companyAccountInfo.IntermediaryBank.SwiftCode,
-            IntermediaryBankAbaNo = companyAccountInfo.IntermediaryBank.AbaNo,
+            CompanyBankId = bankId,
+            IntermediaryBankName = companyAccountInfo.IntermediaryBank?.BankName,
+            IntermediaryBankAccountNumber = companyAccountInfo.IntermediaryBank?.AccountNumber,
+            IntermediaryBankSwiftCode = companyAccountInfo.IntermediaryBank?.SwiftCode,
+            IntermediaryBankAbaNo = companyAccountInfo.IntermediaryBank?.AbaNo,
             IsDefault = companyAccountInfo.IsDefault
         };
     }
