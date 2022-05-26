@@ -1,4 +1,5 @@
 ﻿using System;
+using Api.Models.Management.Administrators;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -36,7 +37,12 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public bool IsActive { get; init; }
 
         /// <summary>
-        /// Name of the account manager
+        /// Account manager id
+        /// </summary>
+        public int? AccountManagerId { get; init; }
+
+        /// <summary>
+        /// Account manager full name
         /// </summary>
         public string? AccountManagerName { get; init; }
 
