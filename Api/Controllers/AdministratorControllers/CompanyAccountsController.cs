@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Modifies an existing company bank account
         /// </summary>
         /// <remarks>
-        ///     Currency modification is ignored.
+        ///     Currency, IsDefault and CompanyBank modifications are ignored 
         /// </remarks>
         /// <param name="accountInfo">New info for the company account</param>
         /// <param name="bankId">Id of the company bank</param>
