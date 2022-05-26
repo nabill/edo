@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using HappyTravel.Edo.Common.Infrastructure.Options;
 using HappyTravel.EdoContracts.Grpc.Surrogates;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData;
@@ -95,12 +96,12 @@ namespace HappyTravel.Edo.Api
                     options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
                 })
                 .AddUserEventLogging(Configuration, vaultClient);
-
-            var (apiName, authorityUrl) = GetApiNameAndAuthority(Configuration, HostingEnvironment, vaultClient);
+            
+            var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
 
             services.ConfigureServiceOptions(Configuration, vaultClient)
-                .ConfigureHttpClients(Configuration, vaultClient, authorityUrl)
-                .ConfigureAuthentication(apiName, authorityUrl)
+                .ConfigureHttpClients(Configuration, vaultClient, authorityOptions.AuthorityUrl ?? string.Empty)
+                .ConfigureAuthentication(authorityOptions)
                 .AddServices(HostingEnvironment, Configuration, vaultClient);
 
             services.AddHealthChecks()
@@ -267,23 +268,6 @@ namespace HappyTravel.Edo.Api
                     endpoints.MapMetrics().RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_METRICS_PORT")}");
                     endpoints.MapHealthChecks("/health").RequireHost($"*:{EnvironmentVariableHelper.GetPort("HTDC_HEALTH_PORT")}");
                 });
-        }
-
-
-        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
-            IVaultClient vaultClient)
-        {
-            var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
-
-            var apiName = configuration["Authority:ApiName"];
-            var authorityUrl = configuration["Authority:Endpoint"];
-            if (environment.IsDevelopment() || environment.IsLocal())
-                return (apiName, authorityUrl);
-
-            apiName = authorityOptions["apiName"];
-            authorityUrl = authorityOptions["authorityUrl"];
-
-            return (apiName, authorityUrl);
         }
 
 

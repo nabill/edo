@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Common.Infrastructure.Options;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
 using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
@@ -50,7 +51,7 @@ namespace HappyTravel.Edo.DirectApi
             });
             vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).GetAwaiter().GetResult();
             
-            var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).GetAwaiter().GetResult();
+            var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.DirectApi
             services.ConfigureApiVersioning();
             services.ConfigureSwagger();
             services.ConfigureCache(Configuration);
-            services.ConfigureHttpClients(Configuration, vaultClient, authorityOptions["authorityUrl"]);
+            services.ConfigureHttpClients(Configuration, vaultClient, authorityOptions.AuthorityUrl ?? string.Empty);
             services.ConfigureServiceOptions(Configuration, vaultClient);
             services.ConfigureUserEventLogging(Configuration, vaultClient);
             services.AddServices(HostEnvironment, Configuration, vaultClient);

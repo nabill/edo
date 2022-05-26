@@ -98,15 +98,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public Task<Result<List<CompanyAccountInfo>>> GetAccounts(int bankId)
         {
-            return GetBank(bankId)
-                .Bind(_ => GetBankAccounts(bankId));
+            return IsBankExists(bankId)
+                .Bind(() => GetBankAccounts(bankId));
         }
 
 
         public Task<Result> AddAccount(int bankId, CompanyAccountInfo accountInfo)
         {
-            return GetBank(bankId)
-                .Bind(_ => ValidateAccountInfo(accountInfo))
+            return IsBankExists(bankId)
+                .Bind(() => ValidateAccountInfo(accountInfo))
                 .Tap(Add);
 
 
@@ -131,7 +131,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Modify(CompanyAccount account)
             {
-                account.Currency = accountInfo.Currency;
                 account.Iban = accountInfo.Iban;
                 account.AccountNumber = accountInfo.AccountNumber;
                 account.IntermediaryBankName = accountInfo.IntermediaryBank?.BankName;
@@ -191,12 +190,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => await _context.CompanyBanks
                     .SingleOrDefaultAsync(r => r.Id == bankId)
                 ?? Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
+        
+        private async Task<Result> IsBankExists(int bankId)
+            => await _context.CompanyBanks
+                .AnyAsync(r => r.Id == bankId) 
+                ? Result.Success()
+                : Result.Failure<CompanyBank>($"Bank with Id {bankId} does not exist");
 
 
         private async Task<Result<CompanyAccount>> GetAccount(int bankId, int accountId)
             => await _context.CompanyAccounts
                     .SingleOrDefaultAsync(r => r.Id == accountId && r.CompanyBankId == bankId)
-                ?? Result.Failure<CompanyAccount>($"An account Id {accountId} and CompanyBankId {bankId} does not exist");
+                ?? Result.Failure<CompanyAccount>($"An account Id {accountId} in bank Id {bankId} does not exist");
 
 
         private async Task<Result<List<CompanyAccountInfo>>> GetBankAccounts(int bankId)

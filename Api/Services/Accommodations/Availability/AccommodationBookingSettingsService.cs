@@ -50,15 +50,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 return await MergeSettings(agentSettings, agencySettings, rootAgencySettings, agent.AgencyId);
             }, SettingsCacheLifetime);
-            
-            
-            async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings, 
+
+
+            async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings,
                 RootAgencyAccommodationBookingSettings rootAgencySettings, int agencyId)
             {
-                var agentSettingsValue = agentSettings.HasValue 
+                var agentSettingsValue = agentSettings.HasValue
                     ? agentSettings.Value
                     : null;
-                var agencySettingsValue = agencySettings.HasValue 
+                var agencySettingsValue = agencySettings.HasValue
                     ? agencySettings.Value
                     : null;
 
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     agentShift = agentSettings.Value.CustomDeadlineShift.Value;
 
                 var totalShift = rootShift + agencyShift + agentShift;
-                
+
                 if (totalShift > 0)
                 {
                     _logger.LogTotalDeadlineShiftIsPositive(agent.AgentId, agent.AgencyId, rootShift, agencyShift, agentShift);
@@ -120,8 +120,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         // TODO refactor when materialized agent settings will be ready
         private async Task<List<string>> GetEnabledConnectors(int agencyId)
         {
-            var suppliers = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
-            return suppliers.Value.Select(s => s.Key).ToList();
+            var (_, isFailure, suppliers) = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
+            return suppliers.Where(s => s.Value).Select(s => s.Key).ToList();
         }
 
         private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;

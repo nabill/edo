@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => NoContentOrBadRequest(await _companyAccountService.AddAccount(bankId, accountInfo));
         
         /// <summary>
-        ///     Removes a company bank
+        ///     Removes company bank account
         /// </summary>
         /// <param name="bankId">Id of the company bank</param>
         /// <param name="accountId">Id of the company account to remove</param>
@@ -105,8 +105,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => NoContentOrBadRequest(await _companyAccountService.RemoveAccount(bankId, accountId));
         
         /// <summary>
-        ///     Modifies an existing company bank
+        ///     Modifies an existing company bank account
         /// </summary>
+        /// <remarks>
+        ///     Currency modification is ignored.
+        /// </remarks>
         /// <param name="accountInfo">New info for the company account</param>
         /// <param name="bankId">Id of the company bank</param>
         /// <param name="accountId">Id of the company account to modify</param>
