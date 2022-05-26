@@ -15,11 +15,12 @@ namespace HappyTravel.Edo.Data.Migrations
             var agentSettings = context.AgentSystemSettings.ToList();
             agentSettings.ForEach(a => 
                 {
-                    if(a.AccommodationBookingSettings.EnabledSuppliers.Count > 0)
-                    {
-                        a.EnabledSuppliers = new Dictionary<string, bool>();
-                        a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers.Add(s, true));
-                    }
+                    if(!Equals(a.AccommodationBookingSettings.EnabledSuppliers, null))
+                        if(a.AccommodationBookingSettings.EnabledSuppliers.Count > 0)
+                        {
+                            a.EnabledSuppliers = new Dictionary<string, bool>();
+                            a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers.Add(s, true));
+                        }
                 }
             );
 
