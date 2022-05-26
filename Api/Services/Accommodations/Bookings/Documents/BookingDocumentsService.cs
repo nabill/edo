@@ -162,12 +162,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 var intermediaryBank = companyAccount.IntermediaryBank;
 
                 var sellerDetails = new SellerInfo(companyName: bankDetails.CompanyName,
-                    bankName: companyAccount.BankName,
-                    bankAddress: companyAccount.BankAddress,
+                    bankName: companyAccount.CompanyBank.Name,
+                    bankAddress: companyAccount.CompanyBank.Address,
                     accountNumber: companyAccount.AccountNumber,
                     iban: companyAccount.Iban,
-                    routingCode: companyAccount.RoutingCode,
-                    swiftCode: companyAccount.SwiftCode,
+                    routingCode: companyAccount.CompanyBank.RoutingCode,
+                    swiftCode: companyAccount.CompanyBank.SwiftCode,
                     intermediaryBankDetails: intermediaryBank is null
                         ? null
                         : new IntermediaryBankDetails(bankName: intermediaryBank.BankName,
