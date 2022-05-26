@@ -26,7 +26,7 @@ namespace Api.AdministratorServices
         public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId, int agentId)
         {
             var agentSettings = await _context.AgentSystemSettings
-                .SingleOrDefaultAsync(a => a.AgentId == agentId);
+                .SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
 
             var (_, isFailure, agencySuppliers) = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
 
@@ -65,7 +65,8 @@ namespace Api.AdministratorServices
 
             async Task AddOrUpdate()
             {
-                var agentSystemSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(a => a.AgentId == agentId);
+                var agentSystemSettings = await _context.AgentSystemSettings
+                    .SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
                 if (Equals(agentSystemSettings, default))
                 {
                     var settings = new AgentSystemSettings
