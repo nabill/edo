@@ -560,20 +560,23 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveAccount(System.Int32,System.Int32)">
             <summary>
-                Removes a company bank
+                Removes company bank account
             </summary>
             <param name="bankId">Id of the company bank</param>
             <param name="accountId">Id of the company account to remove</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32,System.Int32)">
             <summary>
-                Modifies an existing company bank
+                Modifies an existing company bank account
             </summary>
+            <remarks>
+                Currency modification is ignored.
+            </remarks>
             <param name="accountInfo">New info for the company account</param>
             <param name="bankId">Id of the company bank</param>
             <param name="accountId">Id of the company account to modify</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.SetDefault(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.SetAccountAsDefault(System.Int32,System.Int32)">
             <summary>
                 Sets a company bank account as default
             </summary>
