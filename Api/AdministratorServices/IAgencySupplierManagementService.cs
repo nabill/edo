@@ -8,4 +8,5 @@ public interface IAgencySupplierManagementService
 {
     Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId);
     Task<Result> SaveSuppliers(int agencyId, Dictionary<string, bool> enabledSuppliers);
+    Dictionary<string, bool> GetIntersection(Dictionary<string, bool> rootAgencySuppliers, Dictionary<string, bool> childAgencySuppliers);
 }

@@ -282,23 +282,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Normalize bookings' prices 
-        ///     All net prices in booked rooms become equal to total prices
-        ///     And commissions set to zero
-        ///     NOTE: Do not request to this endpoint
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost("accommodations/bookings/price/normalize")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> NormalizeBookingsPrices()
-        {
-            await _bookingService.NormalizeBookingsPrices();
-            return NoContent();
-        }
-
-
-        /// <summary>
         ///     Gets booking status changes history
         /// </summary>
         /// <param name="bookingId">Booking ID for retrieving status change history</param>

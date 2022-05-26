@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data.Agents;
 using Xunit;
 using Moq;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.AccommodationBookingSettingsServiceTests
 {
@@ -26,10 +27,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService();
+            var agentSupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agentSupplierManagementService, default);
 
             var settings = await service.Get(_agentContext);
 
@@ -63,7 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
                 agencySupplierManagementService, default);
@@ -100,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
                 agencySupplierManagementService, default);
@@ -138,7 +139,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
                 agencySupplierManagementService, default);
@@ -188,10 +189,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         }
 
 
-        private IAgencySupplierManagementService GetAgencySupplierManagementService()
+        private IAgentSupplierManagementService GetAgentSupplierManagementService()
         {
-            var mock = new Mock<IAgencySupplierManagementService>();
-            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>()))
+            var mock = new Mock<IAgentSupplierManagementService>();
+            mock.Setup(m => m.GetMaterializedSuppliers(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(Result.Success(new Dictionary<string, bool>()
                 {
                     { "netstorming", true },

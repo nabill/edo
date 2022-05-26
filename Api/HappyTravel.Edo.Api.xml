@@ -505,15 +505,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.NormalizeBookingsPrices">
-            <summary>
-                Normalize bookings' prices 
-                All net prices in booked rooms become equal to total prices
-                And commissions set to zero
-                NOTE: Do not request to this endpoint
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingStatusHistory(System.Int32)">
             <summary>
                 Gets booking status changes history
@@ -526,7 +517,7 @@
                 Gets company banks list
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.Add(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.AddBank(HappyTravel.Edo.Api.Models.Company.CompanyBankInfo)">
             <summary>
                 Adds a new company bank
             </summary>
@@ -544,6 +535,44 @@
                 Removes a company bank
             </summary>
             <param name="bankId">Id of the company bank to delete</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyAccounts(System.Int32)">
+            <summary>
+                Gets company accounts list for bank
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.AddAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32)">
+            <summary>
+                Adds a new company account for bank
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountInfo">A new company bank info</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.RemoveAccount(System.Int32,System.Int32)">
+            <summary>
+                Removes company bank account
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to remove</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.ModifyAccount(HappyTravel.Edo.Api.Models.Company.CompanyAccountInfo,System.Int32,System.Int32)">
+            <summary>
+                Modifies an existing company bank account
+            </summary>
+            <remarks>
+                Currency, IsDefault and CompanyBank modifications are ignored 
+            </remarks>
+            <param name="accountInfo">New info for the company account</param>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to modify</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.SetAccountAsDefault(System.Int32,System.Int32)">
+            <summary>
+                Sets a company bank account as default
+            </summary>
+            <param name="bankId">Id of the company bank</param>
+            <param name="accountId">Id of the company account to set default</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
             <summary>
@@ -2335,6 +2364,11 @@
             <summary>
             Check out date
             </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.ExpiredAfter">
+            <summary>
+            Expiration date
+            </summary>>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.SupplierCode">
             <summary>

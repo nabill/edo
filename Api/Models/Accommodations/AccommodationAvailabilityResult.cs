@@ -6,7 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public record AccommodationAvailabilityResult
     {
         public AccommodationAvailabilityResult(Guid searchId, string supplierCode, DateTimeOffset created, string availabilityId,
-            List<RoomContractSet> roomContractSets, decimal minPrice, decimal maxPrice, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, string htId, string supplierAccommodationCode, string countryHtId,
+            List<RoomContractSet> roomContractSets, decimal minPrice, decimal maxPrice, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, 
+            DateTimeOffset expiredAfter, string htId, string supplierAccommodationCode, string countryHtId,
             string localityHtId, int marketId, string countryCode)
         {
             SearchId = searchId;
@@ -18,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             MaxPrice = maxPrice;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            ExpiredAfter = expiredAfter;
             HtId = htId;
             SupplierAccommodationCode = supplierAccommodationCode;
             CountryHtId = countryHtId;
@@ -35,6 +37,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public decimal MaxPrice { get; }
         public DateTimeOffset CheckInDate { get; }
         public DateTimeOffset CheckOutDate { get; }
+        public DateTimeOffset ExpiredAfter { get; }
         public string HtId { get; }
         public string SupplierAccommodationCode { get; }
         public string CountryHtId { get; }

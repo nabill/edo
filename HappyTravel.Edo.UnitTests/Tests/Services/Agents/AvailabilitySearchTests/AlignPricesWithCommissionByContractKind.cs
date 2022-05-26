@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             {
                 new AccommodationAvailabilityResult(Guid.NewGuid(),
                     "jumeirah", DateTimeOffset.Now, "id", roomContractSets, 0m,
-                    Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
+                    Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
                     "countryHtId", "localityHtId", 2, "KZ")
             };
             var agencyId = 1;
@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             {
                 new AccommodationAvailabilityResult(Guid.NewGuid(),
                     "jumeirah", DateTimeOffset.Now, "id", roomContractSets, 0m,
-                    Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
+                    Decimal.MaxValue, DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, "htId", "supplierAccommodationCode",
                     "countryHtId", "localityHtId", 2, "KZ")
             };
             var agencyId = 2;
