@@ -48,7 +48,7 @@ namespace Api.AdministratorServices
 
 
             var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers);
-            var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSettings.EnabledSuppliers);
+            var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSuppliers);
 
             return resultSuppliers;
         }
