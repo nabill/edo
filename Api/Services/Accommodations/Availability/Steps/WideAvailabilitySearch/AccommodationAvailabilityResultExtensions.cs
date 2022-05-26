@@ -17,13 +17,14 @@ public static class AccommodationAvailabilityResultExtensions
             MaxPrice = result.MaxPrice,
             CheckInDate = result.CheckInDate,
             CheckOutDate = result.CheckOutDate,
+            ExpiredAfter = result.ExpiredAfter,
             HtId = result.HtId,
             SupplierAccommodationCode = result.SupplierAccommodationCode,
             CountryHtId = result.CountryHtId,
             LocalityHtId = result.LocalityHtId,
             MarketId = result.MarketId,
             CountryCode = result.CountryCode,
-            RequestHash = requestHash
+            RequestHash = requestHash,
         };
     }
 }

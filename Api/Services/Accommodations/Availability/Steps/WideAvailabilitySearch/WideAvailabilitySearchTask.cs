@@ -139,6 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             maxPrice: maxPrice,
                             checkInDate: connectorRequest.CheckInDate,
                             checkOutDate: connectorRequest.CheckOutDate,
+                            expiredAfter: details.ExpiredAfter,
                             htId: htId.AccommodationHtId,
                             supplierAccommodationCode: accommodationAvailability.AccommodationId,
                             countryHtId: htId.CountryHtId,
