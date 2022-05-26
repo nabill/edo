@@ -127,16 +127,6 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
-    {
-        var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
-        return isFailure
-            ? Result.Failure<Dictionary<string, EnablementState>>(error)
-            : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
-                .ToDictionary(s => s.Code, s => s.EnablementState);
-    }
-
-
     public Dictionary<string, bool> GetIntersection(Dictionary<string, bool> rootAgencySuppliers,
         Dictionary<string, bool> childAgencySuppliers)
     {
@@ -163,6 +153,16 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             result = result.Union(childLeftSuppliers).ToDictionary(s => s.Key, s => s.Value);
 
         return result;
+    }
+
+
+    private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
+    {
+        var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
+        return isFailure
+            ? Result.Failure<Dictionary<string, EnablementState>>(error)
+            : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
+                .ToDictionary(s => s.Code, s => s.EnablementState);
     }
 
 
