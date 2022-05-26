@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             Task Add()
             {
-                var newAccount = accountInfo.ToCompanyAccount();
+                var newAccount = accountInfo.ToCompanyAccount(bankId);
                 newAccount.Created = _dateTimeProvider.UtcNow();
                 newAccount.Modified = _dateTimeProvider.UtcNow();
                 newAccount.IsDefault = false;
