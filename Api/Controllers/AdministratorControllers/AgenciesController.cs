@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -317,6 +318,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> Delete([FromRoute] int agencyId)
             => NoContentOrBadRequest(await _agencyRemovalService.Delete(agencyId));
+
+
+        [HttpPut("{agencyId}/contract-kind")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
+        public async Task<IActionResult> ChangeContractKind(int agencyId, [FromBody] ContractKindChangeRequest request) 
+            => NoContentOrBadRequest(await _agencyManagementService.ChangeContractKind(agencyId, request.ContractKind, request.Reason));
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
