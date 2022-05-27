@@ -36,6 +36,9 @@ namespace Api.AdministratorServices
                 .GetMaterializedSuppliers(agencyId);
             if (isFailure)
                 return Result.Failure<Dictionary<string, bool>>(errorMessage);
+            agencySuppliers = agencySuppliers
+                .Where(s => s.Value)
+                .ToDictionary(s => s.Key, s => s.Value);
 
             if (Equals(agentSettings?.EnabledSuppliers, null))
             {
@@ -45,7 +48,6 @@ namespace Api.AdministratorServices
 
                 return _agencySupplierManagementService.GetIntersection(agencySuppliers, suppliersFromSunpu);
             }
-
 
             var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers);
             var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSuppliers);

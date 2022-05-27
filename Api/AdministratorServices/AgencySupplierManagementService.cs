@@ -30,6 +30,9 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
         var rootAgencySuppliers = await GetRootSuppliers(agencyId, enabledSuppliers);
+        rootAgencySuppliers = rootAgencySuppliers
+                .Where(s => s.Value)
+                .ToDictionary(s => s.Key, s => s.Value);
 
         if (Equals(agencySettings?.EnabledSuppliers, null))
             return rootAgencySuppliers;
@@ -136,13 +139,6 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             var resultValue = (!rootValue) ? rootValue : childValue;
             result.Add(rootKey, resultValue);
         }
-
-        var childLeftSuppliers = childAgencySuppliers
-            .Where(s => !result.ContainsKey(s.Key))
-            .ToDictionary(s => s.Key, s => s.Value);
-
-        if (childLeftSuppliers != default)
-            result = result.Union(childLeftSuppliers).ToDictionary(s => s.Key, s => s.Value);
 
         return result;
     }
