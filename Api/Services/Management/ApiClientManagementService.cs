@@ -3,21 +3,27 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Management
 {
     public class ApiClientManagementService : IApiClientManagementService
     {
-        public ApiClientManagementService(EdoContext context,
-            IManagementAuditService managementAuditService)
+        public ApiClientManagementService(
+            EdoContext context,
+            IManagementAuditService managementAuditService, 
+            INotificationService notificationsService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
+            _notificationsService = notificationsService;
         }
 
 
@@ -110,16 +116,34 @@ namespace HappyTravel.Edo.Api.Services.Management
             var password = PasswordGenerator.Generate();
             var clientData = new ApiClientData(name, password);
             
-            var (_, isFailure, error) = await Set(agencyId, agentId, clientData);
+            var (_, isFailure, error) = 
+                await Set(agencyId, agentId, clientData)
+                    .Bind(GetAgency)
+                    .Bind(SendNotification);
+            
             return isFailure 
                 ? Result.Failure<ApiClientData>(error)
                 : clientData;
-        }
+            
+            Task<Result> SendNotification(Agency agency)
+            {
+                return _notificationsService.Send(new ApiConnectionData(agency.Name, agencyId.ToString()), NotificationTypes.ApiConnectionCredentialsCreated);
+            }
+            
+            async Task<Result<Agency>> GetAgency()
+            {
+                var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+                if (agency == null)
+                    return Result.Failure<Agency>("Could not find agency with specified id");
 
+                return Result.Success(agency);
+            }
+        }
 
         private const string GenericApiClientName = "ApiClient";
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly INotificationService _notificationsService;
     }
 }
