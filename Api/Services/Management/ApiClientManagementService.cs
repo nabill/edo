@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Management
     {
         public ApiClientManagementService(
             EdoContext context,
-            IManagementAuditService managementAuditService, 
+            IManagementAuditService managementAuditService,
             INotificationService notificationsService)
         {
             _context = context;
@@ -115,30 +115,43 @@ namespace HappyTravel.Edo.Api.Services.Management
             var name = GenericApiClientName + agencyId;
             var password = PasswordGenerator.Generate();
             var clientData = new ApiClientData(name, password);
-            
-            var (_, isFailure, error) = 
+
+            var (_, isFailure, error) =
                 await Set(agencyId, agentId, clientData)
-                    .Bind(GetAgency)
+                    .Bind(GetAgencyAndAgent)
                     .Bind(SendNotification);
-            
-            return isFailure 
+
+            return isFailure
                 ? Result.Failure<ApiClientData>(error)
                 : clientData;
-            
-            Task<Result> SendNotification(Agency agency)
-            {
-                return _notificationsService.Send(new ApiConnectionData(agency.Name, agencyId.ToString()), NotificationTypes.ApiConnectionCredentialsCreated);
-            }
-            
-            async Task<Result<Agency>> GetAgency()
-            {
-                var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
-                if (agency == null)
-                    return Result.Failure<Agency>("Could not find agency with specified id");
 
-                return Result.Success(agency);
+
+            Task<Result> SendNotification((Agency, Agent) agencyAndAgent)
+            {
+                var (agency, agent) = agencyAndAgent;
+                return _notificationsService.Send(new ApiConnectionData(agency, agent), NotificationTypes.ApiConnectionCredentialsCreated);
+            }
+
+
+            async Task<Result<(Agency, Agent)>> GetAgencyAndAgent()
+            {
+                var agencyTask = _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+                var agentTask = _context.Agents.FirstOrDefaultAsync(ag => ag.Id == agentId);
+
+                await Task.WhenAll(agencyTask, agentTask);
+
+                var agency = await agencyTask;
+                var agent = await agentTask;
+
+                if (agency == null)
+                    return Result.Failure<(Agency, Agent)>("Could not find agency with specified id");
+                if (agent == null)
+                    return Result.Failure<(Agency, Agent)>("Could not find agent with specified id");
+
+                return Result.Success((agency, agent));
             }
         }
+
 
         private const string GenericApiClientName = "ApiClient";
 
