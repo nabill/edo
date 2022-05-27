@@ -24,7 +24,6 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToBoolDictionary(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 AdditionalSearchFilters = settings.AdditionalSearchFilters,
@@ -48,7 +47,6 @@ namespace HappyTravel.Edo.Api.Extensions
             {
                 AprMode = settings.AprMode,
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
-                EnabledSuppliers = settings.EnabledSuppliers.ToList(),
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
                 AdditionalSearchFilters = settings.AdditionalSearchFilters,

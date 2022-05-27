@@ -105,6 +105,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                    CountryName = country.Names.GetValueOrDefault(languageCode),
                    Created = agency.Created.DateTime,
                    VerificationState = agency.VerificationState,
+                   AccountManagerId = admin != null ?
+                       admin.Id :
+                       null,
                    AccountManagerName = admin != null ?
                        PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                        null,

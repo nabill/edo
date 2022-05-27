@@ -8,9 +8,9 @@
     }
   },
   "Authority": {
-    "Options": "edo",
-    "ApiName": "edo",
-    "Endpoint": "https://identity-dev.happytravel.com/"
+    "AuthorityUrl": "https://identity-dev.happytravel.com",
+    "Audience": "mapper",
+    "AutomaticRefreshInterval": "0.00:20:00"
   },
   "Suppliers": {
     "EnabledSuppliers": ["Netstorming", "Illusions", "Etg", "Rakuten", "Columbus", "TravelgateXTest", "Jumeirah", "HotelBeds"],
