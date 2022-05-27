@@ -571,6 +571,11 @@
                 Check-out date
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilityResult.ExpiredAfter">
+            <summary>
+                Expiration date
+            </summary>>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilityResult.RoomContractSets">
             <summary>
                 List of available room contracts sets
