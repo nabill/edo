@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agency.ContractKind == null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("ContractKind for agency is not set");
 
-            var contractKind = agency.ContractKind.Value;
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
             var rootSettings = await GetSettings(rootAgencyId);
@@ -54,12 +53,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var customDeadlineShift = 0;
                 var aprMode = AprMode.Hide;
                 var passedDeadlineOffersMode = PassedDeadlineOffersMode.Hide;
-
-                if (contractKind == ContractKind.VirtualAccountOrCreditCardPayments)
-                {
-                    aprMode = AprMode.CardAndAccountPurchases;
-                    passedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
-                }
 
                 if (rootSettings != null && rootSettings.IsSupplierVisible 
                     && (agencySettings == null || agencySettings.IsSupplierVisible))
