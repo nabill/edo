@@ -4,12 +4,12 @@ namespace HappyTravel.Edo.Api.Models.Mailing;
 
 public class ApiConnectionData : DataWithCompanyInfo
 {
-    public ApiConnectionData(Agency agency, Agent agent)
+    public ApiConnectionData(string agencyId, string agencyName, string agentId, string agentName)
     {
-        AgencyId = agency.Id.ToString();
-        AgencyName = agency.Name;
-        AgentId = agent.Id.ToString();
-        AgentName = $"{agent.Title} {agent.FirstName} {agent.LastName}";
+        AgencyId = agencyId;
+        AgencyName = agencyName;
+        AgentId = agentId;
+        AgentName = agentName;
     }
 
 
