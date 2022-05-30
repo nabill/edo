@@ -25,15 +25,32 @@ namespace Api.AdministratorServices
 
         public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId, int agentId)
         {
-            var agentSettings = await _context.AgentSystemSettings
-                .SingleOrDefaultAsync(a => a.AgentId == agentId);
+            var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
+            if (isFailure)
+                return Result.Failure<Dictionary<string, bool>>(error);
 
-            var (_, isFailure, agencySuppliers) = await _agencySupplierManagementService.GetMaterializedSuppliers(agencyId);
+            var agentSettings = await _context.AgentSystemSettings
+                .SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
+
+            var (_, isNotSuccess, agencySuppliers, errorMessage) = await _agencySupplierManagementService
+                .GetMaterializedSuppliers(agencyId);
+            if (isFailure)
+                return Result.Failure<Dictionary<string, bool>>(errorMessage);
+            agencySuppliers = agencySuppliers
+                .Where(s => s.Value)
+                .ToDictionary(s => s.Key, s => s.Value);
 
             if (Equals(agentSettings?.EnabledSuppliers, null))
-                return agencySuppliers;
+            {
+                var suppliersFromSunpu = enabledSuppliers
+                    .Where(s => s.Value == EnablementState.Enabled)
+                    .ToDictionary(s => s.Key, s => true);
 
-            var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSettings.EnabledSuppliers);
+                return _agencySupplierManagementService.GetIntersection(agencySuppliers, suppliersFromSunpu);
+            }
+
+            var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers);
+            var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSuppliers);
 
             return resultSuppliers;
         }
@@ -65,7 +82,8 @@ namespace Api.AdministratorServices
 
             async Task AddOrUpdate()
             {
-                var agentSystemSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(a => a.AgentId == agentId);
+                var agentSystemSettings = await _context.AgentSystemSettings
+                    .SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
                 if (Equals(agentSystemSettings, default))
                 {
                     var settings = new AgentSystemSettings

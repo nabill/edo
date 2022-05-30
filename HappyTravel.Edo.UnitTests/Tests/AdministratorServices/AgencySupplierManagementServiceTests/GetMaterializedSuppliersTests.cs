@@ -95,7 +95,7 @@ public class GetMaterializedSuppliersTests
 
         Assert.True(suppliers["netstorming"]);
         Assert.False(suppliers["illusions"]);
-        Assert.False(suppliers["etg"]);
+        Assert.False(suppliers.ContainsKey("etg"));
     }
 
 
@@ -136,7 +136,7 @@ public class GetMaterializedSuppliersTests
         var (_, _, suppliers, _) = await service.GetMaterializedSuppliers(1);
 
         Assert.False(suppliers["netstorming"]);
-        Assert.False(suppliers["illusions"]);
+        Assert.False(suppliers.ContainsKey("illusions"));
         Assert.False(suppliers["etg"]);
     }
 
