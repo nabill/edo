@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public async Task<Result<ApiClientData>> Generate(int agencyId, int agentId)
         {
-            var name = GenericApiClientName + agencyId;
+            var name = $"{GenericApiClientName}{agencyId}-{agentId}";
             var password = PasswordGenerator.Generate();
             var clientData = new ApiClientData(name, password);
 
