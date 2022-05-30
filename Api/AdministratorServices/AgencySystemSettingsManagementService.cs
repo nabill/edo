@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return Result.Failure("Agency doesn't exist");
 
                 if (!agency.IsActive)
-                    return Result.Failure("Agency is not actve");
+                    return Result.Failure("Agency is not active");
 
                 if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
