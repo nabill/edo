@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agency is null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("No agency exist");
             
-            if (agency.ContractKind == null)
+            if (agency.ContractKind is null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("ContractKind for agency is not set");
 
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
