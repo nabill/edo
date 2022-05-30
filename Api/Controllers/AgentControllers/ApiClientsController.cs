@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> Generate()
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _apiClientManagementService.Generate(agent.AgencyId, agent.AgentId));
+            return OkOrBadRequest(await _apiClientManagementService.Generate(agent));
         }
         
         

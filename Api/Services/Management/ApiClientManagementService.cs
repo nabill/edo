@@ -3,21 +3,27 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Notifications.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Management
 {
     public class ApiClientManagementService : IApiClientManagementService
     {
-        public ApiClientManagementService(EdoContext context,
-            IManagementAuditService managementAuditService)
+        public ApiClientManagementService(
+            EdoContext context,
+            IManagementAuditService managementAuditService,
+            INotificationService notificationsService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
+            _notificationsService = notificationsService;
         }
 
 
@@ -104,16 +110,30 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        public async Task<Result<ApiClientData>> Generate(int agencyId, int agentId)
+        public async Task<Result<ApiClientData>> Generate(AgentContext agentContext)
         {
-            var name = GenericApiClientName + agencyId;
+            var name = $"{GenericApiClientName}{agentContext.AgencyId}-{agentContext.AgentId}";
             var password = PasswordGenerator.Generate();
             var clientData = new ApiClientData(name, password);
-            
-            var (_, isFailure, error) = await Set(agencyId, agentId, clientData);
-            return isFailure 
+
+            var (_, isFailure, error) =
+                await Set(agentContext.AgencyId, agentContext.AgentId, clientData)
+                    .Bind(SendNotification);
+
+            return isFailure
                 ? Result.Failure<ApiClientData>(error)
                 : clientData;
+
+            Task<Result> SendNotification()
+            {
+                return _notificationsService.Send(
+                    new ApiConnectionData(
+                        agentContext.AgencyId.ToString(),
+                        agentContext.AgencyName,
+                        agentContext.AgentId.ToString(),
+                        agentContext.AgentName), 
+                    NotificationTypes.ApiConnectionCredentialsCreated);
+            }
         }
 
 
@@ -121,5 +141,6 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly INotificationService _notificationsService;
     }
 }
