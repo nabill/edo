@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.DirectApi.Validators
             RuleFor(r => r.SearchId).NotNull();
             RuleFor(r => r.RoomContractSetId).NotNull();
             RuleFor(r => r.ClientReferenceCode).NotEmpty();
+            RuleFor(r => r.EvaluationToken).NotEmpty();
             RuleFor(r => r.RoomDetails).NotEmpty().Must(HasLeader).WithMessage("Passengers don't have a leader");
             RuleForEach(r => r.RoomDetails).SetValidator(new RoomDetailsValidator());
         }
