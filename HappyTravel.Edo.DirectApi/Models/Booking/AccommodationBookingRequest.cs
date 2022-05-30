@@ -7,13 +7,14 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string accommodationId, string clientReferenceCode, 
+        public AccommodationBookingRequest(string accommodationId, string clientReferenceCode, string evaluationToken,
             List<BookingRoomDetails> roomDetails, Guid searchId, Guid roomContractSetId)
         {
             AccommodationId = accommodationId;
             SearchId = searchId;
             RoomContractSetId = roomContractSetId;
             ClientReferenceCode = clientReferenceCode;
+            EvaluationToken = evaluationToken;
             RoomDetails = roomDetails;
         }
         
@@ -36,6 +37,11 @@ namespace HappyTravel.Edo.DirectApi.Models.Booking
         ///     Client booking reference code
         /// </summary>
         public string ClientReferenceCode { get; }
+        
+        /// <summary>
+        ///     Evaluation token
+        /// </summary>
+        public  string EvaluationToken { get; }
         
         /// <summary>
         ///     Room details that match the response from the booking evaluation step

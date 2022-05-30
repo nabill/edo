@@ -1,3 +1,4 @@
+using CsvHelper.Configuration.Attributes;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
@@ -20,8 +21,8 @@ namespace HappyTravel.Edo.Api.Models.Reports.DirectConnectivityReports
         public string Created { get; init; }
         public string ArrivalDate { get; init; }
         public string DepartureDate { get; init; }
-        public decimal BookingAmount { get; init; }
-        public decimal OriginalAmount { get; init; }
+        [Name("Sales Amount")] public decimal BookingAmount { get; init; }
+        [Name("Cost of booking")] public decimal OriginalAmount { get; init; }
         public Currencies OriginalCurrency { get; init; }
         public decimal ConvertedAmount { get; init; }
         public Currencies ConvertedCurrency { get; init; }
