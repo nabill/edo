@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet]
         [ProducesResponseType(typeof(ApiClientInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        [InAgencyPermissions(InAgencyPermissions.ApiConnectionManagement)]
         public async Task<IActionResult> Get()
         {
             var agent = await _agentContextService.GetAgent();
@@ -47,11 +47,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("generate")]
         [ProducesResponseType(typeof(ApiClientData), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        [InAgencyPermissions(InAgencyPermissions.ApiConnectionManagement)]
         public async Task<IActionResult> Generate()
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _apiClientManagementService.Generate(agent.AgencyId, agent.AgentId));
+            return OkOrBadRequest(await _apiClientManagementService.Generate(agent));
         }
         
         

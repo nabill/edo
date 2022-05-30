@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Management
     {
         Task<Result> Set(int agencyId, int agentId, ApiClientData clientData);
         Task<Result> Delete(int agencyId, int agentId);
-        Task<Result<ApiClientData>> Generate(int agencyId, int agentId);
+        Task<Result<ApiClientData>> Generate(AgentContext agentContext);
     }
 }

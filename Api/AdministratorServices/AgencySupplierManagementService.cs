@@ -29,36 +29,23 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         var agencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
-        if (Equals(agencySettings?.EnabledSuppliers, null))
-            return enabledSuppliers
-                .Where(s => s.Value == EnablementState.Enabled)
-                .ToDictionary(s => s.Key, _ => true);
+        var rootAgencySuppliers = await GetRootSuppliers(agencyId, enabledSuppliers);
+        rootAgencySuppliers = rootAgencySuppliers
+                .Where(s => s.Value)
+                .ToDictionary(s => s.Key, s => s.Value);
 
-        var agencySuppliers = agencySettings.EnabledSuppliers;
-        var rootAgencySuppliers = await GetRootSuppliers(agencyId, agencySuppliers);
+        if (Equals(agencySettings?.EnabledSuppliers, null))
+            return rootAgencySuppliers;
+
+        var agencySuppliers = SunpuMaterialization(agencySettings.EnabledSuppliers, enabledSuppliers);
         var resultSuppliers = GetIntersection(rootAgencySuppliers!, agencySuppliers);
 
-        var materializedSettings = new Dictionary<string, bool>();
-
-        foreach (var (supplier, supplierOption) in enabledSuppliers)
-        {
-            var settingExist = resultSuppliers.TryGetValue(supplier, out var agencyOption);
-            var materializedOption = supplierOption switch
-            {
-                EnablementState.TestOnly => agencyOption,
-                EnablementState.Enabled => agencyOption || !settingExist,
-                _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
-            };
-
-            materializedSettings.Add(supplier, materializedOption);
-        }
-
-        return materializedSettings;
+        return resultSuppliers;
     }
 
 
-    public async Task<Dictionary<string, bool>?> GetRootSuppliers(int agencyId,
-        Dictionary<string, bool>? enabledSuppliers)
+    public async Task<Dictionary<string, bool>> GetRootSuppliers(int agencyId,
+        Dictionary<string, EnablementState> enabledSuppliers)
     {
         var rootAgencyId = await _context.Agencies
             .Where(a => a.Id == agencyId)
@@ -66,15 +53,23 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             .SingleOrDefaultAsync();
 
         if (rootAgencyId == default)
-            return enabledSuppliers;
+            return enabledSuppliers
+                .Where(s => s.Value == EnablementState.Enabled)
+                .ToDictionary(s => s.Key, s => true);
 
         var rootAgencySettings = await _context.AgencySystemSettings
             .SingleOrDefaultAsync(a => a.AgencyId == rootAgencyId);
 
         if (Equals(rootAgencySettings?.EnabledSuppliers, null))
-            return enabledSuppliers;
+            return enabledSuppliers
+                .Where(s => s.Value == EnablementState.Enabled)
+                .ToDictionary(s => s.Key, s => true);
 
-        return rootAgencySettings.EnabledSuppliers;
+        var rootAgencySuppliers = rootAgencySettings.EnabledSuppliers;
+
+        var resultSuppliers = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers);
+
+        return resultSuppliers;
     }
 
 
@@ -145,14 +140,29 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             result.Add(rootKey, resultValue);
         }
 
-        var childLeftSuppliers = childAgencySuppliers
-            .Where(s => !result.ContainsKey(s.Key))
-            .ToDictionary(s => s.Key, s => s.Value);
-
-        if (childLeftSuppliers != default)
-            result = result.Union(childLeftSuppliers).ToDictionary(s => s.Key, s => s.Value);
-
         return result;
+    }
+
+
+    public Dictionary<string, bool> SunpuMaterialization(Dictionary<string, bool> suppliers,
+        Dictionary<string, EnablementState> enabledSuppliers)
+    {
+        var materializedSettings = new Dictionary<string, bool>();
+
+        foreach (var (supplier, supplierOption) in enabledSuppliers)
+        {
+            var settingExist = suppliers.TryGetValue(supplier, out var agencyOption);
+            var materializedOption = supplierOption switch
+            {
+                EnablementState.TestOnly => agencyOption,
+                EnablementState.Enabled => agencyOption || !settingExist,
+                _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
+            };
+
+            materializedSettings.Add(supplier, materializedOption);
+        }
+
+        return materializedSettings;
     }
 
 
