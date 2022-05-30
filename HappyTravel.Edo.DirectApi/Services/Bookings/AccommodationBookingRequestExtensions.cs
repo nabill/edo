@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 htId: request.AccommodationId,
                 roomContractSetId: request.RoomContractSetId,
                 mainPassengerName: GetMainPassengerName(request.RoomDetails),
-                evaluationToken: null,
+                evaluationToken: request.EvaluationToken,
                 rejectIfUnavailable: true);
         }
 

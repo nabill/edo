@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
             return new WideAvailabilityResult(accommodationId: result.HtId, 
                 roomContractSets: result.RoomContractSets.MapFromEdoModels(),
                 checkInDate: result.CheckInDate,
-                checkOutDate: result.CheckOutDate);
+                checkOutDate: result.CheckOutDate,
+                expiredAfter: result.ExpiredAfter);
         }
     }
 }

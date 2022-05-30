@@ -110,6 +110,11 @@
                 Client booking reference code
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.AccommodationBookingRequest.EvaluationToken">
+            <summary>
+                Evaluation token
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Booking.AccommodationBookingRequest.RoomDetails">
             <summary>
                 Room details that match the response from the booking evaluation step
@@ -516,6 +521,11 @@
                 ID for the accommodation
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContractSetAvailability.EvaluationToken">
+            <summary>
+                Evaluation token
+            </summary>>
+        </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.RoomContractSetAvailability.RoomContractSet">
             <summary>
                 Information about a selected room contract set
@@ -570,6 +580,11 @@
             <summary>
                 Check-out date
             </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilityResult.ExpiredAfter">
+            <summary>
+                Expiration date
+            </summary>>
         </member>
         <member name="P:HappyTravel.Edo.DirectApi.Models.Search.WideAvailabilityResult.RoomContractSets">
             <summary>

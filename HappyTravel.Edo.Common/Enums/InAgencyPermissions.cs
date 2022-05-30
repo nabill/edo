@@ -28,6 +28,7 @@ namespace HappyTravel.Edo.Common.Enums
         MarkupManagement = 32768,
         ObserveChildAgencies = 65536,
         InviteChildAgencies = 131072,
+        ApiConnectionManagement = 262144,
         // All = 01111111111111111111111111111111. First bit is 0 because it is reserved for sign
         All = 2147483647
     }
