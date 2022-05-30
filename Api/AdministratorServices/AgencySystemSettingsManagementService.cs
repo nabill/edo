@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId)
         {
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-            if (Equals(agency, default))
+            if (agency == null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("No agency exist");
             
             if (agency.ContractKind == null)
