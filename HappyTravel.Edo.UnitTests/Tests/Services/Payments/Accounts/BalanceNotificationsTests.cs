@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.DataFormatters;
 using HappyTravel.Edo.Api.AdministratorServices;
@@ -227,7 +228,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             => new BalanceManagementNotificationsService(
                 _notificationServiceMock.Object,
                 new BalanceNotificationsManagementService(_mockedEdoContext),
-                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>())
+                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>())
             );
 
 

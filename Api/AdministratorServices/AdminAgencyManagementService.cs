@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.DataFormatters;
@@ -17,7 +18,10 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -26,11 +30,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AdminAgencyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService,
+            IOptions<NakijinDbOptions> nakijinDbOptions)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
+            _nakijinDbOptions = nakijinDbOptions.Value;
         }
 
 
@@ -234,7 +240,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 if (contractKind is not (ContractKind.VirtualAccountOrCreditCardPayments or ContractKind.OfflineOrCreditCardPayments))
                     return;
-                
+
                 var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
                 if (settings == default)
                 {
@@ -244,8 +250,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     };
                     _context.Add(settings);
                     await _context.SaveChangesAsync();
-                }    
-                
+                }
+
                 settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
 
                 if (contractKind == ContractKind.VirtualAccountOrCreditCardPayments)
@@ -253,7 +259,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
                     settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
                 }
-                
+
                 if (contractKind == ContractKind.OfflineOrCreditCardPayments)
                 {
                     settings.AccommodationBookingSettings.AprMode = AprMode.Hide;
@@ -264,8 +270,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 await _context.SaveChangesAsync();
             }
         }
-        
-        
+
+
         public async Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
             string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
@@ -328,6 +334,52 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public async Task<Result> FulfillLocality()
+        {
+            var queryString = "SELECT l.\"Id\" as \"LocalityId\", l.\"Names\" as \"LocalityNames\", c.\"Id\" as \"CountryId\"" +
+                " FROM \"Localities\" l" +
+                " JOIN \"Countries\" c ON c.\"Id\" = l.\"CountryId\";";
+            var connectionString = $"Server={_nakijinDbOptions.Host};Port={_nakijinDbOptions.Port};" +
+                $"Userid={_nakijinDbOptions.UserId};Password={_nakijinDbOptions.Password};" +
+                "Database=nakijin";
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var command = new SqlCommand(queryString, connection);
+                await connection.OpenAsync();
+                var reader = await command.ExecuteReaderAsync();
+                try
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var localityId = $"Locality_{reader["LocalityId"]}";
+                        var localityNames = JsonConvert.DeserializeObject<MultiLanguage<string>>(reader["LocalityNames"].ToString()!);
+                        var countryId = $"Country_{reader["CountryId"]}";
+
+                        var agency = await _context.Agencies
+                            .Where(a => a.City.Equals(localityNames!.En))
+                            .SingleOrDefaultAsync();
+
+                        if (agency != default)
+                        {
+                            agency.CountryHtId = countryId;
+                            agency.LocalityHtId = localityId;
+
+                            _context.Update(agency);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+                finally
+                {
+                    await reader.CloseAsync();
+                }
+            }
+
+            return Result.Success();
+        }
+
+
         public Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId)
             => GetRootAgency(agencyId)
                 .Map(a => a.VerificationState);
@@ -369,7 +421,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new AgencyActivityStatusChangeEventData(agencyId, reason));
 
         private Task WriteChangeContractKindToAuditLog(int agencyId, ContractKind contractKind, string reason)
-            => _managementAuditService.Write(ManagementEventType.ChangeAgencyContractKind, 
+            => _managementAuditService.Write(ManagementEventType.ChangeAgencyContractKind,
                 new ChangeContractKindData(agencyId, contractKind, reason));
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
@@ -378,5 +430,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly IManagementAuditService _managementAuditService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
+        private readonly NakijinDbOptions _nakijinDbOptions;
     }
 }
