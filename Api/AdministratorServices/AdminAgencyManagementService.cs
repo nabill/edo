@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
@@ -22,6 +21,7 @@ using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -343,9 +343,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 $"Userid={_nakijinDbOptions.UserId};Password={_nakijinDbOptions.Password};" +
                 "Database=nakijin";
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new NpgsqlConnection(connectionString))
             {
-                var command = new SqlCommand(queryString, connection);
+                var command = new NpgsqlCommand(queryString, connection);
                 await connection.OpenAsync();
                 var reader = await command.ExecuteReaderAsync();
                 try
@@ -357,7 +357,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         var countryId = $"Country_{reader["CountryId"]}";
 
                         var agency = await _context.Agencies
-                            .Where(a => a.City.Equals(localityNames!.En))
+                            .Where(a => (a.City.Equals(localityNames!.En) || a.City.Equals(localityNames!.Ru)) &&
+                                a.LocalityHtId.Equals(null))
                             .SingleOrDefaultAsync();
 
                         if (agency != default)

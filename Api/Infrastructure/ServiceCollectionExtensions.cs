@@ -344,7 +344,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CreditCardPaymentsCommission = configuration.GetValue<decimal>("ContractKindCommission:CreditCardPayments");
             });
 
-            var nakijinDbOptions = vaultClient.Get(configuration["Nakijin:Connection-strings"]).GetAwaiter().GetResult();
+            var nakijinDbOptions = vaultClient.Get(configuration["Nakijin:Database:Options"]).GetAwaiter().GetResult();
             services.Configure<NakijinDbOptions>(options =>
             {
                 options.Host = nakijinDbOptions["host"];
