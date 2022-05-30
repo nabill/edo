@@ -29,5 +29,6 @@ namespace HappyTravel.Edo.Common.Enums
         CounterpartyEdit = 200,
         AdministratorRolesAssignment = 210,
         AdministratorChangeActivityState = 220,
+        ChangeAgencyContractKind = 230,
     }
 }

@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -210,6 +211,61 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Map(a => a.ContractKind.Value);
 
 
+        public async Task<Result> ChangeContractKind(int agencyId, ContractKind contractKind, string reason)
+        {
+            return await GetAgency(agencyId)
+                .Ensure(_ => contractKind != default, "Contract kind should be set")
+                .Ensure(_ => !string.IsNullOrEmpty(reason), "Reason should be set")
+                .Ensure(a => a.VerificationState == AgencyVerificationStates.FullAccess, "Agency is not fully verified")
+                .Tap(SetContractKind)
+                .Tap(SetAprModeAndPassedDeadlineOffersMode)
+                .Tap(() => WriteChangeContractKindToAuditLog(agencyId, contractKind, reason));
+
+
+            async Task SetContractKind(Agency agency)
+            {
+                agency.ContractKind = contractKind;
+                _context.Update(agency);
+                await _context.SaveChangesAsync();
+            }
+
+
+            async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
+            {
+                if (contractKind is not (ContractKind.VirtualAccountOrCreditCardPayments or ContractKind.OfflineOrCreditCardPayments))
+                    return;
+                
+                var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+                if (settings == default)
+                {
+                    settings = new AgencySystemSettings
+                    {
+                        AgencyId = agencyId
+                    };
+                    _context.Add(settings);
+                    await _context.SaveChangesAsync();
+                }    
+                
+                settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
+
+                if (contractKind == ContractKind.VirtualAccountOrCreditCardPayments)
+                {
+                    settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
+                }
+                
+                if (contractKind == ContractKind.OfflineOrCreditCardPayments)
+                {
+                    settings.AccommodationBookingSettings.AprMode = AprMode.Hide;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide;
+                }
+
+                _context.Update(settings);
+                await _context.SaveChangesAsync();
+            }
+        }
+        
+        
         public async Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
             string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
@@ -312,6 +368,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => _managementAuditService.Write(ManagementEventType.AgencyActivation,
                 new AgencyActivityStatusChangeEventData(agencyId, reason));
 
+        private Task WriteChangeContractKindToAuditLog(int agencyId, ContractKind contractKind, string reason)
+            => _managementAuditService.Write(ManagementEventType.ChangeAgencyContractKind, 
+                new ChangeContractKindData(agencyId, contractKind, reason));
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
 
