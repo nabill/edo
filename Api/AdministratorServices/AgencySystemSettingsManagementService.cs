@@ -192,10 +192,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 : Result.Failure("Agency with such id does not exist");
 
 
-        private Task<bool> DoesAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
+        private Task<bool> DoesAgencyExist(int agencyId)
+            => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
 
 
-        private Task<bool> DoesAgencyExistIncludingInactive(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId);
+        private Task<bool> DoesAgencyExistIncludingInactive(int agencyId) 
+            => _context.Agencies.AnyAsync(a => a.Id == agencyId);
 
 
         private readonly EdoContext _context;
