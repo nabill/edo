@@ -10,6 +10,7 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         {
             return new RoomContractSetAvailability(searchId: searchId,
                 accommodationId: accommodationId,
+                evaluationToken: availability.EvaluationToken,
                 roomContractSet: availability.RoomContractSet.MapFromEdoModel());
         }
     }

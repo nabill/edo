@@ -6,10 +6,11 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct RoomContractSetAvailability
     {
         [JsonConstructor]
-        public RoomContractSetAvailability(Guid searchId, string accommodationId, RoomContractSet? roomContractSet)
+        public RoomContractSetAvailability(Guid searchId, string accommodationId, string evaluationToken, RoomContractSet? roomContractSet)
         {
             SearchId = searchId;
             AccommodationId = accommodationId;
+            EvaluationToken = evaluationToken;
             RoomContractSet = roomContractSet;
         }
 
@@ -23,6 +24,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         ///     ID for the accommodation
         /// </summary>
         public string AccommodationId { get; }
+        
+        
+        /// <summary>
+        ///     Evaluation token
+        /// </summary>>
+        public string EvaluationToken { get; }
 
         /// <summary>
         ///     Information about a selected room contract set

@@ -52,6 +52,7 @@ namespace HappyTravel.Edo.DirectApi
             vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).GetAwaiter().GetResult();
             
             var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
+            authorityOptions.Audience = "direct_api"; // override edo value
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()

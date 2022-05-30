@@ -7,11 +7,12 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
     public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets, DateTimeOffset checkInDate, DateTimeOffset checkOutDate)
+        public WideAvailabilityResult(string accommodationId, List<RoomContractSet> roomContractSets, DateTimeOffset checkInDate, DateTimeOffset checkOutDate, DateTimeOffset expiredAfter)
         {
             AccommodationId = accommodationId;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            ExpiredAfter = expiredAfter;
             RoomContractSets = roomContractSets;
         }
         
@@ -29,6 +30,11 @@ namespace HappyTravel.Edo.DirectApi.Models.Search
         ///     Check-out date
         /// </summary>
         public DateTimeOffset CheckOutDate { get; }
+        
+        /// <summary>
+        ///     Expiration date
+        /// </summary>>
+        public DateTimeOffset ExpiredAfter { get; }
 
         /// <summary>
         ///     List of available room contracts sets
