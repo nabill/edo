@@ -130,7 +130,7 @@ steps:
   settings:
     mode: upgrade
     chart: ./Helm/edo
-    release: edo-dev
+    release: edo
     values_files: ["Helm/edo/values_dev.yaml"]
     namespace: dev
     skip_tls_verify: true
@@ -147,7 +147,7 @@ steps:
   settings:
     mode: upgrade
     chart: ./Helm/direct-api
-    release: direct-api-dev
+    release: direct-api
     values_files: ["Helm/direct-api/values_dev.yaml"]
     namespace: dev
     skip_tls_verify: true
@@ -237,7 +237,7 @@ steps:
   settings:
     mode: upgrade
     chart: ./Helm/edo
-    release: edo-production
+    release: edo
     values_files: ["Helm/edo/values_prod.yaml"]
     namespace: production
     skip_tls_verify: true
