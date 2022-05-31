@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var agentSettings = (await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId))
                 ?.AccommodationBookingSettings;
 
-            if (agentSettings == null)
+            if (agentSettings is null)
             {
                 if (isAgencySettingsFailure)
                     return new AgentAccommodationBookingSettings
