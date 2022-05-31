@@ -350,16 +350,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var reader = await command.ExecuteReaderAsync();
                 try
                 {
+                    var agencies = await _context.Agencies.Where(a => a.LocalityHtId == null && a.City != null).ToListAsync();
+
                     while (await reader.ReadAsync())
                     {
                         var localityId = $"Locality_{reader["LocalityId"]}";
                         var localityNames = JsonConvert.DeserializeObject<MultiLanguage<string>>(reader["LocalityNames"].ToString()!);
                         var countryId = $"Country_{reader["CountryId"]}";
 
-                        var agency = await _context.Agencies
-                            .Where(a => (a.City.Equals(localityNames!.En) || a.City.Equals(localityNames!.Ru)) &&
-                                a.LocalityHtId.Equals(null))
-                            .SingleOrDefaultAsync();
+                        var agency = agencies
+                            .Where(a => (a.City.ToLower().Equals(localityNames!.En.ToLower()) ||
+                                a.City.ToLower().Equals(localityNames!.Ru.ToLower())))
+                            .FirstOrDefault();
 
                         if (agency != default)
                         {
@@ -376,7 +378,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     await reader.CloseAsync();
                 }
             }
-
             return Result.Success();
         }
 
