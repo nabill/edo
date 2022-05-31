@@ -1,7 +1,13 @@
-replicaCount: 1
+replicaCount: 2
+
+podAnnotations:
+  linkerd.io/inject: enabled
+
+deployment:
+  annotations:
+    sidecar.jaegertracing.io/inject: jaeger-dev
 
 jaeger:
-  sidecar: jaeger-dev
   collector_host: dns:///jaeger-dev-collector-headless.observability:14250
 
 image:
@@ -14,12 +20,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
   create: false
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name:
 
 podSecurityContext: {}
@@ -45,6 +47,7 @@ service:
 
 ingress:
   enabled: true
+  className: ""
   annotations:
     kubernetes.io/ingress.class: "nginx"
     ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -53,10 +56,12 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
     nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+    nginx.ingress.kubernetes.io/service-upstream: "true"
   hosts:
     - host: edo-dev.happytravel.com
       paths:
-        - /
+        - path: /
+          pathType: ImplementationSpecific
   tls:
    - secretName: happytravel-tls
      hosts:
@@ -67,7 +72,7 @@ resources:
     cpu: 1
     memory: 1024Mi
   requests:
-    cpu: 100m
+    cpu: 1
     memory: 1024Mi
 
 nodeSelector: {}
@@ -84,10 +89,19 @@ affinity:
           values:
           - edo
       topologyKey: "kubernetes.io/hostname"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
 metrics:
   enabled: true
   podMonitor:
     enabled: true
+
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
@@ -98,5 +112,5 @@ env:
   HTDC_GRPC_PORT: "5101"
   HTDC_HEALTH_PORT: "60000"
   HTDC_METRICS_PORT: "60001"
-  HTDC_REDIS_HOST: "redis-edo"
+  HTDC_REDIS_HOST: "redis-edo-master"
   CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"
