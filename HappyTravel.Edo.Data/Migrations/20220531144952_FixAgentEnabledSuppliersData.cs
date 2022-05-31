@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     if (!Equals(a.AccommodationBookingSettings.EnabledSuppliers, null))
                         if (a.AccommodationBookingSettings.EnabledSuppliers.Count > 0)
                         {
-                            a.EnabledSuppliers = suppliers;
+                            a.EnabledSuppliers = new Dictionary<string, bool>(suppliers);
                             a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s =>
                             {
                                 if (a.EnabledSuppliers.ContainsKey(s))
