@@ -35,7 +35,13 @@ namespace HappyTravel.Edo.Data.Migrations
                         if (a.AccommodationBookingSettings.EnabledSuppliers.Count > 0)
                         {
                             a.EnabledSuppliers = suppliers;
-                            a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s => a.EnabledSuppliers[s] = true);
+                            a.AccommodationBookingSettings.EnabledSuppliers.ForEach(s =>
+                            {
+                                if (a.EnabledSuppliers.ContainsKey(s))
+                                {
+                                    a.EnabledSuppliers[s] = true;
+                                }
+                            });
                         }
                 }
             );
