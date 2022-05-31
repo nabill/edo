@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingInfoService.GetAccommodationBookingInfo(referenceCode, LanguageCode);
+                await _bookingInfoService.GetAdministratorAccommodationBookingInfo(referenceCode, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
