@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Data.Migrations
             };
 
             var context = new EdoContextFactory().CreateDbContext(Array.Empty<string>());
-            var agentSettings = context.AgentSystemSettings.ToList();
+            var agentSettings = context.AgentSystemSettings.Where(a => a.AccommodationBookingSettings != null).ToList();
             agentSettings.ForEach(a =>
                 {
                     if (!Equals(a.AccommodationBookingSettings.EnabledSuppliers, null))
