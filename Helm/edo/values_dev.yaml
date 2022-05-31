@@ -112,5 +112,5 @@ env:
   HTDC_GRPC_PORT: "5101"
   HTDC_HEALTH_PORT: "60000"
   HTDC_METRICS_PORT: "60001"
-  HTDC_REDIS_HOST: "redis-edo-master"
+  HTDC_REDIS_HOST: "redis-edo"
   CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"
