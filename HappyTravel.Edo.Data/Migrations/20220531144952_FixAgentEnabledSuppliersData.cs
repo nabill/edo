@@ -16,16 +16,15 @@ namespace HappyTravel.Edo.Data.Migrations
             {
                 {"rakuten", false},
                 {"etg", false},
-                {"travelgateXTest", false},
                 {"netstorming", false},
                 {"illusions", false},
                 {"jumeirah", false},
                 {"bronevik", false},
-                {"avraTours", false},
                 {"illusionsDirect", false},
-                {"htTest", false},
+                {"darina", false},
                 {"columbus", false},
-                {"hotelBeds", false}
+                {"hotelbookPro", false},
+                {"bookMe", false}
             };
 
             var context = new EdoContextFactory().CreateDbContext(Array.Empty<string>());
