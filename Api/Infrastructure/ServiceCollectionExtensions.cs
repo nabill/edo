@@ -233,9 +233,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 });
 
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
+            {
+                o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
+            }).AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
+
+            services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {
-                    o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
-                }).AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
+                    client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
+                })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
+                .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
+                .UseHttpClientMetrics()
                 .AddHttpClientRequestLogging(configuration, options =>
                 {
                     options.SanitizingFunction = entry =>
@@ -246,15 +255,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         return entry;
                     };
                 });
-
-            services.AddHttpClient(HttpClientNames.Connectors, client =>
-                {
-                    client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
-                })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
-                .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
-                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
-                .UseHttpClientMetrics();
 
             return services;
         }
