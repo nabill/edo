@@ -117,6 +117,7 @@ using Api.Services.Markups;
 using Api.Infrastructure.Options;
 using Api.AdministratorServices;
 using HappyTravel.Edo.Common.Infrastructure.Options;
+using HappyTravel.HttpRequestLogger;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -219,7 +220,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.AddHttpClient(HttpClientNames.ConnectorsGrpc)
-                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
+                .AddHttpClientRequestLogging(configuration, options =>
+                {
+                    options.SanitizingFunction = entry =>
+                    {
+                        if (entry.RequestHeaders is not null && entry.RequestHeaders.TryGetValue("Authorization", out _))
+                            entry.RequestHeaders["Authorization"] = @"Bearer [hidden]";
+
+                        return entry;
+                    };
+                });
 
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
             {
@@ -233,7 +244,17 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
-                .UseHttpClientMetrics();
+                .UseHttpClientMetrics()
+                .AddHttpClientRequestLogging(configuration, options =>
+                {
+                    options.SanitizingFunction = entry =>
+                    {
+                        if (entry.RequestHeaders is not null && entry.RequestHeaders.TryGetValue("Authorization", out _))
+                            entry.RequestHeaders["Authorization"] = @"Bearer [hidden]";
+
+                        return entry;
+                    };
+                });
 
             return services;
         }
