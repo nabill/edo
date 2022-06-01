@@ -9,9 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
@@ -103,7 +101,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 Sort = sort,
                 Skip = filters?.Skip,
-                Limit = filters?.Top
+                Limit = filters?.Top,
+                Hint = new BsonString(IndexName).AsBsonValue // forcible use search index
             };
             
             var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
@@ -121,7 +120,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings)
         {
             var filter = GetSearchIdSupplierFilterDefinition(searchId, supplierCode);
-            var cursor = await _availabilityStorage.Collection().FindAsync(filter);
+            var options = new FindOptions<CachedAccommodationAvailabilityResult>
+            {
+                Hint = new BsonString(IndexName).AsBsonValue // forcible use search index
+            };
+            var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
 
             return results.Select(r => r.Map(searchSettings))
@@ -217,6 +220,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         
         private readonly TimeSpan _searchIdExpirationBuffer = TimeSpan.FromMinutes(15);
+        private const string IndexName = "SearchId_1_SupplierCode_1"; 
 
 
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
