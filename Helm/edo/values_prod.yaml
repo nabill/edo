@@ -1,7 +1,13 @@
 replicaCount: 4
 
+podAnnotations:
+  linkerd.io/inject: enabled
+
+deployment:
+  annotations:
+    sidecar.jaegertracing.io/inject: jaeger-production
+
 jaeger:
-  sidecar: jaeger-production
   collector_host: dns:///jaeger-production-collector-headless.observability:14250
 
 image:
@@ -84,6 +90,13 @@ affinity:
           values:
           - edo
       topologyKey: "kubernetes.io/hostname"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
 
 metrics:
   enabled: true
