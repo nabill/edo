@@ -46,12 +46,12 @@ namespace Api.AdministratorServices
                     .Where(s => s.Value == EnablementState.Enabled)
                     .ToDictionary(s => s.Key, s => true);
 
-                agencySuppliers = _agencySupplierManagementService
+                var agencySuppliersMaterialized = _agencySupplierManagementService
                     .SunpuMaterialization(
                         agencySuppliers,
                         enabledSuppliers.Where(s => s.Value == EnablementState.Enabled).ToDictionary(s => s.Key, s => s.Value),
                         false);
-                return _agencySupplierManagementService.GetIntersection(agencySuppliers, suppliersFromSunpu);
+                return _agencySupplierManagementService.GetIntersection(agencySuppliers, agencySuppliersMaterialized);
             }
 
             var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers, true);
