@@ -324,8 +324,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
-        public async Task<IActionResult> ChangeContractKind(int agencyId, [FromBody] ContractKindChangeRequest request) 
+        public async Task<IActionResult> ChangeContractKind(int agencyId, [FromBody] ContractKindChangeRequest request)
             => NoContentOrBadRequest(await _agencyManagementService.ChangeContractKind(agencyId, request.ContractKind, request.Reason));
+
+
+        [HttpPut("locality/fulfill")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
+        public async Task<IActionResult> FulfillLocality()
+            => NoContentOrBadRequest(await _agencyManagementService.FulfillLocality());
 
 
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
