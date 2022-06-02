@@ -1,7 +1,13 @@
 replicaCount: 1
 
+podAnnotations:
+  linkerd.io/inject: enabled
+
+deployment:
+  annotations:
+    sidecar.jaegertracing.io/inject: jaeger-dev
+
 jaeger:
-  sidecar: jaeger-dev
   collector_host: dns:///jaeger-dev-collector-headless.observability:14250
 
 image:
@@ -14,12 +20,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: false
-  # Annotations to add to the service account
+  create: false 
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name:
 
 podSecurityContext: {}
@@ -54,7 +56,8 @@ ingress:
   hosts:
     - host: api-dev.happytravel.com
       paths:
-        - /
+        - path: /
+          pathType: ImplementationSpecific
   tls:
    - secretName: happytravel-tls
      hosts:
@@ -80,8 +83,15 @@ affinity:
         - key: app.kubernetes.io/name
           operator: In
           values:
-          - edo
+          - direct-api
       topologyKey: "kubernetes.io/hostname"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
 
 metrics:
   enabled: true
