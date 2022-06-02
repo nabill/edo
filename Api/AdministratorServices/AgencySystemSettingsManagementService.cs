@@ -29,9 +29,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
             if (agency is null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("No agency exist");
-            
+
             if (agency.ContractKind is null)
-                return Result.Failure<AgencyAccommodationBookingSettings>("ContractKind for agency is not set");
+                return GetDefaults();
 
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
@@ -46,6 +46,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 IsDirectContractFlagVisible = GetIsDirectContractFlagVisible(),
                 CustomDeadlineShift = GetCustomDeadlineShift()
             };
+
+
+            AgencyAccommodationBookingSettings GetDefaults()
+                => new()
+                {
+                    IsSupplierVisible = false,
+                    IsDirectContractFlagVisible = false,
+                    AprMode = AprMode.Hide,
+                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                    CustomDeadlineShift = 0
+                };
             
             
             async Task<AgencyAccommodationBookingSettings?> GetSettings(int id) 
@@ -132,6 +143,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
+                
+                if (agency.ContractKind is null)
+                    return Result.Failure("Changing settings for agency in read-only mode is not allowed");
 
                 return Result.Success();
             }
