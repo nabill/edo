@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
                 
                 if (agency.ContractKind is null)
-                    return Result.Failure("Changing settings for agency in read-only mode is not allowed");
+                    return Result.Failure("Changing settings for agency without full access is not allowed");
 
                 return Result.Success();
             }
