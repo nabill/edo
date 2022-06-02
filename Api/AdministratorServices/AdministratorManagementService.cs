@@ -78,8 +78,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 agency.AccountManagerId = request.AccountManagerId;
 
-                _context.Update(agency);
-                await _context.SaveChangesAsync();
+                _context.Agencies.Update(agency);
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
 
