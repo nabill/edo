@@ -365,6 +365,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CreditCardPaymentsCommission = configuration.GetValue<decimal>("ContractKindCommission:CreditCardPayments");
             });
 
+            var nakijinDbOptions = vaultClient.Get(configuration["Nakijin:Database:Options"]).GetAwaiter().GetResult();
+            services.Configure<NakijinDbOptions>(options =>
+            {
+                options.Host = nakijinDbOptions["host"];
+                options.Port = nakijinDbOptions["port"];
+                options.UserId = nakijinDbOptions["userId"];
+                options.Password = nakijinDbOptions["password"];
+            });
+
             services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
 
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
