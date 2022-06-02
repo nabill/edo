@@ -107,5 +107,5 @@ env:
   HTDC_DIRECT_API_SENTRY_ENDPOINT: "https://ceda11b983284f5db0370a441822e17f@sentry.happytravel.com/63"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
-  HTDC_REDIS_HOST: "redis-edo"
+  HTDC_REDIS_HOST: "redis-edo-master"
   CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"
