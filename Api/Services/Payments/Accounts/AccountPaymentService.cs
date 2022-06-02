@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             IDateTimeProvider dateTimeProvider,
             IBalanceManagementNotificationsService balanceManagementNotificationsService,
             IBookingRecordManager bookingRecordManager,
-            IBookingDocumentsMailingService bookingDocumentsMailingService)
+            IBookingDocumentsMailingService bookingDocumentsMailingService, IAgentContextService agentContextService)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
@@ -37,20 +36,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             _balanceManagementNotificationsService = balanceManagementNotificationsService;
             _bookingRecordManager = bookingRecordManager;
             _bookingDocumentsMailingService = bookingDocumentsMailingService;
+            _agentContextService = agentContextService;
         }
 
 
-        public async Task<bool> CanPayWithAccount(AgentContext agentInfo)
+        public async Task<bool> CanPayWithAccount()
         {
-            var agencyId = agentInfo.AgencyId;
+            var agent = await _agentContextService.GetAgent();
+            var agencyId = agent.AgencyId;
             return await _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId && a.IsActive)
                 .AnyAsync(a => a.Balance > 0);
         }
 
 
-        public Task<List<AgencyAccountInfo>> GetAgencyAccounts(AgentContext agent)
-            => _context.AgencyAccounts
+        public async Task<List<AgencyAccountInfo>> GetAgencyAccounts()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _context.AgencyAccounts
                 .Where(a => a.AgencyId == agent.AgencyId && a.IsActive)
                 .Select(a => new AgencyAccountInfo
                 {
@@ -63,10 +66,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     Id = a.Id
                 })
                 .ToListAsync();
+        }
 
 
-        public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) 
-            => GetAccountBalance(currency, agent.AgencyId);
+        public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency)
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await GetAccountBalance(currency, agent.AgencyId);
+        }
 
 
         public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId)
@@ -80,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Refund(string referenceCode, ApiCaller apiCaller, DateTimeOffset operationDate, IPaymentCallbackService paymentCallbackService,
+        public async Task<Result> Refund(string referenceCode, DateTimeOffset operationDate, IPaymentCallbackService paymentCallbackService,
             string reason)
         {
             return await GetChargingAccountId()
@@ -118,8 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             refundableAmount.Amount,
                             refundableAmount.Currency,
                             reason: reason,
-                            referenceCode: referenceCode),
-                        apiCaller);
+                            referenceCode: referenceCode));
 
 
                 async Task<Payment> UpdatePaymentStatus(Payment payment)
@@ -165,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<PaymentResponse>> Charge(string referenceCode, ApiCaller apiCaller, IPaymentCallbackService paymentCallbackService)
+        public async Task<Result<PaymentResponse>> Charge(string referenceCode, IPaymentCallbackService paymentCallbackService)
         {
             return await GetChargingAccountId()
                 .Bind(GetChargingAccount)
@@ -203,8 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         currency: amount.Currency,
                         amount: amount.Amount,
                         reason: $"Charge money for service '{referenceCode}'",
-                        referenceCode: referenceCode),
-                    apiCaller);
+                        referenceCode: referenceCode));
             }
 
 
@@ -252,9 +257,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
+        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount)
         {
-            return await _accountPaymentProcessingService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, agent);
+            return await _accountPaymentProcessingService.TransferToChildAgency(payerAccountId, recipientAccountId, amount);
         }
 
 
@@ -275,5 +280,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
         private readonly IBookingDocumentsMailingService _bookingDocumentsMailingService;
         private readonly IBookingRecordManager _bookingRecordManager;
+        private readonly IAgentContextService _agentContextService;
     }
 }

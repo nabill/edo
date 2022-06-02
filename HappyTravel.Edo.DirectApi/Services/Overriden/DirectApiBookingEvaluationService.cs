@@ -3,12 +3,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +29,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IAdminAgencyManagementService adminAgencyManagementService, 
             ILogger<DirectApiBookingEvaluationService> logger,
             IAvailabilityRequestStorage availabilityRequestStorage,
-            ISupplierOptionsStorage supplierOptionsStorage) 
+            ISupplierOptionsStorage supplierOptionsStorage,
+            IAgentContextService agentContextService) 
             : base(supplierConnectorManager, priceProcessor, roomSelectionStorage, accommodationBookingSettingsService, dateTimeProvider, bookingEvaluationStorage,
-                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage, supplierOptionsStorage)
+                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage, supplierOptionsStorage, agentContextService)
         {
             
         }

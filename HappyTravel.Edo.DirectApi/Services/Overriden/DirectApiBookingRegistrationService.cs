@@ -5,11 +5,11 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
@@ -28,8 +28,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             ISupplierOrderService supplierOrderService, 
             IBookingRequestStorage requestStorage, 
             IAccommodationMapperClient accommodationMapperClient,
-            ILogger<DirectApiBookingRegistrationService> logger) 
-            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, logger)
+            ILogger<DirectApiBookingRegistrationService> logger,
+            IAgentContextService agentContextService) 
+            : base(context, tagProcessor, dateTimeProvider, appliedBookingMarkupRecordsManager, changeLogService, supplierOrderService, requestStorage, logger, agentContextService)
         {
             _accommodationMapperClient = accommodationMapperClient;
         }

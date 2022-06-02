@@ -2,15 +2,13 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.DirectApi.Models;
+using HappyTravel.Edo.DirectApi.Infrastructure;
 using HappyTravel.Edo.DirectApi.Models.Booking;
 
 namespace HappyTravel.Edo.DirectApi.Services.Bookings
@@ -33,9 +31,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<Result<Booking>> Register(AccommodationBookingRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Register(AccommodationBookingRequest request)
         {
-            return await _validationService.Validate(request.ClientReferenceCode, agent)
+            return await _validationService.Validate(request.ClientReferenceCode)
                 .Bind(GetCachedAvailability)
                 .Bind(RegisterBooking);
             
@@ -50,9 +48,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             {
                 var booking =  await _bookingRegistrationService.Register(bookingRequest: request.ToEdoModel(), 
                     availabilityInfo: availabilityInfo, 
-                    paymentMethod: PaymentTypes.VirtualAccount, 
-                    agentContext: agent, 
-                    languageCode: languageCode);
+                    paymentMethod: PaymentTypes.VirtualAccount,
+                    languageCode: Constants.LanguageCode);
 
                 return booking.IsSuccess
                     ? booking.Value.FromEdoModels()
@@ -61,9 +58,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<Result<Booking>> Finalize(string clientReferenceCode, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Finalize(string clientReferenceCode)
         {
-            return await _bookingInfoService.Get(clientReferenceCode, agent)
+            return await _bookingInfoService.Get(clientReferenceCode)
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest);
@@ -78,16 +75,16 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             
             
             async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
-                => await _accountPaymentService.Charge(booking, agent.ToApiCaller());
+                => await _accountPaymentService.Charge(booking);
             
             
             async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             { 
-                var result =  await _requestExecutor.Execute(booking, agent, languageCode);
+                var result =  await _requestExecutor.Execute(booking, Constants.LanguageCode);
                 if (result.IsFailure)
                     return Result.Failure<Booking>(result.Error);
 
-                var refreshedBooking = await _bookingInfoService.Get(clientReferenceCode, agent);
+                var refreshedBooking = await _bookingInfoService.Get(clientReferenceCode);
                 return refreshedBooking.Value.FromEdoModels();
             }
         }

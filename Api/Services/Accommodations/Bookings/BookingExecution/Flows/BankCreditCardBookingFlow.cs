@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.PropertyOwners;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
@@ -25,7 +26,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingCreditCardPaymentService creditCardPaymentService, IBookingDocumentsService documentsService,
             IBookingDocumentsMailingService documentsMailingService,
             IBookingInfoService bookingInfoService, IDateTimeProvider dateTimeProvider, IBookingRegistrationService registrationService,
-            IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger)
+            IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger, 
+            IAgentContextService agentContext)
         {
             _requestStorage = requestStorage;
             _requestExecutor = requestExecutor;
@@ -38,10 +40,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _registrationService = registrationService;
             _bookingConfirmationService = bookingConfirmationService;
             _logger = logger;
+            _agentContext = agentContext;
         }
         
         
-        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
+        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogCreditCardBookingFlowStarted(bookingRequest.HtId);
@@ -66,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<Booking>> Register(BookingAvailabilityInfo bookingAvailability) 
-                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, agentContext, languageCode);
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.CreditCard, languageCode);
 
 
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
@@ -80,8 +83,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
         
         
-        public async Task<Result<AccommodationBookingInfo>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> Finalize(string referenceCode, string languageCode)
         {
+            var agent = await _agentContext.GetAgent();
+            
             return await GetBooking()
                 .Check(CheckBookingIsPaid)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
@@ -93,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             
             Task<Result<Booking>> GetBooking()
-                => _bookingInfoService.GetAgentsBooking(referenceCode, agentContext);
+                => _bookingInfoService.GetAgentsBooking(referenceCode);
             
             
             Result CheckBookingIsPaid(Booking bookingFromPipe)
@@ -113,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             async Task<Result> CaptureMoney(Booking booking) 
-                => await _creditCardPaymentService.Capture(booking, agentContext.ToApiCaller());
+                => await _creditCardPaymentService.Capture(booking, agent.ToApiCaller());
             
 
             async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Booking booking)
@@ -126,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 Baggage.AddSearchId(request.SearchId);
                 Baggage.AddBookingReferenceCode(booking.ReferenceCode);
 
-                return await _requestExecutor.Execute(booking, agentContext, languageCode);
+                return await _requestExecutor.Execute(booking, languageCode);
             }
 
             
@@ -137,8 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task SendReceipt(Booking booking)
             {
                 var (_, _, receiptInfo, _) = await _documentsService.GenerateReceipt(booking);
-                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agentContext.Email, 
-                    new ApiCaller(agentContext.AgentId.ToString(), ApiCallerTypes.Agent));
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
             }
 
 
@@ -164,5 +168,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingConfirmationService _bookingConfirmationService;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
+        private readonly IAgentContextService _agentContext;
     }
 }

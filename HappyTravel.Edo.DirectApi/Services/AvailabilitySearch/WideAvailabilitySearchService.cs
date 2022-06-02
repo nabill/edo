@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -23,9 +22,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<StartSearchResponse>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<StartSearchResponse>> StartSearch(AvailabilityRequest request)
         {
-            var (_, isFailure, searchId, error) = await _wideAvailabilitySearchService.StartSearch(request.ToEdoModel(), agent, languageCode);
+            var (_, isFailure, searchId, error) = await _wideAvailabilitySearchService.StartSearch(request.ToEdoModel(), "en");
 
             return isFailure
                 ? Result.Failure<StartSearchResponse>(error)
@@ -33,10 +32,10 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId, AgentContext agent)
+        public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId)
         {
-            var isComplete = await IsComplete(searchId, agent);
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var isComplete = await IsComplete(searchId);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var result = await _availabilityStorage.GetFilteredResults(searchId: searchId, 
                 filters: null, 
                 searchSettings: searchSettings, 
@@ -46,9 +45,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
+        private async Task<bool> IsComplete(Guid searchId)
         {
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             var state = WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
 

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
@@ -116,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     }
                 }
                 
-                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToApiCaller());
+                var chargeResult = await _accountPaymentService.Charge(booking);
 
                 if (chargeResult.IsFailure)
                 {
@@ -358,5 +359,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private readonly EdoContext _context;
         private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

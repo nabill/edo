@@ -1,12 +1,9 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -41,8 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest,
-            AgentContext agentContext, string languageCode, string clientIp)
+        public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByAccountStarted(bookingRequest.HtId);
@@ -72,11 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<Data.Bookings.Booking>> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
-                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, agentContext, languageCode);
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, languageCode);
 
 
             async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
-                => await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
+                => await _accountPaymentService.Charge(booking);
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -86,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             {
                 var refreshedBooking = await _recordManager.Get(booking.ReferenceCode);
-                return await _requestExecutor.Execute(refreshedBooking.Value, agentContext, languageCode);
+                return await _requestExecutor.Execute(refreshedBooking.Value, languageCode);
             }
 
 

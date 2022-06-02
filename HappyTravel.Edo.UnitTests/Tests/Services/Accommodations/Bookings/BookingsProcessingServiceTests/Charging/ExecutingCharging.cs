@@ -4,13 +4,10 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Management;
@@ -54,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingPaymentServiceMock
                 .Verify(
-                    b => b.Charge(It.IsAny<Booking>(), It.IsAny<ApiCaller>()),
+                    b => b.Charge(It.IsAny<Booking>()),
                     Times.Exactly(2)
                 );
         }
@@ -67,7 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
             var bookingRecordsUpdater = new Mock<IBookingRecordsUpdater>();
 
-            bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<ApiCaller>()))
+            bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
 
             var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object, bookingRecordsUpdater.Object);

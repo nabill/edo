@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
@@ -36,8 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
         
 
-        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
-            AgentContext agentContext, string languageCode, string clientIp)
+        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByOfflinePaymentStarted(bookingRequest.HtId);
@@ -71,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<Data.Bookings.Booking>> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
-                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, languageCode);
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -80,9 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             {
-                return await _requestExecutor.Execute(booking,
-                    agentContext,
-                    languageCode);
+                return await _requestExecutor.Execute(booking, languageCode);
             }
 
 
