@@ -7,7 +7,7 @@ public static class PdfGeneratorServiceCollectionExtensions
 {
     public static IServiceCollection AddPdfGenerator(this IServiceCollection services)
     {
-        services.AddSingleton<IPdfGeneratorService, PdfGeneratorService>();
+        services.AddTransient<IPdfGeneratorService, PdfGeneratorService>();
         return services;
     }
 }
