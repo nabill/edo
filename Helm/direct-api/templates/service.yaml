@@ -9,7 +9,7 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http-nginx
+      targetPort: http
       protocol: TCP
       name: http
     - port: {{ .Values.service.metrics.port }}

@@ -30,7 +30,7 @@ namespace Api.Controllers.AdministratorControllers
         [HttpGet("account-managers")]
         [ProducesResponseType(typeof(List<AccountManager>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> Get()
             => Ok(await _administratorManagementService.GetAccountManagers());
 
@@ -42,7 +42,7 @@ namespace Api.Controllers.AdministratorControllers
         [HttpPut("agencies/{agencyId}/account-manager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+        [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> Add([FromRoute] int agencyId, [FromBody] AddAccountManagerRequest request)
             => NoContentOrBadRequest(await _administratorManagementService.AddAccountManager(agencyId, request));
 

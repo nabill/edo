@@ -1,4 +1,4 @@
-replicaCount: 2
+replicaCount: 1
 
 podAnnotations:
   linkerd.io/inject: enabled
@@ -20,7 +20,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: false
+  create: false 
   annotations: {}
   name:
 
@@ -112,5 +112,5 @@ env:
   HTDC_GRPC_PORT: "5101"
   HTDC_HEALTH_PORT: "60000"
   HTDC_METRICS_PORT: "60001"
-  HTDC_REDIS_HOST: "redis-edo"
+  HTDC_REDIS_HOST: "redis-edo-master"
   CONSUL_HTTP_ADDR: "https://consul-dev.happytravel.com/"
