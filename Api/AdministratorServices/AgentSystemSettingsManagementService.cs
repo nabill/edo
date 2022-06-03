@@ -33,38 +33,38 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Bind(WriteAuditLog));
 
 
-             Task Update(AgentSystemSettings existingSettings)
-             {
-                 if (existingSettings is null)
-                 {
-                     var newSettings = new AgentSystemSettings
-                     {
-                         AgencyId = agencyId,
-                         AgentId = agentId,
-                         AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings()
-                     };
-                     _context.Add(newSettings);
-                 }
-                 else
-                 {
-                     existingSettings.AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings();
-                     _context.Update(existingSettings);
-                 }
+            Task Update(AgentSystemSettings existingSettings)
+            {
+                if (existingSettings is null)
+                {
+                    var newSettings = new AgentSystemSettings
+                    {
+                        AgencyId = agencyId,
+                        AgentId = agentId,
+                        AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings()
+                    };
+                    _context.Add(newSettings);
+                }
+                else
+                {
+                    existingSettings.AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings();
+                    _context.Update(existingSettings);
+                }
 
-                 return _context.SaveChangesAsync();
-             }
+                return _context.SaveChangesAsync();
+            }
 
 
-             Task<Result> WriteAuditLog(AgentSystemSettings _)
-                 => _managementAuditService.Write(ManagementEventType.AgentSystemSettingsCreateOrEdit,
-                     new AgentSystemSettingsCreateOrEditEventData(agentId, agencyId, settings));
+            Task<Result> WriteAuditLog(AgentSystemSettings _)
+                => _managementAuditService.Write(ManagementEventType.AgentSystemSettingsCreateOrEdit,
+                    new AgentSystemSettingsCreateOrEditEventData(agentId, agencyId, settings));
         }
 
 
         public Task<Result<AgentAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agentId, int agencyId)
             => CheckRelationExists(agentId, agencyId)
                 .Map(() => GetSettings(agentId, agencyId));
-        
+
 
         public async Task<Result> DeleteAvailabilitySearchSettings(int agentId, int agencyId)
         {
@@ -115,7 +115,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         AdditionalSearchFilters = new(),
                         AprMode = AprMode.Hide,
                         CustomDeadlineShift = 0,
-                        EnabledSuppliers = new(),
                         IsDirectContractFlagVisible = false,
                         IsSupplierVisible = false,
                         PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
@@ -126,7 +125,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     AdditionalSearchFilters = new(),
                     AprMode = materializedAgencySettings.AprMode,
                     CustomDeadlineShift = materializedAgencySettings.CustomDeadlineShift,
-                    EnabledSuppliers = new(),
                     IsDirectContractFlagVisible = materializedAgencySettings.IsDirectContractFlagVisible,
                     IsSupplierVisible = materializedAgencySettings.IsSupplierVisible,
                     PassedDeadlineOffersMode = materializedAgencySettings.PassedDeadlineOffersMode
@@ -134,11 +132,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
             var aprMode = agentSettings.AprMode > materializedAgencySettings.AprMode
-                ? materializedAgencySettings.AprMode 
+                ? materializedAgencySettings.AprMode
                 : agentSettings.AprMode;
-            
-            var passedDeadlineOffersMode = agentSettings.PassedDeadlineOffersMode > materializedAgencySettings.PassedDeadlineOffersMode 
-                ? materializedAgencySettings.PassedDeadlineOffersMode 
+
+            var passedDeadlineOffersMode = agentSettings.PassedDeadlineOffersMode > materializedAgencySettings.PassedDeadlineOffersMode
+                ? materializedAgencySettings.PassedDeadlineOffersMode
                 : agentSettings.PassedDeadlineOffersMode;
 
             var isDirectContractFlagVisible = agentSettings.IsDirectContractFlagVisible && materializedAgencySettings.IsDirectContractFlagVisible;
@@ -149,7 +147,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 AdditionalSearchFilters = agentSettings.AdditionalSearchFilters,
                 AprMode = aprMode,
                 CustomDeadlineShift = agentSettings.CustomDeadlineShift,
-                EnabledSuppliers = new(),
                 IsDirectContractFlagVisible = isDirectContractFlagVisible,
                 IsSupplierVisible = isSupplierVisible,
                 PassedDeadlineOffersMode = passedDeadlineOffersMode
