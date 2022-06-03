@@ -33,5 +33,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
             string languageCode = LocalizationHelper.DefaultLanguageCode);
+
+        Task<Result> FulfillLocality();
     }
 }

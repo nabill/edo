@@ -183,6 +183,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                             : markupFormula.DisplayFormula,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null,
+                        admin != null ?
+                            admin.Id :
                             null))
                 .SingleOrDefaultAsync();
 

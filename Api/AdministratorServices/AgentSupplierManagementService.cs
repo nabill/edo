@@ -42,14 +42,12 @@ namespace Api.AdministratorServices
 
             if (Equals(agentSettings?.EnabledSuppliers, null))
             {
-                var suppliersFromSunpu = enabledSuppliers
-                    .Where(s => s.Value == EnablementState.Enabled)
-                    .ToDictionary(s => s.Key, s => true);
-
-                return _agencySupplierManagementService.GetIntersection(agencySuppliers, suppliersFromSunpu);
+                var agencySuppliersMaterialized = _agencySupplierManagementService
+                    .SunpuMaterialization(agencySuppliers, enabledSuppliers, false);
+                return _agencySupplierManagementService.GetIntersection(agencySuppliers, agencySuppliersMaterialized);
             }
 
-            var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers);
+            var agentSuppliers = _agencySupplierManagementService.SunpuMaterialization(agentSettings.EnabledSuppliers, enabledSuppliers, true);
             var resultSuppliers = _agencySupplierManagementService.GetIntersection(agencySuppliers, agentSuppliers);
 
             return resultSuppliers;

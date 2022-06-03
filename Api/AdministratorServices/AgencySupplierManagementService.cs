@@ -35,9 +35,12 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
                 .ToDictionary(s => s.Key, s => s.Value);
 
         if (Equals(agencySettings?.EnabledSuppliers, null))
-            return rootAgencySuppliers;
+        {
+            var rootAgencySuppliersWithoutTestOnly = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers, false);
+            return GetIntersection(rootAgencySuppliers, rootAgencySuppliersWithoutTestOnly);
+        }
 
-        var agencySuppliers = SunpuMaterialization(agencySettings.EnabledSuppliers, enabledSuppliers);
+        var agencySuppliers = SunpuMaterialization(agencySettings.EnabledSuppliers, enabledSuppliers, true);
         var resultSuppliers = GetIntersection(rootAgencySuppliers!, agencySuppliers);
 
         return resultSuppliers;
@@ -54,7 +57,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
         if (rootAgencyId == default)
             return enabledSuppliers
-                .Where(s => s.Value == EnablementState.Enabled)
+                .Where(s => s.Value == EnablementState.Enabled || s.Value == EnablementState.TestOnly)
                 .ToDictionary(s => s.Key, s => true);
 
         var rootAgencySettings = await _context.AgencySystemSettings
@@ -62,12 +65,12 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
         if (Equals(rootAgencySettings?.EnabledSuppliers, null))
             return enabledSuppliers
-                .Where(s => s.Value == EnablementState.Enabled)
+                .Where(s => s.Value == EnablementState.Enabled || s.Value == EnablementState.TestOnly)
                 .ToDictionary(s => s.Key, s => true);
 
         var rootAgencySuppliers = rootAgencySettings.EnabledSuppliers;
 
-        var resultSuppliers = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers);
+        var resultSuppliers = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers, true);
 
         return resultSuppliers;
     }
@@ -145,7 +148,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
 
     public Dictionary<string, bool> SunpuMaterialization(Dictionary<string, bool> suppliers,
-        Dictionary<string, EnablementState> enabledSuppliers)
+        Dictionary<string, EnablementState> enabledSuppliers, bool withTestOnly)
     {
         var materializedSettings = new Dictionary<string, bool>();
 
@@ -154,8 +157,9 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             var settingExist = suppliers.TryGetValue(supplier, out var agencyOption);
             var materializedOption = supplierOption switch
             {
-                EnablementState.TestOnly => agencyOption,
+                EnablementState.TestOnly => withTestOnly ? agencyOption : false,
                 EnablementState.Enabled => agencyOption || !settingExist,
+                EnablementState.Disabled => false,
                 _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
             };
 
