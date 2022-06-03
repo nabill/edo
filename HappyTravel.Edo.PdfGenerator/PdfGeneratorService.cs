@@ -28,7 +28,7 @@ public class PdfGeneratorService : IPdfGeneratorService
         if (!File.Exists(templatePath))
             return Result.Failure<Task<IRazorEngineCompiledTemplate>>($"Template file not found. Template name - {key}");
 
-        return _templateCache.GetOrAdd(key.GetHashCode(), _ =>
+        return TemplateCache.GetOrAdd(key.GetHashCode(), _ =>
         {
             IRazorEngine razorEngine = new RazorEngine();
             var template = File.ReadAllText(templatePath);
@@ -38,5 +38,5 @@ public class PdfGeneratorService : IPdfGeneratorService
 
 
     private readonly IWeasyprintClient _weasyprintClient;
-    private readonly ConcurrentDictionary<int, Task<IRazorEngineCompiledTemplate>> _templateCache = new();
+    private static readonly ConcurrentDictionary<int, Task<IRazorEngineCompiledTemplate>> TemplateCache = new();
 }

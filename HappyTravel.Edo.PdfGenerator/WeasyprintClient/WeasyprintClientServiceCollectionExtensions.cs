@@ -7,7 +7,7 @@ public static class WeasyprintClientServiceCollectionExtensions
 {
     public static IServiceCollection AddWeasyprintClient(this IServiceCollection services, Action<WeasyprintClientOptions> options)
     {
-        services.AddSingleton<IWeasyprintClient, WeasyprintClient>();
+        services.AddTransient<IWeasyprintClient, WeasyprintClient>();
         services.Configure(options);
         return services;
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -117,6 +118,8 @@ using Api.Services.Markups;
 using Api.Infrastructure.Options;
 using Api.AdministratorServices;
 using HappyTravel.Edo.Common.Infrastructure.Options;
+using HappyTravel.Edo.PdfGenerator;
+using HappyTravel.Edo.PdfGenerator.WeasyprintClient;
 using HappyTravel.HttpRequestLogger;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -714,7 +717,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
-
+            services.AddPdfGenerator();
+            services.AddWeasyprintClient(options =>
+            {
+                options.WeasyprintEndpoint = configuration.GetValue<string>("Weasyprint:Endpoint");
+            });
+            
             var suppliersEndpoint = configuration.GetValue<string>("Suppliers:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
