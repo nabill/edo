@@ -34,8 +34,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 throw new Exception($"Cannot get supplier `{supplierCode}` with error: {error}");
 
             clientType ??= supplier.CanUseGrpc
-                ? ClientTypes.WebApi
-                : ClientTypes.Grpc;
+                ? ClientTypes.Grpc
+                : ClientTypes.WebApi;
             
             return clientType switch
             {
