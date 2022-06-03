@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.General.Enums;
@@ -9,6 +10,7 @@ namespace HappyTravel.Edo.Data.Agents
         /// <summary>
         /// Enabled suppliers list
         /// </summary>
+        [Obsolete("This setting moved to AgentSystemSettings.EnabledSuppliers")]
         public List<string> EnabledSuppliers { get; set; }
 
         public AprMode? AprMode { get; set; }
