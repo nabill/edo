@@ -2565,11 +2565,6 @@
             Agency preferred currency
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.AccountManagerId">
-            <summary>
-            Account manager id
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.AccountManagerName">
             <summary>
             Name of the account manager
