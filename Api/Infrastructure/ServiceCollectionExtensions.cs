@@ -317,7 +317,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, 16);
 
             services.Configure<CurrencyRateServiceOptions>(configuration.GetSection("CurrencyConverter"));
-            services.Configure<SupplierConnectorOptions>(configuration.GetSection("SupplierConnectorOptions"));
 
             var googleOptions = vaultClient.Get(configuration["Edo:Google:Options"]).GetAwaiter().GetResult();
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
@@ -577,6 +576,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAppliedBookingMarkupRecordsManager, AppliedBookingMarkupRecordsManager>();
 
             services.AddTransient<IAgentBookingDocumentsService, AgentBookingDocumentsService>();
+            services.AddTransient<IAdministratorBookingDocumentsService, AdministratorBookingDocumentsService>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();

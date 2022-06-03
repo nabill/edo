@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Management;
@@ -17,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.OData.Query;
-using BookingStatusHistoryEntry = HappyTravel.Edo.Api.Models.Bookings.BookingStatusHistoryEntry;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -33,7 +33,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             IBookingInfoService bookingInfoService,
             IFixHtIdService fixHtIdService,
             IBookingRecordManager bookingRecordManager,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider, 
+            IAdministratorBookingDocumentsService bookingDocumentsService)
         {
             _administratorContext = administratorContext;
             _bookingService = bookingService;
@@ -42,6 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             _fixHtIdService = fixHtIdService;
             _bookingRecordManager = bookingRecordManager;
             _dateTimeProvider = dateTimeProvider;
+            _bookingDocumentsService = bookingDocumentsService;
         }
 
 
@@ -98,7 +100,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingInfoService.GetAccommodationBookingInfo(referenceCode, LanguageCode);
+                await _bookingInfoService.GetAdministratorAccommodationBookingInfo(referenceCode, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -242,6 +244,25 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
+        
+        
+        /// <summary>
+        ///     Gets booking voucher PDF document.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <returns>Voucher PDF document.</returns>
+        [HttpGet("accommodations/bookings/{bookingId}/voucher-pdf")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> GetBookingVoucherPdf(int bookingId)
+        {
+            var (_, isFailure, document, error) = await _bookingDocumentsService.GenerateVoucherPdf(bookingId, LanguageCode);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return File(document, "application/pdf");
+        }
 
 
         /// <summary>
@@ -293,6 +314,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => await _bookingInfoService.GetAdministratorBookingStatusHistory(bookingId);
 
 
+        private readonly IAdministratorBookingDocumentsService _bookingDocumentsService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
         private readonly IAdministratorBookingManagementService _bookingManagementService;
