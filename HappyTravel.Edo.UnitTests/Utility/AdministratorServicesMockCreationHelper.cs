@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -16,6 +17,7 @@ using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace HappyTravel.Edo.UnitTests.Utility
@@ -42,7 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
 
         public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
-            => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>());
+            => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>());
 
 
         public AgencyVerificationService GetAgencyVerificationService(EdoContext context)

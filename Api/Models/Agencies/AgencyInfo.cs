@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
             AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, string markupDisplayFormula, Currencies preferredCurrency, string? accountManagerName)
+            bool isContractUploaded, string markupDisplayFormula, Currencies preferredCurrency, string? accountManagerName, int? accountManagerId)
         {
             Name = name;
             Id = id;
@@ -41,6 +41,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             MarkupDisplayFormula = markupDisplayFormula;
             PreferredCurrency = preferredCurrency;
             AccountManagerName = accountManagerName;
+            AccountManagerId = accountManagerId;
         }
 
 
@@ -169,6 +170,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// </summary>
         public Currencies PreferredCurrency { get; }
 
+        /// <summary>
+        /// Account manager id
+        /// </summary>
+        public int? AccountManagerId { get; }
 
         /// <summary>
         /// Name of the account manager

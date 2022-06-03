@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Extensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
             AgencyVerificationStates verificationState, DateTime? verificationDate, MultiLanguage<string> countryNames,
-            string languageCode, string markupFormula, string? accountManagerName)
+            string languageCode, string markupFormula, string? accountManagerName, int? accountManagerId)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
                 address: agency.Address,
@@ -39,6 +39,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 isContractUploaded: agency.IsContractUploaded,
                 markupDisplayFormula: markupFormula,
                 preferredCurrency: agency.PreferredCurrency,
-                accountManagerName: accountManagerName);
+                accountManagerName: accountManagerName,
+                accountManagerId: accountManagerId);
     }
 }
