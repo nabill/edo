@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.SupplierOptionsClient;
 using HappyTravel.SupplierOptionsClient.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -77,6 +80,7 @@ public class SuppliersController : BaseController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+    [AllowAnonymous]
     public async Task<IActionResult> Activate([FromRoute] string code, [FromQuery] string reason)
         => NoContentOrBadRequest(await _supplierOptionsClient.Activate(code, reason));
 
@@ -92,7 +96,21 @@ public class SuppliersController : BaseController
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
     public async Task<IActionResult> Deactivate([FromRoute] string code, [FromQuery] string reason)
         => NoContentOrBadRequest(await _supplierOptionsClient.Deactivate(code, reason));
-    
+
+
+    /// <summary>
+    /// Sets enablement state of a supplier
+    /// </summary>
+    /// <param name="code">Supplier code</param>
+    /// <param name="request">Reason for setting enablement state</param>
+    /// <returns></returns>
+    [HttpPut("{code}/set-enablement-state")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
+    public async Task<IActionResult> SetEnablementState([FromRoute] string code, [FromBody] SetEnablementStateRequest request) 
+        => NoContentOrBadRequest(await _supplierOptionsClient.SetEnablementState(code, request.State, request.Reason));
+
 
     /// <summary>
     /// Gets supplier priorities
