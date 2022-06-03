@@ -12,9 +12,12 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IAccommodationMapperClient accommodationMapperClient,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             ISupplierOptionsStorage supplierOptionsStorage,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider, 
+            IExternalAdminContext externalAdminContext)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -38,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _supplierOptionsStorage = supplierOptionsStorage;
             _dateTimeProvider = dateTimeProvider;
+            _externalAdminContext = externalAdminContext;
         }
 
 
@@ -127,6 +132,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return Result.Failure<AccommodationBookingInfo>(error);
 
             return bookingInfo;
+        }
+
+
+        public async Task<Result<AccommodationBookingInfo>> GetAdministratorAccommodationBookingInfo(string referenceCode, string languageCode)
+        {
+            
+            var accommodationBookingInfo = await GetAccommodationBookingInfo(referenceCode, languageCode);
+            if (accommodationBookingInfo.IsFailure)
+                return Result.Failure<AccommodationBookingInfo>(accommodationBookingInfo.Error);
+
+            var (_, isFailure, bookingInfo, error) = MaskPaxNamesIfNeeded(accommodationBookingInfo);
+            if (isFailure)
+                return Result.Failure<AccommodationBookingInfo>(error);
+
+            return bookingInfo;
+        }
+
+
+        private Result<AccommodationBookingInfo> MaskPaxNamesIfNeeded(Result<AccommodationBookingInfo> accommodationBookingInfo)
+        {
+            if (_externalAdminContext.HasPermission(AdministratorPermissions.ViewPaxNames))
+                return accommodationBookingInfo;
+
+            foreach (var passenger in accommodationBookingInfo.Value.BookingDetails.RoomDetails.SelectMany(roomDetail => roomDetail.Passengers))
+            {
+                passenger.FirstName = "***";
+                passenger.LastName = "***";
+            }
+            return accommodationBookingInfo;
         }
 
 
@@ -356,5 +390,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IExternalAdminContext _externalAdminContext;
     }
 }

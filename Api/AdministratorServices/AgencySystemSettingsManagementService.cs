@@ -29,16 +29,34 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
             if (agency is null)
                 return Result.Failure<AgencyAccommodationBookingSettings>("No agency exist");
-            
+
             if (agency.ContractKind is null)
-                return Result.Failure<AgencyAccommodationBookingSettings>("ContractKind for agency is not set");
+                return GetDefaults();
 
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
             var rootSettings = await GetSettings(rootAgencyId);
             var agencySettings = rootAgencyId != agencyId ? await GetSettings(agencyId) : null;
+            
+            return new AgencyAccommodationBookingSettings
+            {
+                AprMode = GetAprMode(),
+                PassedDeadlineOffersMode = GetPassedDeadlineOffersMode(),
+                IsSupplierVisible = GetIsSupplierVisible(),
+                IsDirectContractFlagVisible = GetIsDirectContractFlagVisible(),
+                CustomDeadlineShift = GetCustomDeadlineShift()
+            };
 
-            return MergeSettings(rootSettings, agencySettings);
+
+            AgencyAccommodationBookingSettings GetDefaults()
+                => new()
+                {
+                    IsSupplierVisible = false,
+                    IsDirectContractFlagVisible = false,
+                    AprMode = AprMode.Hide,
+                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                    CustomDeadlineShift = 0
+                };
             
             
             async Task<AgencyAccommodationBookingSettings?> GetSettings(int id) 
@@ -46,49 +64,63 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     ?.AccommodationBookingSettings;
 
 
-            AgencyAccommodationBookingSettings MergeSettings(AgencyAccommodationBookingSettings? rootSettings, AgencyAccommodationBookingSettings? agencySettings)
+            bool GetIsSupplierVisible()
             {
-                var isSupplierVisible = false;
-                var isDirectContractVisible = false;
-                var customDeadlineShift = 0;
-                var aprMode = AprMode.Hide;
-                var passedDeadlineOffersMode = PassedDeadlineOffersMode.Hide;
+                if (rootSettings is null)
+                    return false;
 
-                if (rootSettings != null && rootSettings.IsSupplierVisible 
-                    && (agencySettings == null || agencySettings.IsSupplierVisible))
-                {
-                    isSupplierVisible = true;
-                }
-                
-                if (rootSettings != null && rootSettings.IsDirectContractFlagVisible 
-                    && (agencySettings == null || agencySettings.IsDirectContractFlagVisible))
-                {
-                    isDirectContractVisible = true;
-                }
-                
-                if (agencySettings != null && rootSettings != null)
-                {
-                    if (agencySettings.AprMode != null && rootSettings.AprMode != null 
-                        && agencySettings.AprMode > rootSettings.AprMode)
-                        aprMode = rootSettings.AprMode.Value;
+                if (agencySettings is null)
+                    return rootSettings.IsSupplierVisible;
 
-                    if (agencySettings.PassedDeadlineOffersMode != null && rootSettings.PassedDeadlineOffersMode != null
-                        && agencySettings.PassedDeadlineOffersMode > rootSettings.PassedDeadlineOffersMode)
-                        passedDeadlineOffersMode = rootSettings.PassedDeadlineOffersMode.Value;
-                }
-
-                if (agencySettings != null && agencySettings.CustomDeadlineShift != null)
-                    customDeadlineShift = agencySettings.CustomDeadlineShift.Value;
-
-                return new AgencyAccommodationBookingSettings
-                {
-                    AprMode = aprMode,
-                    PassedDeadlineOffersMode = passedDeadlineOffersMode,
-                    IsSupplierVisible = isSupplierVisible,
-                    IsDirectContractFlagVisible = isDirectContractVisible,
-                    CustomDeadlineShift = customDeadlineShift
-                };
+                return rootSettings.IsSupplierVisible && agencySettings.IsSupplierVisible;
             }
+            
+            
+            bool GetIsDirectContractFlagVisible()
+            {
+                if (rootSettings is null)
+                    return false;
+
+                if (agencySettings is null)
+                    return rootSettings.IsDirectContractFlagVisible;
+
+                return rootSettings.IsDirectContractFlagVisible && agencySettings.IsDirectContractFlagVisible;
+            }
+            
+            
+            AprMode GetAprMode()
+            {
+                if (rootSettings?.AprMode is null)
+                    return AprMode.Hide;
+
+                if (agencySettings?.AprMode is null)
+                    return rootSettings.AprMode.Value;
+
+                if (rootSettings.AprMode < agencySettings.AprMode)
+                    return rootSettings.AprMode.Value;
+
+                return agencySettings.AprMode.Value;
+            }
+
+            
+            PassedDeadlineOffersMode GetPassedDeadlineOffersMode()
+            {
+                if (rootSettings?.PassedDeadlineOffersMode is null)
+                    return PassedDeadlineOffersMode.Hide;
+
+                if (agencySettings?.PassedDeadlineOffersMode is null)
+                    return rootSettings.PassedDeadlineOffersMode.Value;
+
+                if (rootSettings.PassedDeadlineOffersMode < agencySettings.PassedDeadlineOffersMode)
+                    return rootSettings.PassedDeadlineOffersMode.Value;
+
+                return agencySettings.PassedDeadlineOffersMode.Value;
+            }
+            
+            int GetCustomDeadlineShift() 
+                => (agencySettings != null && agencySettings.CustomDeadlineShift != null)
+                    ? agencySettings.CustomDeadlineShift.Value
+                    : 0;
         }
 
 
@@ -111,6 +143,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
+                
+                if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
+                    return Result.Failure("Changing settings for agency without full access is not allowed");
 
                 return Result.Success();
             }
