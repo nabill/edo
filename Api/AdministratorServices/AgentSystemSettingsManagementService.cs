@@ -133,9 +133,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 };
             }
 
-            var aprMode = agentSettings.AprMode > materializedAgencySettings.AprMode ? materializedAgencySettings.AprMode : agentSettings.AprMode;
+            var aprMode = agentSettings.AprMode > materializedAgencySettings.AprMode
+                ? materializedAgencySettings.AprMode 
+                : agentSettings.AprMode;
+            
             var passedDeadlineOffersMode = agentSettings.PassedDeadlineOffersMode > materializedAgencySettings.PassedDeadlineOffersMode 
-                ? materializedAgencySettings.PassedDeadlineOffersMode : agentSettings.PassedDeadlineOffersMode;
+                ? materializedAgencySettings.PassedDeadlineOffersMode 
+                : agentSettings.PassedDeadlineOffersMode;
 
             var isDirectContractFlagVisible = agentSettings.IsDirectContractFlagVisible && materializedAgencySettings.IsDirectContractFlagVisible;
             var isSupplierVisible = agentSettings.IsSupplierVisible && materializedAgencySettings.IsSupplierVisible;
