@@ -26,7 +26,7 @@ public class WeasyprintClient : IWeasyprintClient
     {
         return response.IsSuccessStatusCode
             ? Result.Success(await response.Content.ReadAsByteArrayAsync())
-            : Result.Failure<byte[]>(await response.Content.ReadAsStringAsync());
+            : Result.Failure<byte[]>($"Weasyprint service responded with status code: {response.StatusCode}. Content: {await response.Content.ReadAsStringAsync()}");
     }
 
     private readonly HttpClient _httpClient;
