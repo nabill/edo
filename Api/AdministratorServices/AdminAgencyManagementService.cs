@@ -80,6 +80,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                             : markupFormula.DisplayFormula,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null,
+                        admin != null ?
+                            admin.Id :
                             null))
                 .SingleOrDefaultAsync();
 
@@ -144,6 +147,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                             : markupFormula.DisplayFormula,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
+                            null,
+                        admin != null ?
+                            admin.Id :
                             null))
                 .ToListAsync();
 
