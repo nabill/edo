@@ -355,12 +355,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     while (await reader.ReadAsync())
                     {
                         var localityId = $"Locality_{reader["LocalityId"]}";
-                        var localityNames = JsonConvert.DeserializeObject<MultiLanguage<string>>(reader["LocalityNames"].ToString()!);
+                        var localityNames = JsonConvert.DeserializeObject<MultiLanguage<string?>>(reader["LocalityNames"].ToString()!);
                         var countryId = $"Country_{reader["CountryId"]}";
 
                         var agency = agencies
-                            .Where(a => (a.City.ToLower().Equals(localityNames!.En.ToLower()) ||
-                                a.City.ToLower().Equals(localityNames!.Ru.ToLower())))
+                            .Where(a => (a.City.ToLower().Equals(localityNames!.En?.ToLower()) ||
+                                a.City.ToLower().Equals(localityNames!.Ru?.ToLower())))
                             .FirstOrDefault();
 
                         if (agency != default)
