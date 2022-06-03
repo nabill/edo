@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -34,8 +33,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using HappyTravel.Edo.Common.Infrastructure.Options;
-using HappyTravel.Edo.PdfGenerator;
-using HappyTravel.Edo.PdfGenerator.WeasyprintClient;
 using HappyTravel.EdoContracts.Grpc.Surrogates;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData;
@@ -97,12 +94,7 @@ namespace HappyTravel.Edo.Api
                         : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
                     options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
                 })
-                .AddUserEventLogging(Configuration, vaultClient)
-                .AddPdfGenerator()
-                .AddWeasyprintClient(options =>
-                {
-                    options.WeasyprintEndpoint = Configuration.GetValue<string>("Weasyprint:Endpoint");
-                });
+                .AddUserEventLogging(Configuration, vaultClient);
             
             var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
 
