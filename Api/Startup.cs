@@ -34,6 +34,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using HappyTravel.Edo.Common.Infrastructure.Options;
+using HappyTravel.Edo.PdfGenerator;
+using HappyTravel.Edo.PdfGenerator.WeasyprintClient;
 using HappyTravel.EdoContracts.Grpc.Surrogates;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData;
@@ -95,7 +97,12 @@ namespace HappyTravel.Edo.Api
                         : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
                     options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
                 })
-                .AddUserEventLogging(Configuration, vaultClient);
+                .AddUserEventLogging(Configuration, vaultClient)
+                .AddPdfGenerator()
+                .AddWeasyprintClient(options =>
+                {
+                    options.WeasyprintEndpoint = Configuration.GetValue<string>("Weasyprint:Endpoint");
+                });
             
             var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
 
