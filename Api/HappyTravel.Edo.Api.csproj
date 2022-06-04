@@ -34,9 +34,8 @@
     <PackageReference Include="HappyTravel.MailSender" Version="1.4.0" />
     <PackageReference Include="HappyTravel.MapperContracts" Version="1.3.0" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
-    <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="1.1.1" />
-    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.1.1" />
-    <PackageReference Include="HappyTravel.Telemetry" Version="0.16.1" />
+    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.1.2" />
+    <PackageReference Include="HappyTravel.Telemetry" Version="0.16.2" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="11.0.2" />
     <PackageReference Include="FluentValidator.Core" Version="1.0.1" />
@@ -70,6 +69,7 @@
     <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.CreditCards\HappyTravel.Edo.CreditCards.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
+    <ProjectReference Include="..\HappyTravel.Edo.PdfGenerator\HappyTravel.Edo.PdfGenerator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
