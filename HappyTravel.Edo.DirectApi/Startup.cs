@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
@@ -14,7 +12,6 @@ using HappyTravel.Edo.Common.Infrastructure.Options;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Infrastructure.Extensions;
 using HappyTravel.Edo.DirectApi.Infrastructure.Middlewares;
-using HappyTravel.Edo.DirectApi.Services;
 using HappyTravel.Edo.DirectApi.Services.AvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Services.Bookings;
 using HappyTravel.Edo.DirectApi.Services.Overriden;

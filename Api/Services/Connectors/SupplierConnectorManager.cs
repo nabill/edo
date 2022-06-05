@@ -19,11 +19,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class SupplierConnectorManager : ISupplierConnectorManager
     {
-        public SupplierConnectorManager(IServiceProvider serviceProvider, ISupplierOptionsStorage supplierStorage, IOptionsMonitor<SupplierConnectorOptions> supplierConnectorOptions, IHttpClientFactory httpClientFactory)
+        public SupplierConnectorManager(IServiceProvider serviceProvider, ISupplierOptionsStorage supplierStorage, IHttpClientFactory httpClientFactory)
         {
             _serviceProvider = serviceProvider;
             _supplierStorage = supplierStorage;
-            _supplierConnectorOptions = supplierConnectorOptions;
             _httpClientFactory = httpClientFactory;
         }
 
@@ -34,13 +33,15 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             if (isFailure)
                 throw new Exception($"Cannot get supplier `{supplierCode}` with error: {error}");
 
-            clientType ??= _supplierConnectorOptions.CurrentValue.ClientType;
+            clientType ??= supplier.CanUseGrpc
+                ? ClientTypes.Grpc
+                : ClientTypes.WebApi;
             
             return clientType switch
             {
                 ClientTypes.WebApi => GetRestApiConnector(supplier),
                 ClientTypes.Grpc => GetGrpcConnector(supplier),
-                _ => throw new NotSupportedException($"{_supplierConnectorOptions.CurrentValue.ClientType} not supported")
+                _ => throw new NotSupportedException($"Client type `{clientType}` not supported")
             };
         }
         
@@ -95,7 +96,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ISupplierOptionsStorage _supplierStorage;
-        private readonly IOptionsMonitor<SupplierConnectorOptions> _supplierConnectorOptions;
         private readonly IHttpClientFactory _httpClientFactory;
     }
 }
