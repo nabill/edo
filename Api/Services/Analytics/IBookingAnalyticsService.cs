@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
+using HappyTravel.SupplierOptionsClient.Models;
 using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
 namespace HappyTravel.Edo.Api.Services.Analytics
@@ -17,5 +18,6 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogBookingOccured(in AccommodationBookingRequest bookingRequest, Booking booking, in AgentContext agent);
         public void LogBookingConfirmed(Booking booking, string agencyName);
         public void LogBookingCancelled(Booking booking, string agencyName);
+        public void LogWideSearchSupplierStarted(SlimSupplier supplier, string agencyName);
     }
 }
