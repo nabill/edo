@@ -828,6 +828,14 @@
             <param name="code">Supplier code</param>
             <param name="reason">Reason for deactivating the supplier</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.SetEnablementState(System.String,HappyTravel.Edo.Api.Models.Management.SetEnablementStateRequest)">
+            <summary>
+            Sets enablement state of a supplier
+            </summary>
+            <param name="code">Supplier code</param>
+            <param name="request">Reason for setting enablement state</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.GetPriorities">
             <summary>
             Gets supplier priorities
