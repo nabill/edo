@@ -80,7 +80,6 @@ public class SuppliersController : BaseController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-    [AllowAnonymous]
     public async Task<IActionResult> Activate([FromRoute] string code, [FromQuery] string reason)
         => NoContentOrBadRequest(await _supplierOptionsClient.Activate(code, reason));
 
