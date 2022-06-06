@@ -29,9 +29,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IAdminAgencyManagementService adminAgencyManagementService, 
             ILogger<DirectApiBookingEvaluationService> logger,
             IAvailabilityRequestStorage availabilityRequestStorage,
-            ISupplierOptionsStorage supplierOptionsStorage) 
+            ISupplierOptionsStorage supplierOptionsStorage,
+            IEvaluationTokenStorage tokenStorage) 
             : base(supplierConnectorManager, priceProcessor, roomSelectionStorage, accommodationBookingSettingsService, dateTimeProvider, bookingEvaluationStorage,
-                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage, supplierOptionsStorage)
+                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage, supplierOptionsStorage, tokenStorage)
         {
             
         }
