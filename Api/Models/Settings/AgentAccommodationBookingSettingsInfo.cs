@@ -17,11 +17,6 @@ namespace HappyTravel.Edo.Api.Models.Settings
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; init; }
 
         /// <summary>
-        /// When searching, only results from this suppliers will be seen to the user
-        /// </summary>
-        public Dictionary<string, bool> EnabledSuppliers { get; init; }
-
-        /// <summary>
         /// The user will see suppliers in search UI if this setting is set to true
         /// </summary>
         public bool IsSupplierVisible { get; init; }
