@@ -34,9 +34,6 @@
     "CacheLifetime": "0.00:01:00",
     "ClientType": "Grpc"
   },
-  "SupplierConnectorOptions": {
-    "ClientType": "WebApi"
-  },
   "Suppliers": {
     "Endpoint": "https://sunpu-dev.happytravel.com"
   },

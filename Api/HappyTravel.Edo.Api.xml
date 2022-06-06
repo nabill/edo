@@ -491,6 +491,13 @@
             <param name="rejectionRequest">Rejection request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetBookingVoucherPdf(System.Int32)">
+            <summary>
+                Gets booking voucher PDF document.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <returns>Voucher PDF document.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.ConfirmManually(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
             <summary>
                 Confirm accommodation booking manually
@@ -1354,7 +1361,7 @@
                 Gets booking voucher data.
             </summary>
             <param name="bookingId">Id of the booking.</param>
-            <returns>Voucher data,</returns>
+            <returns>Voucher data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.GetBookingInvoice(System.Int32)">
             <summary>
@@ -2571,6 +2578,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.PreferredCurrency">
             <summary>
             Agency preferred currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.AccountManagerId">
+            <summary>
+            Account manager id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.AccountManagerName">
