@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
+using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
@@ -124,6 +125,14 @@ namespace HappyTravel.Edo.Api.Services.Analytics
 
             _analytics.LogEvent(@event, "booking-cancelled", agentAnalyticsInfo,
                 new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
+        }
+
+
+        public void LogWideSearchSupplierStarted(SlimSupplier supplier, string agencyName)
+        {
+            var agentAnalyticsInfo = new AgentAnalyticsInfo(agencyName);
+            var @event = new WideSearchSupplierStartedEvent(supplier.Code, supplier.Name);
+            _analytics.LogEvent(@event, "wide-search-supplier", agentAnalyticsInfo);
         }
 
 
