@@ -21,8 +21,6 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using shortid;
-using shortid.Configuration;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
@@ -39,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger,
             IAvailabilityRequestStorage availabilityRequestStorage,
-            ISupplierOptionsStorage supplierOptionsStorage)
+            ISupplierOptionsStorage supplierOptionsStorage, IEvaluationTokenStorage tokenStorage)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
@@ -52,6 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _logger = logger;
             _availabilityRequestStorage = availabilityRequestStorage;
             _supplierOptionsStorage = supplierOptionsStorage;
+            _tokenStorage = tokenStorage;
         }
 
 
@@ -135,14 +134,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            Result<RoomContractSetAvailability, ProblemDetails> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
+            async Task<Result<RoomContractSetAvailability, ProblemDetails>> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
                 var (_, isFailure, supplier, error) = _supplierOptionsStorage.Get(result.SupplierCode);
                 if (isFailure)
                     return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(error);
 
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
-                var evaluationToken = ShortId.Generate(new GenerationOptions(useSpecialCharacters: false));
+                var evaluationToken = await _tokenStorage.GetAndSet(availabilityData.RoomContractSet.Id);
                 return availabilityData.ToRoomContractSetAvailability(supplier.Name,
                     supplierCode: supplier.Code,
                     paymentMethods: paymentMethods,
@@ -322,5 +321,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly ILogger<BookingEvaluationService> _logger;
         private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
+        private readonly IEvaluationTokenStorage _tokenStorage;
     }
 }
