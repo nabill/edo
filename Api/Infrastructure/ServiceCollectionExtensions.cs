@@ -717,6 +717,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
+            services.AddScoped<IEvaluationTokenStorage, EvaluationTokenStorage>();
             services.AddPdfGenerator();
             services.AddWeasyprintClient(options =>
             {
