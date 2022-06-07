@@ -814,20 +814,6 @@
             <param name="code">Supplier code</param>
             <param name="supplier">Supplier data</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Activate(System.String,System.String)">
-            <summary>
-            Activates a supplier
-            </summary>
-            <param name="code">Supplier code</param>
-            <param name="reason">Reason for activating the supplier</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.Deactivate(System.String,System.String)">
-            <summary>
-            Deactivates a supplier
-            </summary>
-            <param name="code">Supplier code</param>
-            <param name="reason">Reason for deactivating the supplier</param>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.SetEnablementState(System.String,HappyTravel.Edo.Api.Models.Management.SetEnablementStateRequest)">
             <summary>
             Sets enablement state of a supplier
@@ -3949,11 +3935,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.PassedDeadlineOffersMode">
             <summary>
             Tells whether the user can see and book accommodations with passed deadline date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.EnabledSuppliers">
-            <summary>
-            When searching, only results from this suppliers will be seen to the user
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.IsSupplierVisible">
