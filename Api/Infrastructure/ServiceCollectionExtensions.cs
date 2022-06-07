@@ -171,10 +171,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 });
             });
 
-            services.AddClientAccessTokenHttpClient(HttpClientNames.MapperApi, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
-            });
+            services.AddHttpClient(HttpClientNames.MapperApi, client =>
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+                })
+                .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.AccessTokenClient, client =>
             {
@@ -245,7 +247,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
-                .AddPolicyHandler((sp, _) => GetConnectorRetryPolicy(sp))
+                .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
                 .UseHttpClientMetrics()
                 .AddHttpClientRequestLogging(configuration, options =>
@@ -717,6 +719,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
+            services.AddScoped<IEvaluationTokenStorage, EvaluationTokenStorage>();
             services.AddPdfGenerator();
             services.AddWeasyprintClient(options =>
             {
@@ -803,13 +806,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        private static IAsyncPolicy<HttpResponseMessage> GetConnectorRetryPolicy(IServiceProvider serviceProvider)
+        private static IAsyncPolicy<HttpResponseMessage> GetUnauthorizedRetryPolicy(IServiceProvider serviceProvider)
         {
             var jitter = new Random();
 
             return Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
-                .OrResult(msg => ConnectorRetryStatuses.Contains(msg.StatusCode))
+                .OrResult(msg => RetryStatuses.Contains(msg.StatusCode))
                 .WaitAndRetryAsync(3,
                     attempt => TimeSpan.FromMilliseconds(attempt * 500 + jitter.Next(0, 100)),
                     (handler, timeSpan, retryAttempt, _) =>
@@ -859,7 +862,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        private static readonly HashSet<HttpStatusCode> ConnectorRetryStatuses = new()
+        private static readonly HashSet<HttpStatusCode> RetryStatuses = new()
         {
             HttpStatusCode.ServiceUnavailable,
             HttpStatusCode.Unauthorized

@@ -19,10 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.1" />
+      <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.2" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-      <PackageReference Include="RazorEngineCore" Version="2021.7.1" />
+      <PackageReference Include="RazorEngineCore" Version="2022.1.2" />
     </ItemGroup>
 
 </Project>
