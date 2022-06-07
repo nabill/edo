@@ -72,32 +72,6 @@ public class SuppliersController : BaseController
 
 
     /// <summary>
-    /// Activates a supplier
-    /// </summary>
-    /// <param name="code">Supplier code</param>
-    /// <param name="reason">Reason for activating the supplier</param>
-    [HttpPost("{code}/activate")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-    public async Task<IActionResult> Activate([FromRoute] string code, [FromQuery] string reason)
-        => NoContentOrBadRequest(await _supplierOptionsClient.Activate(code, reason));
-
-
-    /// <summary>
-    /// Deactivates a supplier
-    /// </summary>
-    /// <param name="code">Supplier code</param>
-    /// <param name="reason">Reason for deactivating the supplier</param>
-    [HttpPost("{code}/deactivate")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
-    public async Task<IActionResult> Deactivate([FromRoute] string code, [FromQuery] string reason)
-        => NoContentOrBadRequest(await _supplierOptionsClient.Deactivate(code, reason));
-
-
-    /// <summary>
     /// Sets enablement state of a supplier
     /// </summary>
     /// <param name="code">Supplier code</param>
