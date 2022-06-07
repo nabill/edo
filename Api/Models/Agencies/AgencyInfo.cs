@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         public string? AccountManagerName { get; }
         
         /// <summary>
-        /// Agencie's contract kind
+        /// Contract kind of the agency
         /// </summary>
         public ContractKind? ContractKind { get; }
 

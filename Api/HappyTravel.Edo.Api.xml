@@ -2578,7 +2578,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.ContractKind">
             <summary>
-            Agency's contract kind
+            Contract kind of the agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
