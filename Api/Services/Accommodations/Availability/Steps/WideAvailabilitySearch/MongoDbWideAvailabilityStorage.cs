@@ -163,6 +163,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
+        public Task Clear(string supplierCode, Guid searchId)
+        {
+            var filter = GetSearchIdSupplierFilterDefinition(searchId, supplierCode);
+            return _availabilityStorage.Collection().DeleteManyAsync(filter);
+        }
+
+
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
 
