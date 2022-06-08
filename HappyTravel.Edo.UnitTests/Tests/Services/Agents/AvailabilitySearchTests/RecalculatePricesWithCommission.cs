@@ -56,14 +56,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 .Setup(x => x.GetAccommodation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(MakeAccomodation());
 
-            var externalAdminContext = new Mock<IExternalAdminContext>();
-            externalAdminContext
+            var adminContext = new Mock<IAdministratorContext>();
+            adminContext
                 .Setup(x => x.HasPermission(It.IsAny<AdministratorPermissions>()))
-                .Returns(true);
+                .ReturnsAsync(true);
             
             var bookingInfoService = new BookingInfoService(_edoContextMock.Object, bookingRecordManagerMock.Object,
                 accommodationMapperClientMock.Object, Mock.Of<IAccommodationBookingSettingsService>(),
-                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, externalAdminContext.Object);
+                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, adminContext.Object);
 
             _agentBookingManagementService = new AgentBookingManagementService(_edoContextMock.Object,
                 It.IsAny<ISupplierBookingManagementService>(), bookingRecordManagerMock.Object,

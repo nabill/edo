@@ -240,7 +240,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddCodeFirstGrpcClient<IRatesGrpcService>(o =>
             {
                 o.Address = new Uri(configuration["CurrencyConverter:GrpcHost"]);
-            }).AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
+            })
+                .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
+                .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {

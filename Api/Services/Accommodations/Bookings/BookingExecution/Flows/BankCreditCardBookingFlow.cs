@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -25,7 +26,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingCreditCardPaymentService creditCardPaymentService, IBookingDocumentsService documentsService,
             IBookingDocumentsMailingService documentsMailingService,
             IBookingInfoService bookingInfoService, IDateTimeProvider dateTimeProvider, IBookingRegistrationService registrationService,
-            IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger)
+            IBookingConfirmationService bookingConfirmationService, ILogger<BankCreditCardBookingFlow> logger,
+            IWideAvailabilityStorage availabilityStorage)
         {
             _requestStorage = requestStorage;
             _requestExecutor = requestExecutor;
@@ -38,6 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _registrationService = registrationService;
             _bookingConfirmationService = bookingConfirmationService;
             _logger = logger;
+            _availabilityStorage = availabilityStorage;
         }
         
         
@@ -50,6 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Bind(Register)
                 .Check(SendEmailToPropertyOwner)
+                .Tap(ClearCache)
                 .Finally(WriteLog);
 
             if (isFailure)
@@ -71,6 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result> SendEmailToPropertyOwner(Booking booking)
                 => await _bookingConfirmationService.SendConfirmationEmail(booking);
+            
+            
+            Task ClearCache(Booking booking) 
+                => _availabilityStorage.Clear(booking.SupplierCode, bookingRequest.SearchId);
 
             
             Result<Booking> WriteLog(Result<Booking> result)
@@ -164,5 +172,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingConfirmationService _bookingConfirmationService;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
+        private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }
