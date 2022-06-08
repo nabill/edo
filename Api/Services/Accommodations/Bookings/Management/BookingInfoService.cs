@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             ISupplierOptionsStorage supplierOptionsStorage,
             IDateTimeProvider dateTimeProvider, 
-            IExternalAdminContext externalAdminContext)
+            IAdministratorContext adminContext)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _supplierOptionsStorage = supplierOptionsStorage;
             _dateTimeProvider = dateTimeProvider;
-            _externalAdminContext = externalAdminContext;
+            _adminContext = adminContext;
         }
 
 
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             if (accommodationBookingInfo.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(accommodationBookingInfo.Error);
 
-            var (_, isFailure, bookingInfo, error) = MaskPaxNamesIfNeeded(accommodationBookingInfo);
+            var (_, isFailure, bookingInfo, error) = await MaskPaxNamesIfNeeded(accommodationBookingInfo);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -150,9 +150,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private Result<AccommodationBookingInfo> MaskPaxNamesIfNeeded(Result<AccommodationBookingInfo> accommodationBookingInfo)
+        private async Task<Result<AccommodationBookingInfo>> MaskPaxNamesIfNeeded(Result<AccommodationBookingInfo> accommodationBookingInfo)
         {
-            if (_externalAdminContext.HasPermission(AdministratorPermissions.ViewPaxNames))
+            if (await _adminContext.HasPermission(AdministratorPermissions.ViewPaxNames))
                 return accommodationBookingInfo;
 
             foreach (var passenger in accommodationBookingInfo.Value.BookingDetails.RoomDetails.SelectMany(roomDetail => roomDetail.Passengers))
@@ -390,6 +390,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IExternalAdminContext _externalAdminContext;
+        private readonly IAdministratorContext _adminContext;
     }
 }
