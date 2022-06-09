@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -22,7 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor, 
-            ILogger<OfflinePaymentBookingFlow> logger)
+            ILogger<OfflinePaymentBookingFlow> logger, 
+            IWideAvailabilityStorage availabilityStorage)
         {
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -31,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
             _logger = logger;
+            _availabilityStorage = availabilityStorage;
         }
         
 
@@ -46,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(ClearCache)
                 .Finally(WriteLog);
 
 
@@ -85,6 +89,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
             
             
+            Task ClearCache(AccommodationBookingInfo accommodationBooking) 
+                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+            
+            
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
                 => LoggerUtils.WriteLogByResult(result,
                     () => _logger.LogBookingByAccountSuccess(result.Value.BookingDetails.ReferenceCode),
@@ -98,5 +106,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<OfflinePaymentBookingFlow> _logger;
+        private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }

@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -24,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor,
             IBookingRecordManager recordManager,
-            ILogger<FinancialAccountBookingFlow> logger)
+            ILogger<FinancialAccountBookingFlow> logger, 
+            IWideAvailabilityStorage availabilityStorage)
         {
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
@@ -35,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _requestExecutor = requestExecutor;
             _recordManager = recordManager;
             _logger = logger;
+            _availabilityStorage = availabilityStorage;
         }
 
 
@@ -50,6 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(ClearCache)
                 .Finally(WriteLog);
 
 
@@ -89,7 +93,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
                 => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
 
-            
+
+            Task ClearCache(AccommodationBookingInfo accommodationBooking) 
+                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+
+
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
                 => LoggerUtils.WriteLogByResult(result,
                     () => _logger.LogBookingByAccountSuccess(result.Value.BookingDetails.ReferenceCode),
@@ -106,5 +114,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRecordManager _recordManager;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<FinancialAccountBookingFlow> _logger;
+        private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }

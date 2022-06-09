@@ -26,6 +26,8 @@ using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using System;
 using Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTests
 {
@@ -59,9 +61,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             agentContextServiceMock.Setup(x => x.GetAgent())
                 .ReturnsAsync(MakeAgentContext(1));
             
+            var adminContext = new Mock<IAdministratorContext>();
+            adminContext
+                .Setup(x => x.HasPermission(It.IsAny<AdministratorPermissions>()))
+                .ReturnsAsync(true);
+            
             var bookingInfoService = new BookingInfoService(_edoContextMock.Object, bookingRecordManagerMock.Object,
                 accommodationMapperClientMock.Object, Mock.Of<IAccommodationBookingSettingsService>(),
                 Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, Mock.Of<IAgentContextService>());
+                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, adminContext.Object);
 
             _agentBookingManagementService = new AgentBookingManagementService(_edoContextMock.Object,
                 It.IsAny<ISupplierBookingManagementService>(), bookingRecordManagerMock.Object,

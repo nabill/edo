@@ -2,6 +2,9 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
@@ -18,7 +21,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public BookingCreationService(ClientReferenceCodeValidationService validationService, 
             IBookingRegistrationService bookingRegistrationService, IBookingEvaluationStorage bookingEvaluationStorage,
             BookingInfoService bookingInfoService, IBookingDocumentsService documentsService, IDateTimeProvider dateTimeProvider, 
-            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor)
+            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor, IEvaluationTokenStorage tokenStorage)
         {
             _validationService = validationService;
             _bookingRegistrationService = bookingRegistrationService;
@@ -28,15 +31,25 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
             _requestExecutor = requestExecutor;
+            _tokenStorage = tokenStorage;
         }
 
 
         public async Task<Result<Booking>> Register(AccommodationBookingRequest request)
         {
             return await _validationService.Validate(request.ClientReferenceCode)
+                .Bind(CheckEvaluationToken)
                 .Bind(GetCachedAvailability)
                 .Bind(RegisterBooking);
-            
+
+
+            async Task<Result> CheckEvaluationToken()
+            {
+                var isTokenExists = await _tokenStorage.IsExists(request.EvaluationToken, request.RoomContractSetId);
+                return isTokenExists
+                    ? Result.Success()
+                    : Result.Failure("Evaluation token is not exists");
+            }
             
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability()
                 => await _bookingEvaluationStorage.Get(request.SearchId,
@@ -98,5 +111,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingRequestExecutor _requestExecutor;
+        private readonly IEvaluationTokenStorage _tokenStorage;
     }
 }

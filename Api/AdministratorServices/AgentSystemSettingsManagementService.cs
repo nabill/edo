@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Settings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AgentSystemSettingsManagementService : IAgentSystemSettingsManagementService
     {
         public AgentSystemSettingsManagementService(EdoContext context,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService, IAgencySystemSettingsManagementService agencyManagementService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
+            _agencyManagementService = agencyManagementService;
         }
 
 
@@ -31,39 +33,38 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Bind(WriteAuditLog));
 
 
-             Task Update(AgentSystemSettings existingSettings)
-             {
-                 if (existingSettings is null)
-                 {
-                     var newSettings = new AgentSystemSettings
-                     {
-                         AgencyId = agencyId,
-                         AgentId = agentId,
-                         AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings()
-                     };
-                     _context.Add(newSettings);
-                 }
-                 else
-                 {
-                     existingSettings.AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings();
-                     _context.Update(existingSettings);
-                 }
+            Task Update(AgentSystemSettings existingSettings)
+            {
+                if (existingSettings is null)
+                {
+                    var newSettings = new AgentSystemSettings
+                    {
+                        AgencyId = agencyId,
+                        AgentId = agentId,
+                        AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings()
+                    };
+                    _context.Add(newSettings);
+                }
+                else
+                {
+                    existingSettings.AccommodationBookingSettings = settings.ToAgentAccommodationBookingSettings();
+                    _context.Update(existingSettings);
+                }
 
-                 return _context.SaveChangesAsync();
-             }
+                return _context.SaveChangesAsync();
+            }
 
 
-             Task<Result> WriteAuditLog(AgentSystemSettings _)
-                 => _managementAuditService.Write(ManagementEventType.AgentSystemSettingsCreateOrEdit,
-                     new AgentSystemSettingsCreateOrEditEventData(agentId, agencyId, settings));
+            Task<Result> WriteAuditLog(AgentSystemSettings _)
+                => _managementAuditService.Write(ManagementEventType.AgentSystemSettingsCreateOrEdit,
+                    new AgentSystemSettingsCreateOrEditEventData(agentId, agencyId, settings));
         }
 
 
         public Task<Result<AgentAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agentId, int agencyId)
             => CheckRelationExists(agentId, agencyId)
-                .Map(() => GetOrDefault(agentId, agencyId))
-                .Map(s => s?.AccommodationBookingSettings);
-        
+                .Map(() => GetSettings(agentId, agencyId));
+
 
         public async Task<Result> DeleteAvailabilitySearchSettings(int agentId, int agencyId)
         {
@@ -100,7 +101,61 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
 
 
+        private async Task<AgentAccommodationBookingSettings> GetSettings(int agentId, int agencyId)
+        {
+            var (_, isAgencySettingsFailure, materializedAgencySettings) = await _agencyManagementService.GetAvailabilitySearchSettings(agencyId);
+            var agentSettings = (await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId))
+                ?.AccommodationBookingSettings;
+
+            if (agentSettings is null)
+            {
+                if (isAgencySettingsFailure)
+                    return new AgentAccommodationBookingSettings
+                    {
+                        AdditionalSearchFilters = new(),
+                        AprMode = AprMode.Hide,
+                        CustomDeadlineShift = 0,
+                        IsDirectContractFlagVisible = false,
+                        IsSupplierVisible = false,
+                        PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
+                    };
+
+                return new AgentAccommodationBookingSettings
+                {
+                    AdditionalSearchFilters = new(),
+                    AprMode = materializedAgencySettings.AprMode,
+                    CustomDeadlineShift = materializedAgencySettings.CustomDeadlineShift,
+                    IsDirectContractFlagVisible = materializedAgencySettings.IsDirectContractFlagVisible,
+                    IsSupplierVisible = materializedAgencySettings.IsSupplierVisible,
+                    PassedDeadlineOffersMode = materializedAgencySettings.PassedDeadlineOffersMode
+                };
+            }
+
+            var aprMode = agentSettings.AprMode > materializedAgencySettings.AprMode
+                ? materializedAgencySettings.AprMode
+                : agentSettings.AprMode;
+
+            var passedDeadlineOffersMode = agentSettings.PassedDeadlineOffersMode > materializedAgencySettings.PassedDeadlineOffersMode
+                ? materializedAgencySettings.PassedDeadlineOffersMode
+                : agentSettings.PassedDeadlineOffersMode;
+
+            var isDirectContractFlagVisible = agentSettings.IsDirectContractFlagVisible && materializedAgencySettings.IsDirectContractFlagVisible;
+            var isSupplierVisible = agentSettings.IsSupplierVisible && materializedAgencySettings.IsSupplierVisible;
+
+            return new AgentAccommodationBookingSettings
+            {
+                AdditionalSearchFilters = agentSettings.AdditionalSearchFilters,
+                AprMode = aprMode,
+                CustomDeadlineShift = agentSettings.CustomDeadlineShift,
+                IsDirectContractFlagVisible = isDirectContractFlagVisible,
+                IsSupplierVisible = isSupplierVisible,
+                PassedDeadlineOffersMode = passedDeadlineOffersMode
+            };
+        }
+
+
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly IAgencySystemSettingsManagementService _agencyManagementService;
     }
 }

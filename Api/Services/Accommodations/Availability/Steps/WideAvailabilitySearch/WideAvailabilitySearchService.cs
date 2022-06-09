@@ -170,6 +170,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     continue;
                 }
 
+                _bookingAnalyticsService.LogWideSearchSupplierStarted(supplier, agent.AgencyName);
+                
                 // Starting search tasks in a separate thread
                 StartSearchTask(supplier, supplierCodeMappings);
             }

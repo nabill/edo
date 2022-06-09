@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Documents;
 using Microsoft.AspNetCore.Mvc;
 using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 
@@ -77,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets booking voucher data.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
-        /// <returns>Voucher data,</returns>
+        /// <returns>Voucher data.</returns>
         [HttpGet("voucher")]
         [ProducesResponseType(typeof(BookingVoucherData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -89,7 +88,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var result = await _bookingDocumentsService.GenerateVoucher(bookingId, agent, LanguageCode);
             return OkOrBadRequest(result);
         }
-
 
         /// <summary>
         ///     Gets booking invoice.
