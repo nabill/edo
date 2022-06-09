@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     Event = BookingChangeEvents.Create,
                     Source = BookingChangeSources.System
                 };
-                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created.DateTime,
+                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created,
                     agent.ToApiCaller(), changeReason);
             }
 
@@ -157,13 +157,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         ? SupplierPaymentType.CreditCard
                         : SupplierPaymentType.DirectPayment,
                     paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
-                        ? booking.Created.DateTime
-                        : booking.CheckOutDate.DateTime);
+                        ? booking.Created
+                        : booking.CheckOutDate);
         }
 
 
         private async Task<Booking> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
-            string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
+            string referenceCode, string? clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
@@ -177,9 +177,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 LanguageCode = languageCode,
                 SupplierCode = availabilityInfo.SupplierCode,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date,
-                CheckInDate = availabilityInfo.CheckInDate,
-                CheckOutDate = availabilityInfo.CheckOutDate,
+                DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date?.ToUniversalTime(),
+                CheckInDate = availabilityInfo.CheckInDate.ToUniversalTime(),
+                CheckOutDate = availabilityInfo.CheckOutDate.ToUniversalTime(),
                 HtId = availabilityInfo.HtId,
                 Tags = availabilityInfo.RoomContractSet.Tags,
                 IsDirectContract = availabilityInfo.RoomContractSet.IsDirectContract,
