@@ -68,8 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             
             var bookingInfoService = new BookingInfoService(_edoContextMock.Object, bookingRecordManagerMock.Object,
                 accommodationMapperClientMock.Object, Mock.Of<IAccommodationBookingSettingsService>(),
-                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, Mock.Of<IAgentContextService>());
-                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, adminContext.Object);
+                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, Mock.Of<IAgentContextService>(), adminContext.Object);
 
             _agentBookingManagementService = new AgentBookingManagementService(_edoContextMock.Object,
                 It.IsAny<ISupplierBookingManagementService>(), bookingRecordManagerMock.Object,
