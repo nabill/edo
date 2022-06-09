@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -24,15 +23,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agentSupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agentSupplierManagementService, default);
+                agentSupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.False(settings.IsSupplierVisible);
             Assert.False(settings.IsDirectContractFlagVisible);
@@ -61,15 +61,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
@@ -98,15 +99,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsDirectContractFlagVisible = expectedDirectContractFlagVisible
                 });
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
@@ -136,15 +138,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     IsDirectContractFlagVisible = agencyDirectContractFlagVisible
                 });
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgentSupplierManagementService();
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
             Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);

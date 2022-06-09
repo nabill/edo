@@ -7,7 +7,6 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,11 +20,9 @@ namespace HappyTravel.Edo.Api.Controllers.AuxiliaryControllers
     public class Accommodations : BaseController
     {
         public Accommodations(IAccommodationMapperClient mapperClient,
-            IAgentContextService agentContextService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _mapperClient = mapperClient;
-            _agentContextService = agentContextService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
         
@@ -45,16 +42,14 @@ namespace HappyTravel.Edo.Api.Controllers.AuxiliaryControllers
 
             if (isFailure)
                 return BadRequest(error);
-
-            var agent = await _agentContextService.GetAgent();
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             
             return Ok(accommodation.ToEdoContract().ToAgentAccommodation(searchSettings.IsSupplierVisible));
         }
 
         
         private readonly IAccommodationMapperClient _mapperClient;
-        private readonly IAgentContextService _agentContextService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }

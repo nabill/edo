@@ -17,17 +17,17 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<Result<Booking>> Cancel(string clientReferenceCode, AgentContext agent)
+        public async Task<Result<Booking>> Cancel(string clientReferenceCode)
         {
-            var booking = await _bookingInfoService.Get(clientReferenceCode, agent);
+            var booking = await _bookingInfoService.Get(clientReferenceCode);
             if (booking.IsFailure)
                 return Result.Failure<Booking>(booking.Error);
             
-            var (_, isFailure, error) = await _bookingManagementService.Cancel(booking.Value.ReferenceCode, agent);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(booking.Value.ReferenceCode);
             if (isFailure)
                 return Result.Failure<Booking>(error);
             
-            var refreshedBooking = await _bookingInfoService.Get(clientReferenceCode, agent);
+            var refreshedBooking = await _bookingInfoService.Get(clientReferenceCode);
             return refreshedBooking.Value.FromEdoModels();
         }
 

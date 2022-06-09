@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
                 PaymentType = PaymentTypes.CreditCard
             };
 
-            var (_, isFailure, _) = await accountPaymentService.Charge(invalidPaymentMethodBooking, It.IsAny<ApiCaller>());
+            var (_, isFailure, _) = await accountPaymentService.Charge(invalidPaymentMethodBooking);
 
             Assert.True(isFailure);
 
@@ -49,12 +48,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
         {
             var accountPaymentServiceMock = new Mock<IAccountPaymentService>();
             var bookingAccountPaymentService = CreateBookingAccountPaymentService(accountPaymentServiceMock.Object);
-            var user = AgentContextFactory.CreateByAgentId(Agent.Id).ToApiCaller();
 
-            await bookingAccountPaymentService.Charge(Booking, user);
+            await bookingAccountPaymentService.Charge(Booking);
 
             accountPaymentServiceMock
-                .Verify(a => a.Charge("TEST_REF_CODE", user, It.IsAny<IBookingPaymentCallbackService>()),
+                .Verify(a => a.Charge("TEST_REF_CODE", It.IsAny<IBookingPaymentCallbackService>()),
                     Times.Once);
         }
 
@@ -67,13 +65,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Payme
             var bookingAccountPaymentService = CreateBookingAccountPaymentService(documentsService: documentsServiceMock.Object,
                 documentsMailingService: documentsMailingServiceMock.Object);
 
-            await bookingAccountPaymentService.Charge(Booking, It.IsAny<ApiCaller>());
+            await bookingAccountPaymentService.Charge(Booking);
 
             documentsServiceMock
                 .Verify(d => d.GenerateReceipt(It.IsAny<Booking>()), Times.Once);
 
             documentsMailingServiceMock
-                .Verify(d => d.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo, PaymentReceipt)>(), "test_agent@test.com", It.IsAny<ApiCaller>()));
+                .Verify(d => d.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo, PaymentReceipt)>(), "test_agent@test.com"));
         }
 
 

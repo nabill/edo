@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             SaveResponseProcessorPassedParameter();
             Utility.SetupConnectorBookSuccess(_supplierConnectorMock);
 
-            await service.Execute(booking, default, default);
+            await service.Execute(booking, default);
 
             _responseProcessorMock
                 .Verify(x => x.ProcessResponse(It.IsAny<EdoContracts.Accommodations.Booking>(), It.IsAny<ApiCaller>(), It.IsAny<BookingChangeEvents>()));
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             var problemDetails = Utility.CreateProblemDetailsWithFailureCode(true, BookingFailureCodes.ConnectorValidationFailed);
             Utility.SetupConnectorBookFailure(_supplierConnectorMock, problemDetails);
 
-            await service.Execute(booking, default, default);
+            await service.Execute(booking, default);
 
             _bookingRecordsUpdaterMock
                 .Verify(x => x.ChangeStatus(It.IsAny<Booking>(), BookingStatuses.Invalid, It.IsAny<DateTimeOffset>(),
@@ -74,6 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
             _supplierConnectorMock = new Mock<ISupplierConnector>();
             _requestStorageMock = new Mock<IBookingRequestStorage>();
             _creditCardProvider = new Mock<ICreditCardProvider>();
+            _agentContextServiceMock = new Mock<IAgentContextService>();
 
             _supplierConnectorManagerMock
                 .Setup(x => x.Get(It.IsAny<string>(), It.IsAny<ClientTypes?>()))
@@ -97,7 +98,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
                 _dateTimeProviderMock.Object,
                 _requestStorageMock.Object,
                 _creditCardProvider.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _agentContextServiceMock.Object);
         }
 
 
@@ -111,6 +113,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.BookingRequestExecutor
         private Mock<ISupplierConnector> _supplierConnectorMock;
         private Mock<IBookingRequestStorage> _requestStorageMock;
         private Mock<ICreditCardProvider> _creditCardProvider;
+        private Mock<IAgentContextService> _agentContextServiceMock;
 #pragma warning restore CS8618
     }
 }

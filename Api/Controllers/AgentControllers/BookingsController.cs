@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,14 +7,12 @@ using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Models;
@@ -23,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using BookingStatusHistoryEntry = HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry;
 using Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
@@ -35,24 +33,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public BookingsController(IFinancialAccountBookingFlow financialAccountBookingFlow,
             IBankCreditCardBookingFlow bankCreditCardBookingFlow,
             IOfflinePaymentBookingFlow offlinePaymentBookingFlow,
-            IAgentContextService agentContextService,
             IAgentBookingManagementService bookingManagementService,
             IBookingRecordManager bookingRecordManager,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider,
-            IdempotentBookingExecutor idempotentBookingExecutor)
+            IdempotentBookingExecutor idempotentBookingExecutor, IAgentContextService agentContextService)
         {
             _financialAccountBookingFlow = financialAccountBookingFlow;
             _bankCreditCardBookingFlow = bankCreditCardBookingFlow;
             _offlinePaymentBookingFlow = offlinePaymentBookingFlow;
-            _agentContextService = agentContextService;
             _bookingManagementService = bookingManagementService;
             _bookingRecordManager = bookingRecordManager;
             _creditCardPaymentService = creditCardPaymentService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
             _idempotentBookingExecutor = idempotentBookingExecutor;
+            _agentContextService = agentContextService;
         }
 
 
@@ -68,7 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
-            => OkOrBadRequest(await _bankCreditCardBookingFlow.Register(request, await _agentContextService.GetAgent(), LanguageCode));
+            => OkOrBadRequest(await _bankCreditCardBookingFlow.Register(request, LanguageCode));
 
 
         /// <summary>
@@ -83,9 +80,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var agentContext = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _idempotentBookingExecutor.Execute(request: request,
-                bookingFunction: () => _financialAccountBookingFlow.BookByAccount(request, agentContext, LanguageCode, ClientIp),
+                bookingFunction: () => _financialAccountBookingFlow.BookByAccount(request, LanguageCode),
                 languageCode: LanguageCode));
         }
 
@@ -102,9 +98,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> BookByOffline([FromBody] AccommodationBookingRequest request)
         {
-            var agentContext = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _idempotentBookingExecutor.Execute(request: request,
-                bookingFunction: () => _offlinePaymentBookingFlow.Book(request, agentContext, LanguageCode, ClientIp),
+                bookingFunction: () => _offlinePaymentBookingFlow.Book(request, LanguageCode),
                 languageCode: LanguageCode));
         }
 
@@ -120,11 +115,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _bankCreditCardBookingFlow.Finalize(referenceCode, agent, LanguageCode));
-        }
+        public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode) 
+            => OkOrBadRequest(await _bankCreditCardBookingFlow.Finalize(referenceCode, LanguageCode));
 
 
         /// <summary>
@@ -137,11 +129,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _bookingManagementService.RefreshStatus(bookingId, agent));
-        }
+        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId) 
+            => OkOrBadRequest(await _bookingManagementService.RefreshStatus(bookingId));
 
 
         /// <summary>
@@ -154,11 +143,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> CancelBooking(int bookingId)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return NoContentOrBadRequest(await _bookingManagementService.Cancel(bookingId, agent));
-        }
+        public async Task<IActionResult> CancelBooking(int bookingId) 
+            => NoContentOrBadRequest(await _bookingManagementService.Cancel(bookingId));
 
 
         /// <summary>
@@ -171,11 +157,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return NoContentOrBadRequest(await _bookingManagementService.Cancel(referenceCode, agent));
-        }
+        public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode) 
+            => NoContentOrBadRequest(await _bookingManagementService.Cancel(referenceCode));
 
 
         /// <summary>
@@ -188,7 +171,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
-            => OkOrBadRequest(await _bookingInfoService.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode));
+            => OkOrBadRequest(await _bookingInfoService.GetAgentAccommodationBookingInfo(bookingId, LanguageCode));
 
 
         /// <summary>
@@ -201,7 +184,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
-            => OkOrBadRequest(await _bookingInfoService.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode));
+            => OkOrBadRequest(await _bookingInfoService.GetAgentAccommodationBookingInfo(referenceCode, LanguageCode));
 
 
         /// <summary>
@@ -213,7 +196,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> PayWithCreditCard(string referenceCode)
-            => NoContentOrBadRequest(await _creditCardPaymentService.PayForAccountBooking(referenceCode, await _agentContextService.GetAgent()));
+            => NoContentOrBadRequest(await _creditCardPaymentService.PayForAccountBooking(referenceCode));
 
 
         /// <summary>
@@ -314,22 +297,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromBody] BookingRecalculatePriceRequest request)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, request, agent, LanguageCode));
-        }
+        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromBody] BookingRecalculatePriceRequest request) 
+            => OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, request, LanguageCode));
 
 
         private readonly IFinancialAccountBookingFlow _financialAccountBookingFlow;
         private readonly IBankCreditCardBookingFlow _bankCreditCardBookingFlow;
         private readonly IOfflinePaymentBookingFlow _offlinePaymentBookingFlow;
-        private readonly IAgentContextService _agentContextService;
         private readonly IAgentBookingManagementService _bookingManagementService;
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IdempotentBookingExecutor _idempotentBookingExecutor;
+        private readonly IAgentContextService _agentContextService;
     }
 }

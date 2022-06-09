@@ -13,16 +13,18 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Money.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Services.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
     public class BookingDocumentsMailingService : IBookingDocumentsMailingService
     {
         public BookingDocumentsMailingService(IBookingDocumentsService documentsService,
-            INotificationService notificationsService)
+            INotificationService notificationsService, IAgentContextService agentContext)
         {
             _documentsService = documentsService;
             _notificationsService = notificationsService;
+            _agentContext = agentContext;
         }
 
 
@@ -119,9 +121,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public async Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email, ApiCaller apiCaller)
+        public async Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email)
         {
             var (registrationInfo, paymentReceipt) = receipt;
+            var agent = await _agentContext.GetAgent();
 
             var payload = new PaymentReceiptData
             {
@@ -151,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 DeadlineDate = DateTimeFormatters.ToDateString(paymentReceipt.DeadlineDate)
             };
 
-            return await _notificationsService.Send(apiCaller: apiCaller,
+            return await _notificationsService.Send(apiCaller: agent.ToApiCaller(),
                         messageData: payload,
                         notificationType: NotificationTypes.SuccessfulPaymentReceipt,
                         email: email);
@@ -171,5 +174,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private readonly IBookingDocumentsService _documentsService;
         private readonly INotificationService _notificationsService;
+        private readonly IAgentContextService _agentContext;
     }
 }

@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
@@ -35,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             IDateTimeProvider dateTimeProvider,
             IBookingRequestStorage requestStorage,
             ICreditCardProvider creditCardProvider,
-            ILogger<BookingRequestExecutor> logger)
+            ILogger<BookingRequestExecutor> logger, IAgentContextService agentContext)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _responseProcessor = responseProcessor;
@@ -45,13 +44,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _requestStorage = requestStorage;
             _creditCardProvider = creditCardProvider;
             _logger = logger;
+            _agentContext = agentContext;
         }
 
 
-        public async Task<Result<Booking>> Execute(Data.Bookings.Booking booking, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Execute(Data.Bookings.Booking booking, string languageCode)
         {
             Baggage.AddBookingReferenceCode(booking.ReferenceCode);
-            
+
+            var agent = await _agentContext.GetAgent();
             var requestInfoResult = await _requestStorage.Get(booking.ReferenceCode);
             if (requestInfoResult.IsFailure)
                 return Result.Failure<Booking>(requestInfoResult.Error);
@@ -197,5 +198,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingRequestStorage _requestStorage;
         private readonly ICreditCardProvider _creditCardProvider;
         private readonly ILogger<BookingRequestExecutor> _logger;
+        private readonly IAgentContextService _agentContext;
     }
 }

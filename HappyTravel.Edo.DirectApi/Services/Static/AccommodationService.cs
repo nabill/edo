@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -9,9 +8,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.DirectApi.Models.Static;
-using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -20,20 +17,16 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
 {
     public class AccommodationService
     {
-        public AccommodationService(IHttpClientFactory httpClientFactory, IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            IAgentContextService agentContextService, ISupplierOptionsStorage supplierOptionsStorage)
+        public AccommodationService(IHttpClientFactory httpClientFactory, IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _httpClientFactory = httpClientFactory;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
-            _agentContextService = agentContextService;
-            _supplierOptionsStorage = supplierOptionsStorage;
         }
 
 
         public async Task<Result<List<Accommodation>>> GetAccommodationList(DateTimeOffset? modified, int top, int skip, string languageCode)
         {
-            var agent = await _agentContextService.GetAgent();
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var suppliers = searchSettings.EnabledConnectors.ToArray();
 
             var query = new List<KeyValuePair<string, StringValues>>
@@ -113,7 +106,5 @@ namespace HappyTravel.Edo.DirectApi.Services.Static
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
-        private readonly IAgentContextService _agentContextService;
-        private readonly ISupplierOptionsStorage _supplierOptionsStorage;
     }
 }

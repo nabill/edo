@@ -25,6 +25,7 @@ using Xunit;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using System;
 using Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
 
@@ -56,6 +57,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 .Setup(x => x.GetAccommodation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(MakeAccomodation());
 
+            var agentContextServiceMock = new Mock<IAgentContextService>();
+            agentContextServiceMock.Setup(x => x.GetAgent())
+                .ReturnsAsync(MakeAgentContext(1));
+            
             var adminContext = new Mock<IAdministratorContext>();
             adminContext
                 .Setup(x => x.HasPermission(It.IsAny<AdministratorPermissions>()))
@@ -63,22 +68,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             
             var bookingInfoService = new BookingInfoService(_edoContextMock.Object, bookingRecordManagerMock.Object,
                 accommodationMapperClientMock.Object, Mock.Of<IAccommodationBookingSettingsService>(),
-                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, adminContext.Object);
+                Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, Mock.Of<IAgentContextService>(), adminContext.Object);
 
             _agentBookingManagementService = new AgentBookingManagementService(_edoContextMock.Object,
                 It.IsAny<ISupplierBookingManagementService>(), bookingRecordManagerMock.Object,
-                It.IsAny<IBookingStatusRefreshService>(), bookingInfoService, contractKindCommissionOptions);
+                It.IsAny<IBookingStatusRefreshService>(), bookingInfoService, contractKindCommissionOptions,
+                agentContextServiceMock.Object);
         }
 
 
         [Fact]
         public async Task Room_selection_step_align_prices_should_apply_credit_card_commission_and_return_success()
         {
-            var agencyId = 1;
-            var agentContext = MakeAgentContext(agencyId);
             var request = new BookingRecalculatePriceRequest(PaymentTypes.CreditCard);
 
-            var (_, IsFailure, booking, error) = await _agentBookingManagementService.RecalculatePrice("any", request, agentContext, "en");
+            var (_, IsFailure, booking, error) = await _agentBookingManagementService.RecalculatePrice("any", request, "en");
 
             Assert.False(IsFailure);
         }

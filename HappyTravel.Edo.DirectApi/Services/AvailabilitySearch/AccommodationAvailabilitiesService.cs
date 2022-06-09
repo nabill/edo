@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -21,12 +20,12 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<RoomSelectionResult>> Get(Guid searchId, string htId, AgentContext agent, string languageCode)
+        public async Task<Result<RoomSelectionResult>> Get(Guid searchId, string htId)
         {
-            while (!await IsComplete(searchId, agent))
+            while (!await IsComplete(searchId))
                 await Task.Delay(TimeSpan.FromSeconds(1));
             
-            var (_, isFailure, result, error) = await _roomSelectionService.Get(searchId, htId, agent, languageCode);
+            var (_, isFailure, result, error) = await _roomSelectionService.Get(searchId, htId, "en");
 
             return isFailure 
                 ? Result.Failure<RoomSelectionResult>(error) 
@@ -34,9 +33,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
         
         
-        private async Task<bool> IsComplete(Guid searchId, AgentContext agent)
+        private async Task<bool> IsComplete(Guid searchId)
         {
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             var state = WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
 

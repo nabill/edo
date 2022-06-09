@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
@@ -28,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IAvailabilityRequestStorage requestStorage,
             ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage, 
             ISupplierOptionsStorage supplierOptionsStorage, IOptionsMonitor<SearchLimits> searchLimits, IWideAvailabilityPriceProcessor priceProcessor, 
-            IWideAvailabilityAccommodationsStorage accommodationsStorage)
+            IWideAvailabilityAccommodationsStorage accommodationsStorage, IAgentContextService agentContextService)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -43,10 +44,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _searchLimits = searchLimits;
             _priceProcessor = priceProcessor;
             _accommodationsStorage = accommodationsStorage;
+            _agentContextService = agentContextService;
         }
         
    
-        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, string languageCode)
         {
             if (!request.HtIds.Any())
                 return Result.Failure<Guid>($"{nameof(request.HtIds)} must not be empty");
@@ -72,9 +74,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (!validationResult.IsValid)
                 return Result.Failure<Guid>(validationResult.ToString("; "));
 
+            var agent = await _agentContextService.GetAgent();
             _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
             
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             await _requestStorage.Set(searchId, request);
             await StartSearch(searchId, request, searchSettings, searchArea.AccommodationCodes, agent, languageCode);
                 
@@ -82,18 +85,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
+        public async Task<WideAvailabilitySearchState> GetState(Guid searchId)
         {
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
 
         
-        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, AgentContext agent, string languageCode)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, string languageCode)
         {
             Baggage.AddSearchId(searchId);
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var agent = await _agentContextService.GetAgent();
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
                 ? options.Suppliers.Intersect(searchSettings.EnabledConnectors).ToList()
                 : searchSettings.EnabledConnectors;
@@ -209,5 +213,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IOptionsMonitor<SearchLimits> _searchLimits;
         private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
+        private readonly IAgentContextService _agentContextService;
     }
 }

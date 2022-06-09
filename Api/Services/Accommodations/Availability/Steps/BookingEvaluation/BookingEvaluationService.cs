@@ -37,7 +37,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger,
             IAvailabilityRequestStorage availabilityRequestStorage,
-            ISupplierOptionsStorage supplierOptionsStorage, IEvaluationTokenStorage tokenStorage)
+            ISupplierOptionsStorage supplierOptionsStorage, 
+            IEvaluationTokenStorage tokenStorage,
+            IAgentContextService agentContext)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
@@ -50,15 +52,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _logger = logger;
             _availabilityRequestStorage = availabilityRequestStorage;
             _supplierOptionsStorage = supplierOptionsStorage;
+            _agentContext = agentContext;
             _tokenStorage = tokenStorage;
         }
 
 
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
-            Guid searchId, string htId, Guid roomContractSetId, AgentContext agent, string languageCode)
+            Guid searchId, string htId, Guid roomContractSetId, string languageCode)
         {
             Baggage.AddSearchId(searchId);
-            var settings = await _accommodationBookingSettingsService.Get(agent);
+            var agent = await _agentContext.GetAgent();
+            var settings = await _accommodationBookingSettingsService.Get();
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
@@ -321,6 +325,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly ILogger<BookingEvaluationService> _logger;
         private readonly IAvailabilityRequestStorage _availabilityRequestStorage;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
+        private readonly IAgentContextService _agentContext;
         private readonly IEvaluationTokenStorage _tokenStorage;
     }
 }

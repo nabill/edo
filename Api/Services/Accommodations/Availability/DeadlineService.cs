@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             string languageCode)
         {
             Baggage.AddSearchId(searchId);
-            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get();
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
             return isFailure 
@@ -93,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         private async Task<Result<Deadline, ProblemDetails>> ProcessDeadline(EdoContracts.Accommodations.Deadline deadline, DateTimeOffset checkInDate, AgentContext agent)
         {
-            var settings = await _accommodationBookingSettingsService.Get(agent);
+            var settings = await _accommodationBookingSettingsService.Get();
             return DeadlinePolicyProcessor.Process(deadline.ToDeadline(), checkInDate, settings.CancellationPolicyProcessSettings);
         }
 
