@@ -2576,6 +2576,11 @@
             Name of the account manager
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.ContractKind">
+            <summary>
+            Contract kind of the agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
