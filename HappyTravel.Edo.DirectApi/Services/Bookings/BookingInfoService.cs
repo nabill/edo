@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.DirectApi.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -12,13 +13,23 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
     public class BookingInfoService
     {
-        public BookingInfoService(EdoContext context)
+        public BookingInfoService(EdoContext context, IAgentContextService agentContext)
         {
             _context = context;
+            _agentContext = agentContext;
         }
 
 
-        public async Task<Result<Edo.Data.Bookings.Booking>> Get(string clientReferenceCode, AgentContext agent)
+        public async Task<Result<Booking>> GetConvertedBooking(string clientReferenceCode)
+        {
+            var (_, isFailure, booking, error) = await Get(clientReferenceCode);
+            return isFailure
+                ? Result.Failure<Booking>(error)
+                : booking.FromEdoModels();
+        }
+
+
+        public async Task<Result<Edo.Data.Bookings.Booking>> Get(string clientReferenceCode)
         {
             return await Validate()
                 .Bind(GetBooking);
@@ -34,6 +45,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
             async Task<Result<Edo.Data.Bookings.Booking>> GetBooking()
             {
+                var agent = await _agentContext.GetAgent();
                 var booking = await _context.Bookings
                     .SingleOrDefaultAsync(b => b.AgentId == agent.AgentId &&
                         b.AgencyId == agent.AgencyId &&
@@ -44,8 +56,9 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         }
 
 
-        public async Task<List<SlimBooking>> Get(BookingsListFilter filter, AgentContext agent)
+        public async Task<List<SlimBooking>> Get(BookingsListFilter filter)
         {
+            var agent = await _agentContext.GetAgent();
             var query = from booking in _context.Bookings
                 where booking.AgentId == agent.AgentId &&
                     booking.AgencyId == agent.AgencyId
@@ -77,5 +90,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
 
         private readonly EdoContext _context;
+        private readonly IAgentContextService _agentContext;
     }
 }

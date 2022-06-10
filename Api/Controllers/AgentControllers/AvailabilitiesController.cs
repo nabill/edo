@@ -54,9 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             Counters.WideAccommodationAvailabilitySearchTimes.Inc();
-            
-            var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, LanguageCode));
         }
 
 
@@ -71,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _wideAvailabilitySearchService.GetState(searchId, await _agentContextService.GetAgent()));
+            return Ok(await _wideAvailabilitySearchService.GetState(searchId));
         }
 
 
@@ -88,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] AvailabilitySearchFilter options)
         {
-            return Ok(await _wideAvailabilitySearchService.GetResult(searchId, options, await _agentContextService.GetAgent(), LanguageCode));
+            return Ok(await _wideAvailabilitySearchService.GetResult(searchId, options, LanguageCode));
         }
 
 
@@ -107,7 +105,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] string htId)
         {
-            var (_, isFailure, response, error) = await _roomSelectionService.GetState(searchId, htId, await _agentContextService.GetAgent());
+            var (_, isFailure, response, error) = await _roomSelectionService.GetState(searchId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -133,7 +131,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             Counters.AccommodationAvailabilitySearchTimes.Inc();
             
-            var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, htId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, htId, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -158,7 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetAccommodation([FromRoute] Guid searchId, [FromRoute] string htId)
         {
             var (_, isFailure, response, error) =
-                await _roomSelectionService.GetAccommodation(searchId, htId, await _agentContextService.GetAgent(), LanguageCode);
+                await _roomSelectionService.GetAccommodation(searchId, htId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -181,7 +179,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] Guid searchId, [FromRoute] string htId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(searchId, htId, roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(searchId, htId, roomContractSetId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);

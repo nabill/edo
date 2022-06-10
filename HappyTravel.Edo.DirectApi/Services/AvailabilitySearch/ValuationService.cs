@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.DirectApi.Models;
 using HappyTravel.Edo.DirectApi.Models.Search;
 
 namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
@@ -16,9 +14,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         }
         
         
-        public async Task<Result<RoomContractSetAvailability>> Get(Guid searchId, string accommodationId, Guid roomContractSetId, AgentContext agent, string languageCode)
+        public async Task<Result<RoomContractSetAvailability>> Get(Guid searchId, string accommodationId, Guid roomContractSetId, string languageCode)
         {
-            var (_, isFailure, availability, error) = await _bookingEvaluationService.GetExactAvailability(searchId, accommodationId, roomContractSetId, agent, languageCode);
+            var (_, isFailure, availability, error) = await _bookingEvaluationService.GetExactAvailability(searchId, accommodationId, roomContractSetId, languageCode);
 
             return isFailure
                 ? Result.Failure<RoomContractSetAvailability>(error.Detail)

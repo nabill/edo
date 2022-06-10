@@ -82,7 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
             var channel = GrpcChannel.ForAddress(supplier.ConnectorGrpcEndpoint, new GrpcChannelOptions
             {
-                HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc)
+                HttpClient = _httpClientFactory.CreateClient(HttpClientNames.ConnectorsGrpc),
+                MaxReceiveMessageSize = null // Unlimited size (default 4mb)
             });
             client = channel.CreateGrpcService<IConnectorGrpcService>();
             _grcClients.AddOrUpdate(supplier.Code, client, (_, _) => client);

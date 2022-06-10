@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,14 +10,15 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 {
     public class ClientReferenceCodeValidationService
     {
-        public ClientReferenceCodeValidationService(EdoContext context, IDistributedLocker locker)
+        public ClientReferenceCodeValidationService(EdoContext context, IDistributedLocker locker, IAgentContextService agentContext)
         {
             _context = context;
             _locker = locker;
+            _agentContext = agentContext;
         }
 
 
-        public async Task<Result> Validate(string clientReferenceCode, AgentContext agent)
+        public async Task<Result> Validate(string clientReferenceCode)
         {
             if (string.IsNullOrWhiteSpace(clientReferenceCode))
                 return Result.Failure("ClientReferenceCode is required");
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             if (lockResult.IsFailure)
                 return lockResult;
 
+            var agent = await _agentContext.GetAgent();
             var isExists = await _context.Bookings
                 .AnyAsync(b => b.ClientReferenceCode == clientReferenceCode && b.AgentId == agent.AgentId);
 
@@ -39,6 +41,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
 
 
         private readonly EdoContext _context;
+        private readonly IAgentContextService _agentContext;
         private readonly IDistributedLocker _locker;
     }
 }

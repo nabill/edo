@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -35,12 +36,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             _mockedEdoContext = edoContextMock.Object;
 
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
-                _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+                _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(), Mock.Of<IAgentContextService>());
 
             _balanceManagementNotificationsServiceMock = new Mock<IBalanceManagementNotificationsService>();
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 new DefaultDateTimeProvider(), _balanceManagementNotificationsServiceMock.Object, Mock.Of<IBookingRecordManager>(),
-                Mock.Of<IBookingDocumentsMailingService>());
+                Mock.Of<IBookingDocumentsMailingService>(), Mock.Of<IAgentContextService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -83,7 +84,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var chargingAmount = new MoneyAmount(100, Currencies.USD);
             var paymentService = CreatePaymentServiceWithMoneyAmount(chargingAmount);
 
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", paymentService);
 
             _balanceManagementNotificationsServiceMock.Verify(x => x.SendNotificationIfRequired(It.IsAny<AgencyAccount>(), chargingAmount));
         }

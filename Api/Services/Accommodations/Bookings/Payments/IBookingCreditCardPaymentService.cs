@@ -15,6 +15,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         Task<Result> Refund(Booking booking, DateTimeOffset operationDate, ApiCaller apiCaller);
 
-        Task<Result> PayForAccountBooking(string referenceCode, AgentContext agent);
+        Task<Result> PayForAccountBooking(string referenceCode);
     }
 }

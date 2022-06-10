@@ -1,15 +1,14 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.Infrastructure.Options;
 using Api.Models.Bookings;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
@@ -23,19 +22,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         public AgentBookingManagementService(EdoContext context, ISupplierBookingManagementService managementService,
             IBookingRecordManager recordManager, IBookingStatusRefreshService statusRefreshService,
-            IBookingInfoService bookingInfoService, IOptions<ContractKindCommissionOptions> contractKindCommissionOptions)
+            IBookingInfoService bookingInfoService, IOptions<ContractKindCommissionOptions> contractKindCommissionOptions, 
+            IAgentContextService agentContext)
         {
             _managementService = managementService;
             _recordManager = recordManager;
             _statusRefreshService = statusRefreshService;
             _bookingInfoService = bookingInfoService;
+            _agentContext = agentContext;
             _contractKindCommissionOptions = contractKindCommissionOptions.Value;
             _context = context;
         }
 
 
-        public async Task<Result> Cancel(int bookingId, AgentContext agent)
+        public async Task<Result> Cancel(int bookingId)
         {
+            var agent = await _agentContext.GetAgent();
+            
             return await GetBooking(bookingId, agent)
                 .Bind(Cancel);
 
@@ -45,8 +48,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result> Cancel(string referenceCode, AgentContext agent)
+        public async Task<Result> Cancel(string referenceCode)
         {
+            var agent = await _agentContext.GetAgent();
+            
             return await GetBooking(referenceCode, agent)
                 .Bind(Cancel);
 
@@ -56,8 +61,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result> RefreshStatus(int bookingId, AgentContext agent)
+        public async Task<Result> RefreshStatus(int bookingId)
         {
+            var agent = await _agentContext.GetAgent();
+            
             return await GetBooking(bookingId, agent)
                 .Bind(Refresh);
 
@@ -68,8 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         public async Task<Result<AccommodationBookingInfo>> RecalculatePrice(string referenceCode,
-            BookingRecalculatePriceRequest request, AgentContext agent, string languageCode)
+            BookingRecalculatePriceRequest request, string languageCode)
         {
+            var agent = await _agentContext.GetAgent();
+            
             return await GetBooking(referenceCode, agent)
                 .Map(Recalculate)
                 .Tap(UpdateBooking)
@@ -139,5 +148,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IBookingStatusRefreshService _statusRefreshService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly ContractKindCommissionOptions _contractKindCommissionOptions;
+        private readonly IAgentContextService _agentContext;
     }
 }

@@ -11,19 +11,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingInfoService
     {
-        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode);
+        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, string languageCode);
 
         Task<Result<AccommodationBookingInfo>> GetAdministratorAccommodationBookingInfo(string referenceCode, string languageCode);
 
         Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(string referenceCode, string languageCode);
 
-        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode);
+        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, string languageCode);
 
         IQueryable<SlimAccommodationBookingInfo> GetAgentBookingsInfo(AgentContext agentContext);
 
         IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>> GetAgencyBookingsInfo(AgentContext agentContext);
 
-        Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
+        Task<Result<Booking>> GetAgentsBooking(string referenceCode);
 
         Task<List<BookingStatusHistoryEntry>> GetBookingStatusHistory(int bookingId);
 

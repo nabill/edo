@@ -32,17 +32,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result> Refund(Booking booking, DateTimeOffset operationDate, ApiCaller apiCaller)
+        public async Task<Result> Refund(Booking booking, DateTimeOffset operationDate)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Success();
 
             var reason = $"Refunding money for booking {booking.ReferenceCode}";
-            return await _accountPaymentService.Refund(booking.ReferenceCode, apiCaller, operationDate, _paymentCallbackService, reason);
+            return await _accountPaymentService.Refund(booking.ReferenceCode, operationDate, _paymentCallbackService, reason);
         }
 
         
-        public async Task<Result<string>> Charge(Booking booking, ApiCaller apiCaller)
+        public async Task<Result<string>> Charge(Booking booking)
         {
             return await CheckPaymentType()
                 .Bind(Charge)
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result> Charge()
             {
-                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, apiCaller, _paymentCallbackService);
+                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, _paymentCallbackService);
                 if (isFailure)
                     return Result.Failure<string>($"Error while charging: {error}");
 
@@ -69,12 +69,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             async Task<Result> SendReceipt()
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (agent is null)
+                    return Result.Failure<string>("Agent for booking not found");
+                
                 var (_, isFailure, receiptInfo, error) = await _documentsService.GenerateReceipt(booking);
 
                 if (isFailure)
                     return Result.Failure<string>($"Error while sending receipt: {error}");
 
-                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email, apiCaller);
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
                 
                 return Result.Success();
             }

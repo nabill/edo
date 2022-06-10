@@ -258,6 +258,7 @@ namespace HappyTravel.Edo.Api
                 .UseAuthentication()
                 .UseAuthorization()
                 .UseAgentRequestLogging()
+                .UseForwardingTraceIdentifier()
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();

@@ -6,8 +6,6 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
@@ -24,8 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
             IAgentSupplierManagementService agentSupplierManagementService,
-            ILogger<AccommodationBookingSettingsService> logger
-            )
+            ILogger<AccommodationBookingSettingsService> logger, 
+            IAgentContextService agentContextService)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
@@ -33,17 +31,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             _rootAgencySystemSettingsService = rootAgencySystemSettingsService;
             _agentSupplierManagementService = agentSupplierManagementService;
             _logger = logger;
+            _agentContextService = agentContextService;
         }
 
 
-        public Task<AccommodationBookingSettings> Get(AgentContext agent)
+        public async Task<AccommodationBookingSettings> Get()
         {
+            var agent = await _agentContextService.GetAgent();
             var key = _doubleFlow.BuildKey(nameof(AccommodationBookingSettingsService),
                 nameof(Get),
                 agent.AgentId.ToString(),
                 agent.AgencyId.ToString());
 
-            return _doubleFlow.GetOrSetAsync(key, async () =>
+            return await _doubleFlow.GetOrSetAsync(key, async () =>
             {
                 var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
                 var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
@@ -135,5 +135,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgentSupplierManagementService _agentSupplierManagementService;
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;
+        private readonly IAgentContextService _agentContextService;
     }
 }

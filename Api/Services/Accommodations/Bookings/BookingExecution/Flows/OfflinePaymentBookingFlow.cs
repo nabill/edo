@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -24,7 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingInfoService bookingInfoService,
             IBookingRegistrationService registrationService,
             IBookingRequestExecutor requestExecutor, 
-            ILogger<OfflinePaymentBookingFlow> logger)
+            ILogger<OfflinePaymentBookingFlow> logger, 
+            IWideAvailabilityStorage availabilityStorage)
         {
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -33,11 +33,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _registrationService = registrationService;
             _requestExecutor = requestExecutor;
             _logger = logger;
+            _availabilityStorage = availabilityStorage;
         }
         
 
-        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest,
-            AgentContext agentContext, string languageCode, string clientIp)
+        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByOfflinePaymentStarted(bookingRequest.HtId);
@@ -49,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(GenerateInvoice)
                 .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(ClearCache)
                 .Finally(WriteLog);
 
 
@@ -71,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<Data.Bookings.Booking>> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
-                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, agentContext, languageCode);
+                => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.Offline, languageCode);
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -80,14 +81,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             {
-                return await _requestExecutor.Execute(booking,
-                    agentContext,
-                    languageCode);
+                return await _requestExecutor.Execute(booking, languageCode);
             }
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
                 => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
+            
+            
+            Task ClearCache(AccommodationBookingInfo accommodationBooking) 
+                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
             
             
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
@@ -103,5 +106,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRegistrationService _registrationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<OfflinePaymentBookingFlow> _logger;
+        private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }

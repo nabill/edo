@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using Grpc.Core;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -12,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
@@ -34,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             ISupplierOptionsStorage supplierOptionsStorage,
             IDateTimeProvider dateTimeProvider, 
-            IExternalAdminContext externalAdminContext)
+            IAgentContextService agentContextService,
+            IAdministratorContext adminContext)
         {
             _context = context;
             _bookingRecordManager = bookingRecordManager;
@@ -42,7 +42,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _supplierOptionsStorage = supplierOptionsStorage;
             _dateTimeProvider = dateTimeProvider;
-            _externalAdminContext = externalAdminContext;
+            _agentContextService = agentContextService;
+            _adminContext = adminContext;
         }
 
 
@@ -82,22 +83,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
+        public async Task<Result<Booking>> GetAgentsBooking(string referenceCode)
         {
+            var agent = await _agentContextService.GetAgent();
             return await _bookingRecordManager.Get(referenceCode)
-                .CheckPermissions(agentContext);
+                .CheckPermissions(agent);
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, string languageCode)
         {
+            var agent = await _agentContextService.GetAgent();
             var bookingDataResult = await _bookingRecordManager.Get(bookingId)
-                .CheckPermissions(agentContext);
+                .CheckPermissions(agent);
 
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -105,15 +108,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, string languageCode)
         {
+            var agent = await _agentContextService.GetAgent();
             var bookingDataResult = await _bookingRecordManager.Get(referenceCode)
-                .CheckPermissions(agentContext);
+                .CheckPermissions(agent);
 
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agent);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -142,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             if (accommodationBookingInfo.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(accommodationBookingInfo.Error);
 
-            var (_, isFailure, bookingInfo, error) = MaskPaxNamesIfNeeded(accommodationBookingInfo);
+            var (_, isFailure, bookingInfo, error) = await MaskPaxNamesIfNeeded(accommodationBookingInfo);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -150,9 +154,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private Result<AccommodationBookingInfo> MaskPaxNamesIfNeeded(Result<AccommodationBookingInfo> accommodationBookingInfo)
+        private async Task<Result<AccommodationBookingInfo>> MaskPaxNamesIfNeeded(Result<AccommodationBookingInfo> accommodationBookingInfo)
         {
-            if (_externalAdminContext.HasPermission(AdministratorPermissions.ViewPaxNames))
+            if (await _adminContext.HasPermission(AdministratorPermissions.ViewPaxNames))
                 return accommodationBookingInfo;
 
             foreach (var passenger in accommodationBookingInfo.Value.BookingDetails.RoomDetails.SelectMany(roomDetail => roomDetail.Passengers))
@@ -281,7 +285,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
 
             var settings = agentContext.HasValue
-                ? await _accommodationBookingSettingsService.Get(agentContext.Value)
+                ? await _accommodationBookingSettingsService.Get()
                 : (AccommodationBookingSettings?)null;
 
             var bookingDetails = GetDetails(booking, accommodation.ToEdoContract());
@@ -390,6 +394,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IExternalAdminContext _externalAdminContext;
+        private readonly IAgentContextService _agentContextService;
+        private readonly IAdministratorContext _adminContext;
     }
 }

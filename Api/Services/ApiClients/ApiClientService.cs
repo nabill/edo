@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.ApiClients
             if (!doesApiClientExist)
                 return Result.Failure<ApiClientInfo>("Could not get associated API client");
 
-            var settings = await _bookingSettingsService.Get(agent);
+            var settings = await _bookingSettingsService.Get();
             return new ApiClientInfo
             {
                 AgencyName = agent.AgencyName,

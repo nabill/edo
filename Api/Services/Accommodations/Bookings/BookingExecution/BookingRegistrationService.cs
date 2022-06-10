@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
@@ -26,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
             ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage,
-            ILogger<BookingRegistrationService> logger)
+            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -36,12 +37,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _supplierOrderService = supplierOrderService;
             _requestStorage = requestStorage;
             _logger = logger;
+            _agentContext = agentContext;
         }
 
 
         public async Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, AgentContext agentContext, string languageCode)
+            BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, string languageCode)
         {
+            var agent = await _agentContext.GetAgent();
             var (_, isFailure, booking, error) = await CheckRooms()
                 .Map(GetTags)
                 .Map(Create)
@@ -89,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
-                    if (!await AreExistBookingsForItn(itn, agentContext.AgentId))
+                    if (!await AreExistBookingsForItn(itn, agent.AgentId))
                         itn = await _tagProcessor.GenerateItn();
                 }
 
@@ -106,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             {
                 var createdBooking = await CreateBooking(
                     created: _dateTimeProvider.UtcNow(),
-                    agentContext: agentContext,
+                    agentContext: agent,
                     itineraryNumber: tags.itn,
                     referenceCode: tags.referenceCode,
                     clientReferenceCode: bookingRequest.ClientReferenceCode,
@@ -134,8 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     Event = BookingChangeEvents.Create,
                     Source = BookingChangeSources.System
                 };
-                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created.DateTime,
-                    agentContext.ToApiCaller(), changeReason);
+                return _changeLogService.Write(booking, BookingStatuses.Created, booking.Created,
+                    agent.ToApiCaller(), changeReason);
             }
 
 
@@ -154,13 +157,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         ? SupplierPaymentType.CreditCard
                         : SupplierPaymentType.DirectPayment,
                     paymentDate: availabilityInfo.RoomContractSet.IsAdvancePurchaseRate
-                        ? booking.Created.DateTime
-                        : booking.CheckOutDate.DateTime);
+                        ? booking.Created
+                        : booking.CheckOutDate);
         }
 
 
         private async Task<Booking> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
-            string referenceCode, string clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
+            string referenceCode, string? clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var booking = new Booking
@@ -174,9 +177,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 LanguageCode = languageCode,
                 SupplierCode = availabilityInfo.SupplierCode,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date,
-                CheckInDate = availabilityInfo.CheckInDate,
-                CheckOutDate = availabilityInfo.CheckOutDate,
+                DeadlineDate = availabilityInfo.RoomContractSet.Deadline.Date?.ToUniversalTime(),
+                CheckInDate = availabilityInfo.CheckInDate.ToUniversalTime(),
+                CheckOutDate = availabilityInfo.CheckOutDate.ToUniversalTime(),
                 HtId = availabilityInfo.HtId,
                 Tags = availabilityInfo.RoomContractSet.Tags,
                 IsDirectContract = availabilityInfo.RoomContractSet.IsDirectContract,
@@ -278,5 +281,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestStorage _requestStorage;
         private readonly ILogger<BookingRegistrationService> _logger;
+        private readonly IAgentContextService _agentContext;
     }
 }

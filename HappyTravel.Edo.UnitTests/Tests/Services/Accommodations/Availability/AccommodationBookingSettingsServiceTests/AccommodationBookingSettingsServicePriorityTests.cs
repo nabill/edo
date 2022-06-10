@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -27,6 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
             var defaultSuppliers = new Dictionary<string, bool>
             {
                 { "netstorming", true },
@@ -39,9 +39,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(DefaultAprMode, settings.AprMode);
             Assert.Equal(DefaultPassedDeadlineOffersMode, settings.PassedDeadlineOffersMode);
@@ -59,6 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+            var agentContextService = Mock.Of<IAgentContextService>();
             var rootAgencySettings = new RootAgencyAccommodationBookingSettings
             {
                 CancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
@@ -73,9 +74,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(expectedPolicyStartDateShift, settings.CancellationPolicyProcessSettings.PolicyStartDateShift);
         }
@@ -88,15 +89,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 .From(new AgentAccommodationBookingSettings { AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(SearchFilters.BestPrice | SearchFilters.BestRoomPlans, settings.AdditionalSearchFilters);
         }
@@ -114,15 +116,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                 });
             var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
             Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
@@ -145,15 +148,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
             Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
@@ -178,15 +182,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                 });
             var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+            var agentContextService = Mock.Of<IAgentContextService>();
 
             var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
             var flow = GetDoubleFlow();
             var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
 
             var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default);
+                agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get(_agentContext);
+            var settings = await service.Get();
 
             Assert.Equal(AprMode.Hide, settings.AprMode);
             Assert.Equal(PassedDeadlineOffersMode.Hide, settings.PassedDeadlineOffersMode);
