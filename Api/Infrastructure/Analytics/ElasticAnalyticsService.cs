@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             var date = _dateTimeProvider.UtcNow();
             var environmentName = _environment.EnvironmentName.ToLowerInvariant();
 
-            var indexName = $"{environmentName}-{ServicePrefix}-{name}-{date:yyyy-MM-dd}";
+            var indexName = $"{environmentName}-{ServicePrefix}-{name}-{date:yyyy.MM}";
             var eventObject = new
             {
                 DateTime = date,
