@@ -35,13 +35,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             var searchIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
                 Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SupplierCode));
-            
-            var idIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Combine(
-                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.SearchId),
-                Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Id));
 
-            var ttlIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.Created);
-            var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromMinutes(RecordTtlInMinutes)};
+            var ttlIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.ExpiredAfter);
+            var ttlIndexOptions = new CreateIndexOptions {ExpireAfter = TimeSpan.FromSeconds(1)};
             
             var searchRequestIndexDefinition = Builders<CachedAccommodationAvailabilityResult>.IndexKeys.Ascending(f => f.RequestHash);
 
@@ -49,16 +45,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.MongoDb.Services
             {
                 new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchIndexDefinition),
                 new CreateIndexModel<CachedAccommodationAvailabilityResult>(ttlIndexDefinition, ttlIndexOptions),
-                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchRequestIndexDefinition),
-                new CreateIndexModel<CachedAccommodationAvailabilityResult>(idIndexDefinition)
+                new CreateIndexModel<CachedAccommodationAvailabilityResult>(searchRequestIndexDefinition)
             });
 
             return collection;
         }
 
-
-        private const int RecordTtlInMinutes = 45;
-
+        
         private readonly IMongoCollection<CachedAccommodationAvailabilityResult> _collection;
     }
 }

@@ -41,12 +41,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByAccountStarted(bookingRequest.HtId);
 
-            return GetCachedAvailability(bookingRequest)
+            var bookingAvailability = await GetCachedAvailability(bookingRequest);
+            if (bookingAvailability.IsFailure)
+                return Result.Failure<AccommodationBookingInfo>(bookingAvailability.Error);
+
+            return await bookingAvailability
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Bind(RegisterBooking)
                 .Check(GenerateInvoice)
@@ -95,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task ClearCache(AccommodationBookingInfo accommodationBooking) 
-                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+                => _availabilityStorage.Clear(bookingAvailability.Value.SupplierCode, bookingRequest.SearchId);
 
 
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
