@@ -4,12 +4,13 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,16 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         public AccountPaymentProcessingService(EdoContext context,
             IEntityLocker locker,
-            IAccountBalanceAuditService auditService, IAgentContextService agentContext)
+            IAccountBalanceAuditService auditService)
         {
             _context = context;
             _locker = locker;
             _auditService = auditService;
-            _agentContext = agentContext;
         }
 
 
-        public async Task<Result> ChargeMoney(int accountId, ChargedMoneyData paymentData)
+        public async Task<Result> ChargeMoney(int accountId, ChargedMoneyData paymentData, ApiCaller apiCaller)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -58,11 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                var agent = await _agentContext.GetAgent();
                 await _auditService.Write(AccountEventType.Charge,
                     account.Id,
                     paymentData.Amount,
-                    agent.ToApiCaller(),
+                    apiCaller,
                     eventData,
                     paymentData.ReferenceCode);
 
@@ -71,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> RefundMoney(int accountId, ChargedMoneyData paymentData)
+        public async Task<Result> RefundMoney(int accountId, ChargedMoneyData paymentData, ApiCaller apiCaller)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -95,17 +94,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
-            {
-                var agent = await _agentContext.GetAgent();
-                return await WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Refund, agent.ToApiCaller());
-            }
+            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) 
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Refund, apiCaller);
         }
 
 
-        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount)
+        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
-            var agent = await _agentContext.GetAgent();
             var user = agent.ToApiCaller();
 
             return await Result.Success()
@@ -228,7 +223,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IAccountBalanceAuditService _auditService;
         private readonly EdoContext _context;
         private readonly IEntityLocker _locker;
-        private readonly IAgentContextService _agentContext;
 
         private const decimal MaxOverdraftProportion = 0.75m;
     }

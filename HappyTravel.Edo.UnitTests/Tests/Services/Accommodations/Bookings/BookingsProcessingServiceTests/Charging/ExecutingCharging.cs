@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingPaymentServiceMock
                 .Verify(
-                    b => b.Charge(It.IsAny<Booking>()),
+                    b => b.Charge(It.IsAny<Booking>(), It.IsAny<ApiCaller>()),
                     Times.Exactly(2)
                 );
         }
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var bookingServiceMock = new Mock<ISupplierBookingManagementService>();
             var bookingRecordsUpdater = new Mock<IBookingRecordsUpdater>();
 
-            bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>()))
+            bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<ApiCaller>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
 
             var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object, bookingRecordsUpdater.Object);
