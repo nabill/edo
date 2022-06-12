@@ -29,8 +29,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Nonexistent_payer_account_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(0, 2, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(0, 2, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -40,8 +40,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Nonexistent_recipient_account_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 0, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 0, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -51,8 +51,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Agent_transfer_from_different_agency_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(2));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(2));
 
             Assert.True(isFailure);
         }
@@ -62,8 +62,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Negative_amount_transfer_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(-1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(-1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -73,8 +73,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Transfer_to_not_child_agency_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 3, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 3, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -84,8 +84,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Transfer_to_account_with_different_currency_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 4, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 4, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Transfer_amount_with_different_currency_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.EUR));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.EUR), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -106,8 +106,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Transfer_when_balance_insufficient_should_fail()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1000000m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (_, isFailure, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1000000m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isFailure);
         }
@@ -117,8 +117,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Correct_transfer_should_succeed()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
-            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD));
+            var accountPaymentService = GetPaymentService(edoContext);
+            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isSuccess);
         }
@@ -128,9 +128,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Correct_transfer_should_subtract_correct_value()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
+            var accountPaymentService = GetPaymentService(edoContext);
             var payerAccount = edoContext.AgencyAccounts.Single(a => a.Id == 1);
-            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD));
+            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isSuccess);
             Assert.Equal(999m, payerAccount.Balance);
@@ -141,9 +141,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Correct_transfer_should_add_correct_value()
         {
             var edoContext = CreateEdoContext();
-            var accountPaymentService = GetPaymentService(edoContext, GetAgentForAgency(1));
+            var accountPaymentService = GetPaymentService(edoContext);
             var recipientAccount = edoContext.AgencyAccounts.Single(a => a.Id == 2);
-            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD));
+            var (isSuccess, _, _) = await accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), GetAgentForAgency(1));
 
             Assert.True(isSuccess);
             Assert.Equal(1001m, recipientAccount.Balance);
@@ -230,16 +230,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         }
 
 
-        private static IAccountPaymentService GetPaymentService(EdoContext edoContextMock, AgentContext agentContext)
+        private static IAccountPaymentService GetPaymentService(EdoContext edoContextMock)
         {
-            var agentContextServiceMock = new Mock<IAgentContextService>();
             var entityLockerMock = new Mock<IEntityLocker>();
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
-                edoContextMock, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(), agentContextServiceMock.Object);
-
-            agentContextServiceMock
-                .Setup(x => x.GetAgent())
-                .ReturnsAsync(agentContext);
+                edoContextMock, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
             
             entityLockerMock
                 .Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>()))
@@ -247,8 +242,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             
             return new AccountPaymentService(accountPaymentProcessingService, edoContextMock,
                 Mock.Of<IDateTimeProvider>(), Mock.Of<IBalanceManagementNotificationsService>(),
-                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>(),
-                agentContextServiceMock.Object);
+                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>());
         }
 
 

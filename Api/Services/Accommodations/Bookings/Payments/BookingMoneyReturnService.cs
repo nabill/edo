@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 {
                     BookingPaymentStatuses.NotPaid => Result.Success(),
                     BookingPaymentStatuses.Refunded => Result.Success(),
-                    BookingPaymentStatuses.Captured => await _accountPaymentService.Refund(booking, operationDate),
+                    BookingPaymentStatuses.Captured => await _accountPaymentService.Refund(booking, operationDate, apiCaller),
                     _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentStatus), $"Invalid payment status {booking.PaymentStatus}")
                 };
 

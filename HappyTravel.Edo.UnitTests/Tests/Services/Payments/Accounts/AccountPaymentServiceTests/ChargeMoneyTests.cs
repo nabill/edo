@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -36,12 +37,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             _mockedEdoContext = edoContextMock.Object;
 
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
-                _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(), Mock.Of<IAgentContextService>());
+                _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 new DefaultDateTimeProvider(), Mock.Of<IBalanceManagementNotificationsService>(),
-                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>(),
-                Mock.Of<IAgentContextService>());
+                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isSuccess);
             Assert.Equal(900m, _account.Balance);
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentServiceMock = CreatePaymentServiceMock();
 
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", paymentServiceMock.Object);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentServiceMock.Object);
 
             Assert.True(isSuccess);
             paymentServiceMock.Verify(p => p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isSuccess);
             Assert.True(_mockedEdoContext.Payments.Any());
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             _account.Balance = 25m;
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", paymentService);
+            var (isSuccess, _, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isSuccess);
             Assert.Equal(-75m, _account.Balance);
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var startingBalance = _account.Balance = 24m;
             var paymentService = CreatePaymentServiceWithMoneyAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("ReferenceCode", paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("ReferenceCode", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isFailure);
             Assert.Equal(startingBalance, _account.Balance);
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithoutServicePrice();
 
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("REFCODE" + " wrong code", paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("REFCODE" + " wrong code", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isFailure);
 
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithoutAgencyAccount();
 
-            var (_, isFailure, _, _) = await _accountPaymentService.Charge("referenceCode", paymentService);
+            var (_, isFailure, _, _) = await _accountPaymentService.Charge("referenceCode", _agent.ToApiCaller(), paymentService);
 
             Assert.True(isFailure);
 
