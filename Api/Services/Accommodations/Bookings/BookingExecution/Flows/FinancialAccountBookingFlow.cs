@@ -4,11 +4,13 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Logging;
@@ -26,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingRequestExecutor requestExecutor,
             IBookingRecordManager recordManager,
             ILogger<FinancialAccountBookingFlow> logger, 
-            IWideAvailabilityStorage availabilityStorage)
+            IWideAvailabilityStorage availabilityStorage, IAgentContextService agentContext)
         {
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
@@ -38,15 +40,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _recordManager = recordManager;
             _logger = logger;
             _availabilityStorage = availabilityStorage;
+            _agentContext = agentContext;
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByAccountStarted(bookingRequest.HtId);
 
-            return GetCachedAvailability(bookingRequest)
+            var bookingAvailability = await GetCachedAvailability(bookingRequest);
+            if (bookingAvailability.IsFailure)
+                return Result.Failure<AccommodationBookingInfo>(bookingAvailability.Error);
+
+            return await bookingAvailability
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Bind(RegisterBooking)
                 .Check(GenerateInvoice)
@@ -75,8 +82,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 => _registrationService.Register(bookingRequest, bookingAvailability, PaymentTypes.VirtualAccount, languageCode);
 
 
-            async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
-                => await _accountPaymentService.Charge(booking);
+            async Task<Result> ChargeMoney(Data.Bookings.Booking booking)
+            {
+                var agentContext = await _agentContext.GetAgent();
+                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
+            }
 
 
             Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
@@ -95,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task ClearCache(AccommodationBookingInfo accommodationBooking) 
-                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+                => _availabilityStorage.Clear(bookingAvailability.Value.SupplierCode, bookingRequest.SearchId);
 
 
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
@@ -115,5 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly ILogger<FinancialAccountBookingFlow> _logger;
         private readonly IWideAvailabilityStorage _availabilityStorage;
+        private readonly IAgentContextService _agentContext;
     }
 }

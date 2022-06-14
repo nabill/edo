@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -48,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var mockedEdoContext = edoContextMock.Object;
 
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
-                mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(), Mock.Of<IAgentContextService>());
+                mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             var dateTimeProviderMock = new Mock<IDateTimeProvider>();
             dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(CancellationDate);
@@ -59,7 +60,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, mockedEdoContext,
                 dateTimeProviderMock.Object, Mock.Of<IBalanceManagementNotificationsService>(),
-                bookingRecordManagerMock.Object, Mock.Of<IBookingDocumentsMailingService>(), Mock.Of<IAgentContextService>());
+                bookingRecordManagerMock.Object, Mock.Of<IBookingDocumentsMailingService>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -101,7 +102,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", CancellationDate, paymentService, "reason");
+            var (isSuccess, _, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
 
             Assert.True(isSuccess);
             Assert.Equal(1100m, _account.Balance);
@@ -113,7 +114,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", CancellationDate, paymentService, "reason");
+            var (isSuccess, _, error) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
 
             Assert.True(isSuccess);
             Assert.Equal(PaymentStatuses.Refunded, _payment.Status);
@@ -125,7 +126,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithInvalidAccount();
 
-            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", CancellationDate, paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("ReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
 
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -155,7 +156,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var paymentService = CreatePaymentServiceWithRefundableAmount(new MoneyAmount(100, Currencies.USD));
 
-            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", CancellationDate, paymentService, "reason");
+            var (_, isFailure, _) = await _accountPaymentService.Refund("InvalidReferenceCode", _agent.ToApiCaller(), CancellationDate, paymentService, "reason");
 
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);

@@ -37,12 +37,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         }
         
 
-        public Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             Baggage.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByOfflinePaymentStarted(bookingRequest.HtId);
+            
+            var bookingAvailability = await GetCachedAvailability(bookingRequest);
+            if (bookingAvailability.IsFailure)
+                return Result.Failure<AccommodationBookingInfo>(bookingAvailability.Error);
 
-            return GetCachedAvailability(bookingRequest)
+            return await bookingAvailability
                 .Ensure(IsPaymentTypeAllowed, "Payment type is not allowed")
                 .Ensure(IsDeadlineNotPassed, "Deadline already passed, can not book")
                 .Bind(RegisterBooking)

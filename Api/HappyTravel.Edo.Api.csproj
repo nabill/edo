@@ -33,7 +33,6 @@
     <PackageReference Include="HappyTravel.HttpRequestLogger" Version="1.0.5" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.4.0" />
     <PackageReference Include="HappyTravel.MapperContracts" Version="1.3.0" />
-    <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="2.0.1" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.1.4" />
     <PackageReference Include="HappyTravel.Telemetry" Version="0.16.3" />
