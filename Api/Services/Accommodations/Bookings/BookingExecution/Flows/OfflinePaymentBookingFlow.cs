@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
             
             Task ClearCache(AccommodationBookingInfo accommodationBooking) 
-                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+                => _availabilityStorage.Clear(bookingAvailability.Value.SupplierCode, bookingRequest.SearchId);
             
             
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
