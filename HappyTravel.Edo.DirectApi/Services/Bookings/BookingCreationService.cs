@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.DirectApi.Infrastructure;
 using HappyTravel.Edo.DirectApi.Models.Booking;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         public BookingCreationService(ClientReferenceCodeValidationService validationService, 
             IBookingRegistrationService bookingRegistrationService, IBookingEvaluationStorage bookingEvaluationStorage,
             BookingInfoService bookingInfoService, IBookingDocumentsService documentsService, IDateTimeProvider dateTimeProvider, 
-            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor, IEvaluationTokenStorage tokenStorage)
+            IBookingAccountPaymentService accountPaymentService, IBookingRequestExecutor requestExecutor, IEvaluationTokenStorage tokenStorage, IAgentContextService agentContext)
         {
             _validationService = validationService;
             _bookingRegistrationService = bookingRegistrationService;
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
             _accountPaymentService = accountPaymentService;
             _requestExecutor = requestExecutor;
             _tokenStorage = tokenStorage;
+            _agentContext = agentContext;
         }
 
 
@@ -87,10 +89,13 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
                 => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
             
             
-            async Task<Result> ChargeMoney(Data.Bookings.Booking booking) 
-                => await _accountPaymentService.Charge(booking);
-            
-            
+            async Task<Result> ChargeMoney(Data.Bookings.Booking booking)
+            {
+                var agentContext = await _agentContext.GetAgent();
+                return await _accountPaymentService.Charge(booking, agentContext.ToApiCaller());
+            }
+
+
             async Task<Result<Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             { 
                 var result =  await _requestExecutor.Execute(booking, Constants.LanguageCode);
@@ -112,5 +117,6 @@ namespace HappyTravel.Edo.DirectApi.Services.Bookings
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IEvaluationTokenStorage _tokenStorage;
+        private readonly IAgentContextService _agentContext;
     }
 }

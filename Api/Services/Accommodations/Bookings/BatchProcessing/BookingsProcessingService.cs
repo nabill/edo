@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     }
                 }
                 
-                var chargeResult = await _accountPaymentService.Charge(booking);
+                var chargeResult = await _accountPaymentService.Charge(booking, serviceAcc);
 
                 if (chargeResult.IsFailure)
                 {
@@ -359,6 +359,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private readonly EdoContext _context;
         private readonly IBookingRecordsUpdater _bookingRecordsUpdater;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

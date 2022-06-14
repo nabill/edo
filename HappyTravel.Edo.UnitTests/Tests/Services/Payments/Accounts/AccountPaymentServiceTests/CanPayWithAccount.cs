@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Invalid_payment_without_account_should_be_permitted()
         {
             var accountPaymentService = GetPaymentService(_invalidAgentContext);
-            var canPay = await accountPaymentService.CanPayWithAccount();
+            var canPay = await accountPaymentService.CanPayWithAccount(_invalidAgentContext);
 
             Assert.False(canPay);
         }
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Invalid_cannot_pay_with_account_if_balance_zero()
         {
             var accountPaymentService = GetPaymentService(_validAgentContext);
-            var canPay = await accountPaymentService.CanPayWithAccount();
+            var canPay = await accountPaymentService.CanPayWithAccount(_validAgentContext);
 
             Assert.False(canPay);
         }
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Valid_can_pay_if_balance_greater_zero()
         {
             var accountPaymentService = GetPaymentService(_validAgentContextWithPositiveBalance);
-            var canPay = await accountPaymentService.CanPayWithAccount();
+            var canPay = await accountPaymentService.CanPayWithAccount(_validAgentContextWithPositiveBalance);
 
             Assert.True(canPay);
         }
@@ -62,8 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             
             return new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
                 dateTimeProvider, Mock.Of<IBalanceManagementNotificationsService>(),
-                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>(),
-                agentContextServiceMock.Object);
+                Mock.Of<IBookingRecordManager>(), Mock.Of<IBookingDocumentsMailingService>());
         }
 
 
