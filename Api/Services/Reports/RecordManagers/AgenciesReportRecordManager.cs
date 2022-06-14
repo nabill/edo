@@ -75,7 +75,7 @@ public class AgenciesReportRecordManager
             });
         }
 
-        return GroupByRootAgencies(report);
+        return SortByRootAgencies(report);
 
 
         Dictionary<string, bool>? GetRootSuppliers(AgenciesReportData row)
@@ -98,8 +98,13 @@ public class AgenciesReportRecordManager
             return string.Join(", ", suppliersList);
         }
 
-
-        List<AgenciesReportRow> GroupByRootAgencies(List<AgenciesReportRow> rows)
+        
+        // This will sort rows
+        // root agency will go first and then all its children
+        // then all other root agencies with children
+        // and in the end - all agencies without children
+        // Children will be sorted too
+        List<AgenciesReportRow> SortByRootAgencies(List<AgenciesReportRow> rows)
         {
             var groups = rows.GroupBy(r => r.RootAgencyId);
 
