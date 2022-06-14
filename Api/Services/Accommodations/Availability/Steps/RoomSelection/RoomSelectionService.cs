@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<AgentAccommodation, ProblemDetails>> GetAccommodation(Guid searchId, string htId, string languageCode)
         {
-            Baggage.AddSearchId(searchId);
+            Tags.AddSearchId(searchId);
 
             var agent = await _agentContext.GetAgent();
             var accommodation = await _mapperClient.GetAccommodation(htId, languageCode);
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, string htId, string languageCode)
         {
-            Baggage.AddSearchId(searchId);
+            Tags.AddSearchId(searchId);
             var agent = await _agentContext.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get();
 

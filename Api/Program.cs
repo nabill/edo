@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api
 {
@@ -63,6 +64,17 @@ namespace HappyTravel.Edo.Api
                     config.AddConsulKeyValueClient(consulHttpAddr, "edo", consulHttpToken, environment.EnvironmentName, optional: environment.IsLocal());
 
                     config.AddEnvironmentVariables();
+                })
+                .ConfigureLogging((_, logging) =>
+                {
+                    logging.Configure(options =>
+                    {
+                        options.ActivityTrackingOptions = ActivityTrackingOptions.SpanId
+                            | ActivityTrackingOptions.TraceId
+                            | ActivityTrackingOptions.ParentId
+                            | ActivityTrackingOptions.Baggage
+                            | ActivityTrackingOptions.Tags;
+                    });
                 });
     }
 }
