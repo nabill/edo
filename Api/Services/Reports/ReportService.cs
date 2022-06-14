@@ -247,14 +247,10 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
         
         
-        public async Task<Result<Stream>> GetAgenciesReport()
-        {
-            var results = await _agenciesReportRecordManager.Get();
-            
-            throw new NotImplementedException();
-        }
-       
-        
+        public async Task<Result<Stream>> GetAgenciesReport() 
+            => await Generate(await _agenciesReportRecordManager.Get());
+
+
         private Result Validate(DateTime fromDate, DateTime toDate)
         {
             if (fromDate == default || toDate == default)

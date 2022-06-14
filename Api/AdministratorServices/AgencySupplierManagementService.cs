@@ -22,57 +22,64 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
     public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(int agencyId)
     {
+        var agencySuppliers = await GetAgencySuppliers();
+        var rootSuppliers = await GetRootSuppliers();
+        
+        return await GetMaterializedSuppliers(agencySuppliers, rootSuppliers);
+
+
+        async Task<Dictionary<string, bool>?> GetAgencySuppliers()
+        {
+            var agencySystemSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+            return agencySystemSettings?.EnabledSuppliers;
+        }
+
+
+        async Task<Dictionary<string, bool>?> GetRootSuppliers()
+        {
+            var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
+
+            var rootAgencyId = agency.ParentId;
+            if (rootAgencyId == default)
+                return null;
+
+            var rootAgencySystemSettings = await _context.AgencySystemSettings
+                .SingleOrDefaultAsync(a => a.AgencyId == rootAgencyId);
+
+            return rootAgencySystemSettings?.EnabledSuppliers;
+        }
+    }
+
+
+    public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(Dictionary<string, bool>? agencySuppliers,
+        Dictionary<string, bool>? rootSuppliers)
+    {
         var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
         if (isFailure)
             return Result.Failure<Dictionary<string, bool>>(error);
 
-        var agencySettings = await _context.AgencySystemSettings
-            .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+        var materializedRootSuppliers = MaterializeRootSuppliers();
+        return MaterializeAgencySuppliers();
 
-        var rootAgencySuppliers = await GetRootSuppliers(agencyId, enabledSuppliers);
-        rootAgencySuppliers = rootAgencySuppliers
+        
+        Dictionary<string, bool> MaterializeRootSuppliers()
+        {
+            if (rootSuppliers is null)
+                return enabledSuppliers
+                    .ToDictionary(s => s.Key, s => true);
+
+            return SunpuMaterialization(rootSuppliers, enabledSuppliers, true)
                 .Where(s => s.Value)
                 .ToDictionary(s => s.Key, s => s.Value);
-
-        if (Equals(agencySettings?.EnabledSuppliers, null))
-        {
-            var rootAgencySuppliersWithoutTestOnly = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers, false);
-            return GetIntersection(rootAgencySuppliers, rootAgencySuppliersWithoutTestOnly);
         }
-
-        var agencySuppliers = SunpuMaterialization(agencySettings.EnabledSuppliers, enabledSuppliers, true);
-        var resultSuppliers = GetIntersection(rootAgencySuppliers!, agencySuppliers);
-
-        return resultSuppliers;
-    }
-
-
-    public async Task<Dictionary<string, bool>> GetRootSuppliers(int agencyId,
-        Dictionary<string, EnablementState> enabledSuppliers)
-    {
-        var rootAgencyId = await _context.Agencies
-            .Where(a => a.Id == agencyId)
-            .Select(a => a.ParentId)
-            .SingleOrDefaultAsync();
-
-        if (rootAgencyId == default)
-            return enabledSuppliers
-                .Where(s => s.Value == EnablementState.Enabled || s.Value == EnablementState.TestOnly)
-                .ToDictionary(s => s.Key, s => true);
-
-        var rootAgencySettings = await _context.AgencySystemSettings
-            .SingleOrDefaultAsync(a => a.AgencyId == rootAgencyId);
-
-        if (Equals(rootAgencySettings?.EnabledSuppliers, null))
-            return enabledSuppliers
-                .Where(s => s.Value == EnablementState.Enabled || s.Value == EnablementState.TestOnly)
-                .ToDictionary(s => s.Key, s => true);
-
-        var rootAgencySuppliers = rootAgencySettings.EnabledSuppliers;
-
-        var resultSuppliers = SunpuMaterialization(rootAgencySuppliers, enabledSuppliers, true);
-
-        return resultSuppliers;
+        
+        Dictionary<string, bool> MaterializeAgencySuppliers()
+        {
+            if (Equals(agencySuppliers, null))
+                return GetIntersection(materializedRootSuppliers, SunpuMaterialization(materializedRootSuppliers, enabledSuppliers, false));
+            
+            return GetIntersection(materializedRootSuppliers, SunpuMaterialization(agencySuppliers, enabledSuppliers, true));
+        }
     }
 
 
@@ -139,8 +146,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
                 continue;
             }
 
-            var resultValue = (!rootValue) ? rootValue : childValue;
-            result.Add(rootKey, resultValue);
+            result.Add(rootKey, rootValue && childValue);
         }
 
         return result;
@@ -157,7 +163,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             var settingExist = suppliers.TryGetValue(supplier, out var agencyOption);
             var materializedOption = supplierOption switch
             {
-                EnablementState.TestOnly => withTestOnly ? agencyOption : false,
+                EnablementState.TestOnly => withTestOnly && agencyOption,
                 EnablementState.Enabled => agencyOption || !settingExist,
                 EnablementState.Disabled => false,
                 _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
