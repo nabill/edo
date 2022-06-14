@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Reports;
@@ -77,7 +75,7 @@ public class AgenciesReportRecordManager
             });
         }
 
-        return report.OrderBy(r => r.RootAgencyId);
+        return GroupByRootAgencies(report);
 
 
         Dictionary<string, bool>? GetRootSuppliers(AgenciesReportData row)
@@ -99,7 +97,38 @@ public class AgenciesReportRecordManager
             
             return string.Join(", ", suppliersList);
         }
+
+
+        List<AgenciesReportRow> GroupByRootAgencies(List<AgenciesReportRow> rows)
+        {
+            var groups = rows.GroupBy(r => r.RootAgencyId);
+
+            var rootsGroup = groups.First(g => g.Key == "None")
+                .ToList()
+                .OrderBy(r => r.AgencyId);
+            
+            var childrenGroups = groups.Where(g => g.Key != "None")
+                .OrderBy(g => int.Parse(g.Key))
+                .ToList();
+
+            var sorted = new List<AgenciesReportRow>();
+            var used = new List<int>();
+            
+            foreach (var group in childrenGroups)
+            {
+                var rootKey = int.Parse(group.Key);
+                var rootElement = rootsGroup.First(r => r.AgencyId == rootKey);
+                used.Add(rootKey);
+                sorted.Add(rootElement);
+                sorted.AddRange(group.OrderBy(g => g.AgencyId));
+            }
+
+            sorted.AddRange(rootsGroup.Where(row => !used.Contains(row.AgencyId)));
+
+            return sorted;
+        }
     }
+    
 
     private readonly EdoContext _context;
     private readonly IAgencySupplierManagementService _agencySupplierManagementService;
