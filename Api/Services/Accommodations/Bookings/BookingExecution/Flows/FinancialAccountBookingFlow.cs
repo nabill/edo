@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
         public async Task<Result<AccommodationBookingInfo>> BookByAccount(AccommodationBookingRequest bookingRequest, string languageCode)
         {
-            Baggage.AddSearchId(bookingRequest.SearchId);
+            Tags.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByAccountStarted(bookingRequest.HtId);
 
             var bookingAvailability = await GetCachedAvailability(bookingRequest);
