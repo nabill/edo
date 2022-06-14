@@ -241,7 +241,8 @@ namespace HappyTravel.Edo.Api
                 .UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod());
+                .AllowAnyMethod()
+                .WithExposedHeaders("traceid"));
 
             var headersOptions = new ForwardedHeadersOptions
             {
