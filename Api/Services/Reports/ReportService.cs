@@ -228,8 +228,20 @@ namespace HappyTravel.Edo.Api.Services.Reports
         }
 
 
-        
-        
+        public Task<Result<Stream>> GetPaymentLinkReport(DateTime fromDate, DateTime endDate)
+        {
+            var from = fromDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return Result.Success()
+                .Map(GetRecords)
+                .Bind(Generate<PaymentLinkReportData, PaymentLinkReportRow>);
+            
+            Task<IEnumerable<PaymentLinkReportData>> GetRecords() 
+                => GetRecords<PaymentLinkReportData>(from, end);
+        }
+
+
         public Task<Result<Stream>> GetCancelledBookingsReport(DateTime fromDate, DateTime endDate)
         {
             var from = fromDate.Date;
