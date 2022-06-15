@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -266,6 +267,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToApiCaller()));
+        }
+        
+        /// <summary>
+        ///     Set booking statuses to complete
+        /// </summary>
+        /// <returns>Updated booking Ids</returns>
+        [HttpPost("statuses/complete")]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> SetBookingStatusesCompleted()
+        {
+            return OkOrBadRequest(await _bookingRefreshStatusService.SetBookingStatusesCompleted());
         }
         
         
