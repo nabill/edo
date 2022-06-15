@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
         public async Task<Result<AccommodationBookingInfo>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
-            Baggage.AddSearchId(bookingRequest.SearchId);
+            Tags.AddSearchId(bookingRequest.SearchId);
             _logger.LogBookingByOfflinePaymentStarted(bookingRequest.HtId);
             
             var bookingAvailability = await GetCachedAvailability(bookingRequest);
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
             
             Task ClearCache(AccommodationBookingInfo accommodationBooking) 
-                => _availabilityStorage.Clear(accommodationBooking.Supplier, bookingRequest.SearchId);
+                => _availabilityStorage.Clear(bookingAvailability.Value.SupplierCode, bookingRequest.SearchId);
             
             
             Result<AccommodationBookingInfo> WriteLog(Result<AccommodationBookingInfo> result)
