@@ -57,7 +57,7 @@ public class AgenciesReportRecordManager
         {
             var agencySuppliers = row.AgencySystemSettings?.EnabledSuppliers;
             var rootSuppliers = GetRootSuppliers(row);
-            var materializedSuppliers = (await _agencySupplierManagementService.GetMaterializedSuppliers(agencySuppliers, rootSuppliers)).Value;
+            var materializedSuppliers = _agencySupplierManagementService.GetMaterializedSuppliers(agencySuppliers, rootSuppliers).Value;
             
             report.Add(new AgenciesReportRow
             {

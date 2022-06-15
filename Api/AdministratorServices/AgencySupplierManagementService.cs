@@ -25,7 +25,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
         var agencySuppliers = await GetAgencySuppliers();
         var rootSuppliers = await GetRootSuppliers();
         
-        return await GetMaterializedSuppliers(agencySuppliers, rootSuppliers);
+        return GetMaterializedSuppliers(agencySuppliers, rootSuppliers);
 
 
         async Task<Dictionary<string, bool>?> GetAgencySuppliers()
@@ -51,7 +51,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    public async Task<Result<Dictionary<string, bool>>> GetMaterializedSuppliers(Dictionary<string, bool>? agencySuppliers,
+    public Result<Dictionary<string, bool>> GetMaterializedSuppliers(Dictionary<string, bool>? agencySuppliers,
         Dictionary<string, bool>? rootSuppliers)
     {
         var (_, isFailure, enabledSuppliers, error) = GetEnabledSuppliers();
