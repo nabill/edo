@@ -5,6 +5,13 @@
       "System": "Debug",
       "Microsoft": "Debug",
       "Microsoft.AspNetCore.Mvc.Internal.ControllerActionInvoker": "Warning"
+    },
+    "Console": {
+      "FormatterName": "simple",
+      "FormatterOptions": {
+        "SingleLine": false,
+        "IncludeScopes": false
+      }
     }
   },
   "Authority": {

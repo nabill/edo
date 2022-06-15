@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, string languageCode)
         {
-            Baggage.AddSearchId(bookingRequest.SearchId);
+            Tags.AddSearchId(bookingRequest.SearchId);
             _logger.LogCreditCardBookingFlowStarted(bookingRequest.HtId);
 
             var (_, isFailure, booking, error) = await GetCachedAvailability(bookingRequest)
@@ -135,8 +135,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
                 
                 var (request, availabilityInfo) = requestInfo;
-                Baggage.AddSearchId(request.SearchId);
-                Baggage.AddBookingReferenceCode(booking.ReferenceCode);
+                Tags.AddSearchId(request.SearchId);
+                Tags.AddBookingReferenceCode(booking.ReferenceCode);
 
                 return await _requestExecutor.Execute(booking, languageCode);
             }
