@@ -59,17 +59,6 @@
       "Default": "Warning",
       "HappyTravel": "Information",
       "Microsoft.Hosting.Lifetime": "Information"
-    },
-    "Console": {
-      "FormatterName": "json",
-      "FormatterOptions": {
-        "SingleLine": true,
-        "IncludeScopes": true,
-        "UseUtcTimestamp": true,
-        "JsonWriterOptions": {
-          "Indented": true
-        }
-      }
     }
   },
   "PaymentLinks": {
