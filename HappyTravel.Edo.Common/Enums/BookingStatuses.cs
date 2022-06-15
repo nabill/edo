@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Common.Enums
         PendingCancellation = 9,
         
         /// <summary>
-        /// The booking has been confirmed and payed. 24 hours since a check-out date have passed
+        /// The booking has been confirmed and paid. 24 hours since a check-out date have passed
         /// </summary>
         Completed = 10
     }

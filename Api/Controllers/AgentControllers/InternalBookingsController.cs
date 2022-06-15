@@ -270,7 +270,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
         
         /// <summary>
-        ///     Set booking statuses to complete
+        ///     Set booking statuses to Completed
         /// </summary>
         /// <returns>Updated booking Ids</returns>
         [HttpPost("statuses/complete")]
