@@ -36,8 +36,6 @@ steps:
     - dotnet build -c Release
     - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
     - dotnet test -c Release
-image_pull_secrets:
-- dockerconfig
 
 - name: discord-pr
   pull: always
@@ -52,6 +50,8 @@ image_pull_secrets:
   when:
     status: [success, failure]
 
+image_pull_secrets:
+- dockerconfig
 ---
 kind: pipeline
 type: docker
