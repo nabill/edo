@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             var penaltyAmount = booking.Rooms
                 .Sum(room => room.Price.Amount * (decimal) GetPenaltyFraction(room.DeadlineDetails, room.IsAdvancePurchaseRate, cancellationDate));
 
-            penaltyAmount = MoneyRounder.Ceil(penaltyAmount, booking.Currency);
+            penaltyAmount = MoneyRounder.Truncate(penaltyAmount, booking.Currency);
             
             return new MoneyAmount(penaltyAmount, booking.Currency);
 
