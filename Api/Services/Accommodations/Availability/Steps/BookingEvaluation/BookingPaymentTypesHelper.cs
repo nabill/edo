@@ -38,8 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 AprMode.Hide => EmptyPaymentTypesList,
                 AprMode.DisplayOnly => EmptyPaymentTypesList,
-                AprMode.CardPurchasesOnly => new List<PaymentTypes> {PaymentTypes.CreditCard},
-                AprMode.CardAndAccountPurchases => new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard},
+                AprMode.CardPurchasesOnly => new List<PaymentTypes> { PaymentTypes.CreditCard },
+                AprMode.CardAndAccountPurchases => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.AprMode), $"Invalid value {settings.AprMode}")
             };
         }
@@ -54,14 +54,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return AllAvailablePaymentTypes;
 
             if (date < deadlineDate.Date)
-                return new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard};
+                return new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard };
 
             return settings.PassedDeadlineOffersMode switch
             {
                 PassedDeadlineOffersMode.Hide => EmptyPaymentTypesList,
                 PassedDeadlineOffersMode.DisplayOnly => EmptyPaymentTypesList,
-                PassedDeadlineOffersMode.CardPurchasesOnly => new List<PaymentTypes> {PaymentTypes.CreditCard},
-                PassedDeadlineOffersMode.CardAndAccountPurchases => new List<PaymentTypes> {PaymentTypes.VirtualAccount, PaymentTypes.CreditCard},
+                PassedDeadlineOffersMode.CardPurchasesOnly => new List<PaymentTypes> { PaymentTypes.CreditCard },
+                PassedDeadlineOffersMode.CardAndAccountPurchases => new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard },
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.PassedDeadlineOffersMode), $"Invalid value {settings.PassedDeadlineOffersMode}")
             };
         }
@@ -74,6 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ContractKind.OfflineOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.Offline, PaymentTypes.CreditCard },
                 ContractKind.CreditCardPayments => new List<PaymentTypes> { PaymentTypes.CreditCard },
                 ContractKind.VirtualAccountOrCreditCardPayments => new List<PaymentTypes> { PaymentTypes.CreditCard, PaymentTypes.VirtualAccount },
+                ContractKind.NotSpecified => EmptyPaymentTypesList,
                 _ => throw new ArgumentOutOfRangeException(nameof(contractKind), $"Invalid value {contractKind}")
             };
         }
