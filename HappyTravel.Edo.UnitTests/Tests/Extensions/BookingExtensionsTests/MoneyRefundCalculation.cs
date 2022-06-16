@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
         private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy>? policies = null, bool isAdvancePurchaseRate = false) =>
             new BookedRoom(default, default, price, default, default, default, default,
                 new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(),
-                isAdvancePurchaseRate, default, default, default);
+                isAdvancePurchaseRate, default, default, default, default);
 
 
         private readonly Booking _booking = new Booking { Currency = Currencies.USD };

@@ -237,7 +237,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                             r.IsAdvancePurchaseRate,
                             string.Empty,
                             r.Rate.Commission,
-                            r.Rate.NetPrice))
+                            r.Rate.NetPrice,
+                            r.Rate.CreditCardPrice))
                     .ToList();
 
 

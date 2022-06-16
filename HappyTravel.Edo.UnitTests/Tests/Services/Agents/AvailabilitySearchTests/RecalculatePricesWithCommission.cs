@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
         static BookedRoom MakeBookedRoom(MoneyAmount netPrice) =>
             new(default, default, default, default, default, default, default, default,
                 new Deadline(CancellationDate, new List<CancellationPolicy>(), new List<string>(), true),
-                default, default, default, default, netPrice);
+                default, default, default, default, netPrice, default);
 
 
         private void SetupInitialData()

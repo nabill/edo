@@ -113,6 +113,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             var (alignedGrossPrice, alignedRoomGrossRates) = PriceAligner.AlignAggregatedValues(totalGrossPrice, roomGrossPrices);
 
+            var totalCreditCardPrice = MoneyRounder.Ceil(roomContractSet.Rate.FinalPrice.ApplyCommission(contractKindCommissionOptions.CreditCardPaymentsCommission));
+            var roomCreditCardPrices = roomContractSet.Rooms
+                .Select(r => MoneyRounder.Ceil(r.Rate.FinalPrice.ApplyCommission(contractKindCommissionOptions.CreditCardPaymentsCommission)))
+                .ToList();
+
+            var (alignedCreditCardPrice, alignedCreditCardPrices) = PriceAligner.AlignAggregatedValues(totalCreditCardPrice, roomCreditCardPrices);
+
             var roomContracts = new List<RoomContract>(roomContractSet.Rooms.Count);
             for (var i = 0; i < roomContractSet.Rooms.Count; i++)
             {
@@ -120,14 +127,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var room = roomContractSet.Rooms[i];
                 var totalPriceNet = alignedRoomFinalPrices[i];
                 var totalPriceGross = alignedRoomGrossRates[i];
-                var totalRate = new Rate(totalPriceNet, totalPriceGross, commission: commission, netPrice: room.Rate.FinalPrice);
+                var totalCreditCardPriceNet = alignedCreditCardPrices[i];
+                var totalRate = new Rate(totalPriceNet, totalPriceGross, commission: commission,
+                    netPrice: room.Rate.FinalPrice, creditCardPrice: totalCreditCardPriceNet);
 
                 roomContracts.Add(BuildRoomContracts(room, room.DailyRoomRates, totalRate));
             }
 
             var roomContractSetRate = new Rate(alignedFinalPrice, alignedGrossPrice,
                 commission: commission,
-                netPrice: roomContractSet.Rate.FinalPrice);
+                netPrice: roomContractSet.Rate.FinalPrice,
+                creditCardPrice: alignedCreditCardPrice);
 
             return BuildRoomContractSet(roomContractSet, roomContractSetRate, roomContracts);
         }
