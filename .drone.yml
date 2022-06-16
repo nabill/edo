@@ -11,7 +11,7 @@ trigger:
 
 steps:
 - name: Test application
-  image: mcr.microsoft.com/dotnet/sdk:6.0-focal
+  image: registry.happytravel.com/sdk:6.0-focal-sonar
   environment:
     GITHUB_TOKEN:
       from_secret: GITHUB_TOKEN
@@ -23,9 +23,20 @@ steps:
       from_secret: CONSUL_DEV_HTTP_ADDR
     CONSUL_HTTP_TOKEN:
       from_secret: CONSUL_DEV_HTTP_TOKEN
+    SONAR_PROJECT_KEY:
+      from_secret: SONAR_PROJECT_KEY
+    SONAR_PROJECT_NAME:
+      from_secret: SONAR_PROJECT_NAME
+    SONAR_URL:
+      from_secret: SONAR_URL
+    SONAR_TOKEN:
+      from_secret: SONAR_TOKEN
   commands:
+    - dotnet sonarscanner begin /k:"$SONAR_PROJECT_KEY" /n:"$SONAR_PROJECT_NAME" /d:sonar.host.url="$SONAR_URL" /d:sonar.login="$SONAR_TOKEN"
     - dotnet build -c Release
+    - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
     - dotnet test -c Release
+
 
 - name: discord-pr
   pull: always
