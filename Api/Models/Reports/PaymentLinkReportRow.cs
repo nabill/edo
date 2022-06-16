@@ -1,5 +1,3 @@
-using System;
-
 namespace HappyTravel.Edo.Api.Models.Reports;
 
 public struct PaymentLinkReportRow
