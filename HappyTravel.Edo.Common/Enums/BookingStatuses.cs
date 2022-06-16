@@ -53,6 +53,11 @@ namespace HappyTravel.Edo.Common.Enums
         /// <summary>
         /// Sent cancellation request, waiting for async response
         /// </summary>
-        PendingCancellation = 9
+        PendingCancellation = 9,
+        
+        /// <summary>
+        /// The booking has been confirmed and paid. 24 hours since a check-out date have passed
+        /// </summary>
+        Completed = 10
     }
 }
