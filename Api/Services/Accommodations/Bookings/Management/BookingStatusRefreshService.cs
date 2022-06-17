@@ -124,6 +124,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
+        public async Task<Result<List<int>>> SetBookingStatusesCompleted()
+        {
+            await _context.Bookings
+                .Where(b =>
+                    b.Status == BookingStatuses.Confirmed
+                    && b.PaymentStatus == BookingPaymentStatuses.Captured
+                    && _dateTimeProvider.UtcNow() - b.CheckOutDate > TimeSpan.FromDays(2))
+                .ForEachAsync(booking =>
+                {
+                    booking.Status = BookingStatuses.Completed;
+                    _context.Bookings.Attach(booking).Property(b => b.Status).IsModified = true;
+                });
+
+            var completedBookingIds = _context.ChangeTracker.Entries<Booking>()
+                .Where(b => b.State == EntityState.Modified)
+                .Select(b => b.Entity.Id)
+                .ToList();
+
+            await _context.SaveChangesAsync();
+
+            return completedBookingIds;
+        }
+
+
         private async Task<Result> RefreshStatus(Booking booking, ApiCaller apiCaller, BookingStatusRefreshState state)
         {
             return await ValidateBooking()
@@ -152,8 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            Task<Result> RefreshBookingStatus() 
-                => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
+            Task<Result> RefreshBookingStatus() => _supplierBookingManagement.RefreshStatus(booking, apiCaller, BookingChangeEvents.Refresh);
         }
 
 

@@ -35,9 +35,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
-            var rootSettings = await GetSettings(rootAgencyId);
-            var agencySettings = rootAgencyId != agencyId ? await GetSettings(agencyId) : null;
-            
+            var agencySettings = await GetSettings(agencyId);
+            var rootSettings = rootAgencyId != agencyId ? await GetSettings(rootAgencyId) : agencySettings;
+
             return new AgencyAccommodationBookingSettings
             {
                 AprMode = GetAprMode(),
@@ -46,6 +46,21 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 IsDirectContractFlagVisible = GetIsDirectContractFlagVisible(),
                 CustomDeadlineShift = GetCustomDeadlineShift()
             };
+
+
+            AprMode GetAprMode()
+            {
+                if (rootSettings?.AprMode is null)
+                    return AprMode.Hide;
+
+                if (agencySettings?.AprMode is null)
+                    return rootSettings.AprMode.Value;
+
+                if (rootSettings.AprMode < agencySettings.AprMode)
+                    return rootSettings.AprMode.Value;
+
+                return agencySettings.AprMode.Value;
+            }
 
 
             AgencyAccommodationBookingSettings GetDefaults()
@@ -60,8 +75,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             
             async Task<AgencyAccommodationBookingSettings?> GetSettings(int id) 
-                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))
-                    ?.AccommodationBookingSettings;
+                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
 
 
             bool GetIsSupplierVisible()
@@ -86,21 +100,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return rootSettings.IsDirectContractFlagVisible && agencySettings.IsDirectContractFlagVisible;
             }
-            
-            
-            AprMode GetAprMode()
-            {
-                if (rootSettings?.AprMode is null)
-                    return AprMode.Hide;
-
-                if (agencySettings?.AprMode is null)
-                    return rootSettings.AprMode.Value;
-
-                if (rootSettings.AprMode < agencySettings.AprMode)
-                    return rootSettings.AprMode.Value;
-
-                return agencySettings.AprMode.Value;
-            }
 
             
             PassedDeadlineOffersMode GetPassedDeadlineOffersMode()
@@ -117,6 +116,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return agencySettings.PassedDeadlineOffersMode.Value;
             }
             
+
             int GetCustomDeadlineShift() 
                 => (agencySettings != null && agencySettings.CustomDeadlineShift != null)
                     ? agencySettings.CustomDeadlineShift.Value
@@ -153,9 +153,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> SetSettings()
             {
-                if (settings.CustomDeadlineShift.HasValue && settings.CustomDeadlineShift >= 0)
-                    return Result.Failure("Deadline shift must be less than zero");
-
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 if (existingSettings == default)
                 {

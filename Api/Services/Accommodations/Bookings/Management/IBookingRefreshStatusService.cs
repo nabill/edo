@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         Task<Result<BatchOperationResult>> RefreshStatuses(List<int> bookingIds, ApiCaller apiCaller);
 
         Task<List<int>> GetBookingsToRefresh();
+
+        Task<Result<List<int>>> SetBookingStatusesCompleted();
     }
 }
