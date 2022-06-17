@@ -53,7 +53,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             if (booking.Status == status)
                 return Result.Success();
 
-            await SetStatus(booking, status);
+            booking.Status = status;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Detach(booking);
 
             var message = new BookingStatusChangeInfo
             {
@@ -74,7 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             // TODO: remove when we have appropriate admin panel booking monitoring
             if (status == BookingStatuses.Pending || status == BookingStatuses.WaitingForResponse)
             {
-                var (isSuccess, _, bookingInfo, _) = await GetBookingInfo(booking.ReferenceCode);
+                var (isSuccess, _, bookingInfo, _) =
+                    await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, LocalizationHelper.DefaultLanguageCode);
                 if (isSuccess)
                     await _bookingNotificationService.NotifyAdminsStatusChanged(bookingInfo);
             }
@@ -85,19 +89,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 BookingStatuses.Confirmed => await ProcessConfirmation(booking, date),
                 BookingStatuses.Cancelled => await ProcessCancellation(booking, date, apiCaller),
-                BookingStatuses.Rejected => await ProcessRejected(booking, apiCaller),
-                BookingStatuses.Invalid => await ProcessDiscarding(booking, apiCaller),
                 BookingStatuses.Discarded => await ProcessDiscarding(booking, apiCaller),
+                BookingStatuses.Rejected => await ProcessDiscarding(booking, apiCaller),
+                BookingStatuses.Invalid => await ProcessDiscarding(booking, apiCaller),
                 BookingStatuses.ManualCorrectionNeeded => await ProcessManualCorrectionNeeding(booking, apiCaller),
                 BookingStatuses.PendingCancellation => Result.Success(),
                 BookingStatuses.WaitingForResponse => Result.Success(),
                 BookingStatuses.Pending => Result.Success(),
                 _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Invalid status value")
             };
-
-
-            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode = LocalizationHelper.DefaultLanguageCode)
-                => _infoService.GetAccommodationBookingInfo(referenceCode, languageCode);
         }
 
 
@@ -145,22 +145,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task<Result> ProcessConfirmation(Booking booking, DateTimeOffset confirmationDate)
+        private Task<Result> ProcessConfirmation(Booking booking, DateTimeOffset confirmationDate)
         {
-            return await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
+            return _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
-                .Tap(LogAnalytics)
+                .Tap(LogAnalyticsConfirmed)
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
 
 
-            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode)
-                => _infoService.GetAccommodationBookingInfo(referenceCode, languageCode);
-
-
-            Task SetConfirmationDate(AccommodationBookingInfo _)
-                => this.SetConfirmationDate(booking, confirmationDate);
+            async Task SetConfirmationDate()
+            {
+                booking.ConfirmationDate = confirmationDate;
+                _context.Bookings.Update(booking);
+                await _context.SaveChangesAsync();
+                _context.Detach(booking);
+            }
 
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo)
@@ -171,117 +172,81 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 // Booking was updated so we need to get it again
                 var updatedBooking = await _context.Bookings.FindAsync(bookingInfo.BookingId);
-                return await _documentsMailingService.SendInvoice(updatedBooking, bookingInfo.AgentInformation.AgentEmail, true, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+                return await _documentsMailingService.SendInvoice(updatedBooking!, bookingInfo.AgentInformation.AgentEmail, true,
+                    new SlimAgentContext(booking.AgentId, booking.AgencyId));
             }
 
 
-            async Task LogAnalytics(AccommodationBookingInfo bookingInfo)
+            async Task LogAnalyticsConfirmed()
             {
                 var agency = await _context.Agencies
                     .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
+
                 _bookingAnalyticsService.LogBookingConfirmed(booking, agency.Name);
             }
 
 
-            void WriteFailureLog(string error)
-                => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
+            void WriteFailureLog(string error) => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
         }
 
 
         private Task<Result> ProcessCancellation(Booking booking, DateTimeOffset cancellationDate, ApiCaller user)
         {
-            return GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
-                .Tap(SetCancellationDate)
-                .Bind(SendNotifications)
+            return Result.Success(booking)
                 .Tap(CancelSupplierOrder)
-                .Tap(LogAnalytics)
-                .Bind(() => ReturnMoney(booking, cancellationDate, user));
+                .Tap(SetCancellationDate)
+                .Tap(SendCancellationNotifications)
+                .Tap(LogAnalyticsCancelled)
+                .Bind(ReturnMoney);
+
+            Task CancelSupplierOrder() => _supplierOrderService.Cancel(booking.ReferenceCode);
 
 
-            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode)
-                => _infoService.GetAccommodationBookingInfo(referenceCode, languageCode);
+            async Task SetCancellationDate()
+            {
+                booking.Cancelled = cancellationDate;
+                _context.Bookings.Update(booking);
+                await _context.SaveChangesAsync();
+                _context.Detach(booking);
+            }
 
 
-            Task SetCancellationDate(AccommodationBookingInfo _)
-                => this.SetCancellationDate(booking, cancellationDate);
-
-
-            Task CancelSupplierOrder()
-                => _supplierOrderService.Cancel(booking.ReferenceCode);
-
-
-            async Task LogAnalytics()
+            async Task LogAnalyticsCancelled()
             {
                 var agency = await _context.Agencies
                     .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
 
                 _bookingAnalyticsService.LogBookingCancelled(booking, agency.Name);
             }
-
-
-            async Task<Result> SendNotifications(AccommodationBookingInfo _)
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
-                        booking.AgentId, booking.ReferenceCode);
-
-                    return Result.Success();
-                }
-
-                var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _bookingNotificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
-
-                return Result.Success();
-            }
+            
+            Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
 
 
         private Task<Result> ProcessDiscarding(Booking booking, ApiCaller user)
         {
-            return DiscardSupplierOrder()
-                .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
+            return Result.Success(booking)
+                .Tap(DiscardSupplierOrder)
+                .Tap(SendCancellationNotifications)
+                .Bind(ReturnMoney);
 
+            Task DiscardSupplierOrder() => _supplierOrderService.Discard(booking.ReferenceCode);
 
-            async Task<Result> DiscardSupplierOrder()
-            {
-                await _supplierOrderService.Discard(booking.ReferenceCode);
-                return Result.Success();
-            }
+            Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
 
 
-        private Task<Result> ProcessRejected(Booking booking, ApiCaller user)
+        private async Task SendCancellationNotifications(Booking booking)
         {
-            return SendNotifications()
-                .Tap(DiscardSupplierOrder)
-                .Bind(() => ReturnMoney(booking, _dateTimeProvider.UtcNow(), user));
-
-
-            async Task<Result> DiscardSupplierOrder()
+            var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+            if (agent == default)
             {
-                await _supplierOrderService.Discard(booking.ReferenceCode);
-                return Result.Success();
+                _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
+                    booking.AgentId, booking.ReferenceCode);
             }
 
-
-            async Task<Result> SendNotifications()
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
-                        booking.AgentId, booking.ReferenceCode);
-
-                    return Result.Success();
-                }
-
-                var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _bookingNotificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
-
-                return Result.Success();
-            }
+            var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
+            await _bookingNotificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
         }
 
 
@@ -289,10 +254,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             var additionalInfo = await
                 (from bookings in _context.Bookings
-                 join agencies in _context.Agencies on bookings.AgencyId equals agencies.Id
-                 join agents in _context.Agents on bookings.AgentId equals agents.Id
-                 where bookings.Id == booking.Id
-                 select new { AgentName = $"{agents.FirstName} {agents.LastName}", AgencyName = agencies.Name })
+                    join agencies in _context.Agencies on bookings.AgencyId equals agencies.Id
+                    join agents in _context.Agents on bookings.AgentId equals agents.Id
+                    where bookings.Id == booking.Id
+                    select new {AgentName = $"{agents.FirstName} {agents.LastName}", AgencyName = agencies.Name})
                 .SingleOrDefaultAsync();
 
             if (additionalInfo is null)
@@ -304,37 +269,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 additionalInfo.AgencyName,
                 DateTimeFormatters.ToDateString(booking.DeadlineDate ?? booking.CheckOutDate));
             return Result.Success();
-        }
-
-
-        private Task<Result> ReturnMoney(Booking booking, DateTimeOffset operationDate, ApiCaller user)
-            => _moneyReturnService.ReturnMoney(booking, operationDate, user);
-
-
-        private async Task SetConfirmationDate(Booking booking, DateTimeOffset date)
-        {
-            booking.ConfirmationDate = date;
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Detach(booking);
-        }
-
-
-        private async Task SetStatus(Booking booking, BookingStatuses status)
-        {
-            booking.Status = status;
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Detach(booking);
-        }
-
-
-        private async Task SetCancellationDate(Booking booking, DateTimeOffset date)
-        {
-            booking.Cancelled = date;
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Detach(booking);
         }
 
 
