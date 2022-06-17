@@ -1487,7 +1487,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.SetBookingStatusesCompleted">
             <summary>
-                Set booking statuses to complete
+                Set booking statuses to Completed
             </summary>
             <returns>Updated booking Ids</returns>
         </member>
