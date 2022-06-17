@@ -1485,6 +1485,12 @@
                 Refresh booking statuses
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.SetBookingStatusesCompleted">
+            <summary>
+                Set booking statuses to complete
+            </summary>
+            <returns>Updated booking Ids</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Get payment ids for refund

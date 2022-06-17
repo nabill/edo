@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
 
         [Fact]
-        public void Penalty_amount_should_be_ceiled()
+        public void Penalty_amount_should_be_truncated()
         {
             _booking.Rooms = new List<BookedRoom>
             {
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
             var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(50.54m, cancellationPenalty.Amount);
+            Assert.Equal(50.53m, cancellationPenalty.Amount);
         }
 
 
