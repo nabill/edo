@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.Net;
 using HappyTravel.ConsulKeyValueClient.ConfigurationProvider.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.StdOutLogger.Extensions;
+using HappyTravel.StdOutLogger.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -38,7 +41,7 @@ namespace HappyTravel.Edo.Api
                             {
                                 if (Activity.Current is null)
                                     return sentryEvent;
-
+                                
                                 foreach (var (key, value) in Activity.Current.Baggage)
                                     sentryEvent.SetTag(key, value ?? string.Empty);
 
@@ -55,26 +58,33 @@ namespace HappyTravel.Edo.Api
                     var environment = hostingContext.HostingEnvironment;
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                         .AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-
-                    var consulHttpAddr = Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ??
-                        throw new InvalidOperationException("Consul endpoint is not set");
-                    var consulHttpToken = Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ??
-                        throw new InvalidOperationException("Consul http token is not set");
+                    
+                    var consulHttpAddr = Environment.GetEnvironmentVariable("CONSUL_HTTP_ADDR") ?? throw new InvalidOperationException("Consul endpoint is not set");
+                    var consulHttpToken = Environment.GetEnvironmentVariable("CONSUL_HTTP_TOKEN") ?? throw new InvalidOperationException("Consul http token is not set");
 
                     config.AddConsulKeyValueClient(consulHttpAddr, "edo", consulHttpToken, environment.EnvironmentName, optional: environment.IsLocal());
-
+                    
                     config.AddEnvironmentVariables();
                 })
-                .ConfigureLogging((_, logging) =>
+                .ConfigureLogging((hostingContext, logging) =>
                 {
-                    logging.Configure(options =>
+                    logging.ClearProviders()
+                        .AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+
+                    var env = hostingContext.HostingEnvironment;
+
+                    if (env.IsLocal())
+                        logging.AddConsole();
+                    else
                     {
-                        options.ActivityTrackingOptions = ActivityTrackingOptions.SpanId
-                            | ActivityTrackingOptions.TraceId
-                            | ActivityTrackingOptions.ParentId
-                            | ActivityTrackingOptions.Baggage
-                            | ActivityTrackingOptions.Tags;
-                    });
+                        logging.AddStdOutLogger(setup =>
+                        {
+                            setup.IncludeScopes = true;
+                            setup.RequestIdHeader = Constants.DefaultRequestIdHeader;
+                            setup.UseUtcTimestamp = true;
+                        });
+                        logging.AddSentry();
+                    }
                 });
     }
 }

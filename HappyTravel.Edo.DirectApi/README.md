@@ -1371,31 +1371,15 @@ The section contains the recommended base cases for testing integration with the
 
 Please fill out the blanks in the table for each test case and include the items for _10._ and _11._ below.
 
-1. Country search (more than 1000 hotels)
 
-    Endpoints: _Wide Availability: Start search_ and _Wide availability: Get results_
-
-    | Field name | Example |
-    |------------|--------------|
-    | Country ID | Country_3862 |
-    | Stay dates | May 5-7, 2022 |
-    | Nationality and residency | AE |
-    | Contract conditions | 1 room, 2 adults |
-    | Search ID | ab72b222-cc9e-4411-8211-a4135d941f81 |
-    | Expected result | Works correctly and returns a large number of accommodations |
-    | Actual result | |
-    | Comments | |
-
-    For the API, the date should be in the order `YYYY-MM-DD`. Example: May 7, 2022 is `2022-05-07`.
-
-2. Booking before a deadline with 2 adults
+1. Booking before a deadline with 2 adults
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
-    | Stay dates | 2022-05-05 to 2022-05-07 |
+    | Stay dates | for 2 days 3 months in the future |
     | Nationality and residency | DE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | |
@@ -1404,14 +1388,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-3. Booking with a non-refundable rate for 1 adult
+2. Booking with a non-refundable rate for 1 adult
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
-    | Stay dates | 2022-06-20 to 2022-06-27 |
+    | Stay dates | for 7 days 3 months in the future |
     | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
@@ -1420,14 +1404,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-4. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
+3. Booking for 7 nights with a complex deadline (i.e. with two or more cancellation policies)
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
-    | Stay dates | 2022-04-15 to 2022-04-19 |
+    | Stay dates | for 4 days 3 months in the future |
     | Nationality and residency | AE |
     | Contract conditions | 1 room, 2 adults, and 1 child |
     | Search ID | |
@@ -1436,14 +1420,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-5. Booking two rooms
+4. Booking two rooms
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004144) |
-    | Stay dates | 2022-04-20 to 2022-04-21 |
+    | Stay dates | for 1 day 3 months in the future |
     | Nationality and residency | GB (UK) |
     | Contract conditions | Room 1: 2 adults, Room 2: 1 adult and 2 children |
     | Search ID | |
@@ -1453,14 +1437,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Actual result | |
     | Comments | |
 
-6. Unconfirmed booking with a `Pending` status
+5. Unconfirmed booking with a `Pending` status
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
-    | Hotel name | Happytravel Test Hotel 3 (Accommodation_12004146) |
-    | Stay dates | 2022-04-19 to 2022-04-21 |
+    | Hotel name | Happytravel Test Hotel 1 (Accommodation_12004146) |
+    | Stay dates | for 2 days 3 months in the future |
     | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
@@ -1469,14 +1453,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-7. Empty search result
+6. Empty search result
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 5 (Accommodation_12004142) |
-    | Stay dates | 2022-06-05 to 2022-06-07 |
+    | Stay dates | for 2 days 3 months in the future |
     | Nationality and residency | DE |
     | Contract conditions | 1 room, 2 adults |
     | Search ID | |
@@ -1486,14 +1470,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Actual result | |
     | Comments | |
 
-8. Cancellation of a booking before the deadline without a penalty
+7. Cancellation of a booking before the deadline without a penalty
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 7 (Accommodation_12004140) |
-    | Stay dates | 2022-05-13 to 2022-05-17 |
+    | Stay dates | for 4 days 3 months in the future |
     | Nationality and residency | DE |
     | Contract conditions | 1 room, 3 adults |
     | Search ID | |
@@ -1502,14 +1486,14 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-9. Cancellation of a booking after the deadline with a penalty
+8. Cancellation of a booking after the deadline with a penalty
 
     Endpoints: Start from _Wide Availability: Start search_
 
     | Field name | Example |
     |------------|--------------|
     | Hotel name | Happytravel Test Hotel 6 (Accommodation_12004141) |
-    | Stay dates | 2022-06-20 to 2022-06-27 |
+    | Stay dates | for 7 days 3 months in the future |
     | Nationality and residency | GB (UK) |
     | Contract conditions | 1 room, 1 adult |
     | Search ID | |
@@ -1518,6 +1502,6 @@ Please fill out the blanks in the table for each test case and include the items
     | Result | |
     | Comments | |
 
-10. Attach the vouchers for any successful bookings.
+9. Attach the vouchers for any successful bookings.
 
-11. Describe the behavior of your system when a search request to `api/1.0/availabilities/searches` returns `isComplete: false`.
+10. Describe the behavior of your system when a search request to `api/1.0/availabilities/searches` returns `isComplete: false`.
