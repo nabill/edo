@@ -89,7 +89,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             {
                 BookingStatuses.Confirmed => await ProcessConfirmation(booking, date),
                 BookingStatuses.Cancelled => await ProcessCancellation(booking, date, apiCaller),
-                BookingStatuses.Rejected or BookingStatuses.Invalid or BookingStatuses.Discarded => await ProcessDiscarding(booking, apiCaller),
+                BookingStatuses.Discarded => await ProcessDiscarding(booking, apiCaller),
+                BookingStatuses.Rejected => await ProcessDiscarding(booking, apiCaller),
+                BookingStatuses.Invalid => await ProcessDiscarding(booking, apiCaller),
                 BookingStatuses.ManualCorrectionNeeded => await ProcessManualCorrectionNeeding(booking, apiCaller),
                 BookingStatuses.PendingCancellation => Result.Success(),
                 BookingStatuses.WaitingForResponse => Result.Success(),
