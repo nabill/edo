@@ -61,7 +61,7 @@
     <PackageReference Include="Sentry.AspNetCore" Version="3.16.0" />
     <PackageReference Include="shortid" Version="4.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.6" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
     <PackageReference Include="Tsutsujigasaki.GrpcContracts" Version="0.3.0" />
   </ItemGroup>
