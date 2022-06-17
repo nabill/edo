@@ -22,9 +22,9 @@ public class GetMaterializedSuppliersTests
     {
         var defaultSuppliers = new List<SlimSupplier>()
         {
-            new() { Code = "netstorming", EnablementState = EnablementState.Disabled },
-            new() { Code = "illusions", EnablementState = EnablementState.Disabled },
-            new() { Code = "etg", EnablementState = EnablementState.Disabled }
+            new() { Code = "netstorming", EnableState = EnableState.Disabled },
+            new() { Code = "illusions", EnableState = EnableState.Disabled },
+            new() { Code = "etg", EnableState = EnableState.Disabled }
         };
 
         var agencySystemSettings = new List<AgencySystemSettings>
@@ -63,9 +63,9 @@ public class GetMaterializedSuppliersTests
     {
         var defaultSuppliers = new List<SlimSupplier>()
         {
-            new() { Code = "netstorming", EnablementState = EnablementState.TestOnly },
-            new() { Code = "illusions", EnablementState = EnablementState.TestOnly },
-            new() { Code = "etg", EnablementState = EnablementState.TestOnly }
+            new() { Code = "netstorming", EnableState = EnableState.TestOnly },
+            new() { Code = "illusions", EnableState = EnableState.TestOnly },
+            new() { Code = "etg", EnableState = EnableState.TestOnly }
         };
 
         var agencySystemSettings = new List<AgencySystemSettings>
@@ -104,9 +104,9 @@ public class GetMaterializedSuppliersTests
     {
         var defaultSuppliers = new List<SlimSupplier>()
         {
-            new() { Code = "netstorming", EnablementState = EnablementState.Enabled },
-            new() { Code = "illusions", EnablementState = EnablementState.Enabled },
-            new() { Code = "etg", EnablementState = EnablementState.Enabled }
+            new() { Code = "netstorming", EnableState = EnableState.Enabled },
+            new() { Code = "illusions", EnableState = EnableState.Enabled },
+            new() { Code = "etg", EnableState = EnableState.Enabled }
         };
 
         var agencySystemSettings = new List<AgencySystemSettings>
@@ -146,9 +146,9 @@ public class GetMaterializedSuppliersTests
     {
         var defaultSuppliers = new List<SlimSupplier>()
         {
-            new() { Code = "netstorming", EnablementState = EnablementState.Enabled },
-            new() { Code = "illusions", EnablementState = EnablementState.Enabled },
-            new() { Code = "etg", EnablementState = EnablementState.Enabled }
+            new() { Code = "netstorming", EnableState = EnableState.Enabled },
+            new() { Code = "illusions", EnableState = EnableState.Enabled },
+            new() { Code = "etg", EnableState = EnableState.Enabled }
         };
 
         var agencySystemSettings = new List<AgencySystemSettings>
