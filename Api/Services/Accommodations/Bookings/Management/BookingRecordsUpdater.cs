@@ -145,9 +145,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private async Task<Result> ProcessConfirmation(Booking booking, DateTimeOffset confirmationDate)
+        private Task<Result> ProcessConfirmation(Booking booking, DateTimeOffset confirmationDate)
         {
-            return await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode)
+            return _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
                 .Tap(LogAnalyticsConfirmed)
@@ -192,13 +192,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private Task<Result> ProcessCancellation(Booking booking, DateTimeOffset cancellationDate, ApiCaller user)
         {
-            return _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode)
-                .Bind(_ => Result.Success(booking))
-                .Bind(SendCancellationNotifications)
-                .Tap(SetCancellationDate)
+            return Result.Success(booking)
                 .Tap(CancelSupplierOrder)
+                .Tap(SetCancellationDate)
+                .Tap(SendCancellationNotifications)
                 .Tap(LogAnalyticsCancelled)
-                .Bind(b => _moneyReturnService.ReturnMoney(b, cancellationDate, user));
+                .Bind(ReturnMoney);
+
+            Task CancelSupplierOrder() => _supplierOrderService.Cancel(booking.ReferenceCode);
 
 
             async Task SetCancellationDate()
@@ -210,9 +211,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            Task CancelSupplierOrder() => _supplierOrderService.Cancel(booking.ReferenceCode);
-
-
             async Task LogAnalyticsCancelled()
             {
                 var agency = await _context.Agencies
@@ -220,39 +218,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
                 _bookingAnalyticsService.LogBookingCancelled(booking, agency.Name);
             }
+            
+            Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
 
 
         private Task<Result> ProcessDiscarding(Booking booking, ApiCaller user)
         {
-            return DiscardSupplierOrder()
-                .Bind(SendCancellationNotifications)
-                .Bind(b => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user));
+            return Result.Success(booking)
+                .Tap(DiscardSupplierOrder)
+                .Tap(SendCancellationNotifications)
+                .Bind(ReturnMoney);
 
+            Task DiscardSupplierOrder() => _supplierOrderService.Discard(booking.ReferenceCode);
 
-            async Task<Result<Booking>> DiscardSupplierOrder()
-            {
-                await _supplierOrderService.Discard(booking.ReferenceCode);
-                return Result.Success(booking);
-            }
+            Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
 
 
-        private async Task<Result<Booking>> SendCancellationNotifications(Booking booking)
+        private async Task SendCancellationNotifications(Booking booking)
         {
             var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
             if (agent == default)
             {
                 _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
                     booking.AgentId, booking.ReferenceCode);
-
-                return Result.Success(booking);
             }
 
             var (_, _, bookingInfo, _) = await _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
             await _bookingNotificationService.NotifyBookingCancelled(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
-
-            return Result.Success(booking);
         }
 
 
