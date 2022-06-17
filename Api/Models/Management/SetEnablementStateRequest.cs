@@ -3,16 +3,16 @@ using HappyTravel.SupplierOptionsClient.Models;
 
 namespace HappyTravel.Edo.Api.Models.Management;
 
-public readonly struct SetEnablementStateRequest
+public readonly struct SetEnableStateRequest
 {
-    public SetEnablementStateRequest(EnablementState state, string reason)
+    public SetEnableStateRequest(EnableState state, string reason)
     {
         State = state;
         Reason = reason;
     }
 
     [Required]
-    public EnablementState State { get; }
+    public EnableState State { get; }
     
     [Required]
     public string Reason { get; }

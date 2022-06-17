@@ -154,7 +154,7 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
 
 
     public Dictionary<string, bool> SunpuMaterialization(Dictionary<string, bool> suppliers,
-        Dictionary<string, EnablementState> enabledSuppliers, bool withTestOnly)
+        Dictionary<string, EnableState> enabledSuppliers, bool withTestOnly)
     {
         var materializedSettings = new Dictionary<string, bool>();
 
@@ -163,9 +163,9 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
             var settingExist = suppliers.TryGetValue(supplier, out var agencyOption);
             var materializedOption = supplierOption switch
             {
-                EnablementState.TestOnly => withTestOnly && agencyOption,
-                EnablementState.Enabled => agencyOption || !settingExist,
-                EnablementState.Disabled => false,
+                EnableState.TestOnly => withTestOnly && agencyOption,
+                EnableState.Enabled => agencyOption || !settingExist,
+                EnableState.Disabled => false,
                 _ => throw new ArgumentOutOfRangeException($"Incorrect supplierOption {supplierOption}")
             };
 
@@ -176,13 +176,13 @@ public class AgencySupplierManagementService : IAgencySupplierManagementService
     }
 
 
-    private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
+    private Result<Dictionary<string, EnableState>> GetEnabledSuppliers()
     {
         var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
         return isFailure
-            ? Result.Failure<Dictionary<string, EnablementState>>(error)
-            : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
-                .ToDictionary(s => s.Code, s => s.EnablementState);
+            ? Result.Failure<Dictionary<string, EnableState>>(error)
+            : suppliers.Where(s => s.EnableState is EnableState.Enabled or EnableState.TestOnly)
+                .ToDictionary(s => s.Code, s => s.EnableState);
     }
 
 

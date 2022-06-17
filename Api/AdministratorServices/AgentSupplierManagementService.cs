@@ -105,13 +105,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
+        private Result<Dictionary<string, EnableState>> GetEnabledSuppliers()
         {
             var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
             return isFailure
-                ? Result.Failure<Dictionary<string, EnablementState>>(error)
-                : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
-                    .ToDictionary(s => s.Code, s => s.EnablementState);
+                ? Result.Failure<Dictionary<string, EnableState>>(error)
+                : suppliers.Where(s => s.EnableState is EnableState.Enabled or EnableState.TestOnly)
+                    .ToDictionary(s => s.Code, s => s.EnableState);
         }
 
 
