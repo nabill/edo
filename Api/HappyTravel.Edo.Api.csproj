@@ -36,7 +36,7 @@
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="2.2.0" />
     <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.2.0" />
-    <PackageReference Include="HappyTravel.Telemetry" Version="0.16.3" />
+    <PackageReference Include="HappyTravel.Telemetry" Version="0.16.5" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="11.0.3" />
     <PackageReference Include="FluentValidator.Core" Version="1.0.1" />
