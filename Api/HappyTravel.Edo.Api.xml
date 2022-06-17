@@ -74,6 +74,11 @@
                 Returns cancelled bookings report 
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgenciesReport">
+            <summary>
+            Returns agencies report 
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
             <summary>
                 Gets all possible administrator roles
@@ -1492,6 +1497,12 @@
             <summary>
                 Refresh booking statuses
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.SetBookingStatusesCompleted">
+            <summary>
+                Set booking statuses to complete
+            </summary>
+            <returns>Updated booking Ids</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTimeOffset})">
             <summary>

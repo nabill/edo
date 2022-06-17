@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.AdministratorServices
+namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class AgentSupplierManagementService : IAgentSupplierManagementService
     {
