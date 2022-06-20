@@ -33,6 +33,7 @@ public class AgenciesReportRecordManager
                 select new AgenciesReportData
                 {
                     AgencyAccount = account,
+                    Created = agency.Created,
                     AgencyId = agency.Id,
                     RootAgencyId = agency.Ancestors.Count > 0 ? agency.Ancestors.First() : null,
                     AgencyName = agency.Name,
@@ -45,11 +46,11 @@ public class AgenciesReportRecordManager
                     IsContractLoaded = agency.IsContractUploaded
                 }).ToListAsync();
 
-        return await FillData(data);
+        return FillData(data);
     }
 
 
-    private async Task<IEnumerable<AgenciesReportRow>> FillData(IEnumerable<AgenciesReportData> rows)
+    private IEnumerable<AgenciesReportRow> FillData(IEnumerable<AgenciesReportData> rows)
     {
         var report = new List<AgenciesReportRow>();
 
@@ -63,6 +64,7 @@ public class AgenciesReportRecordManager
             {
                 AgencyId = row.AgencyId,
                 AgencyName = row.AgencyName,
+                Created = row.Created.DateTime,
                 Suppliers = StringifySuppliers(materializedSuppliers),
                 RootAgencyId = row.RootAgencyId?.ToString() ?? "None",
                 Balance = row.AgencyAccount?.Balance ?? 0,
