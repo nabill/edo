@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using Api.Models.Locations;
+using ApiMarket = HappyTravel.Edo.Api.Models.Locations.Market;
 using FluentValidation;
 using System;
 using System.Linq;
@@ -43,8 +44,17 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<List<Market>> Get(CancellationToken cancellationToken = default)
-            => _marketStorage.Get(cancellationToken);
+        public async Task<List<ApiMarket>> Get(CancellationToken cancellationToken = default)
+        {
+            var markets = await _marketStorage.Get(cancellationToken);
+            return markets
+                .Select(ToApiProjection())
+                .ToList();
+
+
+            Func<Market, ApiMarket> ToApiProjection()
+                => market => new ApiMarket(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
+        }
 
 
         public Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
