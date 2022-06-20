@@ -17,6 +17,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
+        public async Task Update(Booking booking)
+        {
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+        }
+
+
         public virtual Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);

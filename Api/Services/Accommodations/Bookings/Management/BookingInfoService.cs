@@ -16,7 +16,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
@@ -376,6 +375,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }
         }
+
+
+        public Task UpdateBookingInfo(Booking booking)
+            => _bookingRecordManager.Update(booking);
 
 
         private static readonly HashSet<BookingStatuses> BookingStatusesToHide = new()
