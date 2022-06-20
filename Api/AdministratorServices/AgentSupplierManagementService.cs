@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.AdministratorServices
+namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class AgentSupplierManagementService : IAgentSupplierManagementService
     {
@@ -105,13 +105,13 @@ namespace Api.AdministratorServices
         }
 
 
-        private Result<Dictionary<string, EnablementState>> GetEnabledSuppliers()
+        private Result<Dictionary<string, EnableState>> GetEnabledSuppliers()
         {
             var (_, isFailure, suppliers, error) = _supplierOptionsStorage.GetAll();
             return isFailure
-                ? Result.Failure<Dictionary<string, EnablementState>>(error)
-                : suppliers.Where(s => s.EnablementState is EnablementState.Enabled or EnablementState.TestOnly)
-                    .ToDictionary(s => s.Code, s => s.EnablementState);
+                ? Result.Failure<Dictionary<string, EnableState>>(error)
+                : suppliers.Where(s => s.EnableState is EnableState.Enabled or EnableState.TestOnly)
+                    .ToDictionary(s => s.Code, s => s.EnableState);
         }
 
 
