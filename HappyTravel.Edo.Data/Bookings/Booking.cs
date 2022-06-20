@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public decimal NetPrice { get; set; }
         public decimal Commission { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal CreditCardPrice { get; set; }
         public Currencies Currency { get; set; }
         public string? SupplierReferenceCode { get; set; }
         public string ReferenceCode { get; set; } = string.Empty;

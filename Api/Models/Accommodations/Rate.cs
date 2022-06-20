@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
             PriceTypes type = PriceTypes.Room, string? description = null,
             decimal commission = 0m, MoneyAmount netPrice = default,
-            MoneyAmount? creditCardPrice = null)
+            MoneyAmount creditCardPrice = default)
         {
             Description = description ?? string.Empty;
             Gross = gross;
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The price with applied credit card commission.
         /// </summary>
-        public MoneyAmount? CreditCardPrice { get; }
+        public MoneyAmount CreditCardPrice { get; }
 
         /// <summary>
         ///     The price type.

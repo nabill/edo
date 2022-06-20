@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class FulfillCreditCardPriceFieldInBookings : Migration
+    public partial class FullfillCreditCardPriceInBookings : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,6 +14,8 @@ namespace HappyTravel.Edo.Data.Migrations
             var bookings = context.Bookings.ToList();
             bookings.ForEach(b =>
                 {
+                    b.CreditCardPrice = b.TotalPrice;
+
                     b.Rooms.ForEach(r =>
                     {
                         r.CreditCardPrice = r.Price;

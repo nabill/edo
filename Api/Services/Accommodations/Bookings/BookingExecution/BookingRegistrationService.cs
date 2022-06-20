@@ -211,8 +211,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 booking.NetPrice = rate.NetPrice.Amount;
                 booking.Commission = rate.Commission;
                 booking.TotalPrice = (paymentMethod == PaymentTypes.CreditCard) ?
-                    rate.CreditCardPrice!.Value.Amount :
+                    rate.CreditCardPrice.Amount :
                     rate.FinalPrice.Amount;
+                booking.CreditCardPrice = rate.CreditCardPrice.Amount;
                 booking.Currency = rate.Currency;
             }
 

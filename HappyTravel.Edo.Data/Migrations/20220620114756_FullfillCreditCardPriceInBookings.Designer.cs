@@ -17,14 +17,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20220617074229_FulfillCreditCardPriceFieldInBookings")]
-    partial class FulfillCreditCardPriceFieldInBookings
+    [Migration("20220620114756_FullfillCreditCardPriceInBookings")]
+    partial class FullfillCreditCardPriceInBookings
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("ProductVersion", "6.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
@@ -450,6 +450,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("CreditCardPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
