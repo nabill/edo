@@ -4,7 +4,8 @@ using Api.AdministratorServices.Locations;
 using Api.Models.Locations;
 using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Data.Locations;
+using ApiModels = HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace Api.Controllers.AdministratorControllers
         /// </summary>
         /// <returns>List of markup markets</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<ApiModels.Market>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarkets()
             => Ok(await _marketManagementService.Get());
