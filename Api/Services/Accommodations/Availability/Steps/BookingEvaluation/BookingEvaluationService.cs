@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, string htId, Guid roomContractSetId, string languageCode)
         {
-            Tags.AddSearchId(searchId);
+            Baggages.AddSearchId(searchId);
             var agent = await _agentContext.GetAgent();
             var settings = await _accommodationBookingSettingsService.Get();
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);

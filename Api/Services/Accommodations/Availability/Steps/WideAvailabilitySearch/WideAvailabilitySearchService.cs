@@ -29,7 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAvailabilitySearchAreaService searchAreaService, IDateTimeProvider dateTimeProvider, IAvailabilityRequestStorage requestStorage,
             ILogger<WideAvailabilitySearchService> logger, IWideAvailabilitySearchStateStorage stateStorage, 
             ISupplierOptionsStorage supplierOptionsStorage, IOptionsMonitor<SearchLimits> searchLimits, IWideAvailabilityPriceProcessor priceProcessor, 
-            IWideAvailabilityAccommodationsStorage accommodationsStorage, IAgentContextService agentContextService)
+            IWideAvailabilityAccommodationsStorage accommodationsStorage, IAgentContextService agentContextService, 
+            IOptionsMonitor<SearchOptions> searchOptions)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
@@ -45,6 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _priceProcessor = priceProcessor;
             _accommodationsStorage = accommodationsStorage;
             _agentContextService = agentContextService;
+            _searchOptions = searchOptions;
         }
         
    
@@ -58,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             var searchId = await GetSearchId(request);
             
-            Tags.AddSearchId(searchId);
+            Baggages.AddSearchId(searchId);
             _logger.LogMultiSupplierAvailabilitySearchStarted(request.CheckInDate.ToShortDateString(), request.CheckOutDate.ToShortDateString(),
                 request.HtIds.ToArray(), request.Nationality, request.RoomDetails.Count);
 
@@ -95,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AvailabilitySearchFilter options, string languageCode)
         {
-            Tags.AddSearchId(searchId);
+            Baggages.AddSearchId(searchId);
             var agent = await _agentContextService.GetAgent();
             var searchSettings = await _accommodationBookingSettingsService.Get();
             var suppliers = options.Suppliers is not null && options.Suppliers.Any()
@@ -193,6 +195,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private async Task<Guid> GetSearchId(AvailabilityRequest request)
         {
+            if (!_searchOptions.CurrentValue.IsCachedSearchEnabled)
+                return Guid.NewGuid();
+                
             var searchId = await _availabilityStorage.GetSearchId(HashGenerator.ComputeHash(request));
             return searchId == Guid.Empty
                 ? Guid.NewGuid()
@@ -214,5 +219,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly IWideAvailabilityAccommodationsStorage _accommodationsStorage;
         private readonly IAgentContextService _agentContextService;
+        private readonly IOptionsMonitor<SearchOptions> _searchOptions;
     }
 }
