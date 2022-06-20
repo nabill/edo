@@ -17,11 +17,13 @@ namespace HappyTravel.Edo.Api.Services.Reports
 {
     public class ReportService : IReportService, IDisposable
     {
-        public ReportService(EdoContext context, IServiceProvider serviceProvider, IDateTimeProvider dateTimeProvider)
+        public ReportService(EdoContext context, IServiceProvider serviceProvider, IDateTimeProvider dateTimeProvider, 
+            AgenciesReportRecordManager agenciesReportRecordManager)
         {
             _context = context;
             _serviceProvider = serviceProvider;
             _dateTimeProvider = dateTimeProvider;
+            _agenciesReportRecordManager = agenciesReportRecordManager;
         }
 
 
@@ -255,8 +257,12 @@ namespace HappyTravel.Edo.Api.Services.Reports
             Task<IEnumerable<CancelledBookingsReportData>> GetRecords() 
                 => GetRecords<CancelledBookingsReportData>(from, end);
         }
-       
         
+        
+        public async Task<Result<Stream>> GetAgenciesReport() 
+            => await Generate(await _agenciesReportRecordManager.Get());
+
+
         private Result Validate(DateTime fromDate, DateTime toDate)
         {
             if (fromDate == default || toDate == default)
@@ -332,6 +338,8 @@ namespace HappyTravel.Edo.Api.Services.Reports
         private readonly EdoContext _context;
         private readonly IServiceProvider _serviceProvider;
         private readonly IDateTimeProvider _dateTimeProvider;
+
+        private readonly AgenciesReportRecordManager _agenciesReportRecordManager;
 
 
         public void Dispose()

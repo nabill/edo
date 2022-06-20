@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         public async Task<Result<Booking>> Execute(Data.Bookings.Booking booking, string languageCode)
         {
-            Tags.AddBookingReferenceCode(booking.ReferenceCode);
+            Baggages.AddBookingReferenceCode(booking.ReferenceCode);
 
             var agent = await _agentContext.GetAgent();
             var requestInfoResult = await _requestStorage.Get(booking.ReferenceCode);

@@ -77,6 +77,9 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPaymentLinkReport(System.DateTime,System.DateTime)">
             <summary>
                 Returns payment link report 
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgenciesReport">
+            <summary>
+            Returns agencies report 
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
@@ -819,12 +822,12 @@
             <param name="code">Supplier code</param>
             <param name="supplier">Supplier data</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.SetEnablementState(System.String,HappyTravel.Edo.Api.Models.Management.SetEnablementStateRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.SetEnableState(System.String,HappyTravel.Edo.Api.Models.Management.SetEnableStateRequest)">
             <summary>
-            Sets enablement state of a supplier
+            Sets enable state of a supplier
             </summary>
             <param name="code">Supplier code</param>
-            <param name="request">Reason for setting enablement state</param>
+            <param name="request">Reason for setting enable state</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.SuppliersController.GetPriorities">
@@ -1500,7 +1503,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.SetBookingStatusesCompleted">
             <summary>
-                Set booking statuses to complete
+                Set booking statuses to Completed
             </summary>
             <returns>Updated booking Ids</returns>
         </member>

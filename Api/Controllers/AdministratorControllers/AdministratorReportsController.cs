@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Reports;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -279,6 +280,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             };
         }
 
+        
+        /// <summary>
+        /// Returns agencies report 
+        /// </summary>
+        [HttpGet("agencies-report")]
+        [ProducesResponseType(typeof(FileStream), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.MarketingReportGeneration)]
+        public async Task<IActionResult> GetAgenciesReport()
+        {
+            var (_, isFailure, stream, error) = await _reportService.GetAgenciesReport();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return new FileStreamResult(stream, new MediaTypeHeaderValue("text/csv"))
+            {
+                FileDownloadName = $"agencies-report.csv"
+            };
+        }
+        
 
         /// <summary>
         ///     Returns payment link report 
