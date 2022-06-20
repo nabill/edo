@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Logging
 {
-    public static class Tags
+    public static class Baggages
     {
         public static void AddBookingReferenceCode(string referenceCode)
         {
-            Activity.Current?.AddTag("ReferenceCode", referenceCode);
+            Activity.Current?.AddBaggage("ReferenceCode", referenceCode);
         }
         
         public static void AddSearchId(Guid searchId)
         {
-            Activity.Current?.AddTag("SearchId", searchId.ToString());
+            Activity.Current?.AddBaggage("SearchId", searchId.ToString());
         }
     }
 }
