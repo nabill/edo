@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var marketsResponse = await _marketManagementService.Get(It.IsAny<CancellationToken>());
 
             Assert.Equal(marketsResponse.Count, markets.Count);
-            Assert.All(marketsResponse, m => Assert.NotNull(m.Names.En));
+            Assert.All(marketsResponse, m => Assert.NotNull(m.Name));
         }
 
 
