@@ -74,12 +74,14 @@
                 Returns cancelled bookings report 
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPaymentLinkReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns payment link report 
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgenciesReport">
             <summary>
             Returns agencies report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPaymentLinkReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns payment link report 
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
