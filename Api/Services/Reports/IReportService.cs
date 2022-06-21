@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Reports
         public Task<Result<Stream>> GetVccBookingReport(DateTime fromDate, DateTime endDate);
         public Task<Result<Stream>> GetCancelledBookingsReport(DateTime from, DateTime end);
         public Task<Result<Stream>> GetAgentWiseReport(DateTime fromDate, DateTime endDate);
+        public Task<Result<Stream>> GetPaymentLinkReport(DateTime from, DateTime end);
         public Task<Result<Stream>> GetHotelProductivityReport(DateTime @from, DateTime end);
         public Task<Result<Stream>> GetAgenciesReport();
     }

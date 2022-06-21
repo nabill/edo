@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Company;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -36,7 +37,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             _linkStorage = new PaymentLinksStorage(edoContextMock.Object,
                 dateTimeProvider,
                 emptyOptions,
-                Mock.Of<ITagProcessor>());
+                Mock.Of<ITagProcessor>(),
+                Mock.Of<IAgentContextService>());
         }
 
 

@@ -19,5 +19,6 @@ namespace HappyTravel.Edo.Data.PaymentLinks
         public string? ExternalId { get; set; }
         public PaymentProcessors? PaymentProcessor { get; set; }
         public string? InvoiceNumber { get; set; }
+        public int? AgentId { get; set; }
     }
 }

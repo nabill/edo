@@ -1,3 +1,4 @@
+using System;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
@@ -10,6 +11,7 @@ public readonly struct AgenciesReportData
     public int AgencyId { get; init; }
     public int? RootAgencyId { get; init; }
     public AgencyAccount? AgencyAccount { get; init; }
+    public DateTimeOffset Created { get; init; }
     public string City { get; init; }
     public string CountryCode { get; init; }
     public ContractKind? ContractKind { get; init; }

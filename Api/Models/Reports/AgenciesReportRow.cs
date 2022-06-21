@@ -1,6 +1,4 @@
-using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Edo.Data.Markup;
-using HappyTravel.Edo.Data.Payments;
+using System;
 
 namespace HappyTravel.Edo.Api.Models.Reports;
 
@@ -9,6 +7,7 @@ public readonly struct AgenciesReportRow
     public string AgencyName { get; init; }
     public int AgencyId { get; init; }
     public string RootAgencyId { get; init; }
+    public DateTime Created { get; init; }
     public decimal Balance { get; init; }
     public string City { get; init; }
     public string CountryCode { get; init; }
