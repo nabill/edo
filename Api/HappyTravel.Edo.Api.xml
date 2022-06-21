@@ -74,12 +74,14 @@
                 Returns cancelled bookings report 
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPaymentLinkReport(System.DateTime,System.DateTime)">
-            <summary>
-                Returns payment link report 
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetAgenciesReport">
             <summary>
             Returns agencies report 
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorReportsController.GetPaymentLinkReport(System.DateTime,System.DateTime)">
+            <summary>
+                Returns payment link report 
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AdministratorRolesController.GetAll">
@@ -1730,6 +1732,11 @@
             <summary>
                 Prevents authorization policies execution for not authenticated clients
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Infrastructure.ServicesConfigurationCollection.AddODataMediaTypes(Microsoft.AspNetCore.Mvc.MvcOptions)">
+            <remarks>
+            This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
+            </remarks>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>
