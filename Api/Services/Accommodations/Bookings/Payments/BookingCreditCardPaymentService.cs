@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             return await GetBooking(referenceCode)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
-                .Tap(RecalculatePrice)
+                // .Tap(RecalculatePrice)
                 .Tap(SendReceipt);
 
 
