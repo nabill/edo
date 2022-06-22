@@ -15,7 +15,7 @@ public class ForwardingTraceIdentifierMiddleware
     
     public Task InvokeAsync(HttpContext context)
     {
-        context.Response.Headers.Add(RequestIdHeader, Activity.Current?.TraceId.ToString());
+        context.Response.Headers.Add(TraceIdHeader, Activity.Current?.TraceId.ToString());
         return _next(context);
     }
 
