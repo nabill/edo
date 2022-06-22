@@ -24,7 +24,6 @@ using Moq;
 using Xunit;
 using HappyTravel.MapperContracts.Public.Accommodations.Enums;
 using System;
-using Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
@@ -60,12 +59,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
             var agentContextServiceMock = new Mock<IAgentContextService>();
             agentContextServiceMock.Setup(x => x.GetAgent())
                 .ReturnsAsync(MakeAgentContext(1));
-            
+
             var adminContext = new Mock<IAdministratorContext>();
             adminContext
                 .Setup(x => x.HasPermission(It.IsAny<AdministratorPermissions>()))
                 .ReturnsAsync(true);
-            
+
             var bookingInfoService = new BookingInfoService(_edoContextMock.Object, bookingRecordManagerMock.Object,
                 accommodationMapperClientMock.Object, Mock.Of<IAccommodationBookingSettingsService>(),
                 Mock.Of<ISupplierOptionsStorage>(), dateTimeProviderMock.Object, Mock.Of<IAgentContextService>(), adminContext.Object);
@@ -74,17 +73,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
                 It.IsAny<ISupplierBookingManagementService>(), bookingRecordManagerMock.Object,
                 It.IsAny<IBookingStatusRefreshService>(), bookingInfoService, contractKindCommissionOptions,
                 agentContextServiceMock.Object);
-        }
-
-
-        [Fact]
-        public async Task Room_selection_step_align_prices_should_apply_credit_card_commission_and_return_success()
-        {
-            var request = new BookingRecalculatePriceRequest(PaymentTypes.CreditCard);
-
-            var (_, IsFailure, booking, error) = await _agentBookingManagementService.RecalculatePrice("any", request, "en");
-
-            Assert.False(IsFailure);
         }
 
 
@@ -105,7 +93,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTest
         static BookedRoom MakeBookedRoom(MoneyAmount netPrice) =>
             new(default, default, default, default, default, default, default, default,
                 new Deadline(CancellationDate, new List<CancellationPolicy>(), new List<string>(), true),
-                default, default, default, default, netPrice);
+                default, default, default, default, netPrice, default);
 
 
         private void SetupInitialData()

@@ -11,7 +11,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount>? discounts = null,
-            PriceTypes type = PriceTypes.Room, string? description = null, decimal commission = 0m, MoneyAmount netPrice = default)
+            PriceTypes type = PriceTypes.Room, string? description = null,
+            decimal commission = 0m, MoneyAmount netPrice = default,
+            MoneyAmount creditCardPrice = default)
         {
             Description = description ?? string.Empty;
             Gross = gross;
@@ -21,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Currency = finalPrice.Currency;
             Commission = commission;
             NetPrice = (netPrice != default && commission != 0m) ? netPrice : finalPrice;
+            CreditCardPrice = creditCardPrice;
         }
 
         /// <summary>
@@ -57,6 +60,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.
         /// </summary>
         public MoneyAmount FinalPrice { get; }
+
+        /// <summary>
+        ///     The price with applied credit card commission.
+        /// </summary>
+        public MoneyAmount CreditCardPrice { get; }
 
         /// <summary>
         ///     The price type.

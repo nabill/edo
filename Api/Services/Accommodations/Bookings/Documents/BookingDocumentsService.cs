@@ -232,7 +232,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
         private static readonly HashSet<BookingStatuses> AvailableForVoucherBookingStatuses = new()
         {
-            BookingStatuses.Confirmed
+            BookingStatuses.Confirmed,
+            BookingStatuses.Completed
         };
 
         private static readonly HashSet<BookingPaymentStatuses> AvailableForVoucherPaymentStatuses = new()

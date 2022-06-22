@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             static BookedRoom MakeBookedRoom(string supplierRoomReferenceCode) =>
                 new(default, default, default, default, default, default, default, default,
-                    default, default, default, supplierRoomReferenceCode, default, default);
+                    default, default, default, supplierRoomReferenceCode, default, default, default);
 
             static SlimRoomOccupation MakeSlimRoomOccupation(string supplierRoomReferenceCode)
                 => new(RoomTypes.Single, new List<Pax>(), supplierRoomReferenceCode);

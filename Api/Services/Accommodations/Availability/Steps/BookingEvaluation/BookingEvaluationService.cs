@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAdminAgencyManagementService adminAgencyManagementService,
             ILogger<BookingEvaluationService> logger,
             IAvailabilityRequestStorage availabilityRequestStorage,
-            ISupplierOptionsStorage supplierOptionsStorage, 
+            ISupplierOptionsStorage supplierOptionsStorage,
             IEvaluationTokenStorage tokenStorage,
             IAgentContextService agentContext)
         {
@@ -238,7 +238,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             Result<Unit, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability availabilityValue)
             {
-                return RoomContractSetSettingsChecker.IsEvaluationAllowed(availabilityValue.RoomContractSet, availabilityValue.CheckInDate, settings, _dateTimeProvider) && availabilityValue.AvailablePaymentMethods.Any()
+                return RoomContractSetSettingsChecker.IsEvaluationAllowed(availabilityValue.RoomContractSet, availabilityValue.CheckInDate, settings, _dateTimeProvider)
                     ? Unit.Instance
                     : ProblemDetailsBuilder.Fail<Unit>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
             }
