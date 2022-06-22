@@ -437,7 +437,7 @@
             <param name="agencyId">Agency Id</param>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
             <summary>
                 Gets a list of all bookings made by the agent
             </summary>
@@ -1732,11 +1732,6 @@
             <summary>
                 Prevents authorization policies execution for not authenticated clients
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Infrastructure.ServicesConfigurationCollection.AddODataMediaTypes(Microsoft.AspNetCore.Mvc.MvcOptions)">
-            <remarks>
-            This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
-            </remarks>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>

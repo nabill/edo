@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.EntityFrameworkCore;
+using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -56,8 +58,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgencyBookings()
-            => _bookingService.GetAllBookings();
+        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings()
+        {
+            var count = await _bookingService.GetAllBookings().CountAsync();
+            HttpContext.Response.Headers.Add(CountHeader, count.ToString());
+            
+            return _bookingService.GetAllBookings();
+        }
 
 
         /// <summary>
@@ -70,8 +77,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgencyBookings([FromRoute] int agencyId)
-            => _bookingService.GetAgencyBookings(agencyId);
+        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings([FromRoute] int agencyId)
+        {
+            var count = await _bookingService.GetAgencyBookings(agencyId).CountAsync();
+            HttpContext.Response.Headers.Add(CountHeader, count.ToString());
+            
+            return _bookingService.GetAgencyBookings(agencyId);
+        }
 
 
         /// <summary>
@@ -84,8 +96,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<BookingSlim> GetAgentBookings([FromRoute] int agentId)
-            => _bookingService.GetAgentBookings(agentId);
+        public async Task<IEnumerable<BookingSlim>> GetAgentBookings([FromRoute] int agentId)
+        {
+            var count = await _bookingService.GetAgentBookings(agentId).CountAsync();
+            HttpContext.Response.Headers.Add(CountHeader, count.ToString());
+            
+            return _bookingService.GetAgentBookings(agentId);
+        }
 
 
         /// <summary>

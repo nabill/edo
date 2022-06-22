@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.EntityFrameworkCore;
+using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -309,8 +311,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public IEnumerable<AdminViewAgencyInfo> GetRootAgencies()
-            => _agencyManagementService.GetRootAgencies(LanguageCode);
+        public async Task<IEnumerable<AdminViewAgencyInfo>> GetRootAgencies()
+        {
+            var count = await _agencyManagementService.GetRootAgencies(LanguageCode).CountAsync();
+            HttpContext.Response.Headers.Add(CountHeader, count.ToString());
+            
+            return _agencyManagementService.GetRootAgencies(LanguageCode);
+        }
 
 
         [HttpDelete("{agencyId}")]
