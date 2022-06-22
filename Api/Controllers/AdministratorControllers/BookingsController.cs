@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -58,9 +59,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings()
+        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings(ODataQueryOptions<BookingSlim> opts)
         {
-            var count = await _bookingService.GetAllBookings().CountAsync();
+            var query = opts.ApplyTo(_bookingService.GetAllBookings(), AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
+            var count = await query.Cast<BookingSlim>().CountAsync();
             HttpContext.Response.Headers.Add(CountHeader, count.ToString());
             
             return _bookingService.GetAllBookings();
@@ -77,9 +79,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings([FromRoute] int agencyId)
+        public async Task<IEnumerable<BookingSlim>> GetAgencyBookings([FromRoute] int agencyId, ODataQueryOptions<BookingSlim> opts)
         {
-            var count = await _bookingService.GetAgencyBookings(agencyId).CountAsync();
+            var query = opts.ApplyTo(_bookingService.GetAgencyBookings(agencyId), AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
+            var count = await query.Cast<BookingSlim>().CountAsync();
             HttpContext.Response.Headers.Add(CountHeader, count.ToString());
             
             return _bookingService.GetAgencyBookings(agencyId);
@@ -96,9 +99,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.ViewBookings)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public async Task<IEnumerable<BookingSlim>> GetAgentBookings([FromRoute] int agentId)
+        public async Task<IEnumerable<BookingSlim>> GetAgentBookings([FromRoute] int agentId, ODataQueryOptions<BookingSlim> opts)
         {
-            var count = await _bookingService.GetAgentBookings(agentId).CountAsync();
+            var query = opts.ApplyTo(_bookingService.GetAgentBookings(agentId), AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
+            var count = await query.Cast<BookingSlim>().CountAsync();
             HttpContext.Response.Headers.Add(CountHeader, count.ToString());
             
             return _bookingService.GetAgentBookings(agentId);

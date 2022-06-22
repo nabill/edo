@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -311,9 +312,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<AdminViewAgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.ViewAgencies)]
         [EnableQuery(PageSize = 500, MaxTop = 500)]
-        public async Task<IEnumerable<AdminViewAgencyInfo>> GetRootAgencies()
+        public async Task<IEnumerable<AdminViewAgencyInfo>> GetRootAgencies(ODataQueryOptions<AdminViewAgencyInfo> opts)
         {
-            var count = await _agencyManagementService.GetRootAgencies(LanguageCode).CountAsync();
+            var query = opts.ApplyTo(_agencyManagementService.GetRootAgencies(LanguageCode), AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
+            var count = await query.Cast<AdminViewAgencyInfo>().CountAsync();
             HttpContext.Response.Headers.Add(CountHeader, count.ToString());
             
             return _agencyManagementService.GetRootAgencies(LanguageCode);

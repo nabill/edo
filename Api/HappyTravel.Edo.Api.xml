@@ -424,7 +424,7 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
             <summary>
                 Gets all bookings
             </summary>
