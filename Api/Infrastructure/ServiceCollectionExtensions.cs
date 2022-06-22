@@ -371,10 +371,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.CreditCardPaymentsCommission = configuration.GetValue<decimal>("ContractKindCommission:CreditCardPayments");
             });
 
-            
-
-            services.Configure<BankDetails>(configuration.GetSection("BankDetails"));
-
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
             var contractsS3FolderName = configuration["AmazonS3:ContractsS3FolderName"];
             var imagesS3FolderName = configuration["AmazonS3:ImagesS3FolderName"];
@@ -724,7 +720,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.WeasyprintEndpoint = configuration.GetValue<string>("Weasyprint:Endpoint");
             });
-            
+
             var suppliersEndpoint = configuration.GetValue<string>("Suppliers:Endpoint");
             services.AddSupplierOptionsProvider(options =>
             {
