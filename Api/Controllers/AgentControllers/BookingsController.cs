@@ -19,7 +19,6 @@ using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using BookingStatusHistoryEntry = HappyTravel.Edo.Data.Bookings.BookingStatusHistoryEntry;
-using Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -115,7 +114,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode) 
+        public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
             => OkOrBadRequest(await _bankCreditCardBookingFlow.Finalize(referenceCode, LanguageCode));
 
 
@@ -129,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId) 
+        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
             => OkOrBadRequest(await _bookingManagementService.RefreshStatus(bookingId));
 
 
@@ -143,7 +142,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> CancelBooking(int bookingId) 
+        public async Task<IActionResult> CancelBooking(int bookingId)
             => NoContentOrBadRequest(await _bookingManagementService.Cancel(bookingId));
 
 
@@ -157,7 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode) 
+        public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode)
             => NoContentOrBadRequest(await _bookingManagementService.Cancel(referenceCode));
 
 
@@ -284,21 +283,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingConfirmationCodeHistory([FromRoute] string referenceCode)
             => OkOrBadRequest(await _bookingInfoService.GetBookingConfirmationHistory(referenceCode));
-
-
-        /// <summary>
-        ///     Recalculate booking's price after changing payment type
-        /// </summary>
-        /// <param name="referenceCode"></param>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost("{referenceCode}/price/recalculate")]
-        [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RecalculatePrice([FromRoute] string referenceCode, [FromBody] BookingRecalculatePriceRequest request) 
-            => OkOrBadRequest(await _bookingManagementService.RecalculatePrice(referenceCode, request, LanguageCode));
 
 
         private readonly IFinancialAccountBookingFlow _financialAccountBookingFlow;

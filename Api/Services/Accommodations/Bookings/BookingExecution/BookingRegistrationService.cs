@@ -210,7 +210,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 var rate = availabilityInfo.RoomContractSet.Rate;
                 booking.NetPrice = rate.NetPrice.Amount;
                 booking.Commission = rate.Commission;
-                booking.TotalPrice = rate.FinalPrice.Amount;
+                booking.TotalPrice = (paymentMethod == PaymentTypes.CreditCard) ?
+                    rate.CreditCardPrice.Amount :
+                    rate.NetPrice.Amount;
+                booking.CreditCardPrice = rate.CreditCardPrice.Amount;
                 booking.Currency = rate.Currency;
             }
 
@@ -237,7 +240,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                             r.IsAdvancePurchaseRate,
                             string.Empty,
                             r.Rate.Commission,
-                            r.Rate.NetPrice))
+                            r.Rate.NetPrice,
+                            r.Rate.CreditCardPrice))
                     .ToList();
 
 
