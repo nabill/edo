@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace HappyTravel.Edo.Api.Models.Company
 {
     public class CompanyInfo
@@ -11,5 +13,6 @@ namespace HappyTravel.Edo.Api.Models.Company
         public string PostalCode { get; set; }
         public string Trn { get; set; }
         public string TradeLicense { get; set; }
+        public List<string> AvailableCurrencies { get; set; }
     }
 }
