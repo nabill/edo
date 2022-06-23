@@ -31,6 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns></returns>
         [HttpGet("company")]
         [ProducesResponseType(typeof(CompanyInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> GetCompanyInfo()
             => OkOrBadRequest(await _companyInfoService.Get());
@@ -42,7 +43,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns></returns>
         [HttpPut("company")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> UpdateCompanyInfo(CompanyInfo companyInfo)
         {
