@@ -247,7 +247,7 @@
             <param name="agencyId">Id of the edited agency</param>
             <param name="request">New fields for the edited agency</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetRootAgencies(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo})">
             <summary>
             Gets a list of all root agencies
             </summary>
@@ -424,20 +424,20 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
             <summary>
                 Gets all bookings
             </summary>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
             <summary>
                 Gets a list of all bookings made by the agency
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
             <summary>
                 Gets a list of all bookings made by the agent
             </summary>
