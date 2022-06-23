@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Settings
 {
@@ -29,5 +30,10 @@ namespace HappyTravel.Edo.Api.Models.Settings
         /// Amount of days, on which deadline policies dated will be shifted towards past. Must not be a positive number
         /// </summary>
         public int? CustomDeadlineShift { get; init; }
+
+        /// <summary>
+        /// Existing available currencies for the specific agency
+        /// </summary>
+        public List<Currencies>? AvailableCurrencies { get; init; }
     }
 }

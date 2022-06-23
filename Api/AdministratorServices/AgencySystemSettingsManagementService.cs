@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -10,6 +13,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -17,10 +21,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AgencySystemSettingsManagementService : IAgencySystemSettingsManagementService
     {
         public AgencySystemSettingsManagementService(EdoContext context,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService, ICompanyInfoService companyInfoService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
+            _companyInfoService = companyInfoService;
         }
 
 
@@ -44,7 +49,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 PassedDeadlineOffersMode = GetPassedDeadlineOffersMode(),
                 IsSupplierVisible = GetIsSupplierVisible(),
                 IsDirectContractFlagVisible = GetIsDirectContractFlagVisible(),
-                CustomDeadlineShift = GetCustomDeadlineShift()
+                CustomDeadlineShift = GetCustomDeadlineShift(),
+                AvailableCurrencies = GetAvailableCurrencies()
             };
 
 
@@ -72,9 +78,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
                     CustomDeadlineShift = 0
                 };
-            
-            
-            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id) 
+
+
+            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
                 => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
 
 
@@ -88,8 +94,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return rootSettings.IsSupplierVisible && agencySettings.IsSupplierVisible;
             }
-            
-            
+
+
             bool GetIsDirectContractFlagVisible()
             {
                 if (rootSettings is null)
@@ -101,7 +107,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return rootSettings.IsDirectContractFlagVisible && agencySettings.IsDirectContractFlagVisible;
             }
 
-            
+
             PassedDeadlineOffersMode GetPassedDeadlineOffersMode()
             {
                 if (rootSettings?.PassedDeadlineOffersMode is null)
@@ -115,12 +121,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return agencySettings.PassedDeadlineOffersMode.Value;
             }
-            
 
-            int GetCustomDeadlineShift() 
+
+            int GetCustomDeadlineShift()
                 => (agencySettings != null && agencySettings.CustomDeadlineShift != null)
                     ? agencySettings.CustomDeadlineShift.Value
                     : 0;
+
+
+            List<Currencies> GetAvailableCurrencies()
+                => agencySettings?.AvailableCurrencies != null
+                    ? agencySettings.AvailableCurrencies
+                    : new List<Currencies>();
         }
 
 
@@ -135,6 +147,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
 
+                var availableCurrencies = new List<Currencies>();
+                var (_, IsFailure, companyInfo) = await _companyInfoService.Get();
+                if (!IsFailure)
+                    availableCurrencies = companyInfo.AvailableCurrencies;
+
                 if (agency == default)
                     return Result.Failure("Agency doesn't exist");
 
@@ -143,9 +160,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
-                
+
                 if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
                     return Result.Failure("Changing settings for agency without full access is not allowed");
+
+                if (settings.AvailableCurrencies?.Except(availableCurrencies).Count() > 0)
+                    return Result.Failure($"Request's availablity currencies contain unallowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}");
 
                 return Result.Success();
             }
@@ -221,11 +241,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
 
 
-        private Task<bool> DoesAgencyExistIncludingInactive(int agencyId) 
+        private Task<bool> DoesAgencyExistIncludingInactive(int agencyId)
             => _context.Agencies.AnyAsync(a => a.Id == agencyId);
 
 
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly ICompanyInfoService _companyInfoService;
     }
 }

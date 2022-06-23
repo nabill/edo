@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -14,5 +15,7 @@ namespace HappyTravel.Edo.Data.Agents
         public bool IsDirectContractFlagVisible { get; set; }
 
         public int? CustomDeadlineShift { get; set; }
+
+        public List<Currencies>? AvailableCurrencies { get; set; }
     }
 }
