@@ -26,7 +26,7 @@ namespace Api.AdministratorServices
 
         public async Task Update(CompanyInfo companyInfo, CancellationToken cancellationToken)
         {
-            var jsonDocInfo = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)companyInfo, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            using var jsonDocInfo = JsonDocument.Parse(JsonSerializer.Serialize(companyInfo));
 
             var staticData = await _context.StaticData
                     .SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo, cancellationToken);
