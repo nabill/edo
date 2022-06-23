@@ -12,6 +12,8 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Edo.Api.Infrastructure.ModelExtensions;
 using HappyTravel.Edo.Api.Services.Company;
 using System.Threading;
+using HappyTravel.Edo.Api.Infrastructure;
+using FluentValidation;
 
 namespace Api.AdministratorServices
 {
@@ -24,31 +26,59 @@ namespace Api.AdministratorServices
         }
 
 
-        public async Task Update(CompanyInfo companyInfo, CancellationToken cancellationToken)
+        public async Task<Result> Update(CompanyInfo companyInfo, CancellationToken cancellationToken)
         {
-            using var jsonDocInfo = JsonDocument.Parse(JsonSerializer.Serialize(companyInfo));
+            return await Validate(companyInfo)
+                .Tap(UpdateInfo)
+                .Tap(SaveCache);
 
-            var staticData = await _context.StaticData
-                    .SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo, cancellationToken);
-            if (staticData == default)
+
+            Result Validate(CompanyInfo companyInfo)
             {
-                staticData = new StaticData
+                return GenericValidator<CompanyInfo>.Validate(v =>
                 {
-                    Type = StaticDataTypes.CompanyInfo,
-                    Data = jsonDocInfo
-                };
-
-                _context.Add(staticData);
+                    v.RuleFor(i => i.Address).NotEmpty();
+                    v.RuleFor(i => i.Email).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.Email));
+                    v.RuleFor(i => i.Phone).NotEmpty();
+                    v.RuleFor(i => i.Name).NotEmpty();
+                    v.RuleFor(i => i.Country).NotEmpty();
+                    v.RuleFor(i => i.City).NotEmpty();
+                    v.RuleFor(i => i.PostalCode).NotEmpty();
+                    v.RuleFor(i => i.Trn).NotEmpty();
+                    v.RuleFor(i => i.TradeLicense).NotEmpty();
+                    v.RuleFor(i => i.AvailableCurrencies).NotEmpty();
+                }, companyInfo);
             }
-            else
+
+
+            async Task UpdateInfo()
             {
-                staticData.Data = jsonDocInfo;
-                _context.Update(staticData);
+                using var jsonDocInfo = JsonDocument.Parse(JsonSerializer.Serialize(companyInfo));
+
+                var staticData = await _context.StaticData
+                        .SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo, cancellationToken);
+                if (staticData == default)
+                {
+                    staticData = new StaticData
+                    {
+                        Type = StaticDataTypes.CompanyInfo,
+                        Data = jsonDocInfo
+                    };
+
+                    _context.Add(staticData);
+                }
+                else
+                {
+                    staticData.Data = jsonDocInfo;
+                    _context.Update(staticData);
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
-            await _context.SaveChangesAsync(cancellationToken);
 
-            await _flow.SetAsync(_flow.BuildKey(nameof(CompanyService), nameof(CompanyService.GetCompanyInfo)), companyInfo, CompanyInfoCacheLifeTime, cancellationToken);
+            async Task SaveCache()
+                => await _flow.SetAsync(_flow.BuildKey(nameof(CompanyService), nameof(CompanyService.GetCompanyInfo)), companyInfo, CompanyInfoCacheLifeTime, cancellationToken);
         }
 
 
