@@ -129,7 +129,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             return new BookingDocumentsService(
                 edoContext.Object,
-                Mock.Of<IOptions<BankDetails>>(),
                 accommodationMapperClient.Object,
                 Mock.Of<IInvoiceService>(),
                 Mock.Of<IReceiptService>(),

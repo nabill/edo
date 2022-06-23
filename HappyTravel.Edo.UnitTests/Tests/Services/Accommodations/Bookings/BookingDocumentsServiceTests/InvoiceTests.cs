@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 AgentId = 1,
                 Status = BookingStatuses.Pending
             };
-            
+
             var bookingDocumentsService = CreateBookingDocumentsService(false);
 
             var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(booking);
@@ -72,7 +72,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             return new BookingDocumentsService(
                 edoContext.Object,
-                Mock.Of<IOptions<BankDetails>>(),
                 Mock.Of<IAccommodationMapperClient>(),
                 invoiceServiceMock.Object,
                 Mock.Of<IReceiptService>(),

@@ -529,6 +529,18 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyInfo">
+            <summary>
+            Gets the company information.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.UpdateCompanyInfo(HappyTravel.Edo.Api.Models.Company.CompanyInfo)">
+            <summary>
+            Updates the company information.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyBanks">
             <summary>
                 Gets company banks list

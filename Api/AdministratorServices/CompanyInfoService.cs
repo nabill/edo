@@ -10,21 +10,51 @@ using HappyTravel.Edo.Data.StaticData;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Money.Enums;
 using HappyTravel.Edo.Api.Infrastructure.ModelExtensions;
+using HappyTravel.Edo.Api.Services.Company;
+using System.Threading;
 
-namespace HappyTravel.Edo.Api.Services.Company
+namespace Api.AdministratorServices
 {
-    public class CompanyService : ICompanyService
+    public class CompanyInfoService : ICompanyInfoService
     {
-        public CompanyService(EdoContext context, IDoubleFlow flow)
+        public CompanyInfoService(EdoContext context, IDoubleFlow flow)
         {
             _context = context;
             _flow = flow;
         }
 
 
-        public async Task<Result<CompanyInfo>> GetCompanyInfo()
+        public async Task Update(CompanyInfo companyInfo, CancellationToken cancellationToken)
         {
-            var key = _flow.BuildKey(nameof(CompanyService), nameof(GetCompanyInfo));
+            var jsonDocInfo = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)companyInfo, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+            var staticData = await _context.StaticData
+                    .SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo, cancellationToken);
+            if (staticData == default)
+            {
+                staticData = new StaticData
+                {
+                    Type = StaticDataTypes.CompanyInfo,
+                    Data = jsonDocInfo
+                };
+
+                _context.Add(staticData);
+            }
+            else
+            {
+                staticData.Data = jsonDocInfo;
+                _context.Update(staticData);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            await _flow.SetAsync(_flow.BuildKey(nameof(CompanyService), nameof(CompanyService.GetCompanyInfo)), companyInfo, CompanyInfoCacheLifeTime, cancellationToken);
+        }
+
+
+        public async Task<Result<CompanyInfo>> Get(CancellationToken cancellationToken)
+        {
+            var key = _flow.BuildKey(nameof(CompanyService), nameof(CompanyService.GetCompanyInfo));
             var info = await _flow.GetOrSetAsync(key, async () =>
             {
                 var companyInfo = await _context.StaticData
@@ -34,13 +64,13 @@ namespace HappyTravel.Edo.Api.Services.Company
                     return default;
 
                 return JsonSerializer.Deserialize<CompanyInfo>(companyInfo.Data.RootElement.ToString());
-            }, CompanyInfoCacheLifeTime);
+            }, CompanyInfoCacheLifeTime, cancellationToken);
 
             return info ?? Result.Failure<CompanyInfo>("Could not find company information");
         }
 
 
-        public async Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency)
+        public async Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency, CancellationToken cancellationToken)
         {
             var key = _flow.BuildKey(nameof(CompanyService), nameof(GetDefaultBankAccount), currency.ToString());
             var account = await _flow.GetOrSetAsync(key, async () =>
@@ -49,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Company
                     .SingleOrDefaultAsync(ca => ca.Currency == currency && ca.IsDefault);
 
                 return account?.ToCompanyAccountInfo();
-            }, CompanyInfoCacheLifeTime);
+            }, CompanyInfoCacheLifeTime, cancellationToken);
 
             return account ?? Result.Failure<CompanyAccountInfo>($"Could not find a default bank account for {currency} currency");
         }
