@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Company
 {
@@ -13,6 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Company
         public string PostalCode { get; set; }
         public string Trn { get; set; }
         public string TradeLicense { get; set; }
-        public List<string> AvailableCurrencies { get; set; }
+        public List<Currencies> AvailableCurrencies { get; set; }
     }
 }

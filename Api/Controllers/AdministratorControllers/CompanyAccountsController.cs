@@ -42,6 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns></returns>
         [HttpPut("company")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> UpdateCompanyInfo(CompanyInfo companyInfo)
         {
