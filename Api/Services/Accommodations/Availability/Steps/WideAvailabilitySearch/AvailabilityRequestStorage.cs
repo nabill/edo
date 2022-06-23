@@ -3,15 +3,18 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Availabilities;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
     public class AvailabilityRequestStorage : IAvailabilityRequestStorage
     {
-        public AvailabilityRequestStorage(IDoubleFlow flow)
+        public AvailabilityRequestStorage(IDoubleFlow flow, IOptionsMonitor<AvailabilityRequestStorageOptions> options)
         {
             _flow = flow;
+            _lifeTime = options.CurrentValue.StorageLifeTime;
         }
 
 
@@ -29,9 +32,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private string BuildKey(Guid searchId) 
             => _flow.BuildKey(nameof(AvailabilityRequestStorage), searchId.ToString());
-        
 
-        private readonly TimeSpan _lifeTime = TimeSpan.FromHours(1);
+
+        private readonly TimeSpan _lifeTime;
         private readonly IDoubleFlow _flow;
     }
 }
