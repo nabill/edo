@@ -77,7 +77,7 @@ public class SuppliersController : BaseController
     /// <param name="code">Supplier code</param>
     /// <param name="request">Reason for setting enable state</param>
     /// <returns></returns>
-    [HttpPut("{code}/set-enable-state")]
+    [HttpPut("{code}/enable-state")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [AdministratorPermissions(AdministratorPermissions.AdministratorManagement)]
