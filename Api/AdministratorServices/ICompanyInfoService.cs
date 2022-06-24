@@ -8,7 +8,7 @@ namespace Api.AdministratorServices
 {
     public interface ICompanyInfoService
     {
-        Task Update(CompanyInfo companyInfo, CancellationToken cancellationToken = default);
+        Task<Result> Update(CompanyInfo companyInfo, CancellationToken cancellationToken = default);
         Task<Result<CompanyInfo>> Get(CancellationToken cancellationToken = default);
         Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency, CancellationToken cancellationToken = default);
     }
