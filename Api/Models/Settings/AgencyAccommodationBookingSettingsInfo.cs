@@ -34,6 +34,6 @@ namespace HappyTravel.Edo.Api.Models.Settings
         /// <summary>
         /// Existing available currencies for the specific agency
         /// </summary>
-        public List<Currencies>? AvailableCurrencies { get; init; }
+        public List<Currencies> AvailableCurrencies { get; init; }
     }
 }

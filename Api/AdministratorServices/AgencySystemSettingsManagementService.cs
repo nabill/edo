@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
-                if (settings.AvailableCurrencies?.Except(availableCurrencies).Count() > 0)
+                if (settings.AvailableCurrencies.Except(availableCurrencies).Count() > 0)
                     return Result.Failure($"Request's availablity currencies contain unallowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}");
 
                 return Result.Success();

@@ -16,6 +16,6 @@ namespace HappyTravel.Edo.Data.Agents
 
         public int? CustomDeadlineShift { get; set; }
 
-        public List<Currencies>? AvailableCurrencies { get; set; }
+        public List<Currencies> AvailableCurrencies { get; set; }
     }
 }
