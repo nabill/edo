@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using HappyTravel.Edo.Data.StaticData;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
             systemSettings.ForEach(s =>
             {
-                s.AccommodationBookingSettings.AvailableCurrencies.Add(defaultCurrency);
+                s.AccommodationBookingSettings.AvailableCurrencies = new List<Currencies>() { defaultCurrency };
             });
 
             context.UpdateRange(systemSettings);
