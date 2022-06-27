@@ -14,18 +14,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public AvailabilityRequestStorage(IDoubleFlow flow, IOptionsMonitor<AvailabilityRequestStorageOptions> options)
         {
             _flow = flow;
-            _lifeTime = options.CurrentValue.StorageLifeTime;
+            _options = options;
         }
 
 
         public Task Set(Guid searchId, AvailabilityRequest request) 
-            => _flow.SetAsync(BuildKey(searchId), request, _lifeTime);
+            => _flow.SetAsync(BuildKey(searchId), request, _options.CurrentValue.StorageLifeTime);
 
 
         public async Task<Result<AvailabilityRequest>> Get(Guid searchId)
         {
             var key = BuildKey(searchId);
-            var request = await _flow.GetAsync<AvailabilityRequest?>(key, _lifeTime);
+            var request = await _flow.GetAsync<AvailabilityRequest?>(key, _options.CurrentValue.StorageLifeTime);
             return request ?? Result.Failure<AvailabilityRequest>("Could not find search request in cache");
         }
 
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             => _flow.BuildKey(nameof(AvailabilityRequestStorage), searchId.ToString());
 
 
-        private readonly TimeSpan _lifeTime;
+        private readonly IOptionsMonitor<AvailabilityRequestStorageOptions> _options;
         private readonly IDoubleFlow _flow;
     }
 }
