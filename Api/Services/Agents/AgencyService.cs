@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.DataFormatters;
@@ -21,11 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public AgencyService(IDateTimeProvider dateTimeProvider,
             ILocalityInfoService localityInfoService,
+            ICompanyInfoService companyInfoService,
             EdoContext context)
         {
             _dateTimeProvider = dateTimeProvider;
             _context = context;
             _localityInfoService = localityInfoService;
+            _companyInfoService = companyInfoService;
         }
 
 
@@ -55,6 +58,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 ancestors.Add(parentAgencyId.Value);
             }
 
+            var defaultCurrency = Currencies.USD;
+            var (_, isInfoFailure, companyInfo) = await _companyInfoService.Get();
+            if (!isInfoFailure)
+                defaultCurrency = companyInfo.DefaultCurrency;
+
             var now = _dateTimeProvider.UtcNow();
             var agency = new Agency
             {
@@ -69,8 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 PostalCode = postalCode,
                 Website = website,
                 VatNumber = vatNumber,
-                // Hardcode because we only support USD
-                PreferredCurrency = Currencies.USD,
+                PreferredCurrency = defaultCurrency,
                 Ancestors = ancestors,
                 LegalAddress = legalAddress,
                 PreferredPaymentMethod = preferredPaymentMethod,
@@ -197,6 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly ILocalityInfoService _localityInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICompanyInfoService _companyInfoService;
         private readonly EdoContext _context;
     }
 }

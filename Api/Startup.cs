@@ -38,6 +38,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
+using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api
 {
@@ -242,7 +243,7 @@ namespace HappyTravel.Edo.Api
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .WithExposedHeaders("traceid"));
+                .WithExposedHeaders(TraceIdHeader, CountHeader));
 
             var headersOptions = new ForwardedHeadersOptions
             {

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Middlewares;
 
@@ -14,7 +15,7 @@ public class ForwardingTraceIdentifierMiddleware
     
     public Task InvokeAsync(HttpContext context)
     {
-        context.Response.Headers.Add("TraceId", Activity.Current?.TraceId.ToString());
+        context.Response.Headers.Add(TraceIdHeader, Activity.Current?.TraceId.ToString());
         return _next(context);
     }
 

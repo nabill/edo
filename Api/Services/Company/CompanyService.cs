@@ -9,7 +9,6 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Data.StaticData;
 using Microsoft.EntityFrameworkCore;
 using HappyTravel.Money.Enums;
-using HappyTravel.Edo.Data.Company;
 using HappyTravel.Edo.Api.Infrastructure.ModelExtensions;
 
 namespace HappyTravel.Edo.Api.Services.Company
@@ -30,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Company
             {
                 var companyInfo = await _context.StaticData
                     .SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo);
-                
+
                 if (companyInfo == default)
                     return default;
 
@@ -44,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Company
         public async Task<Result<CompanyAccountInfo>> GetDefaultBankAccount(Currencies currency)
         {
             var key = _flow.BuildKey(nameof(CompanyService), nameof(GetDefaultBankAccount), currency.ToString());
-            var account = await _flow.GetOrSetAsync(key, async () => 
+            var account = await _flow.GetOrSetAsync(key, async () =>
             {
                 var account = await _context.CompanyAccounts.Include(ca => ca.CompanyBank)
                     .SingleOrDefaultAsync(ca => ca.Currency == currency && ca.IsDefault);
@@ -56,8 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Company
         }
 
 
-        private static readonly TimeSpan CompanyInfoCacheLifeTime = TimeSpan.FromHours(1); 
-        
+        private static readonly TimeSpan CompanyInfoCacheLifeTime = TimeSpan.FromHours(1);
+
         private readonly EdoContext _context;
         private readonly IDoubleFlow _flow;
     }

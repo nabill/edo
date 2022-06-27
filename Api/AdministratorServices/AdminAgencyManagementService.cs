@@ -97,31 +97,27 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Bind(a => Get(a.Ancestors.Any() ? a.Ancestors.First() : a.Id, languageCode));
 
 
-        public IEnumerable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
+        public IQueryable<AdminViewAgencyInfo> GetRootAgencies(string languageCode = LocalizationHelper.DefaultLanguageCode)
             => (from agency in _context.Agencies
-               from markupFormula in _context.DisplayMarkupFormulas
-                   .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
-                   .DefaultIfEmpty()
-               join country in _context.Countries on agency.CountryCode equals country.Code
-               join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
-               from admin in admn.DefaultIfEmpty()
-               where agency.ParentId == null
-               select new AdminViewAgencyInfo
-               {
-                   Id = agency.Id,
-                   Name = agency.Name,
-                   City = agency.City,
-                   CountryName = country.Names.GetValueOrDefault(languageCode),
-                   Created = agency.Created.DateTime,
-                   VerificationState = agency.VerificationState,
-                   AccountManagerId = admin != null ?
-                       admin.Id :
-                       null,
-                   AccountManagerName = admin != null ?
-                       PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
-                       null,
-                   IsActive = agency.IsActive
-               }).ToList();
+                from markupFormula in _context.DisplayMarkupFormulas
+                    .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
+                    .DefaultIfEmpty()
+                join country in _context.Countries on agency.CountryCode equals country.Code
+                join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
+                from admin in admn.DefaultIfEmpty()
+                where agency.ParentId == null
+                select new AdminViewAgencyInfo
+                {
+                    Id = agency.Id,
+                    Name = agency.Name,
+                    City = agency.City,
+                    CountryName = country.Names.En,
+                    Created = agency.Created.DateTime,
+                    VerificationState = agency.VerificationState,
+                    AccountManagerId = admin != null ? admin.Id : null,
+                    AccountManagerName = admin != null ? PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) : null,
+                    IsActive = agency.IsActive
+                });
 
 
         public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
