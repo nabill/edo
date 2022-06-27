@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Company;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -17,10 +18,35 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class CompanyAccountsController : BaseController
     {
-        public CompanyAccountsController(ICompanyAccountService companyAccountService)
+        public CompanyAccountsController(ICompanyAccountService companyAccountService, ICompanyInfoService companyInfoService)
         {
             _companyAccountService = companyAccountService;
+            _companyInfoService = companyInfoService;
         }
+
+
+        /// <summary>
+        /// Gets the company information.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("company")]
+        [ProducesResponseType(typeof(CompanyInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> GetCompanyInfo()
+            => OkOrBadRequest(await _companyInfoService.Get());
+
+
+        /// <summary>
+        /// Updates the company information.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("company")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> UpdateCompanyInfo([FromBody] CompanyInfo companyInfo)
+            => NoContentOrBadRequest(await _companyInfoService.Update(companyInfo));
 
 
         /// <summary>
@@ -29,10 +55,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("company/banks")]
         [ProducesResponseType(typeof(List<FullAgencyAccountInfo>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> GetCompanyBanks() 
+        public async Task<IActionResult> GetCompanyBanks()
             => Ok(await _companyAccountService.GetAllBanks());
-        
-        
+
+
         /// <summary>
         ///     Adds a new company bank
         /// </summary>
@@ -41,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> AddBank([FromBody]CompanyBankInfo bankInfo)
+        public async Task<IActionResult> AddBank([FromBody] CompanyBankInfo bankInfo)
             => NoContentOrBadRequest(await _companyAccountService.AddBank(bankInfo));
 
 
@@ -68,7 +94,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> RemoveBank([FromRoute] int bankId)
             => NoContentOrBadRequest(await _companyAccountService.RemoveBank(bankId));
-        
+
+
         /// <summary>
         ///     Gets company accounts list for bank
         /// </summary>
@@ -77,9 +104,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CompanyAccountInfo>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> GetCompanyAccounts([FromRoute] int bankId) 
+        public async Task<IActionResult> GetCompanyAccounts([FromRoute] int bankId)
             => OkOrBadRequest(await _companyAccountService.GetAccounts(bankId));
-        
+
+
         /// <summary>
         ///     Adds a new company account for bank
         /// </summary>
@@ -89,9 +117,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
-        public async Task<IActionResult> AddAccount([FromBody]CompanyAccountInfo accountInfo, [FromRoute] int bankId)
+        public async Task<IActionResult> AddAccount([FromBody] CompanyAccountInfo accountInfo, [FromRoute] int bankId)
             => NoContentOrBadRequest(await _companyAccountService.AddAccount(bankId, accountInfo));
-        
+
+
         /// <summary>
         ///     Removes company bank account
         /// </summary>
@@ -103,7 +132,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> RemoveAccount([FromRoute] int bankId, [FromRoute] int accountId)
             => NoContentOrBadRequest(await _companyAccountService.RemoveAccount(bankId, accountId));
-        
+
+
         /// <summary>
         ///     Modifies an existing company bank account
         /// </summary>
@@ -119,7 +149,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> ModifyAccount([FromBody] CompanyAccountInfo accountInfo, [FromRoute] int bankId, [FromRoute] int accountId)
             => NoContentOrBadRequest(await _companyAccountService.ModifyAccount(bankId, accountId, accountInfo));
-        
+
+
         /// <summary>
         ///     Sets a company bank account as default
         /// </summary>
@@ -131,7 +162,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> SetAccountAsDefault([FromRoute] int bankId, [FromRoute] int accountId)
             => NoContentOrBadRequest(await _companyAccountService.SetAccountAsDefault(bankId, accountId));
-        
+
+
         private readonly ICompanyAccountService _companyAccountService;
+        private readonly ICompanyInfoService _companyInfoService;
     }
 }
