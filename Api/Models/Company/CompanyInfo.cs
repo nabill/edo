@@ -15,5 +15,6 @@ namespace HappyTravel.Edo.Api.Models.Company
         public string Trn { get; set; }
         public string TradeLicense { get; set; }
         public List<Currencies> AvailableCurrencies { get; set; }
+        public Currencies DefaultCurrency { get; set; }
     }
 }

@@ -3982,6 +3982,11 @@
             Amount of days, on which deadline policies dated will be shifted towards past. Must not be a positive number
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.AvailableCurrencies">
+            <summary>
+            Existing available currencies for the specific agency
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.AprMode">
             <summary>
             Tells whether the user can see and book accommodations with advanced purchase flag
