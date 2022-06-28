@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.S
         }
         
         [Fact]
-        public void Allowed_apr_should_return_all_payment_methods_when_deadline_is_reached_and_allowed_and_balance_is_not_enough()
+        public void Allowed_apr_should_return_only_credit_card_payment_method_when_deadline_is_reached_and_allowed_and_balance_is_not_enough()
         {
             var availability = CreateAvailability(
                 isApr: true,

@@ -35,9 +35,8 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             IEvaluationTokenStorage tokenStorage,
             IAccountPaymentService accountPaymentService)
             : base(supplierConnectorManager, priceProcessor, roomSelectionStorage, accommodationBookingSettingsService, dateTimeProvider,
-                bookingEvaluationStorage,
-                accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage, supplierOptionsStorage, tokenStorage,
-                agentContextService, accountPaymentService)
+                bookingEvaluationStorage, accommodationMapperClient, adminAgencyManagementService, logger, availabilityRequestStorage,
+                supplierOptionsStorage, tokenStorage, agentContextService, accountPaymentService)
         { }
 
 

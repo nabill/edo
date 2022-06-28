@@ -78,11 +78,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (connectorEvaluationResult.IsFailure)
             {
                 _logger.LogBookingEvaluationFailure(connectorEvaluationResult.Error.Status, connectorEvaluationResult.Error.Detail);
-                return (RoomContractSetAvailability?) null;
+                return (RoomContractSetAvailability?)null;
             }
 
             if (connectorEvaluationResult.Value is null)
-                return (RoomContractSetAvailability?) null;
+                return (RoomContractSetAvailability?)null;
 
             var originalSupplierPrice = connectorEvaluationResult.Value.Value.RoomContractSet.Rate.FinalPrice;
 
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (accommodationResult.IsFailure)
             {
                 _logger.LogGetAccommodationByHtIdFailed(selectedRoomSet.htId, accommodationResult.Error.Detail);
-                return (RoomContractSetAvailability?) null;
+                return (RoomContractSetAvailability?)null;
             }
 
             var slimAccommodation = GetSlimAccommodation(accommodationResult.Value);
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplySearchSettings);
 
 
-            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId,
+            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId, 
                     string CountryHtId, string LocalityHtId, int MarketId, string CountryCode)>>
                 GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 if (balanceFailure)
                     return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(balanceError);
 
-                var isBalanceEnough = balanceResult.Balance > selectedRoomSet.RoomContractSet.Rate.FinalPrice.Amount;
+                var isBalanceEnough = balanceResult.Balance >= selectedRoomSet.RoomContractSet.Rate.FinalPrice.Amount;
 
                 var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind, isBalanceEnough);
 
