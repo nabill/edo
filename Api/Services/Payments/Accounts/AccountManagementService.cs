@@ -1,12 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -27,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             IAdministratorContext administratorContext,
             IManagementAuditService managementAuditService,
             IAdminAgencyManagementService adminAgencyManagementService,
+            ICompanyInfoService companyInfoService,
             IEntityLocker locker)
         {
             _context = context;
@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             _managementAuditService = managementAuditService;
             _adminAgencyManagementService = adminAgencyManagementService;
             _locker = locker;
+            _companyInfoService = companyInfoService;
         }
 
 
@@ -53,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isFailure)
                     return Result.Failure(error);
 
-                return new[] {AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess}.Contains(verificationState)
+                return new[] { AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess }.Contains(verificationState)
                     ? Result.Success()
                     : Result.Failure("Account creation is only available for verified agencies");
             }
@@ -61,18 +62,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<AgencyAccount> CreateAccount()
             {
+                var defaultCurrency = Currencies.USD;
+                var (_, isFailure, companyInfo) = await _companyInfoService.Get();
+                if (!isFailure)
+                    defaultCurrency = companyInfo.DefaultCurrency;
+
                 var account = new AgencyAccount
                 {
                     Balance = 0,
                     AgencyId = agency.Id,
-                    Currency = Currencies.USD, // Only USD currency is supported
+                    Currency = defaultCurrency,
                     Created = _dateTimeProvider.UtcNow()
                 };
                 _context.AgencyAccounts.Add(account);
                 _context.AgencyMarkupBonusesAccounts.Add(new AgencyMarkupBonusesAccount
                 {
                     AgencyId = agency.Id,
-                    Currency = Currencies.USD,
+                    Currency = defaultCurrency,
                     Balance = 0
                 });
                 await _context.SaveChangesAsync();
@@ -110,5 +116,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly ILogger<AccountManagementService> _logger;
         private readonly IManagementAuditService _managementAuditService;
         private readonly IAdminAgencyManagementService _adminAgencyManagementService;
+        private readonly ICompanyInfoService _companyInfoService;
     }
 }

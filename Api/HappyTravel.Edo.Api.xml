@@ -529,6 +529,18 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyInfo">
+            <summary>
+            Gets the company information.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.UpdateCompanyInfo(HappyTravel.Edo.Api.Models.Company.CompanyInfo)">
+            <summary>
+            Updates the company information.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyBanks">
             <summary>
                 Gets company banks list
@@ -3968,6 +3980,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.CustomDeadlineShift">
             <summary>
             Amount of days, on which deadline policies dated will be shifted towards past. Must not be a positive number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Settings.AgencyAccommodationBookingSettingsInfo.AvailableCurrencies">
+            <summary>
+            Existing available currencies for the specific agency
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Settings.AgentAccommodationBookingSettingsInfo.AprMode">

@@ -32,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
     public class BookingDocumentsService : IBookingDocumentsService
     {
         public BookingDocumentsService(EdoContext context,
-            IOptions<BankDetails> bankDetails,
             IAccommodationMapperClient accommodationMapperClient,
             IInvoiceService invoiceService,
             IReceiptService receiptService,
@@ -41,7 +40,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             ICompanyService companyService)
         {
             _context = context;
-            _bankDetails = bankDetails.Value;
             _accommodationMapperClient = accommodationMapperClient;
             _invoiceService = invoiceService;
             _receiptService = receiptService;
@@ -112,6 +110,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             if (isRootFailure)
                 return Result.Failure(rootError);
 
+            var (_, isInfoFailure, companyInfo, infoError) = await _companyService.GetCompanyInfo();
+            if (isInfoFailure)
+                return Result.Failure(infoError);
+
             var (_, isAccountFailure, companyAccount, accountError) = await _companyService.GetDefaultBankAccount(booking.Currency);
             if (isAccountFailure)
             {
@@ -120,11 +122,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
                 if (isAccountFailure)
                     return Result.Failure(accountError);
-            }    
+            }
 
             var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(rootAgency),
-                GetSellerDetails(booking, companyAccount, _bankDetails),
+                GetSellerDetails(booking, companyAccount, companyInfo),
                 booking.ReferenceCode,
                 booking.SupplierReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
@@ -157,11 +159,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             }
 
 
-            static SellerInfo GetSellerDetails(Booking booking, CompanyAccountInfo companyAccount, BankDetails bankDetails)
+            static SellerInfo GetSellerDetails(Booking booking, CompanyAccountInfo companyAccount, CompanyInfo companyInfo)
             {
                 var intermediaryBank = companyAccount.IntermediaryBank;
 
-                var sellerDetails = new SellerInfo(companyName: bankDetails.CompanyName,
+                var sellerDetails = new SellerInfo(companyName: companyInfo.Name,
                     bankName: companyAccount.CompanyBank.Name,
                     bankAddress: companyAccount.CompanyBank.Address,
                     accountNumber: companyAccount.AccountNumber,
@@ -243,7 +245,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         };
 
         private readonly EdoContext _context;
-        private readonly BankDetails _bankDetails;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
