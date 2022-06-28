@@ -66,6 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     {
                         Id = booking.Id,
                         ReferenceCode = booking.ReferenceCode,
+                        ClientReferenceCode = booking.ClientReferenceCode,
                         AccommodationName = booking.AccommodationName,
                         CountryName = booking.Location.Country,
                         LocalityName = booking.Location.Locality,

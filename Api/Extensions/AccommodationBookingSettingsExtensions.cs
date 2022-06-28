@@ -15,7 +15,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
-                CustomDeadlineShift = settings.CustomDeadlineShift
+                CustomDeadlineShift = settings.CustomDeadlineShift,
+                AvailableCurrencies = settings.AvailableCurrencies
             };
 
 
@@ -38,7 +39,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 PassedDeadlineOffersMode = settings.PassedDeadlineOffersMode,
                 IsSupplierVisible = settings.IsSupplierVisible,
                 IsDirectContractFlagVisible = settings.IsDirectContractFlagVisible,
-                CustomDeadlineShift = settings.CustomDeadlineShift
+                CustomDeadlineShift = settings.CustomDeadlineShift,
+                AvailableCurrencies = settings.AvailableCurrencies
             };
 
 

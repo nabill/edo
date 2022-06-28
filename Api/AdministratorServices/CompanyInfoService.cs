@@ -47,6 +47,7 @@ namespace Api.AdministratorServices
                     v.RuleFor(i => i.Trn).NotEmpty();
                     v.RuleFor(i => i.TradeLicense).NotEmpty();
                     v.RuleFor(i => i.AvailableCurrencies).NotEmpty();
+                    v.RuleFor(i => i.DefaultCurrency).NotEmpty();
                 }, companyInfo);
             }
 

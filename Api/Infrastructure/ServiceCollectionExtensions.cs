@@ -431,6 +431,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             #endregion
 
+            services.Configure<AvailabilityRequestStorageOptions>(configuration.GetSection("AvailabilityRequestStorage"));
+            
             return services;
         }
 
