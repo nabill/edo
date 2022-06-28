@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             var (_, isFailure, countriesResponse) = await marketManagementService.GetMarketCountries(marketId, It.IsAny<CancellationToken>());
 
             Assert.Equal(countriesResponse.Count, countriesById.Count);
-            Assert.All(countriesResponse, m => Assert.NotNull(m.Names.GetValueOrDefault("en")));
+            Assert.All(countriesResponse, m => Assert.NotNull(m.Name));
         }
 
 
