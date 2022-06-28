@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using Api.Models.Locations;
-using ApiMarket = HappyTravel.Edo.Api.Models.Locations.Market;
+using ApiModels = HappyTravel.Edo.Api.Models.Locations;
 using FluentValidation;
 using System;
 using System.Linq;
@@ -44,7 +44,7 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public async Task<List<ApiMarket>> Get(CancellationToken cancellationToken = default)
+        public async Task<List<ApiModels.Market>> Get(CancellationToken cancellationToken = default)
         {
             var markets = await _marketStorage.Get(cancellationToken);
             return markets
@@ -52,8 +52,8 @@ namespace Api.AdministratorServices.Locations
                 .ToList();
 
 
-            Func<Market, ApiMarket> ToApiProjection()
-                => market => new ApiMarket(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
+            Func<Market, ApiModels.Market> ToApiProjection()
+                => market => new ApiModels.Market(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
         }
 
 
@@ -182,10 +182,11 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<Result<List<Country>>> GetMarketCountries(int marketId, CancellationToken cancellationToken)
+        public Task<Result<List<ApiModels.CountrySlim>>> GetMarketCountries(int marketId, CancellationToken cancellationToken)
         {
             return ValidateGet()
-                .Bind(Get);
+                .Bind(Get)
+                .Map(ToApiModel);
 
 
             Task<Result> ValidateGet()
@@ -200,6 +201,12 @@ namespace Api.AdministratorServices.Locations
 
             async Task<Result<List<Country>>> Get()
                 => await _marketStorage.GetMarketCountries(marketId, cancellationToken);
+
+
+            List<ApiModels.CountrySlim> ToApiModel(List<Country> countries)
+                => countries
+                    .Select(c => new ApiModels.CountrySlim(c.Code, c.Names.En))
+                    .ToList();
         }
 
 

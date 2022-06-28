@@ -432,7 +432,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #endregion
 
             services.Configure<AvailabilityRequestStorageOptions>(configuration.GetSection("AvailabilityRequestStorage"));
-            
+
             return services;
         }
 
@@ -714,6 +714,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
             services.AddTransient<IMarketManagementService, MarketManagementService>();
             services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
+            services.AddTransient<ICountryManagementService, CountryManagementService>();
+            services.AddTransient<ICountryManagementStorage, CountryManagementStorage>();
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
