@@ -10,10 +10,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public static class BookingPaymentTypesHelper
     {
         public static List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-            AccommodationBookingSettings settings, ContractKind contractKind, DateTimeOffset date)
+            AccommodationBookingSettings settings, ContractKind contractKind, DateTimeOffset nowDate, bool isBalanceEnough)
             => AllAvailablePaymentTypes
                 .Intersect(GetAprPaymentTypes(availability, settings))
-                .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, date))
+                .Intersect(GetPassedDeadlinePaymentMethods(availability, settings, nowDate, isBalanceEnough))
                 .Intersect(GetContractKindPaymentTypes(contractKind))
                 .ToList();
 
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ContractKind.CreditCardPayments => PaymentTypes.VirtualAccount,
                 _ => PaymentTypes.NotSpecified
             };
-
+        
 
         private static List<PaymentTypes> GetAprPaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
             AccommodationBookingSettings settings)
@@ -46,15 +46,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         private static List<PaymentTypes> GetPassedDeadlinePaymentMethods(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-            AccommodationBookingSettings settings, DateTimeOffset date)
+            AccommodationBookingSettings settings, DateTimeOffset nowDate, bool isBalanceEnough)
         {
             var deadlineDate = availability.RoomContractSet.Deadline.Date ?? availability.CheckInDate;
 
-            if (date < deadlineDate.Date - OfflinePaymentAdditionalDays)
+            if (nowDate < deadlineDate.Date - OfflinePaymentAdditionalDays)
                 return AllAvailablePaymentTypes;
 
-            if (date < deadlineDate.Date)
+            if (nowDate < deadlineDate.Date)
                 return new List<PaymentTypes> { PaymentTypes.VirtualAccount, PaymentTypes.CreditCard };
+
+            if (!isBalanceEnough && settings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.CardAndAccountPurchases)
+                return new List<PaymentTypes> {PaymentTypes.CreditCard};
 
             return settings.PassedDeadlineOffersMode switch
             {
@@ -66,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             };
         }
 
-
+        
         private static List<PaymentTypes> GetContractKindPaymentTypes(ContractKind contractKind)
         {
             return contractKind switch
