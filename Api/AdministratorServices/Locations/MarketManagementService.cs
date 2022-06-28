@@ -37,6 +37,7 @@ namespace Api.AdministratorServices.Locations
                 {
                     Names = new HappyTravel.MultiLanguage.MultiLanguage<string>
                     {
+                        // Hard-coded until we will be back to multilanguage model
                         En = marketRequest.Name
                     }
                 };
@@ -70,6 +71,7 @@ namespace Api.AdministratorServices.Locations
 
             async Task<Result> Update(Market marketData)
             {
+                // Hard-coded until we will be back to multilanguage model
                 marketData.Names.En = marketRequest.Name;
 
                 _context.Update(marketData);
