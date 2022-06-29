@@ -74,8 +74,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     IsSupplierVisible = false,
                     IsDirectContractFlagVisible = false,
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                    AprMode = agency.ContractKind is ContractKind.OfflineOrCreditCardPayments 
+                        ? AprMode.CardPurchasesOnly 
+                        : AprMode.Hide,
+                    PassedDeadlineOffersMode = agency.ContractKind is ContractKind.OfflineOrCreditCardPayments 
+                        ? PassedDeadlineOffersMode.CardPurchasesOnly
+                        : PassedDeadlineOffersMode.Hide,
                     CustomDeadlineShift = 0
                 };
 
@@ -148,8 +152,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
 
                 var availableCurrencies = new List<Currencies>();
-                var (_, IsFailure, companyInfo) = await _companyInfoService.Get();
-                if (!IsFailure)
+                var (_, isFailure, companyInfo) = await _companyInfoService.Get();
+                if (!isFailure)
                     availableCurrencies = companyInfo.AvailableCurrencies;
 
                 if (agency == default)
@@ -158,14 +162,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (!agency.IsActive)
                     return Result.Failure("Agency is not active");
 
-                if (agency.ContractKind == ContractKind.OfflineOrCreditCardPayments && settings.AprMode != AprMode.Hide)
-                    return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode other than Hide.");
+                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.AprMode is AprMode.CardAndAccountPurchases)
+                    return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode to CardAndAccountPurchases.");
 
                 if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
-                if (settings.AvailableCurrencies.Except(availableCurrencies).Count() > 0)
-                    return Result.Failure($"Request's availablity currencies contain unallowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}");
+                if (settings.AvailableCurrencies.Except(availableCurrencies).Any())
+                    return Result.Failure($"Request's availability currencies contain not allowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}");
 
                 return Result.Success();
             }

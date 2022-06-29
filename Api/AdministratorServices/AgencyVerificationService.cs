@@ -41,18 +41,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractTypeNotEmpty, "Contract type cannot be empty")
+                .Ensure(IsContractKindNotEmpty, "Contract kind must be not empty")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
-                .Tap(SetContractType)
+                .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
             
             
-            bool IsContractTypeNotEmpty(Agency _) 
+            bool IsContractKindNotEmpty(Agency _) 
                 => !contractKind.Equals(default(ContractKind));
             
             
-            async Task SetContractType(Agency agency)
+            async Task SetContractKind(Agency agency)
             {
                 agency.ContractKind = contractKind;
                 await _context.SaveChangesAsync();
@@ -61,8 +61,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
             {
-                if (contractKind != ContractKind.VirtualAccountOrCreditCardPayments)
-                    return;
+                AprMode aprMode;
+                PassedDeadlineOffersMode passedDeadlineOffersMode;
+                
+                switch (contractKind)
+                {
+                    case ContractKind.VirtualAccountOrCreditCardPayments:
+                        aprMode = AprMode.CardAndAccountPurchases;
+                        passedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
+                        break;
+                    case ContractKind.OfflineOrCreditCardPayments:
+                        aprMode = AprMode.CardPurchasesOnly;
+                        passedDeadlineOffersMode = PassedDeadlineOffersMode.CardPurchasesOnly;
+                        break;
+                    default:
+                        return;
+                }
 
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
@@ -73,8 +87,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     {
                         AccommodationBookingSettings = new AgencyAccommodationBookingSettings
                         {
-                            AprMode = AprMode.CardAndAccountPurchases,
-                            PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
+                            AprMode = aprMode,
+                            PassedDeadlineOffersMode = passedDeadlineOffersMode
                         },
                         AgencyId = agencyId
                     });
@@ -82,8 +96,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 else
                 {
                     settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
-                    settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
-                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
+                    settings.AccommodationBookingSettings.AprMode = aprMode;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = passedDeadlineOffersMode;
 
                     _context.Update(settings);
                 }
