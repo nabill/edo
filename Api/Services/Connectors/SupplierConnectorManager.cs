@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             var client = _serviceProvider.GetRequiredService<IConnectorClient>();
             var logger = _serviceProvider.GetRequiredService<ILogger<SupplierConnector>>();
-            
+
             return new SupplierConnector(
                 supplierName: supplier.Name,
                 connectorClient: client,
