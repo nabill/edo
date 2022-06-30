@@ -168,6 +168,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.AprMode is AprMode.CardAndAccountPurchases)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set AprMode to CardAndAccountPurchases.");
 
+                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.PassedDeadlineOffersMode is PassedDeadlineOffersMode.CardAndAccountPurchases)
+                    return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set PassedDeadlineOffersMode to CardAndAccountPurchases.");
+                
                 if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
