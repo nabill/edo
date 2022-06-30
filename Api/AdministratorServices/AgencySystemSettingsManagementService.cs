@@ -65,6 +65,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (rootSettings.AprMode < agencySettings.AprMode)
                     return rootSettings.AprMode.Value;
 
+                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
+                    return AprMode.CardPurchasesOnly;
+
                 return agencySettings.AprMode.Value;
             }
 
@@ -74,12 +77,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     IsSupplierVisible = false,
                     IsDirectContractFlagVisible = false,
-                    AprMode = agency.ContractKind is ContractKind.OfflineOrCreditCardPayments 
-                        ? AprMode.CardPurchasesOnly 
-                        : AprMode.Hide,
-                    PassedDeadlineOffersMode = agency.ContractKind is ContractKind.OfflineOrCreditCardPayments 
-                        ? PassedDeadlineOffersMode.CardPurchasesOnly
-                        : PassedDeadlineOffersMode.Hide,
+                    AprMode = AprMode.Hide,
+                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
                     CustomDeadlineShift = 0
                 };
 
@@ -122,6 +121,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (rootSettings.PassedDeadlineOffersMode < agencySettings.PassedDeadlineOffersMode)
                     return rootSettings.PassedDeadlineOffersMode.Value;
+
+                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments &&
+                    agencySettings.PassedDeadlineOffersMode.Value is PassedDeadlineOffersMode.CardAndAccountPurchases)
+                    return PassedDeadlineOffersMode.CardPurchasesOnly;
 
                 return agencySettings.PassedDeadlineOffersMode.Value;
             }

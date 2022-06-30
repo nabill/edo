@@ -61,22 +61,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
             {
-                AprMode aprMode;
-                PassedDeadlineOffersMode passedDeadlineOffersMode;
-                
-                switch (contractKind)
-                {
-                    case ContractKind.VirtualAccountOrCreditCardPayments:
-                        aprMode = AprMode.CardAndAccountPurchases;
-                        passedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
-                        break;
-                    case ContractKind.OfflineOrCreditCardPayments:
-                        aprMode = AprMode.CardPurchasesOnly;
-                        passedDeadlineOffersMode = PassedDeadlineOffersMode.CardPurchasesOnly;
-                        break;
-                    default:
-                        return;
-                }
+                if (contractKind != ContractKind.VirtualAccountOrCreditCardPayments)
+                    return;
 
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
@@ -87,8 +73,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     {
                         AccommodationBookingSettings = new AgencyAccommodationBookingSettings
                         {
-                            AprMode = aprMode,
-                            PassedDeadlineOffersMode = passedDeadlineOffersMode
+                            AprMode = AprMode.CardAndAccountPurchases,
+                            PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                         },
                         AgencyId = agencyId
                     });
@@ -96,8 +82,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 else
                 {
                     settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
-                    settings.AccommodationBookingSettings.AprMode = aprMode;
-                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = passedDeadlineOffersMode;
+                    settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
 
                     _context.Update(settings);
                 }

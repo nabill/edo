@@ -106,8 +106,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var (_, isAgencySettingsFailure, materializedAgencySettings) = await _agencyManagementService.GetAvailabilitySearchSettings(agencyId);
             var agentSettings = (await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId))
                 ?.AccommodationBookingSettings;
-            var agencyContractKind = (await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId))
-                ?.ContractKind;
 
             if (agentSettings is null)
             {
@@ -115,11 +113,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return new AgentAccommodationBookingSettings
                     {
                         AdditionalSearchFilters = new(),
-                        AprMode = agencyContractKind is ContractKind.OfflineOrCreditCardPayments ? AprMode.CardPurchasesOnly : AprMode.Hide,
+                        AprMode = AprMode.Hide,
                         CustomDeadlineShift = 0,
                         IsDirectContractFlagVisible = false,
                         IsSupplierVisible = false,
-                        PassedDeadlineOffersMode = agencyContractKind is ContractKind.OfflineOrCreditCardPayments ? PassedDeadlineOffersMode.CardPurchasesOnly : PassedDeadlineOffersMode.Hide
+                        PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
                     };
 
                 return new AgentAccommodationBookingSettings
