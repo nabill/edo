@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -45,9 +44,6 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
-using HappyTravel.MailSender;
-using HappyTravel.MailSender.Infrastructure;
-using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
@@ -216,10 +212,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(SendGridMailSender.HttpClientName)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-                .AddPolicyHandler(GetDefaultRetryPolicy());
-
             services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
@@ -274,20 +266,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
             var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
-
-            var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
-            var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
-            services.Configure<SenderOptions>(options =>
-            {
-                options.ApiKey = sendGridApiKey;
-                options.BaseUrl = new Uri(edoAgentAppFrontendUrl);
-                options.SenderAddress = new EmailAddress(senderAddress);
-            });
-
             var edoManagementFrontendUrl = mailSettings[configuration["Edo:Email:EdoManagementFrontendUrl"]];
+
             services.Configure<AdminInvitationMailOptions>(options =>
             {
                 options.FrontendBaseUrl = edoManagementFrontendUrl;
+            });
+
+            services.Configure<AgentAppOptions>(options =>
+            {
+                options.BaseUri = new Uri(edoAgentAppFrontendUrl);
             });
 
             var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
@@ -474,8 +462,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-
-            services.AddSingleton<IMailSender, SendGridMailSender>();
+            
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();

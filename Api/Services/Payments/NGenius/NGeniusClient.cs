@@ -14,7 +14,6 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Extensions;
 using HappyTravel.Money.Models;
@@ -25,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
     public class NGeniusClient : INGeniusClient
     {
         public NGeniusClient(IOptions<NGeniusOptions> options, IHttpClientFactory clientFactory, IMemoryFlow<string> cache, 
-            IOptions<SenderOptions> senderOptions)
+            IOptions<AgentAppOptions> agentAppOptions)
         {
             _options = options.Value;
             _cache = cache;
             _clientFactory = clientFactory;
-            _senderOptions = senderOptions.Value;
+            _agentAppOptions = agentAppOptions.Value;
         }
 
 
@@ -46,8 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 EmailAddress = email,
                 MerchantAttributes = new MerchantAttributes
                 {
-                    RedirectUrl = new Uri(_senderOptions.BaseUrl, $"/payments/callback?referenceCode={referenceCode}").ToString(),
-                    CancelUrl = new Uri(_senderOptions.BaseUrl, "/accommodation/booking").ToString(),
+                    RedirectUrl = new Uri(_agentAppOptions.BaseUri, $"/payments/callback?referenceCode={referenceCode}").ToString(),
+                    CancelUrl = new Uri(_agentAppOptions.BaseUri, "/accommodation/booking").ToString(),
                     CancelText = "Back to Booking Page",
                     SkipConfirmationPage = true
                 }
@@ -271,6 +270,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly NGeniusOptions _options;
         private readonly IHttpClientFactory _clientFactory;
         private readonly IMemoryFlow<string> _cache;
-        private readonly SenderOptions _senderOptions;
+        private readonly AgentAppOptions _agentAppOptions;
     }
 }
