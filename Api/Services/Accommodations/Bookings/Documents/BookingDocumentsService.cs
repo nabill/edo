@@ -128,6 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 GetBuyerInfo(rootAgency),
                 GetSellerDetails(booking, companyAccount, companyInfo),
                 booking.ReferenceCode,
+                booking.ClientReferenceCode,
                 booking.SupplierReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
