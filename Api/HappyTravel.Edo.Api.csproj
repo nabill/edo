@@ -35,7 +35,7 @@
     <PackageReference Include="HappyTravel.MapperContracts" Version="1.3.0" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.7.1" />
     <PackageReference Include="HappyTravel.SupplierOptionsClient" Version="2.2.1" />
-    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.2.0" />
+    <PackageReference Include="HappyTravel.SupplierOptionsProvider" Version="1.2.4" />
     <PackageReference Include="HappyTravel.Telemetry" Version="0.16.5" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="11.1.0" />
@@ -63,7 +63,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.6" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
-    <PackageReference Include="Tsutsujigasaki.GrpcContracts" Version="0.3.0" />
+    <PackageReference Include="Tsutsujigasaki.GrpcContracts" Version="0.5.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
