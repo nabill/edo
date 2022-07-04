@@ -9,5 +9,5 @@ public struct PaymentLinkReportRow
     public string PaymentResponse { get; init; }
     public string PaymentProcessor { get; init; }
     public string ServiceType { get; init; }
-    public string Agent { get; init; }
+    public string Admin { get; init; }
 }

@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IDateTimeProvider dateTimeProvider,
             IOptions<PaymentLinkOptions> paymentLinkOptions,
             ITagProcessor tagProcessor, 
-            IAgentContextService agentContextService)
+            IAdministratorContext administratorContext)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
-            _agentContextService = agentContextService;
+            _administratorContext = administratorContext;
             _paymentLinkOptions = paymentLinkOptions.Value;
         }
 
@@ -91,7 +92,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             async Task<PaymentLink> CreateLink()
             {
                 var referenceCode = await _tagProcessor.GenerateNonSequentialReferenceCode(paymentLinkCreationData.ServiceType, LinkDestinationCode);
-                var agent = await _agentContextService.GetAgent();
+                var (isSuccess, _, administrator) = await _administratorContext.GetCurrent();
+                int? administratorId = isSuccess ? administrator.Id : null;
                 var paymentLink = new PaymentLink
                 {
                     Email = paymentLinkCreationData.Email,
@@ -104,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     ReferenceCode = referenceCode,
                     PaymentProcessor = paymentLinkCreationData.PaymentProcessor,
                     InvoiceNumber = paymentLinkCreationData.InvoiceNumber,
-                    AgentId = agent.AgentId
+                    AdministratorId = administratorId
                 };
                 _context.PaymentLinks.Add(paymentLink);
                 await _context.SaveChangesAsync();
@@ -156,6 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly PaymentLinkOptions _paymentLinkOptions;
-        private readonly IAgentContextService _agentContextService;
+        private readonly IAdministratorContext _administratorContext;
     }
 }
