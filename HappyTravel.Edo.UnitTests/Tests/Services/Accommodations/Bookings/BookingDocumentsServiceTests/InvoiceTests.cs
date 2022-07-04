@@ -55,6 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                             new BuyerInfo(),
                             new SellerInfo(),
                             It.IsAny<string>(),
+                            It.IsAny<string?>(),
                             It.IsAny<string>(),
                             new List<InvoiceItemInfo>(),
                             new MoneyAmount(),

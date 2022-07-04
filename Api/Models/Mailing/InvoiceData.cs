@@ -12,6 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string TotalPrice { get; set; }
         public string CurrencyCode { get; set; }
         public string ReferenceCode { get; set; }
+        public string? ClientReferenceCode { get; set; }
         public string SupplierReferenceCode { get; set; }
         public SellerInfo SellerDetails { get; set; }
         public string PayDueDate { get; set; }

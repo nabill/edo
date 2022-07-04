@@ -88,6 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         TotalPrice = FormatPrice(data.TotalPrice),
                         CurrencyCode = EnumFormatters.FromDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
+                        ClientReferenceCode = data.ClientReferenceCode,
                         SupplierReferenceCode = data.SupplierReferenceCode,
                         SellerDetails = data.SellerDetails,
                         PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate),
