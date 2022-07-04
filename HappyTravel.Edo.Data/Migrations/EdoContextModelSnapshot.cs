@@ -1350,7 +1350,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
-                    b.Property<int?>("AgentId")
+                    b.Property<int?>("AdministratorId")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Amount")
