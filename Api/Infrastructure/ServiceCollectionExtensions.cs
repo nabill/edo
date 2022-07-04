@@ -175,42 +175,74 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
                 })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                })
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
-            });
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
-            });
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.DacManagementClient, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
-            })
+                {
+                    client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
+            services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl))
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(configuration["Edo:Google:Endpoint"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
@@ -247,6 +279,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.Connectors, client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
