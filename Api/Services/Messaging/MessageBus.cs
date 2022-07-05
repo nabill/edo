@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure.Converters;
 using NATS.Client;
 
 namespace HappyTravel.Edo.Api.Services.Messaging;
 
 public class MessageBus : IMessageBus
 {
-    public MessageBus(IConnection connection, IJsonSerializer serializer)
+    public MessageBus(IConnection connection)
     {
         _connection = connection;
-        _serializer = serializer;
     }
     
     
@@ -19,7 +17,7 @@ public class MessageBus : IMessageBus
     {
         Task.Run(() =>
         {
-            _connection.Publish(topicName, Encoding.UTF8.GetBytes(_serializer.SerializeObject(message)));
+            _connection.Publish(topicName, JsonSerializer.SerializeToUtf8Bytes(message));
         });
     }
 
@@ -34,5 +32,4 @@ public class MessageBus : IMessageBus
 
 
     private readonly IConnection _connection;
-    private readonly IJsonSerializer _serializer;
 }
