@@ -217,8 +217,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task<Result> SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
-            => await _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
+        private Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
+            => _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
 
 
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, NotificationTypes notificationType, JsonDocument message)

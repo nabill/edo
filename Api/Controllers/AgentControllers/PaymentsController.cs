@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Net;
-using System.Text.Json;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AgencyVerificationStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
@@ -9,16 +8,13 @@ using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
