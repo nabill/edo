@@ -4,16 +4,14 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Company;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -38,7 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
                 dateTimeProvider,
                 emptyOptions,
                 Mock.Of<ITagProcessor>(),
-                Mock.Of<IAgentContextService>());
+                Mock.Of<IAdministratorContext>());
         }
 
 
@@ -49,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Invalid_code_should_fail(string code)
         {
             var (_, isFailure, _, _) = await _linkStorage.Get(code);
-            
+
             Assert.True(isFailure);
         }
 
@@ -60,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Valid_code_should_return_valid_link_data(string code)
         {
             var (isSuccess, _, linkData, _) = await _linkStorage.Get(code);
-            
+
             Assert.True(isSuccess);
 
             var expectedLink = Links.Single(l => l.Code == code);
@@ -77,13 +75,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
                 Assert.Equal(expectedLink.ServiceType, linkData.ServiceType);
             }
         }
-        
-        
+
+
         [Fact]
         public async Task Not_existing_code_should_fail()
         {
             var (_, isFailure, _, _) = await _linkStorage.Get("jkpg1dbYhEe_dVwyAOgS_Q");
-            
+
             Assert.True(isFailure);
         }
 
