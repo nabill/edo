@@ -94,12 +94,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var connectorRequest = CreateRequest(availabilityRequest, accommodationCodeMappings, searchSettings);
                 var supplierConnector = _supplierConnectorManager.Get(supplier.Code);
 
-                var result = await supplierConnector.GetAvailability(connectorRequest, languageCode)
+                return await supplierConnector.GetAvailability(connectorRequest, languageCode)
                     .Tap(Publish)
                     .Map(result => Convert(result, connectorRequest))
                     .Tap(SaveResult);
-
-                return result;
             }
 
 
