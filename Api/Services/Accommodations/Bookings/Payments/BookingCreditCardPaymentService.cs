@@ -74,8 +74,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             var agent = await _agentContextService.GetAgent();
             return await GetBooking(referenceCode)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
+                .Map(RecalculatePrice)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
-                .Tap(RecalculatePrice)
                 .Tap(SendReceipt);
 
 
@@ -95,10 +95,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 => await Capture(booking, agent.ToApiCaller());
 
 
-            async Task RecalculatePrice(Booking booking)
+            async Task<Booking> RecalculatePrice(Booking booking)
             {
                 booking.TotalPrice = booking.CreditCardPrice;
                 await _bookingInfoService.UpdateBookingInfo(booking);
+                return booking;
             }
 
 
