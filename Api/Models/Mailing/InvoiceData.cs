@@ -10,7 +10,8 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string InvoiceDate { get; set; }
         public List<InvoiceItem> InvoiceItems { get; set; }
         public string TotalPrice { get; set; }
-        public string NetPrice { get; set; }
+        public string? NetPrice { get; set; }
+        public string? Commission { get; set; }
         public string CurrencyCode { get; set; }
         public string ReferenceCode { get; set; }
         public string? ClientReferenceCode { get; set; }

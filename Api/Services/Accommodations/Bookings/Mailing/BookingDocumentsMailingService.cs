@@ -86,7 +86,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
-                        NetPrice = FormatPrice(data.NetPrice),
+                        NetPrice = (data.TotalPrice != data.NetPrice)
+                            ? FormatPrice(data.NetPrice)
+                            : null,
+                        Commission = (data.TotalPrice != data.NetPrice)
+                            ? FormatPrice(data.TotalPrice - data.NetPrice)
+                            : null,
                         CurrencyCode = EnumFormatters.FromDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
                         ClientReferenceCode = data.ClientReferenceCode,
