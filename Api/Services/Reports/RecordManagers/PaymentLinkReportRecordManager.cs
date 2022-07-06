@@ -21,11 +21,13 @@ public class PaymentLinkReportRecordManager : IRecordManager<PaymentLinkReportDa
         return await (from paymentLink in _context.PaymentLinks
                 join admin in _context.Administrators on paymentLink.AdministratorId equals admin.Id into adminGroup
                 from admin in adminGroup.DefaultIfEmpty()
+                orderby paymentLink.Created descending 
                 where paymentLink.Created >= fromDate && paymentLink.Created < endDate
                 select new PaymentLinkReportData
                 {
                     Amount = paymentLink.Amount,
                     PaymentDate = paymentLink.LastPaymentDate,
+                    Created = paymentLink.Created,
                     Currency = paymentLink.Currency,
                     InvoiceNumber = paymentLink.InvoiceNumber,
                     Administrator = admin,

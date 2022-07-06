@@ -12,6 +12,7 @@ public readonly struct PaymentLinkReportData
     public decimal Amount { get; init; }
     public Currencies Currency { get; init; }
     public DateTimeOffset? PaymentDate { get; init; }
+    public DateTimeOffset Created { get; init; }
     public string PaymentResponse { get; init; }
     public PaymentProcessors? PaymentProcessor { get; init; }
     public ServiceTypes ServiceType { get; init; }
