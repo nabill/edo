@@ -132,6 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.SupplierReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
+                new MoneyAmount(booking.NetPrice, booking.Currency),
                 booking.DeadlineDate?.DateTime ?? booking.CheckInDate.DateTime,
                 booking.CheckInDate.DateTime,
                 booking.CheckOutDate.DateTime,

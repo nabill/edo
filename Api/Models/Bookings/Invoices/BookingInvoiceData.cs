@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings.Invoices
     {
         [JsonConstructor]
         public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, string? clientReferenceCode, string supplierReferenceCode,
-            List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate,
-            DateTime? deadlineDate)
+            List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, MoneyAmount netPrice,
+             in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate, DateTime? deadlineDate)
         {
             BuyerDetails = buyerDetails;
             PayDueDate = payDueDate;
@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings.Invoices
             SupplierReferenceCode = supplierReferenceCode;
             InvoiceItems = invoiceItems;
             TotalPrice = totalPrice;
+            NetPrice = netPrice;
             SellerDetails = sellerDetails;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings.Invoices
         public string SupplierReferenceCode { get; }
         public List<InvoiceItemInfo> InvoiceItems { get; }
         public MoneyAmount TotalPrice { get; }
+        public MoneyAmount NetPrice { get; }
         public SellerInfo SellerDetails { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }

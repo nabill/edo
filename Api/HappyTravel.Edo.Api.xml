@@ -3667,6 +3667,21 @@
                 Destination type of booking from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.TemplateId">
+            <summary>
+                SendGrid template Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Recipients">
+            <summary>
+                Recipients e-mail adresses
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Data">
+            <summary>
+                E-mail data
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
             <summary>
                 Account balance info

@@ -86,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
+                        NetPrice = FormatPrice(data.NetPrice),
                         CurrencyCode = EnumFormatters.FromDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
                         ClientReferenceCode = data.ClientReferenceCode,
@@ -162,14 +163,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, SlimAgentContext agentContext) 
+        public Task<Result> SendPaymentRefundNotification(PaymentRefundMail payload, string email, SlimAgentContext agentContext)
             => _notificationsService.Send(agent: agentContext,
             messageData: payload,
             notificationType: NotificationTypes.PaymentRefund,
             email: email);
 
 
-        private static string FormatPrice(MoneyAmount moneyAmount) 
+        private static string FormatPrice(MoneyAmount moneyAmount)
             => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
 
