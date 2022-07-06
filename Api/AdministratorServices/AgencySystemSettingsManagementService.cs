@@ -145,6 +145,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettingsInfo settings)
         {
+            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
+            
+            if (agency == default)
+                return Result.Failure("Agency doesn't exist");
+            
             return await Validate()
                 .BindWithTransaction(_context, () => SetSettings()
                     .Bind(WriteToAuditLog));
@@ -152,15 +157,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> Validate()
             {
-                var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-
                 var availableCurrencies = new List<Currencies>();
                 var (_, isFailure, companyInfo) = await _companyInfoService.Get();
                 if (!isFailure)
                     availableCurrencies = companyInfo.AvailableCurrencies;
-
-                if (agency == default)
-                    return Result.Failure("Agency doesn't exist");
 
                 if (!agency.IsActive)
                     return Result.Failure("Agency is not active");
@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.PassedDeadlineOffersMode is PassedDeadlineOffersMode.CardAndAccountPurchases)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set PassedDeadlineOffersMode to CardAndAccountPurchases.");
                 
-                if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
+                if (await CheckFullyVerified())
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
                 if (settings.AvailableCurrencies.Except(availableCurrencies).Any())
@@ -201,6 +201,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 await _context.SaveChangesAsync();
                 return Result.Success();
+            }
+
+
+            async Task<bool> CheckFullyVerified()
+            {
+                if (agency.ParentId is null)
+                    return agency.VerificationState is AgencyVerificationStates.FullAccess;
+
+                var parentAgency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agency.ParentId);
+                return parentAgency.VerificationState is AgencyVerificationStates.FullAccess;
             }
 
 
