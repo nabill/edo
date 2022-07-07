@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IAccommodationMapperClient accommodationMapperClient,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             ISupplierOptionsStorage supplierOptionsStorage,
-            IDateTimeProvider dateTimeProvider, 
+            IDateTimeProvider dateTimeProvider,
             IAgentContextService agentContextService,
             IAdministratorContext adminContext)
         {
@@ -141,7 +141,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public async Task<Result<AccommodationBookingInfo>> GetAdministratorAccommodationBookingInfo(string referenceCode, string languageCode)
         {
-            
             var accommodationBookingInfo = await GetAccommodationBookingInfo(referenceCode, languageCode);
             if (accommodationBookingInfo.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(accommodationBookingInfo.Error);
@@ -300,6 +299,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 agencyId: booking.AgencyId,
                 paymentStatus: booking.PaymentStatus,
                 totalPrice: new MoneyAmount(booking.TotalPrice, booking.Currency),
+                creditCardPrice: new MoneyAmount(booking.CreditCardPrice, booking.Currency),
                 cancellationPenalty: BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()),
                 supplier: supplier,
                 agentInformation: agentInformation,
@@ -377,10 +377,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }
         }
-
-
-        public Task UpdateBookingInfo(Booking booking)
-            => _bookingRecordManager.Update(booking);
 
 
         private static readonly HashSet<BookingStatuses> BookingStatusesToHide = new()

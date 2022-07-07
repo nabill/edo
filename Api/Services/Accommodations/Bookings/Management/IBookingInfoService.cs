@@ -32,7 +32,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         Task<Result<List<BookingConfirmationHistoryEntry>>> GetBookingConfirmationHistory(string referenceCode);
 
         Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null);
-
-        Task UpdateBookingInfo(Booking booking);
     }
 }
