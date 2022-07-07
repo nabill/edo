@@ -42,6 +42,14 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
+        public async Task Update<TPaymentDocumentEntity>(List<TPaymentDocumentEntity> documentEntities)        
+            where TPaymentDocumentEntity : class, IPaymentDocumentEntity
+        {
+            _context.Update(documentEntities);
+            await _context.SaveChangesAsync();
+        }
+
+
         public Task<List<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(ServiceTypes serviceType,
             ServiceSource serviceSource, string referenceCode)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity

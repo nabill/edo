@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                         new InvoiceItemInfo(counter + 1,
                             accommodationName,
                             room.ContractDescription,
-                            room.Price,
+                            room.NetPrice,
                             room.Price,
                             room.Type,
                             room.DeadlineDate?.DateTime,
