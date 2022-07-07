@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusPaymentService : INGeniusPaymentService
     {
-        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager, 
+        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager,
             INGeniusClient client, IAgencyService agencyService, ICreditCardPaymentManagementService paymentService)
         {
             _bookingRecordManager = bookingRecordManager;
@@ -35,9 +35,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
+            booking.TotalPrice = booking.CreditCardPrice;
+
             return await _agencyService.Get(agent)
                 .Bind(CreateOrder)
-                .Bind(StorePayment);
+                .Bind(StorePayment)
+                .Tap(UpdateBookingInfo);
 
 
             Task<Result<NGeniusPaymentResponse>> CreateOrder(SlimAgencyInfo agency)
@@ -56,11 +59,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     bookingReferenceCode: response.MerchantOrderReference,
                     price: booking.TotalPrice.ToMoneyAmount(booking.Currency),
                     ipAddress: ipAddress);
-                
-                return isFailure 
-                    ? Result.Failure<NGeniusPaymentResponse>(error) 
+
+                return isFailure
+                    ? Result.Failure<NGeniusPaymentResponse>(error)
                     : response;
             }
+
+
+            Task UpdateBookingInfo()
+                => _bookingRecordManager.Update(booking);
         }
 
 
@@ -68,11 +75,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             => _client.CaptureMoney(paymentId, orderReference, amount);
 
 
-        public Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency) 
+        public Task<Result<CreditCardVoidResult>> Void(string paymentId, string orderReference, Currencies currency)
             => _client.VoidMoney(paymentId, orderReference, currency);
 
 
-        public Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount) 
+        public Task<Result<CreditCardRefundResult>> Refund(string paymentId, string orderReference, string captureId, MoneyAmount amount)
             => _client.RefundMoney(paymentId, orderReference, captureId, amount);
 
 
@@ -89,8 +96,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 var data = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                 var (_, isFailure, status) = await _client.GetStatus(data.InternalReferenceCode, payment.Currency);
 
-                return isFailure 
-                    ? Result.Failure<(Payment, PaymentStatuses)>("Status checking failed") 
+                return isFailure
+                    ? Result.Failure<(Payment, PaymentStatuses)>("Status checking failed")
                     : (payment, status);
             }
 
@@ -102,8 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             }
 
 
-            StatusResponse MapToResponse((Payment Payment, PaymentStatuses Status) tuple) 
-                => new (tuple.Payment.Status == PaymentStatuses.Authorized
+            StatusResponse MapToResponse((Payment Payment, PaymentStatuses Status) tuple)
+                => new(tuple.Payment.Status == PaymentStatuses.Authorized
                     ? CreditCardPaymentStatuses.Success
                     : CreditCardPaymentStatuses.Failed);
         }
