@@ -1,13 +1,17 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
@@ -19,13 +23,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusPaymentService : INGeniusPaymentService
     {
-        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager,
-            INGeniusClient client, IAgencyService agencyService, ICreditCardPaymentManagementService paymentService)
+        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager, IInvoiceService invoiceService,
+            INGeniusClient client, IAgencyService agencyService, ICreditCardPaymentManagementService paymentService,
+            IJsonSerializer serializer)
         {
             _bookingRecordManager = bookingRecordManager;
             _client = client;
             _agencyService = agencyService;
             _paymentService = paymentService;
+            _invoiceService = invoiceService;
+            _serializer = serializer;
         }
 
 
@@ -66,8 +73,30 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             }
 
 
-            Task UpdateBookingInfo()
-                => _bookingRecordManager.Update(booking);
+            async Task UpdateBookingInfo()
+            {
+                await _bookingRecordManager.Update(booking);
+
+                var invoices = await _invoiceService.GetInvoices(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode);
+                foreach (var invoice in invoices)
+                {
+                    var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
+                    var invoicesItems = bookingInfo.InvoiceItems
+                        .Select((invoiceItem, counter) => 
+                            {
+                                var roomItem = booking.Rooms[counter];
+
+                                return new InvoiceItemInfo(roomItem.Price, invoiceItem);
+                            })
+                        .ToList();
+                    bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency),
+                        invoicesItems, bookingInfo);
+
+                    invoice.Data = _serializer.SerializeObject(bookingInfo);
+                }
+
+                await _invoiceService.Update(invoices);
+            }
         }
 
 
@@ -120,5 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly INGeniusClient _client;
         private readonly IAgencyService _agencyService;
         private readonly ICreditCardPaymentManagementService _paymentService;
+        private readonly IInvoiceService _invoiceService;        
+        private readonly IJsonSerializer _serializer;
     }
 }
