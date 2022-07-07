@@ -78,23 +78,28 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 await _bookingRecordManager.Update(booking);
 
                 var invoices = await _invoiceService.GetInvoices(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode);
-                foreach (var invoice in invoices)
+
+                if (invoices != default)
                 {
-                    var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
-                    var invoicesItems = bookingInfo.InvoiceItems
-                        .Select((invoiceItem, counter) => 
-                            {
-                                var roomItem = booking.Rooms[counter];
-                                return new InvoiceItemInfo(roomItem.Price, invoiceItem);
-                            })
-                        .ToList();
-                    bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency),
-                        invoicesItems, bookingInfo);
+                    foreach (var invoice in invoices)
+                    {
+                        var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
+                        var invoicesItems = bookingInfo.InvoiceItems
+                            .Select((invoiceItem, counter) =>
+                                {
+                                    var roomItem = booking.Rooms[counter];
+                                    return new InvoiceItemInfo(roomItem.Price, invoiceItem);
+                                })
+                            .ToList();
+                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency),
+                            invoicesItems, bookingInfo);
 
-                    invoice.Data = _serializer.SerializeObject(bookingInfo);
+                        invoice.Data = _serializer.SerializeObject(bookingInfo);
+                    }
+
+
+                    await _invoiceService.Update(invoices);
                 }
-
-                await _invoiceService.Update(invoices);
             }
         }
 
@@ -148,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly INGeniusClient _client;
         private readonly IAgencyService _agencyService;
         private readonly ICreditCardPaymentManagementService _paymentService;
-        private readonly IInvoiceService _invoiceService;        
+        private readonly IInvoiceService _invoiceService;
         private readonly IJsonSerializer _serializer;
     }
 }
