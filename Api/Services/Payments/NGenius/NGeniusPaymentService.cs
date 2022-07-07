@@ -85,7 +85,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                         .Select((invoiceItem, counter) => 
                             {
                                 var roomItem = booking.Rooms[counter];
-
                                 return new InvoiceItemInfo(roomItem.Price, invoiceItem);
                             })
                         .ToList();
