@@ -84,15 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                     foreach (var invoice in invoices)
                     {
                         var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
-                        var invoicesItems = bookingInfo.InvoiceItems
-                            .Select((invoiceItem, counter) =>
-                                {
-                                    var roomItem = booking.Rooms[counter];
-                                    return new InvoiceItemInfo(roomItem.Price, invoiceItem);
-                                })
-                            .ToList();
-                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency),
-                            invoicesItems, bookingInfo);
+                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency), bookingInfo);
 
                         invoice.Data = _serializer.SerializeObject(bookingInfo);
                     }
