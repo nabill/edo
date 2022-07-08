@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
@@ -18,6 +19,7 @@ using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using IDateTimeProvider = HappyTravel.Edo.Api.Infrastructure.IDateTimeProvider;
 using RoomContractSet = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet;
 
@@ -33,7 +35,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IBookingAnalyticsService bookingAnalyticsService,
             IAccommodationMapperClient mapperClient,
             IAgentContextService agentContext, IAvailabilityRequestStorage requestStorage, IAvailabilitySearchAreaService searchAreaService,
-            ISupplierOptionsStorage supplierOptionsStorage)
+            ISupplierOptionsStorage supplierOptionsStorage,
+            IOptionsMonitor<SecondStepSettings> secondStepSettings)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
@@ -46,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _searchAreaService = searchAreaService;
             _supplierOptionsStorage = supplierOptionsStorage;
             _stateStorage = stateStorage;
+            _secondStepSettings = secondStepSettings;
         }
 
 
@@ -95,9 +99,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             await Task.WhenAll(supplierTasks);
 
             var successfulTasks = supplierTasks.Where(t => t.Result.IsSuccess);
-            
             var failedSuppliers = GetFailedSuppliers();
-            if (failedSuppliers.Any())
+
+            if (_secondStepSettings.CurrentValue.RestartFirstStepOnConnectorFailure && failedSuppliers.Any())
             {
                 await RestartWideAvailabilitySearch(searchId, htId, failedSuppliers);
 
@@ -236,5 +240,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAvailabilityRequestStorage _requestStorage;
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
+        private readonly IOptionsMonitor<SecondStepSettings> _secondStepSettings;
     }
 }
