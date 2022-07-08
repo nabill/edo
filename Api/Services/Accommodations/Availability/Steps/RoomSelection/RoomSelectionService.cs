@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var successfulTasks = supplierTasks.Where(t => t.Result.IsSuccess);
             var failedSuppliers = GetFailedSuppliers();
 
-            if (_secondStepSettings.CurrentValue.RestartFirstStepOnConnectorFailure && failedSuppliers.Any())
+            if (_secondStepSettings.CurrentValue.RestartFirstStepIfCacheExpired && failedSuppliers.Any())
             {
                 await RestartWideAvailabilitySearch(searchId, htId, failedSuppliers);
 
