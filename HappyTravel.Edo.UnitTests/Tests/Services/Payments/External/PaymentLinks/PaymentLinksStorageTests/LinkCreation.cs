@@ -5,11 +5,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
@@ -37,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Valid_links_should_be_registered_successfully(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
-            
+
             var (_, isFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
 
             Assert.False(isFailure);
@@ -52,18 +53,19 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             var linksStorage = CreateService(GetOptions());
 
             var (_, isGenerateFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
-            
+
             Assert.True(isGenerateFailure);
+
 
             IOptions<PaymentLinkOptions> GetOptions()
                 => Options.Create(new PaymentLinkOptions
                 {
                     ClientSettings = new ClientSettings
                     {
-                        Currencies = new List<Currencies> {Currencies.AED, Currencies.EUR},
+                        Currencies = new List<Currencies> { Currencies.AED, Currencies.EUR },
                         ServiceTypes = new Dictionary<ServiceTypes, string>
                         {
-                            {ServiceTypes.HTL, "Hotel booking"}
+                            { ServiceTypes.HTL, "Hotel booking" }
                         }
                     }
                 });
@@ -75,9 +77,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Register_link_should_fail_for_invalid_data(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
-            
+
             var (_, isSendFailure, _) = await linksStorage.Register(paymentLinkCreationData);
-            
+
             Assert.True(isSendFailure);
         }
 
@@ -87,12 +89,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             options ??= GetValidOptions();
             tagProcessor ??= Mock.Of<ITagProcessor>();
+            var administratorContextMock = new Mock<IAdministratorContext>();
+            administratorContextMock
+                .Setup(x => x.GetCurrent())
+                .Returns(Task.FromResult(Result.Success(_administrator)));
 
             return new PaymentLinksStorage(_edoContextMock.Object,
-                new DefaultDateTimeProvider(), 
+                new DefaultDateTimeProvider(),
                 options,
                 tagProcessor,
-                Mock.Of<IAgentContextService>());
+                administratorContextMock.Object);
 
 
             IOptions<PaymentLinkOptions> GetValidOptions()
@@ -100,11 +106,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
                 {
                     ClientSettings = new ClientSettings
                     {
-                        Currencies = new List<Currencies> {Currencies.AED, Currencies.EUR},
+                        Currencies = new List<Currencies> { Currencies.AED, Currencies.EUR },
                         ServiceTypes = new Dictionary<ServiceTypes, string>
                         {
-                            {ServiceTypes.HTL, "Hotel booking"},
-                            {ServiceTypes.TRN, "Airport transfer"}
+                            { ServiceTypes.HTL, "Hotel booking" },
+                            { ServiceTypes.TRN, "Airport transfer" }
                         }
                     },
                     PaymentUrlPrefix = "https://test/prefix"
@@ -125,28 +131,46 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         private readonly Mock<EdoContext> _edoContextMock;
         private PaymentLink LastCreatedLink { get; set; } = new();
 
+        private readonly Administrator _administrator = new()
+        {
+            Id = 1
+        };
+
         public static readonly object[][] ValidLinkDataList =
         {
-            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1", invoiceNumber: "number1")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2", invoiceNumber: "number2")},
-            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3", invoiceNumber: "number3")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4", invoiceNumber: "number4")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5", invoiceNumber: "number5")}
+            new object[] { new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1", invoiceNumber: "number1") },
+            new object[]
+            {
+                new PaymentLinkCreationRequest((decimal)433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2", invoiceNumber: "number2")
+            },
+            new object[]
+            {
+                new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3", invoiceNumber: "number3")
+            },
+            new object[]
+            {
+                new PaymentLinkCreationRequest((decimal)77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4", invoiceNumber: "number4")
+            },
+            new object[]
+            {
+                new PaymentLinkCreationRequest((decimal)0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5", invoiceNumber: "number5")
+            }
         };
 
         public static readonly object[][] InvalidLinkDataList =
         {
-            new object[] {new PaymentLinkCreationRequest(-121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "Invalid amount")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan.com", ServiceTypes.TRN, Currencies.AED, "Invalid email")},
-            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.NotSpecified, "Unspecified currency")}
+            new object[] { new PaymentLinkCreationRequest(-121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "Invalid amount") },
+            new object[] { new PaymentLinkCreationRequest((decimal)433.1, "antuan.com", ServiceTypes.TRN, Currencies.AED, "Invalid email") },
+            new object[] { new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.NotSpecified, "Unspecified currency") }
         };
 
         public static readonly object[][] LinkDataConflictingWithSettings =
         {
-            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.TRN, Currencies.AED, "Not allowed service type")},
-            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.EUR, "Not allowed currency")}
+            new object[] { new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.TRN, Currencies.AED, "Not allowed service type") },
+            new object[] { new PaymentLinkCreationRequest((decimal)433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.EUR, "Not allowed currency") }
         };
-
-        public void Dispose() { }
+        
+        public void Dispose()
+        { }
     }
 }

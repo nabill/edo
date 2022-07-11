@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using Api.Models.Locations;
-using ApiMarket = HappyTravel.Edo.Api.Models.Locations.Market;
+using ApiModels = HappyTravel.Edo.Api.Models.Locations;
 using FluentValidation;
 using System;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Add(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
-            return Validate(languageCode, marketRequest)
+            return Result.Success()
                 .Tap(Add)
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
 
@@ -35,7 +35,11 @@ namespace Api.AdministratorServices.Locations
             {
                 var newMarket = new Market()
                 {
-                    Names = marketRequest.Names!
+                    Names = new HappyTravel.MultiLanguage.MultiLanguage<string>
+                    {
+                        // Hard-coded until we will be back to multilanguage model
+                        En = marketRequest.Name
+                    }
                 };
 
                 _context.Add(newMarket);
@@ -44,7 +48,7 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public async Task<List<ApiMarket>> Get(CancellationToken cancellationToken = default)
+        public async Task<List<ApiModels.Market>> Get(CancellationToken cancellationToken = default)
         {
             var markets = await _marketStorage.Get(cancellationToken);
             return markets
@@ -52,14 +56,14 @@ namespace Api.AdministratorServices.Locations
                 .ToList();
 
 
-            Func<Market, ApiMarket> ToApiProjection()
-                => market => new ApiMarket(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
+            Func<Market, ApiModels.Market> ToApiProjection()
+                => market => new ApiModels.Market(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
         }
 
 
         public Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
-            return Validate(languageCode, marketRequest)
+            return Result.Success()
                 .BindWithTransaction(_context, () => GetMarketById(marketRequest.MarketId!.Value, cancellationToken)
                     .Bind(Update))
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
@@ -67,7 +71,8 @@ namespace Api.AdministratorServices.Locations
 
             async Task<Result> Update(Market marketData)
             {
-                marketData.Names = marketRequest.Names!;
+                // Hard-coded until we will be back to multilanguage model
+                marketData.Names.En = marketRequest.Name;
 
                 _context.Update(marketData);
                 await _context.SaveChangesAsync(cancellationToken);
@@ -182,10 +187,11 @@ namespace Api.AdministratorServices.Locations
         }
 
 
-        public Task<Result<List<Country>>> GetMarketCountries(int marketId, CancellationToken cancellationToken)
+        public Task<Result<List<ApiModels.CountrySlim>>> GetMarketCountries(int marketId, CancellationToken cancellationToken)
         {
             return ValidateGet()
-                .Bind(Get);
+                .Bind(Get)
+                .Map(ToApiModel);
 
 
             Task<Result> ValidateGet()
@@ -200,6 +206,12 @@ namespace Api.AdministratorServices.Locations
 
             async Task<Result<List<Country>>> Get()
                 => await _marketStorage.GetMarketCountries(marketId, cancellationToken);
+
+
+            List<ApiModels.CountrySlim> ToApiModel(List<Country> countries)
+                => countries
+                    .Select(c => new ApiModels.CountrySlim(c.Code, c.Names.En))
+                    .ToList();
         }
 
 
@@ -220,20 +232,21 @@ namespace Api.AdministratorServices.Locations
                 => await _context.Markets.AnyAsync(m => m.Id == marketId, cancellationToken);
 
 
-        private Result Validate(string languageCode, MarketRequest marketRequest)
-        {
-            if (marketRequest.Names is null)
-                return Result.Failure("Request doesn't contain any names by language code.");
+        // Commented until we will be back to multilanguage model
+        // private Result Validate(string languageCode, MarketRequest marketRequest)
+        // {
+        //     if (marketRequest.Names is null)
+        //         return Result.Failure("Request doesn't contain any names by language code.");
 
-            var value = string.Empty;
-            var hasCurrentLanguageCode = marketRequest.Names.TryGetValue(languageCode, out value);
-            var hasDefaultLanguageCode = marketRequest.Names.TryGetValue(LocalizationHelper.DefaultLanguageCode, out value);
+        //     var value = string.Empty;
+        //     var hasCurrentLanguageCode = marketRequest.Names.TryGetValue(languageCode, out value);
+        //     var hasDefaultLanguageCode = marketRequest.Names.TryGetValue(LocalizationHelper.DefaultLanguageCode, out value);
 
-            if (!hasCurrentLanguageCode && !hasDefaultLanguageCode)
-                return Result.Failure("Request need to be contained at least current language code or default language code.");
+        //     if (!hasCurrentLanguageCode && !hasDefaultLanguageCode)
+        //         return Result.Failure("Request need to be contained at least current language code or default language code.");
 
-            return Result.Success();
-        }
+        //     return Result.Success();
+        // }
 
 
         private const int UnknownMarketId = 1;
