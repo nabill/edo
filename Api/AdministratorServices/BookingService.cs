@@ -61,7 +61,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     Status = booking.Status,
                     Supplier = suppliersDictionary[booking.SupplierCode],
                     SupplierCode = booking.SupplierCode,
-                    CancellationDate = booking.Cancelled
+                    CancellationDate = booking.Cancelled,
+                    MainPassengerName = booking.MainPassengerName
                 };
 
             return expression == null
