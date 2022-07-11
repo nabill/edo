@@ -17,10 +17,12 @@ namespace Api.AdministratorServices.Locations
 {
     public class MarketManagementService : IMarketManagementService
     {
-        public MarketManagementService(EdoContext context, IMarketManagementStorage marketStorage)
+        public MarketManagementService(EdoContext context, IMarketManagementStorage marketStorage,
+            ICountryManagementStorage countryStorage)
         {
             _context = context;
             _marketStorage = marketStorage;
+            _countryStorage = countryStorage;
         }
 
 
@@ -84,9 +86,12 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Remove(int marketId, CancellationToken cancellationToken = default)
         {
+            var unknownMarketId = FindUnknownMarketId(cancellationToken);
+
             return ValidateRemove()
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
-                    .Bind(Remove))
+                    .Bind(Remove)
+                    .Tap(ReleaseCountries))
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
 
 
@@ -107,6 +112,25 @@ namespace Api.AdministratorServices.Locations
 
                 return Result.Success();
             }
+
+
+            async Task ReleaseCountries()
+            {
+                var countries = await _context.Countries
+                    .Where(c => c.MarketId == marketId)
+                    .ToListAsync(cancellationToken);
+
+                countries.ForEach(async c =>
+                {
+                    c.MarketId = unknownMarketId;
+                    await _marketStorage.RefreshCountry(c, cancellationToken);
+                });
+
+                _context.UpdateRange(countries);
+                await _context.SaveChangesAsync(cancellationToken);
+                await _countryStorage.Refresh(cancellationToken);
+
+            }
         }
 
 
@@ -118,6 +142,7 @@ namespace Api.AdministratorServices.Locations
                 .Tap(SetDifferencesToUnkownMarket)
                 .Tap(RefreshUnknownMarketCountries)
                 .Tap(Update)
+                .Tap(() => _countryStorage.Refresh(cancellationToken))
                 .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken));
 
 
@@ -175,13 +200,6 @@ namespace Api.AdministratorServices.Locations
             }
 
 
-            int FindUnknownMarketId(CancellationToken cancellationToken)
-                => _context.Markets
-                    .Where(m => m.Id == UnknownMarketId)
-                    .Select(m => m.Id)
-                    .Single();
-
-
             async Task RefreshUnknownMarketCountries()
                 => await _marketStorage.RefreshMarketCountries(UnknownMarketId, cancellationToken);
         }
@@ -232,6 +250,13 @@ namespace Api.AdministratorServices.Locations
                 => await _context.Markets.AnyAsync(m => m.Id == marketId, cancellationToken);
 
 
+        private int FindUnknownMarketId(CancellationToken cancellationToken)
+                => _context.Markets
+                    .Where(m => m.Id == UnknownMarketId)
+                    .Select(m => m.Id)
+                    .Single();
+
+
         // Commented until we will be back to multilanguage model
         // private Result Validate(string languageCode, MarketRequest marketRequest)
         // {
@@ -253,5 +278,6 @@ namespace Api.AdministratorServices.Locations
 
         private readonly EdoContext _context;
         private readonly IMarketManagementStorage _marketStorage;
+        private readonly ICountryManagementStorage _countryStorage;
     }
 }
