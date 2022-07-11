@@ -22,6 +22,13 @@ namespace HappyTravel.Edo.Api.Models.Bookings.Invoices
             MainPassengerLastName = mainPassengerLastName;
         }
 
+
+        public InvoiceItemInfo(MoneyAmount total, InvoiceItemInfo invoiceItemInfo)
+            : this(invoiceItemInfo.Number, invoiceItemInfo.AccommodationName, invoiceItemInfo.RoomDescription, invoiceItemInfo.Price,
+                total, invoiceItemInfo.RoomType, invoiceItemInfo.DeadlineDate, invoiceItemInfo.MainPassengerFirstName, invoiceItemInfo.MainPassengerLastName)
+            {}
+
+
         public int Number { get; }
         public string AccommodationName { get; }
         public string RoomDescription { get; }

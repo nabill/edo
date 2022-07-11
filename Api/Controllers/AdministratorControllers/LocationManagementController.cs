@@ -4,8 +4,7 @@ using Api.AdministratorServices.Locations;
 using Api.Models.Locations;
 using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Data.Locations;
-using ApiModels = HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +13,14 @@ namespace Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/locations/markets")]
+    [Route("api/{v:apiVersion}/admin/locations")]
     [Produces("application/json")]
-    public class MarketManagementController : BaseController
+    public class LocationManagementController : BaseController
     {
-        public MarketManagementController(IMarketManagementService marketManagementService)
+        public LocationManagementController(IMarketManagementService marketManagementService, ICountryManagementService countryManagementService)
         {
             _marketManagementService = marketManagementService;
+            _countryManagementService = countryManagementService;
         }
 
 
@@ -29,7 +29,7 @@ namespace Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="marketRequest">Market request</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("markets")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
@@ -41,8 +41,8 @@ namespace Api.Controllers.AdministratorControllers
         ///     Gets a list of markup markets.
         /// </summary>
         /// <returns>List of markup markets</returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(List<ApiModels.Market>), StatusCodes.Status200OK)]
+        [HttpGet("markets")]
+        [ProducesResponseType(typeof(List<Market>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarkets()
             => Ok(await _marketManagementService.Get());
@@ -54,7 +54,7 @@ namespace Api.Controllers.AdministratorControllers
         /// <param name="marketId">Market's id</param>
         /// <param name="marketRequest">Market request</param>
         /// <returns></returns>
-        [HttpPut("{marketId:int}")]
+        [HttpPut("markets/{marketId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
@@ -67,7 +67,7 @@ namespace Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="marketId">Market's id</param>
         /// <returns></returns>
-        [HttpDelete("{marketId:int}")]
+        [HttpDelete("markets/{marketId:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
@@ -76,12 +76,23 @@ namespace Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        ///     Gets all list of countries.
+        /// </summary>
+        /// <returns>List of all countries</returns>
+        [HttpGet("countries")]
+        [ProducesResponseType(typeof(List<Country>), StatusCodes.Status200OK)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
+        public async Task<IActionResult> GetAllCountries()
+            => Ok(await _countryManagementService.Get());
+
+
+        /// <summary>
         ///     Update the composition of the market countries
         /// </summary>
         /// <param name="marketId">Market's id</param>
         /// <param name="countryRequest">Country request</param>
         /// <returns></returns>
-        [HttpPut("{marketId:int}/countries")]
+        [HttpPut("markets/{marketId:int}/countries")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
@@ -94,13 +105,14 @@ namespace Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="marketId">Market's id</param>
         /// <returns>List of countries of market</returns>
-        [HttpGet("{marketId:int}/countries")]
-        [ProducesResponseType(typeof(List<Country>), StatusCodes.Status200OK)]
+        [HttpGet("markets/{marketId:int}/countries")]
+        [ProducesResponseType(typeof(List<CountrySlim>), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarketCountries([FromRoute] int marketId)
             => OkOrBadRequest(await _marketManagementService.GetMarketCountries(marketId));
 
 
         private readonly IMarketManagementService _marketManagementService;
+        private readonly ICountryManagementService _countryManagementService;
     }
 }

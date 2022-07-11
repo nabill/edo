@@ -1,4 +1,3 @@
-using HappyTravel.MultiLanguage;
 using Newtonsoft.Json;
 
 namespace Api.Models.Locations
@@ -6,18 +5,18 @@ namespace Api.Models.Locations
     public readonly struct MarketRequest
     {
         [JsonConstructor]
-        public MarketRequest(int marketId, MultiLanguage<string> names)
+        public MarketRequest(int marketId, string name)
         {
             MarketId = marketId;
-            Names = names;
+            Name = name;
         }
 
 
-        public MarketRequest(int marketId, MarketRequest marketRequest) : this(marketId, marketRequest.Names)
+        public MarketRequest(int marketId, MarketRequest marketRequest) : this(marketId, marketRequest.Name)
         { }
 
 
         public int? MarketId { get; }
-        public MultiLanguage<string> Names { get; }
+        public string Name { get; }
     }
 }

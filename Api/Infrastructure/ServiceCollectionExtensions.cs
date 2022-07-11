@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
@@ -45,9 +44,6 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
-using HappyTravel.MailSender;
-using HappyTravel.MailSender.Infrastructure;
-using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
@@ -175,48 +171,76 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
                 })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                })
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.MapperManagement, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
-            });
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.VccApi, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
-            });
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("VccService:Endpoint"));
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.DacManagementClient, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.UsersManagementIdentityClient, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.SupplierOptionsProvider, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(authorityUrl);
-            });
+                {
+                    client.BaseAddress = new Uri(authorityUrl);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddClientAccessTokenHttpClient(HttpClientNames.CurrencyService, HttpClientNames.AccessTokenClient, client =>
-            {
-                client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
-            })
+                {
+                    client.BaseAddress = new Uri(configuration["CurrencyConverter:WebApiHost"]);
+                })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
+            services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl))
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(configuration["Edo:Google:Endpoint"]); })
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-                .AddPolicyHandler(GetDefaultRetryPolicy());
-
-            services.AddHttpClient(SendGridMailSender.HttpClientName)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
@@ -248,6 +272,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
                 })
+                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient)
@@ -274,20 +302,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var mailSettings = vaultClient.Get(configuration["Edo:Email:Options"]).GetAwaiter().GetResult();
             var edoAgentAppFrontendUrl = mailSettings[configuration["Edo:Email:EdoAgentAppFrontendUrl"]];
-
-            var sendGridApiKey = mailSettings[configuration["Edo:Email:ApiKey"]];
-            var senderAddress = mailSettings[configuration["Edo:Email:SenderAddress"]];
-            services.Configure<SenderOptions>(options =>
-            {
-                options.ApiKey = sendGridApiKey;
-                options.BaseUrl = new Uri(edoAgentAppFrontendUrl);
-                options.SenderAddress = new EmailAddress(senderAddress);
-            });
-
             var edoManagementFrontendUrl = mailSettings[configuration["Edo:Email:EdoManagementFrontendUrl"]];
+
             services.Configure<AdminInvitationMailOptions>(options =>
             {
                 options.FrontendBaseUrl = edoManagementFrontendUrl;
+            });
+
+            services.Configure<AgentAppOptions>(options =>
+            {
+                options.BaseUri = new Uri(edoAgentAppFrontendUrl);
             });
 
             var reservationsOfficeBackupEmail = mailSettings[configuration["Edo:Email:ReservationsOfficeBackupEmail"]];
@@ -475,8 +499,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-
-            services.AddSingleton<IMailSender, SendGridMailSender>();
+            
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
@@ -715,6 +738,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAvailabilityRequestStorage, AvailabilityRequestStorage>();
             services.AddTransient<IMarketManagementService, MarketManagementService>();
             services.AddTransient<IMarketManagementStorage, MarketManagementStorage>();
+            services.AddTransient<ICountryManagementService, CountryManagementService>();
+            services.AddTransient<ICountryManagementStorage, CountryManagementStorage>();
             services.AddTransient<IAgencySupplierManagementService, AgencySupplierManagementService>();
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
