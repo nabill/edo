@@ -75,12 +75,25 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Update_market_should_return_success()
         {
             const string languageCode = "en";
-            const int marketId = 1;
+            const int marketId = 2;
             var marketRequest = new MarketRequest(marketId, "Far East");
 
             var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Update_unknown_market_should_return_fail()
+        {
+            const string languageCode = "en";
+            const int marketId = 1;
+            var marketRequest = new MarketRequest(marketId, "Far East");
+
+            var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
         }
 
 
