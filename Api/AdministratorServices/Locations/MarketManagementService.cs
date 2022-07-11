@@ -53,10 +53,10 @@ namespace Api.AdministratorServices.Locations
             var markets = await _marketStorage.Get(cancellationToken);
             return markets
                 .Select(ToApiProjection())
+                .OrderBy(m => m.Name)
                 .ToList();
 
-
-            Func<Market, ApiModels.Market> ToApiProjection()
+            static Func<Market, ApiModels.Market> ToApiProjection()
                 => market => new ApiModels.Market(market.Id, market.Names.GetValueOrDefault(LocalizationHelper.DefaultLanguageCode));
         }
 
