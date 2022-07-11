@@ -17,10 +17,12 @@ namespace Api.AdministratorServices.Locations
 {
     public class MarketManagementService : IMarketManagementService
     {
-        public MarketManagementService(EdoContext context, IMarketManagementStorage marketStorage)
+        public MarketManagementService(EdoContext context, IMarketManagementStorage marketStorage,
+            ICountryManagementStorage countryStorage)
         {
             _context = context;
             _marketStorage = marketStorage;
+            _countryStorage = countryStorage;
         }
 
 
@@ -84,10 +86,13 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Remove(int marketId, CancellationToken cancellationToken = default)
         {
+            var unknownMarketId = FindUnknownMarketId(cancellationToken);
+
             return ValidateRemove()
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
-                    .Bind(Remove))
-                .Tap(() => _marketStorage.Refresh(cancellationToken));
+                    .Bind(Remove)
+                    .Tap(ReleaseCountries))
+                .Tap(CacheRefresh);
 
 
             Result ValidateRemove()
@@ -107,6 +112,30 @@ namespace Api.AdministratorServices.Locations
 
                 return Result.Success();
             }
+
+
+            async Task ReleaseCountries()
+            {
+                var countries = await _context.Countries
+                    .Where(c => c.MarketId == marketId)
+                    .ToListAsync(cancellationToken);
+
+                countries.ForEach(c => c.MarketId = unknownMarketId);
+
+                _context.UpdateRange(countries);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await _countryStorage.Refresh(cancellationToken);
+                countries.ForEach(async c => await _marketStorage.RefreshCountry(c, cancellationToken));
+            }
+
+
+            async Task CacheRefresh()
+            {
+                await _marketStorage.Refresh(cancellationToken);
+                await _marketStorage.RefreshMarketCountries(UnknownMarketId, cancellationToken);
+                await _marketStorage.RefreshMarketCountries(marketId, cancellationToken);
+            }
         }
 
 
@@ -116,9 +145,10 @@ namespace Api.AdministratorServices.Locations
 
             return ValidateUpdate()
                 .Tap(SetDifferencesToUnkownMarket)
-                .Tap(RefreshUnknownMarketCountries)
                 .Tap(Update)
-                .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken));
+                .Tap(() => _countryStorage.Refresh(cancellationToken))
+                .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken))
+                .Tap(RefreshUnknownMarketCountries);
 
 
             Task<Result> ValidateUpdate()
@@ -155,7 +185,7 @@ namespace Api.AdministratorServices.Locations
                 });
 
                 _context.UpdateRange(countriesDifferences);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
 
@@ -171,15 +201,8 @@ namespace Api.AdministratorServices.Locations
                 });
 
                 _context.UpdateRange(countries);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
-
-
-            int FindUnknownMarketId(CancellationToken cancellationToken)
-                => _context.Markets
-                    .Where(m => m.Id == UnknownMarketId)
-                    .Select(m => m.Id)
-                    .Single();
 
 
             async Task RefreshUnknownMarketCountries()
@@ -232,6 +255,13 @@ namespace Api.AdministratorServices.Locations
                 => await _context.Markets.AnyAsync(m => m.Id == marketId, cancellationToken);
 
 
+        private int FindUnknownMarketId(CancellationToken cancellationToken)
+                => _context.Markets
+                    .Where(m => m.Id == UnknownMarketId)
+                    .Select(m => m.Id)
+                    .Single();
+
+
         // Commented until we will be back to multilanguage model
         // private Result Validate(string languageCode, MarketRequest marketRequest)
         // {
@@ -253,5 +283,6 @@ namespace Api.AdministratorServices.Locations
 
         private readonly EdoContext _context;
         private readonly IMarketManagementStorage _marketStorage;
+        private readonly ICountryManagementStorage _countryStorage;
     }
 }
