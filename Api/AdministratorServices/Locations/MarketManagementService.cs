@@ -92,7 +92,7 @@ namespace Api.AdministratorServices.Locations
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
                     .Bind(Remove)
                     .Tap(ReleaseCountries))
-                .Tap(() => _marketStorage.Refresh(cancellationToken));
+                .Tap(CacheRefresh);
 
 
             Result ValidateRemove()
@@ -120,16 +120,21 @@ namespace Api.AdministratorServices.Locations
                     .Where(c => c.MarketId == marketId)
                     .ToListAsync(cancellationToken);
 
-                countries.ForEach(async c =>
-                {
-                    c.MarketId = unknownMarketId;
-                    await _marketStorage.RefreshCountry(c, cancellationToken);
-                });
+                countries.ForEach(c => c.MarketId = unknownMarketId);
 
                 _context.UpdateRange(countries);
                 await _context.SaveChangesAsync(cancellationToken);
-                await _countryStorage.Refresh(cancellationToken);
 
+                await _countryStorage.Refresh(cancellationToken);
+                countries.ForEach(async c => await _marketStorage.RefreshCountry(c, cancellationToken));
+            }
+
+
+            async Task CacheRefresh()
+            {
+                await _marketStorage.Refresh(cancellationToken);
+                await _marketStorage.RefreshMarketCountries(UnknownMarketId, cancellationToken);
+                await _marketStorage.RefreshMarketCountries(marketId, cancellationToken);
             }
         }
 
@@ -140,10 +145,10 @@ namespace Api.AdministratorServices.Locations
 
             return ValidateUpdate()
                 .Tap(SetDifferencesToUnkownMarket)
-                .Tap(RefreshUnknownMarketCountries)
                 .Tap(Update)
                 .Tap(() => _countryStorage.Refresh(cancellationToken))
-                .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken));
+                .Tap(() => _marketStorage.RefreshMarketCountries(request.MarketId, cancellationToken))
+                .Tap(RefreshUnknownMarketCountries);
 
 
             Task<Result> ValidateUpdate()
@@ -180,7 +185,7 @@ namespace Api.AdministratorServices.Locations
                 });
 
                 _context.UpdateRange(countriesDifferences);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
 
@@ -196,7 +201,7 @@ namespace Api.AdministratorServices.Locations
                 });
 
                 _context.UpdateRange(countries);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
 
