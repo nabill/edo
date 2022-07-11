@@ -104,9 +104,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (_secondStepSettings.CurrentValue.RestartFirstStepIfCacheExpired && failedSuppliers.Any())
             {
                 await RestartWideAvailabilitySearch(searchId, htId, failedSuppliers);
+                
+                // need to get fresh selected results, because availabilityIds were changed on connectors
+                var refreshedSelectedResults = await GetSelectedWideAvailabilityResults(searchId, htId);
+                if (refreshedSelectedResults.IsFailure)
+                    return Result.Failure<List<RoomContractSet>>(refreshedSelectedResults.Error);
 
-                var failedSelectedResults = selectedResults.Where(r => failedSuppliers.Contains(r.Source));
-                var secondTryResults = failedSelectedResults
+                var secondTryResults = refreshedSelectedResults.Value.Where(r => failedSuppliers.Contains(r.Source))
                     .Select(GetSupplierAvailability)
                     .ToArray();
 
@@ -115,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 foreach (var result in secondTryResults)
                 {
                     if (result.Result.IsSuccess)
-                        successfulTasks.Append(result);
+                        successfulTasks = successfulTasks.Append(result);
                 }
             }
             
@@ -211,20 +215,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     continue;
                 }
 
-                StartSearchTask(supplier, supplierCodeMappings);
+                // clear storage from failed data before starting a new search
+                await _wideAvailabilityStorage.Clear(supplierCode, searchId);
+                await StartSearchTask(supplier, supplierCodeMappings);
             }
 
 
-            void StartSearchTask(SlimSupplier supplier, List<SupplierCodeMapping> supplierCodeMappings)
+            async Task StartSearchTask(SlimSupplier supplier, List<SupplierCodeMapping> supplierCodeMappings)
             {
-                Task.Run(async () =>
-                {
-                    using var scope = _serviceScopeFactory.CreateScope();
+                using var scope = _serviceScopeFactory.CreateScope();
 
-                    await WideAvailabilitySearchTask
-                        .Create(scope.ServiceProvider)
-                        .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings, useCache: false);
-                });
+                await WideAvailabilitySearchTask
+                    .Create(scope.ServiceProvider)
+                    .Start(searchId, request, supplierCodeMappings, supplier, agent, languageCode, searchSettings, useCache: false);
             }
         }
 
