@@ -65,10 +65,20 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Update(string languageCode, MarketRequest marketRequest, CancellationToken cancellationToken = default)
         {
-            return Result.Success()
+            return ValidateUpdate()
                 .BindWithTransaction(_context, () => GetMarketById(marketRequest.MarketId!.Value, cancellationToken)
                     .Bind(Update))
                 .Tap(() => _marketStorage.Refresh(cancellationToken));
+
+
+            Result ValidateUpdate()
+                => GenericValidator<int>.Validate(v =>
+                    {
+                        v.RuleFor(m => m)
+                            .GreaterThan(0)
+                            .NotEqual(UnknownMarketId)
+                            .WithMessage("Updating unknown market is forbidden");
+                    }, marketRequest.MarketId!.Value);
 
 
             async Task<Result> Update(Market marketData)
@@ -86,8 +96,6 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> Remove(int marketId, CancellationToken cancellationToken = default)
         {
-            var unknownMarketId = FindUnknownMarketId(cancellationToken);
-
             return ValidateRemove()
                 .BindWithTransaction(_context, () => GetMarketById(marketId, cancellationToken)
                     .Bind(Remove)
@@ -120,7 +128,7 @@ namespace Api.AdministratorServices.Locations
                     .Where(c => c.MarketId == marketId)
                     .ToListAsync(cancellationToken);
 
-                countries.ForEach(c => c.MarketId = unknownMarketId);
+                countries.ForEach(c => c.MarketId = UnknownMarketId);
 
                 _context.UpdateRange(countries);
                 await _context.SaveChangesAsync(cancellationToken);
@@ -141,8 +149,6 @@ namespace Api.AdministratorServices.Locations
 
         public Task<Result> UpdateMarketCountries(CountryRequest request, CancellationToken cancellationToken)
         {
-            var unknownMarketId = FindUnknownMarketId(cancellationToken);
-
             return ValidateUpdate()
                 .Tap(SetDifferencesToUnkownMarket)
                 .Tap(Update)
@@ -157,12 +163,14 @@ namespace Api.AdministratorServices.Locations
                         v.RuleFor(r => r.MarketId)
                             .NotNull()
                             .MustAsync(IsExist())
-                            .WithMessage($"Market with Id {request.MarketId} was not found");
+                            .WithMessage($"Market with Id {request.MarketId} was not found")
+                            .NotEqual(UnknownMarketId)
+                            .WithMessage("Updating unknown market's countries is forbidden");
 
                         v.RuleFor(r => r.CountryCodes)
-                            .NotEmpty()
+                            .NotNull()
                             .ForEach(c => c
-                                .MustAsync(CheckCountryAvailability(request.MarketId, unknownMarketId))
+                                .MustAsync(CheckCountryAvailability(request.MarketId, UnknownMarketId))
                                 .WithMessage("One or many of the country's codes are not available"));
 
 
@@ -181,7 +189,7 @@ namespace Api.AdministratorServices.Locations
 
                 countriesDifferences.ForEach(c =>
                 {
-                    c.MarketId = unknownMarketId;
+                    c.MarketId = UnknownMarketId;
                 });
 
                 _context.UpdateRange(countriesDifferences);
@@ -253,13 +261,6 @@ namespace Api.AdministratorServices.Locations
         private Func<int, CancellationToken, Task<bool>> IsExist()
             => async (marketId, cancellationToken)
                 => await _context.Markets.AnyAsync(m => m.Id == marketId, cancellationToken);
-
-
-        private int FindUnknownMarketId(CancellationToken cancellationToken)
-                => _context.Markets
-                    .Where(m => m.Id == UnknownMarketId)
-                    .Select(m => m.Id)
-                    .Single();
 
 
         // Commented until we will be back to multilanguage model
