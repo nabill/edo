@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Models
@@ -26,5 +28,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         public string Supplier { get; set; }
         public string SupplierCode { get; set; }
         public DateTimeOffset? CancellationDate { get; set; }
+        public string MainPassengerName { get; set; }
     }
 }

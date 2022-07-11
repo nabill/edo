@@ -75,7 +75,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             return await GetBooking(referenceCode)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
-                // .Tap(RecalculatePrice) Will be enable in next release (28-29.06.2022)
                 .Tap(SendReceipt);
 
 
@@ -93,13 +92,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result> CaptureMoney(Booking booking)
                 => await Capture(booking, agent.ToApiCaller());
-
-
-            async Task RecalculatePrice(Booking booking)
-            {
-                booking.TotalPrice = booking.CreditCardPrice;
-                await _bookingInfoService.UpdateBookingInfo(booking);
-            }
 
 
             async Task SendReceipt(Booking booking)

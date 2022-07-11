@@ -19,16 +19,18 @@ public class PaymentLinkReportRecordManager : IRecordManager<PaymentLinkReportDa
     public async Task<IEnumerable<PaymentLinkReportData>> Get(DateTime fromDate, DateTime endDate)
     {
         return await (from paymentLink in _context.PaymentLinks
-                join agent in _context.Agents on paymentLink.AgentId equals agent.Id into agentGroup
-                from agent in agentGroup.DefaultIfEmpty()
+                join admin in _context.Administrators on paymentLink.AdministratorId equals admin.Id into adminGroup
+                from admin in adminGroup.DefaultIfEmpty()
+                orderby paymentLink.Created descending 
                 where paymentLink.Created >= fromDate && paymentLink.Created < endDate
                 select new PaymentLinkReportData
                 {
                     Amount = paymentLink.Amount,
                     PaymentDate = paymentLink.LastPaymentDate,
+                    Created = paymentLink.Created,
                     Currency = paymentLink.Currency,
                     InvoiceNumber = paymentLink.InvoiceNumber,
-                    Agent = agent,
+                    Administrator = admin,
                     PaymentProcessor = paymentLink.PaymentProcessor,
                     PaymentResponse = paymentLink.LastPaymentResponse,
                     ServiceType = paymentLink.ServiceType

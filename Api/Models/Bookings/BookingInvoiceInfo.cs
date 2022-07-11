@@ -13,9 +13,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             BuyerDetails = bookingInvoiceData.BuyerDetails;
             PayDueDate = bookingInvoiceData.PayDueDate;
             ReferenceCode = bookingInvoiceData.ReferenceCode;
+            ClientReferenceCode = bookingInvoiceData.ClientReferenceCode;
             SupplierReferenceCode = bookingInvoiceData.SupplierReferenceCode;
             InvoiceItems = bookingInvoiceData.InvoiceItems;
             TotalPrice = bookingInvoiceData.TotalPrice;
+            NetPrice = bookingInvoiceData.NetPrice;
             SellerDetails = bookingInvoiceData.SellerDetails;
             CheckInDate = bookingInvoiceData.CheckInDate;
             CheckOutDate = bookingInvoiceData.CheckOutDate;
@@ -27,9 +29,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BuyerInfo BuyerDetails { get; }
         public DateTime PayDueDate { get; }
         public string ReferenceCode { get; }
+        public string? ClientReferenceCode { get; }
         public string SupplierReferenceCode { get; }
         public List<InvoiceItemInfo> InvoiceItems { get; }
         public MoneyAmount TotalPrice { get; }
+        public MoneyAmount NetPrice { get; }
         public SellerInfo SellerDetails { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
