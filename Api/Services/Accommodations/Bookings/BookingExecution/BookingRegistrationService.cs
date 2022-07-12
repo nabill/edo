@@ -49,20 +49,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, string languageCode)
         {
             var agent = await _agentContext.GetAgent();
-            var (_, isFailure, booking, error) = await CheckRooms()
+            return await CheckRooms()
                 .Map(GetTags)
-                .Map(Create)
+                .Bind(Create)
                 .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder);
-
-            if (isFailure)
-                return Result.Failure<Booking>(error);
-
-            _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
-            return booking;
-
+                .Tap(CreateSupplierOrder)
+                .Tap(booking => _logger.LogBookingRegistrationSuccess(booking.ReferenceCode));
 
             Result CheckRooms()
             {
@@ -109,24 +103,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
-            async Task<Booking> Create((string itn, string referenceCode) tags)
+            async Task<Result<Booking>> Create((string itn, string referenceCode) tags)
             {
-                var createdBooking = await CreateBooking(
-                    created: _dateTimeProvider.UtcNow(),
-                    agentContext: agent,
-                    itineraryNumber: tags.itn,
-                    referenceCode: tags.referenceCode,
-                    clientReferenceCode: bookingRequest.ClientReferenceCode,
-                    availabilityInfo: availabilityInfo,
-                    paymentMethod: paymentMethod,
-                    bookingRequest: bookingRequest,
-                    languageCode: languageCode);
-
-                _context.Bookings.Add(createdBooking);
-                await _context.SaveChangesAsync();
-                _context.Entry(createdBooking).State = EntityState.Detached;
-
-                return createdBooking;
+                return await CreateBooking(
+                        created: _dateTimeProvider.UtcNow(),
+                        agentContext: agent,
+                        itineraryNumber: tags.itn,
+                        referenceCode: tags.referenceCode,
+                        clientReferenceCode: bookingRequest.ClientReferenceCode,
+                        availabilityInfo: availabilityInfo,
+                        paymentMethod: paymentMethod,
+                        bookingRequest: bookingRequest,
+                        languageCode: languageCode)
+                    .Tap(async booking =>
+                    {
+                        _context.Bookings.Add(booking);  
+                        await _context.SaveChangesAsync();  
+                        _context.Entry(booking).State = EntityState.Detached;
+                    });
             }
 
 
@@ -166,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private async Task<Booking> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
+        private async Task<Result<Booking>> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, string? clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             AccommodationBookingRequest bookingRequest, string languageCode)
         {
@@ -197,9 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             AddServiceDetails();
             AddAgentInfo();
             AddRooms(availabilityInfo.RoomContractSet.Rooms, bookingRequest.RoomDetails);
-            booking = await AddStaticData(booking, availabilityInfo);
-
-            return booking;
+            return await AddStaticData(booking, availabilityInfo);
 
 
             void AddRequestInfo(in AccommodationBookingRequest bookingRequestInternal)
@@ -257,34 +249,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        protected async Task<Booking> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
+        private Task<Result<Booking>> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en");
-            if (isFailure)
-            {
-                throw new Exception($"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{error.Detail}`");
-            }
+           return _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en")
+               .MapError(details => $"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{details.Detail}`")
+               .Map(accommodation =>
+               {
+                   var edoAccommodation = accommodation.ToEdoContract();
+                   var location = edoAccommodation.Location;
 
-            var edoAccommodation = accommodation.ToEdoContract();
-            var location = edoAccommodation.Location;
+                   booking.Location = new AccommodationLocation(location.Country,
+                       location.Locality,
+                       location.LocalityZone,
+                       location.Address,
+                       location.Coordinates);
 
-            booking.Location = new AccommodationLocation(location.Country,
-                location.Locality,
-                location.LocalityZone,
-                location.Address,
-                location.Coordinates);
+                   booking.AccommodationId = edoAccommodation.Id;
+                   booking.AccommodationName = edoAccommodation.Name;
 
-            booking.AccommodationId = edoAccommodation.Id;
-            booking.AccommodationName = edoAccommodation.Name;
+                   booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                       accommodation.Photos.Any() ? new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl) : null,
+                       new ContactInfo(accommodation.Contacts.Emails,
+                           accommodation.Contacts.Phones,
+                           accommodation.Contacts.WebSites,
+                           accommodation.Contacts.Faxes));
 
-            booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                accommodation.Photos.Any() ? new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl) : null,
-                new ContactInfo(accommodation.Contacts.Emails, 
-                    accommodation.Contacts.Phones, 
-                    accommodation.Contacts.WebSites, 
-                    accommodation.Contacts.Faxes));
-
-            return booking;
+                   return booking;
+               });
         }
 
 

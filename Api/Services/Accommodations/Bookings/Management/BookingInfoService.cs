@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
@@ -287,19 +289,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 isDirectContract: isDirectContract,
                 cancellationDate: booking.Cancelled);
 
-           async Task LoadContactInfoIfNeed()
+            Task<Result> LoadContactInfoIfNeed()
             {
-                if (booking.AccommodationInfo.ContactInfo is null)
-                {
-                    var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode);
-                    if (!isFailure)
+                if (booking.AccommodationInfo?.ContactInfo is not null)
+                    return Task.FromResult(Result.Success());
+
+                return _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode)
+                    .MapError(error => error.Detail)
+                    .Bind(async accommodation =>
                     {
-                        booking.AccommodationInfo.ContactInfo = new ContactInfo(accommodation.Contacts.Emails, accommodation.Contacts.Phones, accommodation.Contacts.WebSites,
+                        var contactInfo = new ContactInfo(accommodation.Contacts.Emails, accommodation.Contacts.Phones, accommodation.Contacts.WebSites,
                             accommodation.Contacts.Faxes);
+                        if (booking.AccommodationInfo is null)
+                            booking.AccommodationInfo = new AccommodationInfo(null, contactInfo);
+                        else
+                            booking.AccommodationInfo.ContactInfo = contactInfo;
+                        
                         await _bookingRecordManager.Update(booking);
-                    }
-                       
-                }
+                        return Result.Success();
+                    });
             }
 
 
