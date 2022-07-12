@@ -18,8 +18,10 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Value = value;
             Currency = currency;
             LocationScopeId = locationScopeId;
+            LocationScopeName = null;
             LocationScopeType = locationScopeType;
             DestinationScopeId = destinationScopeId;
+            DestinationScopeName = null;
             DestinationScopeType = destinationScopeType;
             SupplierCode = supplierCode;
         }
@@ -33,24 +35,29 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Value = value;
             Currency = currency;
             LocationScopeId = locationScopeId ?? string.Empty;
+            LocationScopeName = null;
             LocationScopeType = SubjectMarkupScopeTypes.Global;
             DestinationScopeId = string.Empty;
+            DestinationScopeName = null;
             DestinationScopeType = DestinationMarkupScopeTypes.Global;
             SupplierCode = supplierCode;
         }
 
 
         public MarkupPolicySettings(MarkupFunctionType functionType, decimal value,
-            Currencies currency, string description, string locationScopeId, SubjectMarkupScopeTypes locationScopeType,
-            string destinationScopeId, DestinationMarkupScopeTypes destinationScopeType, string? supplierCode)
+            Currencies currency, string description, string locationScopeId, string? locationScopeName,
+            SubjectMarkupScopeTypes locationScopeType, string destinationScopeId, string? destinationScopeName,
+            DestinationMarkupScopeTypes destinationScopeType, string? supplierCode)
         {
             Description = description;
             FunctionType = functionType;
             Value = value;
             Currency = currency;
             LocationScopeId = locationScopeId;
+            LocationScopeName = locationScopeName;
             LocationScopeType = locationScopeType;
             DestinationScopeId = destinationScopeId;
+            DestinationScopeName = destinationScopeName;
             DestinationScopeType = destinationScopeType;
             SupplierCode = supplierCode;
         }
@@ -76,6 +83,11 @@ namespace HappyTravel.Edo.Api.Models.Markups
         public string? LocationScopeId { get; }
 
         /// <summary>
+        ///     Location name of agent from the mapper
+        /// </summary>
+        public string? LocationScopeName { get; }
+
+        /// <summary>
         ///     Type of location scope of agent from the mapper
         /// </summary>
         public SubjectMarkupScopeTypes? LocationScopeType { get; }
@@ -84,6 +96,11 @@ namespace HappyTravel.Edo.Api.Models.Markups
         ///     Destination of booking from the mapper
         /// </summary>
         public string? DestinationScopeId { get; }
+
+        /// <summary>
+        ///     Destination name of booking from the mapper
+        /// </summary>
+        public string? DestinationScopeName { get; }
 
         /// <summary>
         ///     Destination type of booking from the mapper
