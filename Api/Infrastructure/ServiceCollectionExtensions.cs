@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 })
                 .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
                 {
-                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                    AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.Deflate | DecompressionMethods.GZip
                 })
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
