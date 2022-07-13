@@ -175,7 +175,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .Null();
 
                             v.RuleFor(s => s.DestinationScopeType)
-                                .Null();
+                                .Null()
+                                .When(s => s.DestinationScopeType != DestinationMarkupScopeTypes.Global)
+                                .WithMessage(m => "DestinationScopeType must be empty or Global");
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
