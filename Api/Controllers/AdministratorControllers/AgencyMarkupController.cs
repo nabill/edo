@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency id</param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<MarkupInfo>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AgencyMarkupInfo), StatusCodes.Status200OK)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetChildAgencyPolicies([FromRoute] int agencyId)
             => Ok(await _policyManager.GetForAgency(agencyId));

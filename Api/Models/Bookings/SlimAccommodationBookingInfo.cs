@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public int Id { get; init; }
 
         public string ReferenceCode { get; init; }
+        public string? ClientReferenceCode { get; init; }
         
         public string HtId { get; init; }
 

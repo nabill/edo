@@ -13,6 +13,10 @@ namespace HappyTravel.Edo.Api.Services.Documents
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity;
 
 
+        Task Update<TPaymentDocumentEntity>(List<TPaymentDocumentEntity> documentEntities)
+            where TPaymentDocumentEntity : class, IPaymentDocumentEntity;
+
+
         public Task<List<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(ServiceTypes serviceType,
             ServiceSource serviceSource, string referenceCode)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity;

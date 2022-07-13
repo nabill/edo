@@ -8,10 +8,11 @@ public class PaymentLinkReportConverter : IConverter<PaymentLinkReportData, Paym
     public PaymentLinkReportRow Convert(PaymentLinkReportData data) 
         => new()
         {
-            Agent = (data.Agent != null ? data.Agent.FirstName + " " + data.Agent.LastName : "N/A"),
+            Admin = (data.Administrator != null ? data.Administrator.FirstName + " " + data.Administrator.LastName : "N/A"),
             Amount = data.Amount,
             Currency = data.Currency.ToString(),
             InvoiceNumber = !string.IsNullOrEmpty(data.InvoiceNumber) ? data.InvoiceNumber : "N/A",
+            Created = data.Created.ToString(),
             PaymentDate = data.PaymentDate is not null ? data.PaymentDate.ToString() : "N/A",
             PaymentProcessor = data.PaymentProcessor is not null ? data.PaymentProcessor.ToString() : "N/A",
             PaymentResponse = ParsePaymentResponse(data.PaymentResponse),

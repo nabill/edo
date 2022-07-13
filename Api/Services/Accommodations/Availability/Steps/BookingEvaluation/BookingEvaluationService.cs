@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data.Agents;
@@ -39,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             IAvailabilityRequestStorage availabilityRequestStorage,
             ISupplierOptionsStorage supplierOptionsStorage,
             IEvaluationTokenStorage tokenStorage,
-            IAgentContextService agentContext)
+            IAgentContextService agentContext, 
+            IAccountPaymentService accountPaymentService)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
@@ -54,6 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _supplierOptionsStorage = supplierOptionsStorage;
             _agentContext = agentContext;
             _tokenStorage = tokenStorage;
+            _accountPaymentService = accountPaymentService;
         }
 
 
@@ -63,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Baggages.AddSearchId(searchId);
             var agent = await _agentContext.GetAgent();
             var settings = await _accommodationBookingSettingsService.Get();
-            var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
+            var (_, isFailure, selectedRoomSet, error) = await GetSelectedRoomSet(searchId, htId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
 
@@ -71,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (availabilityRequest.IsFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(availabilityRequest.Error);
 
-            var connectorEvaluationResult = await EvaluateOnConnector(result);
+            var connectorEvaluationResult = await EvaluateOnConnector(selectedRoomSet);
             if (connectorEvaluationResult.IsFailure)
             {
                 _logger.LogBookingEvaluationFailure(connectorEvaluationResult.Error.Status, connectorEvaluationResult.Error.Detail);
@@ -87,10 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             if (isContractFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(contractError);
 
-            var accommodationResult = await GetAccommodation(result.htId, languageCode);
+            var accommodationResult = await GetAccommodation(selectedRoomSet.htId, languageCode);
             if (accommodationResult.IsFailure)
             {
-                _logger.LogGetAccommodationByHtIdFailed(result.htId, accommodationResult.Error.Detail);
+                _logger.LogGetAccommodationByHtIdFailed(selectedRoomSet.htId, accommodationResult.Error.Detail);
                 return (RoomContractSetAvailability?)null;
             }
 
@@ -108,8 +111,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ApplySearchSettings);
 
 
-            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId,
-                string CountryHtId, string LocalityHtId, int MarketId, string CountryCode)>>
+            async Task<Result<(string SupplierCode, RoomContractSet RoomContractSet, string AvailabilityId, string htId, 
+                    string CountryHtId, string LocalityHtId, int MarketId, string CountryCode)>>
                 GetSelectedRoomSet(Guid searchId, string htId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, htId, settings.EnabledConnectors))
@@ -140,21 +143,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             async Task<Result<RoomContractSetAvailability, ProblemDetails>> Convert(EdoContracts.Accommodations.RoomContractSetAvailability availabilityData)
             {
-                var (_, isFailure, supplier, error) = _supplierOptionsStorage.Get(result.SupplierCode);
-                if (isFailure)
-                    return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(error);
+                var (_, supplierFailure, supplier, supplierError) = _supplierOptionsStorage.Get(selectedRoomSet.SupplierCode);
+                if (supplierFailure)
+                    return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(supplierError);
 
-                var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind);
+                var (_, balanceFailure, balanceResult, balanceError) =
+                    await _accountPaymentService.GetAccountBalance(selectedRoomSet.RoomContractSet.Rate.FinalPrice.Currency, agent.AgencyId);
+                if (balanceFailure)
+                    return ProblemDetailsBuilder.Fail<RoomContractSetAvailability>(balanceError);
+
+                var isBalanceEnough = balanceResult.Balance >= selectedRoomSet.RoomContractSet.Rate.FinalPrice.Amount;
+
+                var paymentMethods = GetAvailablePaymentTypes(availabilityData, contractKind, isBalanceEnough);
+
                 var evaluationToken = await _tokenStorage.GetAndSet(availabilityData.RoomContractSet.Id);
                 return availabilityData.ToRoomContractSetAvailability(supplier.Name,
                     supplierCode: supplier.Code,
                     paymentMethods: paymentMethods,
                     accommodation: slimAccommodation,
-                    countryHtId: result.CountryHtId,
-                    localityHtId: result.LocalityHtId,
+                    countryHtId: selectedRoomSet.CountryHtId,
+                    localityHtId: selectedRoomSet.LocalityHtId,
                     evaluationToken: evaluationToken,
-                    marketId: result.MarketId,
-                    countryCode: result.CountryCode);
+                    marketId: selectedRoomSet.MarketId,
+                    countryCode: selectedRoomSet.CountryCode);
             }
 
 
@@ -238,7 +249,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             Result<Unit, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability availabilityValue)
             {
-                return RoomContractSetSettingsChecker.IsEvaluationAllowed(availabilityValue.RoomContractSet, availabilityValue.CheckInDate, settings, _dateTimeProvider)
+                return RoomContractSetSettingsChecker.IsEvaluationAllowed(availabilityValue.RoomContractSet, availabilityValue.CheckInDate, settings,
+                    _dateTimeProvider)
                     ? Unit.Instance
                     : ProblemDetailsBuilder.Fail<Unit>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
             }
@@ -281,8 +293,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
             List<PaymentTypes> GetAvailablePaymentTypes(in EdoContracts.Accommodations.RoomContractSetAvailability availability,
-                in ContractKind contractKind)
-                => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow());
+                in ContractKind contractKind, bool isBalanceEnough)
+                => BookingPaymentTypesHelper.GetAvailablePaymentTypes(availability, settings, contractKind, _dateTimeProvider.UtcNow(), isBalanceEnough);
         }
 
 
@@ -327,5 +339,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IAgentContextService _agentContext;
         private readonly IEvaluationTokenStorage _tokenStorage;
+        private readonly IAccountPaymentService _accountPaymentService;
     }
 }

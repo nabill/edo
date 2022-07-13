@@ -3417,6 +3417,16 @@
                 Country's region id.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.CountrySlim.Code">
+            <summary>
+                Country Alpha-2 code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.CountrySlim.Name">
+            <summary>
+                The dictionary of country names on supported languages.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Market.Id">
             <summary>
                 Market id.
@@ -3637,6 +3647,11 @@
                 Location of agent from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeName">
+            <summary>
+                Location name of agent from the mapper
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeType">
             <summary>
                 Type of location scope of agent from the mapper
@@ -3647,6 +3662,11 @@
                 Destination of booking from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeName">
+            <summary>
+                Destination name of booking from the mapper
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeType">
             <summary>
                 Destination type of booking from the mapper
@@ -3655,6 +3675,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.SupplierCode">
             <summary>
                 Destination type of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.TemplateId">
+            <summary>
+                SendGrid template Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Recipients">
+            <summary>
+                Recipients e-mail adresses
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Data">
+            <summary>
+                E-mail data
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
@@ -4163,20 +4198,20 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.AddMarket(Api.Models.Locations.MarketRequest)">
             <summary>
                 Creates market.
             </summary>
             <param name="marketRequest">Market request</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.GetMarkets">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.GetMarkets">
             <summary>
                 Gets a list of markup markets.
             </summary>
             <returns>List of markup markets</returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.ModifyMarket(System.Int32,Api.Models.Locations.MarketRequest)">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.ModifyMarket(System.Int32,Api.Models.Locations.MarketRequest)">
             <summary>
                 Updates market by id.
             </summary>
@@ -4184,14 +4219,20 @@
             <param name="marketRequest">Market request</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.RemoveMarket(System.Int32)">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.RemoveMarket(System.Int32)">
             <summary>
                 Deletes market by id.
             </summary>
             <param name="marketId">Market's id</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.UpdateMarketCountries(System.Int32,Api.Models.Locations.CountryRequest)">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.GetAllCountries">
+            <summary>
+                Gets all list of countries.
+            </summary>
+            <returns>List of all countries</returns>
+        </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.UpdateMarketCountries(System.Int32,Api.Models.Locations.CountryRequest)">
             <summary>
                 Update the composition of the market countries
             </summary>
@@ -4199,7 +4240,7 @@
             <param name="countryRequest">Country request</param>
             <returns></returns>
         </member>
-        <member name="M:Api.Controllers.AdministratorControllers.MarketManagementController.GetMarketCountries(System.Int32)">
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.GetMarketCountries(System.Int32)">
             <summary>
                 Gets a list of countries by market id.
             </summary>

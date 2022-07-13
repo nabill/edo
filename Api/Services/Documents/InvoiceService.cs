@@ -32,6 +32,10 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
+        public Task Update(List<Invoice> invoices)
+            => _documentsStorage.Update(invoices);
+
+
         public async Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource,
             string referenceCode)
         {
@@ -40,6 +44,11 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 .Select(r => (r.GetRegistrationInfo(), _serializer.DeserializeObject<TInvoiceData>(r.Data)))
                 .ToList();
         }
+
+
+        public Task<List<Invoice>> GetInvoices(ServiceTypes serviceType, ServiceSource serviceSource,
+            string referenceCode)
+            => _documentsStorage.Get<Invoice>(serviceType, serviceSource, referenceCode);
 
 
         private readonly IPaymentDocumentsStorage _documentsStorage;

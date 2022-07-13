@@ -41,18 +41,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractTypeNotEmpty, "Contract type cannot be empty")
+                .Ensure(IsContractKindNotEmpty, "Contract kind must be not empty")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
-                .Tap(SetContractType)
+                .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
             
             
-            bool IsContractTypeNotEmpty(Agency _) 
+            bool IsContractKindNotEmpty(Agency _) 
                 => !contractKind.Equals(default(ContractKind));
             
             
-            async Task SetContractType(Agency agency)
+            async Task SetContractKind(Agency agency)
             {
                 agency.ContractKind = contractKind;
                 await _context.SaveChangesAsync();
