@@ -37,7 +37,7 @@ namespace Api.Services.Markups
         public Task<List<MarkupInfo>> Get(CancellationToken cancellationToken)
             => _context.MarkupPolicies
                 .Where(p => !string.IsNullOrEmpty(p.SupplierCode))
-                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings(_context)))
                 .ToListAsync(cancellationToken);
 
 

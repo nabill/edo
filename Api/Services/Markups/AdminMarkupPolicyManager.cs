@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
                     && string.IsNullOrEmpty(p.SupplierCode))
                 .OrderBy(p => p.FunctionType)
-                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings(_context)))
                 .ToListAsync();
 
 

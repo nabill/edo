@@ -456,7 +456,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             #endregion
 
             services.Configure<AvailabilityRequestStorageOptions>(configuration.GetSection("AvailabilityRequestStorage"));
-            services.Configure<SecondStepSettings>(configuration.GetSection("RestartFirstStepIfCacheExpired"));
+            services.Configure<SecondStepSettings>(configuration.GetSection("SecondStepSettings"));
             
             return services;
         }
