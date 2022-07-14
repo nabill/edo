@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _marketManagementStorageMock = new Mock<IMarketManagementStorage>();
             _marketManagementStorageMock.Setup(m => m.Get(It.IsAny<CancellationToken>())).ReturnsAsync(markets);
 
-            _marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
+            _marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object, Mock.Of<ICountryManagementStorage>());
 
             var strategy = new ExecutionStrategyMock();
 
@@ -75,12 +75,25 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
         public async Task Update_market_should_return_success()
         {
             const string languageCode = "en";
-            const int marketId = 1;
+            const int marketId = 2;
             var marketRequest = new MarketRequest(marketId, "Far East");
 
             var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
 
             Assert.False(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Update_unknown_market_should_return_fail()
+        {
+            const string languageCode = "en";
+            const int marketId = 1;
+            var marketRequest = new MarketRequest(marketId, "Far East");
+
+            var (_, isFailure, error) = await _marketManagementService.Update(languageCode, marketRequest, It.IsAny<CancellationToken>());
+
+            Assert.True(isFailure);
         }
 
 
@@ -141,7 +154,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _marketManagementStorageMock
                 .Setup(m => m.GetMarketCountries(marketId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(countriesById);
-            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
+            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object, Mock.Of<ICountryManagementStorage>());
 
 
             var (_, isFailure, countriesResponse) = await marketManagementService.GetMarketCountries(marketId, It.IsAny<CancellationToken>());
@@ -159,7 +172,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices
             _marketManagementStorageMock
                 .Setup(m => m.GetMarketCountries(marketId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(countriesById);
-            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object);
+            var marketManagementService = new MarketManagementService(_edoContextMock.Object, _marketManagementStorageMock.Object, Mock.Of<ICountryManagementStorage>());
 
 
             var (_, isFailure, response, error) = await marketManagementService.GetMarketCountries(marketId, It.IsAny<CancellationToken>());

@@ -24,8 +24,8 @@ namespace Api.AdministratorServices.Locations
                 => await _context.Countries.ToListAsync(cancellationToken), DefaultLocationCachingTime, cancellationToken)!;
 
 
-        public async Task Refresh(CancellationToken cancellationToken)
-            => await _flow.SetAsync(_flow.BuildKey(nameof(CountryManagementStorage), CountryKeyBase), async ()
+        public Task Refresh(CancellationToken cancellationToken)
+            => _flow.SetAsync(_flow.BuildKey(nameof(CountryManagementStorage), CountryKeyBase), async ()
                 => await _context.Countries.ToListAsync(cancellationToken), DefaultLocationCachingTime, cancellationToken)!;
 
 
