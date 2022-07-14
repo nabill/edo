@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Data.Bookings
         public List<BookedRoom> Rooms { get; set; } = new();
         public string AccommodationId { get; set; } = string.Empty;
         public string AccommodationName { get; set; } = string.Empty;
-        public AccommodationInfo? AccommodationInfo { get; set; }
+        public AccommodationInfo? AccommodationInfo { get; set; } = new (null, null);
         public AccommodationLocation Location { get; set; } = null!;
         public List<string>? Tags { get; set; }
         public bool IsDirectContract { get; set; }
