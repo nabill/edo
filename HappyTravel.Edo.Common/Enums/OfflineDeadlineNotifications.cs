@@ -4,8 +4,8 @@ namespace HappyTravel.Edo.Common.Enums
 {
     public enum OfflineDeadlineNotifications
     {
-        [Description("Same day")]
-        SameDay = 0,
+        [Description("After booking confirmed")]
+        AfterBookingConfirmed = 0,
 
         [Description("Fifteen days before")]
         FifteenDays = 1,
