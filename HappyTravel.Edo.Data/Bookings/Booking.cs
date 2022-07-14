@@ -49,5 +49,6 @@ namespace HappyTravel.Edo.Data.Bookings
         public bool IsPackage { get; set; }
         public List<KeyValuePair<string, string>>? SpecialValues { get; set; }
         public DateTimeOffset? DeadlineNotificationSent { get; set; }
+        public OfflineDeadlineNotifications? OfflineDeadlineNotificationsSent { get; set; }
     }
 }
