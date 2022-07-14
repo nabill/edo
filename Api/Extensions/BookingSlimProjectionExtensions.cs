@@ -44,7 +44,7 @@ public static class BookingSlimProjectionExtensions
             if (room.Passengers is null)
                 return "N/A";
 
-            var passenger = room.Passengers.FirstOrDefault();
+            var passenger = room.Passengers.FirstOrDefault(p => p.IsLeader);
             if (Equals(passenger, default))
                 return "N/A";
             
