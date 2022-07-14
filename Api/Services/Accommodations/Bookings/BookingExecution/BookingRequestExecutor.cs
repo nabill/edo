@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -178,12 +179,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             
             _logger.LogVccIssueStarted(booking.ReferenceCode);
 
+            var leadingPassenger = booking.Rooms.SelectMany(r => r.Passengers).FirstOrDefault(p => p.IsLeader);
             return await _creditCardProvider.Get(referenceCode: booking.ReferenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
                 supplierCode: availabilityInfo.SupplierCode,
-                accommodationName: booking.AccommodationName);
+                accommodationName: booking.AccommodationName,
+                leadingPassenger?.FirstName ?? string.Empty,
+                leadingPassenger?.LastName ?? string.Empty,
+                booking.CheckInDate,
+                booking.CheckOutDate);
         }
 
 
