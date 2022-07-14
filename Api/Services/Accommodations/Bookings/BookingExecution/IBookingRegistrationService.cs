@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public interface IBookingRegistrationService
     {
-        Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, string languageCode);
+        Task<Result<Booking>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
+            string languageCode);
     }
 }
