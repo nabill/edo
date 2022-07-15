@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Models;
+using ContactInfo = HappyTravel.Edo.Data.Bookings.ContactInfo;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {

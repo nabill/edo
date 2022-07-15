@@ -1,10 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -16,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.MapperContracts.Public.Accommodations;
 using HappyTravel.Money.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.EntityFrameworkCore;
@@ -94,34 +94,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, string languageCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var bookingDataResult = await _bookingRecordManager.Get(bookingId)
-                .CheckPermissions(agent);
-
-            if (bookingDataResult.IsFailure)
-                return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
-
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
-            if (isFailure)
-                return Result.Failure<AccommodationBookingInfo>(error);
-
-            return bookingInfo;
+            return await _bookingRecordManager.Get(bookingId)
+                .CheckPermissions(agent)
+                .Bind(booking => ConvertToBookingInfo(booking, languageCode, agent));
         }
 
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, string languageCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var bookingDataResult = await _bookingRecordManager.Get(referenceCode)
-                .CheckPermissions(agent);
-
-            if (bookingDataResult.IsFailure)
-                return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
-
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agent);
-            if (isFailure)
-                return Result.Failure<AccommodationBookingInfo>(error);
-
-            return bookingInfo;
+            return await _bookingRecordManager.Get(referenceCode)
+                .CheckPermissions(agent)
+                .Bind(booking => ConvertToBookingInfo(booking, languageCode, agent));
         }
 
 
@@ -280,15 +264,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode);
-            if (isFailure)
-                return Result.Failure<AccommodationBookingInfo>(error.Detail);
-
             var settings = agentContext.HasValue
                 ? await _accommodationBookingSettingsService.Get()
                 : (AccommodationBookingSettings?)null;
 
-            var bookingDetails = GetDetails(booking, accommodation.ToEdoContract());
+            await LoadContactInfoIfNeed();
+            var bookingDetails = GetDetails(booking);
             var supplier = GetSupplier(booking, settings);
             var isDirectContract = GetDirectContractFlag(booking, settings);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
@@ -308,8 +289,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 isDirectContract: isDirectContract,
                 cancellationDate: booking.Cancelled);
 
+            Task<Result> LoadContactInfoIfNeed()
+            {
+                if (booking.AccommodationInfo?.ContactInfo is not null)
+                    return Task.FromResult(Result.Success());
 
-            static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)
+                return _accommodationMapperClient.GetAccommodation(booking.HtId, languageCode)
+                    .MapError(error => error.Detail)
+                    .Bind(async accommodation =>
+                    {
+                        var contactInfo = new ContactInfo(accommodation.Contacts.Emails, accommodation.Contacts.Phones, accommodation.Contacts.WebSites,
+                            accommodation.Contacts.Faxes);
+                        if (booking.AccommodationInfo is null)
+                            booking.AccommodationInfo = new AccommodationInfo(null, contactInfo);
+                        else
+                            booking.AccommodationInfo.ContactInfo = contactInfo;
+                        
+                        await _bookingRecordManager.Update(booking);
+                        return Result.Success();
+                    });
+            }
+
+
+            static AccommodationBookingDetails GetDetails(Booking booking)
             {
                 var passengerNumber = booking.Rooms.Sum(r => r.Passengers.Count);
                 var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;
@@ -322,7 +324,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     checkInDate: booking.CheckInDate.DateTime,
                     checkOutDate: booking.CheckOutDate.DateTime,
                     location: booking.Location,
-                    contactInfo: accommodationDetails.Contacts,
+                    contactInfo: booking.AccommodationInfo.ContactInfo,
                     accommodationId: booking.AccommodationId,
                     accommodationName: booking.AccommodationName,
                     accommodationInfo: booking.AccommodationInfo,

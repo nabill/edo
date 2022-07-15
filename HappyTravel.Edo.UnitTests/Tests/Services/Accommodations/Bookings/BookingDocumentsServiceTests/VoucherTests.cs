@@ -20,6 +20,7 @@ using HappyTravel.MapperContracts.Public.Accommodations.Internals;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using ContactInfo = HappyTravel.MapperContracts.Public.Accommodations.Internals.ContactInfo;
 using ImageInfo = HappyTravel.MapperContracts.Public.Accommodations.Internals.ImageInfo;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.BookingDocumentsServiceTests

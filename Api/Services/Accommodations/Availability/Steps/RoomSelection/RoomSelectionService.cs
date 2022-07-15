@@ -15,6 +15,8 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Errors;
 using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
@@ -139,10 +141,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var failedSuppliers = new List<string>();
                 for (var i = 0; i < supplierTasks.Length; i++)
                 {
-                    if (supplierTasks[i].Result.IsFailure)
-                    {
+                    var result = supplierTasks[i].Result;
+                    if (!result.IsFailure)
+                        continue;
+
+                    if (!result.Error.Extensions.TryGetSearchFailureCode(out var failureCode))
+                        continue;
+
+                    if (failureCode is SearchFailureCodes.AvailabilityNotFound)
                         failedSuppliers.Add(selectedResults[i].Source);
-                    }
                 }
 
                 return failedSuppliers;
