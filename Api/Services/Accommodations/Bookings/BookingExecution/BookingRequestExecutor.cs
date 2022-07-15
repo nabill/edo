@@ -179,15 +179,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             
             _logger.LogVccIssueStarted(booking.ReferenceCode);
 
-            var leadingPassenger = booking.Rooms.SelectMany(r => r.Passengers).FirstOrDefault(p => p.IsLeader);
             return await _creditCardProvider.Get(referenceCode: booking.ReferenceCode,
                 moneyAmount: availabilityInfo.OriginalSupplierPrice,
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
                 supplierCode: availabilityInfo.SupplierCode,
                 accommodationName: booking.AccommodationName,
-                leadingPassenger?.FirstName ?? string.Empty,
-                leadingPassenger?.LastName ?? string.Empty,
+                booking.MainPassengerName ?? string.Empty,
                 booking.CheckInDate,
                 booking.CheckOutDate);
         }
