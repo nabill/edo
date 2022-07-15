@@ -3,7 +3,6 @@ using System.Linq;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
-using Microsoft.OpenApi.Extensions;
 
 namespace HappyTravel.Edo.Api.Extensions;
 
