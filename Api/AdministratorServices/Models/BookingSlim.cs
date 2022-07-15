@@ -29,5 +29,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
         public string SupplierCode { get; set; }
         public DateTimeOffset? CancellationDate { get; set; }
         public string MainPassengerName { get; set; }
+        public int TotalPassengers { get; set; }
     }
 }
