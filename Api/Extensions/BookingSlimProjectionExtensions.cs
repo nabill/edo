@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.DataFormatters.Extensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Data.Bookings;
 
@@ -47,8 +48,9 @@ public static class BookingSlimProjectionExtensions
             var passenger = room.Passengers.FirstOrDefault(p => p.IsLeader);
             if (Equals(passenger, default))
                 return "N/A";
-            
-            return $"{passenger.Title} {passenger.FirstName} {passenger.LastName}";
+
+            var title = EnumExtensions.ToDescriptionString(passenger.Title);
+            return $"{title} {passenger.FirstName} {passenger.LastName}";
         }
         
         
