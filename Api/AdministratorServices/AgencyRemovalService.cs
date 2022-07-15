@@ -15,13 +15,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AgencyRemovalService(EdoContext context,
             IManagementAuditService managementAuditService,
-            IBookingService bookingService,
             IAgencySystemSettingsManagementService agencySystemSettingsManagementService,
             IAgentRemovalService agentRemovalService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
-            _bookingService = bookingService;
             _agencySystemSettingsManagementService = agencySystemSettingsManagementService;
             _agentRemovalService = agentRemovalService;
         }
@@ -50,8 +48,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 => agency.ParentId is not null || agency.VerificationState != AgencyVerificationStates.FullAccess;
 
 
-            async Task<bool> HasNoBookings(Agency agency)
-                => !await _bookingService.GetAgencyBookings(agency.Id).AnyAsync();
+            async Task<bool> HasNoBookings(Agency agency) 
+                => ! await _context.Bookings.AnyAsync(b => b.AgencyId == agencyId);
 
 
             Task<Result> DeleteAgencySystemSettings(Agency agency)
@@ -112,7 +110,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IManagementAuditService _managementAuditService;
-        private readonly IBookingService _bookingService;
         private readonly IAgencySystemSettingsManagementService _agencySystemSettingsManagementService;
         private readonly IAgentRemovalService _agentRemovalService;
         private readonly EdoContext _context;
