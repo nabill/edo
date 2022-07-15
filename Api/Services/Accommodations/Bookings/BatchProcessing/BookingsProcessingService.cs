@@ -230,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     if (agent == default)
                         continue;
 
-                    // Call notification from BookingNotificationService
+                    await _bookingNotificationService.NotifyOfflineDeadlineApproaching(booking.Id, notificationType);
                 }
 
                 return Result.Success();
