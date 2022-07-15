@@ -205,12 +205,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Func<string, CancellationToken, Task<bool>> DestinationMarkupDoesNotExist()
                 => async (scopeId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == scopeId, cancelationToken));
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == scopeId
+                        && m.SupplierCode == null, cancelationToken));
 
 
             Func<string, CancellationToken, Task<bool>> SubjectMarkupDoesNotExist()
                 => async (scopeId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == scopeId, cancelationToken));
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == scopeId
+                        && m.SupplierCode == null, cancelationToken));
 
 
             Func<string, CancellationToken, Task<bool>> AgencyExists()
@@ -232,7 +234,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 => async (agencyId, cancelationToken)
                     => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == agencyId &&
                         m.SubjectScopeType == settings.LocationScopeType && m.DestinationScopeId == settings.DestinationScopeId &&
-                        m.DestinationScopeType == settings.DestinationScopeType, cancelationToken));
+                        m.DestinationScopeType == settings.DestinationScopeType
+                        && m.SupplierCode == null, cancelationToken));
         }
 
 
