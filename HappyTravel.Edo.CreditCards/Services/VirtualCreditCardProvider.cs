@@ -18,15 +18,14 @@ namespace HappyTravel.Edo.CreditCards.Services
         
        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, 
            DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName, 
-           string passengerFirstName, string passengerLastName, DateTimeOffset checkinDate, DateTimeOffset checkoutDate)
+           string passengerName, DateTimeOffset checkinDate, DateTimeOffset checkoutDate)
         {
             // Passing null to credit card types before we'll support the types in contracts
             var (_, isFailure, virtualCreditCard, error) = await _vccService.IssueVirtualCreditCard(referenceCode, moneyAmount, null, activationDate, dueDate, new Dictionary<string, string>
             {
                 {"Supplier", supplierCode},
                 {"AccommodationName", accommodationName},
-                {"PassengerFirstName", passengerFirstName},
-                {"PassengerLastName", passengerLastName},
+                {"PassengerName", passengerName},
                 {"CheckinDate", checkinDate.ToString()},
                 {"CheckoutDate", checkoutDate.ToString()},
             });
