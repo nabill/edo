@@ -141,13 +141,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         v.RuleFor(s => s.SupplierCode)
                             .Null();
 
-                        v.When(m => m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Agency, () =>
+                        v.When(m => m.LocationScopeType is null
+                            || m.LocationScopeType == SubjectMarkupScopeTypes.Agency
+                            || m.LocationScopeType == SubjectMarkupScopeTypes.Global, () =>
                         {
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(DestinationMarkupDoesNotExist()!)
                                 .When(m => (m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country) &&
-                                    m.LocationScopeType is null)
+                                    (m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Global))
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
@@ -169,13 +171,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .WithMessage(m => $"Markup policy with current settings already exist!")
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency &&
                                     m.DestinationScopeId is not null);
+
+                            v.RuleFor(m => m.LocationScopeId)
+                                .Empty()
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Global);
                         }).Otherwise(() =>
                         {
                             v.RuleFor(s => s.DestinationScopeId)
                                 .Null();
 
                             v.RuleFor(s => s.DestinationScopeType)
-                                .Null();
+                                .Null()
+                                .When(s => s.DestinationScopeType != DestinationMarkupScopeTypes.Global)
+                                .WithMessage(m => "DestinationScopeType must be empty or Global");
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
