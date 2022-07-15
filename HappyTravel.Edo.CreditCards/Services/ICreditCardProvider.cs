@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.CreditCards.Services
     {
         Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, 
             DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName, 
-            string passengerFirstName, string passengerLastName, DateTimeOffset checkinDate, DateTimeOffset checkoutDate);
+            string passengerName, DateTimeOffset checkinDate, DateTimeOffset checkoutDate);
 
         Task<Result> ProcessAmountChange(string referenceCode, MoneyAmount newAmount);
     }
