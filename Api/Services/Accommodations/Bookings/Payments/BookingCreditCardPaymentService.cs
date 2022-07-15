@@ -81,8 +81,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         {
             var agent = await _agentContextService.GetAgent();
             return await GetBooking(referenceCode)
-                .Tap(UpdateBookingInfo)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
+                .Tap(UpdateBookingInfo)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Tap(SendReceipt);
 
