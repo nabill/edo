@@ -2,6 +2,7 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -12,6 +13,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo, SlimAgentContext agent);
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
+
+        Task<Result> NotifyOfflineDeadlineApproaching(int bookingId, OfflineDeadlineNotifications notificationType);
 
         Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline);
 

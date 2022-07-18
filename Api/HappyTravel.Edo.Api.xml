@@ -1469,6 +1469,12 @@
             <param name="bookingIds">List of booking ids for notify</param>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyOfflinePaymentsNeeded">
+            <summary>
+                Sends need payment notifications for offline bookings
+            </summary>
+            <returns>Result message</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">
             <summary>
                 Sends bookings summary reports
