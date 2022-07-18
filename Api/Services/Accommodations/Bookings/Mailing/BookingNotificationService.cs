@@ -15,6 +15,7 @@ using EnumFormatters = HappyTravel.DataFormatters.EnumFormatters;
 using MoneyFormatter = HappyTravel.DataFormatters.MoneyFormatter;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -112,12 +113,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         ReferenceCode = booking.ReferenceCode,
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                        Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
+                        Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        OfflineNotificationsType = notificationType
                     };
 
-                    await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
+                    await _notificationService.Send(apiCaller: new ApiCaller(booking.AgentId.ToString(), ApiCallerTypes.Agent),
                         messageData: deadlineData,
-                        notificationType: NotificationTypes.DeadlineApproaching,
+                        notificationType: NotificationTypes.OfflineBookingDeadlineApproaching,
                         email: email);
 
                     booking.OfflineDeadlineNotificationsSent |= notificationType;
