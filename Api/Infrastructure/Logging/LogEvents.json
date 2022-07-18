@@ -115,5 +115,7 @@
     {"id": 1132, "name": "DiscountStorageUpdateFailed", "level": "Error", "template": "Discount storage update failed"},
     {"id": 1133, "name": "MarkupPoliciesSumLessThanZero", "level": "Warning", "template": "Applyed markup policies' sum less than zero. AgentId: {AgentId}; Total percentage: {TotalPercentage}; Markup policies: {Policies}", "argumentTypes": ["int", "decimal", "string"]},
     {"id": 1134, "name": "TotalDeadlineShiftIsPositive", "level": "Warning", "template": "Total deadline shift is positive. AgentId: {AgentId}; AgencyId: {AgencyId}; RootShift: {RootShift}; AgencyShift: {AgencyShift}; AgentShift: {AgentShift};", "argumentTypes": ["int", "int", "int", "int", "int"]},
-    {"id": 1140, "name": "ConnectorClientDelay", "level": "Warning", "template": "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}", "argumentTypes": ["double", "string", "int"]}
+    {"id": 1140, "name": "ConnectorClientDelay", "level": "Warning", "template": "Delaying connector client for {Delay}ms: '{Message}', then making retry {Retry}", "argumentTypes": ["double", "string", "int"]},
+    {"id": 1141, "name": "ConnectorRequestFailedOnSecondStep", "level": "Warning", "template": "{Message}", "argumentTypes": ["string"]},
+    {"id": 1142, "name": "ConnectorResultsWereRefreshed", "level": "Information", "template": "Results for connector '{Connector}' were successfully refreshed", "argumentTypes": ["string"]},
 ]
