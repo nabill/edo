@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -28,35 +29,64 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
     {
         Task.Run(async () =>
         {
-            var booking = await _context.Bookings.FindAsync(bookingId);
-            if (booking?.AccommodationInfo?.Photo is null)
-                return;
+            var key = $"{_imageFileServiceOptions.S3FolderName}/{bookingId}/accommodation.jpg";
+            
+            await GetBookingRecord()
+                .Bind(Validate)
+                .Bind(UploadFile)
+                .Tap(UpdateBooking)
+                .OnFailure(LogError);
 
-            await UploadFile(booking.AccommodationInfo.Photo.SourceUrl, bookingId)
-                .Map(newUrl => booking.AccommodationInfo.Photo.SourceUrl = newUrl)
-                .Tap(_ => _context.Update(booking))
-                .Tap(_ => _context.SaveChangesAsync())
-                .OnFailure(message => 
-                    _logger.LogError($"Booking photo loading error, booking id: {bookingId}, message: {message}"));
+
+            async Task<Result<Booking?>> GetBookingRecord()
+            {
+                return await _context.Bookings.FindAsync(bookingId);
+            }
+
+            Result<Booking> Validate(Booking? booking)
+            {
+                if (booking is null)
+                    return Result.Failure<Booking>($"Could not find booking");
+                
+                if (booking.AccommodationInfo?.Photo?.SourceUrl is null)
+                    return Result.Failure<Booking>($"Booking photo source SourceUrl is null");
+                
+                if (booking.AccommodationInfo.Photo.SourceUrl.Contains(key))
+                    return Result.Failure<Booking>($"Booking photo source already loaded to S3");
+                
+                return Result.Success(booking);
+            }
+
+            async Task<Result<(Booking, string)>> UploadFile(Booking booking)
+            {
+                try
+                {
+                    using HttpResponseMessage response = await _clientFactory.CreateClient().GetAsync(booking.AccommodationInfo.Photo.SourceUrl);
+                    await using var streamToReadFrom = await response.Content.ReadAsStreamAsync();
+                    return await _amazonS3ClientService.Add(_imageFileServiceOptions.Bucket,
+                            key, streamToReadFrom, S3CannedACL.PublicRead)
+                        .Bind(s => Result.Success((booking, s)));
+                }
+                catch (Exception e)
+                {
+                    return Result.Failure<(Booking, string)>(e.Message);
+                }
+            }
+            
+            async Task UpdateBooking((Booking booking, string newUrl) bookingWithNewUrl)
+            {
+                var (booking, newUrl) = bookingWithNewUrl;
+                booking.AccommodationInfo!.Photo!.SourceUrl = newUrl;
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+            }
+
+
+            void LogError(string message)
+            {
+                _logger.LogError($"Booking photo loading error, booking id: {bookingId}, message: {message}");
+            }
         });
-    }
-
-
-    private async Task<Result<string>> UploadFile(string url, long bookingId)
-    {
-        var key = $"{_imageFileServiceOptions.S3FolderName}/{bookingId}/photo.jpg";
-
-        try
-        {
-            using HttpResponseMessage response = await _clientFactory.CreateClient().GetAsync(url);
-            await using var streamToReadFrom = await response.Content.ReadAsStreamAsync();
-            return await _amazonS3ClientService.Add(_imageFileServiceOptions.Bucket,
-                key, streamToReadFrom, S3CannedACL.PublicRead);
-        }
-        catch (Exception e)
-        {
-            return Result.Failure<string>(e.Message);
-        }
     }
 
 
