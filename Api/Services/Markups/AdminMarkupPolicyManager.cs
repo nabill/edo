@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     p.DestinationScopeType == DestinationMarkupScopeTypes.Country)
                     && string.IsNullOrEmpty(p.SupplierCode))
                 .OrderBy(p => p.FunctionType)
-                .Select(p => new MarkupInfo(p.Id, p.GetSettings()))
+                .Select(p => new MarkupInfo(p.Id, p.GetSettings(_context)))
                 .ToListAsync();
 
 
@@ -141,13 +141,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         v.RuleFor(s => s.SupplierCode)
                             .Null();
 
-                        v.When(m => m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Agency, () =>
+                        v.When(m => m.LocationScopeType is null
+                            || m.LocationScopeType == SubjectMarkupScopeTypes.Agency
+                            || m.LocationScopeType == SubjectMarkupScopeTypes.Global, () =>
                         {
                             v.RuleFor(m => m.DestinationScopeId)
                                 .NotNull()
                                 .MustAsync(DestinationMarkupDoesNotExist()!)
                                 .When(m => (m.DestinationScopeType == DestinationMarkupScopeTypes.Market || m.DestinationScopeType == DestinationMarkupScopeTypes.Country) &&
-                                    m.LocationScopeType is null)
+                                    (m.LocationScopeType is null || m.LocationScopeType == SubjectMarkupScopeTypes.Global))
                                 .WithMessage(m => $"Destination markup policy with DestinationScopeId {m.DestinationScopeId} already exists or unexpected value!")
                                 .MustAsync(MarketExists()!)
                                 .When(m => m.DestinationScopeType == DestinationMarkupScopeTypes.Market, ApplyConditionTo.CurrentValidator)
@@ -169,13 +171,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
                                 .WithMessage(m => $"Markup policy with current settings already exist!")
                                 .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Agency &&
                                     m.DestinationScopeId is not null);
+
+                            v.RuleFor(m => m.LocationScopeId)
+                                .Empty()
+                                .When(m => m.LocationScopeType == SubjectMarkupScopeTypes.Global);
                         }).Otherwise(() =>
                         {
                             v.RuleFor(s => s.DestinationScopeId)
                                 .Null();
 
                             v.RuleFor(s => s.DestinationScopeType)
-                                .Null();
+                                .Null()
+                                .When(s => s.DestinationScopeType != DestinationMarkupScopeTypes.Global)
+                                .WithMessage(m => "DestinationScopeType must be empty or Global");
 
                             v.RuleFor(m => m.LocationScopeId)
                                 .NotNull()
@@ -197,12 +205,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Func<string, CancellationToken, Task<bool>> DestinationMarkupDoesNotExist()
                 => async (scopeId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == scopeId, cancelationToken));
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.DestinationScopeId == scopeId
+                        && m.SupplierCode == null, cancelationToken));
 
 
             Func<string, CancellationToken, Task<bool>> SubjectMarkupDoesNotExist()
                 => async (scopeId, cancelationToken)
-                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == scopeId, cancelationToken));
+                    => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == scopeId
+                        && m.SupplierCode == null, cancelationToken));
 
 
             Func<string, CancellationToken, Task<bool>> AgencyExists()
@@ -224,7 +234,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 => async (agencyId, cancelationToken)
                     => !(await _context.MarkupPolicies.AnyAsync(m => m.SubjectScopeId == agencyId &&
                         m.SubjectScopeType == settings.LocationScopeType && m.DestinationScopeId == settings.DestinationScopeId &&
-                        m.DestinationScopeType == settings.DestinationScopeType, cancelationToken));
+                        m.DestinationScopeType == settings.DestinationScopeType
+                        && m.SupplierCode == null, cancelationToken));
         }
 
 

@@ -52,7 +52,7 @@ public class SupplierGrpcConnector : ISupplierConnector
             }, GetCallOptions());
             
             return result.Result.IsFailure
-                ? Result.Failure<AccommodationAvailability, ProblemDetails>(ProblemDetailsBuilder.Build(result.Result.Error))
+                ? Result.Failure<AccommodationAvailability, ProblemDetails>(result.Result.Error)
                 : result.Result.Value;
         });
     }

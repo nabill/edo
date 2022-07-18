@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task Start(Guid searchId, Models.Availabilities.AvailabilityRequest availabilityRequest,
             List<SupplierCodeMapping> accommodationCodeMappings, SlimSupplier supplier,
             AgentContext agent, string languageCode,
-            AccommodationBookingSettings searchSettings)
+            AccommodationBookingSettings searchSettings, bool useCache = true)
         {
             using var _ = Counters.WideAccommodationAvailabilitySearchTaskDuration.WithLabels(supplier.Name).NewTimer();
 
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             catch (Exception ex)
             {
-                _logger.LogSupplierAvailabilitySearchException(ex, supplier.ConnectorUrl);
+                _logger.LogSupplierAvailabilitySearchException(supplier.ConnectorUrl);
                 var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
@@ -78,13 +78,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> GetCachedOrSupplierResult()
             {
                 await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier.Code);
-                
-                var cachedResults = await _storage.GetResults(supplier.Code, searchId, searchSettings);
-                if (cachedResults.Any())
+
+                if (useCache)
                 {
-                    _logger.LogFoundCachedResults(supplier.Code, searchId);
-                    Counters.WideSearchCacheHitCounter.Inc();
-                    return cachedResults;
+                    var cachedResults = await _storage.GetResults(supplier.Code, searchId, searchSettings);
+                    if (cachedResults.Any())
+                    {
+                        _logger.LogFoundCachedResults(supplier.Code, searchId);
+                        Counters.WideSearchCacheHitCounter.Inc();
+                        return cachedResults;
+                    }
                 }
 
                 Counters.WideSearchCacheMissCounter.Inc();
@@ -178,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return _stateStorage.SaveState(searchId, state, supplier.Code);
             }
         }
-
+        
 
         private static AvailabilityRequest CreateRequest(Models.Availabilities.AvailabilityRequest request, List<SupplierCodeMapping> mappings,
             AccommodationBookingSettings searchSettings)

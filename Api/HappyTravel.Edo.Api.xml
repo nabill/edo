@@ -424,20 +424,20 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets all bookings
             </summary>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets a list of all bookings made by the agency
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets a list of all bookings made by the agent
             </summary>
@@ -1467,6 +1467,12 @@
                 Sends need payment notifications for bookings
             </summary>
             <param name="bookingIds">List of booking ids for notify</param>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyOfflinePaymentsNeeded">
+            <summary>
+                Sends need payment notifications for offline bookings
+            </summary>
             <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">
@@ -3647,6 +3653,11 @@
                 Location of agent from the mapper
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeName">
+            <summary>
+                Location name of agent from the mapper
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.LocationScopeType">
             <summary>
                 Type of location scope of agent from the mapper
@@ -3655,6 +3666,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeId">
             <summary>
                 Destination of booking from the mapper
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeName">
+            <summary>
+                Destination name of booking from the mapper
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.DestinationScopeType">

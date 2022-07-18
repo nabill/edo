@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Api.Extensions;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -11,7 +12,6 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         {
             return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
-                .Where(b => b.CheckInDate <= date 
+                .Where(b => b.CheckInDate <= date
                     || (b.DeadlineDate.HasValue && b.DeadlineDate.Value <= date))
                 .Select(b => b.Id)
                 .ToListAsync();
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, ApiCaller serviceAcc) 
+            Task<Result<string>> Capture(Booking booking, ApiCaller apiCaller)
                 => _creditCardPaymentService.Capture(booking, serviceAccount.ToApiCaller());
         }
 
@@ -84,31 +84,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
 
-            async Task<Result<string>> Charge(Booking booking, ApiCaller serviceAcc)
+            async Task<Result<string>> Charge(Booking booking, ApiCaller apiCaller)
             {
                 if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
-                    var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, serviceAcc,
+                    var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, apiCaller,
                         BookingChangeEvents.Charge);
-                    
+
                     if (isRefreshingFailure)
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
-                        { 
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
+                        {
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "Failure in refreshing booking status before payment"
                         });
                         return Result.Failure<string>(refreshingError);
                     }
-                    
+
                     // Need to get fresh information about the booking
                     booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == booking.ReferenceCode);
 
                     if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
-                        { 
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
+                        {
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
                             Reason = "After refreshing the booking received a status requiring refreshing"
@@ -116,13 +116,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                         return Result.Failure<string>($"Booking {booking.ReferenceCode} with status {booking.Status} cannot be charged");
                     }
                 }
-                
-                var chargeResult = await _accountPaymentService.Charge(booking, serviceAcc);
+
+                var chargeResult = await _accountPaymentService.Charge(booking, apiCaller);
 
                 if (chargeResult.IsFailure)
                 {
-                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason 
-                    { 
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
+                    {
                         Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Charge,
                         Reason = "It is impossible charge money from a virtual account"
@@ -177,6 +177,75 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
+        public async Task<Result<BatchOperationResult>> NotifyOfflineDeadlineApproaching()
+        {
+            return await GetOfflineBookings()
+                .Bind(Notify);
+
+
+            async Task<Result<Dictionary<Booking, OfflineDeadlineNotifications>>> GetOfflineBookings()
+            {
+                var results = new Dictionary<Booking, OfflineDeadlineNotifications>();
+
+                foreach (var item in (OfflineDeadlineNotifications[])Enum.GetValues(typeof(OfflineDeadlineNotifications)))
+                {
+                    var bookings = item switch
+                    {
+                        OfflineDeadlineNotifications.FifteenDays
+                            => await GetOfflineBookingsByDays(15, OfflineDeadlineNotifications.FifteenDays,
+                                OfflineDeadlineNotifications.AfterBookingConfirmed),
+
+                        OfflineDeadlineNotifications.SevenDays
+                            => await GetOfflineBookingsByDays(7, OfflineDeadlineNotifications.SevenDays,
+                                FifteenDaysBeforeSent),
+
+                        OfflineDeadlineNotifications.ThreeDays
+                            => await GetOfflineBookingsByDays(3, OfflineDeadlineNotifications.ThreeDays,
+                                SevenDaysBeforeSent),
+
+                        OfflineDeadlineNotifications.TwoDays
+                            => await GetOfflineBookingsByDays(2, OfflineDeadlineNotifications.TwoDays,
+                                ThreeDaysBeforeSent),
+
+                        OfflineDeadlineNotifications.OneDay
+                            => await GetOfflineBookingsByDays(1, OfflineDeadlineNotifications.OneDay,
+                                TwoDaysBeforeSent),
+
+                        _ => null
+                    };
+
+                    if (bookings is not null)
+                        results = results.Union(bookings).ToDictionary(b => b.Key, b => b.Value);
+                }
+
+                return results;
+            }
+
+
+            async Task<Result<BatchOperationResult>> Notify(Dictionary<Booking, OfflineDeadlineNotifications> bookings)
+                => await Combine(bookings.Select(async pair
+                    => await _bookingNotificationService.NotifyOfflineDeadlineApproaching(pair.Key.Id, pair.Value)));
+
+
+            async Task<BatchOperationResult> Combine(IEnumerable<Task<Result>> actions)
+            {
+                var builder = new StringBuilder();
+                bool hasErrors = false;
+
+                foreach (var action in actions)
+                {
+                    var result = await action;
+                    if (result.IsFailure)
+                        hasErrors = true;
+
+                    builder.AppendLine(result.IsFailure ? result.Error : string.Empty);
+                }
+
+                return new BatchOperationResult(builder.ToString(), hasErrors);
+            }
+        }
+
+
         public Task<List<int>> GetForCancellation(DateTimeOffset date)
         {
             return _context.Bookings
@@ -215,10 +284,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 .Where(r => r.Permissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary))
                 .Select(x => x.Id)
                 .ToListAsync();
-            
+
             var agencyIds = await _context.Agencies
                 .Where(a => a.IsActive)
-                .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive 
+                .Where(a => _context.AgentAgencyRelations.Any(r => r.AgencyId == a.Id && r.IsActive
                     && r.AgentRoleIds.Any(rr => rolesWithPermission.Contains(rr))))
                 .Where(a => _context.AgencyAccounts.Any(acc => acc.AgencyId == a.Id && acc.Currency == Currencies.USD))
                 .Select(agency => agency.Id)
@@ -239,6 +308,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             return new BatchOperationResult(builder.ToString(), hasErrors);
         }
+
+
+        private async Task<Dictionary<Booking, OfflineDeadlineNotifications>> GetOfflineBookingsByDays(int days,
+            OfflineDeadlineNotifications currentNotification, OfflineDeadlineNotifications notificationsAlreadySent)
+            => await _context.Bookings
+                .Where(b => (b.DeadlineDate!.Value - _dateTimeProvider.UtcNow()).Days <= days
+                    && b.OfflineDeadlineNotificationsSent.Has(notificationsAlreadySent)
+                    && !b.OfflineDeadlineNotificationsSent.Has(currentNotification))
+                .ToDictionaryAsync(b => b, b => currentNotification);
 
 
         private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
@@ -278,7 +356,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     var (_, isFailure, value, error) = await result;
                     if (isFailure)
                         hasErrors = true;
-                    
+
                     builder.AppendLine(isFailure ? error : value);
                 }
 
@@ -289,12 +367,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private const int DaysBeforeNotification = 3;
 
+        private const OfflineDeadlineNotifications FifteenDaysBeforeSent = OfflineDeadlineNotifications.AfterBookingConfirmed
+            | OfflineDeadlineNotifications.FifteenDays;
+
+        private const OfflineDeadlineNotifications SevenDaysBeforeSent = OfflineDeadlineNotifications.AfterBookingConfirmed
+            | OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays;
+
+        private const OfflineDeadlineNotifications ThreeDaysBeforeSent = OfflineDeadlineNotifications.AfterBookingConfirmed
+            | OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+            | OfflineDeadlineNotifications.ThreeDays;
+
+        private const OfflineDeadlineNotifications TwoDaysBeforeSent = OfflineDeadlineNotifications.AfterBookingConfirmed
+            | OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+            | OfflineDeadlineNotifications.ThreeDays | OfflineDeadlineNotifications.TwoDays;
+
+        private const OfflineDeadlineNotifications OneDayBeforeSent = OfflineDeadlineNotifications.AfterBookingConfirmed
+            | OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+            | OfflineDeadlineNotifications.ThreeDays | OfflineDeadlineNotifications.TwoDays
+            | OfflineDeadlineNotifications.OneDay;
+
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
-            => BookingStatusesForCancellation.Contains(booking.Status) && 
+            => BookingStatusesForCancellation.Contains(booking.Status) &&
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
             PaymentMethodsForCancellation.Contains(booking.PaymentType);
-        
+
         private static readonly HashSet<BookingStatuses> BookingStatusesForCancellation = new HashSet<BookingStatuses>
         {
             BookingStatuses.Confirmed
@@ -304,7 +401,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Refunded, BookingPaymentStatuses.Voided
         };
-        
+
         private static readonly HashSet<PaymentTypes> PaymentMethodsForCancellation = new()
         {
             PaymentTypes.CreditCard, PaymentTypes.Offline
@@ -329,12 +426,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         {
             BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.WaitingForResponse
         };
-        
+
         private static readonly HashSet<PaymentTypes> PaymentTypesForCapture = new()
         {
             PaymentTypes.CreditCard
         };
-        
+
         private static readonly HashSet<PaymentTypes> PaymentTypesForCharge = new()
         {
             PaymentTypes.VirtualAccount
@@ -350,7 +447,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             BookingStatuses.Pending, BookingStatuses.WaitingForResponse
         };
 
-        
+
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly ISupplierBookingManagementService _supplierBookingManagementService;

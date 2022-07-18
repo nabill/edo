@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -183,7 +184,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 activationDate: availabilityInfo.CardRequirement.Value.ActivationDate,
                 dueDate: availabilityInfo.CardRequirement.Value.DueDate,
                 supplierCode: availabilityInfo.SupplierCode,
-                accommodationName: booking.AccommodationName);
+                accommodationName: booking.AccommodationName,
+                booking.MainPassengerName ?? string.Empty,
+                booking.CheckInDate,
+                booking.CheckOutDate);
         }
 
 

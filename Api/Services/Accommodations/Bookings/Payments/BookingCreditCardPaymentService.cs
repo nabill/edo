@@ -2,16 +2,19 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
@@ -22,8 +25,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             ILogger<BookingCreditCardPaymentService> logger,
             IDateTimeProvider dateTimeProvider, IBookingDocumentsMailingService documentsMailingService,
             IBookingInfoService bookingInfoService, IBookingDocumentsService documentsService,
-            IBookingPaymentCallbackService paymentCallbackService, IAgentContextService agentContextService)
+            IBookingPaymentCallbackService paymentCallbackService, IAgentContextService agentContextService,
+            IJsonSerializer serializer, IInvoiceService invoiceService,
+            IBookingRecordManager bookingRecordManager)
         {
+            _bookingRecordManager = bookingRecordManager;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -32,6 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             _documentsService = documentsService;
             _paymentCallbackService = paymentCallbackService;
             _agentContextService = agentContextService;
+            _invoiceService = invoiceService;
+            _serializer = serializer;
         }
 
 
@@ -74,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             var agent = await _agentContextService.GetAgent();
             return await GetBooking(referenceCode)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
-                .Map(RecalculatePrice)
+                .Tap(UpdateBookingInfo)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Tap(SendReceipt);
 
@@ -95,19 +103,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 => await Capture(booking, agent.ToApiCaller());
 
 
-            async Task<Booking> RecalculatePrice(Booking booking)
-            {
-                booking.TotalPrice = booking.CreditCardPrice;
-                await _bookingInfoService.UpdateBookingInfo(booking);
-                return booking;
-            }
-
-
             async Task SendReceipt(Booking booking)
             {
                 var (_, _, receiptInfo, _) = await _documentsService.GenerateReceipt(booking);
 
                 await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
+            }
+
+
+            async Task UpdateBookingInfo(Booking booking)
+            {
+                booking.TotalPrice = booking.CreditCardPrice;
+                await _bookingRecordManager.Update(booking);
+
+                var invoices = await _invoiceService.GetInvoices(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode);
+
+                if (invoices != default)
+                {
+                    foreach (var invoice in invoices)
+                    {
+                        var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
+                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency), bookingInfo);
+
+                        invoice.Data = _serializer.SerializeObject(bookingInfo);
+                    }
+
+                    await _invoiceService.Update(invoices);
+                }
             }
         }
 
@@ -120,5 +142,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentCallbackService _paymentCallbackService;
         private readonly IAgentContextService _agentContextService;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IJsonSerializer _serializer;
+        private readonly IBookingRecordManager _bookingRecordManager;
     }
 }

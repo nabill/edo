@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Api.Models.Accommodations;
+using SlimLocationInfo = HappyTravel.Edo.Api.Models.Accommodations.SlimLocationInfo;
 
 namespace HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 

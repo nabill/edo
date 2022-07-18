@@ -6,6 +6,7 @@ using HappyTravel.Edo.Data.Bookings;
 using Newtonsoft.Json;
 using AccommodationInfo = HappyTravel.Edo.Data.Bookings.AccommodationInfo;
 using CancellationPolicy = HappyTravel.Edo.Data.Bookings.CancellationPolicy;
+using ContactInfo = HappyTravel.Edo.Data.Bookings.ContactInfo;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
