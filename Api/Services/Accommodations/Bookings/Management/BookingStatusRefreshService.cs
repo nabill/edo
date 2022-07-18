@@ -21,13 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         public BookingStatusRefreshService(IDistributedFlow flow,
             IDateTimeProvider dateTimeProvider, ISupplierBookingManagementService supplierBookingManagement,
-            EdoContext context, IOptionsMonitor<BookingStatusUpdateOptions> statusUpdateOptionsMonitor)
+            EdoContext context, IOptionsMonitor<BookingStatusUpdateOptions> statusUpdateOptionsMonitor, IBookingChangeLogService bookingChangeLogService)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
             _supplierBookingManagement = supplierBookingManagement;
             _context = context;
             _statusUpdateOptionsMonitor = statusUpdateOptionsMonitor;
+            _bookingChangeLogService = bookingChangeLogService;
         }
 
 
@@ -126,6 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         public async Task<Result<List<int>>> SetBookingStatusesCompleted()
         {
+            var apiCaller = ApiCaller.InternalServiceAccount;
             await _context.Bookings
                 .Where(b =>
                     b.Status == BookingStatuses.Confirmed
@@ -135,6 +137,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 {
                     booking.Status = BookingStatuses.Completed;
                     _context.Bookings.Attach(booking).Property(b => b.Status).IsModified = true;
+
+                    var bookingChangeReason = new BookingChangeReason
+                    {
+                        Event = BookingChangeEvents.Complete, 
+                        Reason = "Automatic completion of finished bookings", 
+                        Source = BookingChangeSources.System
+                    };
+
+                    _bookingChangeLogService.Write(booking, BookingStatuses.Completed, DateTimeOffset.Now, apiCaller, bookingChangeReason);
                 });
 
             var completedBookingIds = _context.ChangeTracker.Entries<Booking>()
@@ -257,6 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDistributedFlow _flow;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ISupplierBookingManagementService _supplierBookingManagement;
+        private readonly IBookingChangeLogService _bookingChangeLogService;
         private readonly EdoContext _context;
         private readonly IOptionsMonitor<BookingStatusUpdateOptions> _statusUpdateOptionsMonitor;
     }
