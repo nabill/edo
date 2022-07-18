@@ -178,11 +178,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns>Result message</returns>
         [HttpPost("notifications/offline-deadline-approach/send")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyOfflinePaymentsNeeded()
-            => NoContentOrBadRequest(await _bookingsProcessingService.NotifyOfflineDeadlineApproaching());
+        {
+            return Ok(await _bookingsProcessingService.NotifyOfflineDeadlineApproaching());
+        }
 
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         Task<Result<BatchOperationResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);
 
-        Task<Result> NotifyOfflineDeadlineApproaching();
+        Task<Result<BatchOperationResult>> NotifyOfflineDeadlineApproaching();
 
         Task<List<int>> GetForCancellation(DateTimeOffset date);
 

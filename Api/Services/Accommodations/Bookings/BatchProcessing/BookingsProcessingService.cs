@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         }
 
 
-        public async Task<Result> NotifyOfflineDeadlineApproaching()
+        public async Task<Result<BatchOperationResult>> NotifyOfflineDeadlineApproaching()
         {
             return await GetOfflineBookings()
                 .Bind(Notify);
@@ -222,18 +222,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             }
 
 
-            async Task<Result> Notify(Dictionary<Booking, OfflineDeadlineNotifications> bookings)
-            {
-                foreach (var (booking, notificationType) in bookings)
-                {
-                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                    if (agent == default)
-                        continue;
+            async Task<Result<BatchOperationResult>> Notify(Dictionary<Booking, OfflineDeadlineNotifications> bookings)
+                => await Combine(bookings.Select(async pair
+                    => await _bookingNotificationService.NotifyOfflineDeadlineApproaching(pair.Key.Id, pair.Value)));
 
-                    await _bookingNotificationService.NotifyOfflineDeadlineApproaching(booking.Id, notificationType);
+
+            async Task<BatchOperationResult> Combine(IEnumerable<Task<Result>> actions)
+            {
+                var builder = new StringBuilder();
+                bool hasErrors = false;
+
+                foreach (var action in actions)
+                {
+                    var result = await action;
+                    if (result.IsFailure)
+                        hasErrors = true;
+
+                    builder.AppendLine(result.IsFailure ? result.Error : string.Empty);
                 }
 
-                return Result.Success();
+                return new BatchOperationResult(builder.ToString(), hasErrors);
             }
         }
 
