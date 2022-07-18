@@ -44,14 +44,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
         [HttpGet("to-cancel")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCancellation([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetBookingsForCancellation([FromQuery] DateTimeOffset? date)
         {
             if (date is null)
                 return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
-            
+
             return Ok(await _bookingsProcessingService.GetForCancellation(date.Value));
         }
 
@@ -62,29 +62,29 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for cancellation</param>
         /// <returns>Result message</returns>
         [HttpPost("cancel")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> CancelBookings(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds, serviceAccount));
         }
-        
+
         /// <summary>
         ///     Gets bookings for payment completion by deadline date
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
         [HttpGet("to-capture")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCapture([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetBookingsForCapture([FromQuery] DateTimeOffset? date)
         {
             if (date is null)
                 return BadRequest(ProblemDetailsBuilder.Build("Date must be specified"));
-            
+
             return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
         }
 
@@ -95,15 +95,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for capture</param>
         /// <returns>Result message</returns>
         [HttpPost("capture")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> Capture(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingsProcessingService.Capture(bookingIds, serviceAccount));
         }
-        
+
 
         /// <summary>
         ///     Gets bookings for payment charge by deadline date
@@ -111,14 +111,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for charge</returns>
         [HttpGet("to-charge")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCharge([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetBookingsForCharge([FromQuery] DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
-            
+
             return Ok(await _bookingsProcessingService.GetForCharge(date.Value));
         }
 
@@ -129,8 +129,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for charge</param>
         /// <returns>Result message</returns>
         [HttpPost("charge")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> Charge(List<int> bookingIds)
         {
@@ -145,14 +145,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
         [HttpGet("to-notify/deadline-approach")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetBookingsToNotify([FromQuery] DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
-            
+
             return Ok(await _bookingsProcessingService.GetForNotification(date.Value));
         }
 
@@ -174,6 +174,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///     Sends need payment notifications for offline bookings
+        /// </summary>
+        /// <returns>Result message</returns>
+        [HttpPost("notifications/offline-deadline-approach/send")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyOfflinePaymentsNeeded()
+        {
+            return Ok(await _bookingsProcessingService.NotifyOfflineDeadlineApproaching());
+        }
+
+
+        /// <summary>
         ///     Sends bookings summary reports
         /// </summary>
         /// <returns>Result message</returns>
@@ -184,8 +197,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             return Ok(await _bookingsProcessingService.SendBookingSummaryReports());
         }
-        
-        
+
+
         /// <summary>
         ///     Sends bookings summary report for administrator
         /// </summary>
@@ -199,7 +212,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _reportsService.SendBookingsAdministratorSummary());
         }
 
-        
+
         /// <summary>
         ///     Sends bookings monthly summary report for administrator
         /// </summary>
@@ -219,18 +232,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Get applied markups for materialization
         /// </summary>
         [HttpGet("markup-bonuses")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetAppliedMarkupsForMaterialization([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetAppliedMarkupsForMaterialization([FromQuery] DateTimeOffset? date)
         {
             if (!date.HasValue)
                 return BadRequest(ProblemDetailsBuilder.Build($"Date should be specified"));
-            
+
             return Ok(await _markupBonusMaterializationService.GetForMaterialize(date.Value));
         }
-        
-        
+
+
         /// <summary>
         ///     Materializes markup bonuses
         /// </summary>
@@ -242,55 +255,55 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             return OkOrBadRequest(await _markupBonusMaterializationService.Materialize(appliedMarkups));
         }
-        
-        
+
+
         /// <summary>
         ///     Get bookings ids for refreshing status
         /// </summary>
         [HttpGet("statuses/refresh")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingIdsForStatusRefresh()
         {
             return Ok(await _bookingRefreshStatusService.GetBookingsToRefresh());
         }
-        
-        
+
+
         /// <summary>
         ///     Refresh booking statuses
         /// </summary>
         [HttpPost("statuses/refresh")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> RefreshBookingStatuses(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToApiCaller()));
         }
-        
+
         /// <summary>
         ///     Set booking statuses to Completed
         /// </summary>
         /// <returns>Updated booking Ids</returns>
         [HttpPost("statuses/complete")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> SetBookingStatusesCompleted()
         {
             return OkOrBadRequest(await _bookingRefreshStatusService.SetBookingStatusesCompleted());
         }
-        
-        
+
+
         /// <summary>
         ///     Get payment ids for refund
         /// </summary>
         [HttpGet("refunds")]
-        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetPaymentsForRefund([FromQuery]DateTimeOffset? date)
+        public async Task<IActionResult> GetPaymentsForRefund([FromQuery] DateTimeOffset? date)
             => Ok(await _refundService.GetPaymentsForRefund(date));
 
 
@@ -298,10 +311,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Refunds payments
         /// </summary>
         [HttpPost("refunds")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> RefundPayments(List<int> paymentIds) 
+        public async Task<IActionResult> RefundPayments(List<int> paymentIds)
             => OkOrBadRequest(await _refundService.RefundPayments(paymentIds));
 
 

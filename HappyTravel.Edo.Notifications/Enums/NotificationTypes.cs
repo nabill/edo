@@ -44,6 +44,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         BookingStatusChangedToPendingOrWaitingForResponse = 34,
         PaymentRefund = 35,
         MarkupSetUpOrChanged = 36,
-        ApiConnectionCredentialsCreated = 37
+        ApiConnectionCredentialsCreated = 37,
+        OfflineBookingDeadlineApproaching = 38
     }
 }
