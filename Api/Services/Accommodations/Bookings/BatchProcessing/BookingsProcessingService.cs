@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, ApiCaller serviceAcc)
+            Task<Result<string>> Capture(Booking booking, ApiCaller apiCaller)
                 => _creditCardPaymentService.Capture(booking, serviceAccount.ToApiCaller());
         }
 
@@ -84,16 +84,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 serviceAccount);
 
 
-            async Task<Result<string>> Charge(Booking booking, ApiCaller serviceAcc)
+            async Task<Result<string>> Charge(Booking booking, ApiCaller apiCaller)
             {
                 if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
-                    var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, serviceAcc,
+                    var (_, isRefreshingFailure, refreshingError) = await _supplierBookingManagementService.RefreshStatus(booking, apiCaller,
                         BookingChangeEvents.Charge);
 
                     if (isRefreshingFailure)
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
                         {
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
                     if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                     {
-                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason
+                        await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
                         {
                             Source = BookingChangeSources.System,
                             Event = BookingChangeEvents.Charge,
@@ -117,11 +117,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     }
                 }
 
-                var chargeResult = await _accountPaymentService.Charge(booking, serviceAcc);
+                var chargeResult = await _accountPaymentService.Charge(booking, apiCaller);
 
                 if (chargeResult.IsFailure)
                 {
-                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), serviceAcc, new BookingChangeReason
+                    await _bookingRecordsUpdater.ChangeStatus(booking, BookingStatuses.ManualCorrectionNeeded, _dateTimeProvider.UtcNow(), apiCaller, new BookingChangeReason
                     {
                         Source = BookingChangeSources.System,
                         Event = BookingChangeEvents.Charge,
