@@ -1,17 +1,13 @@
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.NGenius;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Enums;
@@ -23,16 +19,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
 {
     public class NGeniusPaymentService : INGeniusPaymentService
     {
-        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager, IInvoiceService invoiceService,
-            INGeniusClient client, IAgencyService agencyService, ICreditCardPaymentManagementService paymentService,
-            IJsonSerializer serializer)
+        public NGeniusPaymentService(IBookingRecordManager bookingRecordManager, INGeniusClient client,
+            IAgencyService agencyService, ICreditCardPaymentManagementService paymentService)
         {
             _bookingRecordManager = bookingRecordManager;
             _client = client;
             _agencyService = agencyService;
             _paymentService = paymentService;
-            _invoiceService = invoiceService;
-            _serializer = serializer;
         }
 
 
@@ -42,19 +35,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
             if (isFailure)
                 return Result.Failure<NGeniusPaymentResponse>(error);
 
-            booking.TotalPrice = booking.CreditCardPrice;
-
             return await _agencyService.Get(agent)
                 .Bind(CreateOrder)
-                .Bind(StorePayment)
-                .Tap(UpdateBookingInfo);
+                .Bind(StorePayment);
 
 
             Task<Result<NGeniusPaymentResponse>> CreateOrder(SlimAgencyInfo agency)
                 => _client.CreateOrder(orderType: OrderTypes.Auth,
                     referenceCode: booking.ReferenceCode,
                     currency: booking.Currency,
-                    price: booking.TotalPrice,
+                    price: booking.CreditCardPrice,
                     email: agent.Email,
                     billingAddress: (agent, agency).ToBillingAddress());
 
@@ -64,34 +54,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
                 var (_, isFailure, payment, error) = await _paymentService.Create(paymentId: response.PaymentId,
                     paymentOrderReference: response.OrderReference,
                     bookingReferenceCode: response.MerchantOrderReference,
-                    price: booking.TotalPrice.ToMoneyAmount(booking.Currency),
+                    price: booking.CreditCardPrice.ToMoneyAmount(booking.Currency),
                     ipAddress: ipAddress);
 
                 return isFailure
                     ? Result.Failure<NGeniusPaymentResponse>(error)
                     : response;
-            }
-
-
-            async Task UpdateBookingInfo()
-            {
-                await _bookingRecordManager.Update(booking);
-
-                var invoices = await _invoiceService.GetInvoices(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode);
-
-                if (invoices != default)
-                {
-                    foreach (var invoice in invoices)
-                    {
-                        var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
-                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency), bookingInfo);
-
-                        invoice.Data = _serializer.SerializeObject(bookingInfo);
-                    }
-
-
-                    await _invoiceService.Update(invoices);
-                }
             }
         }
 
@@ -145,7 +113,5 @@ namespace HappyTravel.Edo.Api.Services.Payments.NGenius
         private readonly INGeniusClient _client;
         private readonly IAgencyService _agencyService;
         private readonly ICreditCardPaymentManagementService _paymentService;
-        private readonly IInvoiceService _invoiceService;
-        private readonly IJsonSerializer _serializer;
     }
 }
