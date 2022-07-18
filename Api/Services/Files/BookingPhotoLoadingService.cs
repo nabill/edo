@@ -49,10 +49,10 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
                     return Result.Failure<Booking>($"Could not find booking");
                 
                 if (booking.AccommodationInfo?.Photo?.SourceUrl is null)
-                    return Result.Failure<Booking>($"Booking photo source SourceUrl is null");
+                    return Result.Failure<Booking>($"Booking photo SourceUrl is null");
                 
                 if (booking.AccommodationInfo.Photo.SourceUrl.Contains(key))
-                    return Result.Failure<Booking>($"Booking photo source already loaded to S3");
+                    return Result.Failure<Booking>($"Booking photo has already loaded to S3");
                 
                 return Result.Success(booking);
             }
