@@ -500,7 +500,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
             
-            services.AddSingleton<IBookingPhotoLoadingService, BookingPhotoLoadingService>();
+            services.AddTransient<IBookingPhotoLoadingService, BookingPhotoLoadingService>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
