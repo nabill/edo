@@ -87,4 +87,19 @@ public static class MapperContractsConverter
             SupplierCode = supplierAccommodation.SupplierCode,
             Data = Convert(supplierAccommodation.Data)
         };
+
+
+    public static SlimAccommodationData Convert(
+        HappyTravel.MapperContracts.Public.Management.Accommodations.SlimAccommodations.SlimAccommodationData slimAccommodationData)
+        => new()
+        {
+            HtId = slimAccommodationData.HtId,
+            Name = slimAccommodationData.Name,
+            IsActive = slimAccommodationData.IsActive,
+            Rating = slimAccommodationData.Rating,
+            Address = slimAccommodationData.Address,
+            LocalityZoneName = slimAccommodationData.LocalityZoneName,
+            LocalityName = slimAccommodationData.LocalityName,
+            CountryName = slimAccommodationData.CountryName
+        };
 }

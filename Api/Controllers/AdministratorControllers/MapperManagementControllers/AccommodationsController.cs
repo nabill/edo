@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,12 +7,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers
 {
@@ -119,7 +120,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> SearchAccommodations([FromBody] AccommodationSearchRequest searchRequest, CancellationToken cancellationToken)
-            => OkOrBadRequest(await _mapperManagementClient.SearchAccommodations(searchRequest, cancellationToken));
+        {
+            var (_, isFailure, accommodationData, problemDetails) = await _mapperManagementClient.SearchAccommodations(searchRequest, cancellationToken);
+            if (isFailure)
+                return BadRequest(problemDetails);
+            
+            HttpContext.Response.Headers.Add(CountHeader, accommodationData.TotalNumberOfItems.ToString());
+            
+            return Ok(accommodationData.SlimAccommodationData.Select(MapperContractsConverter.Convert).ToList());
+        }
 
 
         /// <summary>

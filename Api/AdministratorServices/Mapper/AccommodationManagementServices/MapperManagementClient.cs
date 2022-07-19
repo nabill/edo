@@ -13,8 +13,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections;
+using HappyTravel.MapperContracts.Public.Management.Accommodations.SlimAccommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SlimAccommodationData = HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.SlimAccommodationData;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices
 {
@@ -70,14 +72,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         }
 
 
-        public async Task<Result<List<SlimAccommodationData>, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken)
+        public async Task<Result<SlimAccommodationDataResponse, ProblemDetails>> SearchAccommodations(AccommodationSearchRequest request, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "api/1.0/admin/accommodations/search")
             {
                 Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             };
   
-            return await Send<List<SlimAccommodationData>>(requestMessage, cancellationToken: cancellationToken);
+            return await Send<SlimAccommodationDataResponse>(requestMessage, cancellationToken: cancellationToken);
         }
 
 
