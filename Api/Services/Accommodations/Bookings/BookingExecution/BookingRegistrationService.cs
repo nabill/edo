@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -30,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
             ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage,
-            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext, IAccommodationMapperClient accommodationMapperClient)
+            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext, IAccommodationMapperClient accommodationMapperClient, 
+            IBookingPhotoLoadingService bookingPhotoLoadingService)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -42,6 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _logger = logger;
             _agentContext = agentContext;
             _accommodationMapperClient = accommodationMapperClient;
+            _bookingPhotoLoadingService = bookingPhotoLoadingService;
         }
 
 
@@ -56,7 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
                 .Tap(CreateSupplierOrder)
-                .Tap(booking => _logger.LogBookingRegistrationSuccess(booking.ReferenceCode));
+                .Tap(booking => _logger.LogBookingRegistrationSuccess(booking.ReferenceCode))
+                .Tap(booking => _bookingPhotoLoadingService.StartBookingPhotoLoading(booking.Id));
 
             Result CheckRooms()
             {
@@ -293,5 +297,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly ILogger<BookingRegistrationService> _logger;
         private readonly IAgentContextService _agentContext;
         private readonly IAccommodationMapperClient _accommodationMapperClient;
+        private readonly IBookingPhotoLoadingService _bookingPhotoLoadingService;
     }
 }
