@@ -117,7 +117,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Manag
                 dateTimeProvider,
                 supplierService,
                 context,
-                monitor
+                monitor,
+                Mock.Of<IBookingChangeLogService>()
             );
         }
 
