@@ -7,19 +7,22 @@ using HappyTravel.Edo.Data;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
+using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Common.Enums.Administrators;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class BookingService : IBookingService
     {
-        public BookingService(EdoContext context, ISupplierOptionsStorage supplierOptionsStorage)
+        public BookingService(EdoContext context, ISupplierOptionsStorage supplierOptionsStorage,
+            IAdministratorContext adminContext)
         {
             _context = context;
             _supplierOptionsStorage = supplierOptionsStorage;
+            _adminContext = adminContext;
         }
 
 
@@ -30,7 +33,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<(int Count, IEnumerable<BookingSlim> Bookings)> GetAgencyBookings(int agencyId, ODataQueryOptions<BookingSlimProjection> opts)
             => GetBookings(opts, booking => booking.AgencyId == agencyId);
 
-        
+
         public Task<(int Count, IEnumerable<BookingSlim> Bookings)> GetAgentBookings(int agentId, ODataQueryOptions<BookingSlimProjection> opts)
             => GetBookings(opts, booking => booking.AgentId == agentId);
 
@@ -41,7 +44,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             var suppliersDictionary = isFailure
                 ? new Dictionary<string, string>(0)
                 : suppliers.ToDictionary(s => s.Code, s => s.Name);
-            
+
             var query = from booking in _context.Bookings
                     join agent in _context.Agents on booking.AgentId equals agent.Id
                     join agency in _context.Agencies on booking.AgencyId equals agency.Id
@@ -73,14 +76,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             if (expression != null)
                 query = query.Where(expression);
-            
+
             var countQuery = opts.ApplyTo(query, AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
             var totalCount = await countQuery.Cast<BookingSlimProjection>().CountAsync();
 
             var dataQuery = opts.ApplyTo(query);
             var dataResult = await dataQuery.Cast<BookingSlimProjection>().ToListAsync();
 
-            var bookings = dataResult.Select(projection => projection.ToBookingSlim());
+            var hasViewPaxNamesPermission = await _adminContext.HasPermission(AdministratorPermissions.ViewPaxNames);
+
+            var bookings = dataResult.Select(projection => projection.ToBookingSlim(hasViewPaxNamesPermission));
 
             return (totalCount, bookings);
         }
@@ -88,5 +93,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private readonly EdoContext _context;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
+        private readonly IAdministratorContext _adminContext;
     }
 }

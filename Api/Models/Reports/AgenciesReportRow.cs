@@ -16,4 +16,10 @@ public readonly struct AgenciesReportRow
     public int GlobalMarkup { get; init; }
     public string IsActive { get; init; }
     public string IsContractLoaded { get; init; }
+    public string AprMode { get; init; }
+    public string PassedDeadlineOffersMode { get; init; }
+    public string IsSupplierVisible { get; init; }
+    public string IsDirectContractFlagVisible { get; init; }
+    public int CustomDeadlineShift { get; init; }
+    public string AvailableCurrencies { get; init; }
 }
