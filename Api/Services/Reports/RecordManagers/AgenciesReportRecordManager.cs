@@ -5,16 +5,18 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Reports;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers;
 
 public class AgenciesReportRecordManager
 {
-    public AgenciesReportRecordManager(EdoContext context, IAgencySupplierManagementService agencySupplierManagementService)
+    public AgenciesReportRecordManager(EdoContext context, IAgencySupplierManagementService agencySupplierManagementService, IAgencySystemSettingsManagementService agencySystemSettingsManagementService)
     {
         _context = context;
         _agencySupplierManagementService = agencySupplierManagementService;
+        _agencySystemSettingsManagementService = agencySystemSettingsManagementService;
     }
 
 
@@ -56,9 +58,15 @@ public class AgenciesReportRecordManager
 
         foreach (var row in rows)
         {
-            var agencySuppliers = row.AgencySystemSettings?.EnabledSuppliers;
-            var rootSuppliers = GetRootSuppliers(row);
+            var agencySettings = row.AgencySystemSettings;
+            var agencySuppliers = agencySettings?.EnabledSuppliers;
+            
+            var rootSettings = GetRootSettings(row);
+            var rootSuppliers = rootSettings?.EnabledSuppliers;
+            
             var materializedSuppliers = _agencySupplierManagementService.GetMaterializedSuppliers(agencySuppliers, rootSuppliers).Value;
+            var materializedSettings = _agencySystemSettingsManagementService.GetAvailabilitySearchSettings(row.ContractKind,
+                agencySettings?.AccommodationBookingSettings, rootSettings?.AccommodationBookingSettings);
             
             report.Add(new AgenciesReportRow
             {
@@ -73,21 +81,27 @@ public class AgenciesReportRecordManager
                 ContractKind = row.ContractKind?.ToString() ?? "Not specified",
                 GlobalMarkup = (int) (row.GlobalMarkup?.Value ?? decimal.Zero),
                 IsActive = row.IsActive ? "Yes" : "No",
-                IsContractLoaded = row.IsContractLoaded ? "Yes" : "No"
+                IsContractLoaded = row.IsContractLoaded ? "Yes" : "No",
+                AprMode = materializedSettings.AprMode.ToString(),
+                PassedDeadlineOffersMode = materializedSettings.PassedDeadlineOffersMode.ToString(),
+                IsSupplierVisible = materializedSettings.IsSupplierVisible ? "Yes" : "No",
+                IsDirectContractFlagVisible = materializedSettings.IsDirectContractFlagVisible ? "Yes" : "No",
+                CustomDeadlineShift = materializedSettings.CustomDeadlineShift ?? 0,
+                AvailableCurrencies = materializedSettings.AvailableCurrencies.Any() ? string.Join(", ", materializedSettings.AvailableCurrencies) : "None"
             });
         }
 
         return SortByRootAgencies(report);
 
 
-        Dictionary<string, bool>? GetRootSuppliers(AgenciesReportData row)
+        AgencySystemSettings? GetRootSettings(AgenciesReportData row)
         {
             var rootAgencyId = row.RootAgencyId;
             if (rootAgencyId is null)
                 return null;
 
             var rootRow = rows.FirstOrDefault(r => r.AgencyId == rootAgencyId);
-            return rootRow.AgencySystemSettings?.EnabledSuppliers;
+            return rootRow.AgencySystemSettings;
         }
 
 
@@ -139,4 +153,5 @@ public class AgenciesReportRecordManager
 
     private readonly EdoContext _context;
     private readonly IAgencySupplierManagementService _agencySupplierManagementService;
+    private readonly IAgencySystemSettingsManagementService _agencySystemSettingsManagementService;
 }

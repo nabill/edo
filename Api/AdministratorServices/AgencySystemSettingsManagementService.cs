@@ -37,12 +37,33 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             if (agency.ContractKind is null)
                 return GetDefaults();
-
+            
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
             var agencySettings = await GetSettings(agencyId);
             var rootSettings = rootAgencyId != agencyId ? await GetSettings(rootAgencyId) : agencySettings;
+            
+            return GetAvailabilitySearchSettings(agency.ContractKind, rootSettings, agencySettings);
+            
+            
+            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
+                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
+            
+            
+            AgencyAccommodationBookingSettings GetDefaults()
+                => new()
+                {
+                    IsSupplierVisible = false,
+                    IsDirectContractFlagVisible = false,
+                    AprMode = AprMode.Hide,
+                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                    CustomDeadlineShift = 0
+                };
+        }
 
+
+        public AgencyAccommodationBookingSettings GetAvailabilitySearchSettings(ContractKind? contractKind, AgencyAccommodationBookingSettings? rootSettings, AgencyAccommodationBookingSettings? agencySettings)
+        {
             return new AgencyAccommodationBookingSettings
             {
                 AprMode = GetAprMode(),
@@ -65,26 +86,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (rootSettings.AprMode < agencySettings.AprMode)
                     return rootSettings.AprMode.Value;
 
-                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
+                if (contractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
                     return AprMode.CardPurchasesOnly;
 
                 return agencySettings.AprMode.Value;
             }
-
-
-            AgencyAccommodationBookingSettings GetDefaults()
-                => new()
-                {
-                    IsSupplierVisible = false,
-                    IsDirectContractFlagVisible = false,
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
-                    CustomDeadlineShift = 0
-                };
-
-
-            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
-                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
 
 
             bool GetIsSupplierVisible()
@@ -122,7 +128,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (rootSettings.PassedDeadlineOffersMode < agencySettings.PassedDeadlineOffersMode)
                     return rootSettings.PassedDeadlineOffersMode.Value;
 
-                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments &&
+                if (contractKind is ContractKind.OfflineOrCreditCardPayments &&
                     agencySettings.PassedDeadlineOffersMode.Value is PassedDeadlineOffersMode.CardAndAccountPurchases)
                     return PassedDeadlineOffersMode.CardPurchasesOnly;
 
