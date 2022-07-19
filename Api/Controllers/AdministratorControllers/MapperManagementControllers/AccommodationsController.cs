@@ -2,12 +2,14 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Common.Enums.Administrators;
-using HappyTravel.MapperContracts.Public.Accommodations.Management.ManualCorrection;
+using HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -95,7 +97,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagem
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationsManagement)]
         public async Task<IActionResult> GetDetailedAccommodationData([FromRoute] string accommodationHtId, CancellationToken cancellationToken)
-            => OkOrBadRequest(await _mapperManagementClient.GetDetailedAccommodationData(accommodationHtId, LanguageCode, cancellationToken));
+        {
+            var (_, isFailure, accommodationData, problemDetails) = await _mapperManagementClient.GetDetailedAccommodationData(accommodationHtId, LanguageCode,
+                cancellationToken);
+            
+            if (isFailure)
+                return BadRequest(problemDetails);
+            
+            return Ok(MapperContractsConverter.Convert(accommodationData) );
+        }
 
 
         /// <summary>
