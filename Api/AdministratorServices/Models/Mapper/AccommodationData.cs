@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models.Mapper
         public string Name { get; init; }
         public string Category { get; init; }
         public ContactInfo Contacts { get; init; }
-        public LocationInfo Location { get; init; }
+        public DetailedLocationInfo Location { get; init; }
         public List<ImageInfo> Photos { get; init; } = new ();
         public AccommodationRatings Rating { get; init; }
         public ScheduleInfo Schedule { get; init; }

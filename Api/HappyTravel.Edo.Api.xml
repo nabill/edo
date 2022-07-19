@@ -752,7 +752,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.MapperContracts.Public.Accommodations.Management.ManualCorrection.AccommodationManualCorrectionRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections.AccommodationManualCorrectionRequest,System.Threading.CancellationToken)">
             <summary>
             Adds an accommodation data corrections. Values will be applied after the mapper updater is run
             </summary>
