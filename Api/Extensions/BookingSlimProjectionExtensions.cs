@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Extensions;
 
 public static class BookingSlimProjectionExtensions
 {
-    public static BookingSlim ToBookingSlim(this BookingSlimProjection projection)
+    public static BookingSlim ToBookingSlim(this BookingSlimProjection projection, bool hasViewPaxNamesPermission)
     {
         return new BookingSlim
         {
@@ -35,13 +35,13 @@ public static class BookingSlimProjectionExtensions
             MainPassengerName = GetMainPassengerName(projection.Rooms),
             TotalPassengers = GetTotalPassengers(projection.Rooms)
         };
-        
+
         string GetMainPassengerName(List<BookedRoom> rooms)
         {
             var room = rooms.FirstOrDefault();
             if (Equals(room, default))
                 return "N/A";
-            
+
             if (room.Passengers is null)
                 return "N/A";
 
@@ -50,11 +50,13 @@ public static class BookingSlimProjectionExtensions
                 return "N/A";
 
             var title = EnumExtensions.ToDescriptionString(passenger.Title);
-            return $"{title} {passenger.FirstName} {passenger.LastName}";
+            return (hasViewPaxNamesPermission)
+                ? $"{title} {passenger.FirstName} {passenger.LastName}"
+                : $"{title} *** ***";
         }
-        
-        
-        int GetTotalPassengers(List<BookedRoom> rooms) 
+
+
+        int GetTotalPassengers(List<BookedRoom> rooms)
             => rooms.Where(room => room.Passengers is not null)
                 .Sum(room => room.Passengers.Count);
     }
