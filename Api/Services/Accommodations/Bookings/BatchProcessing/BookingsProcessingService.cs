@@ -312,11 +312,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
         private async Task<Dictionary<Booking, OfflineDeadlineNotifications>> GetOfflineBookingsByDays(int days,
             OfflineDeadlineNotifications currentNotification, OfflineDeadlineNotifications notificationsAlreadySent)
-            => await _context.Bookings
-                .Where(b => (b.DeadlineDate!.Value - _dateTimeProvider.UtcNow()).Days <= days
-                    && b.OfflineDeadlineNotificationsSent.Has(notificationsAlreadySent)
+        {
+            var bookings = await _context.Bookings
+                .Where(b => b.DeadlineDate.HasValue && (b.DeadlineDate!.Value - _dateTimeProvider.UtcNow()).Days <= days
+                    && b.OfflineDeadlineNotificationsSent != null)
+                .ToListAsync();
+
+            return bookings
+                .Where(b => b.OfflineDeadlineNotificationsSent.Has(notificationsAlreadySent)
                     && !b.OfflineDeadlineNotificationsSent.Has(currentNotification))
-                .ToDictionaryAsync(b => b, b => currentNotification);
+                .ToDictionary(b => b, b => currentNotification);
+        }
 
 
         private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
