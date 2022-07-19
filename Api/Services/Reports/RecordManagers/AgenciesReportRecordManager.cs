@@ -66,7 +66,7 @@ public class AgenciesReportRecordManager
             
             var materializedSuppliers = _agencySupplierManagementService.GetMaterializedSuppliers(agencySuppliers, rootSuppliers).Value;
             var materializedSettings = _agencySystemSettingsManagementService.GetAvailabilitySearchSettings(row.ContractKind,
-                agencySettings?.AccommodationBookingSettings, rootSettings?.AccommodationBookingSettings);
+                rootSettings?.AccommodationBookingSettings, agencySettings?.AccommodationBookingSettings);
             
             report.Add(new AgenciesReportRow
             {
