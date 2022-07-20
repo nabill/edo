@@ -122,7 +122,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         notificationType: NotificationTypes.OfflineBookingDeadlineApproaching,
                         email: email);
 
-                    booking.OfflineDeadlineNotificationsSent |= notificationType;
+                    if (booking.OfflineDeadlineNotificationsSent is null)
+                        booking.OfflineDeadlineNotificationsSent = notificationType;
+                    else
+                        booking.OfflineDeadlineNotificationsSent |= notificationType;
+
                     _context.Update(booking);
 
                     await _context.SaveChangesAsync();
