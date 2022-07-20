@@ -150,6 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return _infoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(SetConfirmationDate)
                 .Tap(NotifyBookingFinalization)
+                .CheckIf(booking.PaymentType == PaymentTypes.Offline, NotifyOfflineBookingConfirmed)
                 .Tap(LogAnalyticsConfirmed)
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
@@ -166,6 +167,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo)
                 => _bookingNotificationService.NotifyBookingFinalized(bookingInfo, new SlimAgentContext(booking.AgentId, booking.AgencyId));
+
+
+            Task<Result> NotifyOfflineBookingConfirmed(AccommodationBookingInfo bookingInfo)
+                => _bookingNotificationService.NotifyOfflineDeadlineApproaching(booking.Id, DefineNotificationType(booking.DeadlineDate!.Value));
 
 
             async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)
@@ -187,6 +192,45 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             void WriteFailureLog(string error) => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
+        }
+
+
+        private OfflineDeadlineNotifications DefineNotificationType(DateTimeOffset deadline)
+        {
+            var result = OfflineDeadlineNotifications.AfterBookingConfirmed;
+            var timeleft = deadline - _dateTimeProvider.UtcNow();
+
+            switch (timeleft.Days)
+            {
+                case var days when days > 7 && days <= 15:
+                    result |= OfflineDeadlineNotifications.FifteenDays;
+                    break;
+
+                case var days when days > 3 && days <= 7:
+                    result |= OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays;
+                    break;
+
+                case var days when days > 2 && days <= 3:
+                    result |= OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+                        | OfflineDeadlineNotifications.ThreeDays;
+                    break;
+
+                case var days when days > 1 && days <= 2:
+                    result |= OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+                        | OfflineDeadlineNotifications.ThreeDays | OfflineDeadlineNotifications.TwoDays;
+                    break;
+
+                case var days when days <= 1:
+                    result |= OfflineDeadlineNotifications.FifteenDays | OfflineDeadlineNotifications.SevenDays
+                        | OfflineDeadlineNotifications.ThreeDays | OfflineDeadlineNotifications.TwoDays
+                        | OfflineDeadlineNotifications.OneDay;
+                    break;
+
+                default:
+                    break;
+            }
+
+            return result;
         }
 
 
@@ -218,7 +262,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
                 _bookingAnalyticsService.LogBookingCancelled(booking, agency.Name);
             }
-            
+
             Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
 

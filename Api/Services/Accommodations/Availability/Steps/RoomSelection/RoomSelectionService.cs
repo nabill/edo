@@ -15,10 +15,13 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailab
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Analytics;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Errors;
 using HappyTravel.SupplierOptionsClient.Models;
 using HappyTravel.SupplierOptionsProvider;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using IDateTimeProvider = HappyTravel.Edo.Api.Infrastructure.IDateTimeProvider;
 using RoomContractSet = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet;
@@ -36,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationMapperClient mapperClient,
             IAgentContextService agentContext, IAvailabilityRequestStorage requestStorage, IAvailabilitySearchAreaService searchAreaService,
             ISupplierOptionsStorage supplierOptionsStorage,
-            IOptionsMonitor<SecondStepSettings> secondStepSettings)
+            IOptionsMonitor<SecondStepSettings> secondStepSettings, ILogger<RoomSelectionService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
@@ -50,6 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _supplierOptionsStorage = supplierOptionsStorage;
             _stateStorage = stateStorage;
             _secondStepSettings = secondStepSettings;
+            _logger = logger;
         }
 
 
@@ -116,10 +120,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 await Task.WhenAll(secondTryResults);
 
-                foreach (var result in secondTryResults)
+                foreach (var task in secondTryResults)
                 {
-                    if (result.Result.IsSuccess)
-                        successfulTasks = successfulTasks.Append(result);
+                    if (task.Result.IsFailure)
+                        continue;
+
+                    var (supplierCode, _) = task.Result.Value;
+                    _logger.LogConnectorResultsWereRefreshed(supplierCode);
+                    successfulTasks = successfulTasks.Append(task);
                 }
             }
             
@@ -127,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return successfulTasks
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
-                .Select(taskResult => taskResult.Value)
+                .Select(taskResult => taskResult.Value.Availability)
                 .SelectMany(MapToRoomContractSets)
                 .Where(SettingsFilter)
                 .OrderBy(r => r.Rate.FinalPrice.Amount)
@@ -137,30 +145,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             List<string> GetFailedSuppliers()
             {
                 var failedSuppliers = new List<string>();
-                for (var i = 0; i < supplierTasks.Length; i++)
+                foreach (var task in supplierTasks)
                 {
-                    if (supplierTasks[i].Result.IsFailure)
-                    {
-                        failedSuppliers.Add(selectedResults[i].Source);
-                    }
+                    var result = task.Result;
+                    if (result.IsSuccess)
+                        continue;
+
+                    var (supplierCode, error) = result.Error;
+                    var searchFailureCodeFound = error.Extensions.TryGetSearchFailureCode(out var failureCode);
+
+                    var errorMessage = $"Request on connector: '{supplierCode}' failed";
+                    if (searchFailureCodeFound)
+                        errorMessage += $", search failure code '{failureCode}' was returned";
+
+                    _logger.LogConnectorRequestFailedOnSecondStep(errorMessage);
+                        
+                    if (failureCode is SearchFailureCodes.AvailabilityNotFound)
+                        failedSuppliers.Add(supplierCode);
                 }
 
                 return failedSuppliers;
             }
 
 
-            async Task<Result<SingleAccommodationAvailability, ProblemDetails>> GetSupplierAvailability(
+            async Task<Result<(string SuppierCode, SingleAccommodationAvailability Availability), (string SupplierCode, ProblemDetails Error)>> GetSupplierAvailability(
                 (string, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
-                var (source, result) = wideAvailabilityResult;
+                var (supplierCode, result) = wideAvailabilityResult;
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplierCode: source, supplierAccommodationCode: result.SupplierAccommodationCode,
+                    .GetSupplierAvailability(searchId: searchId, htId: htId, supplierCode: supplierCode,
+                        supplierAccommodationCode: result.SupplierAccommodationCode,
                         availabilityId: result.AvailabilityId, settings: searchSettings, agent: agent, languageCode: languageCode,
-                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId, result.MarketId, result.CountryCode);
+                        countryHtId: result.CountryHtId, localityHtId: result.LocalityHtId, result.MarketId, result.CountryCode)
+                    .Map(availability => (supplierCode, availability))
+                    .MapError(error => (supplierCode, error));
             }
 
 
@@ -244,5 +266,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly ISupplierOptionsStorage _supplierOptionsStorage;
         private readonly IOptionsMonitor<SecondStepSettings> _secondStepSettings;
+        private readonly ILogger<RoomSelectionService> _logger;
     }
 }

@@ -16,7 +16,9 @@ namespace HappyTravel.Edo.CreditCards.Services
         }
         
 
-        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName)
+        public async Task<Result<CreditCardInfo>> Get(string referenceCode, MoneyAmount moneyAmount, 
+            DateTime activationDate, DateTime dueDate, string supplierCode, string accommodationName, 
+            string passengerName, DateTimeOffset checkinDate, DateTimeOffset checkoutDate)
         {
             return _options.Cards.TryGetValue(moneyAmount.Currency, out var cardInfo)
                 ? await Task.FromResult(Result.Success(cardInfo))

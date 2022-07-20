@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ContactInfo = HappyTravel.Edo.Data.Bookings.ContactInfo;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
@@ -27,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
             ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage,
-            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext)
+            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext, IAccommodationMapperClient accommodationMapperClient, 
+            IBookingPhotoLoadingService bookingPhotoLoadingService)
         {
             _context = context;
             _tagProcessor = tagProcessor;
@@ -38,6 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             _requestStorage = requestStorage;
             _logger = logger;
             _agentContext = agentContext;
+            _accommodationMapperClient = accommodationMapperClient;
+            _bookingPhotoLoadingService = bookingPhotoLoadingService;
         }
 
 
@@ -45,20 +52,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod, string languageCode)
         {
             var agent = await _agentContext.GetAgent();
-            var (_, isFailure, booking, error) = await CheckRooms()
+            return await CheckRooms()
                 .Map(GetTags)
-                .Map(Create)
+                .Bind(Create)
                 .Tap(SaveRequestInfo)
                 .Tap(LogBookingStatus)
                 .Tap(SaveMarkups)
-                .Tap(CreateSupplierOrder);
-
-            if (isFailure)
-                return Result.Failure<Booking>(error);
-
-            _logger.LogBookingRegistrationSuccess(booking.ReferenceCode);
-            return booking;
-
+                .Tap(CreateSupplierOrder)
+                .Tap(booking => _logger.LogBookingRegistrationSuccess(booking.ReferenceCode))
+                .Tap(booking => _bookingPhotoLoadingService.StartBookingPhotoLoading(booking.Id));
 
             Result CheckRooms()
             {
@@ -105,24 +107,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
 
 
-            async Task<Booking> Create((string itn, string referenceCode) tags)
+            async Task<Result<Booking>> Create((string itn, string referenceCode) tags)
             {
-                var createdBooking = await CreateBooking(
-                    created: _dateTimeProvider.UtcNow(),
-                    agentContext: agent,
-                    itineraryNumber: tags.itn,
-                    referenceCode: tags.referenceCode,
-                    clientReferenceCode: bookingRequest.ClientReferenceCode,
-                    availabilityInfo: availabilityInfo,
-                    paymentMethod: paymentMethod,
-                    bookingRequest: bookingRequest,
-                    languageCode: languageCode);
-
-                _context.Bookings.Add(createdBooking);
-                await _context.SaveChangesAsync();
-                _context.Entry(createdBooking).State = EntityState.Detached;
-
-                return createdBooking;
+                return await CreateBooking(
+                        created: _dateTimeProvider.UtcNow(),
+                        agentContext: agent,
+                        itineraryNumber: tags.itn,
+                        referenceCode: tags.referenceCode,
+                        clientReferenceCode: bookingRequest.ClientReferenceCode,
+                        availabilityInfo: availabilityInfo,
+                        paymentMethod: paymentMethod,
+                        bookingRequest: bookingRequest,
+                        languageCode: languageCode)
+                    .Tap(async booking =>
+                    {
+                        _context.Bookings.Add(booking);  
+                        await _context.SaveChangesAsync();  
+                        _context.Entry(booking).State = EntityState.Detached;
+                    });
             }
 
 
@@ -162,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        private async Task<Booking> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
+        private async Task<Result<Booking>> CreateBooking(DateTimeOffset created, AgentContext agentContext, string itineraryNumber,
             string referenceCode, string? clientReferenceCode, BookingAvailabilityInfo availabilityInfo, PaymentTypes paymentMethod,
             AccommodationBookingRequest bookingRequest, string languageCode)
         {
@@ -188,14 +190,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 IsPackage = availabilityInfo.RoomContractSet.IsPackageRate,
                 SpecialValues = new List<KeyValuePair<string, string>>(0)
             };
-
+            
             AddRequestInfo(bookingRequest);
             AddServiceDetails();
             AddAgentInfo();
             AddRooms(availabilityInfo.RoomContractSet.Rooms, bookingRequest.RoomDetails);
-            booking = await AddStaticData(booking, availabilityInfo);
-
-            return booking;
+            return await AddStaticData(booking, availabilityInfo);
 
 
             void AddRequestInfo(in AccommodationBookingRequest bookingRequestInternal)
@@ -253,29 +253,39 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        protected virtual Task<Booking> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
+        private Task<Result<Booking>> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
         {
-            booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
-                availabilityInfo.LocalityName,
-                availabilityInfo.ZoneName,
-                availabilityInfo.Address,
-                availabilityInfo.Coordinates);
+           return _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en")
+               .MapError(details => $"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{details.Detail}`")
+               .Map(accommodation =>
+               {
+                   var edoAccommodation = accommodation.ToEdoContract();
+                   var location = edoAccommodation.Location;
 
-            booking.AccommodationId = availabilityInfo.AccommodationId;
-            booking.AccommodationName = availabilityInfo.AccommodationName ?? string.Empty;
-            booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                new ImageInfo(availabilityInfo.AccommodationInfo.Photo.Caption, availabilityInfo.AccommodationInfo.Photo.SourceUrl));
+                   booking.Location = new AccommodationLocation(location.Country,
+                       location.Locality,
+                       location.LocalityZone,
+                       location.Address,
+                       location.Coordinates);
 
-            return Task.FromResult(booking);
+                   booking.AccommodationId = edoAccommodation.Id;
+                   booking.AccommodationName = edoAccommodation.Name;
+
+                   booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                       accommodation.Photos.Any() ? new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl) : null,
+                       new ContactInfo(accommodation.Contacts.Emails,
+                           accommodation.Contacts.Phones,
+                           accommodation.Contacts.WebSites,
+                           accommodation.Contacts.Faxes));
+
+                   return booking;
+               });
         }
 
 
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
-
-        private static readonly TimeSpan BookingLockDuration = TimeSpan.FromMinutes(10);
-
 
         private readonly EdoContext _context;
         private readonly ITagProcessor _tagProcessor;
@@ -286,5 +296,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         private readonly IBookingRequestStorage _requestStorage;
         private readonly ILogger<BookingRegistrationService> _logger;
         private readonly IAgentContextService _agentContext;
+        private readonly IAccommodationMapperClient _accommodationMapperClient;
+        private readonly IBookingPhotoLoadingService _bookingPhotoLoadingService;
     }
 }

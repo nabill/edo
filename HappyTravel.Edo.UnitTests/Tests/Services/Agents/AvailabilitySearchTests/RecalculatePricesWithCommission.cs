@@ -27,6 +27,7 @@ using System;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums.Administrators;
+using ContactInfo = HappyTravel.MapperContracts.Public.Accommodations.Internals.ContactInfo;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AvailabilitySearchTests
 {

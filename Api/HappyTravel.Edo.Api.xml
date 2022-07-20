@@ -424,20 +424,20 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets all bookings
             </summary>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets a list of all bookings made by the agency
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>List of bookings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlim})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32,Microsoft.AspNetCore.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.AdministratorServices.Models.BookingSlimProjection})">
             <summary>
                 Gets a list of all bookings made by the agent
             </summary>
@@ -752,7 +752,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.MapperContracts.Public.Accommodations.Management.ManualCorrection.AccommodationManualCorrectionRequest,System.Threading.CancellationToken)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MapperManagementControllers.AccommodationsController.AddManualCorrectionData(System.String,HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections.AccommodationManualCorrectionRequest,System.Threading.CancellationToken)">
             <summary>
             Adds an accommodation data corrections. Values will be applied after the mapper updater is run
             </summary>
@@ -1467,6 +1467,12 @@
                 Sends need payment notifications for bookings
             </summary>
             <param name="bookingIds">List of booking ids for notify</param>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyOfflinePaymentsNeeded">
+            <summary>
+                Sends need payment notifications for offline bookings
+            </summary>
             <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">

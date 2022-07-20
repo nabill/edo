@@ -37,12 +37,33 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             if (agency.ContractKind is null)
                 return GetDefaults();
-
+            
             var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
 
             var agencySettings = await GetSettings(agencyId);
             var rootSettings = rootAgencyId != agencyId ? await GetSettings(rootAgencyId) : agencySettings;
+            
+            return GetAvailabilitySearchSettings(agency.ContractKind, rootSettings, agencySettings);
+            
+            
+            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
+                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
+            
+            
+            AgencyAccommodationBookingSettings GetDefaults()
+                => new()
+                {
+                    IsSupplierVisible = false,
+                    IsDirectContractFlagVisible = false,
+                    AprMode = AprMode.Hide,
+                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                    CustomDeadlineShift = 0
+                };
+        }
 
+
+        public AgencyAccommodationBookingSettings GetAvailabilitySearchSettings(ContractKind? contractKind, AgencyAccommodationBookingSettings? rootSettings, AgencyAccommodationBookingSettings? agencySettings)
+        {
             return new AgencyAccommodationBookingSettings
             {
                 AprMode = GetAprMode(),
@@ -65,26 +86,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (rootSettings.AprMode < agencySettings.AprMode)
                     return rootSettings.AprMode.Value;
 
-                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
+                if (contractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
                     return AprMode.CardPurchasesOnly;
 
                 return agencySettings.AprMode.Value;
             }
-
-
-            AgencyAccommodationBookingSettings GetDefaults()
-                => new()
-                {
-                    IsSupplierVisible = false,
-                    IsDirectContractFlagVisible = false,
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
-                    CustomDeadlineShift = 0
-                };
-
-
-            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
-                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
 
 
             bool GetIsSupplierVisible()
@@ -122,7 +128,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (rootSettings.PassedDeadlineOffersMode < agencySettings.PassedDeadlineOffersMode)
                     return rootSettings.PassedDeadlineOffersMode.Value;
 
-                if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments &&
+                if (contractKind is ContractKind.OfflineOrCreditCardPayments &&
                     agencySettings.PassedDeadlineOffersMode.Value is PassedDeadlineOffersMode.CardAndAccountPurchases)
                     return PassedDeadlineOffersMode.CardPurchasesOnly;
 
@@ -145,6 +151,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettingsInfo settings)
         {
+            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
+            
+            if (agency == default)
+                return Result.Failure("Agency doesn't exist");
+            
             return await Validate()
                 .BindWithTransaction(_context, () => SetSettings()
                     .Bind(WriteToAuditLog));
@@ -152,15 +163,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task<Result> Validate()
             {
-                var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-
                 var availableCurrencies = new List<Currencies>();
                 var (_, isFailure, companyInfo) = await _companyInfoService.Get();
                 if (!isFailure)
                     availableCurrencies = companyInfo.AvailableCurrencies;
-
-                if (agency == default)
-                    return Result.Failure("Agency doesn't exist");
 
                 if (!agency.IsActive)
                     return Result.Failure("Agency is not active");
@@ -171,7 +177,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.PassedDeadlineOffersMode is PassedDeadlineOffersMode.CardAndAccountPurchases)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set PassedDeadlineOffersMode to CardAndAccountPurchases.");
                 
-                if (agency.VerificationState is not AgencyVerificationStates.FullAccess)
+                if (! await CheckFullyVerified())
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
                 if (settings.AvailableCurrencies.Except(availableCurrencies).Any())
@@ -201,6 +207,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 await _context.SaveChangesAsync();
                 return Result.Success();
+            }
+
+
+            async Task<bool> CheckFullyVerified()
+            {
+                if (agency.ParentId is null)
+                    return agency.VerificationState is AgencyVerificationStates.FullAccess;
+
+                var parentAgency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agency.ParentId);
+                return parentAgency.VerificationState is AgencyVerificationStates.FullAccess;
             }
 
 
