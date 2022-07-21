@@ -171,10 +171,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 {
                     client.BaseAddress = new Uri(configuration.GetValue<string>("Mapper:Endpoint"));
                 })
-                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+                /*.ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
                 {
                     AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.GZip
-                })
+                })*/ // Temporarily disabled due to incorrect handling of ProblemDetails by the mapper
                 .AddPolicyHandler((sp, _) => GetUnauthorizedRetryPolicy(sp))
                 .AddClientAccessTokenHandler(HttpClientNames.AccessTokenClient);
 
