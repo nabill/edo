@@ -111,8 +111,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         RoomDescriptions = string.Join(", ", roomDescriptions),
                         Passengers = string.Join(", ", passengers),
                         ReferenceCode = booking.ReferenceCode,
-                        CheckInDate = DateTimeFormatters.ToUtcString(booking.CheckInDate),
-                        CheckOutDate = DateTimeFormatters.ToUtcString(booking.CheckOutDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
                         Deadline = DateTimeFormatters.ToUtcString(booking.DeadlineDate!.Value),
                         OfflineNotificationsType = notificationType
                     };
