@@ -200,7 +200,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var result = OfflineDeadlineNotifications.AfterBookingConfirmed;
             var timeleft = deadline - _dateTimeProvider.UtcNow();
 
-            switch (timeleft.Days)
+            switch (timeleft.TotalDays)
             {
                 case var days when days > 7 && days <= 15:
                     result |= OfflineDeadlineNotifications.FifteenDays;

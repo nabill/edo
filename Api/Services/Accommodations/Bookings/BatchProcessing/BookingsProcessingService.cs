@@ -314,8 +314,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             OfflineDeadlineNotifications currentNotification, OfflineDeadlineNotifications notificationsAlreadySent)
         {
             var bookings = await _context.Bookings
-                .Where(b => b.DeadlineDate.HasValue && (b.DeadlineDate!.Value - _dateTimeProvider.UtcNow()).Days <= days
-                    && b.OfflineDeadlineNotificationsSent != null)
+                .Where(b => b.DeadlineDate.HasValue && (b.DeadlineDate!.Value - _dateTimeProvider.UtcNow()).TotalDays <= days
+                    && b.OfflineDeadlineNotificationsSent != null && b.PaymentStatus == BookingPaymentStatuses.NotPaid
+                    && b.PaymentType == PaymentTypes.Offline)
                 .ToListAsync();
 
             return bookings
