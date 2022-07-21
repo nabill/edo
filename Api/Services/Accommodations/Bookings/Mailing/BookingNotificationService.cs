@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         ReferenceCode = booking.ReferenceCode,
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                        Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        Deadline = DateTimeFormatters.ToUtcString(booking.DeadlineDate!.Value),
                         OfflineNotificationsType = notificationType
                     };
 
