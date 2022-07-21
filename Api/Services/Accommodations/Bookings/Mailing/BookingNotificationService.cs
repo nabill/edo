@@ -113,11 +113,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         ReferenceCode = booking.ReferenceCode,
                         CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
-                        Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        Deadline = DateTimeFormatters.ToUtcString(booking.DeadlineDate!.Value),
                         OfflineNotificationsType = notificationType
                     };
 
-                    await _notificationService.Send(apiCaller: new ApiCaller(booking.AgentId.ToString(), ApiCallerTypes.Agent),
+                    await _notificationService.Send(agent: new SlimAgentContext(agentId: booking.AgentId, agencyId: booking.AgencyId),
                         messageData: deadlineData,
                         notificationType: NotificationTypes.OfflineBookingDeadlineApproaching,
                         email: email);
