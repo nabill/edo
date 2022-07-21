@@ -170,7 +170,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
             Task<Result> NotifyOfflineBookingConfirmed(AccommodationBookingInfo bookingInfo)
-                => _bookingNotificationService.NotifyOfflineDeadlineApproaching(booking.Id, DefineNotificationType(booking.DeadlineDate!.Value));
+                => _bookingNotificationService.NotifyOfflineDeadlineApproaching(booking.Id,
+                    DefineNotificationType(booking.DeadlineDate!.Value),
+                    OfflineDeadlineNotifications.AfterBookingConfirmed);
 
 
             async Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo)

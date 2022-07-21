@@ -14,7 +14,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
 
-        Task<Result> NotifyOfflineDeadlineApproaching(int bookingId, OfflineDeadlineNotifications notificationType);
+        Task<Result> NotifyOfflineDeadlineApproaching(int bookingId, OfflineDeadlineNotifications notificationType,
+            OfflineDeadlineNotifications? notificationForBooking = null);
 
         Task NotifyBookingManualCorrectionNeeded(string referenceCode, string agentName, string agencyName, string deadline);
 
