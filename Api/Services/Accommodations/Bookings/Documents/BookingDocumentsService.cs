@@ -92,14 +92,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 {
                     var (adultCount, childrenCount) = PassengersInfo.FromRoom(r);
                     var adultCountStr = (adultCount > 1)
-                        ? $"{adultCount} adults"
-                        : $"{adultCount} adult";
+                        ? $"{adultCount} Adults"
+                        : $"{adultCount} Adult";
                     var childrenCountStr = string.Empty;
                     if (childrenCount > 0)
                     {
                         childrenCountStr = (childrenCount > 1)
-                        ? $"{childrenCount} children\n"
-                        : $"{childrenCount} child\n";
+                        ? $"{childrenCount} Children\n"
+                        : $"{childrenCount} Child\n";
                     }
 
                     var occupancy = $"{adultCountStr}\n{childrenCountStr}";
@@ -122,14 +122,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
             string DefineNightsCountString(int days)
                => (days > 1)
-                   ? $"{days} nights"
-                   : $"{days} night";
+                   ? $"{days} Nights"
+                   : $"{days} Night";
 
 
             string DefineRoomsCountString(int roomsCount)
                => (roomsCount > 1)
-                   ? $"{roomsCount} rooms"
-                   : $"{roomsCount} room";
+                   ? $"{roomsCount} Rooms"
+                   : $"{roomsCount} Room";
         }
 
 
