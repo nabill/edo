@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         {
             var passengers = room.Passengers;
 
-            var adultsCount = passengers.Count(p => p.Age is null);
+            var adultsCount = passengers.Count(p => p.Age is null || p.Age >= AdultAge);
             var childrenCount = passengers.Count(p => p.Age is < AdultAge);
 
             return new PassengersInfo(adultsCount, childrenCount);
