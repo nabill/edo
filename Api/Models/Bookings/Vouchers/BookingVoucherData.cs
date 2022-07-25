@@ -8,7 +8,7 @@ public readonly struct BookingVoucherData
     public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
         in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, string mainPassengerName, string referenceCode,
         string supplierReferenceCode, string propertyOwnerConfirmationCode, string bannerUrl, string logoUrl, List<RoomInfo> roomDetails,
-        List<KeyValuePair<string, string>> specialValues)
+        List<KeyValuePair<string, string>> specialValues, string lengthOfStay)
     {
         AgentName = agentName;
         Accommodation = accommodation;
@@ -25,6 +25,7 @@ public readonly struct BookingVoucherData
         LogoUrl = logoUrl;
         RoomDetails = roomDetails;
         SpecialValues = specialValues;
+        LengthOfStay = lengthOfStay;
     }
 
 
@@ -43,4 +44,5 @@ public readonly struct BookingVoucherData
     public string LogoUrl { get; }
     public List<RoomInfo> RoomDetails { get; }
     public List<KeyValuePair<string, string>> SpecialValues { get; }
+    public string LengthOfStay { get; }
 }

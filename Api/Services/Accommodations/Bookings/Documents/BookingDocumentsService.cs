@@ -26,6 +26,8 @@ using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 using HappyTravel.Edo.Api.Models.Bookings.Invoices;
+using HappyTravel.Edo.Api.Services.Analytics;
+using System;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -68,6 +70,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             if (!AvailableForVoucherPaymentStatuses.Contains(booking.PaymentStatus))
                 return Result.Failure<BookingVoucherData>($"Voucher is not allowed for payment status '{EnumFormatters.FromDescription(booking.PaymentStatus)}'");
 
+            var lengthOfStay = $"{DefineNightsCountString((booking.CheckOutDate - booking.CheckInDate).Days)}, " +
+                $"{DefineRoomsCountString(booking.Rooms.Count)}";
+
             return new BookingVoucherData
             (
                 agentName: $"{agent.FirstName} {agent.LastName}",
@@ -83,18 +88,50 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 propertyOwnerConfirmationCode: booking.PropertyOwnerConfirmationCode,
                 bannerUrl: bannerMaybe.HasValue ? bannerMaybe.Value.Url : null,
                 logoUrl: logoMaybe.HasValue ? logoMaybe.Value.Url : null,
-                roomDetails: booking.Rooms.Select(r => new RoomInfo(r.ContractDescription,
+                roomDetails: booking.Rooms.Select(r =>
+                {
+                    var (adultCount, childrenCount) = PassengersInfo.FromRoom(r);
+                    var adultCountStr = (adultCount > 1)
+                        ? $"{adultCount} Adults"
+                        : $"{adultCount} Adult";
+                    var childrenCountStr = string.Empty;
+                    if (childrenCount > 0)
+                    {
+                        childrenCountStr = (childrenCount > 1)
+                        ? $"{childrenCount} Children\n"
+                        : $"{childrenCount} Child\n";
+                    }
+
+                    var occupancy = $"{adultCountStr}\n{childrenCountStr}";
+
+                    return new RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
                     r.DeadlineDate?.DateTime,
                     r.ContractDescription,
                     r.Passengers,
                     r.Remarks,
-                    r.SupplierRoomReferenceCode))
+                    r.SupplierRoomReferenceCode,
+                    occupancy);
+                })
                     .ToList(),
-                specialValues: booking.SpecialValues
+                specialValues: booking.SpecialValues,
+                lengthOfStay: lengthOfStay
             );
+
+
+            string DefineNightsCountString(int days)
+               => (days > 1)
+                   ? $"{days} Nights"
+                   : $"{days} Night";
+
+
+            string DefineRoomsCountString(int roomsCount)
+               => (roomsCount > 1)
+                   ? $"{roomsCount} Rooms"
+                   : $"{roomsCount} Room";
         }
+
 
         private static Models.Bookings.Vouchers.AccommodationInfo GetAccommodationInfo(in Accommodation details)
         {
