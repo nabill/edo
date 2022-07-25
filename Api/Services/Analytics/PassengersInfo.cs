@@ -16,8 +16,19 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public static PassengersInfo FromRooms(List<BookedRoom> rooms)
         {
             var passengers = rooms.SelectMany(r => r.Passengers).ToList();
-            
+
             var adultsCount = passengers.Count(p => p.Age is >= AdultAge);
+            var childrenCount = passengers.Count(p => p.Age is < AdultAge);
+
+            return new PassengersInfo(adultsCount, childrenCount);
+        }
+
+
+        public static PassengersInfo FromRoom(BookedRoom room)
+        {
+            var passengers = room.Passengers;
+
+            var adultsCount = passengers.Count(p => p.Age is null);
             var childrenCount = passengers.Count(p => p.Age is < AdultAge);
 
             return new PassengersInfo(adultsCount, childrenCount);
