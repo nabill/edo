@@ -81,7 +81,7 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
             {
                 var (booking, newUrl) = bookingWithNewUrl;
                 booking.AccommodationInfo!.Photo!.SourceUrl = newUrl;
-                context.Update(booking);
+                context.Attach(booking).Property(b => b.AccommodationInfo).IsModified = true;
                 await context.SaveChangesAsync();
             }
 
