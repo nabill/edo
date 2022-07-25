@@ -11,9 +11,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings);
 
-        Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers);
+        Task<List<AccommodationAvailabilityResult>> GetFilteredResults(
+            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, 
+            bool needFilterNonDirectContracts = false, List<string>? directContractSuppliersCodes = null);
 
-        Task SaveResults(List<AccommodationAvailabilityResult> results, string requestHash);
+        Task SaveResults(List<AccommodationAvailabilityResult> results, bool isDirectContract, string requestHash);
 
         Task<Guid> GetSearchId(string requestHash);
 

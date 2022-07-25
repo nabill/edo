@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.DirectApi.Models.Search;
 using AvailabilityRequest = HappyTravel.Edo.DirectApi.Models.Search.AvailabilityRequest;
@@ -11,14 +11,9 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
 {
     public class WideAvailabilitySearchService
     {
-        public WideAvailabilitySearchService(IAccommodationBookingSettingsService accommodationBookingSettingsService, 
-            IWideAvailabilitySearchStateStorage stateStorage, IWideAvailabilitySearchService wideAvailabilitySearchService, 
-            IWideAvailabilityStorage availabilityStorage)
+        public WideAvailabilitySearchService(IWideAvailabilitySearchService wideAvailabilitySearchService)
         {
-            _accommodationBookingSettingsService = accommodationBookingSettingsService;
-            _stateStorage = stateStorage;
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
-            _availabilityStorage = availabilityStorage;
         }
 
 
@@ -35,28 +30,17 @@ namespace HappyTravel.Edo.DirectApi.Services.AvailabilitySearch
         public async Task<Result<WideAvailabilitySearchResult>> GetResult(Guid searchId)
         {
             var isComplete = await IsComplete(searchId);
-            var searchSettings = await _accommodationBookingSettingsService.Get();
-            var result = await _availabilityStorage.GetFilteredResults(searchId: searchId, 
-                filters: null, 
-                searchSettings: searchSettings, 
-                suppliers: searchSettings.EnabledConnectors);
-            
-            return new WideAvailabilitySearchResult(searchId, isComplete, result.MapFromEdoModels());
+            var result =  await _wideAvailabilitySearchService.GetResult(searchId, null, "en");
+            return new WideAvailabilitySearchResult(searchId, isComplete, result.ToList().MapFromEdoModels());
         }
 
 
         private async Task<bool> IsComplete(Guid searchId)
         {
-            var searchSettings = await _accommodationBookingSettingsService.Get();
-            var searchStates = await _stateStorage.GetStates(searchId, searchSettings.EnabledConnectors);
-            var state = WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
-
+            var state = await _wideAvailabilitySearchService.GetState(searchId);
             return state.TaskState is not AvailabilitySearchTaskState.Pending or AvailabilitySearchTaskState.PartiallyCompleted;
         }
 
-        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
-        private readonly IWideAvailabilitySearchStateStorage _stateStorage;
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
-        private readonly IWideAvailabilityStorage _availabilityStorage;
     }
 }

@@ -24,4 +24,5 @@ public record CachedAccommodationAvailabilityResult
     public int MarketId { get; init; }
     public string CountryCode { get; init; } = string.Empty;
     public string RequestHash { get; init; } = string.Empty;
+    public bool IsDirectContract { get; init; }
 }

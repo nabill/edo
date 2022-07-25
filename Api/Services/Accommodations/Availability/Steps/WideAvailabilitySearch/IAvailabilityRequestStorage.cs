@@ -9,5 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         Task Set(Guid searchId, AvailabilityRequest request);
         Task<Result<AvailabilityRequest>> Get(Guid searchId);
+        Task<Result<DateTimeOffset>> GetStartedTime(Guid searchId);
     }
 }
