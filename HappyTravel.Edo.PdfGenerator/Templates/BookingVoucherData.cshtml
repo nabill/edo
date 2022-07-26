@@ -243,7 +243,11 @@
                     @room.Type
                 </div>
                 <div class="td">
-                    @room.Occupancy
+                    @room.AdultOccupancy<br>
+                    @if(!string.IsNullOrEmpty(@room.ChildOccupancy) && !string.IsNullOrWhiteSpace(@room.ChildOccupancy))
+                    {
+                        @room.ChildOccupancy
+                    }
                 </div>
                 <div class="td">
                     @room.MealPlan
@@ -259,7 +263,7 @@
             {
                 @foreach (var remark in room.Remarks)
                 {
-                    <div>@remark.Key : @remark.Value;</div>
+                    <div>@remark.Key : @remark.Value</div>
                 }
             }
         </div>
