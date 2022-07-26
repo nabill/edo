@@ -98,11 +98,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                     if (childrenCount > 0)
                     {
                         childrenCountStr = (childrenCount > 1)
-                        ? $"{childrenCount} Children\n"
-                        : $"{childrenCount} Child\n";
+                        ? $"{childrenCount} Children"
+                        : $"{childrenCount} Child";
                     }
-
-                    var occupancy = $"{adultCountStr}\n{childrenCountStr}";
 
                     return new RoomInfo(r.ContractDescription,
                     r.BoardBasis,
@@ -112,7 +110,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                     r.Passengers,
                     r.Remarks,
                     r.SupplierRoomReferenceCode,
-                    occupancy);
+                    adultCountStr,
+                    childrenCountStr);
                 })
                     .ToList(),
                 specialValues: booking.SpecialValues,
