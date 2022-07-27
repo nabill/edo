@@ -138,7 +138,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(taskResult => taskResult.Value.Availability)
                 .SelectMany(MapToRoomContractSets)
                 .Where(SettingsFilter)
-                .OrderBy(r => r.Rate.FinalPrice.Amount)
+                .OrderByDescending(r => r.IsDirectContract)
+                .ThenBy(r => r.Rate.FinalPrice.Amount)
                 .ToList();
 
 
@@ -214,9 +215,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private async Task<IEnumerable<(string SupplierCode, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, string htId)
         {
             var settings = await _accommodationBookingSettingsService.Get();
-            return (await _wideAvailabilityStorage.GetResults(searchId, settings))
-                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierCode, Result: acr)))
-                .Where(r => r.Result.HtId == htId);
+            var availabilityStorageResults = await _wideAvailabilityStorage.GetResults(searchId, htId, settings);
+            var result = availabilityStorageResults
+                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.SupplierCode, Result: acr)));
+            return result;
         }
 
 
