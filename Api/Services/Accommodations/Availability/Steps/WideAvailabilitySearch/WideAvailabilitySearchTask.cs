@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             try
             {
                 _logger.LogSupplierAvailabilitySearchStarted(searchId, supplier.Name);
-
+                
                 await GetCachedOrSupplierResult()
                     .Tap(NotifyClient)
                     .Finally(SaveState);
@@ -78,7 +78,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<List<AccommodationAvailabilityResult>, ProblemDetails>> GetCachedOrSupplierResult()
             {
                 await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier.Code);
-
                 if (useCache)
                 {
                     var cachedResults = await _storage.GetResults(supplier.Code, searchId, searchSettings);
@@ -156,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
             Task SaveResult(List<AccommodationAvailabilityResult> results)
-                => _storage.SaveResults(results, HashGenerator.ComputeHash(availabilityRequest));
+                => _storage.SaveResults(results, supplier.IsDirectContract, HashGenerator.ComputeHash(availabilityRequest));
 
 
             Task NotifyClient()
