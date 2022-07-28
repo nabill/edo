@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             var (_, isFailure, error) = await agencyVerificationService
-                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(7, ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+                .VerifyAsFullyAccessed(7, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
 
             Assert.True(isFailure);
         }
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(20, ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
 
             var agency = context.Agencies.Single(c => c.Id == 20);
             Assert.False(isFailure);
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(3, ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+                .VerifyAsFullyAccessed(3, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
 
             var agency = context.Agencies.Single(c => c.Id == 3);
             Assert.True(isFailure);
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(14, default, "Test reason", null));
+                .VerifyAsFullyAccessed(14, new AgencyFullAccessVerificationRequest(default, "Test reason", null));
 
             Assert.True(isFailure);
         }
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             await agencyVerificationService
-                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(20, contractKind, "Test reason", null));
+                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(contractKind, "Test reason", null));
 
             Assert.Equal(contractKind, context.Agencies.Single(c => c.Id == 20).ContractKind);
         }
