@@ -335,7 +335,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgencyManagement)]
         public async Task<IActionResult> ChangeContractKind(int agencyId, [FromBody] ContractKindChangeRequest request)
-            => NoContentOrBadRequest(await _agencyManagementService.ChangeContractKind(agencyId, request.ContractKind, request.Reason));
+            => NoContentOrBadRequest(await _agencyManagementService
+                .ChangeContractKind(new ContractKindChangeRequest(agencyId, request)));
 
 
         [HttpPut("locality/fulfill")]

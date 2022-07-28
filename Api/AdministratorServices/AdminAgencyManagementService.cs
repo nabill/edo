@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
@@ -219,20 +220,37 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Map(a => a.ContractKind.Value);
 
 
-        public async Task<Result> ChangeContractKind(int agencyId, ContractKind contractKind, string reason)
+        public async Task<Result> ChangeContractKind(ContractKindChangeRequest request)
         {
-            return await GetAgency(agencyId)
-                .Ensure(_ => contractKind != default, "Contract kind should be set")
-                .Ensure(_ => !string.IsNullOrEmpty(reason), "Reason should be set")
+            return await ValidateChange(request)
+                .Bind(() => GetAgency(request.AgencyId!.Value))
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.FullAccess, "Agency is not fully verified")
                 .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
-                .Tap(() => WriteChangeContractKindToAuditLog(agencyId, contractKind, reason));
+                .Tap(() => WriteChangeContractKindToAuditLog(request.AgencyId!.Value, request.ContractKind, request.Reason));
+
+
+            Task<Result> ValidateChange(ContractKindChangeRequest request)
+                => GenericValidator<ContractKindChangeRequest>.ValidateAsync(v =>
+                    {
+                        v.RuleFor(r => r.AgencyId)
+                            .NotEmpty();
+
+                        v.RuleFor(r => r.CreditLimit)
+                            .NotEmpty()
+                            .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+
+                        v.RuleFor(r => r.ContractKind)
+                            .NotEmpty();
+
+                        v.RuleFor(r => r.Reason)
+                            .NotEmpty();
+                    }, request);
 
 
             async Task SetContractKind(Agency agency)
             {
-                agency.ContractKind = contractKind;
+                agency.ContractKind = request.ContractKind;
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
             }
@@ -240,15 +258,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
             {
-                if (contractKind is not (ContractKind.VirtualAccountOrCreditCardPayments or ContractKind.OfflineOrCreditCardPayments))
+                if (request.ContractKind is not (ContractKind.VirtualAccountOrCreditCardPayments or ContractKind.OfflineOrCreditCardPayments))
                     return;
 
-                var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
+                var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == request.AgencyId!.Value);
                 if (settings == default)
                 {
                     settings = new AgencySystemSettings
                     {
-                        AgencyId = agencyId
+                        AgencyId = request.AgencyId!.Value
                     };
                     _context.Add(settings);
                     await _context.SaveChangesAsync();
@@ -256,13 +274,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
 
-                if (contractKind == ContractKind.VirtualAccountOrCreditCardPayments)
+                if (request.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments)
                 {
                     settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
                     settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
                 }
 
-                if (contractKind == ContractKind.OfflineOrCreditCardPayments)
+                if (request.ContractKind == ContractKind.OfflineOrCreditCardPayments)
                 {
                     settings.AccommodationBookingSettings.AprMode = AprMode.Hide;
                     settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide;
