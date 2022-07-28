@@ -45,7 +45,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractKindNotEmpty, "Contract kind must be not empty")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, request.Reason))
                 .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
@@ -65,10 +64,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         v.RuleFor(r => r.ContractKind)
                             .NotEmpty();
                     }, request);
-
-
-            bool IsContractKindNotEmpty(Agency _)
-                => !request.ContractKind.Equals(default(ContractKind));
 
 
             async Task SetContractKind(Agency agency)
