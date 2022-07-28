@@ -38,28 +38,29 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> VerifyAsFullyAccessed(AgencyFullAccessVerificationRequest request)
+        public async Task<Result> VerifyAsFullyAccessed(int agencyId, AgencyFullAccessVerificationRequest request)
         {
             return await ValidateVerify(request)
-                .Bind(() => GetAgency(request.AgencyId!.Value))
+                .Bind(() => GetAgency(agencyId))
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, request.Reason))
                 .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
-                .Tap(() => WriteVerificationToAuditLog(request.AgencyId!.Value, request.Reason, AgencyVerificationStates.FullAccess));
+                .Tap(() => WriteVerificationToAuditLog(agencyId, request.Reason, AgencyVerificationStates.FullAccess));
 
 
             Task<Result> ValidateVerify(AgencyFullAccessVerificationRequest request)
                 => GenericValidator<AgencyFullAccessVerificationRequest>.ValidateAsync(v =>
                     {
-                        v.RuleFor(r => r.AgencyId)
-                            .NotEmpty();
-
                         v.RuleFor(r => r.CreditLimit)
                             .NotEmpty()
                             .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+
+                        v.RuleFor(r => r.CreditLimit)
+                            .Empty()
+                            .When(r => r.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments);
 
                         v.RuleFor(r => r.ContractKind)
                             .NotEmpty();
@@ -69,6 +70,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SetContractKind(Agency agency)
             {
                 agency.ContractKind = request.ContractKind;
+                if (request.CreditLimit is not null)
+                    agency.CreditLimit = request.CreditLimit;
                 await _context.SaveChangesAsync();
             }
 
@@ -79,7 +82,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     return;
 
                 var settings = await _context.AgencySystemSettings
-                    .SingleOrDefaultAsync(a => a.AgencyId == request.AgencyId!.Value);
+                    .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
                 if (Equals(settings, default))
                 {
@@ -90,7 +93,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                             AprMode = AprMode.CardAndAccountPurchases,
                             PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
                         },
-                        AgencyId = request.AgencyId!.Value
+                        AgencyId = agencyId
                     });
                 }
                 else

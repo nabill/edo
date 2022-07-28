@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IAgencyVerificationService
     {
-        Task<Result> VerifyAsFullyAccessed(AgencyFullAccessVerificationRequest request);
+        Task<Result> VerifyAsFullyAccessed(int agencyId, AgencyFullAccessVerificationRequest request);
         Task<Result> VerifyAsReadOnly(int agencyId, string verificationReason);
         Task<Result> DeclineVerification(int agencyId, string verificationReason);
     }

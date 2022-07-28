@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<ContractKind>> GetContractKind(int agencyId);
 
-        Task<Result> ChangeContractKind(ContractKindChangeRequest request);
+        Task<Result> ChangeContractKind(int agencyId, ContractKindChangeRequest request);
 
         Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
 

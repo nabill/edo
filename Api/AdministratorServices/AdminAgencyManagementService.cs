@@ -220,25 +220,26 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Map(a => a.ContractKind.Value);
 
 
-        public async Task<Result> ChangeContractKind(ContractKindChangeRequest request)
+        public async Task<Result> ChangeContractKind(int agencyId, ContractKindChangeRequest request)
         {
             return await ValidateChange(request)
-                .Bind(() => GetAgency(request.AgencyId!.Value))
+                .Bind(() => GetAgency(agencyId))
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.FullAccess, "Agency is not fully verified")
                 .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
-                .Tap(() => WriteChangeContractKindToAuditLog(request.AgencyId!.Value, request.ContractKind, request.Reason));
+                .Tap(() => WriteChangeContractKindToAuditLog(agencyId, request.ContractKind, request.Reason));
 
 
             Task<Result> ValidateChange(ContractKindChangeRequest request)
                 => GenericValidator<ContractKindChangeRequest>.ValidateAsync(v =>
                     {
-                        v.RuleFor(r => r.AgencyId)
-                            .NotEmpty();
-
                         v.RuleFor(r => r.CreditLimit)
                             .NotEmpty()
                             .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+
+                        v.RuleFor(r => r.CreditLimit)
+                            .Empty()
+                            .When(r => r.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments);
 
                         v.RuleFor(r => r.ContractKind)
                             .NotEmpty();
@@ -251,6 +252,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SetContractKind(Agency agency)
             {
                 agency.ContractKind = request.ContractKind;
+                if (request.CreditLimit is not null)
+                    agency.CreditLimit = request.CreditLimit;
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
             }
@@ -261,12 +264,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 if (request.ContractKind is not (ContractKind.VirtualAccountOrCreditCardPayments or ContractKind.OfflineOrCreditCardPayments))
                     return;
 
-                var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == request.AgencyId!.Value);
+                var settings = await _context.AgencySystemSettings.SingleOrDefaultAsync(a => a.AgencyId == agencyId);
                 if (settings == default)
                 {
                     settings = new AgencySystemSettings
                     {
-                        AgencyId = request.AgencyId!.Value
+                        AgencyId = agencyId
                     };
                     _context.Add(settings);
                     await _context.SaveChangesAsync();

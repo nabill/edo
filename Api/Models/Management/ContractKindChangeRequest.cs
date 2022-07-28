@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Money.Models;
 
@@ -6,25 +7,15 @@ namespace HappyTravel.Edo.Api.Models.Management;
 
 public readonly struct ContractKindChangeRequest
 {
-    public ContractKindChangeRequest(int? agencyId, ContractKind contractKind,
+    [JsonConstructor]
+    public ContractKindChangeRequest(ContractKind contractKind,
             string reason, MoneyAmount? creditLimit)
     {
-        AgencyId = agencyId;
         ContractKind = contractKind;
         Reason = reason;
         CreditLimit = creditLimit;
     }
 
-
-    public ContractKindChangeRequest(int? agencyId, ContractKindChangeRequest request)
-        : this(agencyId, request.ContractKind, request.Reason, request.CreditLimit)
-    { }
-
-
-    /// <summary>
-    /// Agency Id
-    /// </summary>
-    public int? AgencyId { get; }
 
     /// <summary>
     /// Contract type
