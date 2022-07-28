@@ -213,7 +213,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AgencyVerification)]
         public async Task<IActionResult> VerifyFullAccess(int agencyId, [FromBody] AgencyFullAccessVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _agencyVerificationService.VerifyAsFullyAccessed(agencyId, request.ContractKind, request.Reason);
+            var (isSuccess, _, error) = await _agencyVerificationService
+                .VerifyAsFullyAccessed(new AgencyFullAccessVerificationRequest(agencyId, request));
 
             return isSuccess
                 ? (IActionResult)NoContent()
@@ -317,7 +318,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             var query = opts.ApplyTo(_agencyManagementService.GetRootAgencies(LanguageCode), AllowedQueryOptions.Skip | AllowedQueryOptions.Top);
             var count = await query.Cast<AdminViewAgencyInfo>().CountAsync();
             HttpContext.Response.Headers.Add(CountHeader, count.ToString());
-            
+
             return _agencyManagementService.GetRootAgencies(LanguageCode);
         }
 

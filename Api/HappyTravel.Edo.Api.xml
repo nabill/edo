@@ -3548,6 +3548,11 @@
                 Verify reason.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.AgencyId">
+            <summary>
+            AgencyId
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.ContractKind">
             <summary>
             Contract type
@@ -3556,6 +3561,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.Reason">
             <summary>
             Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyFullAccessVerificationRequest.CreditLimit">
+            <summary>
+            Credit limit required when Contract type equals VirtualAccountOrCreditCardPayments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Management.AgencyReadOnlyVerificationRequest.Reason">
