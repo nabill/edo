@@ -308,6 +308,7 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.VerificationState).IsRequired().HasDefaultValue(AgencyVerificationStates.PendingVerification);
                 agency.Property(a => a.PreferredPaymentMethod).IsRequired();
                 agency.Property(a => a.LegalAddress).IsRequired();
+                agency.Property(b => b.CreditLimit).HasColumnType("jsonb");
             });
         }
 

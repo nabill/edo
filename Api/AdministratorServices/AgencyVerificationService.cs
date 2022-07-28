@@ -17,6 +17,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Money.Models;
+using HappyTravel.Edo.Api.Models.Management;
+using FluentValidation;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -35,33 +38,47 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> VerifyAsFullyAccessed(int agencyId, ContractKind contractKind, string verificationReason)
+        public async Task<Result> VerifyAsFullyAccessed(int agencyId, AgencyFullAccessVerificationRequest request)
         {
-            return await GetAgency(agencyId)
+            return await ValidateVerify(request)
+                .Bind(() => GetAgency(agencyId))
                 .Ensure(a => a.ParentId is null, "Verification is only available for root agencies")
                 .Ensure(a => a.VerificationState == AgencyVerificationStates.ReadOnly,
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
-                .Ensure(IsContractKindNotEmpty, "Contract kind must be not empty")
-                .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, verificationReason))
+                .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, request.Reason))
                 .Tap(SetContractKind)
                 .Tap(SetAprModeAndPassedDeadlineOffersMode)
-                .Tap(() => WriteVerificationToAuditLog(agencyId, verificationReason, AgencyVerificationStates.FullAccess));
-            
-            
-            bool IsContractKindNotEmpty(Agency _) 
-                => !contractKind.Equals(default(ContractKind));
-            
-            
+                .Tap(() => WriteVerificationToAuditLog(agencyId, request.Reason, AgencyVerificationStates.FullAccess));
+
+
+            Task<Result> ValidateVerify(AgencyFullAccessVerificationRequest request)
+                => GenericValidator<AgencyFullAccessVerificationRequest>.ValidateAsync(v =>
+                    {
+                        v.RuleFor(r => r.CreditLimit)
+                            .NotEmpty()
+                            .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+
+                        v.RuleFor(r => r.CreditLimit)
+                            .Empty()
+                            .When(r => r.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments);
+
+                        v.RuleFor(r => r.ContractKind)
+                            .NotEmpty();
+                    }, request);
+
+
             async Task SetContractKind(Agency agency)
             {
-                agency.ContractKind = contractKind;
+                agency.ContractKind = request.ContractKind;
+                if (request.CreditLimit is not null)
+                    agency.CreditLimit = request.CreditLimit;
                 await _context.SaveChangesAsync();
             }
-            
-            
+
+
             async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
             {
-                if (contractKind != ContractKind.VirtualAccountOrCreditCardPayments)
+                if (request.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments)
                     return;
 
                 var settings = await _context.AgencySystemSettings
@@ -116,7 +133,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, agency.PreferredCurrency);
                 if (isFailure)
                     return Result.Failure("Error while creating an account for agency");
-                
+
                 var childAgencies = await _context.Agencies.Where(a => a.Ancestors.Contains(agencyId)).ToListAsync();
 
                 foreach (var childAgency in childAgencies)
@@ -198,7 +215,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             return Result.Success(agency);
         }
-        
+
 
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;

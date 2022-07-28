@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -34,5 +35,6 @@ namespace HappyTravel.Edo.Data.Agents
         public PaymentTypes PreferredPaymentMethod { get; set; }
         public bool IsContractUploaded { get; set; }
         public int? AccountManagerId { get; set; }
+        public MoneyAmount? CreditLimit { get; set; }
     }
 }
