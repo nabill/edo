@@ -2457,6 +2457,11 @@
             Account manager full name
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.CreditLimit">
+            <summary>
+            Agencies credit limit
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AdminViewAgencyInfo.Created">
             <summary>
             Agency creation date
@@ -2610,6 +2615,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.ContractKind">
             <summary>
             Contract kind of the agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.CreditLimit">
+            <summary>
+            Agencies credit limit
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
@@ -2900,6 +2910,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.IsContractUploaded">
             <summary>
             True if contract is loaded to agency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CreditLimit">
+            <summary>
+            Agencies credit limit
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">

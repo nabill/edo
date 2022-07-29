@@ -116,7 +116,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     verificationDate: agencyInfo.VerificationDate,
                     legalAddress: agencyInfo.LegalAddress,
                     preferredPaymentMethod: agencyInfo.PreferredPaymentMethod,
-                    isContractUploaded: agencyInfo.IsContractUploaded));
+                    isContractUploaded: agencyInfo.IsContractUploaded,
+                    creditLimit: agencyInfo.CreditLimit));
         }
 
 
