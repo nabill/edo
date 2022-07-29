@@ -67,9 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var selectedResults = (await _availabilityStorage.GetResults(searchId, searchSettings))
+                var selectedResults = (await _availabilityStorage.GetResults(searchId, htId, searchSettings))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierCode, a)))
-                    .Where(r => r.a.HtId == htId)
                     .ToList();
                 
                 foreach (var (SupplierKey, a) in selectedResults)

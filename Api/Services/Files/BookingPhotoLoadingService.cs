@@ -7,6 +7,8 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,10 +16,10 @@ namespace HappyTravel.Edo.Api.Services.Files;
 
 public class BookingPhotoLoadingService : IBookingPhotoLoadingService
 {
-    public BookingPhotoLoadingService(EdoContext context, IHttpClientFactory clientFactory, IAmazonS3ClientService amazonS3ClientService,
+    public BookingPhotoLoadingService(IServiceScopeFactory scopeFactory, IHttpClientFactory clientFactory, IAmazonS3ClientService amazonS3ClientService,
         IOptions<ImageFileServiceOptions> imageFileServiceOptions, ILogger<BookingPhotoLoadingService> logger)
     {
-        _context = context;
+        _scopeFactory = scopeFactory;
         _clientFactory = clientFactory;
         _amazonS3ClientService = amazonS3ClientService;
         _imageFileServiceOptions = imageFileServiceOptions.Value;
@@ -29,6 +31,8 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
     {
         Task.Run(async () =>
         {
+            using var scope = _scopeFactory.CreateScope();
+            await using var context = scope.ServiceProvider.GetRequiredService<EdoContext>();
             var key = $"{_imageFileServiceOptions.S3FolderName}/{bookingId}/accommodation.jpg";
             
             await GetBookingRecord()
@@ -40,7 +44,7 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
 
             async Task<Result<Booking?>> GetBookingRecord()
             {
-                return await _context.Bookings.FindAsync(bookingId);
+                return await context.Bookings.FindAsync(bookingId);
             }
 
             Result<Booking> Validate(Booking? booking)
@@ -77,8 +81,8 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
             {
                 var (booking, newUrl) = bookingWithNewUrl;
                 booking.AccommodationInfo!.Photo!.SourceUrl = newUrl;
-                _context.Update(booking);
-                await _context.SaveChangesAsync();
+                context.Attach(booking).Property(b => b.AccommodationInfo).IsModified = true;
+                await context.SaveChangesAsync();
             }
 
 
@@ -88,9 +92,8 @@ public class BookingPhotoLoadingService : IBookingPhotoLoadingService
             }
         });
     }
-
-
-    private readonly EdoContext _context;
+    
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHttpClientFactory _clientFactory;
     private readonly IAmazonS3ClientService _amazonS3ClientService;
     private readonly ImageFileServiceOptions _imageFileServiceOptions;

@@ -25,9 +25,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         
         // TODO: method added for compability with 2nd and 3rd steps. Need to refactor them for using filters instead of loading whole search results
-        public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, AccommodationBookingSettings searchSettings)
+        public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, string htId, AccommodationBookingSettings searchSettings)
         {
-            var filter = GetSearchIdSupplierFilterDefinition(searchId, searchSettings.EnabledConnectors);
+            var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
+            
+            var filter = filterBuilder.And(new[]
+            {
+                filterBuilder.Eq(x => x.HtId, htId),
+                GetSearchIdSupplierFilterDefinition(searchId, searchSettings.EnabledConnectors)
+            });
+            
             var cursor = await _availabilityStorage.Collection().FindAsync(filter);
             var results = await cursor.ToListAsync();
 
@@ -39,7 +46,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers)
+        public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(
+            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, 
+            bool needFilterNonDirectContracts = false, List<string>? directContractSuppliersCodes = null)
         {
             suppliers = filters?.Suppliers != null && filters.Suppliers.Any()
                 ? filters.Suppliers
@@ -49,13 +58,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
             var sortBuilder = Builders<CachedAccommodationAvailabilityResult>.Sort;
-            var sort = sortBuilder.Ascending(x => x.Created).Ascending(x => x.HtId);
+            var sort = sortBuilder
+                .Ascending(x => x.Created)
+                .Descending(x => x.IsDirectContract)
+                .Ascending(x => x.HtId);
 
             var filter = filterBuilder.And(new[]
             {
                 filterBuilder.Eq(x => x.SearchId, searchId),
                 filterBuilder.In(x => x.Id, ids)
             });
+            
+            if (needFilterNonDirectContracts && directContractSuppliersCodes is not null)
+                filter &= filterBuilder.In(x => x.SupplierCode, directContractSuppliersCodes);
 
             if (filters is not null)
             {
@@ -111,9 +126,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public Task SaveResults(List<AccommodationAvailabilityResult> results, string requestHash)
+        public Task SaveResults(List<AccommodationAvailabilityResult> results, bool isDirectContract, string requestHash)
             => results.Any()
-                ? _availabilityStorage.Add(results.Select(r => r.Map(requestHash)))
+                ? _availabilityStorage.Add(results.Select(r => r.Map(isDirectContract, requestHash)))
                 : Task.CompletedTask;
 
 
@@ -154,7 +169,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 Limit = 1
             };
             
-            var cursor = await _availabilityStorage.Collection().FindAsync(filter);
+            var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
             
             return results
@@ -206,7 +221,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 {
                     Id = x.Id,
                     HtId = x.HtId,
-                    Created = x.Created
+                    Created = x.Created,
+                    IsDirectContract = x.IsDirectContract
                 });
 
             var options = new FindOptions<CachedAccommodationAvailabilityResult> { Projection = projection };
@@ -219,7 +235,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             foreach (var group in rows.GroupBy(r => r.HtId))
             {
                 htIds.Add(group.Key);
-                ids.Add(group.OrderBy(g => g.Created).First().Id);
+                ids.Add(group.OrderByDescending(g => g.IsDirectContract).ThenBy(g => g.Created).First().Id);
             }
 
             return new ValueTuple<List<ObjectId>, List<string>>(ids, htIds);

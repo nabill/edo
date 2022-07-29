@@ -9,7 +9,8 @@ public readonly struct RoomInfo
 {
     public RoomInfo(string type, BoardBasisTypes boardBasis, string mealPlan,
         DateTime? deadlineDate, string contractDescription, List<Passenger> passengers,
-        List<KeyValuePair<string, string>> remarks, string supplierRoomReferenceCode)
+        List<KeyValuePair<string, string>> remarks, string supplierRoomReferenceCode,
+        string adultOccupancy = "", string childOccupancy = "")
     {
         Type = type;
         BoardBasis = boardBasis;
@@ -19,7 +20,10 @@ public readonly struct RoomInfo
         Passengers = passengers;
         Remarks = remarks;
         SupplierRoomReferenceCode = supplierRoomReferenceCode;
+        AdultOccupancy = adultOccupancy;
+        ChildOccupancy = childOccupancy;
     }
+
 
     public string Type { get; }
     public BoardBasisTypes BoardBasis { get; }
@@ -29,4 +33,6 @@ public readonly struct RoomInfo
     public List<Passenger> Passengers { get; }
     public List<KeyValuePair<string, string>> Remarks { get; }
     public string SupplierRoomReferenceCode { get; }
+    public string AdultOccupancy { get; }
+    public string ChildOccupancy { get; }
 }

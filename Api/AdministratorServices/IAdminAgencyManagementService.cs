@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 
@@ -27,7 +28,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<ContractKind>> GetContractKind(int agencyId);
 
-        Task<Result> ChangeContractKind(int agencyId, ContractKind contractKind, string reason);
+        Task<Result> ChangeContractKind(int agencyId, ContractKindChangeRequest request);
 
         Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId);
 
