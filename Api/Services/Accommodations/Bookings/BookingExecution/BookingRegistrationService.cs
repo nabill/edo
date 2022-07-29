@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         public BookingRegistrationService(EdoContext context, ITagProcessor tagProcessor, IDateTimeProvider dateTimeProvider,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager, IBookingChangeLogService changeLogService,
             ISupplierOrderService supplierOrderService, IBookingRequestStorage requestStorage,
-            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext, IAccommodationMapperClient accommodationMapperClient, 
+            ILogger<BookingRegistrationService> logger, IAgentContextService agentContext, IAccommodationMapperClient accommodationMapperClient,
             IBookingPhotoLoadingService bookingPhotoLoadingService)
         {
             _context = context;
@@ -121,8 +121,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         languageCode: languageCode)
                     .Tap(async booking =>
                     {
-                        _context.Bookings.Add(booking);  
-                        await _context.SaveChangesAsync();  
+                        _context.Bookings.Add(booking);
+                        await _context.SaveChangesAsync();
                         _context.Entry(booking).State = EntityState.Detached;
                     });
             }
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 IsPackage = availabilityInfo.RoomContractSet.IsPackageRate,
                 SpecialValues = new List<KeyValuePair<string, string>>(0)
             };
-            
+
             AddRequestInfo(bookingRequest);
             AddServiceDetails();
             AddAgentInfo();
@@ -255,31 +255,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private Task<Result<Booking>> AddStaticData(Booking booking, BookingAvailabilityInfo availabilityInfo)
         {
-           return _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en")
-               .MapError(details => $"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{details.Detail}`")
-               .Map(accommodation =>
-               {
-                   var edoAccommodation = accommodation.ToEdoContract();
-                   var location = edoAccommodation.Location;
+            return _accommodationMapperClient.GetAccommodation(availabilityInfo.HtId, booking.LanguageCode ?? "en")
+                .MapError(details => $"Cannot get accommodation for '{availabilityInfo.HtId}' with error `{details.Detail}`")
+                .Map(accommodation =>
+                {
+                    var edoAccommodation = accommodation.ToEdoContract();
+                    var location = edoAccommodation.Location;
 
-                   booking.Location = new AccommodationLocation(location.Country,
-                       location.Locality,
-                       location.LocalityZone,
-                       location.Address,
-                       location.Coordinates);
+                    booking.Location = new AccommodationLocation(location.Country,
+                        location.Locality,
+                        location.LocalityZone,
+                        location.Address,
+                        location.Coordinates);
 
-                   booking.AccommodationId = edoAccommodation.Id;
-                   booking.AccommodationName = edoAccommodation.Name;
+                    booking.AccommodationId = availabilityInfo.AccommodationId;
+                    booking.AccommodationName = availabilityInfo.AccommodationName;
 
-                   booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
-                       accommodation.Photos.Any() ? new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl) : null,
-                       new ContactInfo(accommodation.Contacts.Emails,
-                           accommodation.Contacts.Phones,
-                           accommodation.Contacts.WebSites,
-                           accommodation.Contacts.Faxes));
+                    booking.AccommodationInfo = new Data.Bookings.AccommodationInfo(
+                        accommodation.Photos.Any() ? new ImageInfo(edoAccommodation.Photos[0].Caption, edoAccommodation.Photos[0].SourceUrl) : null,
+                        new ContactInfo(accommodation.Contacts.Emails,
+                            accommodation.Contacts.Phones,
+                            accommodation.Contacts.WebSites,
+                            accommodation.Contacts.Faxes));
 
-                   return booking;
-               });
+                    return booking;
+                });
         }
 
 
