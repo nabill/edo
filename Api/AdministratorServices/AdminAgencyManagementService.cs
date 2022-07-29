@@ -117,7 +117,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     VerificationState = agency.VerificationState,
                     AccountManagerId = admin != null ? admin.Id : null,
                     AccountManagerName = admin != null ? PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) : null,
-                    IsActive = agency.IsActive
+                    IsActive = agency.IsActive,
+                    CreditLimit = agency.CreditLimit
                 });
 
 

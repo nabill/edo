@@ -40,7 +40,8 @@ namespace HappyTravel.Edo.Api.Extensions
                 markupDisplayFormula: markupFormula,
                 preferredCurrency: agency.PreferredCurrency,
                 accountManagerName: accountManagerName,
-                accountManagerId: accountManagerId, 
-                contractKind: agency.ContractKind);
+                accountManagerId: accountManagerId,
+                contractKind: agency.ContractKind,
+                creditLimit: agency.CreditLimit);
     }
 }
