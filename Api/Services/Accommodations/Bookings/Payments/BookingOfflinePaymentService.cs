@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         {
             return await GetBooking()
                 .Check(CheckBookingPaymentStatus)
-                .Check(CheckAgencyKontractKind)
+                .Check(CheckAgencyContractKind)
                 .Tap(Complete)
                 .Tap(WriteAuditLog);
 
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     : Result.Failure($"Could not complete booking. Invalid payment status: {booking.PaymentStatus}");
 
 
-            async Task<Result> CheckAgencyKontractKind(Booking booking)
+            async Task<Result> CheckAgencyContractKind(Booking booking)
             {
                 var (_, isFailure, agency, error) = await _adminAgencyManagementService.Get(booking.AgencyId);
                 if (isFailure)
