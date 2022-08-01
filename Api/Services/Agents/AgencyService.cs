@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Agencies.Add(agency);
 
             await _context.SaveChangesAsync();
-            return (await GetAgencyInfo(agency.Id)).Value;
+            return await GetAgencyInfo(agency.Id);
         }
 
 
@@ -175,7 +175,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from markupFormula in _context.DisplayMarkupFormulas
                         .Where(f => f.AgencyId == agency.Id && f.AgentId == null)
                         .DefaultIfEmpty()
-                    join country in _context.Countries on agency.CountryCode equals country.Code
+                    join country in _context.Countries on agency.CountryCode equals country.Code into cntr
+                    from country in cntr.DefaultIfEmpty()
                     join admin in _context.Administrators on agency.AccountManagerId equals admin.Id into admn
                     from admin in admn.DefaultIfEmpty()
                     where agency.Id == agencyId
@@ -184,11 +185,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         rootAgency.Verified != null
                             ? rootAgency.Verified.Value.DateTime
                             : null,
-                        country.Names,
                         languageCode,
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
+                        country != null
+                            ? country.Names
+                            : null,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                             null,
@@ -197,9 +200,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
                             null))
                 .SingleOrDefaultAsync();
 
-            return agencyInfo.Equals(default)
-                ? Result.Failure<AgencyInfo>("Could not find specified agency")
-                : agencyInfo;
+
+            if (agencyInfo.Equals(default))
+                return Result.Failure<AgencyInfo>("Could not find specified agency");
+
+            if (string.IsNullOrWhiteSpace(agencyInfo.CountryName))
+                return Result.Failure<AgencyInfo>("Could not find specified country");
+
+            return agencyInfo;
         }
 
 

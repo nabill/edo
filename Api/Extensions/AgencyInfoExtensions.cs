@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Common.Enums;
@@ -13,15 +11,15 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class AgencyInfoExtensions
     {
         public static AgencyInfo ToAgencyInfo(this Agency agency, ContractKind? contractKind,
-            AgencyVerificationStates verificationState, DateTime? verificationDate, MultiLanguage<string> countryNames,
-            string languageCode, string markupFormula, string? accountManagerName, int? accountManagerId)
+            AgencyVerificationStates verificationState, DateTime? verificationDate, string languageCode,
+            string markupFormula, MultiLanguage<string>? countryNames, string? accountManagerName, int? accountManagerId)
             => new AgencyInfo(name: agency.Name,
                 id: agency.Id,
                 address: agency.Address,
                 billingEmail: agency.BillingEmail,
                 city: agency.City,
                 countryCode: agency.CountryCode,
-                countryName: countryNames.GetValueOrDefault(languageCode),
+                countryName: countryNames?.GetValueOrDefault(languageCode) ?? string.Empty,
                 fax: agency.Fax,
                 phone: agency.Phone,
                 postalCode: agency.PostalCode,
