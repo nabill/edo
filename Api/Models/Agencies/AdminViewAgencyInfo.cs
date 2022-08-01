@@ -1,6 +1,7 @@
 ﻿using System;
 using Api.Models.Management.Administrators;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
 {
@@ -45,6 +46,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Account manager full name
         /// </summary>
         public string? AccountManagerName { get; init; }
+
+        /// <summary>
+        /// Agencies credit limit
+        /// </summary>
+        public MoneyAmount? CreditLimit { get; init; }
 
         /// <summary>
         /// Agency creation date
