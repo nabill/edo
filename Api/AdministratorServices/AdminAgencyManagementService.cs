@@ -74,11 +74,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         rootAgency.Verified != null
                             ? rootAgency.Verified.Value.DateTime
                             : null,
-                        country.Names,
                         languageCode,
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
+                        country.Names,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                             null,
@@ -138,11 +138,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         rootAgency.Verified != null
                             ? rootAgency.Verified.Value.DateTime
                             : null,
-                        country.Names,
                         languageCode,
                         markupFormula == null
                             ? string.Empty
                             : markupFormula.DisplayFormula,
+                        country.Names,
                         admin != null ?
                             PersonNameFormatters.ToMaskedName(admin.FirstName, admin.LastName, null) :
                             null,
