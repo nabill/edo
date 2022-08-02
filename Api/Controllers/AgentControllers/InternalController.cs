@@ -20,10 +20,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/internal/bookings")]
-    public class InternalBookingsController : BaseController
+    [Route("api/{v:apiVersion}/internal")]
+    public class InternalController : BaseController
     {
-        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
+        public InternalController(IBookingsProcessingService bookingsProcessingService,
             IServiceAccountContext serviceAccountContext,
             IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService,
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets bookings for cancellation
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("to-cancel")]
+        [HttpGet("bookings/to-cancel")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for cancellation</param>
         /// <returns>Result message</returns>
-        [HttpPost("cancel")]
+        [HttpPost("bookings/cancel")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("to-capture")]
+        [HttpGet("bookings/to-capture")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for capture</param>
         /// <returns>Result message</returns>
-        [HttpPost("capture")]
+        [HttpPost("bookings/capture")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for charge</returns>
-        [HttpGet("to-charge")]
+        [HttpGet("bookings/to-charge")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for charge</param>
         /// <returns>Result message</returns>
-        [HttpPost("charge")]
+        [HttpPost("bookings/charge")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpGet("to-notify/deadline-approach")]
+        [HttpGet("bookings/to-notify/deadline-approach")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("notifications/deadline-approach/send")]
+        [HttpPost("bookings/notifications/deadline-approach/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends need payment notifications for offline bookings
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notifications/offline-deadline-approach/send")]
+        [HttpPost("bookings/notifications/offline-deadline-approach/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyOfflinePaymentsNeeded()
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary reports
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notifications/agent-summary/send")]
+        [HttpPost("bookings/notifications/agent-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingSummary()
@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary report for administrator
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notifications/administrator-summary/send")]
+        [HttpPost("bookings/notifications/administrator-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings monthly summary report for administrator
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notifications/administrator-payment-summary/send")]
+        [HttpPost("bookings/notifications/administrator-payment-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -229,9 +229,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///     Sends notifications when funds on the agency balance decrease below thresholds
+        /// </summary>
+        /// <returns>Result message</returns>
+        [HttpPost("agencies/notifications/administrator-payment-summary/send")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyCreditLimitRunOutBalance()
+        {
+            return OkOrBadRequest(await _reportsService.NotifyCreditLimitRunOutBalance());
+        }
+
+
+        /// <summary>
         ///     Get applied markups for materialization
         /// </summary>
-        [HttpGet("markup-bonuses")]
+        [HttpGet("bookings/markup-bonuses")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -247,7 +261,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Materializes markup bonuses
         /// </summary>
-        [HttpPost("markup-bonuses")]
+        [HttpPost("bookings/markup-bonuses")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -260,7 +274,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get bookings ids for refreshing status
         /// </summary>
-        [HttpGet("statuses/refresh")]
+        [HttpGet("bookings/statuses/refresh")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingIdsForStatusRefresh()
@@ -272,7 +286,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refresh booking statuses
         /// </summary>
-        [HttpPost("statuses/refresh")]
+        [HttpPost("bookings/statuses/refresh")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -286,7 +300,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Set booking statuses to Completed
         /// </summary>
         /// <returns>Updated booking Ids</returns>
-        [HttpPost("statuses/complete")]
+        [HttpPost("bookings/statuses/complete")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -299,7 +313,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get payment ids for refund
         /// </summary>
-        [HttpGet("refunds")]
+        [HttpGet("bookings/refunds")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -310,7 +324,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refunds payments
         /// </summary>
-        [HttpPost("refunds")]
+        [HttpPost("bookings/refunds")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
