@@ -22,7 +22,7 @@ public class GrpcClientsStorageUpdater : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _connection.SubscribeAsync(MessageBusTopics.MarkupPolicyUpdated, (_, m) =>
+        _connection.SubscribeAsync(MessageBusTopics.SupplierUpdated, (_, m) =>
         {
             _logger.LogSupplierUpdateMessageReceived();
             
