@@ -46,8 +46,8 @@ namespace Api.AdministratorServices.Locations
                 .Except(edoCountries, new CountryComparer())
                 .ToList();
 
-            // await _countryStorage.UpdateRange(difference, cancellationToken);
-            // await _countryStorage.Refresh(cancellationToken);
+            await _countryStorage.UpdateRange(difference, cancellationToken);
+            await _countryStorage.Refresh(cancellationToken);
 
             return difference
                 .Select(ToApiProjection())
