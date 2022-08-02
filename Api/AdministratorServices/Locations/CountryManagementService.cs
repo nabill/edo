@@ -46,8 +46,8 @@ namespace Api.AdministratorServices.Locations
                 .Except(edoCountries, new CountryComparer())
                 .ToList();
 
-            await _countryStorage.UpdateRange(difference, cancellationToken);
-            await _countryStorage.Refresh(cancellationToken);
+            // await _countryStorage.UpdateRange(difference, cancellationToken);
+            // await _countryStorage.Refresh(cancellationToken);
 
             return difference
                 .Select(ToApiProjection())
@@ -59,7 +59,7 @@ namespace Api.AdministratorServices.Locations
                 {
                     Code = slimCountry.Code,
                     Names = new MultiLanguage<string>() { En = slimCountry.Name },
-                    RegionId = 0,
+                    RegionId = null,
                     MarketId = UnknownMarketId
                 };
         }
