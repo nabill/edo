@@ -20,185 +20,185 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
     public class AccommodationBookingSettingsServicePriorityTests
     {
         // Default settings
-        [Fact]
-        public async Task Defaults_should_apply_when_no_agent_and_agency_settings_found()
-        {
-            var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
-            var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-            var agentContextService = Mock.Of<IAgentContextService>();
-            var defaultSuppliers = new Dictionary<string, bool>
-            {
-                { "netstorming", true },
-                { "illusions", false },
-                { "etg", true }
-            };
+        // [Fact]
+        // public async Task Defaults_should_apply_when_no_agent_and_agency_settings_found()
+        // {
+        //     var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
+        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
+        //     var defaultSuppliers = new Dictionary<string, bool>
+        //     {
+        //         { "netstorming", true },
+        //         { "illusions", false },
+        //         { "etg", true }
+        //     };
 
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
 
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get();
+        //     var settings = await service.Get();
 
-            Assert.Equal(DefaultAprMode, settings.AprMode);
-            Assert.Equal(DefaultPassedDeadlineOffersMode, settings.PassedDeadlineOffersMode);
-            Assert.Equal(default, settings.AdditionalSearchFilters);
-            Assert.Equal(2, settings.EnabledConnectors.Count);
-            Assert.Equal("netstorming", settings.EnabledConnectors[0]);
-            Assert.Equal("etg", settings.EnabledConnectors[1]);
+        //     Assert.Equal(DefaultAprMode, settings.AprMode);
+        //     Assert.Equal(DefaultPassedDeadlineOffersMode, settings.PassedDeadlineOffersMode);
+        //     Assert.Equal(default, settings.AdditionalSearchFilters);
+        //     Assert.Equal(2, settings.EnabledConnectors.Count);
+        //     Assert.Equal("netstorming", settings.EnabledConnectors[0]);
+        //     Assert.Equal("etg", settings.EnabledConnectors[1]);
 
-        }
-
-
-        // Settings from one source
-        [Fact]
-        public async Task RootAgency_setting_must_apply_exactly()
-        {
-            var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
-            var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var agentContextService = Mock.Of<IAgentContextService>();
-            var rootAgencySettings = new RootAgencyAccommodationBookingSettings
-            {
-                CancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
-                {
-                    PolicyStartDateShift = new TimeSpan(0, 0, 0, 18)
-                }
-            };
-            var expectedPolicyStartDateShift = new TimeSpan(0, 0, 0, 18);
-
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
-
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
-
-            var settings = await service.Get();
-
-            Assert.Equal(expectedPolicyStartDateShift, settings.CancellationPolicyProcessSettings.PolicyStartDateShift);
-        }
+        // }
 
 
-        [Fact]
-        public async Task AdditionalSearchFilters_setting_must_apply_exactly_when_agent_settings_found()
-        {
-            var agentSettings = Maybe<AgentAccommodationBookingSettings>
-                .From(new AgentAccommodationBookingSettings { AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
-            var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-            var agentContextService = Mock.Of<IAgentContextService>();
+        // // Settings from one source
+        // [Fact]
+        // public async Task RootAgency_setting_must_apply_exactly()
+        // {
+        //     var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
+        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
+        //     var rootAgencySettings = new RootAgencyAccommodationBookingSettings
+        //     {
+        //         CancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
+        //         {
+        //             PolicyStartDateShift = new TimeSpan(0, 0, 0, 18)
+        //         }
+        //     };
+        //     var expectedPolicyStartDateShift = new TimeSpan(0, 0, 0, 18);
 
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get();
+        //     var settings = await service.Get();
 
-            Assert.Equal(SearchFilters.BestPrice | SearchFilters.BestRoomPlans, settings.AdditionalSearchFilters);
-        }
-
-
-        // Settings taken from one of two sources (agent setting is priority)
-        [Fact]
-        public async Task Agent_settings_must_apply_when_only_agent_settings_found()
-        {
-            var agentSettings = Maybe<AgentAccommodationBookingSettings>
-                .From(new AgentAccommodationBookingSettings
-                {
-                    AprMode = AprMode.CardPurchasesOnly,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
-                });
-            var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-            var agentContextService = Mock.Of<IAgentContextService>();
-
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
-
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
-
-            var settings = await service.Get();
-
-            Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
-            Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
-        }
+        //     Assert.Equal(expectedPolicyStartDateShift, settings.CancellationPolicyProcessSettings.PolicyStartDateShift);
+        // }
 
 
-        [Fact]
-        public async Task Agent_settings_must_apply_when_agent_and_agency_settings_found()
-        {
-            var agentSettings = Maybe<AgentAccommodationBookingSettings>
-                .From(new AgentAccommodationBookingSettings
-                {
-                    AprMode = AprMode.CardPurchasesOnly,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
-                });
-            var agencySettings = Maybe<AgencyAccommodationBookingSettings>
-                .From(new AgencyAccommodationBookingSettings
-                {
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
-                });
-            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-            var agentContextService = Mock.Of<IAgentContextService>();
+        // [Fact]
+        // public async Task AdditionalSearchFilters_setting_must_apply_exactly_when_agent_settings_found()
+        // {
+        //     var agentSettings = Maybe<AgentAccommodationBookingSettings>
+        //         .From(new AgentAccommodationBookingSettings { AdditionalSearchFilters = SearchFilters.BestPrice | SearchFilters.BestRoomPlans });
+        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
 
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get();
+        //     var settings = await service.Get();
 
-            Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
-            Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
-        }
+        //     Assert.Equal(SearchFilters.BestPrice | SearchFilters.BestRoomPlans, settings.AdditionalSearchFilters);
+        // }
 
 
-        [Fact]
-        public async Task Agency_settings_must_apply_when_only_agency_settings_found()
-        {
-            var expectedSupplierOptions = new List<string> { "netstorming", "illusions" };
-            var defaultSuppliers = new Dictionary<string, bool>()
-            {
-                { "netstorming", true },
-                { "etg", false },
-                { "illusions", true }
-            };
-            var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
-            var agencySettings = Maybe<AgencyAccommodationBookingSettings>
-                .From(new AgencyAccommodationBookingSettings
-                {
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
-                });
-            var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-            var agentContextService = Mock.Of<IAgentContextService>();
+        // // Settings taken from one of two sources (agent setting is priority)
+        // [Fact]
+        // public async Task Agent_settings_must_apply_when_only_agent_settings_found()
+        // {
+        //     var agentSettings = Maybe<AgentAccommodationBookingSettings>
+        //         .From(new AgentAccommodationBookingSettings
+        //         {
+        //             AprMode = AprMode.CardPurchasesOnly,
+        //             PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
+        //         });
+        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
+        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
 
-            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-            var flow = GetDoubleFlow();
-            var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
 
-            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-                agencySupplierManagementService, default, agentContextService);
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
 
-            var settings = await service.Get();
+        //     var settings = await service.Get();
 
-            Assert.Equal(AprMode.Hide, settings.AprMode);
-            Assert.Equal(PassedDeadlineOffersMode.Hide, settings.PassedDeadlineOffersMode);
+        //     Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
+        //     Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
+        // }
 
-            for (int i = 0; i < expectedSupplierOptions.Count; i++)
-                Assert.Equal(expectedSupplierOptions[i], settings.EnabledConnectors[i]);
-        }
+
+        // [Fact]
+        // public async Task Agent_settings_must_apply_when_agent_and_agency_settings_found()
+        // {
+        //     var agentSettings = Maybe<AgentAccommodationBookingSettings>
+        //         .From(new AgentAccommodationBookingSettings
+        //         {
+        //             AprMode = AprMode.CardPurchasesOnly,
+        //             PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
+        //         });
+        //     var agencySettings = Maybe<AgencyAccommodationBookingSettings>
+        //         .From(new AgencyAccommodationBookingSettings
+        //         {
+        //             AprMode = AprMode.Hide,
+        //             PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
+        //         });
+        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
+
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(new Dictionary<string, bool>());
+
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
+
+        //     var settings = await service.Get();
+
+        //     Assert.Equal(AprMode.CardPurchasesOnly, settings.AprMode);
+        //     Assert.Equal(PassedDeadlineOffersMode.CardAndAccountPurchases, settings.PassedDeadlineOffersMode);
+        // }
+
+
+        // [Fact]
+        // public async Task Agency_settings_must_apply_when_only_agency_settings_found()
+        // {
+        //     var expectedSupplierOptions = new List<string> { "netstorming", "illusions" };
+        //     var defaultSuppliers = new Dictionary<string, bool>()
+        //     {
+        //         { "netstorming", true },
+        //         { "etg", false },
+        //         { "illusions", true }
+        //     };
+        //     var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
+        //     var agencySettings = Maybe<AgencyAccommodationBookingSettings>
+        //         .From(new AgencyAccommodationBookingSettings
+        //         {
+        //             AprMode = AprMode.Hide,
+        //             PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
+        //         });
+        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
+        //     var agentContextService = Mock.Of<IAgentContextService>();
+
+        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+        //     var flow = GetDoubleFlow();
+        //     var agencySupplierManagementService = GetAgencySupplierManagementService(defaultSuppliers);
+
+        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+        //         agencySupplierManagementService, default, agentContextService);
+
+        //     var settings = await service.Get();
+
+        //     Assert.Equal(AprMode.Hide, settings.AprMode);
+        //     Assert.Equal(PassedDeadlineOffersMode.Hide, settings.PassedDeadlineOffersMode);
+
+        //     for (int i = 0; i < expectedSupplierOptions.Count; i++)
+        //         Assert.Equal(expectedSupplierOptions[i], settings.EnabledConnectors[i]);
+        // }
 
 
         private IDoubleFlow GetDoubleFlow()
