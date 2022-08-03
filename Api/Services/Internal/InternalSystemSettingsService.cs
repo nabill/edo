@@ -173,8 +173,8 @@ namespace Api.Services.Internal
                     AdditionalSearchFilters = new(),
                     AprMode = materializedAgencySettings.AprMode,
                     CustomDeadlineShift = materializedAgencySettings.CustomDeadlineShift,
-                    IsDirectContractFlagVisible = materializedAgencySettings.IsDirectContractFlagVisible,
-                    IsSupplierVisible = materializedAgencySettings.IsSupplierVisible,
+                    IsDirectContractFlagVisible = false,
+                    IsSupplierVisible = false,
                     PassedDeadlineOffersMode = materializedAgencySettings.PassedDeadlineOffersMode
                 };
             }
