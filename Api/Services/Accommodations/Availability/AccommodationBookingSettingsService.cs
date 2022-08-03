@@ -9,9 +9,9 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Logging;
 using Api.AdministratorServices;
+using System.Text.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IAgencySystemSettingsService agencySystemSettingsService,
             IRootAgencySystemSettingsService rootAgencySystemSettingsService,
             IAgentSupplierManagementService agentSupplierManagementService,
-            ILogger<AccommodationBookingSettingsService> logger, 
+            ILogger<AccommodationBookingSettingsService> logger,
             IAgentContextService agentContextService)
         {
             _doubleFlow = doubleFlow;
@@ -45,45 +45,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             return await _doubleFlow.GetOrSetAsync(key, async () =>
             {
+                List<string> enabledConnectors = await GetEnabledConnectors(agent.AgencyId, agent.AgentId);
+
                 var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
-                var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
+                var agencySettings = await _agencySystemSettingsService
+                    .GetAccommodationBookingSettings(agent.AgencyId);
+
                 var rootAgencySettings = await _rootAgencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
 
-                return await MergeSettings(agentSettings, agencySettings, rootAgencySettings, agent.AgencyId);
+                var cancellationPolicyProcessSettings =
+                        MergeCancellationPolicyProcessSettings(rootAgencySettings.CancellationPolicyProcessSettings, agencySettings, agentSettings);
+
+                return MergeSettings(agentSettings.Value, enabledConnectors, cancellationPolicyProcessSettings);
             }, SettingsCacheLifetime);
 
 
-            async Task<AccommodationBookingSettings> MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings,
-                RootAgencyAccommodationBookingSettings rootAgencySettings, int agencyId)
-            {
-                var agentSettingsValue = agentSettings.HasValue
-                    ? agentSettings.Value
-                    : null;
-                var agencySettingsValue = agencySettings.HasValue
-                    ? agencySettings.Value
-                    : null;
-
-                List<string> enabledConnectors = await GetEnabledConnectors(agencyId, agent.AgentId);
-                AprMode? aprMode = agentSettingsValue?.AprMode ?? agencySettingsValue?.AprMode ?? DefaultAprMode;
-                PassedDeadlineOffersMode? passedDeadlineOffersMode = agentSettingsValue?.PassedDeadlineOffersMode ?? agencySettingsValue?.PassedDeadlineOffersMode ??
-                    DefaultPassedDeadlineOffersMode;
-
-                bool isSupplierVisible = agentSettingsValue?.IsSupplierVisible == true || agencySettingsValue?.IsSupplierVisible == true;
-                bool isDirectContractFlagVisible = agentSettingsValue?.IsDirectContractFlagVisible == true || agencySettingsValue?.IsDirectContractFlagVisible == true;
-
-                SearchFilters additionalSearchFilters = agentSettingsValue?.AdditionalSearchFilters ?? default;
-
-                var cancellationPolicyProcessSettings =
-                    MergeCancellationPolicyProcessSettings(rootAgencySettings.CancellationPolicyProcessSettings, agencySettings, agentSettings);
-
-                return new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
-                    aprMode: aprMode.Value,
-                    passedDeadlineOffersMode: passedDeadlineOffersMode.Value,
-                    isSupplierVisible: isSupplierVisible,
-                    cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
-                    isDirectContractFlagVisible: isDirectContractFlagVisible,
-                    additionalSearchFilters: additionalSearchFilters);
-            }
+            AccommodationBookingSettings MergeSettings(AgentAccommodationBookingSettings agentSettings,
+                List<string> enabledConnectors, CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
+                => new AccommodationBookingSettings(enabledConnectors: enabledConnectors,
+                        aprMode: agentSettings.AprMode!.Value,
+                        passedDeadlineOffersMode: agentSettings.PassedDeadlineOffersMode!.Value,
+                        isSupplierVisible: agentSettings.IsSupplierVisible,
+                        cancellationPolicyProcessSettings: cancellationPolicyProcessSettings,
+                        isDirectContractFlagVisible: agentSettings.IsDirectContractFlagVisible,
+                        additionalSearchFilters: agentSettings.AdditionalSearchFilters);
 
 
             CancellationPolicyProcessSettings MergeCancellationPolicyProcessSettings(CancellationPolicyProcessSettings rootSettings,
@@ -121,6 +106,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private async Task<List<string>> GetEnabledConnectors(int agencyId, int agentId)
         {
             var (_, isFailure, agentSuppliers) = await _agentSupplierManagementService.GetMaterializedSuppliers(agencyId, agentId);
+            if (isFailure)
+                return new List<string>();
             return agentSuppliers.Where(s => s.Value).Select(s => s.Key).ToList();
         }
 
@@ -133,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly ILogger<AccommodationBookingSettingsService> _logger;
         private readonly IAgentSupplierManagementService _agentSupplierManagementService;
-        private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(1);
         private readonly IRootAgencySystemSettingsService _rootAgencySystemSettingsService;
         private readonly IAgentContextService _agentContextService;
     }

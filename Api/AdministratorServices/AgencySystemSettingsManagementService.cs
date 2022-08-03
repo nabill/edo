@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Api.AdministratorServices;
+using Api.Services.Internal;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -21,141 +22,32 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AgencySystemSettingsManagementService : IAgencySystemSettingsManagementService
     {
         public AgencySystemSettingsManagementService(EdoContext context,
-            IManagementAuditService managementAuditService, ICompanyInfoService companyInfoService)
+            IManagementAuditService managementAuditService,
+            ICompanyInfoService companyInfoService,
+            IInternalSystemSettingsService internalSystemSettingsService)
         {
             _context = context;
             _managementAuditService = managementAuditService;
             _companyInfoService = companyInfoService;
+            _internalSystemSettingsService = internalSystemSettingsService;
         }
 
 
-        public async Task<Result<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId)
-        {
-            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-            if (agency is null)
-                return Result.Failure<AgencyAccommodationBookingSettings>("No agency exist");
-
-            if (agency.ContractKind is null)
-                return GetDefaults();
-            
-            var rootAgencyId = agency.Ancestors.Any() ? agency.Ancestors.First() : agency.Id;
-
-            var agencySettings = await GetSettings(agencyId);
-            var rootSettings = rootAgencyId != agencyId ? await GetSettings(rootAgencyId) : agencySettings;
-            
-            return GetAvailabilitySearchSettings(agency.ContractKind, rootSettings, agencySettings);
-            
-            
-            async Task<AgencyAccommodationBookingSettings?> GetSettings(int id)
-                => (await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == id))?.AccommodationBookingSettings;
-            
-            
-            AgencyAccommodationBookingSettings GetDefaults()
-                => new()
-                {
-                    IsSupplierVisible = false,
-                    IsDirectContractFlagVisible = false,
-                    AprMode = AprMode.Hide,
-                    PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
-                    CustomDeadlineShift = 0
-                };
-        }
+        public Task<Result<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId)
+            => _internalSystemSettingsService.GetAgencyMaterializedSearchSettings(agencyId);
 
 
         public AgencyAccommodationBookingSettings GetAvailabilitySearchSettings(ContractKind? contractKind, AgencyAccommodationBookingSettings? rootSettings, AgencyAccommodationBookingSettings? agencySettings)
-        {
-            return new AgencyAccommodationBookingSettings
-            {
-                AprMode = GetAprMode(),
-                PassedDeadlineOffersMode = GetPassedDeadlineOffersMode(),
-                IsSupplierVisible = GetIsSupplierVisible(),
-                IsDirectContractFlagVisible = GetIsDirectContractFlagVisible(),
-                CustomDeadlineShift = GetCustomDeadlineShift(),
-                AvailableCurrencies = GetAvailableCurrencies()
-            };
-
-
-            AprMode GetAprMode()
-            {
-                if (rootSettings?.AprMode is null)
-                    return AprMode.Hide;
-
-                if (agencySettings?.AprMode is null)
-                    return rootSettings.AprMode.Value;
-
-                if (rootSettings.AprMode < agencySettings.AprMode)
-                    return rootSettings.AprMode.Value;
-
-                if (contractKind is ContractKind.OfflineOrCreditCardPayments && agencySettings.AprMode.Value is AprMode.CardAndAccountPurchases)
-                    return AprMode.CardPurchasesOnly;
-
-                return agencySettings.AprMode.Value;
-            }
-
-
-            bool GetIsSupplierVisible()
-            {
-                if (rootSettings is null)
-                    return false;
-
-                if (agencySettings is null)
-                    return rootSettings.IsSupplierVisible;
-
-                return rootSettings.IsSupplierVisible && agencySettings.IsSupplierVisible;
-            }
-
-
-            bool GetIsDirectContractFlagVisible()
-            {
-                if (rootSettings is null)
-                    return false;
-
-                if (agencySettings is null)
-                    return rootSettings.IsDirectContractFlagVisible;
-
-                return rootSettings.IsDirectContractFlagVisible && agencySettings.IsDirectContractFlagVisible;
-            }
-
-
-            PassedDeadlineOffersMode GetPassedDeadlineOffersMode()
-            {
-                if (rootSettings?.PassedDeadlineOffersMode is null)
-                    return PassedDeadlineOffersMode.Hide;
-
-                if (agencySettings?.PassedDeadlineOffersMode is null)
-                    return rootSettings.PassedDeadlineOffersMode.Value;
-
-                if (rootSettings.PassedDeadlineOffersMode < agencySettings.PassedDeadlineOffersMode)
-                    return rootSettings.PassedDeadlineOffersMode.Value;
-
-                if (contractKind is ContractKind.OfflineOrCreditCardPayments &&
-                    agencySettings.PassedDeadlineOffersMode.Value is PassedDeadlineOffersMode.CardAndAccountPurchases)
-                    return PassedDeadlineOffersMode.CardPurchasesOnly;
-
-                return agencySettings.PassedDeadlineOffersMode.Value;
-            }
-
-
-            int GetCustomDeadlineShift()
-                => (agencySettings != null && agencySettings.CustomDeadlineShift != null)
-                    ? agencySettings.CustomDeadlineShift.Value
-                    : 0;
-
-
-            List<Currencies> GetAvailableCurrencies()
-                => agencySettings?.AvailableCurrencies != null
-                    ? agencySettings.AvailableCurrencies
-                    : new List<Currencies>();
-        }
+            => _internalSystemSettingsService.GetAgencyMaterializedSearchSettings(contractKind, rootSettings, agencySettings);
 
 
         public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettingsInfo settings)
         {
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-            
+
             if (agency == default)
                 return Result.Failure("Agency doesn't exist");
-            
+
             return await Validate()
                 .BindWithTransaction(_context, () => SetSettings()
                     .Bind(WriteToAuditLog));
@@ -176,8 +68,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (agency.ContractKind is ContractKind.OfflineOrCreditCardPayments && settings.PassedDeadlineOffersMode is PassedDeadlineOffersMode.CardAndAccountPurchases)
                     return Result.Failure("For an agency with contract type OfflineOrCreditCardPayments, you cannot set PassedDeadlineOffersMode to CardAndAccountPurchases.");
-                
-                if (! await CheckFullyVerified())
+
+                if (!await CheckFullyVerified())
                     return Result.Failure("Changing settings for agency without full access is not allowed");
 
                 if (settings.AvailableCurrencies.Except(availableCurrencies).Any())
@@ -274,5 +166,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private readonly EdoContext _context;
         private readonly IManagementAuditService _managementAuditService;
         private readonly ICompanyInfoService _companyInfoService;
+        private readonly IInternalSystemSettingsService _internalSystemSettingsService;
     }
 }
