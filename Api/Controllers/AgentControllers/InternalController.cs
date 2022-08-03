@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -13,7 +14,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Payments.NGenius;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService,
             IBookingStatusRefreshService bookingRefreshStatusService,
-            INGeniusRefundService refundService)
+            INGeniusRefundService refundService,
+            IBalanceNotificationsService balanceNotificationService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _markupBonusMaterializationService = markupBonusMaterializationService;
             _bookingRefreshStatusService = bookingRefreshStatusService;
             _refundService = refundService;
+            _balanceNotificationService = balanceNotificationService;
         }
 
 
@@ -232,14 +234,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends notifications when funds on the agency balance decrease below thresholds
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("agencies/notifications/administrator-payment-summary/send")]
+        [HttpPost("agencies/notifications/credit-limit-run-out-balance/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyCreditLimitRunOutBalance()
-        {
-            return OkOrBadRequest(await _reportsService.NotifyCreditLimitRunOutBalance());
-        }
+            => OkOrBadRequest(await _balanceNotificationService.NotifyCreditLimitRunOutBalance());
 
 
         /// <summary>
@@ -338,5 +338,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
         private readonly IBookingStatusRefreshService _bookingRefreshStatusService;
         private readonly INGeniusRefundService _refundService;
+        private readonly IBalanceNotificationsService _balanceNotificationService;
     }
 }

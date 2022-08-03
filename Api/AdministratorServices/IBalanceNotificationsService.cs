@@ -1,10 +1,11 @@
 using System.Threading;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 
 namespace Api.AdministratorServices
 {
     public interface IBalanceNotificationsService
     {
-        Task NotifyCreditLimitRunOutBalance(CancellationToken cancellationToken = default);
+        Task<Result> NotifyCreditLimitRunOutBalance(CancellationToken cancellationToken = default);
     }
 }
