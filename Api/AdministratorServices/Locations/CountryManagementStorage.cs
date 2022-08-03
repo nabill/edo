@@ -30,9 +30,9 @@ namespace Api.AdministratorServices.Locations
                 => await _context.Countries.ToListAsync(cancellationToken), DefaultLocationCachingTime, cancellationToken)!;
 
 
-        public async Task UpdateRange(List<Country> countries, CancellationToken cancellationToken)
+        public async Task AddRange(List<Country> countries, CancellationToken cancellationToken)
         {
-            _context.Countries.UpdateRange(countries);
+            _context.Countries.AddRange(countries);
             await _context.SaveChangesAsync(cancellationToken);
         }
 

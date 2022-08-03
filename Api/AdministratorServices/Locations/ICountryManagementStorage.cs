@@ -10,6 +10,6 @@ namespace Api.AdministratorServices.Locations
     {
         Task<List<Country>> Get(CancellationToken cancellationToken);
         Task Refresh(CancellationToken cancellationToken);
-        Task UpdateRange(List<Country> countries, CancellationToken cancellationToken);
+        Task AddRange(List<Country> countries, CancellationToken cancellationToken);
     }
 }
