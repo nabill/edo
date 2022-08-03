@@ -4263,6 +4263,12 @@
             </summary>
             <returns>List of all countries</returns>
         </member>
+        <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.ActualizeCountries">
+            <summary>
+                Actualize countries from mapper.
+            </summary>
+            <returns>List of all countries</returns>
+        </member>
         <member name="M:Api.Controllers.AdministratorControllers.LocationManagementController.UpdateMarketCountries(System.Int32,Api.Models.Locations.CountryRequest)">
             <summary>
                 Update the composition of the market countries

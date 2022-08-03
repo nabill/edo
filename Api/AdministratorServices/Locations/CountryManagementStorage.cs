@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
@@ -27,6 +28,13 @@ namespace Api.AdministratorServices.Locations
         public Task Refresh(CancellationToken cancellationToken)
             => _flow.SetAsync(_flow.BuildKey(nameof(CountryManagementStorage), CountryKeyBase), async ()
                 => await _context.Countries.ToListAsync(cancellationToken), DefaultLocationCachingTime, cancellationToken)!;
+
+
+        public async Task UpdateRange(List<Country> countries, CancellationToken cancellationToken)
+        {
+            _context.Countries.UpdateRange(countries);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromMinutes(10);
