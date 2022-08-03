@@ -8,12 +8,12 @@ namespace HappyTravel.Edo.Common.Enums
         MoreThanFourty = 0,
 
         [Description("Balance is 40% or less")]
-        FourtyOrLess = 1,
+        FourtyOrLess = 40,
 
         [Description("Balance is 20% or less")]
-        TwentyOrLess = 2,
+        TwentyOrLess = 20,
 
         [Description("Balance is 10% or less")]
-        TenOrLess = 4
+        TenOrLess = 10
     }
 }
