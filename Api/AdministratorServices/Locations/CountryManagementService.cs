@@ -69,9 +69,7 @@ namespace Api.AdministratorServices.Locations
         {
             public bool Equals(Country? first, Country? second)
             {
-                if (first == null)
-                    return second == null;
-                if (second == null)
+                if (first is null || second is null)
                     return false;
 
                 return first.Code == second.Code;

@@ -32,7 +32,7 @@ namespace Api.AdministratorServices.Locations
 
         public async Task UpdateRange(List<Country> countries, CancellationToken cancellationToken)
         {
-            _context.UpdateRange(countries);
+            _context.Countries.UpdateRange(countries);
             await _context.SaveChangesAsync(cancellationToken);
         }
 
