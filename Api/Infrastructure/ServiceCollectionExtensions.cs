@@ -117,6 +117,7 @@ using HappyTravel.Edo.Common.Infrastructure.Options;
 using HappyTravel.Edo.PdfGenerator;
 using HappyTravel.Edo.PdfGenerator.WeasyprintClient;
 using HappyTravel.HttpRequestLogger;
+using Api.Services.Internal;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -457,7 +458,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.Configure<AvailabilityRequestStorageOptions>(configuration.GetSection("AvailabilityRequestStorage"));
             services.Configure<SecondStepSettings>(configuration.GetSection("SecondStepSettings"));
-            
+
             return services;
         }
 
@@ -499,7 +500,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
-            
+
             services.AddTransient<IBookingPhotoLoadingService, BookingPhotoLoadingService>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddSingleton<IIdentityUserInfoService, IdentityUserInfoService>();
@@ -650,6 +651,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentLinkNotificationService, PaymentLinkNotificationService>();
 
             services.AddTransient<AdministratorServices.IAgentService, AdministratorServices.AgentService>();
+            services.AddTransient<IInternalSystemSettingsService, InternalSystemSettingsService>();
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
             services.AddTransient<IAgencySystemSettingsService, AgencySystemSettingsService>();
 
