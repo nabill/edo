@@ -3217,6 +3217,56 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.DateTime">
+            <summary>
+            Event datetime
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.EventId">
+            <summary>
+            Event id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgencyId">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgentId">
+            <summary>
+             Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Country">
+            <summary>
+            Country name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Locality">
+            <summary>
+            Locality name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Accommodation">
+            <summary>
+            Accommodation name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.SupplierCode">
+            <summary>
+            Supplier code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.TotalPrice">
+            <summary>
+            Total price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.GeoPoint">
+            <summary>
+             Geo point
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.AgencyName">
             <summary>
             Agency name

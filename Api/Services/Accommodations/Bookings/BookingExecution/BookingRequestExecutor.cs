@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     
             var bookingRequestResult = await SendSupplierRequest(bookingRequest, availabilityInfo.AvailabilityId, booking, creditCardResult.Value, languageCode);
             if (bookingRequestResult.IsSuccess)
-                _bookingAnalyticsService.LogBookingOccured(bookingRequest, booking, agent);
+                _bookingAnalyticsService.LogBookingOccured(booking, agent);
             
             await ProcessRequestResult(bookingRequestResult);
             return bookingRequestResult;

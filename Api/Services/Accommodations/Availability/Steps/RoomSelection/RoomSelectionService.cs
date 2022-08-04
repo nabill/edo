@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (accommodation.IsFailure)
                 return accommodation.Error;
 
-            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, searchId, htId, agent);
+            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, agent);
 
             var searchSettings = await _accommodationBookingSettingsService.Get();
 
