@@ -87,6 +87,18 @@ namespace Api.Controllers.AdministratorControllers
 
 
         /// <summary>
+        ///     Actualize countries from mapper.
+        /// </summary>
+        /// <returns>List of all countries</returns>
+        [HttpPost("countries")]
+        [ProducesResponseType(typeof(List<Country>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.LocationsManagement)]
+        public async Task<IActionResult> ActualizeCountries()
+            => OkOrBadRequest(await _countryManagementService.Actualize());
+
+
+        /// <summary>
         ///     Update the composition of the market countries
         /// </summary>
         /// <param name="marketId">Market's id</param>
@@ -110,6 +122,9 @@ namespace Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetMarketCountries([FromRoute] int marketId)
             => OkOrBadRequest(await _marketManagementService.GetMarketCountries(marketId));
+
+
+
 
 
         private readonly IMarketManagementService _marketManagementService;

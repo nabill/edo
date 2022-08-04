@@ -12,11 +12,11 @@ using HappyTravel.Edo.Api.AdministratorServices.Models.Mapper;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.MapperContracts.Public.Locations;
 using HappyTravel.MapperContracts.Public.Management.Accommodations.ManualCorrections;
 using HappyTravel.MapperContracts.Public.Management.Accommodations.SlimAccommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SlimAccommodationData = HappyTravel.Edo.Api.AdministratorServices.Models.Mapper.SlimAccommodationData;
 
 namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices
 {
@@ -27,39 +27,39 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             _httpClient = clientFactory.CreateClient(HttpClientNames.MapperManagement);
             _logger = logger;
         }
-        
-        
+
+
         public async Task<Result<Unit, ProblemDetails>> MergeAccommodations(AccommodationsMergeRequest accommodationsMergeRequest, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationsMergeRequest), Encoding.UTF8, "application/json");
             var requestUri = "api/1.0/admin/accommodations/merge";
-            
+
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
-        
-        
+
+
         public async Task<Result<Unit, ProblemDetails>> DeactivateAccommodationManually(string htAccommodationId, string deactivationReasonDescription, CancellationToken cancellationToken)
         {
             using var requestContent = new StringContent($@"""{nameof(deactivationReasonDescription)}"" = ""{deactivationReasonDescription}""", Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/deactivate-manually";
-            
+
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
-        
-        
+
+
         public async Task<Result<Unit, ProblemDetails>> ActivateAccommodationManually(string htAccommodationId, CancellationToken cancellationToken)
         {
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/activate-manually";
-            
+
             return await Post(requestUri, null, cancellationToken: cancellationToken);
         }
 
-        
+
         public async Task<Result<Unit, ProblemDetails>> RemoveSupplier(string htAccommodationId, RemoveSupplierRequest request, CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/suppliers/remove";
-            
+
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public async Task<Result<HappyTravel.MapperContracts.Public.Management.Accommodations.DetailedAccommodations.DetailedAccommodation, ProblemDetails>> GetDetailedAccommodationData(string accommodationHtId, string languageCode, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/accommodations/{accommodationHtId}/detailed-data");
-            
+
             return await Send<MapperContracts.Public.Management.Accommodations.DetailedAccommodations.DetailedAccommodation>(requestMessage, languageCode, cancellationToken);
         }
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
             {
                 Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             };
-  
+
             return await Send<SlimAccommodationDataResponse>(requestMessage, cancellationToken: cancellationToken);
         }
 
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public Task<Result<Dictionary<int, string>, ProblemDetails>> GetDeactivationReasonTypes(CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/1.0/admin/accommodations/deactivation-reason-types");
-            
+
             return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
         }
 
@@ -94,15 +94,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public Task<Result<Dictionary<int, string>, ProblemDetails>> GetRatingTypes(CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/1.0/admin/accommodations/rating-types");
-            
+
             return Send<Dictionary<int, string>>(requestMessage, cancellationToken: cancellationToken);
+        }
+
+
+        public Task<Result<List<SlimCountry>, ProblemDetails>> GetAllCountries(string languageCode, CancellationToken cancellationToken)
+        {
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/locations/countries");
+
+            return Send<List<SlimCountry>>(requestMessage, languageCode, cancellationToken);
         }
 
 
         public Task<Result<List<CountryData>, ProblemDetails>> SearchCountries(string query, string languageCode, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/locations/countries/search?{nameof(query)}={query}");
-            
+
             return Send<List<CountryData>>(requestMessage, languageCode, cancellationToken);
         }
 
@@ -110,21 +118,21 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
         public Task<Result<List<LocalityData>, ProblemDetails>> SearchLocalities(int countryId, string query, string languageCode, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, $"api/1.0/admin/locations/countries/{countryId}/localities/search?{nameof(query)}={query}");
-            
+
             return Send<List<LocalityData>>(requestMessage, languageCode, cancellationToken);
         }
-        
+
 
         public async Task<Result<Unit, ProblemDetails>> AddManualCorrectionData(string htAccommodationId, AccommodationManualCorrectionRequest accommodationManualCorrectionRequest,
             CancellationToken cancellationToken = default)
         {
             using var requestContent = new StringContent(JsonSerializer.Serialize(accommodationManualCorrectionRequest, JsonSerializerOptions), Encoding.UTF8, "application/json");
             var requestUri = $"api/1.0/admin/accommodations/{htAccommodationId}/manual-correction";
-            
+
             return await Post(requestUri, requestContent, cancellationToken: cancellationToken);
         }
-        
-        
+
+
         private async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage requestMessage,
             string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
         {
@@ -136,23 +144,23 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
                 if (response.IsSuccessStatusCode)
                     return (await response.Content.ReadFromJsonAsync<TResponse>(JsonSerializerOptions, cancellationToken))!;
 
-                return Result.Failure<TResponse, ProblemDetails>( await GetProblemDetails(response, cancellationToken));
+                return Result.Failure<TResponse, ProblemDetails>(await GetProblemDetails(response, cancellationToken));
             }
             catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
             {
                 _logger.LogMapperManagementClientRequestTimeout(ex);
-                
+
                 return ProblemDetailsBuilder.Build("Request failure");
             }
             catch (Exception ex)
             {
                 _logger.LogMapperManagementClientException(ex);
-                
+
                 return ProblemDetailsBuilder.Build(ex.Message);
             }
         }
-        
-        
+
+
         private async Task<Result<Unit, ProblemDetails>> Post(string requestUri, HttpContent content, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
         {
             try
@@ -176,8 +184,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
                 return ProblemDetailsBuilder.Build(ex.Message);
             }
         }
-        
-        
+
+
         private async Task<ProblemDetails> GetProblemDetails(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
         {
             ProblemDetails error;
@@ -194,16 +202,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManageme
 
             return error;
         }
-        
-        
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new () 
+
+
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
             NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
             Converters = { new JsonStringEnumConverter() }
         };
-        
-        
+
+
         private readonly HttpClient _httpClient;
         private readonly ILogger<MapperManagementClient> _logger;
     }

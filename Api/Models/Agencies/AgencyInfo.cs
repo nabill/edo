@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -15,7 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             string countryCode, string countryName, string fax, string phone, string postalCode, string website, string vatNumber,
             PaymentTypes defaultPaymentType, string countryHtId, string localityHtId, List<int> ancestors,
             AgencyVerificationStates verificationState, DateTime? verificationDate, bool isActive, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, string markupDisplayFormula, Currencies preferredCurrency, string? accountManagerName, int? accountManagerId, ContractKind? contractKind)
+            bool isContractUploaded, string markupDisplayFormula, Currencies preferredCurrency, string? accountManagerName, int? accountManagerId,
+            ContractKind? contractKind, MoneyAmount? creditLimit)
         {
             Name = name;
             Id = id;
@@ -44,6 +46,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             AccountManagerName = accountManagerName;
             AccountManagerId = accountManagerId;
             ContractKind = contractKind;
+            CreditLimit = creditLimit;
         }
 
 
@@ -181,11 +184,16 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Name of the account manager
         /// </summary>
         public string? AccountManagerName { get; }
-        
+
         /// <summary>
         /// Contract kind of the agency
         /// </summary>
         public ContractKind? ContractKind { get; }
+
+        /// <summary>
+        /// Agencies credit limit
+        /// </summary>
+        public MoneyAmount? CreditLimit { get; }
 
 
         public override int GetHashCode()
