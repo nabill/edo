@@ -4,8 +4,8 @@ namespace Api.Models.Mailing
 {
     public class CreditLimitData : DataWithCompanyInfo
     {
-        public int percentage { get; set; }
-        public string agentName { get; set; } = null!;
-        public string contactDetails { get; set; } = null!;
+        public int Percentage { get; set; }
+        public string AgencyName { get; set; } = null!;
+        public string? ContactDetails { get; set; }
     }
 }

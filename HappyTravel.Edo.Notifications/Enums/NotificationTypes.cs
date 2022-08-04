@@ -45,6 +45,7 @@ namespace HappyTravel.Edo.Notifications.Enums
         PaymentRefund = 35,
         MarkupSetUpOrChanged = 36,
         ApiConnectionCredentialsCreated = 37,
-        OfflineBookingDeadlineApproaching = 38
+        OfflineBookingDeadlineApproaching = 38,
+        CreditLimitRunOutBalance = 39
     }
 }

@@ -10,6 +10,8 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Edo.Notifications.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.AdministratorServices
 {
@@ -26,7 +28,7 @@ namespace Api.AdministratorServices
         {
             var agenciesInfo = _context.Agencies
                 .Where(a => a.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments
-                    && a.CreditLimit != null)
+                    && a.CreditLimit != null && a.IsActive)
                 .Join(_context.AgencyAccounts, agency => agency.Id, account => account.AgencyId, ToBalanceLimitProjection())
                 .ToList();
 
@@ -40,19 +42,19 @@ namespace Api.AdministratorServices
                 {
                     case decimal balance when (balance > fourtyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.MoreThanFourty):
-                        await SendNotifications(item, CreditLimitNotifications.MoreThanFourty);
+                        await SendNotifications(item, CreditLimitNotifications.MoreThanFourty, cancellationToken);
                         break;
                     case decimal balance when (balance > twentyPercent && balance <= fourtyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.FourtyOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.FourtyOrLess);
+                        await SendNotifications(item, CreditLimitNotifications.FourtyOrLess, cancellationToken);
                         break;
                     case decimal balance when (balance > tenPercent && balance <= twentyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.TwentyOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.TwentyOrLess);
+                        await SendNotifications(item, CreditLimitNotifications.TwentyOrLess, cancellationToken);
                         break;
                     case decimal balance when (balance <= tenPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.TenOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.TenOrLess);
+                        await SendNotifications(item, CreditLimitNotifications.TenOrLess, cancellationToken);
                         break;
                     default:
                         break;
@@ -63,19 +65,38 @@ namespace Api.AdministratorServices
         }
 
 
-        private async Task SendNotifications(AgencyBalanceLimitInfo agencyBalanceLimitInfo, CreditLimitNotifications targetNotification)
+        private async Task SendNotifications(AgencyBalanceLimitInfo agencyBalanceLimitInfo,
+            CreditLimitNotifications targetNotification, CancellationToken cancellationToken)
         {
-            // if (targetNotification != CreditLimitNotifications.MoreThanFourty)
-            // {
-            //     var masterAgent = await _context.AgentAgencyRelations
-            //         .Where(a => a.AgentRoleIds)
+            var agency = await _context.Agencies
+                .Where(a => a.Id == agencyBalanceLimitInfo.AgencyId)
+                .SingleOrDefaultAsync(cancellationToken);
 
-            //     var messageData = new CreditLimitData
-            //     {
-            //         percentage = (int)targetNotification,
-            //         agentName = 
-            //     };
-            // }
+            if (targetNotification != CreditLimitNotifications.MoreThanFourty)
+            {
+                var masterAgentsEmails = await (
+                    from a in _context.Agents
+                    join rel in _context.AgentAgencyRelations on a.Id equals rel.AgentId
+                    where rel.AgencyId == agencyBalanceLimitInfo.AgencyId && rel.Type == AgentAgencyRelationTypes.Master
+                    select a.Email).ToListAsync(cancellationToken);
+
+                if (agency?.BillingEmail != null)
+                    masterAgentsEmails.Add(agency.BillingEmail);
+
+                var messageData = new CreditLimitData
+                {
+                    Percentage = (int)targetNotification,
+                    AgencyName = agency!.Name,
+                    ContactDetails = agency!.BillingEmail
+                };
+
+                await _notificationService.Send(messageData, NotificationTypes.CreditLimitRunOutBalance, masterAgentsEmails);
+            }
+
+            agency!.CreditLimitNotifications = targetNotification;
+
+            _context.Agencies.Update(agency);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
 
