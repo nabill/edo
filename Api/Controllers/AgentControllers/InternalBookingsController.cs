@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Api.AdministratorServices;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -20,16 +19,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/internal")]
-    public class InternalController : BaseController
+    [Route("api/{v:apiVersion}/internal/bookings")]
+    public class InternalBookingsController : BaseController
     {
-        public InternalController(IBookingsProcessingService bookingsProcessingService,
+        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
             IServiceAccountContext serviceAccountContext,
             IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService,
             IBookingStatusRefreshService bookingRefreshStatusService,
-            INGeniusRefundService refundService,
-            IBalanceNotificationsService balanceNotificationService)
+            INGeniusRefundService refundService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
@@ -37,7 +35,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _markupBonusMaterializationService = markupBonusMaterializationService;
             _bookingRefreshStatusService = bookingRefreshStatusService;
             _refundService = refundService;
-            _balanceNotificationService = balanceNotificationService;
         }
 
 
@@ -45,7 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets bookings for cancellation
         /// </summary>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("bookings/to-cancel")]
+        [HttpGet("to-cancel")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -63,7 +60,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for cancellation</param>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/cancel")]
+        [HttpPost("cancel")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -78,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("bookings/to-capture")]
+        [HttpGet("to-capture")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -96,7 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for capture</param>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/capture")]
+        [HttpPost("capture")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -112,7 +109,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for charge</returns>
-        [HttpGet("bookings/to-charge")]
+        [HttpGet("to-charge")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -130,7 +127,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for charge</param>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/charge")]
+        [HttpPost("charge")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -146,7 +143,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpGet("bookings/to-notify/deadline-approach")]
+        [HttpGet("to-notify/deadline-approach")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -164,7 +161,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/notifications/deadline-approach/send")]
+        [HttpPost("notifications/deadline-approach/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -179,7 +176,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends need payment notifications for offline bookings
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/notifications/offline-deadline-approach/send")]
+        [HttpPost("notifications/offline-deadline-approach/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyOfflinePaymentsNeeded()
@@ -192,7 +189,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary reports
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/notifications/agent-summary/send")]
+        [HttpPost("notifications/agent-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingSummary()
@@ -205,7 +202,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary report for administrator
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/notifications/administrator-summary/send")]
+        [HttpPost("notifications/administrator-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -219,7 +216,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings monthly summary report for administrator
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("bookings/notifications/administrator-payment-summary/send")]
+        [HttpPost("notifications/administrator-payment-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -231,21 +228,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Sends notifications when funds on the agency balance decrease below thresholds
-        /// </summary>
-        /// <returns>Result message</returns>
-        [HttpPost("agencies/notifications/credit-limit-run-out-balance/send")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ServiceAccountRequired]
-        public async Task<IActionResult> NotifyCreditLimitRunOutBalance()
-            => OkOrBadRequest(await _balanceNotificationService.NotifyCreditLimitRunOutBalance());
-
-
-        /// <summary>
         ///     Get applied markups for materialization
         /// </summary>
-        [HttpGet("bookings/markup-bonuses")]
+        [HttpGet("markup-bonuses")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -261,7 +246,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Materializes markup bonuses
         /// </summary>
-        [HttpPost("bookings/markup-bonuses")]
+        [HttpPost("markup-bonuses")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -274,7 +259,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get bookings ids for refreshing status
         /// </summary>
-        [HttpGet("bookings/statuses/refresh")]
+        [HttpGet("statuses/refresh")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingIdsForStatusRefresh()
@@ -286,7 +271,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refresh booking statuses
         /// </summary>
-        [HttpPost("bookings/statuses/refresh")]
+        [HttpPost("statuses/refresh")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -300,7 +285,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Set booking statuses to Completed
         /// </summary>
         /// <returns>Updated booking Ids</returns>
-        [HttpPost("bookings/statuses/complete")]
+        [HttpPost("statuses/complete")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -313,7 +298,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get payment ids for refund
         /// </summary>
-        [HttpGet("bookings/refunds")]
+        [HttpGet("refunds")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -324,7 +309,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refunds payments
         /// </summary>
-        [HttpPost("bookings/refunds")]
+        [HttpPost("refunds")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -338,6 +323,5 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
         private readonly IBookingStatusRefreshService _bookingRefreshStatusService;
         private readonly INGeniusRefundService _refundService;
-        private readonly IBalanceNotificationsService _balanceNotificationService;
     }
 }

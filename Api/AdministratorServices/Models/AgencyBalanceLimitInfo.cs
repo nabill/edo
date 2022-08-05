@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
     {
         public AgencyBalanceLimitInfo(Agency agency, AgencyAccount account)
         {
-            AgencyId = agency.Id;
+            Agency = agency;
             CreditLimitNotifications = agency.CreditLimitNotifications;
             if (agency.CreditLimit!.Value.Currency == account.Currency)
             {
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices.Models
             }
         }
 
-        public int AgencyId { get; }
+        public Agency Agency { get; }
         public decimal? Balance { get; } = null;
         public decimal? CreditLimit { get; } = null;
         public CreditLimitNotifications CreditLimitNotifications { get; set; }

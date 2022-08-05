@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Api.Models.Mailing;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -40,21 +41,21 @@ namespace Api.AdministratorServices
 
                 switch (item.Balance)
                 {
-                    case decimal balance when (balance > fourtyPercent
-                        && item.CreditLimitNotifications != CreditLimitNotifications.MoreThanFourty):
-                        await SendNotifications(item, CreditLimitNotifications.MoreThanFourty, cancellationToken);
-                        break;
-                    case decimal balance when (balance > twentyPercent && balance <= fourtyPercent
-                        && item.CreditLimitNotifications != CreditLimitNotifications.FourtyOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.FourtyOrLess, cancellationToken);
+                    case decimal balance when (balance <= tenPercent
+                        && item.CreditLimitNotifications != CreditLimitNotifications.TenOrLess):
+                        await SendNotificationsIfNeed(item, CreditLimitNotifications.TenOrLess, cancellationToken);
                         break;
                     case decimal balance when (balance > tenPercent && balance <= twentyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.TwentyOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.TwentyOrLess, cancellationToken);
+                        await SendNotificationsIfNeed(item, CreditLimitNotifications.TwentyOrLess, cancellationToken);
                         break;
-                    case decimal balance when (balance <= tenPercent
-                        && item.CreditLimitNotifications != CreditLimitNotifications.TenOrLess):
-                        await SendNotifications(item, CreditLimitNotifications.TenOrLess, cancellationToken);
+                    case decimal balance when (balance > twentyPercent && balance <= fourtyPercent
+                        && item.CreditLimitNotifications != CreditLimitNotifications.FourtyOrLess):
+                        await SendNotificationsIfNeed(item, CreditLimitNotifications.FourtyOrLess, cancellationToken);
+                        break;
+                    case decimal balance when (balance > fourtyPercent
+                        && item.CreditLimitNotifications != CreditLimitNotifications.MoreThanFourty):
+                        await SendNotificationsIfNeed(item, CreditLimitNotifications.MoreThanFourty, cancellationToken);
                         break;
                     default:
                         break;
@@ -65,23 +66,18 @@ namespace Api.AdministratorServices
         }
 
 
-        private async Task SendNotifications(AgencyBalanceLimitInfo agencyBalanceLimitInfo,
+        private async Task SendNotificationsIfNeed(AgencyBalanceLimitInfo agencyBalanceLimitInfo,
             CreditLimitNotifications targetNotification, CancellationToken cancellationToken)
         {
-            var agency = await _context.Agencies
-                .Where(a => a.Id == agencyBalanceLimitInfo.AgencyId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var agency = agencyBalanceLimitInfo.Agency;
 
             if (targetNotification != CreditLimitNotifications.MoreThanFourty)
             {
-                var masterAgentsEmails = await (
+                var masterAgents = await (
                     from a in _context.Agents
                     join rel in _context.AgentAgencyRelations on a.Id equals rel.AgentId
-                    where rel.AgencyId == agencyBalanceLimitInfo.AgencyId && rel.Type == AgentAgencyRelationTypes.Master
-                    select a.Email).ToListAsync(cancellationToken);
-
-                if (agency?.BillingEmail != null)
-                    masterAgentsEmails.Add(agency.BillingEmail);
+                    where rel.AgencyId == agency.Id && rel.Type == AgentAgencyRelationTypes.Master
+                    select a).ToListAsync(cancellationToken);
 
                 var messageData = new CreditLimitData
                 {
@@ -90,7 +86,14 @@ namespace Api.AdministratorServices
                     ContactDetails = agency!.BillingEmail
                 };
 
-                await _notificationService.Send(messageData, NotificationTypes.CreditLimitRunOutBalance, masterAgentsEmails);
+                foreach (var agent in masterAgents)
+                    await _notificationService.Send(new SlimAgentContext(agent.Id, agency.Id),
+                        messageData,
+                        NotificationTypes.CreditLimitRunOutBalance,
+                        agent.Email);
+
+                if (agency.BillingEmail is not null)
+                    await _notificationService.Send(messageData, NotificationTypes.CreditLimitRunOutBalance, agency.BillingEmail);
             }
 
             agency!.CreditLimitNotifications = targetNotification;
