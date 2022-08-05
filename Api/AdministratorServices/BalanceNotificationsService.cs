@@ -45,11 +45,11 @@ namespace Api.AdministratorServices
                         && item.CreditLimitNotifications != CreditLimitNotifications.TenOrLess):
                         await SendNotificationsIfNeed(item, CreditLimitNotifications.TenOrLess, cancellationToken);
                         break;
-                    case decimal balance when (balance > tenPercent && balance <= twentyPercent
+                    case decimal balance when (balance <= twentyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.TwentyOrLess):
                         await SendNotificationsIfNeed(item, CreditLimitNotifications.TwentyOrLess, cancellationToken);
                         break;
-                    case decimal balance when (balance > twentyPercent && balance <= fourtyPercent
+                    case decimal balance when (balance <= fourtyPercent
                         && item.CreditLimitNotifications != CreditLimitNotifications.FourtyOrLess):
                         await SendNotificationsIfNeed(item, CreditLimitNotifications.FourtyOrLess, cancellationToken);
                         break;
