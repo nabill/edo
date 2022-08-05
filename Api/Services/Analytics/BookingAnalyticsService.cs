@@ -1,141 +1,126 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using HappyTravel.DataFormatters;
-using HappyTravel.Edo.Api.Infrastructure.Analytics;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Analytics;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Messaging;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.MapperContracts.Internal.Mappings.Internals;
 using HappyTravel.MapperContracts.Public.Accommodations.Internals;
-using HappyTravel.SupplierOptionsClient.Models;
-using HappyTravel.SupplierOptionsProvider;
 using Accommodation = HappyTravel.MapperContracts.Public.Accommodations.Accommodation;
 
 namespace HappyTravel.Edo.Api.Services.Analytics
 {
     public class BookingAnalyticsService : IBookingAnalyticsService
     {
-        public BookingAnalyticsService(IAnalyticsService analytics)
+        public BookingAnalyticsService(IMessageBus messageBus, IDateTimeProvider dateTimeProvider)
         {
-            _analytics = analytics;
+            _messageBus = messageBus;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-
-        public void LogWideAvailabilitySearch(in AvailabilityRequest request, Guid searchId, IEnumerable<Location> locations, in AgentContext agent,
-            string language)
-        {
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agent.AgencyName);
-            foreach (var location in locations)
+        /// <summary>
+        ///  Log wide availability search event for analytics
+        /// </summary>
+        public void LogWideAvailabilitySearch(in AgentContext agent) 
+            => Publish(new BookingAnalyticsEvent
             {
-                var @event = new WideAvailabilityRequestEvent(adultCount: request.RoomDetails.Sum(r => r.AdultsNumber),
-                    childrenCount: request.RoomDetails.Sum(r => r.ChildrenAges.Count),
-                    numberOfNights: (request.CheckOutDate - request.CheckInDate).Days,
-                    roomCount: request.RoomDetails.Count,
-                    country: location.Country,
-                    locality: location.Locality,
-                    locationName: location.Name,
-                    locationType: EnumFormatters.FromDescription(location.Type),
-                    searchId: searchId,
-                    language);
-
-                _analytics.LogEvent(@event, "wide-availability-requested", agentAnalyticsInfo, location.Coordinates);
-            }
-        }
+                DateTime = _dateTimeProvider.UtcNow(),
+                EventId = (int) BookingAnalyticEventTypes.WideAvailabilitySearch,
+                AgencyId = agent.AgencyId,
+                AgentId = agent.AgentId,
+                Country = null,
+                Locality = null,
+                Accommodation = null,
+                SupplierCode = null,
+                TotalPrice = null,
+                GeoPoint = null
+            });
 
 
-        public void LogAccommodationAvailabilityRequested(in Accommodation accommodation, Guid searchId, string htId, in AgentContext agent)
-        {
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agent.AgencyName);
-            var @event = new AccommodationAvailabilityRequestEvent(name: accommodation.Name,
-                rating: EnumFormatters.FromDescription(accommodation.Rating),
-                country: accommodation.Location.Country,
-                locality: accommodation.Location.Locality,
-                searchId: searchId,
-                htId: htId);
-
-            _analytics.LogEvent(@event, "accommodation-availability-requested", agentAnalyticsInfo, accommodation.Location.Coordinates);
-        }
-
-
-        public void LogBookingOccured(in AccommodationBookingRequest bookingRequest, Booking booking, in AgentContext agent)
-        {
-            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agent.AgencyName);
-
-            var @event = new AccommodationBookingEvent(booking.AccommodationId,
-                booking.AccommodationName,
-                booking.Location.Country,
-                booking.Location.Locality,
-                adultsCount,
-                childrenCount,
-                (booking.CheckOutDate - booking.CheckInDate).Days,
-                booking.Rooms.Count,
-                bookingRequest.SearchId,
-                bookingRequest.HtId,
-                bookingRequest.RoomContractSetId,
-                booking.TotalPrice,
-                booking.SupplierCode);
-
-            _analytics.LogEvent(@event, "booking-request-sent", agentAnalyticsInfo,
-                new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
-        }
+        /// <summary>
+        ///  Log accommodation availability event for analytics
+        /// </summary>
+        public void LogAccommodationAvailabilityRequested(in Accommodation accommodation, in AgentContext agent) 
+            => Publish(new BookingAnalyticsEvent
+            {
+                DateTime = _dateTimeProvider.UtcNow(),
+                EventId = (int) BookingAnalyticEventTypes.AccommodationAvailabilitySearch,
+                AgencyId = agent.AgencyId,
+                AgentId = agent.AgentId,
+                Country = accommodation.Location.Country,
+                Locality = accommodation.Location.Country,
+                Accommodation = accommodation.Name,
+                SupplierCode = null,
+                TotalPrice = null,
+                GeoPoint = accommodation.Location.Coordinates
+            });
 
 
-        public void LogBookingConfirmed(Booking booking, string agencyName)
-        {
-            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agencyName);
-
-            var @event = new BookingConfirmationEvent(booking.AccommodationId,
-                booking.AccommodationName,
-                booking.Location.Country,
-                booking.Location.Locality,
-                adultsCount,
-                childrenCount,
-                (booking.CheckOutDate - booking.CheckInDate).Days,
-                booking.Rooms.Count,
-                booking.HtId,
-                booking.TotalPrice,
-                booking.SupplierCode);
-
-            _analytics.LogEvent(@event, "booking-confirmed", agentAnalyticsInfo,
-                new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
-        }
+        /// <summary>
+        ///  Log booking occured event for analytics
+        /// </summary>
+        public void LogBookingOccured(Booking booking, in AgentContext agent) 
+            => Publish(new BookingAnalyticsEvent
+            {
+                DateTime = _dateTimeProvider.UtcNow(),
+                EventId = (int) BookingAnalyticEventTypes.BookingOccured,
+                AgencyId = agent.AgencyId,
+                AgentId = agent.AgentId,
+                Country = booking.Location.Country,
+                Locality = booking.Location.Country,
+                Accommodation = booking.AccommodationName,
+                SupplierCode = booking.SupplierCode,
+                TotalPrice = booking.TotalPrice,
+                GeoPoint = new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude)
+            });
 
 
-        public void LogBookingCancelled(Booking booking, string agencyName)
-        {
-            var (adultsCount, childrenCount) = PassengersInfo.FromRooms(booking.Rooms);
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agencyName);
-
-            var @event = new BookingCancellationEvent(booking.AccommodationId,
-                booking.AccommodationName,
-                booking.Location.Country,
-                booking.Location.Locality,
-                adultsCount,
-                childrenCount,
-                (booking.CheckOutDate - booking.CheckInDate).Days,
-                booking.Rooms.Count,
-                booking.HtId,
-                booking.TotalPrice,
-                booking.SupplierCode);
-
-            _analytics.LogEvent(@event, "booking-cancelled", agentAnalyticsInfo,
-                new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude));
-        }
+        /// <summary>
+        ///  Log booking confirmed event for analytics
+        /// </summary>
+        public void LogBookingConfirmed(Booking booking) 
+            => Publish(new BookingAnalyticsEvent
+            {
+                DateTime = _dateTimeProvider.UtcNow(),
+                EventId = (int) BookingAnalyticEventTypes.BookingConfirmed,
+                AgencyId = booking.AgencyId,
+                AgentId = booking.AgentId,
+                Country = booking.Location.Country,
+                Locality = booking.Location.Country,
+                Accommodation = booking.AccommodationName,
+                SupplierCode = booking.SupplierCode,
+                TotalPrice = booking.TotalPrice,
+                GeoPoint = new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude)
+            });
 
 
-        public void LogWideSearchSupplierStarted(SlimSupplier supplier, string agencyName)
-        {
-            var agentAnalyticsInfo = new AgentAnalyticsInfo(agencyName);
-            var @event = new WideSearchSupplierStartedEvent(supplier.Code, supplier.Name);
-            _analytics.LogEvent(@event, "wide-search-supplier", agentAnalyticsInfo);
-        }
+        /// <summary>
+        ///  Log booking cancelled event for analytics
+        /// </summary>
+        public void LogBookingCancelled(Booking booking) 
+            => Publish(new BookingAnalyticsEvent
+            {
+                DateTime = _dateTimeProvider.UtcNow(),
+                EventId = (int) BookingAnalyticEventTypes.BookingCancelled,
+                AgencyId = booking.AgencyId,
+                AgentId = booking.AgentId,
+                Country = booking.Location.Country,
+                Locality = booking.Location.Country,
+                Accommodation = booking.AccommodationName,
+                SupplierCode = booking.SupplierCode,
+                TotalPrice = booking.TotalPrice,
+                GeoPoint = new GeoPoint(booking.Location.Coordinates.Longitude, booking.Location.Coordinates.Latitude)
+            });
 
 
-        private readonly IAnalyticsService _analytics;
+        private void Publish(BookingAnalyticsEvent @event) 
+            => _messageBus.Publish(MessageBusTopics.BookingAnalyticsEvent, @event);
+
+
+        private readonly IMessageBus _messageBus;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

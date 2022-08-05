@@ -3232,6 +3232,56 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.DateTime">
+            <summary>
+            Event datetime
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.EventId">
+            <summary>
+            Event id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgencyId">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgentId">
+            <summary>
+             Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Country">
+            <summary>
+            Country name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Locality">
+            <summary>
+            Locality name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Accommodation">
+            <summary>
+            Accommodation name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.SupplierCode">
+            <summary>
+            Supplier code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.TotalPrice">
+            <summary>
+            Total price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.GeoPoint">
+            <summary>
+             Geo point
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.AgencyName">
             <summary>
             Agency name
@@ -4186,6 +4236,31 @@
             <param name="newBookingDetails">Booking details that will be written to the booking table</param>
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogWideAvailabilitySearch(HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log wide availability search event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogAccommodationAvailabilityRequested(HappyTravel.MapperContracts.Public.Accommodations.Accommodation@,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log accommodation availability event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingOccured(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log booking occured event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingConfirmed(HappyTravel.Edo.Data.Bookings.Booking)">
+            <summary>
+             Log booking confirmed event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingCancelled(HappyTravel.Edo.Data.Bookings.Booking)">
+            <summary>
+             Log booking cancelled event for analytics
+            </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Services.ApiClients.ApiClientService">
             <summary>
