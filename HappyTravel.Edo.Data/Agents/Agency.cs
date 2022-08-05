@@ -36,5 +36,6 @@ namespace HappyTravel.Edo.Data.Agents
         public bool IsContractUploaded { get; set; }
         public int? AccountManagerId { get; set; }
         public MoneyAmount? CreditLimit { get; set; }
+        public CreditLimitNotifications CreditLimitNotifications { get; set; }
     }
 }

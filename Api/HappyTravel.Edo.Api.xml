@@ -4204,6 +4204,16 @@
             </summary>
             <param name="supplier"></param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Get(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Returns existed or new IConnectorGrpcService for supplier
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Update(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Updates existed IConnectionGrpcService
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Services.Locations.LocalityInfoService.GetLocalityInfo(System.String)">
             <summary>
             Receives information about locality
@@ -4326,6 +4336,12 @@
             <param name="policyId">Id of the policy to delete.</param>
             <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AgentControllers.InternalAgencyController.NotifyCreditLimitRunOutBalance">
+            <summary>
+                Sends notifications when funds on the agency balance decrease below thresholds
+            </summary>
+            <returns>Result message</returns>
         </member>
         <member name="P:Api.Models.Agencies.AddAccountManagerRequest.AccountManagerId">
             <summary>

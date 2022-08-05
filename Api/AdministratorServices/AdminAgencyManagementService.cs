@@ -253,8 +253,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SetContractKind(Agency agency)
             {
                 agency.ContractKind = request.ContractKind;
-                if (request.CreditLimit is not null)
-                    agency.CreditLimit = request.CreditLimit;
+                agency.CreditLimit = (request.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments)
+                    ? request.CreditLimit
+                    : null;
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
             }
