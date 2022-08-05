@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 return Result.Failure<Guid>(validationResult.ToString("; "));
 
             var agent = await _agentContextService.GetAgent();
-            _bookingAnalyticsService.LogWideAvailabilitySearch(request, searchId, searchArea.Locations, agent, languageCode);
+            _bookingAnalyticsService.LogWideAvailabilitySearch(agent);
 
             var searchSettings = await _accommodationBookingSettingsService.Get();
             await _requestStorage.Set(searchId, request);
@@ -220,8 +220,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Code);
                     continue;
                 }
-
-                _bookingAnalyticsService.LogWideSearchSupplierStarted(supplier, agent.AgencyName);
 
                 // Starting search tasks in a separate thread
                 StartSearchTask(supplier, supplierCodeMappings);

@@ -66,7 +66,6 @@ using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
 using HappyTravel.Edo.Api.AdministratorServices.Mapper.AccommodationManagementServices;
-using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Locking;
 using HappyTravel.Edo.Api.Infrastructure.MongoDb.Extensions;
@@ -665,8 +664,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
-
-            services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
+            
             services.AddTransient<IBookingAnalyticsService, BookingAnalyticsService>();
             services.AddTransient<IAgentMovementService, AgentMovementService>();
 
