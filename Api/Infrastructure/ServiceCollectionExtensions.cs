@@ -565,6 +565,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRolesAssignmentService, AgentRolesAssignmentService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
+            services.AddTransient<IBalanceNotificationsService, BalanceNotificationsService>();
             services.AddTransient<IBookingNotificationService, BookingNotificationService>();
             services.AddTransient<IBookingDocumentsMailingService, BookingDocumentsMailingService>();
             services.AddTransient<IBookingReportsService, BookingReportsService>();
