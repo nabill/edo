@@ -5,6 +5,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors;
 
 public interface IGrpcClientsStorage
 {
+    /// <summary>
+    ///     Returns IConnectionGrpcService
+    /// </summary>
     IConnectorGrpcService Get(SlimSupplier supplier);
 
     /// <summary>
