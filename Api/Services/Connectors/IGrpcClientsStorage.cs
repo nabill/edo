@@ -7,5 +7,8 @@ public interface IGrpcClientsStorage
 {
     IConnectorGrpcService Get(SlimSupplier supplier);
 
+    /// <summary>
+    ///     Updates existed IConnectionGrpcService
+    /// </summary>
     void Update(SlimSupplier supplier);
 }
