@@ -38,7 +38,10 @@ public class GrpcClientsStorage : IGrpcClientsStorage
     public void Update(SlimSupplier supplier)
     {
         if (!_grcClients.TryGetValue(supplier.Code, out _))
+        {
+            _logger.LogGrpcSupplierClientNotFound(supplier.Code);
             return;
+        }
         
         AddOrUpdate(supplier);
     }
