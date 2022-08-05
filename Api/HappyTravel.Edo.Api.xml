@@ -1414,123 +1414,117 @@
                 NGenius webhook
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetBookingsForCancellation(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCancellation(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for cancellation
             </summary>
             <returns>List of booking ids for cancellation</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.CancelBookings(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.CancelBookings(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Cancels bookings
             </summary>
             <param name="bookingIds">List of booking ids for cancellation</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetBookingsForCapture(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
             <param name="date">Deadline date</param>
             <returns>List of booking ids for capture</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.Capture(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.Capture(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Captures payments for bookings
             </summary>
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetBookingsForCharge(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCharge(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Gets bookings for payment charge by deadline date
             </summary>
             <param name="date">Deadline date</param>
             <returns>List of booking ids for charge</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.Charge(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.Charge(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Charges payments for bookings
             </summary>
             <param name="bookingIds">List of booking ids for charge</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetBookingsToNotify(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
             <param name="date">Deadline date</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
             <param name="bookingIds">List of booking ids for notify</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyOfflinePaymentsNeeded">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyOfflinePaymentsNeeded">
             <summary>
                 Sends need payment notifications for offline bookings
             </summary>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyBookingSummary">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">
             <summary>
                 Sends bookings summary reports
             </summary>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyBookingsSummaryAdministrator">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingsSummaryAdministrator">
             <summary>
                 Sends bookings summary report for administrator
             </summary>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyBookingsPaymentsSummaryAdministrator">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingsPaymentsSummaryAdministrator">
             <summary>
                 Sends bookings monthly summary report for administrator
             </summary>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.NotifyCreditLimitRunOutBalance">
-            <summary>
-                Sends notifications when funds on the agency balance decrease below thresholds
-            </summary>
-            <returns>Result message</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetAppliedMarkupsForMaterialization(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetAppliedMarkupsForMaterialization(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Get applied markups for materialization
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.MaterializeBookingsMarkupBonuses(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.MaterializeBookingsMarkupBonuses(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Materializes markup bonuses
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetBookingIdsForStatusRefresh">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingIdsForStatusRefresh">
             <summary>
                 Get bookings ids for refreshing status
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.RefreshBookingStatuses(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.RefreshBookingStatuses(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Refresh booking statuses
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.SetBookingStatusesCompleted">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.SetBookingStatusesCompleted">
             <summary>
                 Set booking statuses to Completed
             </summary>
             <returns>Updated booking Ids</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.GetPaymentsForRefund(System.Nullable{System.DateTimeOffset})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetPaymentsForRefund(System.Nullable{System.DateTimeOffset})">
             <summary>
                 Get payment ids for refund
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalController.RefundPayments(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.RefundPayments(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Refunds payments
             </summary>
@@ -4210,6 +4204,16 @@
             </summary>
             <param name="supplier"></param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Get(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Returns existed or new IConnectorGrpcService for supplier
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Update(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Updates existed IConnectionGrpcService
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Services.Locations.LocalityInfoService.GetLocalityInfo(System.String)">
             <summary>
             Receives information about locality
@@ -4332,6 +4336,12 @@
             <param name="policyId">Id of the policy to delete.</param>
             <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AgentControllers.InternalAgencyController.NotifyCreditLimitRunOutBalance">
+            <summary>
+                Sends notifications when funds on the agency balance decrease below thresholds
+            </summary>
+            <returns>Result message</returns>
         </member>
         <member name="P:Api.Models.Agencies.AddAccountManagerRequest.AccountManagerId">
             <summary>
