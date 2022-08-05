@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api
                     var host = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration);
                     options.ConfigurationOptions = new ConfigurationOptions
                     {
-                        EndPoints = { new DnsEndPoint("localhost", 6379) },
+                        EndPoints = { new DnsEndPoint(host, 6379) },
                         AsyncTimeout = 15000, // set to 15 seconds before we stop storing large objects in Redis
                     };
                 })
