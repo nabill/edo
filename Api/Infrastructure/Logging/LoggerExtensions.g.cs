@@ -365,7 +365,13 @@ public static partial class LoggerExtensions
     [LoggerMessage(1150, LogLevel.Information, "Supplier update message received")]
     static partial void SupplierUpdateMessageReceived(ILogger logger);
     
-    [LoggerMessage(1151, LogLevel.Information, "Grpc client for supplier {SupplierCode} updated")]
+    [LoggerMessage(1151, LogLevel.Error, "Supplier update message deserialization failed")]
+    static partial void SupplierUpdateMessageDeserializationFailed(ILogger logger);
+    
+    [LoggerMessage(1152, LogLevel.Error, "Grpc client for supplier update failed")]
+    static partial void GrpcSupplierClientUpdateFailed(ILogger logger, System.Exception exception);
+    
+    [LoggerMessage(1153, LogLevel.Information, "Grpc client for supplier {SupplierCode} updated")]
     static partial void GrpcSupplierClientUpdated(ILogger logger, string SupplierCode);
     
     
@@ -729,6 +735,12 @@ public static partial class LoggerExtensions
     
     public static void LogSupplierUpdateMessageReceived(this ILogger logger)
         => SupplierUpdateMessageReceived(logger);
+    
+    public static void LogSupplierUpdateMessageDeserializationFailed(this ILogger logger)
+        => SupplierUpdateMessageDeserializationFailed(logger);
+    
+    public static void LogGrpcSupplierClientUpdateFailed(this ILogger logger, System.Exception exception)
+        => GrpcSupplierClientUpdateFailed(logger, exception);
     
     public static void LogGrpcSupplierClientUpdated(this ILogger logger, string SupplierCode)
         => GrpcSupplierClientUpdated(logger, SupplierCode);

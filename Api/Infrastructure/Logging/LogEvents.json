@@ -119,5 +119,7 @@
     {"id": 1141, "name": "ConnectorRequestFailedOnSecondStep", "level": "Warning", "template": "{Message}", "argumentTypes": ["string"]},
     {"id": 1142, "name": "ConnectorResultsWereRefreshed", "level": "Information", "template": "Results for connector '{Connector}' were successfully refreshed", "argumentTypes": ["string"]},
     {"id": 1150, "name": "SupplierUpdateMessageReceived", "level": "Information", "template": "Supplier update message received"},
-    {"id": 1151, "name": "GrpcSupplierClientUpdated", "level": "Information", "template": "Grpc client for supplier {SupplierCode} updated", "argumentTypes": ["string"]}
+    {"id": 1151, "name": "SupplierUpdateMessageDeserializationFailed", "level": "Error", "template": "Supplier update message deserialization failed"},
+    {"id": 1152, "name": "GrpcSupplierClientUpdateFailed", "level": "Error", "template": "Grpc client for supplier update failed", "hasException": true},
+    {"id": 1153, "name": "GrpcSupplierClientUpdated", "level": "Information", "template": "Grpc client for supplier {SupplierCode} updated", "argumentTypes": ["string"]}
 ]

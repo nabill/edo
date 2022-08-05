@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,12 +26,22 @@ public class GrpcClientsStorageUpdater : BackgroundService
         _connection.SubscribeAsync(MessageBusTopics.SupplierUpdated, (_, m) =>
         {
             _logger.LogSupplierUpdateMessageReceived();
-            
-            var supplier = JsonSerializer.Deserialize<SlimSupplier>(m.Message.Data);
-            if (supplier is null)
-                return;
 
-            _clientsStorage.Update(supplier);
+            try
+            {
+                var supplier = JsonSerializer.Deserialize<SlimSupplier>(m.Message.Data);
+                if (supplier is null)
+                {
+                    _logger.LogSupplierUpdateMessageDeserializationFailed();
+                    return;
+                }
+
+                _clientsStorage.Update(supplier);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogGrpcSupplierClientUpdateFailed(ex);
+            }
         });
         
         return Task.CompletedTask;
