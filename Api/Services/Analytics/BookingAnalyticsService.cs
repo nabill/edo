@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogWideAvailabilitySearch(in AgentContext agent) 
             => Publish(new BookingAnalyticsEvent
             {
-                DateTime = _dateTimeProvider.UtcToday(),
+                DateTime = _dateTimeProvider.UtcNow(),
                 EventId = (int) BookingAnalyticEventTypes.WideAvailabilitySearch,
                 AgencyId = agent.AgencyId,
                 AgentId = agent.AgentId,
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogAccommodationAvailabilityRequested(in Accommodation accommodation, in AgentContext agent) 
             => Publish(new BookingAnalyticsEvent
             {
-                DateTime = _dateTimeProvider.UtcToday(),
+                DateTime = _dateTimeProvider.UtcNow(),
                 EventId = (int) BookingAnalyticEventTypes.AccommodationAvailabilitySearch,
                 AgencyId = agent.AgencyId,
                 AgentId = agent.AgentId,
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogBookingOccured(Booking booking, in AgentContext agent) 
             => Publish(new BookingAnalyticsEvent
             {
-                DateTime = _dateTimeProvider.UtcToday(),
+                DateTime = _dateTimeProvider.UtcNow(),
                 EventId = (int) BookingAnalyticEventTypes.BookingOccured,
                 AgencyId = agent.AgencyId,
                 AgentId = agent.AgentId,
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogBookingConfirmed(Booking booking) 
             => Publish(new BookingAnalyticsEvent
             {
-                DateTime = _dateTimeProvider.UtcToday(),
+                DateTime = _dateTimeProvider.UtcNow(),
                 EventId = (int) BookingAnalyticEventTypes.BookingConfirmed,
                 AgencyId = booking.AgencyId,
                 AgentId = booking.AgentId,
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Analytics
         public void LogBookingCancelled(Booking booking) 
             => Publish(new BookingAnalyticsEvent
             {
-                DateTime = _dateTimeProvider.UtcToday(),
+                DateTime = _dateTimeProvider.UtcNow(),
                 EventId = (int) BookingAnalyticEventTypes.BookingCancelled,
                 AgencyId = booking.AgencyId,
                 AgentId = booking.AgentId,
