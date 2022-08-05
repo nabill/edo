@@ -564,6 +564,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRolesAssignmentService, AgentRolesAssignmentService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
+            services.AddTransient<IBalanceNotificationsService, BalanceNotificationsService>();
             services.AddTransient<IBookingNotificationService, BookingNotificationService>();
             services.AddTransient<IBookingDocumentsMailingService, BookingDocumentsMailingService>();
             services.AddTransient<IBookingReportsService, BookingReportsService>();
@@ -745,6 +746,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentSupplierManagementService, AgentSupplierManagementService>();
             services.AddTransient<IMessageBus, MessageBus>();
             services.AddScoped<IEvaluationTokenStorage, EvaluationTokenStorage>();
+            services.AddSingleton<IGrpcClientsStorage, GrpcClientsStorage>();
+            services.AddHostedService<GrpcClientsStorageUpdater>();
             services.AddPdfGenerator();
             services.AddWeasyprintClient(options =>
             {
