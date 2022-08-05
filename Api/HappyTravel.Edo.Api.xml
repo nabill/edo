@@ -4193,6 +4193,17 @@
             Must be replaced with more valid implementation.
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.GrpcClientsStorage.Get(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Returns existed or new IConnectorGrpcService for supplier
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.GrpcClientsStorage.Update(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Updates existed IConnectionGrpcService
+            </summary>
+            <param name="supplier"></param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Services.Locations.LocalityInfoService.GetLocalityInfo(System.String)">
             <summary>
             Receives information about locality
