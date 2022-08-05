@@ -374,6 +374,9 @@ public static partial class LoggerExtensions
     [LoggerMessage(1153, LogLevel.Information, "Grpc client for supplier {SupplierCode} updated")]
     static partial void GrpcSupplierClientUpdated(ILogger logger, string SupplierCode);
     
+    [LoggerMessage(1154, LogLevel.Information, "Grpc client for supplier {SupplierCode} not found")]
+    static partial void GrpcSupplierClientNotFound(ILogger logger, string SupplierCode);
+    
     
     
     public static void LogGeoCoderException(this ILogger logger, System.Exception exception)
@@ -744,4 +747,7 @@ public static partial class LoggerExtensions
     
     public static void LogGrpcSupplierClientUpdated(this ILogger logger, string SupplierCode)
         => GrpcSupplierClientUpdated(logger, SupplierCode);
+    
+    public static void LogGrpcSupplierClientNotFound(this ILogger logger, string SupplierCode)
+        => GrpcSupplierClientNotFound(logger, SupplierCode);
 }
