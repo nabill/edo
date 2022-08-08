@@ -529,6 +529,12 @@
             <param name="bookingId">Booking ID for retrieving status change history</param>
             <returns>List of booking status change events</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.FixAccommodationIds(HappyTravel.Edo.Api.Models.Bookings.BookingCreationPeriod)">
+            <summary>
+                Fills empty htId in bookings
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyInfo">
             <summary>
             Gets the company information.
@@ -3232,6 +3238,56 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.DateTime">
+            <summary>
+            Event datetime
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.EventId">
+            <summary>
+            Event id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgencyId">
+            <summary>
+            Agency id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgentId">
+            <summary>
+             Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Country">
+            <summary>
+            Country name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Locality">
+            <summary>
+            Locality name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.Accommodation">
+            <summary>
+            Accommodation name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.SupplierCode">
+            <summary>
+            Supplier code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.TotalPrice">
+            <summary>
+            Total price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.GeoPoint">
+            <summary>
+             Geo point
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.AgencyName">
             <summary>
             Agency name
@@ -4187,10 +4243,56 @@
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogWideAvailabilitySearch(HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log wide availability search event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogAccommodationAvailabilityRequested(HappyTravel.MapperContracts.Public.Accommodations.Accommodation@,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log accommodation availability event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingOccured(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+            <summary>
+             Log booking occured event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingConfirmed(HappyTravel.Edo.Data.Bookings.Booking)">
+            <summary>
+             Log booking confirmed event for analytics
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingCancelled(HappyTravel.Edo.Data.Bookings.Booking)">
+            <summary>
+             Log booking cancelled event for analytics
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Services.ApiClients.ApiClientService">
             <summary>
             This is temporary implementation based on the agent.
             Must be replaced with more valid implementation.
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.GrpcClientsStorage.Get(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Returns existed or new IConnectorGrpcService for supplier
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.GrpcClientsStorage.Update(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Updates existed IConnectionGrpcService
+            </summary>
+            <param name="supplier"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Get(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Returns existed or new IConnectorGrpcService for supplier
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Connectors.IGrpcClientsStorage.Update(HappyTravel.SupplierOptionsClient.Models.SlimSupplier)">
+            <summary>
+                Updates existed IConnectionGrpcService
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Locations.LocalityInfoService.GetLocalityInfo(System.String)">
@@ -4315,6 +4417,12 @@
             <param name="policyId">Id of the policy to delete.</param>
             <param name="cancellationToken">Cancellation token</param>
             <returns></returns>
+        </member>
+        <member name="M:Api.Controllers.AgentControllers.InternalAgencyController.NotifyCreditLimitRunOutBalance">
+            <summary>
+                Sends notifications when funds on the agency balance decrease below thresholds
+            </summary>
+            <returns>Result message</returns>
         </member>
         <member name="P:Api.Models.Agencies.AddAccountManagerRequest.AccountManagerId">
             <summary>

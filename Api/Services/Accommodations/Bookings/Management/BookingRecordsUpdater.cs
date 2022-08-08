@@ -184,14 +184,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            async Task LogAnalyticsConfirmed()
-            {
-                var agency = await _context.Agencies
-                    .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
-
-                _bookingAnalyticsService.LogBookingConfirmed(booking, agency.Name);
-            }
-
+            void LogAnalyticsConfirmed() 
+                => _bookingAnalyticsService.LogBookingConfirmed(booking);
 
             void WriteFailureLog(string error) => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
         }
@@ -257,13 +251,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            async Task LogAnalyticsCancelled()
-            {
-                var agency = await _context.Agencies
-                    .SingleOrDefaultAsync(x => x.Id == booking.AgencyId);
-
-                _bookingAnalyticsService.LogBookingCancelled(booking, agency.Name);
-            }
+            void LogAnalyticsCancelled() 
+                => _bookingAnalyticsService.LogBookingCancelled(booking);
 
             Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
