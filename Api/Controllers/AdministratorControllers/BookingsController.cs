@@ -333,7 +333,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Fills empty htId in bookings
+        ///     Fix accommodation ids in bookings in specific creation period
         /// </summary>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/fix-accommodation-ids")]
