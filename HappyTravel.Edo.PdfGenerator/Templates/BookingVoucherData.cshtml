@@ -193,11 +193,11 @@
         <div class="main-values">
             <div class="block">
                 <div class="label">Check In From 15:00</div>
-                <div class="value">@Model.CheckInDate.ToLongDateString()</div>
+                <div class="value">@Model.CheckInDate.ToString("ddd, MMMM dd, yyyy")</div>
             </div>
             <div class="block">
                 <div class="label">Check Out Till 12:00</div>
-                <div class="value">@Model.CheckOutDate.ToLongDateString()</div>
+                <div class="value">@Model.CheckOutDate.ToString("ddd, MMMM dd, yyyy")</div>
             </div>
             <div class="block">
                 <div class="label">Length of Stay</div>
