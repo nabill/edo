@@ -29,16 +29,16 @@
             .top-values .block {
                 display: inline-block;
                 margin-right: 33px;
-                padding-bottom: 5px;
+                padding-bottom: 10px;
             }
             .top-values .value {
-                font-size: 16px;
-                margin-top: 5px;
+                font-size: 12px;
+                margin-top: 4px;
             }
             h1 {
-                margin: 15px 0 4px;
-                font-weight: 400;
-                font-size: 21px;
+                margin: 10px 0 4px;
+                font-weight: 700;
+                font-size: 18px;
             }
             h2 {
                 margin: 0;
@@ -62,9 +62,10 @@
                 padding-bottom: 5px;
             }
             .contacts img {
-                width: 25px;
-                height: 25px;
-                margin-right: 4px;
+                width: 9px;
+                height: 9px;
+                padding: 7px 0 9px;
+                margin-right: 3px;
                 vertical-align: middle;
             }
             .main-values {
@@ -78,32 +79,25 @@
                 margin-right: 2%;
                 box-sizing: border-box;
                 display: inline-block;
-                padding: 20px 0 18px;
-                border: 1px solid #C2C2C2;
-                border-radius: 8px;
-                text-align: center;
+                padding: 16px 0 16px;
             }
             .main-values .block:last-child {
                 margin-right: 0;
             }
             .main-values .value {
-                margin-top: 8px;
-                font-weight: 600;
-                text-align: center;
+                margin-top: 4px;
                 font-size: 12px;
                 line-height: 160%;
             }
             .wrapped {
-                border: 1px solid #C2C2C2;
-                border-radius: 8px;
                 font-size: 10px;
-            }
-            .wrapped.additional {
-                padding: 10px 15px;
             }
             .table {
                 margin-top: 25px;
                 width: 100%;
+            }
+            .table .wrapped {
+                border-top: 1px solid #C2C2C2;
             }
             .table .tr {
                 overflow: hidden;
@@ -113,10 +107,7 @@
             }
             .table .th.td {
                 text-align: left;
-                padding: 0 0 12px 15px;
-            }
-            .table .wrapped {
-                margin-top: 10px;
+                padding: 0 0 8px 15px;
             }
             .table .td {
                 padding-bottom: 12px;
@@ -124,10 +115,11 @@
                 display: inline-block;
                 font-size: 10px;
                 line-height: 14px;
-                vertical-align: middle;
+                vertical-align: top;
             }
             .table .td:first-child {
                 width: 30%;
+                padding-left: 0;
             }
             .table .td:nth-child(2) {
                 width: 30%;
@@ -143,17 +135,15 @@
                 box-sizing: border-box;
             }
             .title {
-                margin: 35px 0 15px 16px;
+                margin: 36px 0 15px;
             }
             footer {
                 font-size: 8px;
-                font-weight: 500;
+                font-weight: 400;
                 margin-top: 40px;
                 padding: 1em 0;
                 width: 100%;
-                background: #F7F8FC;
-                color: #777777;
-                text-align: center;
+                color: #666666;
             }
         </style>
     </head>
@@ -164,6 +154,13 @@
                     <div class="label">Confirmation No</div>
                     <div class="value">@Model.ReferenceCode</div>
                 </div>
+                @if (!string.IsNullOrWhiteSpace(@Model.SupplierReferenceCode))
+                {
+                <div class="block">
+                    <div class="label">Hotel confirmation No</div>
+                    <div class="value">@Model.SupplierReferenceCode</div>
+                </div>
+                }
                 <div class="block">
                     <div class="label">Agent</div>
                     <div class="value">@Model.AgentName<br></div>
@@ -178,22 +175,13 @@
             </h2>
             @if (@Model.Accommodation.ContactInfo is not null)
             {
-            <div class="contacts">
-                @if (@Model.Accommodation.ContactInfo.Emails is not null && @Model.Accommodation.ContactInfo.Emails.Count > 0 
-                    && !string.IsNullOrEmpty(@Model.Accommodation.ContactInfo.Emails[0])
-                    && !string.IsNullOrWhiteSpace(@Model.Accommodation.ContactInfo.Emails[0]))
-                {
-                <div>
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzI1Nl8xNzYzNSkiPgo8cGF0aCBkPSJNMTYuMDE1NiAyMEwyLjczNDM4IDIwQzAuNTMzNjk1IDIwIC0xLjI1IDE4LjMyMTIgLTEuMjUgMTYuMjVMLTEuMjUgMy43NUMtMS4yNSAxLjY3ODc3IDAuNTMzNjk1IDAgMi43MzQzOCAwTDE2LjAxNTYgMEMxOC4yMTYzIDAgMjAgMS42Nzg3NyAyMCAzLjc1TDIwIDE2LjI1QzIwIDE4LjMyMTIgMTguMjE2MyAyMCAxNi4wMTU2IDIwWiIgZmlsbD0iI0Y3RjhGQyIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTEyLjU3MjcgNS41ODgyNkMxMy4yNzEyIDUuNTg4MjYgMTMuOTQzIDUuODQ4MDYgMTQuNDM3MyA2LjMxNDI0QzE0LjkzMjEgNi43Nzk0MyAxNS4yMDg3IDcuNDA2ODggMTUuMjA4NyA4LjA2Mzc1TDE1LjIwODcgMTEuOTM2M0MxNS4yMDg3IDEzLjMwMzkgMTQuMDI2NCAxNC40MTE4IDEyLjU3MjcgMTQuNDExOEw3LjQyNzQxIDE0LjQxMThDNS45NzM3NiAxNC40MTE4IDQuNzkxOTkgMTMuMzAzOSA0Ljc5MTk5IDExLjkzNjNMNC43OTE5OSA4LjA2Mzc1QzQuNzkxOTkgNi42OTYxIDUuOTY4NTUgNS41ODgyNiA3LjQyNzQxIDUuNTg4MjZMMTIuNTcyNyA1LjU4ODI2Wk0xMy40MDE0IDguNzk0MTRMMTMuNDQzIDguNzU0OTNDMTMuNTY3NSA4LjYxMjc3IDEzLjU2NzUgOC40MDY4OSAxMy40MzczIDguMjY0NzNDMTMuMzY0OSA4LjE5MTY5IDEzLjI2NTQgOC4xNDcwOSAxMy4xNjE4IDguMTM3MjhDMTMuMDUyNCA4LjEzMTg5IDEyLjk0ODIgOC4xNjY2OSAxMi44Njk2IDguMjM1MzJMMTAuNTIxMSAxMEMxMC4yMTkxIDEwLjIzNTggOS43ODYyNSAxMC4yMzU4IDkuNDc5NDggMTBMNy4xMzU3MyA4LjIzNTMyQzYuOTczNzUgOC4xMjI1OCA2Ljc0OTc5IDguMTM3MjggNi42MTQ5IDguMjY5NjNDNi40NzQyNyA4LjQwMTk5IDYuNDU4NjUgOC42MTI3NyA2LjU3NzkyIDguNzU5ODNMNi42NDYxNSA4LjgyMzU2TDkuMDE1OTQgMTAuNTYzOEM5LjMwNzYgMTAuNzc5NCA5LjY2MTI1IDEwLjg5NzEgMTAuMDMxNiAxMC44OTcxQzEwLjQwMDggMTAuODk3MSAxMC43NjA3IDEwLjc3OTQgMTEuMDUxOSAxMC41NjM4TDEzLjQwMTQgOC43OTQxNFoiIGZpbGw9IiMyMzFGMjAiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8yNTZfMTc2MzUiPgo8cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="" />
-                    @Model.Accommodation.ContactInfo.Emails[0]
-                </div>
-                }                
+            <div class="contacts">                     
                 @if (@Model.Accommodation.ContactInfo.Phones is not null && @Model.Accommodation.ContactInfo.Phones.Count > 0 
                     && !string.IsNullOrEmpty(@Model.Accommodation.ContactInfo.Phones[0])
                     && !string.IsNullOrWhiteSpace(@Model.Accommodation.ContactInfo.Phones[0]))
                 {
                 <div>
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE2LjI1IDIwSDMuNzVDMS42Nzg3NyAyMCAwIDE4LjMyMTIgMCAxNi4yNUwwIDMuNzVDMCAxLjY3ODc3IDEuNjc4NzcgMCAzLjc1IDBMMTYuMjUgMEMxOC4zMjEyIDAgMjAgMS42Nzg3NyAyMCAzLjc1VjE2LjI1QzIwIDE4LjMyMTIgMTguMzIxMiAyMCAxNi4yNSAyMFoiIGZpbGw9IiNGN0Y4RkMiLz4KPHBhdGggZD0iTTEyLjU4NTIgMTAuODc3MUMxMi4yODIyIDEwLjgxMiAxMi4wNDI2IDEwLjk1MjYgMTEuODMwNCAxMS4wNzU1QzExLjYxMzEgMTEuMjAyIDExLjE5OTkgMTEuNTM3MyAxMC45NjMgMTEuNDUxNUM5Ljc1MDMxIDEwLjk1MjIgOC42MDk3NSA5Ljg5MDczIDguMTE2MDIgOC42NzMxOUM4LjAyOTAxIDguNDMxMjcgOC4zNjI2NiA4LjAxNTQyIDguNDg4MyA3Ljc5NTU0QzguNjEwMjIgNy41ODI2OSA4Ljc0Nzk2IDcuMzQwNzggOC42ODUxNCA3LjAzNTU3QzguNjI4MzcgNi43NjEzMSA3Ljg5NDA2IDUuODI2OTMgNy42MzQzOSA1LjU3MTQyQzcuNDYzMTUgNS40MDI2NCA3LjI4NzcxIDUuMzA5ODIgNy4xMDc2MyA1LjI5NDgxQzYuNDMwNTUgNS4yNjU3NSA1LjY3NDM3IDYuMTY5MTggNS41NDE3NSA2LjM4NTMxQzUuMjA5NDkgNi44NDYxNiA1LjIxMTM1IDcuNDU5MzkgNS41NDczMyA4LjIwMjk1QzYuMzU3MDMgMTAuMjAwMiA5LjQxOTQ1IDEzLjIxNDMgMTEuNDI0MSAxNC4wNTQ0QzExLjc5NDEgMTQuMjI3NCAxMi4xMzI0IDE0LjMxNDEgMTIuNDM2MyAxNC4zMTQxQzEyLjczMzYgMTQuMzE0MSAxMi45OTg0IDE0LjIzMTEgMTMuMjI2IDE0LjA2NjZDMTMuMzk3NyAxMy45Njc3IDE0LjMzODEgMTMuMTczOSAxNC4zMTM1IDEyLjQ3ODdDMTQuMjk4NiAxMi4zMDE0IDE0LjIwNiAxMi4xMjQyIDE0LjAzOTQgMTEuOTUyNkMxMy43ODU4IDExLjY5MDYgMTIuODU3NCAxMC45MzQzIDEyLjU4NTIgMTAuODc3MVoiIGZpbGw9IiMyMzFGMjAiLz4KPC9zdmc+Cg==" alt="" />
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAlCAYAAADFniADAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKiSURBVHgBzZi7ctNAGIXPShVVpFCTWeKhNx0dCVXK5AWA5AXI8ADE+AVwSjqnpCFJBR0u0yUlM9jjnUBBhdcdRaTlrLAzwhfdRmvyFbYs7Y6P//sauIOIRTcl8WIc8ulTLtCRwL4i+F+iNqV8JQxavAz+eRBjb/BdnWHVoijoaCJoEdoT2P6m1BVWJSpH0BRFVz6mJzUc4tmXxgO5W0CQRfoGp3CMb1/CMPgkZmNoOTJcC8ajsb6AI8QjKZuxwSXKYTPyoSs3eqa4hdIEfoRdOMJDRRiDCo7wboAqKa76P1QPjvAmcdErs4mFpAWHJO4zAueFdxh0B0qdwCGJqBjo8q1QJkUe3sIxiSjrQlrruMiGVTTm2+yjtTooYK3GhnwBx9yKSgKeI0ruDsdBbvHTH0Zaf10Pgi1eyow9ges2M1c82T72WOVV1iYhcGQHQThiTpR1o5fvxoDTwhfqqtKicvEX3fyltbofBnbW2srYaxfsrIXBB631b9SIyHrITOtyRWa20dVXMSfSOieGzIbMQnlocnojf1WTrrysM8ZE3oLkZMP4EdkZaVE0W2twvbwF2RjkKclaPow9nKkl836uqJLCkt5oW9Fs5d/c4BlA8NiWmt+MQYfi2rwcpZcXElVa2EScF+GY7SuIfbyzbl6y0h5GnnFoHPIIV05UJWHF0exzB6wFp5xAyolyLMyaaF/coFtalMWlMBFhu5IoS5JJf4U1UScG5z4qYqs4m/L79bUgpNmfoC4EflYWNYXCPrMljXm5gzrgaFTZfbPUFGfDpDygJuhOzeZ8QmH3KrtT4GCo1EVtlkpj/wqIDD5OrFbkOwwPt+3+tWoBJYtnWRpSvmQreZMjzrD9vO4r1ZnecCoqLY6p/hzz81mPgtoU1Evf/AMWjf2pIgTfxAAAAABJRU5ErkJggg==" alt="" />
                     @Model.Accommodation.ContactInfo.Phones[0]
                 </div>
                 }
@@ -204,12 +192,12 @@
 
         <div class="main-values">
             <div class="block">
-                <div class="label">Check In</div>
-                <div class="value">@Model.CheckInDate.ToLongDateString()</div>
+                <div class="label">Check In From 15:00</div>
+                <div class="value">@Model.CheckInDate.ToString("ddd, MMMM dd, yyyy")</div>
             </div>
             <div class="block">
-                <div class="label">Check Out</div>
-                <div class="value">@Model.CheckOutDate.ToLongDateString()</div>
+                <div class="label">Check Out Till 12:00</div>
+                <div class="value">@Model.CheckOutDate.ToString("ddd, MMMM dd, yyyy")</div>
             </div>
             <div class="block">
                 <div class="label">Length of Stay</div>

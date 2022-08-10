@@ -531,7 +531,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.FixAccommodationIds(HappyTravel.Edo.Api.Models.Bookings.BookingCreationPeriod)">
             <summary>
-                Fills empty htId in bookings
+                Fix accommodation ids in bookings in specific creation period
             </summary>
             <returns></returns>
         </member>
