@@ -20,6 +20,7 @@ using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.DataFormatters;
+using HappyTravel.Edo.Api.Models.Analytics;
 using HappyTravel.Edo.Api.Services.Analytics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -184,8 +185,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            void LogAnalyticsConfirmed() 
-                => _bookingAnalyticsService.LogBookingConfirmed(booking);
+            async Task LogAnalyticsConfirmed()
+            {
+                _bookingAnalyticsService.LogBookingConfirmed(booking, await GetAgentInfo(booking.AgentId, booking.AgencyId));
+            }
+
 
             void WriteFailureLog(string error) => _logger.LogBookingConfirmationFailure(booking.ReferenceCode, error);
         }
@@ -251,8 +255,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             }
 
 
-            void LogAnalyticsCancelled() 
-                => _bookingAnalyticsService.LogBookingCancelled(booking);
+            async Task LogAnalyticsCancelled() 
+                => _bookingAnalyticsService.LogBookingCancelled(booking, await GetAgentInfo(booking.AgentId, booking.AgencyId));
 
             Task<Result> ReturnMoney(Booking b) => _moneyReturnService.ReturnMoney(b, _dateTimeProvider.UtcNow(), user);
         }
@@ -304,6 +308,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 additionalInfo.AgencyName,
                 DateTimeFormatters.ToDateString(booking.DeadlineDate ?? booking.CheckOutDate));
             return Result.Success();
+        }
+
+
+        private async Task<AgentInfo> GetAgentInfo(int agentId, int agencyId)
+        {
+            var agent = await _context.Agents.SingleAsync(a => a.Id == agentId);
+            var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
+            var agentName = $"{agent.Title}. {agent.FirstName} {agent.LastName}";
+
+            return new AgentInfo(agent.Id, agent.Id, agentName, agency.Name);
         }
 
 
