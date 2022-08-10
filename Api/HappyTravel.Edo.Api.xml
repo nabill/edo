@@ -531,7 +531,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.FixAccommodationIds(HappyTravel.Edo.Api.Models.Bookings.BookingCreationPeriod)">
             <summary>
-                Fills empty htId in bookings
+                Fix accommodation ids in bookings in specific creation period
             </summary>
             <returns></returns>
         </member>
@@ -1368,6 +1368,13 @@
             </summary>
             <param name="bookingId">Id of the booking.</param>
             <returns>Voucher data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.GetBookingVoucherPdf(System.Int32)">
+            <summary>
+                Gets booking voucher in pdf.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <returns>Voucher in pdf.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.GetBookingInvoice(System.Int32)">
             <summary>

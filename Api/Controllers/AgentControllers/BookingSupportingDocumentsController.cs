@@ -35,8 +35,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("voucher/send")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
@@ -57,8 +57,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("invoice/send")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
@@ -78,8 +78,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Voucher data.</returns>
         [HttpGet("voucher")]
-        [ProducesResponseType(typeof(BookingVoucherData), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BookingVoucherData), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingVoucher([Required] int bookingId)
@@ -89,14 +89,32 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(result);
         }
 
+
+        /// <summary>
+        ///     Gets booking voucher in pdf.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <returns>Voucher in pdf.</returns>
+        [HttpGet("voucher/pdf")]
+        [ProducesResponseType(typeof(byte[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> GetBookingVoucherPdf([Required] int bookingId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _bookingDocumentsService.GenerateVoucherPdf(bookingId, agent, LanguageCode));
+        }
+
+
         /// <summary>
         ///     Gets booking invoice.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Invoice data.</returns>
         [HttpGet("invoice")]
-        [ProducesResponseType(typeof(BookingDocument<BookingInvoiceInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BookingDocument<BookingInvoiceInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
