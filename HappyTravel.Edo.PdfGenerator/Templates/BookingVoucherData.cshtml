@@ -90,7 +90,7 @@
                 line-height: 160%;
             }
             .wrapped {
-                font-size: 11px;
+                font-size: 10px;
             }
             .table {
                 margin-top: 25px;
@@ -113,7 +113,7 @@
                 padding-bottom: 12px;
                 width: 20%;
                 display: inline-block;
-                font-size: 11px;
+                font-size: 10px;
                 line-height: 14px;
                 vertical-align: top;
             }
@@ -154,10 +154,13 @@
                     <div class="label">Confirmation No</div>
                     <div class="value">@Model.ReferenceCode</div>
                 </div>
+                @if (!string.IsNullOrWhiteSpace(@Model.SupplierReferenceCode))
+                {
                 <div class="block">
                     <div class="label">Hotel confirmation No</div>
                     <div class="value">@Model.SupplierReferenceCode</div>
                 </div>
+                }
                 <div class="block">
                     <div class="label">Agent</div>
                     <div class="value">@Model.AgentName<br></div>
