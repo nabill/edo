@@ -57,7 +57,7 @@
     <PackageReference Include="NATS.Client.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
     <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.0.152" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.20.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.17.1" />
     <PackageReference Include="shortid" Version="4.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.7" />
