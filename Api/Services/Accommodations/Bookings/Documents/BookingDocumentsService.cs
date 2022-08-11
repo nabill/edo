@@ -28,6 +28,7 @@ using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 using HappyTravel.Edo.Api.Models.Bookings.Invoices;
 using HappyTravel.Edo.Api.Services.Analytics;
 using System;
+using Api.Extensions;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -102,13 +103,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                         : $"{childrenCount} Child";
                     }
 
-                    return new RoomInfo(r.ContractDescription,
+                    return new RoomInfo(ToNormalizeDescription(r.ContractDescription),
                     r.BoardBasis,
                     r.MealPlan,
                     r.DeadlineDate?.DateTime,
                     r.ContractDescription,
                     r.Passengers,
-                    r.Remarks,
+                    r.Remarks.ToNormilizedRemarks(),
                     r.SupplierRoomReferenceCode,
                     adultCountStr,
                     childrenCountStr);
@@ -129,6 +130,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                => (roomsCount > 1)
                    ? $"{roomsCount} Rooms"
                    : $"{roomsCount} Room";
+
+
+            string ToNormalizeDescription(string description)
+            {
+                var splittedDescription = description.Split("(");
+                return splittedDescription[0];
+            };
         }
 
 
