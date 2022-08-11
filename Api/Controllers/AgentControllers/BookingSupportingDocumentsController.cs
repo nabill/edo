@@ -96,14 +96,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Voucher in pdf.</returns>
         [HttpGet("voucher/pdf")]
-        [ProducesResponseType(typeof(byte[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingVoucherPdf([Required] int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _bookingDocumentsService.GenerateVoucherPdf(bookingId, agent, LanguageCode));
+
+            var (_, isFailure, document, error) = await _bookingDocumentsService.GenerateVoucherPdf(bookingId, agent, LanguageCode);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return File(document, "application/pdf");
         }
 
 
