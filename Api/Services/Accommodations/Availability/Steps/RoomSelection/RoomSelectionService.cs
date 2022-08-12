@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Analytics;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
@@ -74,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (accommodation.IsFailure)
                 return accommodation.Error;
 
-            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, agent);
+            _bookingAnalyticsService.LogAccommodationAvailabilityRequested(accommodation.Value, new AgentInfo(agent.AgentId, agent.AgencyId, agent.AgentName, agent.AgencyName));
 
             var searchSettings = await _accommodationBookingSettingsService.Get();
 
