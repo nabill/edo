@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -19,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.EntityFrameworkCore;
 using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
