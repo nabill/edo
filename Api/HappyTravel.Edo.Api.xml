@@ -531,7 +531,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.FixAccommodationIds(HappyTravel.Edo.Api.Models.Bookings.BookingCreationPeriod)">
             <summary>
-                Fills empty htId in bookings
+                Fix accommodation ids in bookings in specific creation period
             </summary>
             <returns></returns>
         </member>
@@ -1368,6 +1368,13 @@
             </summary>
             <param name="bookingId">Id of the booking.</param>
             <returns>Voucher data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.GetBookingVoucherPdf(System.Int32)">
+            <summary>
+                Gets booking voucher in pdf.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <returns>Voucher in pdf.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.GetBookingInvoice(System.Int32)">
             <summary>
@@ -3238,6 +3245,26 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.AgentInfo.AgentId">
+            <summary>
+            Agent Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.AgentInfo.AgencyId">
+            <summary>
+            Agency Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.AgentInfo.AgentName">
+            <summary>
+            Agent name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.AgentInfo.AgencyName">
+            <summary>
+            Agency name
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.DateTime">
             <summary>
             Event datetime
@@ -3286,6 +3313,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.GeoPoint">
             <summary>
              Geo point
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgencyName">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Analytics.BookingAnalyticsEvent.AgentName">
+            <summary>
+            Agent name
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.AgencyName">
@@ -4243,27 +4280,27 @@
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogWideAvailabilitySearch(HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogWideAvailabilitySearch(HappyTravel.Edo.Api.Models.Analytics.AgentInfo@)">
             <summary>
              Log wide availability search event for analytics
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogAccommodationAvailabilityRequested(HappyTravel.MapperContracts.Public.Accommodations.Accommodation@,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogAccommodationAvailabilityRequested(HappyTravel.MapperContracts.Public.Accommodations.Accommodation@,HappyTravel.Edo.Api.Models.Analytics.AgentInfo@)">
             <summary>
              Log accommodation availability event for analytics
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingOccured(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Agents.AgentContext@)">
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingOccured(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Analytics.AgentInfo@)">
             <summary>
              Log booking occured event for analytics
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingConfirmed(HappyTravel.Edo.Data.Bookings.Booking)">
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingConfirmed(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Analytics.AgentInfo@)">
             <summary>
              Log booking confirmed event for analytics
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingCancelled(HappyTravel.Edo.Data.Bookings.Booking)">
+        <member name="M:HappyTravel.Edo.Api.Services.Analytics.BookingAnalyticsService.LogBookingCancelled(HappyTravel.Edo.Data.Bookings.Booking,HappyTravel.Edo.Api.Models.Analytics.AgentInfo@)">
             <summary>
              Log booking cancelled event for analytics
             </summary>
