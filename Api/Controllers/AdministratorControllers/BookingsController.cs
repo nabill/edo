@@ -330,18 +330,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             => await _bookingInfoService.GetAdministratorBookingStatusHistory(bookingId);
 
 
-        /// <summary>
-        ///     Fix accommodation ids in bookings in specific creation period
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost("accommodations/bookings/fix-accommodation-ids")]
-        [ProducesResponseType(typeof(List<int>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
-        public async Task<IActionResult> FixAccommodationIds([FromBody] BookingCreationPeriod request)
-            => Ok(await _fixHtIdService.FixAccommodationIds(request));
-
-
         private readonly IAdministratorBookingDocumentsService _bookingDocumentsService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingService _bookingService;
