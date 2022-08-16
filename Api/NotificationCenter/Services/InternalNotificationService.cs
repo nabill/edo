@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         private async Task SaveAndSend(Notification notification, DataWithCompanyInfo messageData, List<MailAttachment>? attachments = default)
         {
             var notificationId = await Save(notification);
-            await Send(notification, notificationId, messageData);
+            await Send(notification, notificationId, messageData, attachments);
         }
 
 
