@@ -8,6 +8,5 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public interface IFixHtIdService
     {
         Task FillEmptyHtIds();
-        Task<List<int>> FixAccommodationIds(BookingCreationPeriod request, CancellationToken cancellationToken = default);
     }
 }

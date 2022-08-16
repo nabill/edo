@@ -19,15 +19,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class FixHtIdService : IFixHtIdService
     {
-        public FixHtIdService(IMapperManagementClient mapperManagementClient,
-            EdoContext context,
+        public FixHtIdService(EdoContext context,
             IAccommodationMapperClient client,
             ILogger<FixHtIdService> logger)
         {
             _context = context;
             _client = client;
             _logger = logger;
-            _mapperManagementClient = mapperManagementClient;
         }
 
 
@@ -75,50 +73,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<List<int>> FixAccommodationIds(BookingCreationPeriod request, CancellationToken cancellationToken)
-        {
-            var successedResultIds = new List<int>();
-
-            var bookings = await _context.Bookings
-                .Where(b => b.Created.DateTime >= request.StartWith && b.Created.DateTime <= request.EndWith)
-                .ToListAsync();
-
-            foreach (var booking in bookings)
-            {
-                var accommodationResult =
-                    await _mapperManagementClient.GetDetailedAccommodationData(booking.AccommodationId,
-                        LocalizationHelper.DefaultLanguageCode, cancellationToken);
-
-                UpdateAccommodationId(booking, accommodationResult);
-            }
-
-            await _context.SaveChangesAsync();
-            _context.ChangeTracker.Clear();
-
-            return successedResultIds;
-
-            void UpdateAccommodationId(Booking booking, Result<DetailedAccommodation, ProblemDetails> accommodationResult)
-            {
-                if (accommodationResult.IsFailure)
-                    return;
-
-                var isExist = accommodationResult.Value.SuppliersRawAccommodationData
-                    .TryGetValue(booking.SupplierCode, out var supplierAccommodation);
-
-                if (isExist)
-                {
-                    booking.AccommodationId = supplierAccommodation!.SupplierCode;
-                    _context.Bookings.Attach(booking).Property(b => b.AccommodationId).IsModified = true;
-
-                    successedResultIds.Add(booking.Id);
-                }
-            }
-        }
-
-
         private readonly EdoContext _context;
         private readonly IAccommodationMapperClient _client;
-        private readonly IMapperManagementClient _mapperManagementClient;
         private readonly ILogger<FixHtIdService> _logger;
     }
 }
