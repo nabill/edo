@@ -51,6 +51,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///     Sends booking voucher pdf to an email.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <param name="sendMailRequest">Send mail request.</param>
+        /// <returns></returns>
+        [HttpPost("voucher/pdf/send")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinAgencyVerificationState(AgencyVerificationStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> SendBookingVoucherPdf([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, error) = await _bookingDocumentsService.SendVoucherPdf(bookingId, sendMailRequest.Email, agent, LanguageCode);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
         ///     Sends booking invoice to an email.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Models.Messaging;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -97,10 +98,22 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await Send(agent, messageData, notificationType, new List<string> { email });
 
 
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData,
+            NotificationTypes notificationType, string email, List<MailAttachment> attachments)
+            => await Send(agent, messageData, notificationType, new List<string> { email }, attachments);
+
+
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
             => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, emails))
                 .Tap(sendingSettings => _internalNotificationService.AddAgentNotification(agent, messageData, notificationType, sendingSettings));
+
+
+        public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData,
+            NotificationTypes notificationType, List<string> emails, List<MailAttachment> attachments)
+            => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails))
+                .Tap(sendingSettings => _internalNotificationService.AddAgentNotificationWithAttachments(agent, messageData, notificationType, sendingSettings, attachments));
 
 
         public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
@@ -156,14 +169,14 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                         sendingSettings.Add(ProtocolTypes.WebSocket, new WebSocketSettings { });
 
                     if ((recipient.NotificationOptions?.EnabledProtocols & ProtocolTypes.Email) == ProtocolTypes.Email)
-                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings 
-                            { 
-                                Emails = new(){ recipient.Email }, 
-                                TemplateId = recipient.NotificationOptions?.EmailTemplateId 
-                            });
+                        sendingSettings.Add(ProtocolTypes.Email, new EmailSettings
+                        {
+                            Emails = new() { recipient.Email },
+                            TemplateId = recipient.NotificationOptions?.EmailTemplateId
+                        });
 
-                    recipientsWithSendingSettings.Add(new RecipientWithSendingSettings 
-                    { 
+                    recipientsWithSendingSettings.Add(new RecipientWithSendingSettings
+                    {
                         RecipientId = recipient.RecipientId,
                         SendingSettings = sendingSettings
                     });
@@ -182,7 +195,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top)
             => await _internalNotificationService.Get(ReceiverTypes.AgentApp, agent.AgentId, agent.AgencyId, skip, top);
-        
+
 
         public async Task<List<SlimNotification>> Get(SlimAdminContext admin, int skip, int top)
             => await _internalNotificationService.Get(ReceiverTypes.AdminPanel, admin.AdminId, null, skip, top);

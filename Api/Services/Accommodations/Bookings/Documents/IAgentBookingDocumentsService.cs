@@ -16,6 +16,7 @@ public interface IAgentBookingDocumentsService
     Task<Result<byte[]>> GenerateVoucherPdf(int bookingId, AgentContext agent, string languageCode);
 
     Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode);
+    Task<Result> SendVoucherPdf(int bookingId, string email, AgentContext agent, string languageCode);
 
     Task<Result> SendInvoice(int bookingId, string email, AgentContext agent);
 }

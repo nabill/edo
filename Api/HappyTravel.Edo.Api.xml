@@ -1348,6 +1348,14 @@
             <param name="sendMailRequest">Send mail request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingVoucherPdf(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
+            <summary>
+                Sends booking voucher pdf to an email.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <param name="sendMailRequest">Send mail request.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingSupportingDocumentsController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
                 Sends booking invoice to an email.
@@ -3808,6 +3816,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Data">
             <summary>
                 E-mail data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Attachments">
+            <summary>
+                Attachments
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">

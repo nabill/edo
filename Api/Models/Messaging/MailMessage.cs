@@ -9,14 +9,21 @@ public class MailMessage
     ///     SendGrid template Id
     /// </summary>
     public string TemplateId { get; set; } = string.Empty;
-    
+
     /// <summary>
     ///     Recipients e-mail adresses
     /// </summary>
     public IEnumerable<string> Recipients { get; set; } = Array.Empty<string>();
-    
+
     /// <summary>
     ///     E-mail data
     /// </summary>
     public object? Data { get; set; }
+
+    /// <summary>
+    ///     Attachments
+    /// </summary>
+    public List<MailAttachment>? Attachments { get; set; }
+
+
 }
