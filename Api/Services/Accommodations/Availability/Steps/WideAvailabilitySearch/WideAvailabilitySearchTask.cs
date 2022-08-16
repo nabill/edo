@@ -5,7 +5,6 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Metrics;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -14,7 +13,6 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Hubs.Search;
-using HappyTravel.Edo.Api.Services.Messaging;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.SupplierOptionsClient.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage, ISupplierConnectorManager supplierConnectorManager, 
             IDateTimeProvider dateTimeProvider, ILogger<WideAvailabilitySearchTask> logger, IHubContext<SearchHub, ISearchHub> hubContext,
-            IWideAvailabilitySearchStateStorage stateStorage, IMessageBus messageBus)
+            IWideAvailabilitySearchStateStorage stateStorage)
         {
             _storage = storage;
             _supplierConnectorManager = supplierConnectorManager;
@@ -38,7 +36,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _logger = logger;
             _hubContext = hubContext;
             _stateStorage = stateStorage;
-            _messageBus = messageBus;
         }
 
 
@@ -48,8 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 dateTimeProvider: serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 logger: serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
                 hubContext: serviceProvider.GetRequiredService<IHubContext<SearchHub, ISearchHub>>(),
-                stateStorage: serviceProvider.GetRequiredService<IWideAvailabilitySearchStateStorage>(),
-                messageBus: serviceProvider.GetRequiredService<IMessageBus>());
+                stateStorage: serviceProvider.GetRequiredService<IWideAvailabilitySearchStateStorage>());
 
 
         public async Task Start(Guid searchId, Models.Availabilities.AvailabilityRequest availabilityRequest,
@@ -94,22 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 var supplierConnector = _supplierConnectorManager.Get(supplier.Code);
 
                 return await supplierConnector.GetAvailability(connectorRequest, languageCode)
-                    .Tap(Publish)
                     .Map(result => Convert(result, connectorRequest))
                     .Tap(SaveResult);
-            }
-
-
-            void Publish(EdoContracts.Accommodations.Availability availability)
-            {
-                _messageBus.Publish(MessageBusTopics.AvailabilitySearch, new
-                {
-                    SearchId = searchId,
-                    SupplierCode = supplier.Code,
-                    Availability = availability,
-                    agent.AgentId,
-                    agent.AgencyId
-                });
             }
 
 
@@ -242,6 +224,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _storage;
         private readonly IHubContext<SearchHub, ISearchHub> _hubContext;
         private readonly IWideAvailabilitySearchStateStorage _stateStorage;
-        private readonly IMessageBus _messageBus;
     }
 }
