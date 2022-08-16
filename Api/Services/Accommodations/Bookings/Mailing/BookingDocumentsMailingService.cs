@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             var attachment = new MailAttachment(voucherPdf,
                 "application/pdf",
-                $"{voucher.Accommodation.Name}_{voucher.ReferenceCode}.pdf",
+                $"Voucher_{voucher.Accommodation.Name}_{voucher.ReferenceCode}.pdf",
                 "attachment");
 
             return await _notificationsService.Send(agent: agent,
