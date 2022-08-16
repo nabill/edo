@@ -19,16 +19,20 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public async Task Send(string templateId, IEnumerable<string> recipientAddresses, DataWithCompanyInfo messageData)
+        public async Task Send(string templateId,
+            IEnumerable<string> recipientAddresses,
+            DataWithCompanyInfo messageData,
+            List<MailAttachment>? attachments = default)
         {
             var (_, isFailure, companyInfo, _) = await _companyService.GetCompanyInfo();
             messageData.CompanyInfo = isFailure ? new CompanyInfo() : companyInfo;
 
             _messageBus.Publish(MessageBusTopics.SendMail, new MailMessage
             {
-                TemplateId = templateId, 
-                Recipients = recipientAddresses, 
-                Data = messageData
+                TemplateId = templateId,
+                Recipients = recipientAddresses,
+                Data = messageData,
+                Attachments = attachments
             });
         }
 

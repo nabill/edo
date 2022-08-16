@@ -3816,6 +3816,11 @@
                 E-mail data
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Messaging.MailMessage.Attachments">
+            <summary>
+                Attachments
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
             <summary>
                 Account balance info

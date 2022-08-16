@@ -14,6 +14,9 @@ using HappyTravel.Money.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
+using HappyTravel.Edo.Api.Models.Messaging;
+using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 {
@@ -58,6 +61,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         notificationType: NotificationTypes.BookingVoucher,
                         email: email);
                 });
+        }
+
+
+        public async Task<Result> SendVoucherPdf(BookingVoucherData voucher, byte[] voucherPdf,
+            string email, SlimAgentContext agent)
+        {
+            var voucherData = new SlimVoucherData
+            {
+                AccommodationName = voucher.Accommodation.Name,
+                ReferenceCode = voucher.ReferenceCode,
+                CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
+                CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate)
+            };
+
+            var attachment = new MailAttachment(voucherPdf,
+                "application/pdf",
+                $"{voucher.Accommodation.Name}({voucher.BookingId}).pdf",
+                "attachment");
+
+            return await _notificationsService.Send(agent: agent,
+                messageData: voucherData,
+                notificationType: NotificationTypes.BookingVoucher,
+                email: email,
+                attachments: new List<MailAttachment> { attachment });
         }
 
 

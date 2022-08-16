@@ -48,10 +48,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 
 
         public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
+            => _recordManager.Get(bookingId)
+                .CheckPermissions(agent)
+                .Bind(b => _mailingService.SendVoucher(b, email, languageCode, new SlimAgentContext(agent.AgentId, agent.AgencyId)));
+
+
+        public Task<Result> SendVoucherPdf(int bookingId, string email, AgentContext agent, string languageCode)
         {
             return _recordManager.Get(bookingId)
                 .CheckPermissions(agent)
-                .Bind(b => _mailingService.SendVoucher(b, email, languageCode, new SlimAgentContext(agent.AgentId, agent.AgencyId)));
+                .Bind(b => _documentsService.GenerateVoucher(b, languageCode))
+                .Bind(data => GeneratePdfAndSend(data));
+
+
+            async Task<Result> GeneratePdfAndSend(BookingVoucherData data)
+            {
+                var (_, isFailureGenerate, voucherPdf, errorGenerate) = await _pdfGeneratorService.Generate(data);
+                if (isFailureGenerate)
+                    return Result.Failure(errorGenerate);
+
+                var (_, isFailureSend, errorSend) = await _mailingService.SendVoucherPdf(data, voucherPdf, email, new SlimAgentContext(agent.AgentId, agent.AgencyId));
+                if (isFailureSend)
+                    return Result.Failure(errorSend);
+
+                return Result.Success();
+            }
+
         }
 
 

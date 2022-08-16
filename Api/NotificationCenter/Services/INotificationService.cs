@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Models.Messaging;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.NotificationCenter.Models;
 using HappyTravel.Edo.Notifications.Enums;
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails);
         Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email);
+        Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments);
 
         Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top);
         Task<List<SlimNotification>> Get(SlimAdminContext admin, int skip, int top);
