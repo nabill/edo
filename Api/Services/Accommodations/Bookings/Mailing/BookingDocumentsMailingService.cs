@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             return await _notificationsService.Send(agent: agent,
                 messageData: voucherData,
-                notificationType: NotificationTypes.BookingVoucher,
+                notificationType: NotificationTypes.BookingVoucherPdf,
                 email: email,
                 attachments: new List<MailAttachment> { attachment });
         }
