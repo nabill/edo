@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Analytics;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     
             var bookingRequestResult = await SendSupplierRequest(bookingRequest, availabilityInfo.AvailabilityId, booking, creditCardResult.Value, languageCode);
             if (bookingRequestResult.IsSuccess)
-                _bookingAnalyticsService.LogBookingOccured(booking, agent);
+                _bookingAnalyticsService.LogBookingOccured(booking, new AgentInfo(agent.AgentId, agent.AgencyId, agent.AgentName, agent.AgencyName));
             
             await ProcessRequestResult(bookingRequestResult);
             return bookingRequestResult;

@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Bookings.Vouchers;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Data.Documents;
+using HappyTravel.Edo.PdfGenerator;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
 {
@@ -13,14 +14,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
     {
         public AgentBookingDocumentsService(IBookingDocumentsService documentsService,
             IBookingDocumentsMailingService mailingService,
-            IBookingRecordManager recordManager)
+            IBookingRecordManager recordManager,
+            IPdfGeneratorService pdfGeneratorService)
         {
             _documentsService = documentsService;
             _mailingService = mailingService;
             _recordManager = recordManager;
+            _pdfGeneratorService = pdfGeneratorService;
         }
-       
-        
+
+
         public Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceInfo Data)>> GetActualInvoice(int bookingId, AgentContext agentContext)
         {
             return _recordManager.Get(bookingId)
@@ -35,6 +38,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 .CheckPermissions(agent)
                 .Bind(b => _documentsService.GenerateVoucher(b, languageCode));
         }
+
+
+        public Task<Result<byte[]>> GenerateVoucherPdf(int bookingId, AgentContext agent, string languageCode)
+            => _recordManager.Get(bookingId)
+                .CheckPermissions(agent)
+                .Bind(b => _documentsService.GenerateVoucher(b, languageCode))
+                .Bind(data => _pdfGeneratorService.Generate(data));
 
 
         public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
@@ -56,5 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingDocumentsMailingService _mailingService;
         private readonly IBookingRecordManager _recordManager;
+        private readonly IPdfGeneratorService _pdfGeneratorService;
     }
 }

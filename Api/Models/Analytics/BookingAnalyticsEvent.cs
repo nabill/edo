@@ -54,4 +54,14 @@ public record BookingAnalyticsEvent
     ///  Geo point
     /// </summary>
     public GeoPoint? GeoPoint { get; set; }
+
+    /// <summary>
+    /// Agency name
+    /// </summary>
+    public string AgencyName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Agent name
+    /// </summary>
+    public string AgentName { get; set; } = string.Empty;
 }
