@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public ManagementEditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber,
-            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId)
+            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId, string? taxRegistrationNumber)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PreferredPaymentMethod = preferredPaymentMethod;
             LegalAddress = legalAddress;
             LocalityHtId = localityHtId;
+            TaxRegistrationNumber = taxRegistrationNumber;
         }
 
 
@@ -71,5 +72,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Agency locality id
         /// </summary>
         public string LocalityHtId { get; }
+
+        /// <summary>
+        /// Tax registration number(For UAE)
+        /// </summary>
+        public string? TaxRegistrationNumber { get; }
     }
 }

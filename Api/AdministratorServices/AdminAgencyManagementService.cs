@@ -333,6 +333,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 agency.VatNumber = request.VatNumber;
                 agency.PreferredPaymentMethod = request.PreferredPaymentMethod;
                 agency.LegalAddress = request.LegalAddress;
+                agency.TaxRegistrationNumber = request.TaxRegistrationNumber;
 
                 agency.Modified = _dateTimeProvider.UtcNow();
             }
