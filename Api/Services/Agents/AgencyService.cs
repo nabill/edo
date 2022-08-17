@@ -35,12 +35,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int? parentAgencyId)
             => await Create(agencyInfo.Name, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
                 agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
-                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId,
+                agencyInfo.TaxRegistrationNumber);
 
 
         private async Task<Result<AgencyInfo>> Create(string name, string address, string billingEmail, string fax, string phone,
             string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
-            PaymentTypes preferredPaymentMethod, string localityHtId)
+            PaymentTypes preferredPaymentMethod, string localityHtId, string? taxRegistrationNumber)
         {
             var ancestors = new List<int>();
             var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
@@ -117,7 +118,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     legalAddress: agencyInfo.LegalAddress,
                     preferredPaymentMethod: agencyInfo.PreferredPaymentMethod,
                     isContractUploaded: agencyInfo.IsContractUploaded,
-                    creditLimit: agencyInfo.CreditLimit));
+                    creditLimit: agencyInfo.CreditLimit,
+                    taxRegistrationNumber: agencyInfo.TaxRegistrationNumber));
         }
 
 

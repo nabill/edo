@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             string countryCode, string countryName, string fax, string phone, string postalCode, string website,
             string vatNumber, PaymentTypes defaultPaymentType, List<int> ancestors, string countryHtId, string localityHtId,
             AgencyVerificationStates verificationState, DateTime? verificationDate, string legalAddress, PaymentTypes preferredPaymentMethod,
-            bool isContractUploaded, MoneyAmount? creditLimit)
+            bool isContractUploaded, MoneyAmount? creditLimit, string? taxRegistrationNumber)
         {
             Name = name;
             Address = address;
@@ -37,6 +37,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PreferredPaymentMethod = preferredPaymentMethod;
             IsContractUploaded = isContractUploaded;
             CreditLimit = creditLimit;
+            TaxRegistrationNumber = taxRegistrationNumber;
         }
 
 
@@ -149,5 +150,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Agencies credit limit
         /// </summary>
         public MoneyAmount? CreditLimit { get; }
+
+        /// <summary>
+        /// Tax registration number(For UAE)
+        /// </summary>
+        public string? TaxRegistrationNumber { get; }
     }
 }
