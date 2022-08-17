@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -37,5 +38,9 @@ namespace HappyTravel.Edo.Data.Agents
         public int? AccountManagerId { get; set; }
         public MoneyAmount? CreditLimit { get; set; }
         public CreditLimitNotifications CreditLimitNotifications { get; set; }
+
+        [RegularExpression("^[0-9]{15}$")]
+        [StringLength(15, MinimumLength = 15)]
+        public string? TaxRegistrationNumber { get; set; }
     }
 }
