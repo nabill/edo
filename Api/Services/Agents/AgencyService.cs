@@ -138,6 +138,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     v.RuleFor(c => c.Address).NotEmpty();
                     v.RuleFor(c => c.Phone).NotEmpty();
                     v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
+                    v.RuleFor(c => c.TaxRegistrationNumber)
+                        .ExclusiveBetween("0", "9")
+                        .Length(15, 15)
+                        .When(c => c.TaxRegistrationNumber != null);
                 }, editAgencyRequest);
             }
 
@@ -154,6 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
                 agencyRecord.VatNumber = editAgencyRequest.VatNumber;
                 agencyRecord.PreferredPaymentMethod = editAgencyRequest.PreferredPaymentMethod;
+                agencyRecord.TaxRegistrationNumber = editAgencyRequest.TaxRegistrationNumber;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 

@@ -2707,6 +2707,11 @@
                 Preferable way to do payments.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.TaxRegistrationNumber">
+            <summary>
+            Tax registration number(For UAE)
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
             <summary>
             Account id
