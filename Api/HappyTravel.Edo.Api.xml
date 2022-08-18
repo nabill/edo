@@ -2787,6 +2787,11 @@
             Agency locality id
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.TaxRegistrationNumber">
+            <summary>
+            Tax registration number(For UAE)
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.Name">
             <summary>
                 Name of the agency.
