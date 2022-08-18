@@ -139,7 +139,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     v.RuleFor(c => c.Phone).NotEmpty();
                     v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
                     v.RuleFor(c => c.TaxRegistrationNumber)
-                        .ExclusiveBetween("0", "9")
+                        .Must(x => long.TryParse(x, out var val) && val > 0)
+                        .WithMessage("TaxRegistrationNumber should contain only digits.")
                         .Length(15, 15)
                         .When(c => c.TaxRegistrationNumber != null);
                 }, editAgencyRequest);
