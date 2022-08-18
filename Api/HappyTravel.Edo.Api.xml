@@ -2637,6 +2637,11 @@
             Agencies credit limit
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.TaxRegistrationNumber">
+            <summary>
+            Tax registration number(For UAE)
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ChildAgencyInfo.Id">
             <summary>
             Agency id
@@ -2700,6 +2705,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.PreferredPaymentMethod">
             <summary>
                 Preferable way to do payments.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.EditAgencyRequest.TaxRegistrationNumber">
+            <summary>
+            Tax registration number(For UAE)
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.FullAgencyAccountInfo.Id">
@@ -2827,6 +2837,16 @@
                 Preferable way to do payments.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.LocalityHtId">
+            <summary>
+                City's htid.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.RegistrationAgencyInfo.TaxRegistrationNumber">
+            <summary>
+                Tax registration number(FOR UAE)
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.Name">
             <summary>
                 Name of the agency.
@@ -2930,6 +2950,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.CreditLimit">
             <summary>
             Agencies credit limit
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimAgencyInfo.TaxRegistrationNumber">
+            <summary>
+            Tax registration number(For UAE)
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimChildAgencyInfo.Id">

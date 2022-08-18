@@ -10,15 +10,15 @@ namespace HappyTravel.Edo.Api.Extensions
     public static class InvitationInfoExtensions
     {
         public static UserInvitationData ToUserInvitationData(this UserDescriptionInfo info)
-            => new (info, default, default);
+            => new(info, default, default);
 
 
         public static UserInvitationData ToUserInvitationData(this RegisterInvitedAgencyRequest request)
-            => new (request.RegistrationInfo, request.ChildAgencyRegistrationInfo, default);
+            => new(request.RegistrationInfo, request.ChildAgencyRegistrationInfo, default);
 
 
         public static UserInvitationData ToUserInvitationData(this CreateChildAgencyInvitationRequest request, int[] roleIds)
-            => new (userRegistrationInfo: request.UserRegistrationInfo,
+            => new(userRegistrationInfo: request.UserRegistrationInfo,
                 new RegistrationAgencyInfo(name: request.ChildAgencyRegistrationInfo.Name,
                     address: string.Empty,
                     billingEmail: string.Empty,
@@ -29,15 +29,16 @@ namespace HappyTravel.Edo.Api.Extensions
                     vatNumber: null,
                     legalAddress: string.Empty,
                     preferredPaymentMethod: PaymentTypes.NotSpecified,
-                    localityHtId: string.Empty),
+                    localityHtId: string.Empty,
+                    taxRegistrationNumber: null),
                 roleIds: roleIds);
 
-        
+
         public static UserInvitationData ToUserInvitationData(this SendAgentInvitationRequest request)
-            => new (request.RegistrationInfo, default, request.RoleIds);
-        
-        
+            => new(request.RegistrationInfo, default, request.RoleIds);
+
+
         public static UserInvitationData ToUserInvitationData(this SendAdminInvitationRequest request)
-            => new (request.RegistrationInfo, default, request.RoleIds);
+            => new(request.RegistrationInfo, default, request.RoleIds);
     }
 }
