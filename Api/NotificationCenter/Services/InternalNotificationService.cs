@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Notifications.Infrastructure;
+using HappyTravel.Edo.Api.Models.Messaging;
 
 namespace HappyTravel.Edo.Api.NotificationCenter.Services
 {
@@ -118,6 +119,26 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task AddAgentNotificationWithAttachments(SlimAgentContext agent,
+            DataWithCompanyInfo messageData,
+            NotificationTypes notificationType,
+            Dictionary<ProtocolTypes, object> sendingSettings,
+            List<MailAttachment> attachments)
+        {
+            var notification = new Notification
+            {
+                Receiver = ReceiverTypes.AgentApp,
+                UserId = agent.AgentId,
+                AgencyId = agent.AgencyId,
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+                Type = notificationType,
+                SendingSettings = sendingSettings
+            };
+
+            await SaveAndSend(notification, messageData, attachments);
+        }
+
+
         public async Task AddPropertyOwnerNotification(DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings)
         {
             var notification = new Notification
@@ -158,10 +179,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 .ToListAsync();
 
 
-        private async Task SaveAndSend(Notification notification, DataWithCompanyInfo messageData)
+        private async Task SaveAndSend(Notification notification, DataWithCompanyInfo messageData, List<MailAttachment>? attachments = default)
         {
             var notificationId = await Save(notification);
-            await Send(notification, notificationId, messageData);
+            await Send(notification, notificationId, messageData, attachments);
         }
 
 
@@ -184,7 +205,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private async Task Send(Notification notification, int notificationId, DataWithCompanyInfo messageData)
+        private async Task Send(Notification notification, int notificationId, DataWithCompanyInfo messageData, List<MailAttachment>? attachments = default)
         {
             var tasks = new List<Task>();
 
@@ -193,7 +214,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
                 var task = protocol switch
                 {
                     ProtocolTypes.Email when settings is EmailSettings emailSettings && messageData is not null
-                        => SendEmail(emailSettings, messageData),
+                        => SendEmail(emailSettings, messageData, attachments),
 
                     ProtocolTypes.WebSocket when settings is WebSocketSettings webSocketSettings
                         => notification.Receiver switch
@@ -217,8 +238,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
-        private Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData)
-            => _mailSender.Send(settings.TemplateId, settings.Emails, messageData);
+        private Task SendEmail(EmailSettings settings, DataWithCompanyInfo messageData, List<MailAttachment>? attachments = default)
+            => _mailSender.Send(settings.TemplateId, settings.Emails, messageData, attachments);
 
 
         private async Task SendMessageToAgent(int userId, int? agencyId, int messageId, NotificationTypes notificationType, JsonDocument message)

@@ -40,6 +40,7 @@ namespace HappyTravel.Edo.Api.Extensions
                 accountManagerName: accountManagerName,
                 accountManagerId: accountManagerId,
                 contractKind: agency.ContractKind,
-                creditLimit: agency.CreditLimit);
+                creditLimit: agency.CreditLimit,
+                taxRegistrationNumber: agency.TaxRegistrationNumber);
     }
 }

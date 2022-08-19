@@ -318,6 +318,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     v.RuleFor(r => r.LegalAddress).NotEmpty();
                     v.RuleFor(r => r.PreferredPaymentMethod).NotEmpty();
                     v.RuleFor(r => r.LocalityHtId).NotEmpty();
+                    v.RuleFor(r => r.TaxRegistrationNumber)
+                        .Must(x => long.TryParse(x, out var val) && val > 0)
+                        .WithMessage("TaxRegistrationNumber should contain only digits.")
+                        .Length(15, 15)
+                        .When(r => r.TaxRegistrationNumber != null);
                 }, request);
             }
 
@@ -333,6 +338,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 agency.VatNumber = request.VatNumber;
                 agency.PreferredPaymentMethod = request.PreferredPaymentMethod;
                 agency.LegalAddress = request.LegalAddress;
+                agency.TaxRegistrationNumber = request.TaxRegistrationNumber;
 
                 agency.Modified = _dateTimeProvider.UtcNow();
             }

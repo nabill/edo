@@ -11,147 +11,175 @@ using HappyTravel.Edo.Data.Agents;
 using Xunit;
 using Moq;
 using Api.AdministratorServices;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.AccommodationBookingSettingsServiceTests
 {
     public class AccommodationBookingSettingsServiceBoolTests
     {
         // Settings combined from two sources
-        // [Fact]
-        // public async Task Combined_bool_settings_must_be_false_if_no_source_found()
-        // {
-        //     var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
-        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-        //     var agentContextService = Mock.Of<IAgentContextService>();
+        [Fact]
+        public async Task Combined_bool_settings_must_be_false_if_no_source_found()
+        {
+            var agentSettings = DefaultAgentMaterializedSettings;
+            var agencySettings = DefaultAgencyMaterializedSettings;
+            var rootAgencySettings = DefaultRootMaterializedSettings;
+            var agentContextService = Mock.Of<IAgentContextService>();
 
-        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-        //     var flow = GetDoubleFlow();
-        //     var agentSupplierManagementService = GetAgentSupplierManagementService();
+            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+            var flow = GetDoubleFlow();
+            var agentSupplierManagementService = GetAgentSupplierManagementService();
 
-        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-        //         agentSupplierManagementService, default, agentContextService);
+            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+                agentSupplierManagementService, default, agentContextService);
 
-        //     var settings = await service.Get();
+            var settings = await service.Get();
 
-        //     Assert.False(settings.IsSupplierVisible);
-        //     Assert.False(settings.IsDirectContractFlagVisible);
-        // }
-
-
-        // [Theory]
-        // [InlineData(false, false, false)]
-        // [InlineData(false, false, true)]
-        // [InlineData(false, true, false)]
-        // [InlineData(false, true, true)]
-        // [InlineData(true, false, false)]
-        // [InlineData(true, false, true)]
-        // [InlineData(true, true, false)]
-        // [InlineData(true, true, true)]
-        // public async Task Agent_combined_bool_settings_must_apply_when_only_agent_settings_found(
-        //     bool expectedMarkupDisabled,
-        //     bool expectedSupplierVisible,
-        //     bool expectedDirectContractFlagVisible)
-        // {
-        //     var agentSettings = Maybe<AgentAccommodationBookingSettings>
-        //         .From(new AgentAccommodationBookingSettings
-        //         {
-        //             IsSupplierVisible = expectedSupplierVisible,
-        //             IsDirectContractFlagVisible = expectedDirectContractFlagVisible
-        //         });
-        //     var agencySettings = default(Maybe<AgencyAccommodationBookingSettings>);
-        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-        //     var agentContextService = Mock.Of<IAgentContextService>();
-
-        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-        //     var flow = GetDoubleFlow();
-        //     var agencySupplierManagementService = GetAgentSupplierManagementService();
-
-        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-        //         agencySupplierManagementService, default, agentContextService);
-
-        //     var settings = await service.Get();
-
-        //     Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
-        //     Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
-        // }
+            Assert.False(settings.IsSupplierVisible);
+            Assert.False(settings.IsDirectContractFlagVisible);
+        }
 
 
-        // [Theory]
-        // [InlineData(false, false, false)]
-        // [InlineData(false, false, true)]
-        // [InlineData(false, true, false)]
-        // [InlineData(false, true, true)]
-        // [InlineData(true, false, false)]
-        // [InlineData(true, false, true)]
-        // [InlineData(true, true, false)]
-        // [InlineData(true, true, true)]
-        // public async Task Agency_combined_bool_settings_must_apply_when_only_agency_settings_found(
-        //     bool expectedMarkupDisabled,
-        //     bool expectedSupplierVisible,
-        //     bool expectedDirectContractFlagVisible)
-        // {
-        //     var agentSettings = default(Maybe<AgentAccommodationBookingSettings>);
-        //     var agencySettings = Maybe<AgencyAccommodationBookingSettings>
-        //         .From(new AgencyAccommodationBookingSettings
-        //         {
-        //             IsSupplierVisible = expectedSupplierVisible,
-        //             IsDirectContractFlagVisible = expectedDirectContractFlagVisible
-        //         });
-        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-        //     var agentContextService = Mock.Of<IAgentContextService>();
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public async Task Agent_combined_bool_settings_must_apply_when_only_agent_settings_found(
+            bool expectedMarkupDisabled,
+            bool expectedSupplierVisible,
+            bool expectedDirectContractFlagVisible)
+        {
+            var agentSettings = DefaultAgentMaterializedSettings;
+            agentSettings.IsSupplierVisible = expectedSupplierVisible;
+            agentSettings.IsDirectContractFlagVisible = expectedDirectContractFlagVisible;
 
-        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-        //     var flow = GetDoubleFlow();
-        //     var agencySupplierManagementService = GetAgentSupplierManagementService();
+            var agencySettings = DefaultAgencyMaterializedSettings;
+            var rootAgencySettings = DefaultRootMaterializedSettings;
+            var agentContextService = Mock.Of<IAgentContextService>();
 
-        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-        //         agencySupplierManagementService, default, agentContextService);
+            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+            var flow = GetDoubleFlow();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
 
-        //     var settings = await service.Get();
+            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+                agencySupplierManagementService, default, agentContextService);
 
-        //     Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
-        //     Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
-        // }
+            var settings = await service.Get();
+
+            Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
+            Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
+        }
 
 
-        // [Theory]
-        // [InlineData(false, false, false, true, true, true, true, false, true)]
-        // [InlineData(true, false, true, false, false, false, true, true, false)]
-        // [InlineData(true, true, false, true, false, true, true, true, true)]
-        // [InlineData(true, true, true, true, true, false, false, false, false)]
-        // public async Task Combined_bool_settings_must_be_true_if_any_source_gives_true(
-        //     bool expectedMarkupDisabled, bool agentMarkupDisabled, bool agencyMarkupDisabled,
-        //     bool expectedSupplierVisible, bool agentSupplierVisible, bool agencySupplierVisible,
-        //     bool expectedDirectContractFlagVisible, bool agentDirectContractFlagVisible, bool agencyDirectContractFlagVisible)
-        // {
-        //     var agentSettings = Maybe<AgentAccommodationBookingSettings>
-        //         .From(new AgentAccommodationBookingSettings
-        //         {
-        //             IsSupplierVisible = agentSupplierVisible,
-        //             IsDirectContractFlagVisible = agentDirectContractFlagVisible
-        //         });
-        //     var agencySettings = Maybe<AgencyAccommodationBookingSettings>
-        //         .From(new AgencyAccommodationBookingSettings
-        //         {
-        //             IsSupplierVisible = agencySupplierVisible,
-        //             IsDirectContractFlagVisible = agencyDirectContractFlagVisible
-        //         });
-        //     var rootAgencySettings = default(RootAgencyAccommodationBookingSettings);
-        //     var agentContextService = Mock.Of<IAgentContextService>();
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public async Task Agency_combined_bool_settings_must_apply_when_only_agency_settings_found(
+            bool expectedMarkupDisabled,
+            bool expectedSupplierVisible,
+            bool expectedDirectContractFlagVisible)
+        {
+            var agentSettings = DefaultAgentMaterializedSettings;
+            agentSettings.IsSupplierVisible = expectedSupplierVisible;
+            agentSettings.IsDirectContractFlagVisible = expectedDirectContractFlagVisible;
+            var agencySettings = DefaultAgencyMaterializedSettings;
+            agencySettings.IsSupplierVisible = expectedSupplierVisible;
+            agencySettings.IsDirectContractFlagVisible = expectedDirectContractFlagVisible;
 
-        //     var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
-        //     var flow = GetDoubleFlow();
-        //     var agencySupplierManagementService = GetAgentSupplierManagementService();
+            var rootAgencySettings = DefaultRootMaterializedSettings;
+            var agentContextService = Mock.Of<IAgentContextService>();
 
-        //     var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
-        //         agencySupplierManagementService, default, agentContextService);
+            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+            var flow = GetDoubleFlow();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
 
-        //     var settings = await service.Get();
+            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+                agencySupplierManagementService, default, agentContextService);
 
-        //     Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
-        //     Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
-        // }
+            var settings = await service.Get();
+
+            Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
+            Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
+        }
+
+
+        [Theory]
+        [InlineData(false, false, false, true, true, true, false, false, true)]
+        [InlineData(true, false, true, false, false, false, true, true, false)]
+        [InlineData(true, true, false, false, false, true, true, true, true)]
+        [InlineData(true, true, true, true, true, false, false, false, false)]
+        public async Task Combined_bool_settings_must_be_true_if_any_source_gives_true(
+            bool expectedMarkupDisabled, bool agentMarkupDisabled, bool agencyMarkupDisabled,
+            bool expectedSupplierVisible, bool agentSupplierVisible, bool agencySupplierVisible,
+            bool expectedDirectContractFlagVisible, bool agentDirectContractFlagVisible, bool agencyDirectContractFlagVisible)
+        {
+            var agentSettings = DefaultAgentMaterializedSettings;
+            agentSettings.IsSupplierVisible = agentSupplierVisible;
+            agentSettings.IsDirectContractFlagVisible = agentDirectContractFlagVisible;
+
+            var agencySettings = DefaultAgencyMaterializedSettings;
+            agencySettings.IsSupplierVisible = agencySupplierVisible;
+            agencySettings.IsDirectContractFlagVisible = agencyDirectContractFlagVisible;
+
+            var rootAgencySettings = DefaultRootMaterializedSettings;
+            var agentContextService = Mock.Of<IAgentContextService>();
+
+            var (agentSettingsService, agencySettingsService, rootAgencySystemSettingsService) = GetSettingsServices(agentSettings, agencySettings, rootAgencySettings);
+            var flow = GetDoubleFlow();
+            var agencySupplierManagementService = GetAgentSupplierManagementService();
+
+            var service = new AccommodationBookingSettingsService(flow, agentSettingsService, agencySettingsService, rootAgencySystemSettingsService,
+                agencySupplierManagementService, default, agentContextService);
+
+            var settings = await service.Get();
+
+            Assert.Equal(expectedSupplierVisible, settings.IsSupplierVisible);
+            Assert.Equal(expectedDirectContractFlagVisible, settings.IsDirectContractFlagVisible);
+        }
+
+
+        private AgentAccommodationBookingSettings DefaultAgentMaterializedSettings
+            => new AgentAccommodationBookingSettings
+            {
+                AdditionalSearchFilters = new(),
+                AprMode = AprMode.Hide,
+                CustomDeadlineShift = 0,
+                IsDirectContractFlagVisible = false,
+                IsSupplierVisible = false,
+                PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide
+            };
+
+
+        private AgencyAccommodationBookingSettings DefaultAgencyMaterializedSettings
+            => new AgencyAccommodationBookingSettings()
+            {
+                IsSupplierVisible = false,
+                IsDirectContractFlagVisible = false,
+                AprMode = AprMode.Hide,
+                PassedDeadlineOffersMode = PassedDeadlineOffersMode.Hide,
+                CustomDeadlineShift = 0
+            };
+
+
+        private RootAgencyAccommodationBookingSettings DefaultRootMaterializedSettings
+            => new RootAgencyAccommodationBookingSettings()
+            {
+                CancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
+                {
+                    PolicyStartDateShift = TimeSpan.FromDays(-3)
+                }
+            };
 
 
         private IDoubleFlow GetDoubleFlow()

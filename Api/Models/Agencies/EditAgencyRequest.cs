@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public EditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber,
-            PaymentTypes preferredPaymentMethod)
+            PaymentTypes preferredPaymentMethod, string? taxRegistrationNumber)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             Website = website;
             VatNumber = vatNumber;
             PreferredPaymentMethod = preferredPaymentMethod;
+            TaxRegistrationNumber = taxRegistrationNumber;
         }
 
         /// <summary>
@@ -58,5 +59,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         ///     Preferable way to do payments.
         /// </summary>
         public PaymentTypes PreferredPaymentMethod { get; }
+
+        /// <summary>
+        /// Tax registration number(For UAE)
+        /// </summary>
+        public string? TaxRegistrationNumber { get; }
     }
 }

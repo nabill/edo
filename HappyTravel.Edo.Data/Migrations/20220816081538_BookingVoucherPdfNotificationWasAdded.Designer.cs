@@ -9,6 +9,7 @@ using HappyTravel.Money.Models;
 using HappyTravel.MultiLanguage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20220816081538_BookingVoucherPdfNotificationWasAdded")]
+    partial class BookingVoucherPdfNotificationWasAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,10 +119,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("PreferredPaymentMethod")
                         .HasColumnType("integer");
-
-                    b.Property<string>("TaxRegistrationNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("character varying(15)");
 
                     b.Property<string>("VatNumber")
                         .HasColumnType("text");

@@ -35,12 +35,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<AgencyInfo>> Create(RegistrationAgencyInfo agencyInfo, int? parentAgencyId)
             => await Create(agencyInfo.Name, agencyInfo.Address, agencyInfo.BillingEmail, agencyInfo.Fax,
                 agencyInfo.Phone, agencyInfo.PostalCode, agencyInfo.Website, agencyInfo.VatNumber,
-                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId);
+                parentAgencyId, agencyInfo.LegalAddress, agencyInfo.PreferredPaymentMethod, agencyInfo.LocalityHtId,
+                agencyInfo.TaxRegistrationNumber);
 
 
         private async Task<Result<AgencyInfo>> Create(string name, string address, string billingEmail, string fax, string phone,
             string postalCode, string website, string vatNumber, int? parentAgencyId, string legalAddress,
-            PaymentTypes preferredPaymentMethod, string localityHtId)
+            PaymentTypes preferredPaymentMethod, string localityHtId, string? taxRegistrationNumber)
         {
             var ancestors = new List<int>();
             var (_, isFailure, localityInfo, error) = await _localityInfoService.GetLocalityInfo(localityHtId);
@@ -117,7 +118,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     legalAddress: agencyInfo.LegalAddress,
                     preferredPaymentMethod: agencyInfo.PreferredPaymentMethod,
                     isContractUploaded: agencyInfo.IsContractUploaded,
-                    creditLimit: agencyInfo.CreditLimit));
+                    creditLimit: agencyInfo.CreditLimit,
+                    taxRegistrationNumber: agencyInfo.TaxRegistrationNumber));
         }
 
 
@@ -136,6 +138,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     v.RuleFor(c => c.Address).NotEmpty();
                     v.RuleFor(c => c.Phone).NotEmpty();
                     v.RuleFor(c => c.BillingEmail).EmailAddress().When(i => !string.IsNullOrWhiteSpace(i.BillingEmail));
+                    v.RuleFor(c => c.TaxRegistrationNumber)
+                        .Must(x => long.TryParse(x, out var val) && val > 0)
+                        .WithMessage("TaxRegistrationNumber should contain only digits.")
+                        .Length(15, 15)
+                        .When(c => c.TaxRegistrationNumber != null);
                 }, editAgencyRequest);
             }
 
@@ -152,6 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 agencyRecord.BillingEmail = editAgencyRequest.BillingEmail;
                 agencyRecord.VatNumber = editAgencyRequest.VatNumber;
                 agencyRecord.PreferredPaymentMethod = editAgencyRequest.PreferredPaymentMethod;
+                agencyRecord.TaxRegistrationNumber = editAgencyRequest.TaxRegistrationNumber;
 
                 agencyRecord.Modified = _dateTimeProvider.UtcNow();
 
