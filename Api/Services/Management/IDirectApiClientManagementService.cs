@@ -2,14 +2,11 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 
-namespace HappyTravel.Edo.Api.AdministratorServices
+namespace HappyTravel.Edo.Api.Services.Management
 {
     public interface IDirectApiClientManagementService
     {
-        Task<Result> AddApiClient(CreateDirectApiClientRequest request);
-
+        Task<Result<ApiClientData>> Generate(AgentContext agent);
         Task<Result> RemoveApiClient(RemoveDirectApiClientRequest request);
-
-        Task<Result> ChangePassword(string clientId, string password);
     }
 }
