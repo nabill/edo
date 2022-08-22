@@ -1,4 +1,5 @@
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agencies
@@ -7,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     {
         [JsonConstructor]
         public ManagementEditAgencyRequest(string address, string billingEmail, string fax, string phone, string postalCode, string website, string vatNumber,
-            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId, string? taxRegistrationNumber)
+            PaymentTypes preferredPaymentMethod, string legalAddress, string localityHtId, MoneyAmount? creditLimit, string? taxRegistrationNumber)
         {
             Address = address;
             BillingEmail = billingEmail;
@@ -19,6 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
             PreferredPaymentMethod = preferredPaymentMethod;
             LegalAddress = legalAddress;
             LocalityHtId = localityHtId;
+            CreditLimit = creditLimit;
             TaxRegistrationNumber = taxRegistrationNumber;
         }
 
@@ -72,6 +74,11 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// Agency locality id
         /// </summary>
         public string LocalityHtId { get; }
+
+        /// <summary>
+        /// Agency credit limit
+        /// </summary>
+        public MoneyAmount? CreditLimit { get; }
 
         /// <summary>
         /// Tax registration number(For UAE)

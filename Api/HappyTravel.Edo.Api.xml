@@ -2777,6 +2777,11 @@
             Agency locality id
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.CreditLimit">
+            <summary>
+            Agency credit limit
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.ManagementEditAgencyRequest.TaxRegistrationNumber">
             <summary>
             Tax registration number(For UAE)
