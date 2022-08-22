@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
-using HappyTravel.Edo.Api.Models.ApiClients;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -30,13 +30,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("generate")]
-        [ProducesResponseType(typeof(ApiClientInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiClientData), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.ApiConnectionManagement)]
         public async Task<IActionResult> AddApiClient()
         {
             var agent = await _agentContextService.GetAgent();
-            return NoContentOrBadRequest(await _directApiClientManagementService.Generate(agent));
+            return OkOrBadRequest(await _directApiClientManagementService.Generate(agent));
         }
 
 

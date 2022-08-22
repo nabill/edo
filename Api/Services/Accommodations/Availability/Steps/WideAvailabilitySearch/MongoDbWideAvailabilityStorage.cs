@@ -15,26 +15,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public class MongoDbWideAvailabilityStorage : IWideAvailabilityStorage
     {
-        public MongoDbWideAvailabilityStorage(IMongoDbStorage<CachedAccommodationAvailabilityResult> availabilityStorage, IDateTimeProvider dateTimeProvider, 
+        public MongoDbWideAvailabilityStorage(IMongoDbStorage<CachedAccommodationAvailabilityResult> availabilityStorage, IDateTimeProvider dateTimeProvider,
             IAccommodationMapperClient mapperClient)
         {
             _availabilityStorage = availabilityStorage;
             _dateTimeProvider = dateTimeProvider;
             _mapperClient = mapperClient;
         }
-        
-        
+
+
         // TODO: method added for compability with 2nd and 3rd steps. Need to refactor them for using filters instead of loading whole search results
         public async Task<List<(string SupplierCode, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, string htId, AccommodationBookingSettings searchSettings)
         {
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
-            
+
             var filter = filterBuilder.And(new[]
             {
                 filterBuilder.Eq(x => x.HtId, htId),
                 GetSearchIdSupplierFilterDefinition(searchId, searchSettings.EnabledConnectors)
             });
-            
+
             var cursor = await _availabilityStorage.Collection().FindAsync(filter);
             var results = await cursor.ToListAsync();
 
@@ -47,15 +47,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 
         public async Task<List<AccommodationAvailabilityResult>> GetFilteredResults(
-            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, 
+            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers,
             bool needFilterNonDirectContracts = false, List<string>? directContractSuppliersCodes = null)
         {
             suppliers = filters?.Suppliers != null && filters.Suppliers.Any()
                 ? filters.Suppliers
                 : suppliers;
-            
+
             var (ids, htIds) = await GetIds(searchId, suppliers);
-            
+
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
             var sortBuilder = Builders<CachedAccommodationAvailabilityResult>.Sort;
             var sort = sortBuilder
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 filterBuilder.Eq(x => x.SearchId, searchId),
                 filterBuilder.In(x => x.Id, ids)
             });
-            
+
             if (needFilterNonDirectContracts && directContractSuppliersCodes is not null)
                 filter &= filterBuilder.In(x => x.SupplierCode, directContractSuppliersCodes);
 
@@ -94,18 +94,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     var filteredHtIds = await GetAccommodationRatings(htIds, filters.Ratings);
                     filter &= filterBuilder.Where(r => filteredHtIds.Contains(r.HtId));
                 }
-            
+
                 if (filters.Order == "price")
                 {
-                    sort  = filters.Direction switch
+                    sort = filters.Direction switch
                     {
-                        "asc" => sortBuilder.Ascending(x => x.MinPrice),
-                        "desc" => sortBuilder.Descending(x => x.MinPrice),
+                        "asc" => sort.Ascending(x => x.MinPrice),
+                        "desc" => sort.Descending(x => x.MinPrice),
                         _ => sort
                     };
                 }
             }
-            
+
             if (searchSettings.AprMode == AprMode.Hide)
                 filter &= filterBuilder.Where(r => r.RoomContractSets.Any(rcs => !rcs.IsAdvancePurchaseRate));
 
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 Limit = filters?.Top,
                 Hint = new BsonString(IndexName).AsBsonValue // forcible use search index
             };
-            
+
             var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
             return results.Select(a => a.Map(searchSettings)).ToList();
@@ -168,10 +168,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 Projection = projection,
                 Limit = 1
             };
-            
+
             var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
-            
+
             return results
                 .Select(x => x.SearchId)
                 .FirstOrDefault();
@@ -185,26 +185,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings) 
+        private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings)
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
 
 
         private static FilterDefinition<CachedAccommodationAvailabilityResult> GetSearchIdSupplierFilterDefinition(Guid searchId, IEnumerable<string> suppliers)
         {
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
-            
+
             return filterBuilder.And(new[]
             {
                 filterBuilder.Eq(x => x.SearchId, searchId),
                 filterBuilder.In(x => x.SupplierCode, suppliers)
             });
         }
-        
-        
+
+
         private static FilterDefinition<CachedAccommodationAvailabilityResult> GetSearchIdSupplierFilterDefinition(Guid searchId, string supplierCode)
         {
             var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
-            
+
             return filterBuilder.And(new[]
             {
                 filterBuilder.Eq(x => x.SearchId, searchId),
@@ -226,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 });
 
             var options = new FindOptions<CachedAccommodationAvailabilityResult> { Projection = projection };
-            var cursor =  await _availabilityStorage.Collection().FindAsync(filter, options);
+            var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var rows = await cursor.ToListAsync();
 
             var htIds = new List<string>();
@@ -240,10 +240,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             return new ValueTuple<List<ObjectId>, List<string>>(ids, htIds);
         }
-        
-        
+
+
         private readonly TimeSpan _searchIdExpirationBuffer = TimeSpan.FromMinutes(15);
-        private const string IndexName = "SearchId_1_SupplierCode_1"; 
+        private const string IndexName = "SearchId_1_SupplierCode_1";
 
 
         private readonly IMongoDbStorage<CachedAccommodationAvailabilityResult> _availabilityStorage;
