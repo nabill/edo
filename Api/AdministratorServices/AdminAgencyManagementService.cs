@@ -300,15 +300,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public async Task<Result<AgencyInfo>> Edit(int agencyId, ManagementEditAgencyRequest request, LocalityInfo localityInfo,
             string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            return await Validate(request)
-                .Bind(() => GetAgency(agencyId))
+            return await GetAgency(agencyId)
+                .Check(agency => Validate(agency, request))
                 .Tap(Edit)
                 .Tap(AddLocalityInfo)
                 .Tap(SaveChanges)
                 .Bind(GetUpdatedAgencyInfo);
 
 
-            Result Validate(ManagementEditAgencyRequest request)
+            Result Validate(Agency agency, ManagementEditAgencyRequest request)
             {
                 return GenericValidator<ManagementEditAgencyRequest>.Validate(v =>
                 {
@@ -323,6 +323,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         .WithMessage("TaxRegistrationNumber should contain only digits.")
                         .Length(15, 15)
                         .When(r => r.TaxRegistrationNumber != null);
+
+                    v.RuleFor(r => r.CreditLimit)
+                        .NotEmpty()
+                        .When(r => agency.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+
+                    v.RuleFor(r => r.CreditLimit)
+                        .Empty()
+                        .When(r => agency.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments);
                 }, request);
             }
 
@@ -338,6 +346,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 agency.VatNumber = request.VatNumber;
                 agency.PreferredPaymentMethod = request.PreferredPaymentMethod;
                 agency.LegalAddress = request.LegalAddress;
+                agency.CreditLimit = (agency.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments)
+                   ? request.CreditLimit
+                   : null;
                 agency.TaxRegistrationNumber = request.TaxRegistrationNumber;
 
                 agency.Modified = _dateTimeProvider.UtcNow();
