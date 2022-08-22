@@ -33,7 +33,7 @@ public static class PasswordGenerator
     private const string UpperCaseLetters = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
     private const string LowerCaseLetters = "abcdefghijkmnopqrstuvwxyz";
     private const string Digits = "0123456789";
-    private const string NonAlphanumericSymbols = "!#$%&()*+,-.:;=?@[]^_{|}~";
+    private const string NonAlphanumericSymbols = "!#$%()*+,-.:;=?@[]^_{|}~";
     
     private static readonly List<string> RequiredSymbols = new()
     {
