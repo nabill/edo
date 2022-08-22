@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> AddApiClient()
         {
             var agent = await _agentContextService.GetAgent();
-            return NoContentOrBadRequest(await _directApiClientManagementService.Generate(agent));
+            return OkOrBadRequest(await _directApiClientManagementService.Generate(agent));
         }
 
 
