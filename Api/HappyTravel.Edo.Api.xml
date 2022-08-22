@@ -603,27 +603,6 @@
             <param name="bankId">Id of the company bank</param>
             <param name="accountId">Id of the company account to set default</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.AddApiClient(HappyTravel.Edo.Api.Models.Agents.CreateDirectApiClientRequest)">
-            <summary>
-            Creates new direct api client in identity service
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.Delete(HappyTravel.Edo.Api.Models.Agents.RemoveDirectApiClientRequest)">
-            <summary>
-            Deletes direct api client from identity service
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.DirectApiClientsController.ChangePassword(System.String,System.String)">
-            <summary>
-            Changes password for direct api client
-            </summary>
-            <param name="clientId"></param>
-            <param name="password"></param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.GlobalMarkupController.Get">
             <summary>
             Gets global markup policy
@@ -1418,6 +1397,17 @@
                 Gets settings for tokenization
             </summary>
             <returns>Settings for tokenization</returns>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Controllers.AgentControllers.DirectApiClientsController">
+            <summary>
+            API for managing direct api clients
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.DirectApiClientsController.AddApiClient">
+            <summary>
+            Creates new direct api client in identity service
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
@@ -4374,6 +4364,25 @@
             Receives information about locality
             </summary>
             <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Services.Management.DirectApiClientManagementService">
+            <summary>
+            A service for managing direct api clients
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Management.DirectApiClientManagementService.Generate(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
+            <summary>
+            Creates new or update existing direct api client
+            </summary>
+            <param name="agent">Agent context</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Management.DirectApiClientManagementService.RemoveApiClient(HappyTravel.Edo.Api.Models.Agents.RemoveDirectApiClientRequest)">
+            <summary>
+            Removes existing direct api client
+            </summary>
+            <param name="request">Direct api client parameters</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupSubjectInfo,HappyTravel.Edo.Api.Services.Markups.Abstractions.MarkupDestinationInfo,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
