@@ -38,6 +38,10 @@ namespace HappyTravel.Edo.DirectApi.Services.Overriden
             => Task.FromResult(Result.Success());
 
 
+        public Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, List<MailAttachment> attachments)
+            => Task.FromResult(Result.Success());
+
+
         public Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails)
             => Task.FromResult(Result.Success());
 
