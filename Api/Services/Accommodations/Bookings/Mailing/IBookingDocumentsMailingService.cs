@@ -15,6 +15,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         Task<Result> SendVoucherPdf(BookingVoucherData voucher, byte[] voucherPdf, string email, SlimAgentContext agent);
 
+        Task<Result> SendVoucherPdf(BookingVoucherData voucher, byte[] voucherPdf, string email);
+
         Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins, SlimAgentContext agent);
 
         Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email);

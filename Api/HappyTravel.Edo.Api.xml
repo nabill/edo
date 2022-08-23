@@ -508,6 +508,14 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Voucher PDF document.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.SendBookingVoucherPdf(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
+            <summary>
+                Sends booking voucher pdf to an email.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <param name="sendMailRequest">Send mail request.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.ConfirmManually(System.Int32,HappyTravel.Edo.Api.Models.Management.ManualBookingConfirmationRequest)">
             <summary>
                 Confirm accommodation booking manually

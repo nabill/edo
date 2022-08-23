@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails);
         Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email);
+        Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments);
         Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments);
 
         Task<List<SlimNotification>> Get(SlimAgentContext agent, int skip, int top);

@@ -98,6 +98,10 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
             => await Send(agent, messageData, notificationType, new List<string> { email });
 
 
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments)
+            => await Send(new SlimAgentContext(agencyId: 0, agentId: 0), messageData, notificationType, new List<string> { email }, attachments);
+
+
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData,
             NotificationTypes notificationType, string email, List<MailAttachment> attachments)
             => await Send(agent, messageData, notificationType, new List<string> { email }, attachments);
