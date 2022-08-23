@@ -36,7 +36,7 @@
                 margin-top: 4px;
             }
             h1 {
-                margin: 10px 0 4px;
+                margin: 20px 0 4px;
                 font-weight: 700;
                 font-size: 18px;
             }
@@ -54,7 +54,7 @@
                 line-height: 9px;
             }
             .contacts {
-                margin-top: 10px;
+                margin-top: 4px;
             }
             .contacts div {
                 display: inline-block;
@@ -64,18 +64,18 @@
             .contacts img {
                 width: 9px;
                 height: 9px;
-                padding: 7px 0 9px;
-                margin-right: 3px;
+                padding: 7px 0 8px;
+                margin-right: 2px;
                 vertical-align: middle;
             }
             .main-values {
-                margin-top: 15px;
+                margin-top: 23px;
                 font-size: 0;
                 line-height: 0;
                 letter-spacing: 0;
             }
             .main-values .block {
-                width: 32%;
+                width: 35%;
                 margin-right: 2%;
                 box-sizing: border-box;
                 display: inline-block;
@@ -83,6 +83,7 @@
             }
             .main-values .block:last-child {
                 margin-right: 0;
+                width: 25%;
             }
             .main-values .value {
                 margin-top: 4px;
@@ -93,7 +94,7 @@
                 font-size: 10px;
             }
             .table {
-                margin-top: 25px;
+                margin-top: 28px;
                 width: 100%;
             }
             .table .wrapped {
@@ -134,13 +135,16 @@
                 padding: 12px 32px 12px 14px;
                 box-sizing: border-box;
             }
+            .table .td.th {
+                font-size: 9px;
+            }
             .title {
-                margin: 36px 0 15px;
+                margin: 36px 0 4px;
             }
             footer {
                 font-size: 8px;
                 font-weight: 400;
-                margin-top: 40px;
+                margin-top: 30px;
                 padding: 1em 0;
                 width: 100%;
                 color: #666666;
@@ -151,13 +155,13 @@
         <header>
             <div class="top-values">
                 <div class="block">
-                    <div class="label">Confirmation No</div>
+                    <div class="label">Confirmation Code</div>
                     <div class="value">@Model.ReferenceCode</div>
                 </div>
                 @if (!string.IsNullOrWhiteSpace(@Model.SupplierReferenceCode))
                 {
                 <div class="block">
-                    <div class="label">Hotel confirmation No</div>
+                    <div class="label">Hotel confirmation Code</div>
                     <div class="value">@Model.SupplierReferenceCode</div>
                 </div>
                 }
