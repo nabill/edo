@@ -414,16 +414,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task WriteAgentLog(MarkupPolicyEventType eventType)
             {
                 var agentInAgencyId = AgentInAgencyId.Create(policy.SubjectScopeId);
-                return _markupPolicyAuditService.Write(eventType, new AgentMarkupPolicyData(policy.Id, agentInAgencyId.AgentId, agentInAgencyId.AgencyId), administrator.ToApiCaller());
+                return _markupPolicyAuditService.Write(eventType,
+                    new AgentMarkupPolicyData(policy.Id, agentInAgencyId.AgentId, agentInAgencyId.AgencyId, policy.Value),
+                    administrator.ToApiCaller());
             }
 
 
             Task WriteAgencyLog(MarkupPolicyEventType eventType)
-                => _markupPolicyAuditService.Write(eventType, new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.SubjectScopeId)), administrator.ToApiCaller());
+                => _markupPolicyAuditService.Write(eventType,
+                    new AgencyMarkupPolicyData(policy.Id, int.Parse(policy.SubjectScopeId), policy.Value),
+                    administrator.ToApiCaller());
 
 
             Task WriteGlobalLog(MarkupPolicyEventType eventType)
-                => _markupPolicyAuditService.Write(eventType, new GlobalMarkupPolicyData(policy.Id), administrator.ToApiCaller());
+                => _markupPolicyAuditService.Write(eventType,
+                    new GlobalMarkupPolicyData(policy.Id, policy.Value),
+                    administrator.ToApiCaller());
         }
 
 
