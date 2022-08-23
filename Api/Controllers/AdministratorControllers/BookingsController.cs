@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Management;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Management;
@@ -19,6 +18,8 @@ using HappyTravel.Edo.Common.Enums.Administrators;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.OData.Query;
 using static HappyTravel.Edo.Api.Infrastructure.Constants.Common;
+using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Api.Models.Emailing;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -279,6 +280,20 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return File(document, "application/pdf");
         }
+
+
+        /// <summary>
+        ///     Sends booking voucher pdf to an email.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <param name="sendMailRequest">Send mail request.</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/voucher-pdf/send")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> SendBookingVoucherPdf([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
+            => NoContentOrBadRequest(await _bookingDocumentsService.SendVoucherPdf(bookingId, sendMailRequest.Email, LanguageCode));
 
 
         /// <summary>

@@ -20,6 +20,8 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         Task<Result> Send(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType);
         Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email);
         Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails);
+        Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails, List<MailAttachment> attachments);
+        Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments);
         Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<string> emails);
         Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType);
 

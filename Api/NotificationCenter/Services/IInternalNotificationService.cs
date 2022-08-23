@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
     {
         Task AddAdminNotification(SlimAdminContext admin, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
         Task AddAdminNotification(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);
+        Task AddAdminNotificationWithAttachments(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings, List<MailAttachment> attachments);
         Task AddAdminNotifications(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<RecipientWithSendingSettings> recipientsWithNotificationSettings);
 
         Task AddAgentNotification(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings);

@@ -88,6 +88,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
+        public async Task<Result> SendVoucherPdf(BookingVoucherData voucher, byte[] voucherPdf,
+            string email)
+        {
+            var voucherData = new SlimVoucherData
+            {
+                AccommodationName = voucher.Accommodation.Name,
+                ReferenceCode = voucher.ReferenceCode,
+                CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
+                CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate)
+            };
+
+            var attachment = new MailAttachment(voucherPdf,
+                "application/pdf",
+                $"Voucher_{voucher.Accommodation.Name}_{voucher.ReferenceCode}.pdf",
+                "attachment");
+
+            return await _notificationsService.Send(messageData: voucherData,
+                notificationType: NotificationTypes.BookingVoucherPdf,
+                email: email,
+                attachments: new List<MailAttachment> { attachment });
+        }
+
+
         public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins, SlimAgentContext agent)
         {
             return _documentsService.GetActualInvoice(booking)
