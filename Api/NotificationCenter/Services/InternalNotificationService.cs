@@ -68,6 +68,22 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task AddAdminNotificationWithAttachments(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType, Dictionary<ProtocolTypes, object> sendingSettings, List<MailAttachment> attachments)
+        {
+            var notification = new Notification
+            {
+                Receiver = ReceiverTypes.AdminPanel,
+                UserId = admin.AdminId,
+                AgencyId = null,
+                Message = JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes((object)messageData, new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+                Type = notificationType,
+                SendingSettings = sendingSettings
+            };
+
+            await SaveAndSend(notification, messageData, attachments);
+        }
+
+
         public async Task AddAdminNotifications(DataWithCompanyInfo messageData, NotificationTypes notificationType, List<RecipientWithSendingSettings> recipientsWithSendingSettings)
         {
             foreach (var recipient in recipientsWithSendingSettings)

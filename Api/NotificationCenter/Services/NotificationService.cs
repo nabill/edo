@@ -88,6 +88,17 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
         }
 
 
+        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments)
+            => await Send(new SlimAdminContext(adminId: 0), messageData, notificationType, new List<string> { email }, attachments);
+
+
+        public async Task<Result> Send(SlimAdminContext admin, DataWithCompanyInfo messageData, NotificationTypes notificationType,
+            List<string> emails, List<MailAttachment> attachments)
+            => await _notificationOptionsService.GetNotificationOptions(admin.AdminId, ApiCallerTypes.Admin, NoAgencyId, notificationType)
+                .Map(notificationOptions => BuildSettings(notificationOptions, emails))
+                .Tap(sendingSettings => _internalNotificationService.AddAdminNotificationWithAttachments(admin, messageData, notificationType, sendingSettings, attachments));
+
+
         public async Task<Result> Send(SlimAgentContext agent, JsonDocument message, NotificationTypes notificationType)
             => await _notificationOptionsService.GetNotificationOptions(agent.AgentId, ApiCallerTypes.Agent, agent.AgencyId, notificationType)
                 .Map(notificationOptions => BuildSettings(notificationOptions, null))
@@ -96,10 +107,6 @@ namespace HappyTravel.Edo.Api.NotificationCenter.Services
 
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData, NotificationTypes notificationType, string email)
             => await Send(agent, messageData, notificationType, new List<string> { email });
-
-
-        public async Task<Result> Send(DataWithCompanyInfo messageData, NotificationTypes notificationType, string email, List<MailAttachment> attachments)
-            => await Send(new SlimAgentContext(agencyId: 0, agentId: 0), messageData, notificationType, new List<string> { email }, attachments);
 
 
         public async Task<Result> Send(SlimAgentContext agent, DataWithCompanyInfo messageData,
