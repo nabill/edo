@@ -5,12 +5,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
 public static class CachedAccommodationAvailabilityResultExtensions
 {
-    public static AccommodationAvailabilityResult Map(this CachedAccommodationAvailabilityResult result, AccommodationBookingSettings searchSettings)
+    public static AccommodationAvailabilityResult MapWithApplySettings(this CachedAccommodationAvailabilityResult result, AccommodationBookingSettings searchSettings)
     {
         var roomContractSets = result.RoomContractSets
             .Select(r => r.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible))
             .ToList();
-        
+
         return new AccommodationAvailabilityResult(searchId: result.SearchId,
             supplierCode: result.SupplierCode,
             created: result.Created,
@@ -28,4 +28,24 @@ public static class CachedAccommodationAvailabilityResultExtensions
             marketId: result.MarketId,
             countryCode: result.CountryCode);
     }
+
+
+    public static AccommodationAvailabilityResult Map(this CachedAccommodationAvailabilityResult result)
+        => new AccommodationAvailabilityResult(searchId: result.SearchId,
+            supplierCode: result.SupplierCode,
+            created: result.Created,
+            availabilityId: result.AvailabilityId,
+            roomContractSets: result.RoomContractSets,
+            minPrice: result.MinPrice,
+            maxPrice: result.MaxPrice,
+            checkInDate: result.CheckInDate,
+            checkOutDate: result.CheckOutDate,
+            expiredAfter: result.ExpiredAfter,
+            htId: result.HtId,
+            supplierAccommodationCode: result.SupplierAccommodationCode,
+            countryHtId: result.CountryHtId,
+            localityHtId: result.LocalityHtId,
+            marketId: result.MarketId,
+            countryCode: result.CountryCode);
+
 }
