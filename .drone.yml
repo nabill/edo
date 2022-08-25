@@ -204,7 +204,7 @@ steps:
     chart: ./Helm/direct-api
     release: direct-api
     values_files: ["Helm/direct-api/values_prod.yaml"]
-    namespace: dev
+    namespace: production
     skip_tls_verify: true
     wait: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}-DIRECT-API
