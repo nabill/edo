@@ -171,52 +171,6 @@ steps:
     KUBE_TOKEN:
       from_secret: KUBERNETES_DEV_TOKEN
 
-- name: Build docker image Direct API prod & push to repository
-  image: plugins/docker
-  environment:
-    GITHUB_TOKEN:
-      from_secret: GITHUB_TOKEN
-    VAULT_TOKEN:
-      from_secret: VAULT_PROD_TOKEN
-    CONSUL_HTTP_TOKEN:
-      from_secret: CONSUL_PROD_HTTP_TOKEN
-  settings:
-    registry: registry.happytravel.com
-    repo: registry.happytravel.com/direct-api
-    dockerfile: Dockerfile.DirectApi
-    tags:
-      - ${DRONE_COMMIT_SHA:0:7}-DIRECT-API
-    force_tag: true
-    use_cache: true
-    username:
-      from_secret: TRAVEL_DOCKER_LOGIN
-    password:
-      from_secret: TRAVEL_DOCKER_PASSWORD
-    build_args_from_env:
-      - GITHUB_TOKEN
-      - VAULT_TOKEN
-      - CONSUL_HTTP_TOKEN
-     
-- name: Deploy DIRECT-API to PROD
-  image: pelotech/drone-helm3:0.14.2
-  settings:
-    mode: upgrade
-    chart: ./Helm/direct-api
-    release: direct-api
-    values_files: ["Helm/direct-api/values_prod.yaml"]
-    namespace: production
-    skip_tls_verify: true
-    wait: true
-    values: image.tag=${DRONE_COMMIT_SHA:0:7}-DIRECT-API
-  environment:
-    KUBE_API_SERVER:
-      from_secret: KUBERNETES_PROD_API
-    KUBE_TOKEN:
-      from_secret: KUBERNETES_PROD_TOKEN     
-
-
-
-
 - name: discord
   pull: always
   image: appleboy/drone-discord
@@ -306,6 +260,50 @@ steps:
       from_secret: KUBERNETES_PROD_API
     KUBE_TOKEN:
       from_secret: KUBERNETES_PROD_TOKEN
+      
+- name: Build docker image Direct API prod & push to repository
+  image: plugins/docker
+  environment:
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    VAULT_TOKEN:
+      from_secret: VAULT_PROD_TOKEN
+    CONSUL_HTTP_TOKEN:
+      from_secret: CONSUL_PROD_HTTP_TOKEN
+  settings:
+    registry: registry.happytravel.com
+    repo: registry.happytravel.com/direct-api
+    dockerfile: Dockerfile.DirectApi
+    tags:
+      - ${DRONE_COMMIT_SHA:0:7}-DIRECT-API
+    force_tag: true
+    use_cache: true
+    username:
+      from_secret: TRAVEL_DOCKER_LOGIN
+    password:
+      from_secret: TRAVEL_DOCKER_PASSWORD
+    build_args_from_env:
+      - GITHUB_TOKEN
+      - VAULT_TOKEN
+      - CONSUL_HTTP_TOKEN
+     
+- name: Deploy DIRECT-API to PROD
+  image: pelotech/drone-helm3:0.14.2
+  settings:
+    mode: upgrade
+    chart: ./Helm/direct-api
+    release: direct-api
+    values_files: ["Helm/direct-api/values_prod.yaml"]
+    namespace: production
+    skip_tls_verify: true
+    wait: true
+    values: image.tag=${DRONE_COMMIT_SHA:0:7}-DIRECT-API
+  environment:
+    KUBE_API_SERVER:
+      from_secret: KUBERNETES_PROD_API
+    KUBE_TOKEN:
+      from_secret: KUBERNETES_PROD_TOKEN     
+      
 
 - name: discord
   pull: always
