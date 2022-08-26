@@ -39,9 +39,9 @@ service:
   type: ClusterIP
   port: 80
   metrics:
-    port: 60000
-  healthchecks:
     port: 60001
+  healthchecks:
+    port: 60000
 
 ingress:
   enabled: true
