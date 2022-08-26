@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var results = await cursor.ToListAsync();
 
             return results
-                .Select(r => r.Map(searchSettings))
+                .Select(r => r.Map())
                 .GroupBy(r => r.SupplierCode)
                 .Select(g => (g.Key, g.ToList()))
                 .ToList();
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
-            return results.Select(a => a.Map(searchSettings)).ToList();
+            return results.Select(a => a.MapWithApplySettings(searchSettings)).ToList();
         }
 
 
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var cursor = await _availabilityStorage.Collection().FindAsync(filter, options);
             var results = await cursor.ToListAsync();
 
-            return results.Select(r => r.Map(searchSettings))
+            return results.Select(r => r.MapWithApplySettings(searchSettings))
                 .ToList();
         }
 
