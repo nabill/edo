@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (_secondStepSettings.CurrentValue.RestartFirstStepIfCacheExpired && failedSuppliers.Any())
             {
                 await RestartWideAvailabilitySearch(searchId, htId, failedSuppliers);
-                
+
                 // need to get fresh selected results, because availabilityIds were changed on connectors
                 var refreshedSelectedResults = await GetSelectedWideAvailabilityResults(searchId, htId);
                 if (refreshedSelectedResults.IsFailure)
@@ -131,16 +131,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     successfulTasks = successfulTasks.Append(task);
                 }
             }
-            
+
 
             return successfulTasks
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value.Availability)
-                .SelectMany(MapToRoomContractSets)
+                .SelectMany(sa => sa.RoomContractSets)
                 .Where(SettingsFilter)
                 .OrderByDescending(r => r.IsDirectContract)
                 .ThenBy(r => r.Rate.FinalPrice.Amount)
+                .Select(rs => rs.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible))
                 .ToList();
 
 
@@ -161,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                         errorMessage += $", search failure code '{failureCode}' was returned";
 
                     _logger.LogConnectorRequestFailedOnSecondStep(errorMessage);
-                        
+
                     if (failureCode is SearchFailureCodes.AvailabilityNotFound)
                         failedSuppliers.Add(supplierCode);
                 }
@@ -198,13 +199,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 }
 
                 return results.ToList();
-            }
-
-
-            IEnumerable<RoomContractSet> MapToRoomContractSets(SingleAccommodationAvailability accommodationAvailability)
-            {
-                return accommodationAvailability.RoomContractSets
-                    .Select(rs => rs.ApplySearchSettings(searchSettings.IsSupplierVisible, searchSettings.IsDirectContractFlagVisible));
             }
 
 
