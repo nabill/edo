@@ -271,7 +271,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpGet("accommodations/bookings/{bookingId}/voucher-pdf")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement | AdministratorPermissions.ViewPaxNames)]
         public async Task<IActionResult> GetBookingVoucherPdf(int bookingId)
         {
             var (_, isFailure, document, error) = await _bookingDocumentsService.GenerateVoucherPdf(bookingId, LanguageCode);
@@ -291,7 +291,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("accommodations/bookings/{bookingId}/voucher-pdf/send")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement | AdministratorPermissions.ViewPaxNames)]
         public async Task<IActionResult> SendBookingVoucherPdf([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
             => NoContentOrBadRequest(await _bookingDocumentsService.SendVoucherPdf(bookingId, sendMailRequest.Email, LanguageCode));
 
