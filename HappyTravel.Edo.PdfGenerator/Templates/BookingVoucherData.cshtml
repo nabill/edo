@@ -258,7 +258,7 @@
                     <div>@remark.Key : @remark.Value</div>
                 }
             }
-            <br /><br />
+            <br />
             @if(Model.SpecialValues != null)
             {
                 @foreach (var specialValues in Model.SpecialValues)
@@ -270,14 +270,12 @@
                             acting as agent for the service operating company,<br /> details of which can be provided
                             upon request.
                         </div>
-                        <br />
                     }
                     @if(specialValues.Key == "VatNumber")
                     {
                         <div>                
                             VAT: @specialValues.Value
-                        </div>                    
-                        <br/>
+                        </div>
                     }
                 }
             }
