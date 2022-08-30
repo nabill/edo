@@ -82,7 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             var agent = await _agentContextService.GetAgent();
             return await GetBooking(referenceCode)
                 .Ensure(IsBookingPaid, "Failed to pay for booking")
-                .Tap(UpdateBookingInfo)
+                .Map(UpdateBookingInfo)
+                .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Tap(SendReceipt);
 
@@ -111,26 +112,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             }
 
 
-            async Task UpdateBookingInfo(Booking booking)
+            async Task<Booking> UpdateBookingInfo(Booking booking)
             {
                 booking.TotalPrice = booking.CreditCardPrice;
                 await _bookingRecordManager.Update(booking);
-
-                var invoices = await _invoiceService.GetInvoices(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode);
-
-                if (invoices != default)
-                {
-                    foreach (var invoice in invoices)
-                    {
-                        var bookingInfo = _serializer.DeserializeObject<BookingInvoiceData>(invoice.Data!);
-                        bookingInfo = new BookingInvoiceData(new MoneyAmount(booking.TotalPrice, booking.Currency), bookingInfo);
-
-                        invoice.Data = _serializer.SerializeObject(bookingInfo);
-                    }
-
-                    await _invoiceService.Update(invoices);
-                }
+                return booking;
             }
+
+
+            Task<Result> GenerateInvoice(Booking booking)
+                => _documentsService.GenerateInvoice(booking);
         }
 
 
