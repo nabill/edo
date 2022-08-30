@@ -216,7 +216,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             foreach (var supplierCode in searchSettings.EnabledConnectors)
             {
                 var (_, isFailure, supplier, _) = _supplierOptionsStorage.Get(supplierCode);
-                if (isFailure || !accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings))
+                if (isFailure 
+                    || !accommodationCodes.TryGetValue(supplier.Code, out var supplierCodeMappings) 
+                    || (!supplier.IsMultiRoomFlowSupported && request.RoomDetails.Count > 1))
                 {
                     await _stateStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier.Code);
                     continue;
