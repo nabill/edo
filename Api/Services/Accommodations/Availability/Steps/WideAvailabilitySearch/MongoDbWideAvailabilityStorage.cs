@@ -185,6 +185,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
+        public Task ClearByHtId(string supplierCode, Guid searchId, string htId)
+        {
+            var filterBuilder = Builders<CachedAccommodationAvailabilityResult>.Filter;
+
+            var filter = filterBuilder.And(new[]
+            {
+                filterBuilder.Eq(x => x.HtId, htId),
+                GetSearchIdSupplierFilterDefinition(searchId, supplierCode)
+            });
+
+            return _availabilityStorage.Collection().DeleteManyAsync(filter);
+        }
+
+
         private async Task<List<string>> GetAccommodationRatings(List<string> htIds, List<AccommodationRatings> ratings)
             => await _mapperClient.FilterHtIdsByRating(htIds, ratings);
 
