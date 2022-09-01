@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         Task<Guid> GetSearchId(string requestHash);
 
         Task Clear(string supplierCode, Guid searchId);
+
         Task ClearByHtId(string supplierCode, Guid searchId, string htId);
     }
 }
