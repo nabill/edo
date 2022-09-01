@@ -99,8 +99,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 {
                     sort = filters.Direction switch
                     {
-                        "asc" => sort.Ascending(x => x.MinPrice),
-                        "desc" => sort.Descending(x => x.MinPrice),
+                        "asc" => sortBuilder.Ascending(x => x.MinPrice),
+                        "desc" => sortBuilder.Descending(x => x.MinPrice),
                         _ => sort
                     };
                 }

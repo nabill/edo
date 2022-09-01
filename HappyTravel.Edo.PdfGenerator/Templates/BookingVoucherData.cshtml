@@ -69,7 +69,7 @@
                 vertical-align: middle;
             }
             .main-values {
-                margin-top: 23px;
+                margin-top: 20px;
                 font-size: 0;
                 line-height: 0;
                 letter-spacing: 0;
@@ -94,7 +94,7 @@
                 font-size: 10px;
             }
             .table {
-                margin-top: 28px;
+                margin-top: 48px;
                 width: 100%;
             }
             .table .wrapped {
@@ -139,12 +139,12 @@
                 font-size: 9px;
             }
             .title {
-                margin: 36px 0 4px;
+                margin: 46px 0 6px;
             }
             footer {
                 font-size: 8px;
                 font-weight: 400;
-                margin-top: 30px;
+                margin-top: 36px;
                 padding: 1em 0;
                 width: 100%;
                 color: #666666;
@@ -155,13 +155,13 @@
         <header>
             <div class="top-values">
                 <div class="block">
-                    <div class="label">Confirmation Code</div>
+                    <div class="label">Confirmation</div>
                     <div class="value">@Model.ReferenceCode</div>
                 </div>
                 @if (!string.IsNullOrWhiteSpace(@Model.SupplierReferenceCode))
                 {
                 <div class="block">
-                    <div class="label">Hotel confirmation Code</div>
+                    <div class="label">Hotel confirmation</div>
                     <div class="value">@Model.SupplierReferenceCode</div>
                 </div>
                 }
@@ -256,6 +256,27 @@
                 @foreach (var remark in room.Remarks)
                 {
                     <div>@remark.Key : @remark.Value</div>
+                }
+            }
+            <br />
+            @if(Model.SpecialValues != null)
+            {
+                @foreach (var specialValues in Model.SpecialValues)
+                {
+                    @if(specialValues.Key == "Supplier")
+                    {
+                        <div>
+                            Payable through @specialValues.Value,
+                            acting as agent for the service operating company,<br /> details of which can be provided
+                            upon request.
+                        </div>
+                    }
+                    @if(specialValues.Key == "VatNumber")
+                    {
+                        <div>                
+                            VAT: @specialValues.Value
+                        </div>
+                    }
                 }
             }
         </div>
