@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         Task<List<AccommodationAvailabilityResult>> GetResults(string supplierCode, Guid searchId, AccommodationBookingSettings searchSettings);
 
         Task<List<AccommodationAvailabilityResult>> GetFilteredResults(
-            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers, 
+            Guid searchId, AvailabilitySearchFilter? filters, AccommodationBookingSettings searchSettings, List<string> suppliers,
             bool needFilterNonDirectContracts = false, List<string>? directContractSuppliersCodes = null);
 
         Task SaveResults(List<AccommodationAvailabilityResult> results, bool isDirectContract, string requestHash);
@@ -20,5 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         Task<Guid> GetSearchId(string requestHash);
 
         Task Clear(string supplierCode, Guid searchId);
+        Task ClearByHtId(string supplierCode, Guid searchId, string htId);
     }
 }

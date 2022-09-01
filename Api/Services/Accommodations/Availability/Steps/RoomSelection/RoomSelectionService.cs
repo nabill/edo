@@ -235,7 +235,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 }
 
                 // clear storage from failed data before starting a new search
-                await _wideAvailabilityStorage.Clear(supplierCode, searchId);
+                await _wideAvailabilityStorage.ClearByHtId(supplierCode, searchId, htId);
                 await StartSearchTask(supplier, supplierCodeMappings);
             }
 
