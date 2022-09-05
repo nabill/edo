@@ -98,6 +98,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
+                var defaultCurrency = Currencies.USD;
+                var (_, isInfoFailure, companyInfo) = await _companyInfoService.Get();
+                if (!isInfoFailure)
+                    defaultCurrency = companyInfo.DefaultCurrency;
+
                 if (Equals(settings, default))
                 {
                     _context.Add(new AgencySystemSettings
@@ -111,7 +116,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                                 ? PassedDeadlineOffersMode.CardAndAccountPurchases
                                 : PassedDeadlineOffersMode.Hide,
                             CustomDeadlineShift = 0,
-                            AvailableCurrencies = request.AvailableCurrencies ?? new List<Currencies>(0)
+                            AvailableCurrencies = request.AvailableCurrencies ?? new List<Currencies> { defaultCurrency }
                         },
                         AgencyId = agencyId
                     });
@@ -127,7 +132,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                                 : PassedDeadlineOffersMode.Hide;
                     settings.AccommodationBookingSettings.CustomDeadlineShift ??= 0;
                     settings.AccommodationBookingSettings.AvailableCurrencies = request.AvailableCurrencies
-                        ?? settings.AccommodationBookingSettings.AvailableCurrencies;
+                        ?? new List<Currencies> { defaultCurrency };
 
                     _context.Update(settings);
                 }
