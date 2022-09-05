@@ -62,23 +62,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<AgencyAccount> CreateAccount()
             {
-                var defaultCurrency = Currencies.USD;
-                var (_, isFailure, companyInfo) = await _companyInfoService.Get();
-                if (!isFailure)
-                    defaultCurrency = companyInfo.DefaultCurrency;
-
                 var account = new AgencyAccount
                 {
                     Balance = 0,
                     AgencyId = agency.Id,
-                    Currency = defaultCurrency,
+                    Currency = currency,
                     Created = _dateTimeProvider.UtcNow()
                 };
                 _context.AgencyAccounts.Add(account);
                 _context.AgencyMarkupBonusesAccounts.Add(new AgencyMarkupBonusesAccount
                 {
                     AgencyId = agency.Id,
-                    Currency = defaultCurrency,
+                    Currency = currency,
                     Balance = 0
                 });
                 await _context.SaveChangesAsync();

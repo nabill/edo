@@ -55,13 +55,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 => AgencyValidator.Validate(registrationAgencyInfo);
 
 
-            Task<Result<AgencyInfo>> CreateRootAgency() 
+            Task<Result<AgencyInfo>> CreateRootAgency()
                 => _agencyService.Create(registrationAgencyInfo, parentAgencyId: null);
 
 
             async Task<Result<(AgencyInfo, Agent)>> CreateAgent(AgencyInfo agency)
             {
-                var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email);
+                var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email, agency.PreferredCurrency);
                 return isFailure
                     ? Result.Failure<(AgencyInfo, Agent)>(error)
                     : Result.Success((agency, agent));
@@ -71,10 +71,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task AddMasterAgentAgencyRelation((AgencyInfo agency, Agent agent) agencyAgentInfo)
             {
                 var (agency, agent) = agencyAgentInfo;
-                
+
                 // assign all roles to master agent
                 var roleIds = await _context.AgentRoles.Select(x => x.Id).ToArrayAsync();
-                
+
                 await AddAgentAgencyRelation(agent,
                     AgentAgencyRelationTypes.Master,
                     agency.Id.Value,
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return _context.SaveChangesAsync();
         }
 
-        
+
         private readonly EdoContext _context;
         private readonly IAgentService _agentService;
         private readonly ILogger<AgentRegistrationService> _logger;

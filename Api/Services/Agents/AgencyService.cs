@@ -48,21 +48,22 @@ namespace HappyTravel.Edo.Api.Services.Agents
             if (isFailure)
                 return Result.Failure<AgencyInfo>(error);
 
-            if (parentAgencyId is not null)
-            {
-                var parentAncestors = await _context.Agencies
-                    .Where(a => a.Id == parentAgencyId.Value)
-                    .Select(a => a.Ancestors ?? new List<int>(0))
-                    .SingleAsync();
-
-                ancestors.AddRange(parentAncestors);
-                ancestors.Add(parentAgencyId.Value);
-            }
-
             var defaultCurrency = Currencies.USD;
             var (_, isInfoFailure, companyInfo) = await _companyInfoService.Get();
             if (!isInfoFailure)
                 defaultCurrency = companyInfo.DefaultCurrency;
+
+            if (parentAgencyId is not null)
+            {
+                var parentAgency = await _context.Agencies
+                    .Where(a => a.Id == parentAgencyId.Value)
+                    .SingleAsync();
+
+                defaultCurrency = parentAgency?.PreferredCurrency ?? defaultCurrency;
+
+                ancestors.AddRange(parentAgency?.Ancestors ?? new List<int>(0));
+                ancestors.Add(parentAgencyId.Value);
+            }
 
             var now = _dateTimeProvider.UtcNow();
             var agency = new Agency

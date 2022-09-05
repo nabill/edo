@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEval
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using IdentityModel;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration,
             string externalIdentity,
-            string email)
+            string email,
+            Currencies preferredCurrency)
         {
             var (_, isFailure, error) = await Validate(agentRegistration, externalIdentity);
             if (isFailure)
@@ -42,7 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 Position = agentRegistration.Position,
                 Email = email,
                 IdentityHash = HashGenerator.ComputeSha256(externalIdentity),
-                Created = _dateTimeProvider.UtcNow()
+                Created = _dateTimeProvider.UtcNow(),
+                PreferredCurrency = preferredCurrency
             };
 
             _context.Agents.Add(createdAgent);
@@ -82,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public  IQueryable<SlimAgentInfo> GetAgents(AgentContext agentContext)
+        public IQueryable<SlimAgentInfo> GetAgents(AgentContext agentContext)
         {
             var relations = _context.AgentAgencyRelations
                 .Where(r => r.AgencyId == agentContext.AgencyId);
@@ -126,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     join agency in _context.Agencies
                         on cr.AgencyId equals agency.Id
                     where cr.AgencyId == agentContext.AgencyId && cr.AgentId == agentId
-                    select (AgentInfoInAgency?) new AgentInfoInAgency(
+                    select (AgentInfoInAgency?)new AgentInfoInAgency(
                         agent.Id,
                         agent.FirstName,
                         agent.LastName,
@@ -173,10 +176,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 InAgencyPermissions.AgentInvitation |
                 InAgencyPermissions.PermissionManagement |
                 InAgencyPermissions.ObserveAgents;
-                
+
             switch (agencyVerificationState)
             {
-                case AgencyVerificationStates.DeclinedVerification: 
+                case AgencyVerificationStates.DeclinedVerification:
                 case AgencyVerificationStates.PendingVerification:
                     return new List<InAgencyPermissions>(0);
                 case AgencyVerificationStates.ReadOnly:
@@ -200,14 +203,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             if (roleIds == null || roleIds.Length == 0)
                 return 0;
-            
+
             return roles
                 .Where(x => roleIds.Contains(x.Id))
                 .Select(x => x.Permissions)
                 .Aggregate((a, b) => a | b);
         }
-        
-        
+
+
         private async ValueTask<Result> Validate(UserDescriptionInfo agentRegistration, string externalIdentity)
         {
             var fieldValidateResult = GenericValidator<UserDescriptionInfo>.Validate(v =>
