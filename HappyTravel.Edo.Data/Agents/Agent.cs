@@ -1,4 +1,5 @@
 using System;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
 {
@@ -13,6 +14,7 @@ namespace HappyTravel.Edo.Data.Agents
         public string IdentityHash { get; set; } = string.Empty;
         public string? AppSettings { get; set; }
         public string? UserSettings { get; set; }
+        public Currencies PreferredCurrency { get; set; }
         public DateTimeOffset Created { get; set; }
     }
 }

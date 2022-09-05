@@ -465,6 +465,7 @@ namespace HappyTravel.Edo.Data
                 agent.Property(a => a.LastName).IsRequired();
                 agent.Property(a => a.FirstName).IsRequired();
                 agent.Property(a => a.Position).IsRequired();
+                agent.Property(a => a.PreferredCurrency).IsRequired();
                 agent.Property(a => a.IdentityHash).IsRequired();
                 agent.Property(a => a.AppSettings).HasColumnType("jsonb");
                 agent.Property(a => a.UserSettings).HasColumnType("jsonb");
