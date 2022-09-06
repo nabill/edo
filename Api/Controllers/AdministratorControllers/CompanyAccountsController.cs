@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Company;
 using Api.AdministratorServices;
+using CSharpFunctionalExtensions;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -47,6 +49,24 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
         public async Task<IActionResult> UpdateCompanyInfo([FromBody] CompanyInfo companyInfo)
             => NoContentOrBadRequest(await _companyInfoService.Update(companyInfo));
+
+
+        /// <summary>
+        /// Gets the company available currencies.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("company/available-currencies")]
+        [ProducesResponseType(typeof(List<Currencies>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyAccountManagement)]
+        public async Task<IActionResult> GetCompanyAvailableCurrencies()
+        {
+            var (_, isFailure, companyInfo, error) = await _companyInfoService.Get();
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(companyInfo.AvailableCurrencies);
+        }
 
 
         /// <summary>
