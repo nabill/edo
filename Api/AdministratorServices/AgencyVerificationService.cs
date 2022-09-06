@@ -51,7 +51,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, request.Reason))
                 .Tap(SetContractKind)
-                .Tap(SetAgencySystemSettings)
+                .Map(SetAgencySystemSettings)
+                .TapIf(request.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments, CreateAccountsIfNeeded)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, request.Reason, AgencyVerificationStates.FullAccess));
 
 
@@ -96,7 +97,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SetAgencySystemSettings(Agency agency)
+            async Task<(AgencySystemSettings, Agency)> SetAgencySystemSettings(Agency agency)
             {
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
@@ -108,7 +109,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 if (Equals(settings, default))
                 {
-                    _context.Add(new AgencySystemSettings
+                    settings = new AgencySystemSettings
                     {
                         AccommodationBookingSettings = new AgencyAccommodationBookingSettings
                         {
@@ -122,7 +123,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                             AvailableCurrencies = request.AvailableCurrencies ?? new List<Currencies> { defaultCurrency }
                         },
                         AgencyId = agencyId
-                    });
+                    };
+                    _context.Add(settings);
                 }
                 else
                 {
@@ -141,7 +143,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 }
 
                 await _context.SaveChangesAsync();
+                return (settings, agency);
             }
+
+
+            void CreateAccountsIfNeeded((AgencySystemSettings settings, Agency agency) result)
+                => result.settings.AccommodationBookingSettings!.AvailableCurrencies.ForEach(async currency
+                    => await _accountManagementService.CreateForAgency(result.agency, currency));
         }
 
 
