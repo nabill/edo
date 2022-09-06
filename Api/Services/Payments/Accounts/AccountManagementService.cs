@@ -42,17 +42,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> CreateForAgency(Agency agency, Currencies currency)
         {
-            return await CheckAgencyVerified()
+            return await Validate()
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            async Task<Result> CheckAgencyVerified()
+            async Task<Result> Validate()
             {
                 var (_, isFailure, verificationState, error) = await _adminAgencyManagementService.GetVerificationState(agency.Id);
                 if (isFailure)
                     return Result.Failure(error);
+
+                var (_, isAccountFailure, existingAccount, accountError) = await Get(agency.Id, currency);
+                if (existingAccount != default)
+                    return Result.Failure($"Account have been already created with currency {currency} for agency {agency.Id}");
+
 
                 return new[] { AgencyVerificationStates.ReadOnly, AgencyVerificationStates.FullAccess }.Contains(verificationState)
                     ? Result.Success()
