@@ -71,12 +71,15 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                         v.RuleFor(r => r.AvailableCurrencies)
                             .NotEmpty()
-                            .Must(ac => !ac!.Except(availableCurrencies).Any())
-                            .WithMessage($"Request's availability currencies contain not allowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}")
                             .When(r => r.ContractKind == ContractKind.OfflineOrCreditCardPayments
                                 || r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments, ApplyConditionTo.CurrentValidator)
                             .Empty()
                             .When(r => r.ContractKind == ContractKind.CreditCardPayments, ApplyConditionTo.CurrentValidator);
+
+                        v.RuleFor(r => r.AvailableCurrencies)
+                            .Must(ac => !ac!.Except(availableCurrencies).Any())
+                            .WithMessage($"Request's availability currencies contain not allowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}")
+                            .When(r => r.AvailableCurrencies != default);
 
                         v.RuleFor(r => r.ContractKind)
                             .NotEmpty();
