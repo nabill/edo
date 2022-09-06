@@ -549,6 +549,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyAvailableCurrencies">
+            <summary>
+            Gets the company available currencies.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CompanyAccountsController.GetCompanyBanks">
             <summary>
                 Gets company banks list
