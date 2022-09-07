@@ -108,7 +108,7 @@ metrics:
 
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
-  HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
+  HTDC_VAULT_ENDPOINT: "https://vault.happytravel.tech/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://2e03df28b8d647fb823ffda8569866c5@sentry.happytravel.tech/7"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
