@@ -51,8 +51,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             var availableCurrencies = new List<Currencies>();
             var (_, isCompanyInfoFailure, companyInfo) = await _companyInfoService.Get();
-            if (!isCompanyInfoFailure)
-                availableCurrencies = companyInfo.AvailableCurrencies;
+            if (agency?.ParentId is not null)
+            {
+                var parentSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agency.ParentId);
+                availableCurrencies = parentSettings?.AccommodationBookingSettings?.AvailableCurrencies ?? new List<Currencies>();
+            }
+            else
+            {
+                if (!isCompanyInfoFailure)
+                    availableCurrencies = companyInfo.AvailableCurrencies;
+            }
 
             return await Validate()
                 .BindWithTransaction(_context, () => SetSettings()
