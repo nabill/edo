@@ -46,6 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Reports.RecordManagers
                               GuestName = booking.MainPassengerName,
                               ArrivalDate = booking.CheckInDate.DateTime,
                               DepartureDate = booking.CheckOutDate.DateTime,
+                              DeadlineDate = booking.DeadlineDate?.DateTime,
                               BookingAmount = booking.TotalPrice,
                               OriginalAmount = order.Price,
                               OriginalCurrency = order.Currency,
