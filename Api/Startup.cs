@@ -94,8 +94,7 @@ namespace HappyTravel.Edo.Api
                         ? Configuration.GetValue<int>("Jaeger:AgentPort")
                         : Configuration.GetValue<int>(Configuration.GetValue<string>("Jaeger:AgentPort"));
                     options.RedisEndpoint = Configuration.GetValue<string>(Configuration.GetValue<string>("Redis:Endpoint"));
-                })
-                .AddUserEventLogging(Configuration, vaultClient);
+                });
             
             var authorityOptions = Configuration.GetSection("Authority").Get<AuthorityOptions>();
 
