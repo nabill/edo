@@ -61,7 +61,6 @@ using Polly;
 using Polly.Extensions.Http;
 using Amazon;
 using Amazon.S3;
-using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices.Invitations;
@@ -802,23 +801,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, ServiceLifetime.Singleton);
 
             return services;
-        }
-
-
-        public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration,
-            VaultClient.VaultClient vaultClient)
-        {
-            var elasticOptions = vaultClient.Get(configuration["UserEvents:ElasticSearch"]).GetAwaiter().GetResult();
-            return services.AddSingleton<IElasticLowLevelClient>(provider =>
-            {
-                var settings = new ConnectionConfiguration(new Uri(elasticOptions["endpoint"]))
-                    .BasicAuthentication(elasticOptions["username"], elasticOptions["password"])
-                    .ServerCertificateValidationCallback((o, certificate, chain, errors) => true)
-                    .ClientCertificate(new X509Certificate2(Convert.FromBase64String(elasticOptions["certificate"])));
-                var client = new ElasticLowLevelClient(settings);
-
-                return client;
-            });
         }
 
 
