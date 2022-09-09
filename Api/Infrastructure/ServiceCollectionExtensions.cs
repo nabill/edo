@@ -507,7 +507,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IOfflinePaymentAuditService, OfflinePaymentAuditService>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
-            services.AddTransient<IAccountManagementTransitionalService, AccountManagementTransitionalService>();
             services.AddTransient<IAdministratorService, AdministratorService>();
             services.AddTransient<IAdministratorRolesManagementService, AdministratorRolesManagementService>();
             services.AddTransient<IAdministratorManagementService, AdministratorManagementService>();

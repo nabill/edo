@@ -229,7 +229,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts
             => new BalanceManagementNotificationsService(
                 _notificationServiceMock.Object,
                 new BalanceNotificationsManagementService(_mockedEdoContext),
-                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IAccountManagementTransitionalService>(), Mock.Of<ICompanyInfoService>(),
+                new AdminAgencyManagementService(_mockedEdoContext, Mock.Of<IAccountManagementService>(), Mock.Of<ICompanyInfoService>(),
                     Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>())
             );
 
