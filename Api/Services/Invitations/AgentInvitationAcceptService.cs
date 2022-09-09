@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Invitations;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Invitations;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -44,8 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 .Bind(Validate)
                 .BindWithTransaction(_context, values => Result.Success(values)
                     .Tap(SaveAccepted)
-                    .Bind(CreateAgent)
                     .Bind(GetOrCreateAgency)
+                    .Bind(CreateAgent)
                     .Tap(AddAgentAgencyRelation))
                 .Tap(LogSuccess)
                 .Tap(SendRegistrationMailToMaster)
@@ -103,7 +104,8 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<Result<AcceptPipeValues>> CreateAgent(AcceptPipeValues values)
             {
-                var (_, isFailure, agent, error) = await _agentService.Add(values.InvitationData.UserRegistrationInfo, identity, email);
+                var (_, isFailure, agent, error) = await _agentService
+                    .Add(values.InvitationData.UserRegistrationInfo, identity, email, values.Agency.PreferredCurrency);
 
                 if (isFailure)
                     return Result.Failure<AcceptPipeValues>(error);
@@ -115,19 +117,19 @@ namespace HappyTravel.Edo.Api.Services.Invitations
 
             async Task<Result<AcceptPipeValues>> GetOrCreateAgency(AcceptPipeValues values)
             {
+                var (_, isGetAgencyFailure, inviterAgency, agencyError) =
+                    await _agencyManagementService.Get(values.Invitation.InviterAgencyId.Value);
+                if (isGetAgencyFailure)
+                    return Result.Failure<AcceptPipeValues>(agencyError);
+
                 if (values.Invitation.InvitationType == UserInvitationTypes.Agent)
                 {
-                    values.AgencyId = values.Invitation.InviterAgencyId.Value;
+                    values.Agency = inviterAgency;
                     values.RelationType = AgentAgencyRelationTypes.Regular;
                     values.NotificationType = NotificationTypes.AgentSuccessfulRegistration;
 
                     return values;
                 }
-
-                var (_, isGetAgencyFailure, inviterAgency, agencyError) =
-                    await _agencyManagementService.Get(values.Invitation.InviterAgencyId.Value);
-                if (isGetAgencyFailure)
-                    return Result.Failure<AcceptPipeValues>(agencyError);
 
                 var (_, isValidationFailure, validationError) = AgencyValidator.Validate(values.InvitationData.ChildAgencyRegistrationInfo);
                 if (isValidationFailure)
@@ -144,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                 await _accountManagementService.CreateForAgency(childAgencyRecord, childAgencyRecord.PreferredCurrency);
 
                 values.AgencyName = childAgency.Name;
-                values.AgencyId = childAgency.Id.Value;
+                values.Agency = childAgency;
                 values.RelationType = AgentAgencyRelationTypes.Master;
                 values.NotificationType = NotificationTypes.ChildAgencySuccessfulRegistration;
 
@@ -159,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
                     AgentId = values.Agent.Id,
                     Type = values.RelationType,
                     AgentRoleIds = values.AgentRoleIds,
-                    AgencyId = values.AgencyId,
+                    AgencyId = values.Agency.Id!.Value,
                     IsActive = true
                 });
 
@@ -218,7 +220,7 @@ namespace HappyTravel.Edo.Api.Services.Invitations
             public UserInvitation Invitation { get; set; }
             public UserInvitationData InvitationData { get; set; }
             public Agent Agent { get; set; }
-            public int AgencyId { get; set; }
+            public AgencyInfo Agency { get; set; }
             public string AgencyName { get; set; }
             public int[] AgentRoleIds { get; set; }
             public AgentAgencyRelationTypes RelationType { get; set; }

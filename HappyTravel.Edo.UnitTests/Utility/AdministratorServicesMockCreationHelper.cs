@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Api.AdministratorServices;
 using Api.Infrastructure.Options;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.NotificationCenter.Services;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -13,6 +15,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Edo.Data.StaticData;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using HappyTravel.MultiLanguage;
@@ -38,13 +41,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
             edoContextMock.Setup(x => x.AgencyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_agencyAccounts));
             edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
             edoContextMock.Setup(x => x.DisplayMarkupFormulas).Returns(DbSetMockProvider.GetDbSetMock(new List<DisplayMarkupFormula>()));
+            edoContextMock.Setup(x => x.AgencySystemSettings).Returns(DbSetMockProvider.GetDbSetMock(new List<AgencySystemSettings>()));
+            edoContextMock.Setup(x => x.StaticData).Returns(DbSetMockProvider.GetDbSetMock(_staticData));
 
             return edoContextMock;
         }
 
 
         public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
-            => new(context, Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>());
+            => new(context, Mock.Of<IAccountManagementService>(), Mock.Of<ICompanyInfoService>(), Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>());
 
 
         public AgencyVerificationService GetAgencyVerificationService(EdoContext context)
@@ -62,14 +67,39 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 });
 
             var agentService = new Api.Services.Agents.AgentService(context, Mock.Of<IDateTimeProvider>());
+            var companyInfoService = new CompanyInfoService(context, new FakeDoubleFlow());
 
             return new AgencyVerificationService(context,
                 accountManagementServiceMock.Object,
                 Mock.Of<IManagementAuditService>(),
                 Mock.Of<INotificationService>(),
                 new DefaultDateTimeProvider(),
-                agentService);
+                agentService,
+                companyInfoService);
         }
+
+        private readonly List<StaticData> _staticData = new List<StaticData>
+        {
+            new StaticData {
+                Type = StaticDataTypes.CompanyInfo,
+                Data = JsonDocument.Parse(JsonSerializer.Serialize(
+                    new CompanyInfo
+                    {
+                        Address = "B105, Saraya Avenue building",
+                        City = "Dubai",
+                        Country = "United Arab Emirates",
+                        Email = "Test",
+                        Name = "HappyTravelDotCom Travel and Tourism LLC Test",
+                        Phone = "Test phone",
+                        PostalCode = "Test postal code",
+                        TradeLicense = "Test trade license",
+                        Trn = "Test Trn",
+                        AvailableCurrencies = new List<Currencies>{Currencies.USD, Currencies.AED, Currencies.EUR, Currencies.CNY, Currencies.GBP},
+                        DefaultCurrency = Currencies.USD
+                    }
+                ))
+            }
+        };
 
         private readonly List<AgencyAccount> _agencyAccounts = new List<AgencyAccount>
         {

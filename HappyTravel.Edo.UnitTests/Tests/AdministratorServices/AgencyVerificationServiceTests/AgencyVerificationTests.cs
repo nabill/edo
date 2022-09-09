@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.UnitTests.Utility;
+using HappyTravel.Money.Enums;
 using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificationServiceTests
@@ -24,9 +25,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
+            var availableCurrencies = new List<Currencies>() { Currencies.USD };
 
             var (_, isFailure, error) = await agencyVerificationService
-                .VerifyAsFullyAccessed(7, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+                .VerifyAsFullyAccessed(7, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null, availableCurrencies));
 
             Assert.True(isFailure);
         }
@@ -49,9 +51,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
+            var availableCurrencies = new List<Currencies>() { Currencies.USD };
 
-            var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+            var (_, isFailure, error) = await agencyVerificationService
+                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null, availableCurrencies));
 
             var agency = context.Agencies.Single(c => c.Id == 20);
             Assert.False(isFailure);
@@ -64,9 +67,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
+            var availableCurrencies = new List<Currencies>() { Currencies.USD };
 
-            var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(3, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null));
+            var (_, isFailure, error) = await agencyVerificationService
+                .VerifyAsFullyAccessed(3, new AgencyFullAccessVerificationRequest(ContractKind.OfflineOrCreditCardPayments, "Test reason", null, availableCurrencies));
 
             var agency = context.Agencies.Single(c => c.Id == 3);
             Assert.True(isFailure);
@@ -124,24 +128,25 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.AgencyVerificati
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             var (_, isFailure, _) = await agencyVerificationService
-                .VerifyAsFullyAccessed(14, new AgencyFullAccessVerificationRequest(default, "Test reason", null));
+                .VerifyAsFullyAccessed(14, new AgencyFullAccessVerificationRequest(default, "Test reason", null, null));
 
             Assert.True(isFailure);
         }
 
 
         [Theory]
-        [InlineData(ContractKind.OfflineOrCreditCardPayments)]
-        [InlineData(ContractKind.CreditCardPayments)]
-        public async Task Full_access_verification_must_set_contract_type(ContractKind contractKind)
+        [InlineData(ContractKind.OfflineOrCreditCardPayments, new Currencies[] { Currencies.USD })]
+        [InlineData(ContractKind.CreditCardPayments, new Currencies[] { })]
+        public async Task Full_access_verification_must_set_contract_type(ContractKind contractKind, Currencies[] availableCurrencies)
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var agencyVerificationService = _administratorServicesMockCreationHelper.GetAgencyVerificationService(context);
 
             await agencyVerificationService
-                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(contractKind, "Test reason", null));
+                .VerifyAsFullyAccessed(20, new AgencyFullAccessVerificationRequest(contractKind, "Test reason", null, availableCurrencies.ToList()));
 
-            Assert.Equal(contractKind, context.Agencies.Single(c => c.Id == 20).ContractKind);
+            var agency = context.Agencies.Single(c => c.Id == 20);
+            Assert.Equal(contractKind, agency.ContractKind);
         }
 
 

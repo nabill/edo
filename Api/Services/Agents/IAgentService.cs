@@ -5,12 +5,13 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentService
     {
-        Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration, string externalIdentity, string email);
+        Task<Result<Agent>> Add(UserDescriptionInfo agentRegistration, string externalIdentity, string email, Currencies preferredCurrency);
 
         Task<Result<Agent>> GetMasterAgent(int agencyId);
 

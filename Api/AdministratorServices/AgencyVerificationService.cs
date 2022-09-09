@@ -20,6 +20,9 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Money.Models;
 using HappyTravel.Edo.Api.Models.Management;
 using FluentValidation;
+using System.Collections.Generic;
+using HappyTravel.Money.Enums;
+using Api.AdministratorServices;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -27,10 +30,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public AgencyVerificationService(EdoContext context, IAccountManagementService accountManagementService,
             IManagementAuditService managementAuditService, INotificationService notificationService,
-            IDateTimeProvider dateTimeProvider, Services.Agents.IAgentService agentService)
+            IDateTimeProvider dateTimeProvider, Services.Agents.IAgentService agentService, ICompanyInfoService companyInfoService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
+            _companyInfoService = companyInfoService;
             _managementAuditService = managementAuditService;
             _notificationService = notificationService;
             _dateTimeProvider = dateTimeProvider;
@@ -47,20 +51,36 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     "Verification as fully accessed is only available for agencies that were verified as read-only earlier")
                 .Tap(c => SetVerificationState(c, AgencyVerificationStates.FullAccess, request.Reason))
                 .Tap(SetContractKind)
-                .Tap(SetAprModeAndPassedDeadlineOffersMode)
+                .Map(SetAgencySystemSettings)
+                .TapIf(request.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments, CreateAccountsIfNeeded)
                 .Tap(() => WriteVerificationToAuditLog(agencyId, request.Reason, AgencyVerificationStates.FullAccess));
 
 
             Task<Result> ValidateVerify(AgencyFullAccessVerificationRequest request)
-                => GenericValidator<AgencyFullAccessVerificationRequest>.ValidateAsync(v =>
+                => GenericValidator<AgencyFullAccessVerificationRequest>.ValidateAsync(async v =>
                     {
-                        v.RuleFor(r => r.CreditLimit)
-                            .NotEmpty()
-                            .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments);
+                        var availableCurrencies = new List<Currencies>();
+                        var (_, isFailure, companyInfo) = await _companyInfoService.Get();
+                        if (!isFailure)
+                            availableCurrencies = companyInfo.AvailableCurrencies;
 
                         v.RuleFor(r => r.CreditLimit)
+                            .NotEmpty()
+                            .When(r => r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments, ApplyConditionTo.CurrentValidator)
                             .Empty()
-                            .When(r => r.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments);
+                            .When(r => r.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments, ApplyConditionTo.CurrentValidator);
+
+                        v.RuleFor(r => r.AvailableCurrencies)
+                            .NotEmpty()
+                            .When(r => r.ContractKind == ContractKind.OfflineOrCreditCardPayments
+                                || r.ContractKind == ContractKind.VirtualAccountOrCreditCardPayments, ApplyConditionTo.CurrentValidator)
+                            .Empty()
+                            .When(r => r.ContractKind == ContractKind.CreditCardPayments, ApplyConditionTo.CurrentValidator);
+
+                        v.RuleFor(r => r.AvailableCurrencies)
+                            .Must(ac => !ac!.Except(availableCurrencies).Any())
+                            .WithMessage($"Request's availability currencies contain not allowed currencies! Allowed currencies: {String.Join(", ", availableCurrencies.ToArray())}")
+                            .When(r => r.AvailableCurrencies != default);
 
                         v.RuleFor(r => r.ContractKind)
                             .NotEmpty();
@@ -77,37 +97,59 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SetAprModeAndPassedDeadlineOffersMode(Agency agency)
+            async Task<(AgencySystemSettings, Agency)> SetAgencySystemSettings(Agency agency)
             {
-                if (request.ContractKind != ContractKind.VirtualAccountOrCreditCardPayments)
-                    return;
-
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(a => a.AgencyId == agencyId);
 
+                var defaultCurrency = Currencies.USD;
+                var (_, isInfoFailure, companyInfo) = await _companyInfoService.Get();
+                if (!isInfoFailure)
+                    defaultCurrency = companyInfo.DefaultCurrency;
+
                 if (Equals(settings, default))
                 {
-                    _context.Add(new AgencySystemSettings
+                    settings = new AgencySystemSettings
                     {
                         AccommodationBookingSettings = new AgencyAccommodationBookingSettings
                         {
-                            AprMode = AprMode.CardAndAccountPurchases,
-                            PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases
+                            AprMode = (agency.ContractKind is ContractKind.VirtualAccountOrCreditCardPayments)
+                                ? AprMode.CardAndAccountPurchases
+                                : AprMode.Hide,
+                            PassedDeadlineOffersMode = (agency.ContractKind is ContractKind.VirtualAccountOrCreditCardPayments)
+                                ? PassedDeadlineOffersMode.CardAndAccountPurchases
+                                : PassedDeadlineOffersMode.Hide,
+                            CustomDeadlineShift = 0,
+                            AvailableCurrencies = request.AvailableCurrencies ?? new List<Currencies> { defaultCurrency }
                         },
                         AgencyId = agencyId
-                    });
+                    };
+                    _context.Add(settings);
                 }
                 else
                 {
                     settings.AccommodationBookingSettings ??= new AgencyAccommodationBookingSettings();
-                    settings.AccommodationBookingSettings.AprMode = AprMode.CardAndAccountPurchases;
-                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = PassedDeadlineOffersMode.CardAndAccountPurchases;
+                    settings.AccommodationBookingSettings.AprMode = (agency.ContractKind is ContractKind.VirtualAccountOrCreditCardPayments)
+                                ? AprMode.CardAndAccountPurchases
+                                : AprMode.Hide;
+                    settings.AccommodationBookingSettings.PassedDeadlineOffersMode = (agency.ContractKind is ContractKind.VirtualAccountOrCreditCardPayments)
+                                ? PassedDeadlineOffersMode.CardAndAccountPurchases
+                                : PassedDeadlineOffersMode.Hide;
+                    settings.AccommodationBookingSettings.CustomDeadlineShift ??= 0;
+                    settings.AccommodationBookingSettings.AvailableCurrencies = request.AvailableCurrencies
+                        ?? new List<Currencies> { defaultCurrency };
 
                     _context.Update(settings);
                 }
 
                 await _context.SaveChangesAsync();
+                return (settings, agency);
             }
+
+
+            void CreateAccountsIfNeeded((AgencySystemSettings settings, Agency agency) result)
+                => result.settings.AccommodationBookingSettings!.AvailableCurrencies.ForEach(async currency
+                    => await _accountManagementService.CreateForAgency(result.agency, currency));
         }
 
 
@@ -220,6 +262,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
+        private readonly ICompanyInfoService _companyInfoService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly INotificationService _notificationService;
         private readonly IDateTimeProvider _dateTimeProvider;
