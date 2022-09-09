@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
 
         public AdminAgencyManagementService GetAgencyManagementService(EdoContext context)
-            => new(context, Mock.Of<IAccountManagementTransitionalService>(), Mock.Of<ICompanyInfoService>(), Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>());
+            => new(context, Mock.Of<IAccountManagementService>(), Mock.Of<ICompanyInfoService>(), Mock.Of<IDateTimeProvider>(), Mock.Of<IManagementAuditService>(), Mock.Of<IOptions<NakijinDbOptions>>());
 
 
         public AgencyVerificationService GetAgencyVerificationService(EdoContext context)

@@ -25,7 +25,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             ILogger<AccountManagementService> logger,
             IAdministratorContext administratorContext,
             IManagementAuditService managementAuditService,
-            IAdminAgencyManagementService adminAgencyManagementService,
             ICompanyInfoService companyInfoService,
             IEntityLocker locker)
         {
@@ -34,7 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             _logger = logger;
             _administratorContext = administratorContext;
             _managementAuditService = managementAuditService;
-            _adminAgencyManagementService = adminAgencyManagementService;
             _locker = locker;
             _companyInfoService = companyInfoService;
         }
@@ -50,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result> Validate()
             {
-                var (_, isFailure, verificationState, error) = await _adminAgencyManagementService.GetVerificationState(agency.Id);
+                var (_, isFailure, verificationState, error) = await GetVerificationState(agency.Id);
                 if (isFailure)
                     return Result.Failure(error);
 
@@ -87,6 +85,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
+            Task<Result<AgencyVerificationStates>> GetVerificationState(int agencyId)
+            => GetRootAgency(agencyId)
+                .Map(a => a.VerificationState);
+
+
             void LogSuccess(AgencyAccount account)
             {
                 _logger.LogAgencyAccountCreationSuccess(agency.Id, account.Id);
@@ -106,6 +109,32 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return account == null
                 ? Result.Failure<AgencyAccount>($"Cannot find account for agency '{agencyId}' and currency '{currency}'")
                 : Result.Success(account);
+        }
+
+
+        private Task<Result<Agency>> GetRootAgency(int agencyId)
+        {
+            return GetAgency(agencyId)
+                .Map(GetRootAgency);
+
+
+            Task<Agency> GetRootAgency(Agency currentAgency)
+            {
+                var rootAgencyId = currentAgency.Ancestors.Any()
+                    ? currentAgency.Ancestors.First()
+                    : currentAgency.Id;
+                return _context.Agencies.SingleAsync(ra => ra.Id == rootAgencyId);
+            }
+
+
+            async Task<Result<Agency>> GetAgency(int agencyId)
+            {
+                var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+                if (agency == null)
+                    return Result.Failure<Agency>("Could not find agency with specified id");
+
+                return Result.Success(agency);
+            }
         }
 
 
