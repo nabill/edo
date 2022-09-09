@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     public class AdminAgencyManagementService : IAdminAgencyManagementService
     {
         public AdminAgencyManagementService(EdoContext context,
-            IAccountManagementService accountManagementService,
+            IAccountManagementTransitionalService accountManagementService,
             ICompanyInfoService companyInfoService,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
@@ -500,7 +500,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
 
 
-        private readonly IAccountManagementService _accountManagementService;
+        private readonly IAccountManagementTransitionalService _accountManagementService;
         private readonly ICompanyInfoService _companyInfoService;
         private readonly IManagementAuditService _managementAuditService;
         private readonly IDateTimeProvider _dateTimeProvider;
